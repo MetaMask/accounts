@@ -1,0 +1,134 @@
+@startuml "ERC-4337 Account Support"
+autonumber
+skinparam fontname Arial
+
+title "ERC-4337 UserOperation Signing"
+
+participant Dapp
+participant MetaMask
+participant Snap
+
+Dapp -> MetaMask ++: ""{""\n\
+""  chainId, // Ignored by MetaMask""\n\
+""  from,""\n\
+""  to,""\n\
+""  value,""\n\
+""  data,""\n\
+}
+
+note over MetaMask
+    Currently, only one transaction
+    per UserOp will be supported
+end note
+
+MetaMask -> Snap ++: ""prepareUserOperation({""\n\
+""  account: account.id,""\n\
+""  scope: `eip155:${chainId}`,""\n\
+""  transactions: [ // List of transactions""\n\
+""    {""\n\
+""      to,""\n\
+""      value,""\n\
+""      data,""\n\
+""    },""\n\
+""  ]""\n\
+})
+
+Snap --> MetaMask --: ""{""\n\
+""  callData,""\n\
+""  initCode?,""\n\
+""  nonce,""\n\
+""  gasLimits?: {""\n\
+""    callGasLimit,""\n\
+""    verificationGasLimit,""\n\
+""    preVerificationGas,""\n\
+""  },""\n\
+""  dummySignature?,""\n\
+""  dummyPaymasterAndData?,""\n\
+""  bundler?,""\n\
+""}""
+
+MetaMask -> MetaMask: Check if the account is already deployed
+
+alt The account is already deployed
+  MetaMask -> MetaMask: Remove the ""initCode"" if set
+else The account is not deployed and the ""initCode"" isn't present
+  MetaMask -> Dapp: Throw an error (without the exact reason)
+end
+
+alt The ""gas"" isn't set
+  MetaMask -> MetaMask: Estimate and set gas values
+end
+
+MetaMask -> MetaMask: Estimate and set gas fees
+
+MetaMask -> Snap ++: ""patchUserOperation({""\n\
+""  sender,""\n\
+""  nonce,""\n\
+""  initCode,""\n\
+""  callData,""\n\
+""  callGasLimit,""\n\
+""  verificationGasLimit,""\n\
+""  preVerificationGas,""\n\
+""  maxFeePerGas,""\n\
+""  maxPriorityFeePerGas,""\n\
+""  paymasterAndData, // Dummy value or empty""\n\
+""  signature, // Dummy value or empty""\n\
+""})""
+
+Snap --> MetaMask --: ""{""\n\
+""  paymasterAndData?,""\n\
+""  callGasLimit?,""\n\
+""  verificationGasLimit?,""\n\
+""  preVerificationGas?,""\n\
+""}""
+
+MetaMask -> MetaMask: Update ""paymasterAndData"" and\n\
+remove the dummy signature
+
+alt Calldata has been changed
+MetaMask -> Snap ++: ""eth_decodeUserOperationCallData({""\n\
+""  callData,""\n\
+""})""
+Snap --> MetaMask --: ""{""\n\
+""  intents: [ // List of transactions""\n\
+""    {""\n\
+""      to,""\n\
+""      value,""\n\
+""      data,""\n\
+""    },""\n\
+""  ]""\n\
+})
+end
+
+
+MetaMask -> MetaMask: Display approval UI
+
+MetaMask -> Snap ++: ""signUserOperation([""\n\
+""  {""\n\
+""    sender,""\n\
+""    nonce,""\n\
+""    initCode,""\n\
+""    callData,""\n\
+""    callGasLimit,""\n\
+""    verificationGasLimit,""\n\
+""    preVerificationGas,""\n\
+""    maxFeePerGas,""\n\
+""    maxPriorityFeePerGas,""\n\
+""    paymasterAndData,""\n\
+""    signature, // Empty""\n\
+""  },""\n\
+""  entrypoint, // Entrypoint deployed by""\n\
+""              // the Ethereum Foundation""\n\
+""])""
+
+Snap --> MetaMask --: ""{""\n\
+""  signature,""\n\
+""}""
+
+MetaMask -> MetaMask: Update UserOp's ""signature""
+
+MetaMask -> MetaMask: Submit UserOp to bundler and\n\
+wait for transaction hash
+
+MetaMask --> Dapp --: ""txHash""
+@enduml
