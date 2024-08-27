@@ -1,0 +1,13 @@
+{
+  "ignores": [
+    "@lavamoat/allow-scripts",
+    "@ledgerhq/types-cryptoassets",
+    "@ledgerhq/types-devices",
+    "@metamask/auto-changelog",
+    "@types/*",
+    "prettier-plugin-packagejson",
+    "rimraf",
+    "ts-node",
+    "typedoc"
+  ]
+}
