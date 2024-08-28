@@ -83,7 +83,6 @@
   "peerDependencies": {
     "@metamask/providers": ">=15 <18"
   },
-  "packageManager": "yarn@3.2.1",
   "engines": {
     "node": "^18.18 || >=20"
   },
