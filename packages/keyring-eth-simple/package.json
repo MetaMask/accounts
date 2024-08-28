@@ -31,7 +31,9 @@
     "prepack": "./scripts/prepack.sh",
     "sample": "ts-node src/sample.ts",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:clean": "jest --clearCache",
+    "test:verbose": "jest --verbose"
   },
   "dependencies": {
     "@ethereumjs/util": "^8.1.0",

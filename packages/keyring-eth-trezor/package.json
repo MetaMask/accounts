@@ -34,7 +34,9 @@
     "lint:misc": "prettier '**/*.json' '**/*.md' '!CHANGELOG.md' '**/*.yml' '!.yarnrc.yml' --ignore-path .gitignore --no-error-on-unmatched-pattern",
     "prepack": "./scripts/prepack.sh",
     "test": "jest && jest-it-up",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:clean": "jest --clearCache",
+    "test:verbose": "jest --verbose"
   },
   "resolutions": {
     "@types/web": "0.0.69"
