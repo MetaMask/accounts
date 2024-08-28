@@ -2,3 +2,12 @@
 # Each line is a file pattern followed by one or more owners.
 
 *                                    @MetaMask/engineering
+
+/packages/keyring-api                @MetaMask/accounts-engineers
+
+/packages/keyring-snap               @MetaMask/accounts-engineers
+
+/packages/keyring-eth-hd             @MetaMask/accounts-engineers
+/packages/keyring-eth-ledger-bridge  @MetaMask/devs
+/packages/keyring-eth-simple         @MetaMask/accounts-engineers
+/packages/keyring-eth-trezor         @MetaMask/accounts-engineers
