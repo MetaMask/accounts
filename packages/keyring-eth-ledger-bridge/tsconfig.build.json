@@ -1,13 +1,11 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.packages.build.json",
   "compilerOptions": {
-    "declaration": true,
-    "inlineSources": true,
-    "noEmit": false,
     "outDir": "dist",
     "rootDir": "src",
-    "sourceMap": true
+    "exactOptionalPropertyTypes": false,
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/**/*.test.ts"]
 }
+
