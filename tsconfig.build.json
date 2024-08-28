@@ -1,23 +1,11 @@
 {
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "inlineSources": true,
-    "noEmit": false,
-    "outDir": "dist/types",
-    "rootDir": "src",
-    "sourceMap": true
-  },
-  "include": ["./src/**/*.ts"],
-  "exclude": [
-    "./src/**/__fixtures__/**/*",
-    "./src/**/__mocks__/**/*",
-    "./src/**/__test__/**/*",
-    "./src/**/__tests__/**/*",
-    "./src/**/__snapshots__/**/*",
-    "./src/**/*.test.ts",
-    "./src/**/*.test.*.ts"
-  ]
+  "references": [
+    { "path": "./packages/keyring-api/tsconfig.build.json" },
+    { "path": "./packages/keyring-eth-ledger-bridge/tsconfig.build.json" },
+    { "path": "./packages/keyring-eth-simple/tsconfig.build.json" },
+    { "path": "./packages/keyring-eth-trezor/tsconfig.build.json" },
+    { "path": "./packages/keyring-snap/tsconfig.build.json" }
+  ],
+  "files": [],
+  "include": []
 }

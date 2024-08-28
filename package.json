@@ -32,6 +32,11 @@
     "test:scripts": "yarn jest --config ./jest.config.scripts.js --silent",
     "test:verbose": "yarn workspaces foreach --all --parallel --verbose run test:verbose"
   },
+  "resolutions": {
+    "@types/web": "0.0.69",
+    "@types/node": "^20.12.12",
+    "@typescript/lib-dom": "npm:@types/web@0.0.69"
+  },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^2.3.1",
     "@lavamoat/preinstall-always-fail": "^1.0.0",

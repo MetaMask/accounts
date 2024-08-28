@@ -1,17 +1,8 @@
 {
+  "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "esModuleInterop": true,
-    "exactOptionalPropertyTypes": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2020", "DOM"],
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "noEmit": true,
-    "noErrorTruncation": true,
-    "noUncheckedIndexedAccess": true,
-    "strict": true,
-    "target": "es2020",
-    "skipLibCheck": true
+    "baseUrl": "./"
   },
+  "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }

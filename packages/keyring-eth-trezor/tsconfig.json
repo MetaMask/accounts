@@ -1,18 +1,13 @@
 {
+  "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "esModuleInterop": true,
+    "baseUrl": "./",
     "exactOptionalPropertyTypes": false,
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2020"],
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "noEmit": true,
-    "noErrorTruncation": true,
-    "noUncheckedIndexedAccess": true,
-    "strict": true,
-    "target": "es2017",
     // circumvent missing types in @trezor/connect-web, please see https://github.com/trezor/trezor-suite/issues/10389
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "lib": ["ES2020"],
+    "target": "es2017"
   },
+  "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }

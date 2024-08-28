@@ -1,12 +1,10 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.packages.build.json",
   "compilerOptions": {
-    "declaration": true,
-    "inlineSources": true,
-    "noEmit": false,
+    "baseUrl": "./",
     "outDir": "dist",
     "rootDir": "src",
-    "sourceMap": true
+    "target": "es2020"
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/**/*.test.ts", "./src/sample.ts"]

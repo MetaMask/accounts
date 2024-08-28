@@ -1,16 +1,12 @@
 {
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "exactOptionalPropertyTypes": true,
-    "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2020"],
-    "module": "CommonJS",
-    "moduleResolution": "node",
-    "noEmit": true,
-    "noErrorTruncation": true,
-    "noUncheckedIndexedAccess": true,
-    "strict": true,
-    "target": "es2020"
-  },
-  "exclude": ["./dist/**/*"]
+  "compilerOptions": { "esModuleInterop": true, "noEmit": true },
+  "references": [
+    { "path": "./packages/keyring-api" },
+    { "path": "./packages/keyring-eth-ledger-bridge" },
+    { "path": "./packages/keyring-eth-simple" },
+    { "path": "./packages/keyring-eth-trezor" },
+    { "path": "./packages/keyring-snap" }
+  ],
+  "files": [],
+  "include": []
 }

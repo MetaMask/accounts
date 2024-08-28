@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "noErrorTruncation": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+    "skipLibCheck": false,
+    // NOTE: DOM is being used with "@types/web" package, if you declare it there, the compiler
+    // might complain about conflicting types. So everything has been setup to use "@types/web"
+    // explicitly (even in the package.json, see the "resolutions").
+    "lib": ["ES2020"],
+    "target": "es2020",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    /**
+     * Here we ensure that TypeScript resolves `@metamask/*` imports to the
+     * uncompiled source code for packages that live in this repo.
+     *
+     * NOTE: This must be synchronized with the `moduleNameMapper` option in
+     * `jest.config.packages.js`.
+     */
+    "paths": {
+      "@metamask/*": ["../*/src"]
+    }
+  }
+}
