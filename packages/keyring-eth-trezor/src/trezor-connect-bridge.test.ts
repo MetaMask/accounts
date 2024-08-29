@@ -1,3 +1,12 @@
+/**
+ * Ths test file was initially using "jsdom" test environment from jest, but newer version
+ * of jest have changed the default test environment to "node".
+ *
+ * This allow to override the test environment only for this file:
+ *
+ * @jest-environment jsdom
+ */
+
 import TrezorConnect, { DEVICE, DEVICE_EVENT } from '@trezor/connect-web';
 
 import { TrezorConnectBridge } from './trezor-connect-bridge';
