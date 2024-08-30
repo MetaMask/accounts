@@ -32,8 +32,8 @@
     "test:verbose": "yarn workspaces foreach --all --parallel --verbose run test:verbose"
   },
   "resolutions": {
-    "@types/web": "0.0.69",
     "@types/node": "^20.12.12",
+    "@types/web": "0.0.69",
     "@typescript/lib-dom": "npm:@types/web@0.0.69",
     "jest-environment-jsdom": "link:./packages"
   },
