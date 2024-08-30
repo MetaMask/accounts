@@ -294,7 +294,7 @@ class HdKeyring {
       );
     }
 
-    // eslint-disable-next-line node/no-sync
+    // eslint-disable-next-line n/no-sync
     const seed = bip39.mnemonicToSeedSync(this.mnemonic, wordlist);
     this.hdWallet = HDKey.fromMasterSeed(seed);
     this.root = this.hdWallet.derive(this.hdPath);
