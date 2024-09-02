@@ -71,6 +71,9 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "lavamoat": {
     "allowScripts": {
       "keccak": false,
