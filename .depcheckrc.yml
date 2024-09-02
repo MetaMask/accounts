@@ -1,0 +1,22 @@
+---
+ignore-patterns:
+  - '.yarn'
+ignores:
+  # Ignore dependencies imported implicitly by TypeScript
+  - '@types/*'
+  # Ignore tools (packages which we use as executables and not libraries)
+  - 'rimraf'
+  - '@lavamoat/allow-scripts'
+  - '@metamask/auto-changelog'
+  - 'ts-node'
+  - 'ts-jest'
+  - 'typedoc'
+  # Ignore plugins implicitly imported by tools
+  - 'jest-it-up'
+  - 'jest-silent-reporter'
+  - 'prettier-plugin-packagejson'
+  # Ignore dependencies which plug into the NPM lifecycle
+  - '@lavamoat/preinstall-always-fail'
+  # @metamask/eth-ledger-bridge-keyring
+  - '@ledgerhq/types-cryptoassets'
+  - '@ledgerhq/types-devices'
