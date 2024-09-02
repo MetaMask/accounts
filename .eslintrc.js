@@ -22,6 +22,12 @@ module.exports = {
       extends: ['@metamask/eslint-config-jest'],
     },
     {
+      files: ['tests/setup.ts'],
+      rules: {
+        'import/unambiguous': 'off',
+      },
+    },
+    {
       files: ['packages/*/jest.config.js'],
       rules: {
         'import/unambiguous': 'off',

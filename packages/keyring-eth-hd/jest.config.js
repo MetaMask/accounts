@@ -1,6 +1,26 @@
-module.exports = {
-  collectCoverage: true,
-  coverageReporters: ['text', 'html'],
+/*
+ * For a detailed explanation regarding each configuration property and type check, visit:
+ * https://jestjs.io/docs/configuration
+ */
+
+const merge = require('deepmerge');
+const path = require('path');
+
+const baseConfig = require('../../jest.config.packages');
+
+const displayName = path.basename(__dirname);
+
+module.exports = merge(baseConfig, {
+  // The display name when running multiple projects
+  displayName,
+
+  // An array of regexp pattern strings used to skip coverage collection
+  coveragePathIgnorePatterns: ['./test'],
+
+  // The glob patterns Jest uses to detect test files
+  testMatch: ['**/test/**/*.[jt]s?(x)'],
+
+  // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
     global: {
       branches: 84,
@@ -9,15 +29,4 @@ module.exports = {
       statements: 95,
     },
   },
-  moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx', 'node'],
-  // "resetMocks" resets all mocks, including mocked modules, to jest.fn(),
-  // between each test case.
-  resetMocks: true,
-  // "restoreMocks" restores all mocks created using jest.spyOn to their
-  // original implementations, between each test. It does not affect mocked
-  // modules.
-  restoreMocks: true,
-  testEnvironment: 'node',
-  testMatch: ['**/test/**/*.js'],
-  testTimeout: 2500,
-};
+});

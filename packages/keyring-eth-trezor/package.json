@@ -39,6 +39,7 @@
     "@metamask/eth-sig-util": "^7.0.1",
     "@trezor/connect-plugin-ethereum": "^9.0.3",
     "@trezor/connect-web": "^9.1.11",
+    "deepmerge": "^4.2.2",
     "hdkey": "^2.1.0",
     "jest-environment-jsdom": "^29.7.0"
   },
