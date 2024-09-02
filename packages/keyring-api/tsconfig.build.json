@@ -6,7 +6,10 @@
     "rootDir": "src",
     // FIXME: We should investigate how to get rid of this flag, as this will turn off type
     // checking for all *.d.ts files
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    // FIXME: We need to also build .js files, since keyring-snap uses some internal files
+    // for its tests
+    "emitDeclarationOnly": false
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/**/*.test.ts", "./src/**/*.test-d.ts"]
