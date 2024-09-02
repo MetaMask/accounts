@@ -20,7 +20,7 @@
     "dist/"
   ],
   "scripts": {
-    "build": "tsc --project tsconfig.build.json",
+    "build": "tsc --build tsconfig.build.json",
     "build:clean": "rimraf dist && yarn build",
     "build:docs": "typedoc",
     "prepack": "./scripts/prepack.sh",
