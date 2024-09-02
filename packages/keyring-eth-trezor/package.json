@@ -27,6 +27,7 @@
     "build": "tsc --build tsconfig.build.json",
     "build:clean": "rimraf dist && yarn build",
     "build:docs": "typedoc",
+    "build:force": "tsc --build tsconfig.build.json --force",
     "prepack": "./scripts/prepack.sh",
     "test": "jest && jest-it-up",
     "test:clean": "jest --clearCache",
