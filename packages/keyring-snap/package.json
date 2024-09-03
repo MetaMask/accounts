@@ -16,6 +16,8 @@
     "build:clean": "rimraf dist && yarn build",
     "build:docs": "typedoc",
     "build:force": "tsc --build tsconfig.build.json --force",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-snap-keyring",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-snap-keyring",
     "prepack": "./scripts/prepack.sh",
     "test": "jest && jest-it-up",
     "test:clean": "jest --clearCache",
