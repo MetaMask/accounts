@@ -12,7 +12,7 @@
     "dist/"
   ],
   "scripts": {
-    "build": "yarn workspace @metamask/keyring-api build:force && tsc --build tsconfig.build.json",
+    "build": "yarn workspace $(jq -r '.name' ../keyring-api/package.json) build:force && tsc --build tsconfig.build.json",
     "build:clean": "rimraf dist && yarn build",
     "build:docs": "typedoc",
     "build:force": "tsc --build tsconfig.build.json --force",
