@@ -16,6 +16,14 @@ module.exports = {
     '**/coverage',
   ],
   overrides: [
+    // Scripts
+    {
+      files: ['scripts/*.ts'],
+      rules: {
+        // All scripts will have shebangs.
+        'n/shebang': 'off',
+      },
+    },
     // Tests
     {
       files: ['*.test.{ts,js}', '**/tests/**/*.{ts,js}'],
