@@ -98,14 +98,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/eth-trezor-keyring/compare/v3.1.0...HEAD
-[3.1.0]: https://github.com/MetaMask/eth-trezor-keyring/compare/v3.0.0...v3.1.0
-[3.0.0]: https://github.com/MetaMask/eth-trezor-keyring/compare/v2.0.0...v3.0.0
-[2.0.0]: https://github.com/MetaMask/eth-trezor-keyring/compare/v1.1.0...v2.0.0
-[1.1.0]: https://github.com/MetaMask/eth-trezor-keyring/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/MetaMask/eth-trezor-keyring/compare/v0.10.0...v1.0.0
-[0.10.0]: https://github.com/MetaMask/eth-trezor-keyring/compare/v0.9.1...v0.10.0
-[0.9.1]: https://github.com/MetaMask/eth-trezor-keyring/compare/v0.9.0...v0.9.1
-[0.9.0]: https://github.com/MetaMask/eth-trezor-keyring/compare/v0.8.0...v0.9.0
-[0.8.0]: https://github.com/MetaMask/eth-trezor-keyring/compare/v0.7.0...v0.8.0
-[0.7.0]: https://github.com/MetaMask/eth-trezor-keyring/releases/tag/v0.7.0
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.0...HEAD
+[3.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.0.0...@metamask/eth-trezor-keyring@3.1.0
+[3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@2.0.0...@metamask/eth-trezor-keyring@3.0.0
+[2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@1.1.0...@metamask/eth-trezor-keyring@2.0.0
+[1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@1.0.0...@metamask/eth-trezor-keyring@1.1.0
+[1.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@0.10.0...@metamask/eth-trezor-keyring@1.0.0
+[0.10.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@0.9.1...@metamask/eth-trezor-keyring@0.10.0
+[0.9.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@0.9.0...@metamask/eth-trezor-keyring@0.9.1
+[0.9.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@0.8.0...@metamask/eth-trezor-keyring@0.9.0
+[0.8.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@0.7.0...@metamask/eth-trezor-keyring@0.8.0
+[0.7.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-trezor-keyring@0.7.0
