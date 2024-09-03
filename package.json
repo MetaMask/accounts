@@ -29,6 +29,7 @@
     "prepack": "./scripts/prepack.sh",
     "prepare:preview": "./scripts/prepare-preview-builds.sh",
     "prepare:preview:local": "yarn prepare:preview @metamask-previews $(git rev-parse --short HEAD)",
+    "publish:preview": "yarn workspaces foreach --all --no-private --parallel --verbose run publish:preview",
     "readme:update": "ts-node scripts/update-readme-content.ts",
     "setup": "yarn install",
     "test": "yarn test:packages",

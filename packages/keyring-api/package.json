@@ -28,6 +28,7 @@
     "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-api",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-api",
     "prepack": "./scripts/prepack.sh",
+    "publish:preview": "yarn npm publish --tag preview",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",
     "test:source": "jest && jest-it-up",
