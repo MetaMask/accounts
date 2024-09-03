@@ -12,13 +12,14 @@
     "dist/"
   ],
   "scripts": {
-    "build": "yarn workspace @metamask/keyring-api build:force && tsc --build tsconfig.build.json",
+    "build": "yarn workspace $(jq -r '.name' ../keyring-api/package.json) build:force && tsc --build tsconfig.build.json",
     "build:clean": "rimraf dist && yarn build",
     "build:docs": "typedoc",
     "build:force": "tsc --build tsconfig.build.json --force",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-snap-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-snap-keyring",
     "prepack": "./scripts/prepack.sh",
+    "publish:preview": "yarn npm publish --tag preview",
     "test": "jest && jest-it-up",
     "test:clean": "jest --clearCache",
     "test:verbose": "jest --verbose",
