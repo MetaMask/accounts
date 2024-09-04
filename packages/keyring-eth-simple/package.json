@@ -26,7 +26,6 @@
     "build:force": "tsc --build tsconfig.build.json --force",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-simple-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-simple-keyring",
-    "prepack": "./scripts/prepack.sh",
     "publish:preview": "yarn npm publish --tag preview",
     "sample": "ts-node src/sample.ts",
     "test": "jest",

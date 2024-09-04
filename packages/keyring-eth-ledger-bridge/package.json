@@ -30,7 +30,6 @@
     "build:force": "tsc --build tsconfig.build.json --force",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-ledger-bridge-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-ledger-bridge-keyring",
-    "prepack": "./scripts/prepack.sh",
     "publish:preview": "yarn npm publish --tag preview",
     "test": "jest && jest-it-up",
     "test:clean": "jest --clearCache",
