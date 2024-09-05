@@ -41,6 +41,13 @@ Preview builds have been published. [See these instructions (from the \`core\` m
 ${JSON.stringify(packageMap, null, 2)}
 \`\`\`
 
+You can also use this helper script to automatically setup \`"resolutions"\` into your project. You
+will need to create a file (\`previews.json\` here) and copy the JSON content from above.
+
+\`\`\`console
+$ ./scripts/use-preview-builds.ts <project-path> previews.json
+\`\`\`
+
 </details>
 `;
 
