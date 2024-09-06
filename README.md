@@ -14,6 +14,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/eth-snap-keyring`](packages/keyring-snap)
 - [`@metamask/eth-trezor-keyring`](packages/keyring-eth-trezor)
 - [`@metamask/keyring-api`](packages/keyring-api)
+- [`@metamask/keyring-utils`](packages/keyring-utils)
 
 <!-- end package list -->
 
@@ -31,6 +32,8 @@ linkStyle default opacity:0.5
   eth_simple_keyring(["@metamask/eth-simple-keyring"]);
   eth_trezor_keyring(["@metamask/eth-trezor-keyring"]);
   eth_snap_keyring(["@metamask/eth-snap-keyring"]);
+  keyring_utils(["@metamask/keyring-utils"]);
+  keyring_api --> keyring_utils;
   eth_snap_keyring --> keyring_api;
 ```
 
