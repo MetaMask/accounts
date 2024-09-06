@@ -4,7 +4,7 @@ import { boolean, string, number } from '@metamask/superstruct';
 import { BtcAccountType, EthAccountType, KeyringAccountStruct } from '../api';
 import { BtcP2wpkhAccountStruct } from '../btc/types';
 import { EthEoaAccountStruct, EthErc4337AccountStruct } from '../eth/types';
-import { exactOptional, object } from '../superstruct';
+import { exactOptional, object } from '@metamask/keyring-utils';
 
 export type InternalAccountType = EthAccountType | BtcAccountType;
 

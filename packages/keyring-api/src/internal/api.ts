@@ -17,8 +17,7 @@ import {
   KeyringRequestStruct,
   KeyringResponseStruct,
 } from '../api';
-import { object } from '../superstruct';
-import { UuidStruct } from '../utils';
+import { object, UuidStruct } from '@metamask/keyring-utils';
 import { KeyringRpcMethod } from './rpc';
 
 const CommonHeader = {
