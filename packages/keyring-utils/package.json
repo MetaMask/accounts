@@ -1,0 +1,76 @@
+{
+  "name": "@metamask/keyring-utils",
+  "version": "0.0.1",
+  "description": "MetaMask Keyring utils",
+  "keywords": [
+    "metamask",
+    "keyring"
+  ],
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-utils#readme",
+  "bugs": {
+    "url": "https://github.com/MetaMask/accounts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/accounts.git"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "build:clean": "rimraf dist && yarn build",
+    "build:docs": "typedoc",
+    "build:force": "tsc --build tsconfig.build.json --force",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-utils",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-utils",
+    "publish:preview": "yarn npm publish --tag preview",
+    "test": "yarn test:source && yarn test:types",
+    "test:clean": "jest --clearCache",
+    "test:source": "jest && jest-it-up",
+    "test:types": "tsd",
+    "test:verbose": "jest --verbose",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@metamask/superstruct": "^3.1.0",
+    "@metamask/utils": "^9.1.0",
+    "@types/uuid": "^9.0.8",
+    "deepmerge": "^4.2.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@lavamoat/allow-scripts": "^3.0.4",
+    "@lavamoat/preinstall-always-fail": "^2.0.0",
+    "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/providers": "^17.1.1",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.12",
+    "depcheck": "^1.4.7",
+    "jest": "^28.1.3",
+    "jest-it-up": "^3.1.0",
+    "rimraf": "^5.0.7",
+    "ts-jest": "^28.0.8",
+    "ts-node": "^10.9.2",
+    "tsd": "^0.31.0",
+    "typedoc": "^0.25.13",
+    "typescript": "~4.8.4"
+  },
+  "engines": {
+    "node": "^18.18 || >=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "@lavamoat/preinstall-always-fail": false
+    }
+  },
+  "tsd": {
+    "directory": "src"
+  }
+}
