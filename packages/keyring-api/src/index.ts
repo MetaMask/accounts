@@ -8,4 +8,3 @@ export * from './KeyringClient';
 export * from './KeyringSnapRpcClient';
 export * from './rpc-handler';
 export * from './snap-utils';
-export * from './superstruct';

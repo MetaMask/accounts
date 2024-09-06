@@ -5,7 +5,8 @@
     { "path": "./packages/keyring-eth-ledger-bridge" },
     { "path": "./packages/keyring-eth-simple" },
     { "path": "./packages/keyring-eth-trezor" },
-    { "path": "./packages/keyring-snap" }
+    { "path": "./packages/keyring-snap" },
+    { "path": "./packages/keyring-utils" }
   ],
   "files": [],
   "include": []

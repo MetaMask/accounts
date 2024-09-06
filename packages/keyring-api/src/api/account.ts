@@ -2,8 +2,7 @@ import type { Infer } from '@metamask/superstruct';
 import { array, enums, record, string } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
-import { object } from '../superstruct';
-import { UuidStruct } from '../utils';
+import { object, UuidStruct } from '@metamask/keyring-utils';
 
 /**
  * Supported Ethereum account types.

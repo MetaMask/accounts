@@ -3,8 +3,7 @@ import { JsonStruct } from '@metamask/utils';
 
 import { KeyringAccountStruct } from '../api';
 import { KeyringEvent } from '../events';
-import { exactOptional, object } from '../superstruct';
-import { UuidStruct } from '../utils';
+import { exactOptional, object, UuidStruct } from '@metamask/keyring-utils';
 
 export const AccountCreatedEventStruct = object({
   method: literal(`${KeyringEvent.AccountCreated}`),

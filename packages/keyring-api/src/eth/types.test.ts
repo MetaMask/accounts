@@ -1,4 +1,4 @@
-import { UrlStruct } from '../utils';
+import { UrlStruct } from '@metamask/keyring-utils';
 
 describe('types', () => {
   it('is a valid BundlerUrl', () => {

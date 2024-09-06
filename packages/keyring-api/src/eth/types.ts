@@ -2,7 +2,7 @@ import type { Infer } from '@metamask/superstruct';
 import { array, enums, literal } from '@metamask/superstruct';
 
 import { EthAccountType, KeyringAccountStruct } from '../api';
-import { object, definePattern } from '../superstruct';
+import { object, definePattern } from '@metamask/keyring-utils';
 
 export const EthBytesStruct = definePattern('EthBytes', /^0x[0-9a-f]*$/iu);
 
