@@ -3,7 +3,7 @@ import { string, array, enums, refine, literal } from '@metamask/superstruct';
 import { bech32 } from 'bech32';
 
 import { KeyringAccountStruct, BtcAccountType } from '../api';
-import { object } from '../superstruct';
+import { object } from '@metamask/keyring-utils';
 
 export const BtcP2wpkhAddressStruct = refine(
   string(),

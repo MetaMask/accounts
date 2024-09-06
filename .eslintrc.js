@@ -66,6 +66,16 @@ module.exports = {
         '@typescript-eslint/naming-convention': 'warn',
       },
     },
+    // @metamask/keyring-utils
+    {
+      files: ['packages/keyring-utils/src/**/*.ts'],
+      extends: ['@metamask/eslint-config-typescript'],
+      parserOptions,
+      rules: {
+        // TODO: re-lint everything once the migration is done
+        '@typescript-eslint/no-explicit-any': 'off',
+      },
+    },
     // @metamask/keyring-api
     {
       files: ['packages/keyring-api/src/**/*.ts'],

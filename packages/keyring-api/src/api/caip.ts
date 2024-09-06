@@ -1,6 +1,5 @@
+import { definePattern } from '@metamask/keyring-utils';
 import { is, type Infer } from '@metamask/superstruct';
-
-import { definePattern } from '../superstruct';
 
 const CAIP_ASSET_TYPE_REGEX =
   /^(?<chainId>(?<namespace>[-a-z0-9]{3,8}):(?<reference>[-_a-zA-Z0-9]{1,32}))\/(?<assetNamespace>[-a-z0-9]{3,8}):(?<assetReference>[-.%a-zA-Z0-9]{1,128})$/u;

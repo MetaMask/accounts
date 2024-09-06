@@ -10,7 +10,7 @@ import {
 import { BtcP2wpkhAccountStruct } from '../btc/types';
 import { EthEoaAccountStruct, EthErc4337AccountStruct } from '../eth/types';
 import { SolDataAccountStruct } from '../sol/types';
-import { exactOptional, object } from '../superstruct';
+import { exactOptional, object } from '@metamask/keyring-utils';
 
 export type InternalAccountType =
   | EthAccountType

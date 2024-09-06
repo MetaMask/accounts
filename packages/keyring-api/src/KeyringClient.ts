@@ -28,7 +28,7 @@ import {
 } from './internal/api';
 import { KeyringRpcMethod } from './internal/rpc';
 import type { JsonRpcRequest } from './JsonRpcRequest';
-import { strictMask } from './superstruct';
+import { strictMask } from '@metamask/keyring-utils';
 
 export type Sender = {
   send(request: JsonRpcRequest): Promise<Json>;
