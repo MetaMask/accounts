@@ -1,8 +1,7 @@
+import { KeyringAccountStruct, SolAccountType } from '@metamask/keyring-api';
+import { object, definePattern } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, enums, literal } from '@metamask/superstruct';
-
-import { KeyringAccountStruct, SolAccountType } from '../api';
-import { object, definePattern } from '@metamask/keyring-utils';
 
 /**
  * Solana addresses are represented in the format of a 256-bit ed25519 public key and

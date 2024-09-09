@@ -1,3 +1,4 @@
+import { EthAccountType } from '@metamask/keyring-api';
 import { is } from '@metamask/superstruct';
 
 import {
@@ -6,9 +7,8 @@ import {
   AccountUpdatedEventStruct,
   RequestApprovedEventStruct,
   RequestRejectedEventStruct,
+  KeyringEvent,
 } from './events';
-import { EthAccountType } from '../api';
-import { KeyringEvent } from '../events';
 
 describe('events', () => {
   describe('AccountCreatedEventStruct', () => {

@@ -1,6 +1,6 @@
+import { exactOptional, object, UrlStruct } from '@metamask/keyring-utils';
 import { type Infer } from '@metamask/superstruct';
 
-import { exactOptional, object, UrlStruct } from '@metamask/keyring-utils';
 import { EthAddressStruct, EthBytesStruct, EthUint256Struct } from '../types';
 
 /**

@@ -1,16 +1,16 @@
-import type { Infer, Struct } from '@metamask/superstruct';
-import { boolean, string, number } from '@metamask/superstruct';
-
 import {
   BtcAccountType,
   EthAccountType,
   KeyringAccountStruct,
   SolAccountType,
-} from '../api';
+} from '@metamask/keyring-api';
+import { exactOptional, object } from '@metamask/keyring-utils';
+import type { Infer, Struct } from '@metamask/superstruct';
+import { boolean, string, number } from '@metamask/superstruct';
+
 import { BtcP2wpkhAccountStruct } from '../btc/types';
 import { EthEoaAccountStruct, EthErc4337AccountStruct } from '../eth/types';
 import { SolDataAccountStruct } from '../sol/types';
-import { exactOptional, object } from '@metamask/keyring-utils';
 
 export type InternalAccountType =
   | EthAccountType

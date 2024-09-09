@@ -1,3 +1,12 @@
+import {
+  BalanceStruct,
+  CaipAssetTypeStruct,
+  KeyringAccountDataStruct,
+  KeyringAccountStruct,
+  KeyringRequestStruct,
+  KeyringResponseStruct,
+} from '@metamask/keyring-api';
+import { object, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   array,
@@ -9,15 +18,6 @@ import {
 } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
-import {
-  BalanceStruct,
-  CaipAssetTypeStruct,
-  KeyringAccountDataStruct,
-  KeyringAccountStruct,
-  KeyringRequestStruct,
-  KeyringResponseStruct,
-} from '../api';
-import { object, UuidStruct } from '@metamask/keyring-utils';
 import { KeyringRpcMethod } from './rpc';
 
 const CommonHeader = {

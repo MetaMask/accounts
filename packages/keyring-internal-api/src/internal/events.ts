@@ -1,9 +1,21 @@
+import { KeyringAccountStruct } from '@metamask/keyring-api';
+import { exactOptional, object, UuidStruct } from '@metamask/keyring-utils';
 import { boolean, literal, string } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
-import { KeyringAccountStruct } from '../api';
-import { KeyringEvent } from '../events';
-import { exactOptional, object, UuidStruct } from '@metamask/keyring-utils';
+/**
+ * Supported keyring events.
+ */
+export enum KeyringEvent {
+  // Account events
+  AccountCreated = 'notify:accountCreated',
+  AccountUpdated = 'notify:accountUpdated',
+  AccountDeleted = 'notify:accountDeleted',
+
+  // Request events
+  RequestApproved = 'notify:requestApproved',
+  RequestRejected = 'notify:requestRejected',
+}
 
 export const AccountCreatedEventStruct = object({
   method: literal(`${KeyringEvent.AccountCreated}`),
