@@ -1,19 +1,20 @@
 import { TransactionFactory } from '@ethereumjs/tx';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
-  EthBaseUserOperation,
-  EthUserOperation,
-  EthUserOperationPatch,
   KeyringAccount,
   KeyringExecutionContext,
 } from '@metamask/keyring-api';
+import { BtcAccountType, EthAccountType } from '@metamask/keyring-api';
+import type {
+  EthBaseUserOperation,
+  EthUserOperation,
+  EthUserOperationPatch,
+} from '@metamask/keyring-internal-api';
 import {
-  BtcAccountType,
   BtcMethod,
-  EthAccountType,
   EthMethod,
-} from '@metamask/keyring-api';
-import { KeyringEvent } from '@metamask/keyring-api/dist/events';
+  KeyringEvent,
+} from '@metamask/keyring-internal-api';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';

@@ -1,4 +1,5 @@
-import { BtcAccountType, EthAccountType } from '../api';
+import { BtcAccountType, EthAccountType } from '@metamask/keyring-api';
+
 import { isEvmAccountType } from './utils';
 
 describe('isEvmAccountType', () => {

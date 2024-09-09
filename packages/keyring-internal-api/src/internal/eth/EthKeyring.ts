@@ -1,6 +1,6 @@
+import type { KeyringExecutionContext } from '@metamask/keyring-api';
 import type { Json, Keyring } from '@metamask/utils';
 
-import type { KeyringExecutionContext } from '../../contexts';
 import type {
   EthBaseTransaction,
   EthBaseUserOperation,
