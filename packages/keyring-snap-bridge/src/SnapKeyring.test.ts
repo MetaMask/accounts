@@ -4,7 +4,11 @@ import type {
   KeyringAccount,
   KeyringExecutionContext,
 } from '@metamask/keyring-api';
-import { BtcAccountType, EthAccountType, SolAccountType } from '@metamask/keyring-api';
+import {
+  BtcAccountType,
+  EthAccountType,
+  SolAccountType,
+} from '@metamask/keyring-api';
 import type {
   EthBaseUserOperation,
   EthUserOperation,

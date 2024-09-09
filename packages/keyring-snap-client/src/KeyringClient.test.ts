@@ -1,10 +1,11 @@
-import {
-  type KeyringAccount,
-  type KeyringRequest,
-  type KeyringResponse,
-  KeyringClient,
-  KeyringRpcMethod,
-} from '.'; // Import from `index.ts` to test the public API
+import type {
+  KeyringAccount,
+  KeyringRequest,
+  KeyringResponse,
+} from '@metamask/keyring-api';
+import { KeyringRpcMethod } from '@metamask/keyring-internal-api';
+
+import { KeyringClient } from '.'; // Import from `index.ts` to test the public API
 
 describe('KeyringClient', () => {
   const mockSender = {
