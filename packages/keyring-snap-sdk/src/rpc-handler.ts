@@ -1,7 +1,4 @@
-import { assert } from '@metamask/superstruct';
-import type { Json } from '@metamask/utils';
-
-import type { Keyring } from './api';
+import type { Keyring } from '@metamask/keyring-api';
 import {
   GetAccountRequestStruct,
   CreateAccountRequestStruct,
@@ -16,8 +13,11 @@ import {
   ListAccountsRequestStruct,
   ListRequestsRequestStruct,
   GetAccountBalancesRequestStruct,
-} from './internal/api';
-import { KeyringRpcMethod } from './internal/rpc';
+  KeyringRpcMethod,
+} from '@metamask/keyring-internal-api';
+import { assert } from '@metamask/superstruct';
+import type { Json } from '@metamask/utils';
+
 import type { JsonRpcRequest } from './JsonRpcRequest';
 import { JsonRpcRequestStruct } from './JsonRpcRequest';
 
