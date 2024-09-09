@@ -10,7 +10,12 @@
     "lib": ["ES2020"],
     "target": "es2020"
   },
-  "references": [{ "path": "../keyring-api/tsconfig.build.json" }],
+  "references": [
+    { "path": "../keyring-api/tsconfig.build.json" },
+    { "path": "../keyring-snap-sdk/tsconfig.build.json" },
+    { "path": "../keyring-snap-client/tsconfig.build.json" },
+    { "path": "../keyring-internal-api/tsconfig.build.json" }
+  ],
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/**/*.test.ts"]
 }

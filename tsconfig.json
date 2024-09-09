@@ -7,6 +7,7 @@
     { "path": "./packages/keyring-eth-simple" },
     { "path": "./packages/keyring-eth-trezor" },
     { "path": "./packages/keyring-snap" },
+    { "path": "./packages/keyring-snap-client" },
     { "path": "./packages/keyring-snap-sdk" },
     { "path": "./packages/keyring-utils" }
   ],

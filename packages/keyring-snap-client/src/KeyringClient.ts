@@ -1,7 +1,3 @@
-import { assert } from '@metamask/superstruct';
-import type { Json } from '@metamask/utils';
-import { v4 as uuid } from 'uuid';
-
 import type {
   Keyring,
   KeyringAccount,
@@ -10,7 +6,7 @@ import type {
   KeyringResponse,
   CaipAssetType,
   Balance,
-} from './api';
+} from '@metamask/keyring-api';
 import {
   ApproveRequestResponseStruct,
   CreateAccountResponseStruct,
@@ -25,10 +21,13 @@ import {
   RejectRequestResponseStruct,
   SubmitRequestResponseStruct,
   UpdateAccountResponseStruct,
-} from './internal/api';
-import { KeyringRpcMethod } from './internal/rpc';
-import type { JsonRpcRequest } from './JsonRpcRequest';
+  KeyringRpcMethod,
+} from '@metamask/keyring-internal-api';
+import type { JsonRpcRequest } from '@metamask/keyring-snap-sdk';
 import { strictMask } from '@metamask/keyring-utils';
+import { assert } from '@metamask/superstruct';
+import type { Json } from '@metamask/utils';
+import { v4 as uuid } from 'uuid';
 
 export type Sender = {
   send(request: JsonRpcRequest): Promise<Json>;
