@@ -47,7 +47,7 @@
     "@lavamoat/allow-scripts": "^3.0.4",
     "@lavamoat/preinstall-always-fail": "^2.0.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/keyring-utils": "^0.0.1",
+    "@metamask/keyring-utils": "workspace:^",
     "@metamask/providers": "^17.1.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",

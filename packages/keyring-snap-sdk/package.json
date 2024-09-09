@@ -35,8 +35,8 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-internal-api": "^0.0.1",
-    "@metamask/keyring-utils": "^0.0.1",
+    "@metamask/keyring-internal-api": "workspace:^",
+    "@metamask/keyring-utils": "workspace:^",
     "@metamask/snaps-sdk": "^6.1.0",
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^9.1.0",

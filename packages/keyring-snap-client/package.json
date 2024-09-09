@@ -36,9 +36,9 @@
   },
   "dependencies": {
     "@metamask/keyring-api": "^8.1.0",
-    "@metamask/keyring-internal-api": "^0.0.1",
-    "@metamask/keyring-snap-sdk": "^0.0.1",
-    "@metamask/keyring-utils": "^0.0.1",
+    "@metamask/keyring-internal-api": "workspace:^",
+    "@metamask/keyring-snap-sdk": "workspace:^",
+    "@metamask/keyring-utils": "workspace:^",
     "@metamask/superstruct": "^3.1.0",
     "@types/uuid": "^9.0.8",
     "deepmerge": "^4.2.2",
