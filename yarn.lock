@@ -1673,7 +1673,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/accounts-monorepo@workspace:.":
+"@metamask/accounts-monorepo@workspace:., @metamask/keyring-utils@workspace:.":
   version: 0.0.0-use.local
   resolution: "@metamask/accounts-monorepo@workspace:."
   dependencies:
@@ -2102,7 +2102,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-utils@npm:^0.0.1, @metamask/keyring-utils@workspace:packages/keyring-utils":
+"@metamask/keyring-utils@workspace:packages/keyring-utils":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-utils@workspace:packages/keyring-utils"
   dependencies:
