@@ -87,6 +87,18 @@ module.exports = {
         'jsdoc/newline-after-description': 'off',
       },
     },
+    // @metamask/keyring-internal-api
+    {
+      files: ['packages/keyring-internal-api/src/**/*.ts'],
+      extends: ['@metamask/eslint-config-typescript'],
+      parserOptions,
+      rules: {
+        // FIXME: for some reason, it seems eslint is not able to infere those (this
+        // works on the original repository, so there might be some side-effects now that
+        // we are building in a monorepo)
+        '@typescript-eslint/restrict-template-expressions': 'off',
+      },
+    },
     // @metamask/keyring-eth-hd
     {
       files: ['packages/keyring-eth-hd/**/*.js'],
