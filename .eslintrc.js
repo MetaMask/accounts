@@ -191,6 +191,18 @@ module.exports = {
         '@typescript-eslint/restrict-template-expressions': 'off',
       },
     },
+    // @metamask/keyring-snap-sdk
+    {
+      files: ['packages/keyring-snap-sdk/src/**/*.test.ts'],
+      extends: ['@metamask/eslint-config-typescript'],
+      parserOptions,
+      rules: {
+        // FIXME: for some reason, it seems eslint is not able to infere those (this
+        // works on the original repository, so there might be some side-effects now that
+        // we are building in a monorepo)
+        '@typescript-eslint/restrict-template-expressions': 'off',
+      },
+    },
   ],
   rules: {
     'jsdoc/match-description': [
