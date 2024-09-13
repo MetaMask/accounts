@@ -3,16 +3,18 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
+  KeyringAccount,
+  KeyringExecutionContext,
+  KeyringResponse,
+} from '@metamask/keyring-api';
+import type {
   BtcMethod,
   EthBaseTransaction,
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
   InternalAccount,
-  KeyringAccount,
-  KeyringExecutionContext,
-  KeyringResponse,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-internal-api';
 import {
   AccountCreatedEventStruct,
   AccountDeletedEventStruct,
@@ -24,7 +26,8 @@ import {
   KeyringEvent,
   RequestApprovedEventStruct,
   RequestRejectedEventStruct,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-internal-api';
+import { KeyringSnapControllerClient } from '@metamask/keyring-snap-client';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { Snap } from '@metamask/snaps-utils';
@@ -39,7 +42,6 @@ import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
 import { DeferredPromise } from './DeferredPromise';
-import { KeyringSnapControllerClient } from './KeyringSnapControllerClient';
 import { projectLogger as log } from './logger';
 import { SnapIdMap } from './SnapIdMap';
 import type { SnapMessage } from './types';

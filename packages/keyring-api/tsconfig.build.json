@@ -8,6 +8,7 @@
     // checking for all *.d.ts files
     "skipLibCheck": true
   },
+  "references": [{ "path": "../keyring-utils/tsconfig.build.json" }],
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/**/*.test.ts", "./src/**/*.test-d.ts"]
 }
