@@ -1683,6 +1683,7 @@ __metadata:
     "@metamask/eslint-config-jest": "npm:^12.0.0"
     "@metamask/eslint-config-nodejs": "npm:^12.0.0"
     "@metamask/eslint-config-typescript": "npm:^12.0.0"
+    "@npmcli/package-json": "npm:^5.0.0"
     "@types/jest": "npm:^28.1.6"
     "@types/node": "npm:^16"
     "@typescript-eslint/eslint-plugin": "npm:^5.43.0"
