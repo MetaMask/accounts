@@ -75,3 +75,6 @@ node_modules/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Scripts temporary files
+/_*.txt
