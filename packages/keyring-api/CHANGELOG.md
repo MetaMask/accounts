@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix: fix preview builds artifacts ([#17](https://github.com/MetaMask/accounts.git/pull/17))
+- refactor: remove nested .gitignores + use the top-level one ([#18](https://github.com/MetaMask/accounts.git/pull/18))
+- refactor: update all changelogs to use monorepo links
+- build: add changelog:{validate,update} for each packages
+- build(keyring-api): also produces .js during build (required to run keyring-snap tests)
+- build: add yarn build:force command
+- build: use tsc --build rather than tsc --project
+- refactor: update global jest.config.js in packages + use it in packages
+- refactor: remove packages/\*/.gitattributes
+- refactor: remove packages/\*/.editorconfig
+- refactor: move packages/keyring-api/.vscode -> .vscode + remove .vscode from other packages
+- refactor: remove .nvmrc from all packages
+- refactor: migrate depcheck to the top-level
+- chore: run prettier for all package.json
+- refactor: remove packages/\*/.prettierrc.js + remove prettier from packages
+- refactor: remove use of constraints.pro
+- refactor: use top-level eslint + cleanup packages lint commands/files + adapt rules to match previous linting rules
+- refactor: remove packages/_/.yarn_
+- refactor: migrate .github folder to the top-level (without publish-\*docs.yml for now)
+- refactor: remove packageManager from packages
+- build: re-organize tsconfig.\* + force resolutions
+- build: add new build/test commands for all packages
+- refactor: remove packages/\*/yarn.lock
+- refactor(keyring-api): \* -> packages/keyring-api
+
 ## [8.1.0]
 
 ### Added
@@ -390,39 +417,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.1.0...HEAD
-[8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.0.2...@metamask/keyring-api@8.1.0
-[8.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.0.1...@metamask/keyring-api@8.0.2
-[8.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.0.0...@metamask/keyring-api@8.0.1
-[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@7.0.0...@metamask/keyring-api@8.0.0
-[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@6.4.0...@metamask/keyring-api@7.0.0
-[6.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@6.3.1...@metamask/keyring-api@6.4.0
-[6.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@6.3.0...@metamask/keyring-api@6.3.1
-[6.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@6.2.1...@metamask/keyring-api@6.3.0
-[6.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@6.2.0...@metamask/keyring-api@6.2.1
-[6.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@6.1.1...@metamask/keyring-api@6.2.0
-[6.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@6.1.0...@metamask/keyring-api@6.1.1
-[6.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@6.0.0...@metamask/keyring-api@6.1.0
-[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@5.1.0...@metamask/keyring-api@6.0.0
-[5.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@5.0.0...@metamask/keyring-api@5.1.0
-[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@4.0.2...@metamask/keyring-api@5.0.0
-[4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@4.0.1...@metamask/keyring-api@4.0.2
-[4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@4.0.0...@metamask/keyring-api@4.0.1
-[4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@3.0.0...@metamask/keyring-api@4.0.0
-[3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@2.0.0...@metamask/keyring-api@3.0.0
-[2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@1.1.0...@metamask/keyring-api@2.0.0
-[1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@1.0.0...@metamask/keyring-api@1.1.0
-[1.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@1.0.0-rc.1...@metamask/keyring-api@1.0.0
-[1.0.0-rc.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.2.7...@metamask/keyring-api@1.0.0-rc.1
-[0.2.7]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.2.6...@metamask/keyring-api@0.2.7
-[0.2.6]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.2.5...@metamask/keyring-api@0.2.6
-[0.2.5]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.2.4...@metamask/keyring-api@0.2.5
-[0.2.4]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.2.3...@metamask/keyring-api@0.2.4
-[0.2.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.2.2...@metamask/keyring-api@0.2.3
-[0.2.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.2.1...@metamask/keyring-api@0.2.2
-[0.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.2.0...@metamask/keyring-api@0.2.1
-[0.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.1.3...@metamask/keyring-api@0.2.0
-[0.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.1.2...@metamask/keyring-api@0.1.3
-[0.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.1.1...@metamask/keyring-api@0.1.2
-[0.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@0.1.0...@metamask/keyring-api@0.1.1
-[0.1.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/keyring-api@0.1.0
+[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@8.1.0...HEAD
+[8.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@8.0.2...@metamask/keyring-api@8.1.0
+[8.0.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@8.0.1...@metamask/keyring-api@8.0.2
+[8.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@8.0.0...@metamask/keyring-api@8.0.1
+[8.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@7.0.0...@metamask/keyring-api@8.0.0
+[7.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@6.4.0...@metamask/keyring-api@7.0.0
+[6.4.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@6.3.1...@metamask/keyring-api@6.4.0
+[6.3.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@6.3.0...@metamask/keyring-api@6.3.1
+[6.3.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@6.2.1...@metamask/keyring-api@6.3.0
+[6.2.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@6.2.0...@metamask/keyring-api@6.2.1
+[6.2.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@6.1.1...@metamask/keyring-api@6.2.0
+[6.1.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@6.1.0...@metamask/keyring-api@6.1.1
+[6.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@6.0.0...@metamask/keyring-api@6.1.0
+[6.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@5.1.0...@metamask/keyring-api@6.0.0
+[5.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@5.0.0...@metamask/keyring-api@5.1.0
+[5.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@4.0.2...@metamask/keyring-api@5.0.0
+[4.0.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@4.0.1...@metamask/keyring-api@4.0.2
+[4.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@4.0.0...@metamask/keyring-api@4.0.1
+[4.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@3.0.0...@metamask/keyring-api@4.0.0
+[3.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@2.0.0...@metamask/keyring-api@3.0.0
+[2.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@1.1.0...@metamask/keyring-api@2.0.0
+[1.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@1.0.0...@metamask/keyring-api@1.1.0
+[1.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@1.0.0-rc.1...@metamask/keyring-api@1.0.0
+[1.0.0-rc.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.2.7...@metamask/keyring-api@1.0.0-rc.1
+[0.2.7]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.2.6...@metamask/keyring-api@0.2.7
+[0.2.6]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.2.5...@metamask/keyring-api@0.2.6
+[0.2.5]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.2.4...@metamask/keyring-api@0.2.5
+[0.2.4]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.2.3...@metamask/keyring-api@0.2.4
+[0.2.3]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.2.2...@metamask/keyring-api@0.2.3
+[0.2.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.2.1...@metamask/keyring-api@0.2.2
+[0.2.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.2.0...@metamask/keyring-api@0.2.1
+[0.2.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.1.3...@metamask/keyring-api@0.2.0
+[0.1.3]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.1.2...@metamask/keyring-api@0.1.3
+[0.1.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.1.1...@metamask/keyring-api@0.1.2
+[0.1.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-api@0.1.0...@metamask/keyring-api@0.1.1
+[0.1.0]: https://github.com/MetaMask/accounts.git/releases/tag/@metamask/keyring-api@0.1.0

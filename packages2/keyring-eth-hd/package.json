@@ -1,0 +1,63 @@
+{
+  "name": "@metamask/eth-hd-keyring",
+  "version": "7.0.1",
+  "description": "A simple standard interface for a seed phrase generated set of Ethereum accounts.",
+  "keywords": [
+    "ethereum",
+    "keyring"
+  ],
+  "homepage": "https://github.com/MetaMask/eth-hd-keyring#readme",
+  "bugs": {
+    "url": "https://github.com/MetaMask/eth-hd-keyring/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/eth-hd-keyring.git"
+  },
+  "license": "ISC",
+  "author": "Dan Finlay",
+  "main": "index.js",
+  "scripts": {
+    "build": "",
+    "build:clean": "",
+    "build:force": "",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-hd-keyring",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-hd-keyring",
+    "publish:preview": "yarn npm publish --tag preview",
+    "test": "jest",
+    "test:clean": "jest --clearCache",
+    "test:verbose": "jest --verbose"
+  },
+  "dependencies": {
+    "@ethereumjs/util": "^8.1.0",
+    "@metamask/eth-sig-util": "^7.0.0",
+    "@metamask/scure-bip39": "^2.1.0",
+    "@metamask/utils": "^8.1.0",
+    "deepmerge": "^4.2.2",
+    "ethereum-cryptography": "^2.1.2"
+  },
+  "devDependencies": {
+    "@ethereumjs/tx": "^4.0.1",
+    "@lavamoat/allow-scripts": "^3.0.4",
+    "@lavamoat/preinstall-always-fail": "^1.0.0",
+    "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/bip39": "^4.0.0",
+    "@metamask/eth-hd-keyring": "4.0.1",
+    "@types/jest": "^29.4.0",
+    "jest": "^29.4.3"
+  },
+  "engines": {
+    "node": "^18.18 || >=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "@lavamoat/preinstall-always-fail": false,
+      "@metamask/eth-hd-keyring>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "@metamask/eth-hd-keyring>ethereumjs-util>ethereum-cryptography>secp256k1": false
+    }
+  }
+}

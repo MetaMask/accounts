@@ -1,0 +1,1284 @@
+../../node_modules/@types/web/index.d.ts(7,1): error TS6200: Definitions of the following identifiers conflict with those in another file: NodeFilter, XPathNSResolver, SVGMatrix, WebKitCSSMatrix, SVGPoint, SVGRect, location, webkitURL, ImportExportKind, TableKind, ValueType, ExportValue, Exports, ImportValue, Imports, ModuleImports, ElementTagNameMap, name, AlgorithmIdentifier, BigInteger, BinaryData, BlobPart, BodyInit, BufferSource, COSEAlgorithmIdentifier, CSSNumberish, CanvasImageSource, ClipboardItemData, ClipboardItems, ConstrainBoolean, ConstrainDOMString, ConstrainDouble, ConstrainULong, DOMHighResTimeStamp, EpochTimeStamp, EventListenerOrEventListenerObject, Float32List, FormDataEntryValue, GLbitfield, GLboolean, GLclampf, GLenum, GLfloat, GLint, GLint64, GLintptr, GLsizei, GLsizeiptr, GLuint, GLuint64, HTMLOrSVGImageElement, HTMLOrSVGScriptElement, HashAlgorithmIdentifier, HeadersInit, IDBValidKey, ImageBitmapSource, InsertPosition, Int32List, LineAndPositionSetting, MediaProvider, MessageEventSource, MutationRecordType, NamedCurve, OnBeforeUnloadEventHandler, OnErrorEventHandler, PerformanceEntryList, ReadableStreamController, ReadableStreamReadResult, ReadableStreamReader, RenderingContext, RequestInfo, TexImageSource, TimerHandler, Transferable, Uint32List, UvmEntries, UvmEntry, VibratePattern, WindowProxy, XMLHttpRequestBodyInit, AlignSetting, AnimationPlayState, AnimationReplaceState, AppendMode, AttestationConveyancePreference, AudioContextLatencyCategory, AudioContextState, AuthenticatorAttachment, AuthenticatorTransport, AutoKeyword, AutomationRate, BinaryType, BiquadFilterType, CanPlayTypeResult, CanvasDirection, CanvasFillRule, CanvasFontKerning, CanvasFontStretch, CanvasFontVariantCaps, CanvasLineCap, CanvasLineJoin, CanvasTextAlign, CanvasTextBaseline, CanvasTextRendering, ChannelCountMode, ChannelInterpretation, ClientTypes, ColorGamut, ColorSpaceConversion, CompositeOperation, CompositeOperationOrAuto, CredentialMediationRequirement, DOMParserSupportedType, DirectionSetting, DisplayCaptureSurfaceType, DistanceModelType, DocumentReadyState, DocumentVisibilityState, EndOfStreamError, EndingType, FileSystemHandleKind, FillMode, FontFaceLoadStatus, FontFaceSetLoadStatus, FullscreenNavigationUI, GamepadHapticActuatorType, GamepadMappingType, GlobalCompositeOperation, HdrMetadataType, IDBCursorDirection, IDBRequestReadyState, IDBTransactionDurability, IDBTransactionMode, ImageOrientation, ImageSmoothingQuality, IterationCompositeOperation, KeyFormat, KeyType, KeyUsage, LineAlignSetting, LockMode, MediaDecodingType, MediaDeviceKind, MediaEncodingType, MediaKeyMessageType, MediaKeySessionClosedReason, MediaKeySessionType, MediaKeyStatus, MediaKeysRequirement, MediaSessionAction, MediaSessionPlaybackState, MediaStreamTrackState, NavigationTimingType, NotificationDirection, NotificationPermission, OrientationLockType, OrientationType, OscillatorType, OverSampleType, PanningModelType, PaymentComplete, PermissionName, PermissionState, PlaybackDirection, PositionAlignSetting, PredefinedColorSpace, PremultiplyAlpha, PresentationStyle, PublicKeyCredentialType, PushEncryptionKeyName, RTCBundlePolicy, RTCDataChannelState, RTCDegradationPreference, RTCDtlsTransportState, RTCEncodedVideoFrameType, RTCErrorDetailType, RTCIceCandidateType, RTCIceComponent, RTCIceConnectionState, RTCIceCredentialType, RTCIceGathererState, RTCIceGatheringState, RTCIceProtocol, RTCIceTcpCandidateType, RTCIceTransportPolicy, RTCIceTransportState, RTCPeerConnectionState, RTCPriorityType, RTCRtcpMuxPolicy, RTCRtpTransceiverDirection, RTCSctpTransportState, RTCSdpType, RTCSignalingState, RTCStatsIceCandidatePairState, RTCStatsType, ReadyState, RecordingState, ReferrerPolicy, RemotePlaybackState, RequestCache, RequestCredentials, RequestDestination, RequestMode, RequestRedirect, ResidentKeyRequirement, ResizeObserverBoxOptions, ResizeQuality, ResponseType, ScrollBehavior, ScrollLogicalPosition, ScrollRestoration, ScrollSetting, SecurityPolicyViolationEventDisposition, SelectionMode, ServiceWorkerState, ServiceWorkerUpdateViaCache, ShadowRootMode, SlotAssignmentMode, SpeechSynthesisErrorCode, TextTrackKind, TextTrackMode, TouchType, TransferFunction, UserVerificationRequirement, VideoColorPrimaries, VideoFacingModeEnum, VideoMatrixCoefficients, VideoTransferCharacteristics, WebGLPowerPreference, WorkerType, XMLHttpRequestResponseType
+../../node_modules/typescript/lib/lib.dom.d.ts(25,1): error TS6200: Definitions of the following identifiers conflict with those in another file: NodeFilter, XPathNSResolver, SVGMatrix, WebKitCSSMatrix, SVGPoint, SVGRect, location, webkitURL, ImportExportKind, TableKind, ValueType, ExportValue, Exports, ImportValue, Imports, ModuleImports, ElementTagNameMap, name, AlgorithmIdentifier, BigInteger, BinaryData, BlobPart, BodyInit, BufferSource, COSEAlgorithmIdentifier, CSSNumberish, CanvasImageSource, ClipboardItemData, ClipboardItems, ConstrainBoolean, ConstrainDOMString, ConstrainDouble, ConstrainULong, DOMHighResTimeStamp, EpochTimeStamp, EventListenerOrEventListenerObject, Float32List, FormDataEntryValue, GLbitfield, GLboolean, GLclampf, GLenum, GLfloat, GLint, GLint64, GLintptr, GLsizei, GLsizeiptr, GLuint, GLuint64, HTMLOrSVGImageElement, HTMLOrSVGScriptElement, HashAlgorithmIdentifier, HeadersInit, IDBValidKey, ImageBitmapSource, InsertPosition, Int32List, LineAndPositionSetting, MediaProvider, MessageEventSource, MutationRecordType, NamedCurve, OnBeforeUnloadEventHandler, OnErrorEventHandler, PerformanceEntryList, ReadableStreamController, ReadableStreamReadResult, ReadableStreamReader, RenderingContext, RequestInfo, TexImageSource, TimerHandler, Transferable, Uint32List, UvmEntries, UvmEntry, VibratePattern, WindowProxy, XMLHttpRequestBodyInit, AlignSetting, AnimationPlayState, AnimationReplaceState, AppendMode, AttestationConveyancePreference, AudioContextLatencyCategory, AudioContextState, AuthenticatorAttachment, AuthenticatorTransport, AutoKeyword, AutomationRate, BinaryType, BiquadFilterType, CanPlayTypeResult, CanvasDirection, CanvasFillRule, CanvasFontKerning, CanvasFontStretch, CanvasFontVariantCaps, CanvasLineCap, CanvasLineJoin, CanvasTextAlign, CanvasTextBaseline, CanvasTextRendering, ChannelCountMode, ChannelInterpretation, ClientTypes, ColorGamut, ColorSpaceConversion, CompositeOperation, CompositeOperationOrAuto, CredentialMediationRequirement, DOMParserSupportedType, DirectionSetting, DisplayCaptureSurfaceType, DistanceModelType, DocumentReadyState, DocumentVisibilityState, EndOfStreamError, EndingType, FileSystemHandleKind, FillMode, FontFaceLoadStatus, FontFaceSetLoadStatus, FullscreenNavigationUI, GamepadHapticActuatorType, GamepadMappingType, GlobalCompositeOperation, HdrMetadataType, IDBCursorDirection, IDBRequestReadyState, IDBTransactionDurability, IDBTransactionMode, ImageOrientation, ImageSmoothingQuality, IterationCompositeOperation, KeyFormat, KeyType, KeyUsage, LineAlignSetting, LockMode, MediaDecodingType, MediaDeviceKind, MediaEncodingType, MediaKeyMessageType, MediaKeySessionClosedReason, MediaKeySessionType, MediaKeyStatus, MediaKeysRequirement, MediaSessionAction, MediaSessionPlaybackState, MediaStreamTrackState, NavigationTimingType, NotificationDirection, NotificationPermission, OrientationLockType, OrientationType, OscillatorType, OverSampleType, PanningModelType, PaymentComplete, PermissionName, PermissionState, PlaybackDirection, PositionAlignSetting, PredefinedColorSpace, PremultiplyAlpha, PresentationStyle, PublicKeyCredentialType, PushEncryptionKeyName, RTCBundlePolicy, RTCDataChannelState, RTCDegradationPreference, RTCDtlsTransportState, RTCEncodedVideoFrameType, RTCErrorDetailType, RTCIceCandidateType, RTCIceComponent, RTCIceConnectionState, RTCIceCredentialType, RTCIceGathererState, RTCIceGatheringState, RTCIceProtocol, RTCIceTcpCandidateType, RTCIceTransportPolicy, RTCIceTransportState, RTCPeerConnectionState, RTCPriorityType, RTCRtcpMuxPolicy, RTCRtpTransceiverDirection, RTCSctpTransportState, RTCSdpType, RTCSignalingState, RTCStatsIceCandidatePairState, RTCStatsType, ReadyState, RecordingState, ReferrerPolicy, RemotePlaybackState, RequestCache, RequestCredentials, RequestDestination, RequestMode, RequestRedirect, ResidentKeyRequirement, ResizeObserverBoxOptions, ResizeQuality, ResponseType, ScrollBehavior, ScrollLogicalPosition, ScrollRestoration, ScrollSetting, SecurityPolicyViolationEventDisposition, SelectionMode, ServiceWorkerState, ServiceWorkerUpdateViaCache, ShadowRootMode, SlotAssignmentMode, SpeechSynthesisErrorCode, TextTrackKind, TextTrackMode, TouchType, TransferFunction, UserVerificationRequirement, VideoColorPrimaries, VideoFacingModeEnum, VideoMatrixCoefficients, VideoTransferCharacteristics, WebGLPowerPreference, WorkerType, XMLHttpRequestResponseType
+../../node_modules/typescript/lib/lib.dom.d.ts(239,5): error TS2374: Duplicate index signature for type 'string'.
+../../node_modules/typescript/lib/lib.dom.d.ts(697,5): error TS2374: Duplicate index signature for type 'string'.
+../../node_modules/typescript/lib/lib.dom.d.ts(1164,5): error TS2374: Duplicate index signature for type 'string'.
+../../node_modules/typescript/lib/lib.dom.d.ts(2729,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(3272,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(4054,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(4088,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(4098,5): error TS2374: Duplicate index signature for type 'string'.
+../../node_modules/typescript/lib/lib.dom.d.ts(4164,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(4240,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(5196,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(5954,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(6206,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(6222,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(6529,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(6530,5): error TS2374: Duplicate index signature for type 'string'.
+../../node_modules/typescript/lib/lib.dom.d.ts(7835,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(9338,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(9687,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(9814,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(10080,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(10096,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(10756,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(10778,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(12606,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(12746,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(12797,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(13008,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(13225,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(13575,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(13597,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(13608,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(13761,5): error TS2374: Duplicate index signature for type 'string'.
+../../node_modules/typescript/lib/lib.dom.d.ts(13828,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(14083,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(14107,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(14179,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.dom.d.ts(16663,5): error TS2374: Duplicate index signature for type 'number'.
+../../node_modules/typescript/lib/lib.es5.d.ts
+  Library referenced via 'es5' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es5' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+../../node_modules/typescript/lib/lib.es2015.d.ts
+  Library referenced via 'es2015' from file '../../node_modules/typescript/lib/lib.es2016.d.ts'
+  Library referenced via 'es2015' from file '../../node_modules/typescript/lib/lib.es2016.d.ts'
+../../node_modules/typescript/lib/lib.es2016.d.ts
+  Library referenced via 'es2016' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+  Library referenced via 'es2016' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+../../node_modules/typescript/lib/lib.es2017.d.ts
+  Library referenced via 'es2017' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+  Library referenced via 'es2017' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+../../node_modules/typescript/lib/lib.es2018.d.ts
+  Library referenced via 'es2018' from file '../../node_modules/typescript/lib/lib.es2019.d.ts'
+  Library referenced via 'es2018' from file '../../node_modules/typescript/lib/lib.es2019.d.ts'
+../../node_modules/typescript/lib/lib.es2019.d.ts
+  Library referenced via 'es2019' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+  Library referenced via 'es2019' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+../../node_modules/typescript/lib/lib.es2020.d.ts
+  Library referenced via 'es2020' from file '../../node_modules/@types/node/index.d.ts'
+  Library 'lib.es2020.d.ts' specified in compilerOptions
+../../node_modules/typescript/lib/lib.dom.d.ts
+  Library referenced via 'dom' from file '../../node_modules/@types/jsdom/base.d.ts'
+../../node_modules/typescript/lib/lib.dom.iterable.d.ts
+  Library referenced via 'dom.iterable' from file '../../node_modules/@types/jsdom/base.d.ts'
+../../node_modules/typescript/lib/lib.es2015.core.d.ts
+  Library referenced via 'es2015.core' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.core' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+../../node_modules/typescript/lib/lib.es2015.collection.d.ts
+  Library referenced via 'es2015.collection' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.collection' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+../../node_modules/typescript/lib/lib.es2015.generator.d.ts
+  Library referenced via 'es2015.generator' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.generator' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+../../node_modules/typescript/lib/lib.es2015.iterable.d.ts
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2015.generator.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2018.asynciterable.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2019.object.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2020.string.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2020.symbol.wellknown.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2015.generator.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2018.asynciterable.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2019.object.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2020.string.d.ts'
+  Library referenced via 'es2015.iterable' from file '../../node_modules/typescript/lib/lib.es2020.symbol.wellknown.d.ts'
+../../node_modules/typescript/lib/lib.es2015.promise.d.ts
+  Library referenced via 'es2015.promise' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.promise' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+../../node_modules/typescript/lib/lib.es2015.proxy.d.ts
+  Library referenced via 'es2015.proxy' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.proxy' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+../../node_modules/typescript/lib/lib.es2015.reflect.d.ts
+  Library referenced via 'es2015.reflect' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.reflect' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+../../node_modules/typescript/lib/lib.es2015.symbol.d.ts
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2015.iterable.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2018.asynciterable.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2020.symbol.wellknown.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2015.iterable.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2018.asynciterable.d.ts'
+  Library referenced via 'es2015.symbol' from file '../../node_modules/typescript/lib/lib.es2020.symbol.wellknown.d.ts'
+../../node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts
+  Library referenced via 'es2015.symbol.wellknown' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.symbol.wellknown' from file '../../node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts'
+  Library referenced via 'es2015.symbol.wellknown' from file '../../node_modules/typescript/lib/lib.es2015.d.ts'
+  Library referenced via 'es2015.symbol.wellknown' from file '../../node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts'
+../../node_modules/typescript/lib/lib.es2016.array.include.d.ts
+  Library referenced via 'es2016.array.include' from file '../../node_modules/typescript/lib/lib.es2016.d.ts'
+  Library referenced via 'es2016.array.include' from file '../../node_modules/typescript/lib/lib.es2016.d.ts'
+../../node_modules/typescript/lib/lib.es2017.object.d.ts
+  Library referenced via 'es2017.object' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+  Library referenced via 'es2017.object' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+../../node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts
+  Library referenced via 'es2017.sharedmemory' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+  Library referenced via 'es2017.sharedmemory' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+../../node_modules/typescript/lib/lib.es2017.string.d.ts
+  Library referenced via 'es2017.string' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+  Library referenced via 'es2017.string' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+../../node_modules/typescript/lib/lib.es2017.intl.d.ts
+  Library referenced via 'es2017.intl' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+  Library referenced via 'es2017.intl' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+../../node_modules/typescript/lib/lib.es2017.typedarrays.d.ts
+  Library referenced via 'es2017.typedarrays' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+  Library referenced via 'es2017.typedarrays' from file '../../node_modules/typescript/lib/lib.es2017.d.ts'
+../../node_modules/typescript/lib/lib.es2018.asyncgenerator.d.ts
+  Library referenced via 'es2018.asyncgenerator' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+  Library referenced via 'es2018.asyncgenerator' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+../../node_modules/typescript/lib/lib.es2018.asynciterable.d.ts
+  Library referenced via 'es2018.asynciterable' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+  Library referenced via 'es2018.asynciterable' from file '../../node_modules/typescript/lib/lib.es2018.asyncgenerator.d.ts'
+  Library referenced via 'esnext.asynciterable' from file '../../node_modules/@types/node/index.d.ts'
+  Library referenced via 'es2018.asynciterable' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+  Library referenced via 'es2018.asynciterable' from file '../../node_modules/typescript/lib/lib.es2018.asyncgenerator.d.ts'
+../../node_modules/typescript/lib/lib.es2018.intl.d.ts
+  Library referenced via 'es2018.intl' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+  Library referenced via 'es2018.intl' from file '../../node_modules/typescript/lib/lib.es2020.intl.d.ts'
+  Library referenced via 'es2018.intl' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+  Library referenced via 'es2018.intl' from file '../../node_modules/typescript/lib/lib.es2020.intl.d.ts'
+../../node_modules/typescript/lib/lib.es2018.promise.d.ts
+  Library referenced via 'es2018.promise' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+  Library referenced via 'es2018.promise' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+../../node_modules/typescript/lib/lib.es2018.regexp.d.ts
+  Library referenced via 'es2018.regexp' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+  Library referenced via 'es2018.regexp' from file '../../node_modules/typescript/lib/lib.es2018.d.ts'
+../../node_modules/typescript/lib/lib.es2019.array.d.ts
+  Library referenced via 'es2019.array' from file '../../node_modules/typescript/lib/lib.es2019.d.ts'
+  Library referenced via 'es2019.array' from file '../../node_modules/typescript/lib/lib.es2019.d.ts'
+../../node_modules/typescript/lib/lib.es2019.object.d.ts
+  Library referenced via 'es2019.object' from file '../../node_modules/typescript/lib/lib.es2019.d.ts'
+  Library referenced via 'es2019.object' from file '../../node_modules/typescript/lib/lib.es2019.d.ts'
+../../node_modules/typescript/lib/lib.es2019.string.d.ts
+  Library referenced via 'es2019.string' from file '../../node_modules/typescript/lib/lib.es2019.d.ts'
+  Library referenced via 'es2019.string' from file '../../node_modules/typescript/lib/lib.es2019.d.ts'
+../../node_modules/typescript/lib/lib.es2019.symbol.d.ts
+  Library referenced via 'es2019.symbol' from file '../../node_modules/typescript/lib/lib.es2019.d.ts'
+  Library referenced via 'es2019.symbol' from file '../../node_modules/typescript/lib/lib.es2019.d.ts'
+../../node_modules/typescript/lib/lib.es2020.bigint.d.ts
+  Library referenced via 'es2020.bigint' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+  Library referenced via 'esnext.bigint' from file '../../node_modules/@types/node/index.d.ts'
+  Library referenced via 'es2020.bigint' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+../../node_modules/typescript/lib/lib.es2020.date.d.ts
+  Library referenced via 'es2020.date' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+  Library referenced via 'es2020.date' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+../../node_modules/typescript/lib/lib.es2020.promise.d.ts
+  Library referenced via 'es2020.promise' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+  Library referenced via 'es2020.promise' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+../../node_modules/typescript/lib/lib.es2020.sharedmemory.d.ts
+  Library referenced via 'es2020.sharedmemory' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+  Library referenced via 'es2020.sharedmemory' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+../../node_modules/typescript/lib/lib.es2020.string.d.ts
+  Library referenced via 'es2020.string' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+  Library referenced via 'es2020.string' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+../../node_modules/typescript/lib/lib.es2020.symbol.wellknown.d.ts
+  Library referenced via 'es2020.symbol.wellknown' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+  Library referenced via 'es2020.symbol.wellknown' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+../../node_modules/typescript/lib/lib.es2020.intl.d.ts
+  Library referenced via 'es2020.intl' from file '../../node_modules/typescript/lib/lib.es2020.bigint.d.ts'
+  Library referenced via 'es2020.intl' from file '../../node_modules/typescript/lib/lib.es2020.date.d.ts'
+  Library referenced via 'es2020.intl' from file '../../node_modules/typescript/lib/lib.es2020.number.d.ts'
+  Library referenced via 'es2020.intl' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+  Library referenced via 'es2020.intl' from file '../../node_modules/typescript/lib/lib.es2020.bigint.d.ts'
+  Library referenced via 'es2020.intl' from file '../../node_modules/typescript/lib/lib.es2020.date.d.ts'
+  Library referenced via 'es2020.intl' from file '../../node_modules/typescript/lib/lib.es2020.number.d.ts'
+  Library referenced via 'es2020.intl' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+../../node_modules/typescript/lib/lib.es2020.number.d.ts
+  Library referenced via 'es2020.number' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+  Library referenced via 'es2020.number' from file '../../node_modules/typescript/lib/lib.es2020.d.ts'
+../../node_modules/typescript/lib/lib.esnext.intl.d.ts
+  Library referenced via 'esnext.intl' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/assert.d.ts
+  Referenced via 'assert.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/assert/strict.d.ts
+  Referenced via 'assert/strict.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/buffer/index.d.ts
+  Imported via 'buffer' from file '../../node_modules/undici-types/dispatcher.d.ts' with packageId 'buffer/index.d.ts@6.0.3'
+  Imported via 'buffer' from file '../../node_modules/undici-types/readable.d.ts' with packageId 'buffer/index.d.ts@6.0.3'
+  Imported via 'buffer' from file '../../node_modules/undici-types/file.d.ts' with packageId 'buffer/index.d.ts@6.0.3'
+  Imported via 'buffer' from file '../../node_modules/undici-types/fetch.d.ts' with packageId 'buffer/index.d.ts@6.0.3'
+  Imported via 'buffer' from file '../../node_modules/undici-types/websocket.d.ts' with packageId 'buffer/index.d.ts@6.0.3'
+  Imported via 'buffer' from file '../../node_modules/undici-types/filereader.d.ts' with packageId 'buffer/index.d.ts@6.0.3'
+  Imported via "buffer" from file '../../node_modules/@types/node/process.d.ts' with packageId 'buffer/index.d.ts@6.0.3'
+  Imported via 'buffer' from file '../../node_modules/@ethereumjs/util/dist/constants.d.ts' with packageId 'buffer/index.d.ts@6.0.3'
+  File is CommonJS module because '../../node_modules/buffer/package.json' does not have field "type"
+../../node_modules/undici-types/header.d.ts
+  Imported via './header' from file '../../node_modules/undici-types/dispatcher.d.ts' with packageId 'undici-types/header.d.ts@6.19.8'
+  Imported via "./header" from file '../../node_modules/undici-types/errors.d.ts' with packageId 'undici-types/header.d.ts@6.19.8'
+  Imported via './header' from file '../../node_modules/undici-types/mock-interceptor.d.ts' with packageId 'undici-types/header.d.ts@6.19.8'
+  Imported via './header' from file '../../node_modules/undici-types/proxy-agent.d.ts' with packageId 'undici-types/header.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/readable.d.ts
+  Imported via './readable' from file '../../node_modules/undici-types/dispatcher.d.ts' with packageId 'undici-types/readable.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/file.d.ts
+  Imported via './file' from file '../../node_modules/undici-types/formdata.d.ts' with packageId 'undici-types/file.d.ts@6.19.8'
+  Imported via './file' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/file.d.ts@6.19.8'
+  Imported via './file' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/file.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/fetch.d.ts
+  Imported via './fetch' from file '../../node_modules/undici-types/formdata.d.ts' with packageId 'undici-types/fetch.d.ts@6.19.8'
+  Imported via './fetch' from file '../../node_modules/undici-types/mock-interceptor.d.ts' with packageId 'undici-types/fetch.d.ts@6.19.8'
+  Imported via './fetch' from file '../../node_modules/undici-types/cookies.d.ts' with packageId 'undici-types/fetch.d.ts@6.19.8'
+  Imported via './fetch' from file '../../node_modules/undici-types/websocket.d.ts' with packageId 'undici-types/fetch.d.ts@6.19.8'
+  Imported via './fetch' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/fetch.d.ts@6.19.8'
+  Imported via './fetch' from file '../../node_modules/undici-types/cache.d.ts' with packageId 'undici-types/fetch.d.ts@6.19.8'
+  Imported via './fetch' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/fetch.d.ts@6.19.8'
+  Imported via './fetch' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/fetch.d.ts@6.19.8'
+  Imported via './fetch' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/fetch.d.ts@6.19.8'
+  Imported via './fetch' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/fetch.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/formdata.d.ts
+  Imported via './formdata' from file '../../node_modules/undici-types/dispatcher.d.ts' with packageId 'undici-types/formdata.d.ts@6.19.8'
+  Imported via './formdata' from file '../../node_modules/undici-types/fetch.d.ts' with packageId 'undici-types/formdata.d.ts@6.19.8'
+  Imported via './formdata' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/formdata.d.ts@6.19.8'
+  Imported via './formdata' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/formdata.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/connector.d.ts
+  Imported via "./connector" from file '../../node_modules/undici-types/client.d.ts' with packageId 'undici-types/connector.d.ts@6.19.8'
+  Imported via './connector' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/connector.d.ts@6.19.8'
+  Imported via './connector' from file '../../node_modules/undici-types/proxy-agent.d.ts' with packageId 'undici-types/connector.d.ts@6.19.8'
+  Imported via "./connector" from file '../../node_modules/undici-types/diagnostics-channel.d.ts' with packageId 'undici-types/connector.d.ts@6.19.8'
+  Imported via './connector' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/connector.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/client.d.ts
+  Imported via './client' from file '../../node_modules/undici-types/errors.d.ts' with packageId 'undici-types/client.d.ts@6.19.8'
+  Imported via './client' from file '../../node_modules/undici-types/pool.d.ts' with packageId 'undici-types/client.d.ts@6.19.8'
+  Imported via './client' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/client.d.ts@6.19.8'
+  Imported via './client' from file '../../node_modules/undici-types/mock-client.d.ts' with packageId 'undici-types/client.d.ts@6.19.8'
+  Imported via './client' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/client.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/errors.d.ts
+  Imported via './errors' from file '../../node_modules/undici-types/dispatcher.d.ts' with packageId 'undici-types/errors.d.ts@6.19.8'
+  Imported via './errors' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/errors.d.ts@6.19.8'
+  Imported via './errors' from file '../../node_modules/undici-types/mock-errors.d.ts' with packageId 'undici-types/errors.d.ts@6.19.8'
+  Imported via './errors' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/errors.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/dispatcher.d.ts
+  Imported via './dispatcher' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/fetch.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/client.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via "./dispatcher" from file '../../node_modules/undici-types/global-dispatcher.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via "./dispatcher" from file '../../node_modules/undici-types/pool.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via "./dispatcher" from file '../../node_modules/undici-types/handlers.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/balanced-pool.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via "./dispatcher" from file '../../node_modules/undici-types/agent.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/mock-client.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/mock-agent.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/mock-interceptor.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/mock-pool.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/proxy-agent.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/env-http-proxy-agent.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via "./dispatcher" from file '../../node_modules/undici-types/retry-handler.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/retry-agent.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/api.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via "./dispatcher" from file '../../node_modules/undici-types/interceptors.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/websocket.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/eventsource.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via "./dispatcher" from file '../../node_modules/undici-types/diagnostics-channel.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  Imported via './dispatcher' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/dispatcher.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/global-dispatcher.d.ts
+  Imported via './global-dispatcher' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/global-dispatcher.d.ts@6.19.8'
+  Imported via './global-dispatcher' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/global-dispatcher.d.ts@6.19.8'
+  Imported via './global-dispatcher' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/global-dispatcher.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/global-origin.d.ts
+  Imported via './global-origin' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/global-origin.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/pool-stats.d.ts
+  Imported via './pool-stats' from file '../../node_modules/undici-types/pool.d.ts' with packageId 'undici-types/pool-stats.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/pool.d.ts
+  Imported via './pool' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/pool.d.ts@6.19.8'
+  Imported via "./pool" from file '../../node_modules/undici-types/pool-stats.d.ts' with packageId 'undici-types/pool.d.ts@6.19.8'
+  Imported via './pool' from file '../../node_modules/undici-types/balanced-pool.d.ts' with packageId 'undici-types/pool.d.ts@6.19.8'
+  Imported via './pool' from file '../../node_modules/undici-types/agent.d.ts' with packageId 'undici-types/pool.d.ts@6.19.8'
+  Imported via './pool' from file '../../node_modules/undici-types/mock-pool.d.ts' with packageId 'undici-types/pool.d.ts@6.19.8'
+  Imported via './pool' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/pool.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/handlers.d.ts
+  Imported via './handlers' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/handlers.d.ts@6.19.8'
+  Imported via './handlers' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/handlers.d.ts@6.19.8'
+  Imported via './handlers' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/handlers.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/balanced-pool.d.ts
+  Imported via './balanced-pool' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/balanced-pool.d.ts@6.19.8'
+  Imported via './balanced-pool' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/balanced-pool.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/agent.d.ts
+  Imported via './agent' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/agent.d.ts@6.19.8'
+  Imported via './agent' from file '../../node_modules/undici-types/mock-agent.d.ts' with packageId 'undici-types/agent.d.ts@6.19.8'
+  Imported via './agent' from file '../../node_modules/undici-types/proxy-agent.d.ts' with packageId 'undici-types/agent.d.ts@6.19.8'
+  Imported via './agent' from file '../../node_modules/undici-types/env-http-proxy-agent.d.ts' with packageId 'undici-types/agent.d.ts@6.19.8'
+  Imported via './agent' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/agent.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/mock-interceptor.d.ts
+  Imported via './mock-interceptor' from file '../../node_modules/undici-types/mock-agent.d.ts' with packageId 'undici-types/mock-interceptor.d.ts@6.19.8'
+  Imported via './mock-interceptor' from file '../../node_modules/undici-types/mock-client.d.ts' with packageId 'undici-types/mock-interceptor.d.ts@6.19.8'
+  Imported via './mock-interceptor' from file '../../node_modules/undici-types/mock-pool.d.ts' with packageId 'undici-types/mock-interceptor.d.ts@6.19.8'
+  Imported via './mock-interceptor' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/mock-interceptor.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/mock-agent.d.ts
+  Imported via './mock-agent' from file '../../node_modules/undici-types/mock-client.d.ts' with packageId 'undici-types/mock-agent.d.ts@6.19.8'
+  Imported via './mock-agent' from file '../../node_modules/undici-types/mock-pool.d.ts' with packageId 'undici-types/mock-agent.d.ts@6.19.8'
+  Imported via './mock-agent' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/mock-agent.d.ts@6.19.8'
+  Imported via './mock-agent' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/mock-agent.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/mock-client.d.ts
+  Imported via './mock-client' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/mock-client.d.ts@6.19.8'
+  Imported via './mock-client' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/mock-client.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/mock-pool.d.ts
+  Imported via './mock-pool' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/mock-pool.d.ts@6.19.8'
+  Imported via './mock-pool' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/mock-pool.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/mock-errors.d.ts
+  Imported via './mock-errors' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/mock-errors.d.ts@6.19.8'
+  Imported via './mock-errors' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/mock-errors.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/proxy-agent.d.ts
+  Imported via './proxy-agent' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/proxy-agent.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/env-http-proxy-agent.d.ts
+  Imported via './env-http-proxy-agent' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/env-http-proxy-agent.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/retry-handler.d.ts
+  Imported via './retry-handler' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/retry-handler.d.ts@6.19.8'
+  Imported via './retry-handler' from file '../../node_modules/undici-types/retry-agent.d.ts' with packageId 'undici-types/retry-handler.d.ts@6.19.8'
+  Imported via "./retry-handler" from file '../../node_modules/undici-types/interceptors.d.ts' with packageId 'undici-types/retry-handler.d.ts@6.19.8'
+  Imported via './retry-handler' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/retry-handler.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/retry-agent.d.ts
+  Imported via './retry-agent' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/retry-agent.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/api.d.ts
+  Imported via './api' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/api.d.ts@6.19.8'
+  Imported via './api' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/api.d.ts@6.19.8'
+  Imported via './api' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/api.d.ts@6.19.8'
+  Imported via './api' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/api.d.ts@6.19.8'
+  Imported via './api' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/api.d.ts@6.19.8'
+  Imported via './api' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/api.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/interceptors.d.ts
+  Imported via './interceptors' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/interceptors.d.ts@6.19.8'
+  Imported via './interceptors' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/interceptors.d.ts@6.19.8'
+  Imported via './interceptors' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/interceptors.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/util.d.ts
+  Imported via './util' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/util.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/cookies.d.ts
+  Imported via './cookies' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/cookies.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/patch.d.ts
+  Imported via './patch' from file '../../node_modules/undici-types/websocket.d.ts' with packageId 'undici-types/patch.d.ts@6.19.8'
+  Imported via './patch' from file '../../node_modules/undici-types/eventsource.d.ts' with packageId 'undici-types/patch.d.ts@6.19.8'
+  Imported via './patch' from file '../../node_modules/undici-types/filereader.d.ts' with packageId 'undici-types/patch.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/websocket.d.ts
+  Imported via './websocket' from file '../../node_modules/undici-types/eventsource.d.ts' with packageId 'undici-types/websocket.d.ts@6.19.8'
+  Imported via './websocket' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/websocket.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/eventsource.d.ts
+  Imported via './eventsource' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/eventsource.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/filereader.d.ts
+  Imported via './filereader' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/filereader.d.ts@6.19.8'
+  Imported via './filereader' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/filereader.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/diagnostics-channel.d.ts
+  Imported via './diagnostics-channel' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/diagnostics-channel.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/content-type.d.ts
+  Imported via './content-type' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/content-type.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/cache.d.ts
+  Imported via './cache' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/cache.d.ts@6.19.8'
+  Imported via './cache' from file '../../node_modules/undici-types/index.d.ts' with packageId 'undici-types/cache.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/undici-types/index.d.ts
+  Imported via "undici-types" from file '../../node_modules/@types/node/globals.d.ts' with packageId 'undici-types/index.d.ts@6.19.8'
+  Imported via "undici-types" from file '../../node_modules/@types/node/globals.d.ts' with packageId 'undici-types/index.d.ts@6.19.8'
+  Imported via "undici-types" from file '../../node_modules/@types/node/globals.d.ts' with packageId 'undici-types/index.d.ts@6.19.8'
+  Imported via "undici-types" from file '../../node_modules/@types/node/globals.d.ts' with packageId 'undici-types/index.d.ts@6.19.8'
+  Imported via "undici-types" from file '../../node_modules/@types/node/globals.d.ts' with packageId 'undici-types/index.d.ts@6.19.8'
+  Imported via "undici-types" from file '../../node_modules/@types/node/globals.d.ts' with packageId 'undici-types/index.d.ts@6.19.8'
+  Imported via "undici-types" from file '../../node_modules/@types/node/globals.d.ts' with packageId 'undici-types/index.d.ts@6.19.8'
+  Imported via "undici-types" from file '../../node_modules/@types/node/globals.d.ts' with packageId 'undici-types/index.d.ts@6.19.8'
+  Imported via "undici-types" from file '../../node_modules/@types/node/globals.d.ts' with packageId 'undici-types/index.d.ts@6.19.8'
+  Imported via "undici-types" from file '../../node_modules/@types/node/globals.d.ts' with packageId 'undici-types/index.d.ts@6.19.8'
+  File is CommonJS module because '../../node_modules/undici-types/package.json' does not have field "type"
+../../node_modules/@types/node/globals.d.ts
+  Referenced via 'globals.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/node/package.json' does not have field "type"
+../../node_modules/@types/node/async_hooks.d.ts
+  Referenced via 'async_hooks.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/buffer.d.ts
+  Referenced via 'buffer.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/child_process.d.ts
+  Referenced via 'child_process.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/cluster.d.ts
+  Referenced via 'cluster.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/console.d.ts
+  Referenced via 'console.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/constants.d.ts
+  Referenced via 'constants.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/crypto.d.ts
+  Referenced via 'crypto.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/dgram.d.ts
+  Referenced via 'dgram.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/diagnostics_channel.d.ts
+  Referenced via 'diagnostics_channel.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/dns.d.ts
+  Referenced via 'dns.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/dns/promises.d.ts
+  Referenced via 'dns/promises.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+  Referenced via 'dns/promises.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/domain.d.ts
+  Referenced via 'domain.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/dom-events.d.ts
+  Referenced via 'dom-events.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/node/package.json' does not have field "type"
+../../node_modules/@types/node/events.d.ts
+  Referenced via 'events.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/fs.d.ts
+  Referenced via 'fs.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/fs/promises.d.ts
+  Referenced via 'fs/promises.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/http.d.ts
+  Referenced via 'http.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/http2.d.ts
+  Referenced via 'http2.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/https.d.ts
+  Referenced via 'https.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/inspector.d.ts
+  Referenced via 'inspector.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/module.d.ts
+  Referenced via 'module.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/net.d.ts
+  Referenced via 'net.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/os.d.ts
+  Referenced via 'os.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/path.d.ts
+  Referenced via 'path.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/perf_hooks.d.ts
+  Referenced via 'perf_hooks.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/punycode/index.d.ts
+  Imported via "punycode" from file '../../node_modules/@types/node/process.d.ts' with packageId '@types/punycode/index.d.ts@2.1.4'
+  Entry point for implicit type library 'punycode' with packageId '@types/punycode/index.d.ts@2.1.4'
+  File is CommonJS module because '../../node_modules/@types/punycode/package.json' does not have field "type"
+../../node_modules/@types/node/process.d.ts
+  Referenced via 'process.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/punycode.d.ts
+  Referenced via 'punycode.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/querystring.d.ts
+  Referenced via 'querystring.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/readline.d.ts
+  Referenced via 'readline.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/readline/promises.d.ts
+  Referenced via 'readline/promises.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/repl.d.ts
+  Referenced via 'repl.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/sea.d.ts
+  Referenced via 'sea.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/stream.d.ts
+  Referenced via 'stream.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/stream/promises.d.ts
+  Referenced via 'stream/promises.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/stream/consumers.d.ts
+  Referenced via 'stream/consumers.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/stream/web.d.ts
+  Referenced via 'stream/web.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/string_decoder.d.ts
+  Referenced via 'string_decoder.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/test.d.ts
+  Referenced via 'test.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/timers.d.ts
+  Referenced via 'timers.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/timers/promises.d.ts
+  Referenced via 'timers/promises.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/tls.d.ts
+  Referenced via 'tls.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/trace_events.d.ts
+  Referenced via 'trace_events.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/tty.d.ts
+  Referenced via 'tty.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/url.d.ts
+  Referenced via 'url.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/util.d.ts
+  Referenced via 'util.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/v8.d.ts
+  Referenced via 'v8.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/vm.d.ts
+  Referenced via 'vm.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/wasi.d.ts
+  Referenced via 'wasi.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/worker_threads.d.ts
+  Referenced via 'worker_threads.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/zlib.d.ts
+  Referenced via 'zlib.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/globals.global.d.ts
+  Referenced via 'globals.global.d.ts' from file '../../node_modules/@types/node/index.d.ts'
+../../node_modules/@types/node/index.d.ts
+  Type library referenced via 'node' from file '../../node_modules/@ethereumjs/tx/dist/eip1559Transaction.d.ts'
+  Type library referenced via 'node' from file '../../node_modules/undici-types/formdata.d.ts'
+  Entry point for implicit type library 'node' with packageId '@types/node/index.d.ts@20.16.1'
+../../node_modules/@ethereumjs/common/dist/enums.d.ts
+  Imported via './enums' from file '../../node_modules/@ethereumjs/common/dist/common.d.ts' with packageId '@ethereumjs/common/dist/enums.d.ts@3.2.0'
+  Imported via './enums' from file '../../node_modules/@ethereumjs/common/dist/common.d.ts' with packageId '@ethereumjs/common/dist/enums.d.ts@3.2.0'
+  Imported via './enums' from file '../../node_modules/@ethereumjs/common/dist/types.d.ts' with packageId '@ethereumjs/common/dist/enums.d.ts@3.2.0'
+  Imported via './enums' from file '../../node_modules/@ethereumjs/common/dist/index.d.ts' with packageId '@ethereumjs/common/dist/enums.d.ts@3.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/common/package.json' does not have field "type"
+../../node_modules/@ethereumjs/common/dist/types.d.ts
+  Imported via './types' from file '../../node_modules/@ethereumjs/common/dist/common.d.ts' with packageId '@ethereumjs/common/dist/types.d.ts@3.2.0'
+  Imported via './types' from file '../../node_modules/@ethereumjs/common/dist/index.d.ts' with packageId '@ethereumjs/common/dist/types.d.ts@3.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/common/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/constants.d.ts
+  Imported via './constants' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/constants.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/units.d.ts
+  Imported via './units' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/units.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/address.d.ts
+  Imported via './address' from file '../../node_modules/@ethereumjs/util/dist/types.d.ts' with packageId '@ethereumjs/util/dist/address.d.ts@8.1.0'
+  Imported via './address' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/address.d.ts@8.1.0'
+  Imported via './address' from file '../../node_modules/@ethereumjs/util/dist/withdrawal.d.ts' with packageId '@ethereumjs/util/dist/address.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/bytes.d.ts
+  Imported via './bytes' from file '../../node_modules/@ethereumjs/util/dist/types.d.ts' with packageId '@ethereumjs/util/dist/bytes.d.ts@8.1.0'
+  Imported via './bytes' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/bytes.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/types.d.ts
+  Imported via './types' from file '../../node_modules/@ethereumjs/util/dist/account.d.ts' with packageId '@ethereumjs/util/dist/types.d.ts@8.1.0'
+  Imported via './types' from file '../../node_modules/@ethereumjs/util/dist/bytes.d.ts' with packageId '@ethereumjs/util/dist/types.d.ts@8.1.0'
+  Imported via './types' from file '../../node_modules/@ethereumjs/util/dist/withdrawal.d.ts' with packageId '@ethereumjs/util/dist/types.d.ts@8.1.0'
+  Imported via './types' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/types.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/account.d.ts
+  Imported via './account' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/account.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/withdrawal.d.ts
+  Imported via './withdrawal' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/withdrawal.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/signature.d.ts
+  Imported via './signature' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/signature.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/encoding.d.ts
+  Imported via './encoding' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/encoding.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/asyncEventEmitter.d.ts
+  Imported via './asyncEventEmitter' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/asyncEventEmitter.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/internal.d.ts
+  Imported via './internal' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/internal.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/lock.d.ts
+  Imported via './lock' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/lock.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/provider.d.ts
+  Imported via './provider' from file '../../node_modules/@ethereumjs/util/dist/index.d.ts' with packageId '@ethereumjs/util/dist/provider.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/util/dist/index.d.ts
+  Imported via '@ethereumjs/util' from file '../../node_modules/@ethereumjs/common/dist/common.d.ts' with packageId '@ethereumjs/util/dist/index.d.ts@8.1.0'
+  Imported via '@ethereumjs/util' from file '../../node_modules/@ethereumjs/tx/dist/baseTransaction.d.ts' with packageId '@ethereumjs/util/dist/index.d.ts@8.1.0'
+  Imported via '@ethereumjs/util' from file '../../node_modules/@ethereumjs/tx/dist/types.d.ts' with packageId '@ethereumjs/util/dist/index.d.ts@8.1.0'
+  Imported via '@ethereumjs/util' from file '../../node_modules/@ethereumjs/tx/dist/baseTransaction.d.ts' with packageId '@ethereumjs/util/dist/index.d.ts@8.1.0'
+  Imported via '@ethereumjs/util' from file 'src/simple-keyring.ts' with packageId '@ethereumjs/util/dist/index.d.ts@8.1.0'
+  Imported via '@ethereumjs/util' from file '../../node_modules/@metamask/eth-sig-util/dist/personal-sign.d.ts' with packageId '@ethereumjs/util/dist/index.d.ts@8.1.0'
+  Imported via '@ethereumjs/util' from file '../../node_modules/@metamask/eth-sig-util/dist/utils.d.ts' with packageId '@ethereumjs/util/dist/index.d.ts@8.1.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/util/package.json' does not have field "type"
+../../node_modules/@ethereumjs/common/dist/common.d.ts
+  Imported via './common' from file '../../node_modules/@ethereumjs/common/dist/index.d.ts' with packageId '@ethereumjs/common/dist/common.d.ts@3.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/common/package.json' does not have field "type"
+../../node_modules/@ethereumjs/common/dist/utils.d.ts
+  Imported via './utils' from file '../../node_modules/@ethereumjs/common/dist/index.d.ts' with packageId '@ethereumjs/common/dist/utils.d.ts@3.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/common/package.json' does not have field "type"
+../../node_modules/@ethereumjs/common/dist/index.d.ts
+  Imported via '@ethereumjs/common' from file '../../node_modules/@ethereumjs/tx/dist/baseTransaction.d.ts' with packageId '@ethereumjs/common/dist/index.d.ts@3.2.0'
+  Imported via '@ethereumjs/common' from file '../../node_modules/@ethereumjs/tx/dist/eip2930Transaction.d.ts' with packageId '@ethereumjs/common/dist/index.d.ts@3.2.0'
+  Imported via '@ethereumjs/common' from file '../../node_modules/@ethereumjs/tx/dist/legacyTransaction.d.ts' with packageId '@ethereumjs/common/dist/index.d.ts@3.2.0'
+  Imported via '@ethereumjs/common' from file '../../node_modules/@ethereumjs/tx/dist/types.d.ts' with packageId '@ethereumjs/common/dist/index.d.ts@3.2.0'
+  Imported via '@ethereumjs/common' from file '../../node_modules/@ethereumjs/tx/dist/eip1559Transaction.d.ts' with packageId '@ethereumjs/common/dist/index.d.ts@3.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/common/package.json' does not have field "type"
+../../node_modules/@ethereumjs/tx/dist/eip2930Transaction.d.ts
+  Imported via './eip2930Transaction' from file '../../node_modules/@ethereumjs/tx/dist/types.d.ts' with packageId '@ethereumjs/tx/dist/eip2930Transaction.d.ts@4.2.0'
+  Imported via './eip2930Transaction' from file '../../node_modules/@ethereumjs/tx/dist/index.d.ts' with packageId '@ethereumjs/tx/dist/eip2930Transaction.d.ts@4.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/tx/package.json' does not have field "type"
+../../node_modules/@ethereumjs/tx/dist/legacyTransaction.d.ts
+  Imported via './legacyTransaction' from file '../../node_modules/@ethereumjs/tx/dist/types.d.ts' with packageId '@ethereumjs/tx/dist/legacyTransaction.d.ts@4.2.0'
+  Imported via './legacyTransaction' from file '../../node_modules/@ethereumjs/tx/dist/index.d.ts' with packageId '@ethereumjs/tx/dist/legacyTransaction.d.ts@4.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/tx/package.json' does not have field "type"
+../../node_modules/@ethereumjs/tx/dist/types.d.ts
+  Imported via './types' from file '../../node_modules/@ethereumjs/tx/dist/baseTransaction.d.ts' with packageId '@ethereumjs/tx/dist/types.d.ts@4.2.0'
+  Imported via './types' from file '../../node_modules/@ethereumjs/tx/dist/eip2930Transaction.d.ts' with packageId '@ethereumjs/tx/dist/types.d.ts@4.2.0'
+  Imported via './types' from file '../../node_modules/@ethereumjs/tx/dist/legacyTransaction.d.ts' with packageId '@ethereumjs/tx/dist/types.d.ts@4.2.0'
+  Imported via './types' from file '../../node_modules/@ethereumjs/tx/dist/baseTransaction.d.ts' with packageId '@ethereumjs/tx/dist/types.d.ts@4.2.0'
+  Imported via './types' from file '../../node_modules/@ethereumjs/tx/dist/eip1559Transaction.d.ts' with packageId '@ethereumjs/tx/dist/types.d.ts@4.2.0'
+  Imported via './types' from file '../../node_modules/@ethereumjs/tx/dist/transactionFactory.d.ts' with packageId '@ethereumjs/tx/dist/types.d.ts@4.2.0'
+  Imported via './types' from file '../../node_modules/@ethereumjs/tx/dist/index.d.ts' with packageId '@ethereumjs/tx/dist/types.d.ts@4.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/tx/package.json' does not have field "type"
+../../node_modules/@ethereumjs/tx/dist/baseTransaction.d.ts
+  Imported via './baseTransaction' from file '../../node_modules/@ethereumjs/tx/dist/eip1559Transaction.d.ts' with packageId '@ethereumjs/tx/dist/baseTransaction.d.ts@4.2.0'
+  Imported via './baseTransaction' from file '../../node_modules/@ethereumjs/tx/dist/eip2930Transaction.d.ts' with packageId '@ethereumjs/tx/dist/baseTransaction.d.ts@4.2.0'
+  Imported via './baseTransaction' from file '../../node_modules/@ethereumjs/tx/dist/legacyTransaction.d.ts' with packageId '@ethereumjs/tx/dist/baseTransaction.d.ts@4.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/tx/package.json' does not have field "type"
+../../node_modules/@ethereumjs/tx/dist/eip1559Transaction.d.ts
+  Imported via './eip1559Transaction' from file '../../node_modules/@ethereumjs/tx/dist/index.d.ts' with packageId '@ethereumjs/tx/dist/eip1559Transaction.d.ts@4.2.0'
+  Imported via './eip1559Transaction' from file '../../node_modules/@ethereumjs/tx/dist/types.d.ts' with packageId '@ethereumjs/tx/dist/eip1559Transaction.d.ts@4.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/tx/package.json' does not have field "type"
+../../node_modules/@ethereumjs/tx/dist/transactionFactory.d.ts
+  Imported via './transactionFactory' from file '../../node_modules/@ethereumjs/tx/dist/index.d.ts' with packageId '@ethereumjs/tx/dist/transactionFactory.d.ts@4.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/tx/package.json' does not have field "type"
+../../node_modules/@ethereumjs/tx/dist/index.d.ts
+  Imported via '@ethereumjs/tx' from file 'src/simple-keyring.ts' with packageId '@ethereumjs/tx/dist/index.d.ts@4.2.0'
+  Imported via "@ethereumjs/tx" from file '../../node_modules/@metamask/utils/dist/keyring.d.cts' with packageId '@ethereumjs/tx/dist/index.d.ts@4.2.0'
+  File is CommonJS module because '../../node_modules/@ethereumjs/tx/package.json' does not have field "type"
+../../node_modules/@metamask/eth-sig-util/dist/personal-sign.d.ts
+  Imported via './personal-sign' from file '../../node_modules/@metamask/eth-sig-util/dist/index.d.ts' with packageId '@metamask/eth-sig-util/dist/personal-sign.d.ts@7.0.3'
+  File is CommonJS module because '../../node_modules/@metamask/eth-sig-util/package.json' does not have field "type"
+../../node_modules/@metamask/eth-sig-util/dist/sign-typed-data.d.ts
+  Imported via './sign-typed-data' from file '../../node_modules/@metamask/eth-sig-util/dist/index.d.ts' with packageId '@metamask/eth-sig-util/dist/sign-typed-data.d.ts@7.0.3'
+  File is CommonJS module because '../../node_modules/@metamask/eth-sig-util/package.json' does not have field "type"
+../../node_modules/@metamask/eth-sig-util/dist/encryption.d.ts
+  Imported via './encryption' from file '../../node_modules/@metamask/eth-sig-util/dist/index.d.ts' with packageId '@metamask/eth-sig-util/dist/encryption.d.ts@7.0.3'
+  File is CommonJS module because '../../node_modules/@metamask/eth-sig-util/package.json' does not have field "type"
+../../node_modules/@metamask/eth-sig-util/dist/utils.d.ts
+  Imported via './utils' from file '../../node_modules/@metamask/eth-sig-util/dist/index.d.ts' with packageId '@metamask/eth-sig-util/dist/utils.d.ts@7.0.3'
+  File is CommonJS module because '../../node_modules/@metamask/eth-sig-util/package.json' does not have field "type"
+../../node_modules/@metamask/eth-sig-util/dist/index.d.ts
+  Imported via '@metamask/eth-sig-util' from file 'src/simple-keyring.ts' with packageId '@metamask/eth-sig-util/dist/index.d.ts@7.0.3'
+  File is CommonJS module because '../../node_modules/@metamask/eth-sig-util/package.json' does not have field "type"
+../../node_modules/@metamask/superstruct/dist/error.d.cts
+  Imported via "./error.cjs" from file '../../node_modules/@metamask/superstruct/dist/index.d.cts' with packageId '@metamask/superstruct/dist/error.d.cts@3.1.0'
+  Imported via "./error.cjs" from file '../../node_modules/@metamask/superstruct/dist/struct.d.cts' with packageId '@metamask/superstruct/dist/error.d.cts@3.1.0'
+  Imported via "./error.cjs" from file '../../node_modules/@metamask/superstruct/dist/struct.d.cts' with packageId '@metamask/superstruct/dist/error.d.cts@3.1.0'
+  Imported via "./error.cjs" from file '../../node_modules/@metamask/superstruct/dist/utils.d.cts' with packageId '@metamask/superstruct/dist/error.d.cts@3.1.0'
+../../node_modules/@metamask/superstruct/dist/utils.d.cts
+  Imported via "./utils.cjs" from file '../../node_modules/@metamask/superstruct/dist/struct.d.cts' with packageId '@metamask/superstruct/dist/utils.d.cts@3.1.0'
+  Imported via "../utils.cjs" from file '../../node_modules/@metamask/superstruct/dist/structs/types.d.cts' with packageId '@metamask/superstruct/dist/utils.d.cts@3.1.0'
+  Imported via "../utils.cjs" from file '../../node_modules/@metamask/superstruct/dist/structs/utilities.d.cts' with packageId '@metamask/superstruct/dist/utils.d.cts@3.1.0'
+  Imported via "./utils.cjs" from file '../../node_modules/@metamask/superstruct/dist/index.d.cts' with packageId '@metamask/superstruct/dist/utils.d.cts@3.1.0'
+../../node_modules/@metamask/superstruct/dist/struct.d.cts
+  Imported via "./struct.cjs" from file '../../node_modules/@metamask/superstruct/dist/index.d.cts' with packageId '@metamask/superstruct/dist/struct.d.cts@3.1.0'
+  Imported via "./struct.cjs" from file '../../node_modules/@metamask/superstruct/dist/utils.d.cts' with packageId '@metamask/superstruct/dist/struct.d.cts@3.1.0'
+  Imported via "../struct.cjs" from file '../../node_modules/@metamask/superstruct/dist/structs/coercions.d.cts' with packageId '@metamask/superstruct/dist/struct.d.cts@3.1.0'
+  Imported via "../struct.cjs" from file '../../node_modules/@metamask/superstruct/dist/structs/coercions.d.cts' with packageId '@metamask/superstruct/dist/struct.d.cts@3.1.0'
+  Imported via "../struct.cjs" from file '../../node_modules/@metamask/superstruct/dist/structs/refinements.d.cts' with packageId '@metamask/superstruct/dist/struct.d.cts@3.1.0'
+  Imported via "../struct.cjs" from file '../../node_modules/@metamask/superstruct/dist/structs/refinements.d.cts' with packageId '@metamask/superstruct/dist/struct.d.cts@3.1.0'
+  Imported via "../struct.cjs" from file '../../node_modules/@metamask/superstruct/dist/structs/types.d.cts' with packageId '@metamask/superstruct/dist/struct.d.cts@3.1.0'
+  Imported via "../struct.cjs" from file '../../node_modules/@metamask/superstruct/dist/structs/types.d.cts' with packageId '@metamask/superstruct/dist/struct.d.cts@3.1.0'
+  Imported via "../struct.cjs" from file '../../node_modules/@metamask/superstruct/dist/structs/utilities.d.cts' with packageId '@metamask/superstruct/dist/struct.d.cts@3.1.0'
+  Imported via "../struct.cjs" from file '../../node_modules/@metamask/superstruct/dist/structs/utilities.d.cts' with packageId '@metamask/superstruct/dist/struct.d.cts@3.1.0'
+../../node_modules/@metamask/superstruct/dist/structs/coercions.d.cts
+  Imported via "./structs/coercions.cjs" from file '../../node_modules/@metamask/superstruct/dist/index.d.cts' with packageId '@metamask/superstruct/dist/structs/coercions.d.cts@3.1.0'
+../../node_modules/@metamask/superstruct/dist/structs/refinements.d.cts
+  Imported via "./structs/refinements.cjs" from file '../../node_modules/@metamask/superstruct/dist/index.d.cts' with packageId '@metamask/superstruct/dist/structs/refinements.d.cts@3.1.0'
+../../node_modules/@metamask/superstruct/dist/structs/types.d.cts
+  Imported via "./structs/types.cjs" from file '../../node_modules/@metamask/superstruct/dist/index.d.cts' with packageId '@metamask/superstruct/dist/structs/types.d.cts@3.1.0'
+../../node_modules/@metamask/superstruct/dist/structs/utilities.d.cts
+  Imported via "./structs/utilities.cjs" from file '../../node_modules/@metamask/superstruct/dist/index.d.cts' with packageId '@metamask/superstruct/dist/structs/utilities.d.cts@3.1.0'
+../../node_modules/@metamask/superstruct/dist/index.d.cts
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/assert.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/base64.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/hex.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/caip-types.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/caip-types.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/caip-types.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/caip-types.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/caip-types.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/caip-types.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/checksum.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/coercers.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/coercers.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/coercers.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/json.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/json.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+  Imported via "@metamask/superstruct" from file '../../node_modules/@metamask/utils/dist/versions.d.cts' with packageId '@metamask/superstruct/dist/index.d.cts@3.1.0'
+../../node_modules/@metamask/utils/dist/assert.d.cts
+  Imported via "./assert.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/assert.d.cts@9.1.0'
+  Imported via "./assert.cjs" from file '../../node_modules/@metamask/utils/dist/json.d.cts' with packageId '@metamask/utils/dist/assert.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/base64.d.cts
+  Imported via "./base64.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/base64.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/hex.d.cts
+  Imported via "./hex.cjs" from file '../../node_modules/@metamask/utils/dist/bytes.d.cts' with packageId '@metamask/utils/dist/hex.d.cts@9.1.0'
+  Imported via "./hex.cjs" from file '../../node_modules/@metamask/utils/dist/coercers.d.cts' with packageId '@metamask/utils/dist/hex.d.cts@9.1.0'
+  Imported via "./hex.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/hex.d.cts@9.1.0'
+  Imported via "./hex.cjs" from file '../../node_modules/@metamask/utils/dist/keyring.d.cts' with packageId '@metamask/utils/dist/hex.d.cts@9.1.0'
+  Imported via "./hex.cjs" from file '../../node_modules/@metamask/utils/dist/number.d.cts' with packageId '@metamask/utils/dist/hex.d.cts@9.1.0'
+  Imported via "./hex.cjs" from file '../../node_modules/@metamask/utils/dist/transaction-types.d.cts' with packageId '@metamask/utils/dist/hex.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/bytes.d.cts
+  Imported via "./bytes.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/bytes.d.cts@9.1.0'
+  Imported via "./bytes.cjs" from file '../../node_modules/@metamask/utils/dist/transaction-types.d.cts' with packageId '@metamask/utils/dist/bytes.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/caip-types.d.cts
+  Imported via "./caip-types.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/caip-types.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/checksum.d.cts
+  Imported via "./checksum.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/checksum.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/coercers.d.cts
+  Imported via "./coercers.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/coercers.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/collections.d.cts
+  Imported via "./collections.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/collections.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/encryption-types.d.cts
+  Imported via "./encryption-types.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/encryption-types.d.cts@9.1.0'
+  Imported via "./encryption-types.cjs" from file '../../node_modules/@metamask/utils/dist/keyring.d.cts' with packageId '@metamask/utils/dist/encryption-types.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/errors.d.cts
+  Imported via "./errors.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/errors.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/json.d.cts
+  Imported via "./json.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/json.d.cts@9.1.0'
+  Imported via "./json.cjs" from file '../../node_modules/@metamask/utils/dist/keyring.d.cts' with packageId '@metamask/utils/dist/json.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/keyring.d.cts
+  Imported via "./keyring.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/keyring.d.cts@9.1.0'
+../../node_modules/@types/ms/index.d.ts
+  Imported via "ms" from file '../../node_modules/@types/debug/index.d.ts' with packageId '@types/ms/index.d.ts@0.7.34'
+  Entry point for implicit type library 'ms' with packageId '@types/ms/index.d.ts@0.7.34'
+  File is CommonJS module because '../../node_modules/@types/ms/package.json' does not have field "type"
+../../node_modules/@types/debug/index.d.ts
+  Imported via "debug" from file '../../node_modules/@metamask/utils/dist/logging.d.cts' with packageId '@types/debug/index.d.ts@4.1.12'
+  Entry point for implicit type library 'debug' with packageId '@types/debug/index.d.ts@4.1.12'
+  File is CommonJS module because '../../node_modules/@types/debug/package.json' does not have field "type"
+../../node_modules/@metamask/utils/dist/logging.d.cts
+  Imported via "./logging.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/logging.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/misc.d.cts
+  Imported via "./misc.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/misc.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/number.d.cts
+  Imported via "./number.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/number.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/opaque.d.cts
+  Imported via "./opaque.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/opaque.d.cts@9.1.0'
+  Imported via "./opaque.cjs" from file '../../node_modules/@metamask/utils/dist/versions.d.cts' with packageId '@metamask/utils/dist/opaque.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/promise.d.cts
+  Imported via "./promise.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/promise.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/time.d.cts
+  Imported via "./time.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/time.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/transaction-types.d.cts
+  Imported via "./transaction-types.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/transaction-types.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/versions.d.cts
+  Imported via "./versions.cjs" from file '../../node_modules/@metamask/utils/dist/index.d.cts' with packageId '@metamask/utils/dist/versions.d.cts@9.1.0'
+../../node_modules/@metamask/utils/dist/index.d.cts
+  Imported via '@metamask/utils' from file 'src/simple-keyring.ts' with packageId '@metamask/utils/dist/index.d.cts@9.1.0'
+../../node_modules/@noble/hashes/utils.d.ts
+  Imported via './utils.js' from file '../../node_modules/@noble/hashes/sha3.d.ts' with packageId '@noble/hashes/utils.d.ts@1.4.0'
+  Imported via "@noble/hashes/utils" from file '../../node_modules/ethereum-cryptography/keccak.d.ts' with packageId '@noble/hashes/utils.d.ts@1.4.0'
+  File is CommonJS module because '../../node_modules/@noble/hashes/package.json' does not have field "type"
+../../node_modules/@noble/hashes/sha3.d.ts
+  Imported via "@noble/hashes/sha3" from file '../../node_modules/ethereum-cryptography/keccak.d.ts' with packageId '@noble/hashes/sha3.d.ts@1.4.0'
+  File is CommonJS module because '../../node_modules/@noble/hashes/package.json' does not have field "type"
+../../node_modules/ethereum-cryptography/keccak.d.ts
+  Imported via 'ethereum-cryptography/keccak' from file 'src/simple-keyring.ts' with packageId 'ethereum-cryptography/keccak.d.ts@2.2.1'
+  File is CommonJS module because '../../node_modules/ethereum-cryptography/package.json' does not have field "type"
+../../node_modules/@types/randombytes/index.d.ts
+  Imported via 'randombytes' from file 'src/simple-keyring.ts' with packageId '@types/randombytes/index.d.ts@2.0.3'
+  Entry point for implicit type library 'randombytes' with packageId '@types/randombytes/index.d.ts@2.0.3'
+  File is CommonJS module because '../../node_modules/@types/randombytes/package.json' does not have field "type"
+src/simple-keyring.ts
+  Imported via './simple-keyring' from file 'src/index.ts'
+  Matched by include pattern './src/**/*.ts' in 'tsconfig.build.json'
+  File is CommonJS module because 'package.json' does not have field "type"
+src/index.ts
+  Matched by include pattern './src/**/*.ts' in 'tsconfig.build.json'
+  File is CommonJS module because 'package.json' does not have field "type"
+node_modules/@jest/expect-utils/build/index.d.ts
+  Imported via '@jest/expect-utils' from file 'node_modules/expect/build/index.d.ts' with packageId '@jest/expect-utils/build/index.d.ts@29.7.0'
+  Imported via '@jest/expect-utils' from file 'node_modules/expect/build/index.d.ts' with packageId '@jest/expect-utils/build/index.d.ts@29.7.0'
+  Imported via '@jest/expect-utils' from file 'node_modules/expect/build/index.d.ts' with packageId '@jest/expect-utils/build/index.d.ts@29.7.0'
+  File is CommonJS module because 'node_modules/@jest/expect-utils/package.json' does not have field "type"
+../../node_modules/chalk/index.d.ts
+  Imported via 'chalk' from file 'node_modules/jest-matcher-utils/build/index.d.ts' with packageId 'chalk/index.d.ts@4.1.2'
+  File is CommonJS module because '../../node_modules/chalk/package.json' does not have field "type"
+../../node_modules/jest-diff/node_modules/@sinclair/typebox/typebox.d.ts
+  Imported via '@sinclair/typebox' from file '../../node_modules/jest-diff/node_modules/@jest/schemas/build/index.d.ts' with packageId '@sinclair/typebox/typebox.d.ts@0.27.8'
+  Imported via '@sinclair/typebox' from file '../../node_modules/jest-diff/node_modules/@jest/schemas/build/index.d.ts' with packageId '@sinclair/typebox/typebox.d.ts@0.27.8'
+  Imported via '@sinclair/typebox' from file '../../node_modules/jest-diff/node_modules/@jest/schemas/build/index.d.ts' with packageId '@sinclair/typebox/typebox.d.ts@0.27.8'
+  Imported via '@sinclair/typebox' from file '../../node_modules/jest-diff/node_modules/@jest/schemas/build/index.d.ts' with packageId '@sinclair/typebox/typebox.d.ts@0.27.8'
+  Imported via '@sinclair/typebox' from file '../../node_modules/jest-diff/node_modules/@jest/schemas/build/index.d.ts' with packageId '@sinclair/typebox/typebox.d.ts@0.27.8'
+  Imported via '@sinclair/typebox' from file '../../node_modules/jest-diff/node_modules/@jest/schemas/build/index.d.ts' with packageId '@sinclair/typebox/typebox.d.ts@0.27.8'
+  Imported via '@sinclair/typebox' from file '../../node_modules/jest-diff/node_modules/@jest/schemas/build/index.d.ts' with packageId '@sinclair/typebox/typebox.d.ts@0.27.8'
+  File is CommonJS module because '../../node_modules/jest-diff/node_modules/@sinclair/typebox/package.json' does not have field "type"
+../../node_modules/jest-diff/node_modules/@jest/schemas/build/index.d.ts
+  Imported via '@jest/schemas' from file '../../node_modules/jest-diff/node_modules/pretty-format/build/index.d.ts' with packageId '@jest/schemas/build/index.d.ts@29.6.3'
+  File is CommonJS module because '../../node_modules/jest-diff/node_modules/@jest/schemas/package.json' does not have field "type"
+../../node_modules/jest-diff/node_modules/pretty-format/build/index.d.ts
+  Imported via 'pretty-format' from file '../../node_modules/jest-diff/build/index.d.ts' with packageId 'pretty-format/build/index.d.ts@29.7.0'
+  File is CommonJS module because '../../node_modules/jest-diff/node_modules/pretty-format/package.json' does not have field "type"
+../../node_modules/jest-diff/build/index.d.ts
+  Imported via 'jest-diff' from file 'node_modules/jest-matcher-utils/build/index.d.ts' with packageId 'jest-diff/build/index.d.ts@29.7.0'
+  File is CommonJS module because '../../node_modules/jest-diff/package.json' does not have field "type"
+node_modules/jest-matcher-utils/build/index.d.ts
+  Imported via 'jest-matcher-utils' from file 'node_modules/expect/build/index.d.ts' with packageId 'jest-matcher-utils/build/index.d.ts@29.7.0'
+  File is CommonJS module because 'node_modules/jest-matcher-utils/package.json' does not have field "type"
+node_modules/expect/build/index.d.ts
+  Imported via "expect" from file 'node_modules/@types/jest/index.d.ts' with packageId 'expect/build/index.d.ts@29.7.0'
+  Imported via "expect" from file 'node_modules/@types/jest/index.d.ts' with packageId 'expect/build/index.d.ts@29.7.0'
+  File is CommonJS module because 'node_modules/expect/package.json' does not have field "type"
+node_modules/pretty-format/build/index.d.ts
+  Imported via "pretty-format" from file 'node_modules/@types/jest/index.d.ts' with packageId 'pretty-format/build/index.d.ts@29.7.0'
+  File redirects to file '../../node_modules/jest-diff/node_modules/pretty-format/build/index.d.ts'
+  File is CommonJS module because 'node_modules/pretty-format/package.json' does not have field "type"
+node_modules/@types/jest/index.d.ts
+  Entry point for implicit type library 'jest' with packageId '@types/jest/index.d.ts@29.5.12'
+../../node_modules/@babel/types/lib/index.d.ts
+  Imported via '@babel/types' from file '../../node_modules/@types/babel__generator/index.d.ts' with packageId '@babel/types/lib/index.d.ts@7.25.4'
+  Imported via '@babel/types' from file '../../node_modules/@babel/parser/typings/babel-parser.d.ts' with packageId '@babel/types/lib/index.d.ts@7.25.4'
+  Imported via "@babel/types" from file '../../node_modules/@types/babel__template/index.d.ts' with packageId '@babel/types/lib/index.d.ts@7.25.4'
+  Imported via '@babel/types' from file '../../node_modules/@types/babel__traverse/index.d.ts' with packageId '@babel/types/lib/index.d.ts@7.25.4'
+  Imported via '@babel/types' from file '../../node_modules/@types/babel__core/index.d.ts' with packageId '@babel/types/lib/index.d.ts@7.25.4'
+  File is CommonJS module because '../../node_modules/@babel/types/package.json' has field "type" whose value is not "module"
+../../node_modules/@types/babel__generator/index.d.ts
+  Imported via '@babel/generator' from file '../../node_modules/@types/babel__core/index.d.ts' with packageId '@types/babel__generator/index.d.ts@7.6.1'
+  Entry point for implicit type library 'babel__generator' with packageId '@types/babel__generator/index.d.ts@7.6.1'
+  File is CommonJS module because '../../node_modules/@types/babel__generator/package.json' does not have field "type"
+../../node_modules/@babel/parser/typings/babel-parser.d.ts
+  Imported via '@babel/parser' from file '../../node_modules/@types/babel__core/index.d.ts' with packageId '@babel/parser/typings/babel-parser.d.ts@7.25.4'
+  Imported via "@babel/parser" from file '../../node_modules/@types/babel__template/index.d.ts' with packageId '@babel/parser/typings/babel-parser.d.ts@7.25.4'
+  Imported via '@babel/parser' from file '../../node_modules/@types/babel__core/index.d.ts' with packageId '@babel/parser/typings/babel-parser.d.ts@7.25.4'
+  File is CommonJS module because '../../node_modules/@babel/parser/package.json' has field "type" whose value is not "module"
+../../node_modules/@types/babel__template/index.d.ts
+  Imported via '@babel/template' from file '../../node_modules/@types/babel__core/index.d.ts' with packageId '@types/babel__template/index.d.ts@7.0.2'
+  Entry point for implicit type library 'babel__template' with packageId '@types/babel__template/index.d.ts@7.0.2'
+  File is CommonJS module because '../../node_modules/@types/babel__template/package.json' does not have field "type"
+../../node_modules/@types/babel__traverse/index.d.ts
+  Imported via '@babel/traverse' from file '../../node_modules/@types/babel__core/index.d.ts' with packageId '@types/babel__traverse/index.d.ts@7.0.14'
+  Entry point for implicit type library 'babel__traverse' with packageId '@types/babel__traverse/index.d.ts@7.0.14'
+  File is CommonJS module because '../../node_modules/@types/babel__traverse/package.json' does not have field "type"
+../../node_modules/@types/babel__core/index.d.ts
+  Entry point for implicit type library 'babel__core' with packageId '@types/babel__core/index.d.ts@7.1.19'
+  File is CommonJS module because '../../node_modules/@types/babel__core/package.json' does not have field "type"
+../../node_modules/@types/bn.js/index.d.ts
+  Entry point for implicit type library 'bn.js' with packageId '@types/bn.js/index.d.ts@5.1.5'
+  Imported via "bn.js" from file '../../node_modules/@types/ethereumjs-tx/index.d.ts' with packageId '@types/bn.js/index.d.ts@5.1.5'
+  File is CommonJS module because '../../node_modules/@types/bn.js/package.json' does not have field "type"
+../../node_modules/@types/color-name/index.d.ts
+  Entry point for implicit type library 'color-name' with packageId '@types/color-name/index.d.ts@1.1.1'
+  File is CommonJS module because '../../node_modules/@types/color-name/package.json' does not have field "type"
+../../node_modules/@types/connect/index.d.ts
+  Entry point for implicit type library 'connect' with packageId '@types/connect/index.d.ts@3.4.38'
+  File is CommonJS module because '../../node_modules/@types/connect/package.json' does not have field "type"
+../../node_modules/@types/deep-freeze-strict/index.d.ts
+  Entry point for implicit type library 'deep-freeze-strict' with packageId '@types/deep-freeze-strict/index.d.ts@1.1.2'
+  File is CommonJS module because '../../node_modules/@types/deep-freeze-strict/package.json' does not have field "type"
+../../node_modules/@types/eslint/helpers.d.ts
+  Referenced via 'helpers.d.ts' from file '../../node_modules/@types/eslint/index.d.ts'
+../../node_modules/@types/eslint/lib/rules/index.d.ts
+  Referenced via 'lib/rules/index.d.ts' from file '../../node_modules/@types/eslint/index.d.ts'
+../../node_modules/@types/json-schema/index.d.ts
+  Imported via "json-schema" from file '../../node_modules/@types/eslint/index.d.ts' with packageId '@types/json-schema/index.d.ts@7.0.15'
+  Entry point for implicit type library 'json-schema' with packageId '@types/json-schema/index.d.ts@7.0.15'
+  File is CommonJS module because '../../node_modules/@types/json-schema/package.json' does not have field "type"
+../../node_modules/@types/estree/index.d.ts
+  Imported via "estree" from file '../../node_modules/@types/eslint/index.d.ts' with packageId '@types/estree/index.d.ts@1.0.5'
+  Entry point for implicit type library 'estree' with packageId '@types/estree/index.d.ts@1.0.5'
+  File is CommonJS module because '../../node_modules/@types/estree/package.json' does not have field "type"
+../../node_modules/@types/eslint/index.d.ts
+  Entry point for implicit type library 'eslint' with packageId '@types/eslint/index.d.ts@7.29.0'
+  Imported via "eslint" from file '../../node_modules/@types/eslint/lib/rules/index.d.ts' with packageId '@types/eslint/index.d.ts@7.29.0'
+  File is CommonJS module because '../../node_modules/@types/eslint/package.json' does not have field "type"
+../../node_modules/@types/ethereumjs-tx/index.d.ts
+  Entry point for implicit type library 'ethereumjs-tx' with packageId '@types/ethereumjs-tx/index.d.ts@1.0.1'
+  File is CommonJS module because '../../node_modules/@types/ethereumjs-tx/package.json' does not have field "type"
+../../node_modules/@types/minimatch/index.d.ts
+  Imported via "minimatch" from file '../../node_modules/@types/glob/index.d.ts' with packageId '@types/minimatch/index.d.ts@3.0.5'
+  Entry point for implicit type library 'minimatch' with packageId '@types/minimatch/index.d.ts@3.0.5'
+  File is CommonJS module because '../../node_modules/@types/minimatch/package.json' does not have field "type"
+../../node_modules/@types/glob/index.d.ts
+  Entry point for implicit type library 'glob' with packageId '@types/glob/index.d.ts@7.1.3'
+  File is CommonJS module because '../../node_modules/@types/glob/package.json' does not have field "type"
+../../node_modules/@types/graceful-fs/index.d.ts
+  Entry point for implicit type library 'graceful-fs' with packageId '@types/graceful-fs/index.d.ts@4.1.5'
+  File is CommonJS module because '../../node_modules/@types/graceful-fs/package.json' does not have field "type"
+../../node_modules/@types/hdkey/index.d.ts
+  Entry point for implicit type library 'hdkey' with packageId '@types/hdkey/index.d.ts@2.0.3'
+  File is CommonJS module because '../../node_modules/@types/hdkey/package.json' does not have field "type"
+../../node_modules/@types/istanbul-lib-coverage/index.d.ts
+  Entry point for implicit type library 'istanbul-lib-coverage' with packageId '@types/istanbul-lib-coverage/index.d.ts@2.0.3'
+  Imported via 'istanbul-lib-coverage' from file '../../node_modules/@types/istanbul-lib-report/index.d.ts' with packageId '@types/istanbul-lib-coverage/index.d.ts@2.0.3'
+  File is CommonJS module because '../../node_modules/@types/istanbul-lib-coverage/package.json' does not have field "type"
+../../node_modules/@types/istanbul-lib-report/index.d.ts
+  Entry point for implicit type library 'istanbul-lib-report' with packageId '@types/istanbul-lib-report/index.d.ts@3.0.0'
+  Imported via 'istanbul-lib-report' from file '../../node_modules/@types/istanbul-reports/index.d.ts' with packageId '@types/istanbul-lib-report/index.d.ts@3.0.0'
+  File is CommonJS module because '../../node_modules/@types/istanbul-lib-report/package.json' does not have field "type"
+../../node_modules/@types/istanbul-reports/index.d.ts
+  Entry point for implicit type library 'istanbul-reports' with packageId '@types/istanbul-reports/index.d.ts@3.0.0'
+  File is CommonJS module because '../../node_modules/@types/istanbul-reports/package.json' does not have field "type"
+../../node_modules/parse5/dist/cjs/common/html.d.ts
+  Imported via './html.js' from file '../../node_modules/parse5/dist/cjs/common/token.d.ts' with packageId 'parse5/dist/cjs/common/html.d.ts@7.1.2'
+  Imported via '../common/html.js' from file '../../node_modules/parse5/dist/cjs/parser/open-element-stack.d.ts' with packageId 'parse5/dist/cjs/common/html.d.ts@7.1.2'
+  Imported via '../common/html.js' from file '../../node_modules/parse5/dist/cjs/tree-adapters/interface.d.ts' with packageId 'parse5/dist/cjs/common/html.d.ts@7.1.2'
+  Imported via '../common/html.js' from file '../../node_modules/parse5/dist/cjs/parser/index.d.ts' with packageId 'parse5/dist/cjs/common/html.d.ts@7.1.2'
+  Imported via '../common/html.js' from file '../../node_modules/parse5/dist/cjs/tree-adapters/default.d.ts' with packageId 'parse5/dist/cjs/common/html.d.ts@7.1.2'
+  Imported via './html.js' from file '../../node_modules/parse5/dist/cjs/common/foreign-content.d.ts' with packageId 'parse5/dist/cjs/common/html.d.ts@7.1.2'
+  Imported via './common/html.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/common/html.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/common/token.d.ts
+  Imported via './token.js' from file '../../node_modules/parse5/dist/cjs/common/error-codes.d.ts' with packageId 'parse5/dist/cjs/common/token.d.ts@7.1.2'
+  Imported via '../common/token.js' from file '../../node_modules/parse5/dist/cjs/tokenizer/index.d.ts' with packageId 'parse5/dist/cjs/common/token.d.ts@7.1.2'
+  Imported via '../common/token.js' from file '../../node_modules/parse5/dist/cjs/tree-adapters/interface.d.ts' with packageId 'parse5/dist/cjs/common/token.d.ts@7.1.2'
+  Imported via '../common/token.js' from file '../../node_modules/parse5/dist/cjs/parser/formatting-element-list.d.ts' with packageId 'parse5/dist/cjs/common/token.d.ts@7.1.2'
+  Imported via '../common/token.js' from file '../../node_modules/parse5/dist/cjs/parser/index.d.ts' with packageId 'parse5/dist/cjs/common/token.d.ts@7.1.2'
+  Imported via '../common/token.js' from file '../../node_modules/parse5/dist/cjs/tree-adapters/default.d.ts' with packageId 'parse5/dist/cjs/common/token.d.ts@7.1.2'
+  Imported via './token.js' from file '../../node_modules/parse5/dist/cjs/common/foreign-content.d.ts' with packageId 'parse5/dist/cjs/common/token.d.ts@7.1.2'
+  Imported via './common/token.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/common/token.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/common/error-codes.d.ts
+  Imported via '../common/error-codes.js' from file '../../node_modules/parse5/dist/cjs/tokenizer/preprocessor.d.ts' with packageId 'parse5/dist/cjs/common/error-codes.d.ts@7.1.2'
+  Imported via '../common/error-codes.js' from file '../../node_modules/parse5/dist/cjs/tokenizer/index.d.ts' with packageId 'parse5/dist/cjs/common/error-codes.d.ts@7.1.2'
+  Imported via '../common/error-codes.js' from file '../../node_modules/parse5/dist/cjs/parser/index.d.ts' with packageId 'parse5/dist/cjs/common/error-codes.d.ts@7.1.2'
+  Imported via './common/error-codes.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/common/error-codes.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/tokenizer/preprocessor.d.ts
+  Imported via './preprocessor.js' from file '../../node_modules/parse5/dist/cjs/tokenizer/index.d.ts' with packageId 'parse5/dist/cjs/tokenizer/preprocessor.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/tokenizer/index.d.ts
+  Imported via '../tokenizer/index.js' from file '../../node_modules/parse5/dist/cjs/parser/index.d.ts' with packageId 'parse5/dist/cjs/tokenizer/index.d.ts@7.1.2'
+  Imported via './tokenizer/index.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/tokenizer/index.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/tree-adapters/interface.d.ts
+  Imported via '../tree-adapters/interface.js' from file '../../node_modules/parse5/dist/cjs/parser/open-element-stack.d.ts' with packageId 'parse5/dist/cjs/tree-adapters/interface.d.ts@7.1.2'
+  Imported via '../tree-adapters/interface.js' from file '../../node_modules/parse5/dist/cjs/parser/formatting-element-list.d.ts' with packageId 'parse5/dist/cjs/tree-adapters/interface.d.ts@7.1.2'
+  Imported via '../tree-adapters/interface.js' from file '../../node_modules/parse5/dist/cjs/parser/index.d.ts' with packageId 'parse5/dist/cjs/tree-adapters/interface.d.ts@7.1.2'
+  Imported via './interface.js' from file '../../node_modules/parse5/dist/cjs/tree-adapters/default.d.ts' with packageId 'parse5/dist/cjs/tree-adapters/interface.d.ts@7.1.2'
+  Imported via './tree-adapters/interface.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/tree-adapters/interface.d.ts@7.1.2'
+  Imported via './tree-adapters/interface.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/tree-adapters/interface.d.ts@7.1.2'
+  Imported via '../tree-adapters/interface.js' from file '../../node_modules/parse5/dist/cjs/serializer/index.d.ts' with packageId 'parse5/dist/cjs/tree-adapters/interface.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/parser/open-element-stack.d.ts
+  Imported via './open-element-stack.js' from file '../../node_modules/parse5/dist/cjs/parser/index.d.ts' with packageId 'parse5/dist/cjs/parser/open-element-stack.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/parser/formatting-element-list.d.ts
+  Imported via './formatting-element-list.js' from file '../../node_modules/parse5/dist/cjs/parser/index.d.ts' with packageId 'parse5/dist/cjs/parser/formatting-element-list.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/parser/index.d.ts
+  Imported via './parser/index.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/parser/index.d.ts@7.1.2'
+  Imported via './parser/index.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/parser/index.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/tree-adapters/default.d.ts
+  Imported via './tree-adapters/default.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/tree-adapters/default.d.ts@7.1.2'
+  Imported via './tree-adapters/default.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/tree-adapters/default.d.ts@7.1.2'
+  Imported via '../tree-adapters/default.js' from file '../../node_modules/parse5/dist/cjs/serializer/index.d.ts' with packageId 'parse5/dist/cjs/tree-adapters/default.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/serializer/index.d.ts
+  Imported via './serializer/index.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/serializer/index.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/common/foreign-content.d.ts
+  Imported via './common/foreign-content.js' from file '../../node_modules/parse5/dist/cjs/index.d.ts' with packageId 'parse5/dist/cjs/common/foreign-content.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/parse5/dist/cjs/index.d.ts
+  Imported via "parse5" from file '../../node_modules/@types/jsdom/base.d.ts' with packageId 'parse5/dist/cjs/index.d.ts@7.1.2'
+  File is CommonJS module because '../../node_modules/parse5/dist/cjs/package.json' has field "type" whose value is not "module"
+../../node_modules/@types/tough-cookie/index.d.ts
+  Imported via "tough-cookie" from file '../../node_modules/@types/jsdom/base.d.ts' with packageId '@types/tough-cookie/index.d.ts@4.0.5'
+  Entry point for implicit type library 'tough-cookie' with packageId '@types/tough-cookie/index.d.ts@4.0.5'
+  File is CommonJS module because '../../node_modules/@types/tough-cookie/package.json' does not have field "type"
+../../node_modules/@types/jsdom/base.d.ts
+  Referenced via 'base.d.ts' from file '../../node_modules/@types/jsdom/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/jsdom/package.json' does not have field "type"
+../../node_modules/@types/jsdom/index.d.ts
+  Entry point for implicit type library 'jsdom' with packageId '@types/jsdom/index.d.ts@20.0.1'
+../../node_modules/@types/json5/index.d.ts
+  Entry point for implicit type library 'json5' with packageId '@types/json5/index.d.ts@0.0.29'
+  File is CommonJS module because '../../node_modules/@types/json5/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/common.d.ts
+  Referenced via './common/common.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  Imported via "./common" from file '../../node_modules/@types/lodash/common/object.d.ts' with packageId '@types/lodash/common/common.d.ts@4.17.7'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/array.d.ts
+  Referenced via './common/array.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/collection.d.ts
+  Referenced via './common/collection.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/date.d.ts
+  Referenced via './common/date.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/function.d.ts
+  Referenced via './common/function.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/lang.d.ts
+  Referenced via './common/lang.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/math.d.ts
+  Referenced via './common/math.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/number.d.ts
+  Referenced via './common/number.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/object.d.ts
+  Referenced via './common/object.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/seq.d.ts
+  Referenced via './common/seq.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/string.d.ts
+  Referenced via './common/string.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/common/util.d.ts
+  Referenced via './common/util.d.ts' from file '../../node_modules/@types/lodash/index.d.ts'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/lodash/index.d.ts
+  Entry point for implicit type library 'lodash' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/common.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/array.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/collection.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/date.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/function.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/lang.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/math.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/number.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/object.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/seq.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/string.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  Imported via "../index" from file '../../node_modules/@types/lodash/common/util.d.ts' with packageId '@types/lodash/index.d.ts@4.17.7'
+  File is CommonJS module because '../../node_modules/@types/lodash/package.json' does not have field "type"
+../../node_modules/@types/minimist/index.d.ts
+  Entry point for implicit type library 'minimist' with packageId '@types/minimist/index.d.ts@1.2.5'
+  File is CommonJS module because '../../node_modules/@types/minimist/package.json' does not have field "type"
+../../node_modules/@types/normalize-package-data/index.d.ts
+  Entry point for implicit type library 'normalize-package-data' with packageId '@types/normalize-package-data/index.d.ts@2.4.4'
+  File is CommonJS module because '../../node_modules/@types/normalize-package-data/package.json' does not have field "type"
+../../node_modules/@types/parse-json/index.d.ts
+  Entry point for implicit type library 'parse-json' with packageId '@types/parse-json/index.d.ts@4.0.0'
+  File is CommonJS module because '../../node_modules/@types/parse-json/package.json' does not have field "type"
+../../node_modules/@types/pbkdf2/index.d.ts
+  Entry point for implicit type library 'pbkdf2' with packageId '@types/pbkdf2/index.d.ts@3.1.2'
+  File is CommonJS module because '../../node_modules/@types/pbkdf2/package.json' does not have field "type"
+../../node_modules/@types/prettier/index.d.ts
+  Entry point for implicit type library 'prettier' with packageId '@types/prettier/index.d.ts@2.4.4'
+  File is CommonJS module because '../../node_modules/@types/prettier/package.json' does not have field "type"
+../../node_modules/@types/secp256k1/index.d.ts
+  Entry point for implicit type library 'secp256k1' with packageId '@types/secp256k1/index.d.ts@4.0.6'
+  File is CommonJS module because '../../node_modules/@types/secp256k1/package.json' does not have field "type"
+../../node_modules/@types/semver/classes/semver.d.ts
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/parse.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/valid.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/inc.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/diff.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/major.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/minor.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/patch.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/prerelease.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/compare.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/rcompare.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/compare-loose.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/compare-build.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/sort.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/rsort.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/gt.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/lt.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/eq.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/neq.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/gte.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/lte.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/cmp.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/coerce.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via './semver' from file '../../node_modules/@types/semver/classes/comparator.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via './semver' from file '../../node_modules/@types/semver/classes/range.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/functions/satisfies.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/ranges/max-satisfying.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/ranges/min-satisfying.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/ranges/min-version.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/ranges/outside.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/ranges/gtr.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via '../classes/semver' from file '../../node_modules/@types/semver/ranges/ltr.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  Imported via './classes/semver' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/classes/semver.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/parse.d.ts
+  Imported via './functions/parse' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/parse.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/valid.d.ts
+  Imported via './functions/valid' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/valid.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/clean.d.ts
+  Imported via './functions/clean' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/clean.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/inc.d.ts
+  Imported via './functions/inc' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/inc.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/diff.d.ts
+  Imported via './functions/diff' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/diff.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/major.d.ts
+  Imported via './functions/major' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/major.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/minor.d.ts
+  Imported via './functions/minor' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/minor.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/patch.d.ts
+  Imported via './functions/patch' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/patch.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/prerelease.d.ts
+  Imported via './functions/prerelease' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/prerelease.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/compare.d.ts
+  Imported via './functions/compare' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/compare.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/rcompare.d.ts
+  Imported via './functions/rcompare' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/rcompare.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/compare-loose.d.ts
+  Imported via './functions/compare-loose' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/compare-loose.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/compare-build.d.ts
+  Imported via './functions/compare-build' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/compare-build.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/sort.d.ts
+  Imported via './functions/sort' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/sort.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/rsort.d.ts
+  Imported via './functions/rsort' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/rsort.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/gt.d.ts
+  Imported via './functions/gt' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/gt.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/lt.d.ts
+  Imported via './functions/lt' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/lt.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/eq.d.ts
+  Imported via './functions/eq' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/eq.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/neq.d.ts
+  Imported via './functions/neq' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/neq.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/gte.d.ts
+  Imported via './functions/gte' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/gte.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/lte.d.ts
+  Imported via './functions/lte' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/lte.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/cmp.d.ts
+  Imported via './functions/cmp' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/cmp.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/coerce.d.ts
+  Imported via './functions/coerce' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/coerce.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/classes/comparator.d.ts
+  Imported via './comparator' from file '../../node_modules/@types/semver/classes/range.d.ts' with packageId '@types/semver/classes/comparator.d.ts@7.3.13'
+  Imported via './classes/comparator' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/classes/comparator.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/classes/range.d.ts
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/functions/satisfies.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/max-satisfying.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/min-satisfying.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/to-comparators.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/min-version.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/valid.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/outside.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/gtr.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/ltr.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/intersects.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/simplify.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via '../classes/range' from file '../../node_modules/@types/semver/ranges/subset.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  Imported via './classes/range' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/classes/range.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/functions/satisfies.d.ts
+  Imported via './functions/satisfies' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/functions/satisfies.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/max-satisfying.d.ts
+  Imported via './ranges/max-satisfying' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/max-satisfying.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/min-satisfying.d.ts
+  Imported via './ranges/min-satisfying' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/min-satisfying.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/to-comparators.d.ts
+  Imported via './ranges/to-comparators' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/to-comparators.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/min-version.d.ts
+  Imported via './ranges/min-version' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/min-version.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/valid.d.ts
+  Imported via './ranges/valid' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/valid.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/outside.d.ts
+  Imported via './ranges/outside' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/outside.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/gtr.d.ts
+  Imported via './ranges/gtr' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/gtr.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/ltr.d.ts
+  Imported via './ranges/ltr' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/ltr.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/intersects.d.ts
+  Imported via './ranges/intersects' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/intersects.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/simplify.d.ts
+  Imported via './ranges/simplify' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/simplify.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/ranges/subset.d.ts
+  Imported via './ranges/subset' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/ranges/subset.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/internals/identifiers.d.ts
+  Imported via './internals/identifiers' from file '../../node_modules/@types/semver/index.d.ts' with packageId '@types/semver/internals/identifiers.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/semver/index.d.ts
+  Entry point for implicit type library 'semver' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/classes/semver.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/parse.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/valid.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/clean.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/inc.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/diff.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/major.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/minor.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/patch.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/prerelease.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/compare.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/rcompare.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/compare-build.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/sort.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/rsort.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/gt.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/lt.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/eq.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/neq.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/gte.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/lte.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/cmp.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/coerce.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/classes/range.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/classes/comparator.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/functions/satisfies.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/max-satisfying.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/min-satisfying.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/to-comparators.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/min-version.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/valid.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/outside.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/gtr.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/ltr.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/intersects.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/simplify.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  Imported via '../index' from file '../../node_modules/@types/semver/ranges/subset.d.ts' with packageId '@types/semver/index.d.ts@7.3.13'
+  File is CommonJS module because '../../node_modules/@types/semver/package.json' does not have field "type"
+../../node_modules/@types/sinonjs__fake-timers/index.d.ts
+  Imported via '@sinonjs/fake-timers' from file '../../node_modules/@types/sinon/index.d.ts' with packageId '@types/sinonjs__fake-timers/index.d.ts@8.1.5'
+  Entry point for implicit type library 'sinonjs__fake-timers' with packageId '@types/sinonjs__fake-timers/index.d.ts@8.1.5'
+  File is CommonJS module because '../../node_modules/@types/sinonjs__fake-timers/package.json' does not have field "type"
+../../node_modules/@types/sinon/index.d.ts
+  Entry point for implicit type library 'sinon' with packageId '@types/sinon/index.d.ts@9.0.11'
+  File is CommonJS module because '../../node_modules/@types/sinon/package.json' does not have field "type"
+../../node_modules/@types/stack-utils/index.d.ts
+  Entry point for implicit type library 'stack-utils' with packageId '@types/stack-utils/index.d.ts@2.0.0'
+  File is CommonJS module because '../../node_modules/@types/stack-utils/package.json' does not have field "type"
+../../node_modules/@types/uuid/index.d.ts
+  Entry point for implicit type library 'uuid' with packageId '@types/uuid/index.d.ts@9.0.8'
+  File is CommonJS module because '../../node_modules/@types/uuid/package.json' does not have field "type"
+../../node_modules/@types/w3c-web-usb/index.d.ts
+  Entry point for implicit type library 'w3c-web-usb' with packageId '@types/w3c-web-usb/index.d.ts@1.0.10'
+../../node_modules/@types/web/iterable.d.ts
+  Referenced via './iterable.d.ts' from file '../../node_modules/@types/web/index.d.ts'
+../../node_modules/@types/web/index.d.ts
+  Entry point for implicit type library 'web' with packageId '@types/web/index.d.ts@0.0.69'
+../../node_modules/@types/ws/index.d.ts
+  Entry point for implicit type library 'ws' with packageId '@types/ws/index.d.ts@7.4.7'
+  File is CommonJS module because '../../node_modules/@types/ws/package.json' does not have field "type"
+../../node_modules/@types/yargs-parser/index.d.ts
+  Imported via 'yargs-parser' from file '../../node_modules/@types/yargs/index.d.ts' with packageId '@types/yargs-parser/index.d.ts@15.0.0'
+  Entry point for implicit type library 'yargs-parser' with packageId '@types/yargs-parser/index.d.ts@15.0.0'
+  File is CommonJS module because '../../node_modules/@types/yargs-parser/package.json' does not have field "type"
+../../node_modules/@types/yargs/index.d.ts
+  Entry point for implicit type library 'yargs' with packageId '@types/yargs/index.d.ts@17.0.11'
+  File is CommonJS module because '../../node_modules/@types/yargs/package.json' does not have field "type"

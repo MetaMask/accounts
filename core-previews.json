@@ -1,0 +1,6 @@
+{
+  "@metamask-previews/accounts-controller": "18.2.0-preview-a2f9597",
+  "@metamask-previews/assets-controllers": "38.0.0-preview-a2f9597",
+  "@metamask-previews/chain-controller": "0.1.1-preview-a2f9597",
+  "@metamask-previews/transaction-controller": "36.1.0-preview-a2f9597"
+}

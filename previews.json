@@ -1,0 +1,12 @@
+{
+  "@metamask-previews/keyring-api": "8.1.0-672cc7b",
+  "@metamask-previews/eth-hd-keyring": "7.0.1-672cc7b",
+  "@metamask-previews/eth-ledger-bridge-keyring": "4.1.1-672cc7b",
+  "@metamask-previews/eth-simple-keyring": "6.0.2-672cc7b",
+  "@metamask-previews/eth-trezor-keyring": "3.1.0-672cc7b",
+  "@metamask-previews/keyring-internal-api": "0.0.1-672cc7b",
+  "@metamask-previews/eth-snap-keyring": "4.3.2-672cc7b",
+  "@metamask-previews/keyring-snap-client": "0.0.1-672cc7b",
+  "@metamask-previews/keyring-snap-sdk": "0.0.1-672cc7b",
+  "@metamask-previews/keyring-utils": "0.0.1-672cc7b"
+}

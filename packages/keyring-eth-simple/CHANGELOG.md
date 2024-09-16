@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix: fix preview builds artifacts ([#17](https://github.com/MetaMask/accounts.git/pull/17))
+- refactor: remove nested .gitignores + use the top-level one ([#18](https://github.com/MetaMask/accounts.git/pull/18))
+- feat: preview builds ([#15](https://github.com/MetaMask/accounts.git/pull/15))
+- refactor: update all changelogs to use monorepo links
+- build: add changelog:{validate,update} for each packages
+- build: add yarn build:force command
+- build: use tsc --build rather than tsc --project
+- refactor: update global jest.config.js in packages + use it in packages
+- refactor: remove packages/\*/.gitattributes
+- refactor: remove packages/\*/.editorconfig
+- refactor: move packages/keyring-api/.vscode -> .vscode + remove .vscode from other packages
+- refactor: remove .nvmrc from all packages
+- refactor: migrate depcheck to the top-level
+- fix(prettier): update changelogs for kerying-eth-{hd,ledger-bridge,simple,trezor}
+- chore: run prettier for all package.json
+- refactor: remove packages/\*/.prettierrc.js + remove prettier from packages
+- refactor: use top-level eslint + cleanup packages lint commands/files + adapt rules to match previous linting rules
+- refactor: remove packages/_/.yarn_
+- refactor: migrate .github folder to the top-level (without publish-\*docs.yml for now)
+- refactor: remove packageManager from packages
+- build: re-organize tsconfig.\* + force resolutions
+- build: add new build/test commands for all packages
+- refactor: remove packages/\*/yarn.lock
+- refactor(eth-simple-keyring): \* -> packages/keyring-eth-simple
+
 ## [6.0.2]
 
 ### Changed
@@ -63,10 +90,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.2...HEAD
-[6.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.1...@metamask/eth-simple-keyring@6.0.2
-[6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.0...@metamask/eth-simple-keyring@6.0.1
-[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@5.1.1...@metamask/eth-simple-keyring@6.0.0
-[5.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@5.1.0...@metamask/eth-simple-keyring@5.1.1
-[5.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@5.0.0...@metamask/eth-simple-keyring@5.1.0
-[5.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-simple-keyring@5.0.0
+[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-simple-keyring@6.0.2...HEAD
+[6.0.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-simple-keyring@6.0.1...@metamask/eth-simple-keyring@6.0.2
+[6.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-simple-keyring@6.0.0...@metamask/eth-simple-keyring@6.0.1
+[6.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-simple-keyring@5.1.1...@metamask/eth-simple-keyring@6.0.0
+[5.1.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-simple-keyring@5.1.0...@metamask/eth-simple-keyring@5.1.1
+[5.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-simple-keyring@5.0.0...@metamask/eth-simple-keyring@5.1.0
+[5.0.0]: https://github.com/MetaMask/accounts.git/releases/tag/@metamask/eth-simple-keyring@5.0.0

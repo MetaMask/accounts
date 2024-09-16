@@ -1,0 +1,69 @@
+From 759f8a338293619589b9203b0263e6a9df562192 Mon Sep 17 00:00:00 2001
+From: Charly Chevalier <charly.chevalier@consensys.net>
+Date: Tue, 10 Sep 2024 11:45:57 +0200
+Subject: [PATCH 1/3] chore: lint keyring-snap
+
+---
+ packages/keyring-snap/package.json       |  1 +
+ packages/keyring-snap/src/SnapKeyring.ts | 12 ++++++------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/packages/keyring-snap/package.json b/packages/keyring-snap/package.json
+index 9e4bc03f..38704cfc 100644
+--- a/packages/keyring-snap/package.json
++++ b/packages/keyring-snap/package.json
+@@ -28,6 +28,7 @@
+     "@ethereumjs/tx": "^4.2.0",
+     "@metamask/eth-sig-util": "^7.0.3",
+     "@metamask/keyring-api": "^8.1.0",
++    "@metamask/keyring-internal-api": "^0.0.1",
+     "@metamask/keyring-snap-client": "^0.0.1",
+     "@metamask/keyring-snap-sdk": "^0.0.1",
+     "@metamask/snaps-controllers": "^9.3.0",
+diff --git a/packages/keyring-snap/src/SnapKeyring.ts b/packages/keyring-snap/src/SnapKeyring.ts
+index b05ffb43..3af4483f 100644
+--- a/packages/keyring-snap/src/SnapKeyring.ts
++++ b/packages/keyring-snap/src/SnapKeyring.ts
+@@ -2,6 +2,11 @@ import type { TypedTransaction } from '@ethereumjs/tx';
+ import { TransactionFactory } from '@ethereumjs/tx';
+ import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
+ import { SignTypedDataVersion } from '@metamask/eth-sig-util';
++import type {
++  KeyringAccount,
++  KeyringExecutionContext,
++  KeyringResponse,
++} from '@metamask/keyring-api';
+ import type {
+   BtcMethod,
+   EthBaseTransaction,
+@@ -10,11 +15,6 @@ import type {
+   EthUserOperationPatch,
+   InternalAccount,
+ } from '@metamask/keyring-internal-api';
+-import type {
+-  KeyringAccount,
+-  KeyringExecutionContext,
+-  KeyringResponse,
+-} from '@metamask/keyring-api';
+ import {
+   AccountCreatedEventStruct,
+   AccountDeletedEventStruct,
+@@ -27,6 +27,7 @@ import {
+   RequestApprovedEventStruct,
+   RequestRejectedEventStruct,
+ } from '@metamask/keyring-internal-api';
++import { KeyringSnapControllerClient } from '@metamask/keyring-snap-client';
+ import type { SnapController } from '@metamask/snaps-controllers';
+ import type { SnapId } from '@metamask/snaps-sdk';
+ import type { Snap } from '@metamask/snaps-utils';
+@@ -41,7 +42,6 @@ import { EventEmitter } from 'events';
+ import { v4 as uuid } from 'uuid';
+ 
+ import { DeferredPromise } from './DeferredPromise';
+-import { KeyringSnapControllerClient } from '@metamask/keyring-snap-client';
+ import { projectLogger as log } from './logger';
+ import { SnapIdMap } from './SnapIdMap';
+ import type { SnapMessage } from './types';
+-- 
+2.39.3 (Apple Git-146)
+

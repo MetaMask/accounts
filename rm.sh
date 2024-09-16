@@ -1,0 +1,12 @@
+        rm packages/keyring-eth-ledger-bridge/src/index.js
+        rm packages/keyring-eth-ledger-bridge/src/ledger-bridge.js
+        rm packages/keyring-eth-ledger-bridge/src/ledger-hw-app.js
+        rm packages/keyring-eth-ledger-bridge/src/ledger-iframe-bridge.js
+        rm packages/keyring-eth-ledger-bridge/src/ledger-keyring.js
+        rm packages/keyring-eth-ledger-bridge/src/ledger-mobile-bridge.js
+        rm packages/keyring-eth-ledger-bridge/src/ledger-transport-middleware.js
+        rm packages/keyring-eth-ledger-bridge/src/type.js
+        rm packages/keyring-eth-simple/src/index.d.ts
+        rm packages/keyring-eth-simple/src/index.d.ts.map
+        rm packages/keyring-eth-simple/src/simple-keyring.d.ts
+        rm packages/keyring-eth-simple/src/simple-keyring.d.ts.map

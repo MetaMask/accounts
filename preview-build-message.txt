@@ -1,0 +1,20 @@
+
+Preview builds have been published. [See these instructions (from the `core` monorepo)](https://github.com/MetaMask/core/blob/main/docs/contributing.md#using-preview-builds) for more information about preview builds.
+
+<details>
+
+<summary>Expand for full list of packages and versions.</summary>
+
+
+```
+{
+  "@metamask/keyring-api": "8.1.0",
+  "@metamask/eth-hd-keyring": "7.0.1",
+  "@metamask/eth-ledger-bridge-keyring": "4.1.1",
+  "@metamask/eth-simple-keyring": "6.0.2",
+  "@metamask/eth-trezor-keyring": "3.1.0",
+  "@metamask/eth-snap-keyring": "4.3.2"
+}
+```
+
+</details>

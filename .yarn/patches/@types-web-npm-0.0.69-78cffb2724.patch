@@ -1,0 +1,12 @@
+diff --git a/index.d.ts b/index.d.ts
+index dfb52004c94bd33717091e658faab551063bee22..e734c0dc92fe6c2ce10f195155d53dfe243128e6 100644
+--- a/index.d.ts
++++ b/index.d.ts
+@@ -1,5 +1,7 @@
+ /// <reference path="./iterable.d.ts" />
+ 
++// @ts-ignore TS6200
++
+ /////////////////////////////
+ /// Window APIs
+ /////////////////////////////
