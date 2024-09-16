@@ -8,6 +8,7 @@ ignores:
   - 'rimraf'
   - '@lavamoat/allow-scripts'
   - '@metamask/auto-changelog'
+  - '@metamask/create-release-branch'
   - 'ts-node'
   - 'ts-jest'
   - 'typedoc'
