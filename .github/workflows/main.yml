@@ -52,7 +52,7 @@ jobs:
 
   is-release:
     name: Determine whether this is a release merge commit
-    needs: all-jobs-completed
+    needs: all-jobs-pass
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     outputs:
