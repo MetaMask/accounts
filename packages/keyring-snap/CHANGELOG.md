@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.3.3]
+
+### Changed
+
+- Bump `@metamask/snaps-controllers` from `^9.3.0` to `^9.6.0` ([#372](https://github.com/MetaMask/eth-snap-keyring/pull/372), [#389](https://github.com/MetaMask/eth-snap-keyring/pull/389))
+- Bump `@metamask/snaps-sdk` from `^6.1.0` to `^6.4.0` ([#389](https://github.com/MetaMask/eth-snap-keyring/pull/389))
+- Bump `@metamask/utils` from `^9.1.0` to `^9.2.1` ([#385](https://github.com/MetaMask/eth-snap-keyring/pull/385))
+- Bump `@metamask/keyring-api` from `^8.0.1` to `^8.1.0` ([#374](https://github.com/MetaMask/eth-snap-keyring/pull/374), [#376](https://github.com/MetaMask/eth-snap-keyring/pull/376))
+
 ## [4.3.2]
 
 ### Changed
@@ -311,7 +320,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.3...HEAD
+[4.3.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.2...@metamask/eth-snap-keyring@4.3.3
 [4.3.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.1...@metamask/eth-snap-keyring@4.3.2
 [4.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.0...@metamask/eth-snap-keyring@4.3.1
 [4.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.2.1...@metamask/eth-snap-keyring@4.3.0
