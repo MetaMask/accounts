@@ -4,6 +4,7 @@ import { expectAssignable, expectNotAssignable } from 'tsd';
 
 import { exactOptional, object } from '.';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const exactOptionalObject = object({
   a: number(),
   b: optional(string()),

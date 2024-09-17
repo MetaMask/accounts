@@ -1,5 +1,5 @@
-import { BtcAccountType, EthAccountType } from '../api';
 import { isEvmAccountType } from './utils';
+import { BtcAccountType, EthAccountType } from '../api';
 
 describe('isEvmAccountType', () => {
   it.each([

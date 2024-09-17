@@ -10,9 +10,9 @@ import { KeyringClient } from './KeyringClient';
  * to a snap through the snap JSON-RPC API.
  */
 export class SnapRpcSender implements Sender {
-  #origin: string;
+  readonly #origin: string;
 
-  #provider: MetaMaskInpageProvider;
+  readonly #provider: MetaMaskInpageProvider;
 
   /**
    * Create a new instance of `SnapRpcSender`.
