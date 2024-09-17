@@ -2,6 +2,10 @@
 
 This monorepo is a collection of accounts-related packages used across multiple MetaMask clients (e.g. [`metamask-extension`](https://github.com/MetaMask/metamask-extension/), [`metamask-mobile`](https://github.com/MetaMask/metamask-mobile/)).
 
+## How to
+
+- [How to release](./docs/how-to-release.md)
+
 ## Modules
 
 This repository contains the following packages [^fn1]:
