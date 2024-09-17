@@ -61,7 +61,7 @@ jobs:
       - id: is-release
         uses: MetaMask/action-is-release@v2
         with:
-          commit-starts-with: '[version]'
+          commit-starts-with: 'release: [version]'
 
   publish-release:
     name: Publish release
