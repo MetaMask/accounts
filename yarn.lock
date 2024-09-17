@@ -2019,9 +2019,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/eth-snap-keyring@workspace:packages/keyring-snap":
+"@metamask/eth-snap-keyring@workspace:packages/keyring-snap-bridge":
   version: 0.0.0-use.local
-  resolution: "@metamask/eth-snap-keyring@workspace:packages/keyring-snap"
+  resolution: "@metamask/eth-snap-keyring@workspace:packages/keyring-snap-bridge"
   dependencies:
     "@ethereumjs/tx": "npm:^4.2.0"
     "@lavamoat/allow-scripts": "npm:^3.0.4"

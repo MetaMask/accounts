@@ -153,9 +153,9 @@ module.exports = {
         'promise/no-multiple-resolved': 'off',
       },
     },
-    // @metamask/keyring-snap
+    // @metamask/keyring-snap-bridge
     {
-      files: ['packages/keyring-snap/src/**/*.ts'],
+      files: ['packages/keyring-snap-bridge/src/**/*.ts'],
       extends: ['@metamask/eslint-config-typescript'],
       parserOptions,
       rules: {
