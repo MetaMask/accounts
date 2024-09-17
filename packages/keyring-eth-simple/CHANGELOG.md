@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.3]
+
+### Changed
+
+- Convert to monorepo
+  - Package name does not change (`@metamask/eth-simple-keyring`) and sources have been moved to: `packages/keyring-eth-simple`.
+  - You can find all the changes [here](https://github.com/MetaMask/accounts/compare/6da58b4...5071659).
+
 ## [6.0.2]
 
 ### Changed
@@ -63,7 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.3...HEAD
+[6.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.2...@metamask/eth-simple-keyring@6.0.3
 [6.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.1...@metamask/eth-simple-keyring@6.0.2
 [6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.0...@metamask/eth-simple-keyring@6.0.1
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@5.1.1...@metamask/eth-simple-keyring@6.0.0

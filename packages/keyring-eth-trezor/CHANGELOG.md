@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.1]
+
+### Changed
+
+- Convert to monorepo
+  - Package name does not change (`@metamask/eth-trezor-keyring`) and sources have been moved to: `packages/keyring-eth-trezor`.
+  - You can find all the changes [here](https://github.com/MetaMask/accounts/compare/6da58b4...5071659).
+
 ## [3.1.0]
 
 ### Changed
@@ -98,7 +106,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.1...HEAD
+[3.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.0...@metamask/eth-trezor-keyring@3.1.1
 [3.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.0.0...@metamask/eth-trezor-keyring@3.1.0
 [3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@2.0.0...@metamask/eth-trezor-keyring@3.0.0
 [2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@1.1.0...@metamask/eth-trezor-keyring@2.0.0
