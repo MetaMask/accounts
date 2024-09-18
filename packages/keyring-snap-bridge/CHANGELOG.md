@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- refactor(keyring-snap): keyring-snap -> keyring-snap-bridge ([#34](https://github.com/MetaMask/accounts/pull/34))
+
 ## [4.3.3]
 
 ### Changed
