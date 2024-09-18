@@ -1,11 +1,11 @@
-const {
+import {
   privateToPublic,
   publicToAddress,
   ecsign,
   arrToBufArr,
   bufferToHex,
-} = require('@ethereumjs/util');
-const {
+} from '@ethereumjs/util';
+import {
   concatSig,
   decrypt,
   getEncryptionPublicKey,
@@ -13,13 +13,13 @@ const {
   personalSign,
   signTypedData,
   SignTypedDataVersion,
-} = require('@metamask/eth-sig-util');
-const bip39 = require('@metamask/scure-bip39');
-const { wordlist } = require('@metamask/scure-bip39/dist/wordlists/english');
-const { assertIsHexString, remove0x } = require('@metamask/utils');
-const { HDKey } = require('ethereum-cryptography/hdkey');
-const { keccak256 } = require('ethereum-cryptography/keccak');
-const { bytesToHex } = require('ethereum-cryptography/utils');
+} from '@metamask/eth-sig-util';
+import bip39 from '@metamask/scure-bip39';
+import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
+import { assertIsHexString, remove0x } from '@metamask/utils';
+import { HDKey } from 'ethereum-cryptography/hdkey';
+import { keccak256 } from 'ethereum-cryptography/keccak';
+import { bytesToHex } from 'ethereum-cryptography/utils';
 
 // Options:
 const hdPathString = `m/44'/60'/0'/0`;
@@ -309,4 +309,4 @@ class HdKeyring {
 }
 
 HdKeyring.type = type;
-module.exports = HdKeyring;
+export default HdKeyring;

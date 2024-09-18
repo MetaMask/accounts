@@ -1668,7 +1668,6 @@ __metadata:
     jest-silent-reporter: "npm:^0.5.0"
     prettier: "npm:^2.8.8"
     prettier-plugin-packagejson: "npm:^2.5.2"
-    rimraf: "npm:^5.0.10"
     syncpack: "npm:^13.0.0"
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
