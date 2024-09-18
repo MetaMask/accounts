@@ -18,9 +18,9 @@
   "author": "Dan Finlay",
   "main": "index.js",
   "scripts": {
-    "build": "",
-    "build:clean": "",
-    "build:force": "",
+    "build": "ts-bridge --project tsconfig.build.json --no-references",
+    "build:clean": "yarn build --clean",
+    "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-hd-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-hd-keyring",
     "publish:preview": "yarn npm publish --tag preview",
@@ -43,6 +43,7 @@
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/bip39": "^4.0.0",
     "@metamask/eth-hd-keyring": "4.0.1",
+    "@ts-bridge/cli": "^0.5.1",
     "@types/jest": "^29.4.0",
     "jest": "^29.4.3"
   },
