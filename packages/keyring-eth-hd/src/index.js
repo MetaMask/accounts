@@ -8,7 +8,11 @@ import {
   arrToBufArr,
   bufferToHex,
 } from '@ethereumjs/util';
-import bip39 from '@metamask/scure-bip39';
+import {
+  generateMnemonic,
+  mnemonicToSeedSync,
+  validateMnemonic,
+} from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import {
   concatSig,
@@ -34,7 +38,7 @@ class HdKeyring {
   }
 
   generateRandomMnemonic() {
-    this._initFromMnemonic(bip39.generateMnemonic(wordlist));
+    this._initFromMnemonic(generateMnemonic(wordlist));
   }
 
   _uint8ArrayToString(mnemonic) {
@@ -287,7 +291,7 @@ class HdKeyring {
     this.mnemonic = this._mnemonicToUint8Array(mnemonic);
 
     // validate before initializing
-    const isValid = bip39.validateMnemonic(this.mnemonic, wordlist);
+    const isValid = validateMnemonic(this.mnemonic, wordlist);
     if (!isValid) {
       throw new Error(
         'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
@@ -295,7 +299,7 @@ class HdKeyring {
     }
 
     // eslint-disable-next-line n/no-sync
-    const seed = bip39.mnemonicToSeedSync(this.mnemonic, wordlist);
+    const seed = mnemonicToSeedSync(this.mnemonic, wordlist);
     this.hdWallet = HDKey.fromMasterSeed(seed);
     this.root = this.hdWallet.derive(this.hdPath);
   }

@@ -1,4 +1,5 @@
-const {
+import HdKeyring from '../src';
+import {
   normalize,
   personalSign,
   recoverPersonalSignature,
@@ -6,24 +7,19 @@ const {
   signTypedData,
   SignTypedDataVersion,
   encrypt,
-} = require('@metamask/eth-sig-util');
-const { wordlist } = require('@metamask/scure-bip39/dist/wordlists/english');
-const oldMMForkBIP39 = require('@metamask/bip39');
-const {
+} from '@metamask/eth-sig-util';
+import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
+import * as oldMMForkBIP39 from '@metamask/bip39';
+import {
   isValidAddress,
   bufferToHex,
   toBuffer,
   ecrecover,
   pubToAddress,
-} = require('@ethereumjs/util');
-const {
-  TransactionFactory,
-  Transaction: EthereumTx,
-} = require('@ethereumjs/tx');
-
-const OldHdKeyring = require('@metamask/eth-hd-keyring');
-const { keccak256 } = require('ethereum-cryptography/keccak');
-const HdKeyring = require('..');
+} from '@ethereumjs/util';
+import { TransactionFactory, Transaction as EthereumTx } from '@ethereumjs/tx';
+import OldHdKeyring from '@metamask/eth-hd-keyring';
+import { keccak256 } from 'ethereum-cryptography/keccak';
 
 // Sample account:
 const privKeyHex =
