@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.3.4]
+
+### Changed
+
+- Convert to monorepo
+  - Package name does not change (`@metamask/eth-snap-keyring`) and sources have been moved to: `packages/keyring-snap-bridge`.
+  - You can find all the changes [here](https://github.com/MetaMask/accounts/compare/6da58b4...38794aa).
+
 ## [4.3.3]
 
 ### Changed
@@ -320,7 +328,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.3...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.4...HEAD
+[4.3.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.3...@metamask/eth-snap-keyring@4.3.4
 [4.3.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.2...@metamask/eth-snap-keyring@4.3.3
 [4.3.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.1...@metamask/eth-snap-keyring@4.3.2
 [4.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.0...@metamask/eth-snap-keyring@4.3.1
