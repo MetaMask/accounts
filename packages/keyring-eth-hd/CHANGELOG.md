@@ -9,25 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.0.2]
 
-### Uncategorized
+### Changed
 
-- refactor: remove nested .gitignores + use the top-level one ([#18](https://github.com/MetaMask/accounts/pull/18))
-- feat: preview builds ([#15](https://github.com/MetaMask/accounts/pull/15))
-- refactor: update all changelogs to use monorepo links
-- chore(keyring-eth-hd): update @metamask/auto-changelog to ^3.4.4
-- build: add changelog:{validate,update} for each packages
-- build: add yarn build:force command
-- refactor: update global jest.config.js in packages + use it in packages
-- refactor: remove .nvmrc from all packages
-- fix(prettier): update changelogs for kerying-eth-{hd,ledger-bridge,simple,trezor}
-- refactor: remove packages/\*/.prettierrc.js + remove prettier from packages
-- refactor: use top-level eslint + cleanup packages lint commands/files + adapt rules to match previous linting rules
-- refactor: remove packages/_/.yarn_
-- refactor: migrate .github folder to the top-level (without publish-\*docs.yml for now)
-- refactor: remove packageManager from packages
-- build: add new build/test commands for all packages
-- refactor: remove packages/\*/yarn.lock
-- refactor(eth-hd-keyring): \* -> packages/keyring-eth-hd
+- Convert to monorepo
+  - Package name does not change (`@metamask/eth-hd-keyring`) and sources have been moved to: `packages/keyring-eth-hd`.
+  - You can find all the changes [here](https://github.com/MetaMask/accounts/compare/6da58b4...38794aa).
 
 ## [7.0.1]
 
