@@ -12,10 +12,9 @@
     "dist/"
   ],
   "scripts": {
-    "build": "yarn workspace $(jq -r '.name' ../keyring-api/package.json) build:force && tsc --build tsconfig.build.json",
-    "build:clean": "rimraf dist && yarn build",
+    "build": "yarn workspace $(jq -r '.name' ../keyring-api/package.json) build:force && ts-bridge --project tsconfig.build.json --no-references",
+    "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "build:force": "tsc --build tsconfig.build.json --force",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-snap-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-snap-keyring",
     "publish:preview": "yarn npm publish --tag preview",
@@ -38,6 +37,7 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
+    "@ts-bridge/cli": "^0.6.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
     "deepmerge": "^4.2.2",
