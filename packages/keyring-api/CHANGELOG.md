@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Convert to monorepo
   - Package name does not change (`@metamask/keyring-api`) and sources have been moved to: `packages/keyring-api`.
-  - You can find all the changes [here](https://github.com/MetaMask/accounts/compare/6da58b4...5071659).
+  - You can find all the changes [here](https://github.com/MetaMask/accounts/compare/6da58b4...38794aa).
 
 ## [8.1.0]
 
