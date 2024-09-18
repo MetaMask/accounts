@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.3.4]
 
-### Uncategorized
+### Changed
 
-- refactor(keyring-snap): keyring-snap -> keyring-snap-bridge ([#34](https://github.com/MetaMask/accounts/pull/34))
+- Convert to monorepo
+  - Package name does not change (`@metamask/eth-snap-keyring`) and sources have been moved to: `packages/keyring-snap-bridge`.
+  - You can find all the changes [here](https://github.com/MetaMask/accounts/compare/6da58b4...5071659).
 
 ## [4.3.3]
 
