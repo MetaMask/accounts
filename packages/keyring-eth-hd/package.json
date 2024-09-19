@@ -33,7 +33,6 @@
     "@metamask/eth-sig-util": "^7.0.0",
     "@metamask/scure-bip39": "^2.1.0",
     "@metamask/utils": "^8.1.0",
-    "deepmerge": "^4.2.2",
     "ethereum-cryptography": "^2.1.2"
   },
   "devDependencies": {
@@ -44,6 +43,7 @@
     "@metamask/bip39": "^4.0.0",
     "@metamask/eth-hd-keyring": "4.0.1",
     "@types/jest": "^29.4.0",
+    "deepmerge": "^4.2.2",
     "jest": "^29.4.3"
   },
   "engines": {
