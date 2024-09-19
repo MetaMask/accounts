@@ -42,7 +42,6 @@
     "@metamask/eth-sig-util": "^7.0.1",
     "@trezor/connect-plugin-ethereum": "^9.0.3",
     "@trezor/connect-web": "^9.1.11",
-    "deepmerge": "^4.2.2",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
@@ -55,6 +54,7 @@
     "@types/node": "^16.18.57",
     "@types/sinon": "^9.0.10",
     "@types/w3c-web-usb": "^1.0.6",
+    "deepmerge": "^4.2.2",
     "depcheck": "^1.4.3",
     "ethereumjs-tx": "^1.3.4",
     "jest": "^28.1.3",
