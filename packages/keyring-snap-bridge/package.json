@@ -27,7 +27,6 @@
   "dependencies": {
     "@ethereumjs/tx": "^4.2.0",
     "@metamask/eth-sig-util": "^7.0.3",
-    "@metamask/keyring-api": "^8.1.0",
     "@metamask/snaps-controllers": "^9.6.0",
     "@metamask/snaps-sdk": "^6.4.0",
     "@metamask/snaps-utils": "^7.8.0",
@@ -50,6 +49,9 @@
     "ts-node": "^10.7.0",
     "typedoc": "^0.23.15",
     "typescript": "~4.8.4"
+  },
+  "peerDependencies": {
+    "@metamask/keyring-api": "^8.1.1"
   },
   "engines": {
     "node": "^18.18 || >=20"

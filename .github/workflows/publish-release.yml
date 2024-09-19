@@ -37,7 +37,7 @@ jobs:
       - uses: MetaMask/action-publish-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: yarn --immutable
+      - run: yarn install --immutable --immutable-cache
       - run: yarn build
 
   publish-npm-dry-run:
