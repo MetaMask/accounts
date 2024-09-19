@@ -18,14 +18,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install Yarn
-        run: corepack enable
-      - name: Restore Yarn cache
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
           cache: yarn
-      - run: yarn --immutable
+      - run: yarn install --immutable
       - name: Fetch workspace package names
         id: workspace-package-names
         run: |
@@ -41,13 +35,13 @@ jobs:
       matrix:
         node-version: [18.x, 20.x]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-      - run: yarn --immutable
+          cache: yarn
+      - run: yarn install --immutable --immutable-cache
       - run: yarn lint
       - name: Require clean working directory
         shell: bash
@@ -78,7 +72,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: yarn
-      - run: yarn --immutable
+      - run: yarn install --immutable --immutable-cache
       - run: yarn workspace ${{ matrix.package-name }} changelog:validate
       - name: Require clean working directory
         shell: bash
@@ -97,13 +91,13 @@ jobs:
       matrix:
         node-version: [18.x, 20.x]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-      - run: yarn --immutable
+          cache: yarn
+      - run: yarn install --immutable --immutable-cache
       - run: yarn build
       - name: Require clean working directory
         shell: bash
@@ -122,13 +116,13 @@ jobs:
       matrix:
         node-version: [18.x, 20.x]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-      - run: yarn --immutable
+          cache: yarn
+      - run: yarn install --immutable --immutable-cache
       - run: yarn build
       - run: yarn test
       - name: Require clean working directory
