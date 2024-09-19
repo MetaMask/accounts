@@ -1,9 +1,8 @@
 import { KeyringClient, type Sender } from '@metamask/keyring-api';
-import type { JsonRpcRequest } from '@metamask/keyring-api/dist/JsonRpcRequest';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
-import type { Json } from '@metamask/utils';
+import type { Json, JsonRpcRequest } from '@metamask/utils';
 
 /**
  * Implementation of the `Sender` interface that can be used to send requests

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.packages.build.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "baseUrl": "./",
+    "outDir": "dist",
+    "rootDir": "src",
+    "exactOptionalPropertyTypes": false
+  },
+  "include": ["./src/**/*.ts", "./src/**/*.js"],
+  "exclude": ["./src/**/*.test.ts"]
+}

@@ -2,6 +2,7 @@
 const parserOptions = {
   tsconfigRootDir: __dirname,
   project: ['./tsconfig.packages.json'],
+  sourceType: 'module',
 };
 
 module.exports = {
