@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.4]
+
 ### Uncategorized
 
 - chore: bump '@metamask/_' and '@lavamoat/_' dependencies ([#46](https://github.com/MetaMask/accounts/pull/46))
@@ -76,7 +78,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.3...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.4...HEAD
+[6.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.3...@metamask/eth-simple-keyring@6.0.4
 [6.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.2...@metamask/eth-simple-keyring@6.0.3
 [6.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.1...@metamask/eth-simple-keyring@6.0.2
 [6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.0...@metamask/eth-simple-keyring@6.0.1

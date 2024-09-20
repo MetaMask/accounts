@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.3]
+
 ### Uncategorized
 
 - chore: bump '@metamask/_' and '@lavamoat/_' dependencies ([#46](https://github.com/MetaMask/accounts/pull/46))
@@ -175,7 +177,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.3...HEAD
+[4.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.2...@metamask/eth-ledger-bridge-keyring@4.1.3
 [4.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.1...@metamask/eth-ledger-bridge-keyring@4.1.2
 [4.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.0...@metamask/eth-ledger-bridge-keyring@4.1.1
 [4.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.0.0...@metamask/eth-ledger-bridge-keyring@4.1.0
