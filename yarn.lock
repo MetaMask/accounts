@@ -1518,17 +1518,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lavamoat/aa@npm:^3.1.5":
-  version: 3.1.5
-  resolution: "@lavamoat/aa@npm:3.1.5"
-  dependencies:
-    resolve: "npm:^1.22.3"
-  bin:
-    lavamoat-ls: src/cli.js
-  checksum: 10/35e186fb0aaed5a2494dca4b8d353ead3123ff8a4964d502bdfe8ac369a774499a9ed2c45d04621b33f3c3fbf26ae8255fe4c3a4686f8a5dcb5a8da516be723a
-  languageName: node
-  linkType: hard
-
 "@lavamoat/aa@npm:^4.3.0":
   version: 4.3.0
   resolution: "@lavamoat/aa@npm:4.3.0"
@@ -1540,24 +1529,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lavamoat/allow-scripts@npm:^2.3.1, @lavamoat/allow-scripts@npm:^2.5.1":
-  version: 2.5.1
-  resolution: "@lavamoat/allow-scripts@npm:2.5.1"
-  dependencies:
-    "@lavamoat/aa": "npm:^3.1.5"
-    "@npmcli/run-script": "npm:^6.0.0"
-    bin-links: "npm:4.0.1"
-    npm-normalize-package-bin: "npm:^3.0.0"
-    yargs: "npm:^16.2.0"
-  bin:
-    allow-scripts: src/cli.js
-  checksum: 10/599bea6127175bd050424600c5340a259b77630571a830b5b7ac37138130c33ed8cf96d9c94dce345760a83cb82da55ecbe1553821bd0ec5cb3235c87af81dc2
-  languageName: node
-  linkType: hard
-
-"@lavamoat/allow-scripts@npm:^3.0.4":
-  version: 3.2.0
-  resolution: "@lavamoat/allow-scripts@npm:3.2.0"
+"@lavamoat/allow-scripts@npm:^3.2.1":
+  version: 3.2.1
+  resolution: "@lavamoat/allow-scripts@npm:3.2.1"
   dependencies:
     "@lavamoat/aa": "npm:^4.3.0"
     "@npmcli/run-script": "npm:8.1.0"
@@ -1568,18 +1542,11 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "*"
   bin:
     allow-scripts: src/cli.js
-  checksum: 10/21afb11ce25c0b2c9763bfb8f1127bb89f304ed83f64e00955c4d3007216a0ee553b777359e9ded874c61b3d7fa8d19ff8a35881cd3816985adab4d6b58bcb07
+  checksum: 10/2a0bbf78857184016f1025a91d2b9598814bcde134319932fa4cdc6d802054339f80507e5bfe2da2ed6b736c2cf50b3cb0621f26d7667439e0fd235488106e90
   languageName: node
   linkType: hard
 
-"@lavamoat/preinstall-always-fail@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@lavamoat/preinstall-always-fail@npm:1.0.0"
-  checksum: 10/93af02b34c8a7d99296025fd2052272f26310b38998c07b39f698ba395a5543b450dea41d3a26005c83a634738e6f7de01a7cea0eb5552cfe83abe619c3e7b31
-  languageName: node
-  linkType: hard
-
-"@lavamoat/preinstall-always-fail@npm:^2.0.0":
+"@lavamoat/preinstall-always-fail@npm:^2.1.0":
   version: 2.1.0
   resolution: "@lavamoat/preinstall-always-fail@npm:2.1.0"
   checksum: 10/385c3fac828b9edff2d8b5825bd29ea475206046984cdb3217518ad655f145ff37046414041534960d92cbe0759f0dc675f7c7dcf39a95003ae715a834fbd750
@@ -1677,13 +1644,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@metamask/accounts-monorepo@workspace:."
   dependencies:
-    "@lavamoat/allow-scripts": "npm:^2.3.1"
-    "@lavamoat/preinstall-always-fail": "npm:^1.0.0"
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/create-release-branch": "npm:^3.0.1"
-    "@metamask/eslint-config": "npm:^12.0.0"
-    "@metamask/eslint-config-jest": "npm:^12.0.0"
-    "@metamask/eslint-config-nodejs": "npm:^12.0.0"
-    "@metamask/eslint-config-typescript": "npm:^12.0.0"
+    "@metamask/eslint-config": "npm:^12.2.0"
+    "@metamask/eslint-config-jest": "npm:^12.1.0"
+    "@metamask/eslint-config-nodejs": "npm:^12.1.0"
+    "@metamask/eslint-config-typescript": "npm:^12.1.0"
     "@npmcli/package-json": "npm:^5.0.0"
     "@types/jest": "npm:^28.1.6"
     "@types/node": "npm:^16"
@@ -1735,7 +1702,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/auto-changelog@npm:^3.0.0, @metamask/auto-changelog@npm:^3.1.0, @metamask/auto-changelog@npm:^3.4.4":
+"@metamask/auto-changelog@npm:^3.4.4":
   version: 3.4.4
   resolution: "@metamask/auto-changelog@npm:3.4.4"
   dependencies:
@@ -1836,53 +1803,53 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/eslint-config-jest@npm:^12.0.0":
-  version: 12.0.0
-  resolution: "@metamask/eslint-config-jest@npm:12.0.0"
+"@metamask/eslint-config-jest@npm:^12.1.0":
+  version: 12.1.0
+  resolution: "@metamask/eslint-config-jest@npm:12.1.0"
   peerDependencies:
     "@metamask/eslint-config": ^12.0.0
     eslint: ^8.27.0
     eslint-plugin-jest: ^27.1.5
-  checksum: 10/80b3366c558f7c466e2cb7a63b9633b8c1fc374a7730f43bb7136a3bb6fe29d473f09473084d8858f0e89970706787d8fae131ee963693b97722e74929e633b2
+  checksum: 10/98f60234412051d429237dbf32b147a648a0e3b6adacafda24999ec9eb8096155c8000c62204415100c97980cc3bfe0a0fe19e4c318b8bb529eaf57e9f96e680
   languageName: node
   linkType: hard
 
-"@metamask/eslint-config-nodejs@npm:^12.0.0":
-  version: 12.0.0
-  resolution: "@metamask/eslint-config-nodejs@npm:12.0.0"
+"@metamask/eslint-config-nodejs@npm:^12.1.0":
+  version: 12.1.0
+  resolution: "@metamask/eslint-config-nodejs@npm:12.1.0"
   peerDependencies:
     "@metamask/eslint-config": ^12.0.0
     eslint: ^8.27.0
     eslint-plugin-n: ^15.7.0
-  checksum: 10/a90bf614486214c9e9daae18b0c8e19908b58d9d33bc6ddb0d08110e94a635850ff43908cfd52f5d8dd5e085aae679c9b03c91ccadaa3839695a7ee43ba7c7c7
+  checksum: 10/ad8d4b545420a14917d9dc4505ab8e3c07c559c35c67f07062eb3e9e86620d0660aa82500662ea9f23152b978417ee9fdebc47e6b39f8cb72e811b7e561e792f
   languageName: node
   linkType: hard
 
-"@metamask/eslint-config-typescript@npm:^12.0.0":
-  version: 12.0.0
-  resolution: "@metamask/eslint-config-typescript@npm:12.0.0"
+"@metamask/eslint-config-typescript@npm:^12.1.0":
+  version: 12.1.0
+  resolution: "@metamask/eslint-config-typescript@npm:12.1.0"
   peerDependencies:
     "@metamask/eslint-config": ^12.0.0
     "@typescript-eslint/eslint-plugin": ^5.42.1
     "@typescript-eslint/parser": ^5.42.1
     eslint: ^8.27.0
-    typescript: ~4.8.4
-  checksum: 10/4c7518a03a1f1f0fe1974200222b4d762bb130f642171822bdfeef32571b44e7c527d097278f74ad2db433410894fdd3d2be76ee53e5ddc3fb0113ff90a98392
+    typescript: ~4.8.4 || ~5.0 || ~5.1
+  checksum: 10/3159b08d94a751e5639db6253e3bfb6cc7bc5633ad07c43099288e65e5ed25d9f7533968045fedaf4e2a852d0c0fec14290f0f274aa0544a7411cc60deb97aba
   languageName: node
   linkType: hard
 
-"@metamask/eslint-config@npm:^12.0.0":
-  version: 12.0.0
-  resolution: "@metamask/eslint-config@npm:12.0.0"
+"@metamask/eslint-config@npm:^12.2.0":
+  version: 12.2.0
+  resolution: "@metamask/eslint-config@npm:12.2.0"
   peerDependencies:
     eslint: ^8.27.0
     eslint-config-prettier: ^8.5.0
-    eslint-plugin-import: ^2.26.0
-    eslint-plugin-jsdoc: ^39.6.2
+    eslint-plugin-import: ~2.26.0
+    eslint-plugin-jsdoc: ^39.6.2 || ^41 || ^43.0.7
     eslint-plugin-prettier: ^4.2.1
     eslint-plugin-promise: ^6.1.1
     prettier: ^2.7.1
-  checksum: 10/b0e8b047cc862293ba02d4fcb8cb147132af5d9109408a78d10850bbaff662168fc4b48e51118ee2bb0b5412a2eb9c1ae0cbdfe2ad6cbff2b315dfbf936a0a38
+  checksum: 10/6edbf4c2fce34ba8ccd873938501744d69cd13c02047655df596ab551f1aaa390513b8df855145d04c7fed6b5d91b9cfd0ce96ee082abf838292df761f50c520
   languageName: node
   linkType: hard
 
@@ -1905,14 +1872,14 @@ __metadata:
   dependencies:
     "@ethereumjs/tx": "npm:^4.0.1"
     "@ethereumjs/util": "npm:^8.1.0"
-    "@lavamoat/allow-scripts": "npm:^3.0.4"
-    "@lavamoat/preinstall-always-fail": "npm:^1.0.0"
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/bip39": "npm:^4.0.0"
     "@metamask/eth-hd-keyring": "npm:4.0.1"
-    "@metamask/eth-sig-util": "npm:^7.0.0"
-    "@metamask/scure-bip39": "npm:^2.1.0"
-    "@metamask/utils": "npm:^8.1.0"
+    "@metamask/eth-sig-util": "npm:^7.0.3"
+    "@metamask/scure-bip39": "npm:^2.1.1"
+    "@metamask/utils": "npm:^9.2.1"
     "@types/jest": "npm:^29.4.0"
     deepmerge: "npm:^4.2.2"
     ethereum-cryptography: "npm:^2.1.2"
@@ -1928,14 +1895,14 @@ __metadata:
     "@ethereumjs/rlp": "npm:^4.0.0"
     "@ethereumjs/tx": "npm:^4.2.0"
     "@ethereumjs/util": "npm:^8.0.0"
-    "@lavamoat/allow-scripts": "npm:^2.5.1"
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@ledgerhq/hw-app-eth": "npm:6.26.1"
     "@ledgerhq/hw-transport": "npm:^6.24.1"
     "@ledgerhq/types-cryptoassets": "npm:^7.6.0"
     "@ledgerhq/types-devices": "npm:^6.22.4"
-    "@metamask/auto-changelog": "npm:^3.1.0"
-    "@metamask/eth-sig-util": "npm:^7.0.1"
-    "@metamask/utils": "npm:^8.2.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/eth-sig-util": "npm:^7.0.3"
+    "@metamask/utils": "npm:^9.2.1"
     "@types/ethereumjs-tx": "npm:^1.0.1"
     "@types/hdkey": "npm:^2.0.1"
     "@types/jest": "npm:^28.1.6"
@@ -1978,7 +1945,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/eth-sig-util@npm:^7.0.0, @metamask/eth-sig-util@npm:^7.0.1, @metamask/eth-sig-util@npm:^7.0.3":
+"@metamask/eth-sig-util@npm:^7.0.3":
   version: 7.0.3
   resolution: "@metamask/eth-sig-util@npm:7.0.3"
   dependencies:
@@ -1998,10 +1965,10 @@ __metadata:
   dependencies:
     "@ethereumjs/tx": "npm:^4.1.1"
     "@ethereumjs/util": "npm:^8.1.0"
-    "@lavamoat/allow-scripts": "npm:^3.0.4"
-    "@metamask/auto-changelog": "npm:^3.1.0"
-    "@metamask/eth-sig-util": "npm:^7.0.0"
-    "@metamask/utils": "npm:^9.0.0"
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/eth-sig-util": "npm:^7.0.3"
+    "@metamask/utils": "npm:^9.2.1"
     "@types/ethereumjs-tx": "npm:^1.0.1"
     "@types/jest": "npm:^29.5.0"
     "@types/node": "npm:^18.15.10"
@@ -2024,14 +1991,14 @@ __metadata:
   resolution: "@metamask/eth-snap-keyring@workspace:packages/keyring-snap-bridge"
   dependencies:
     "@ethereumjs/tx": "npm:^4.2.0"
-    "@lavamoat/allow-scripts": "npm:^3.0.4"
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^7.0.3"
-    "@metamask/snaps-controllers": "npm:^9.6.0"
-    "@metamask/snaps-sdk": "npm:^6.4.0"
-    "@metamask/snaps-utils": "npm:^7.8.0"
+    "@metamask/snaps-controllers": "npm:^9.7.0"
+    "@metamask/snaps-sdk": "npm:^6.5.1"
+    "@metamask/snaps-utils": "npm:^7.8.1"
     "@metamask/superstruct": "npm:^3.1.0"
-    "@metamask/utils": "npm:^9.1.0"
+    "@metamask/utils": "npm:^9.2.1"
     "@types/jest": "npm:^28.1.6"
     "@types/node": "npm:^17.0.23"
     "@types/uuid": "npm:^9.0.1"
@@ -2057,9 +2024,9 @@ __metadata:
     "@ethereumjs/common": "npm:^3.0.0"
     "@ethereumjs/tx": "npm:^4.0.0"
     "@ethereumjs/util": "npm:^8.0.0"
-    "@lavamoat/allow-scripts": "npm:^3.0.4"
-    "@metamask/auto-changelog": "npm:^3.0.0"
-    "@metamask/eth-sig-util": "npm:^7.0.1"
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/eth-sig-util": "npm:^7.0.3"
     "@trezor/connect-plugin-ethereum": "npm:^9.0.3"
     "@trezor/connect-web": "npm:^9.1.11"
     "@types/ethereumjs-tx": "npm:^1.0.1"
@@ -2136,13 +2103,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-api@workspace:packages/keyring-api"
   dependencies:
-    "@lavamoat/allow-scripts": "npm:^3.0.4"
-    "@lavamoat/preinstall-always-fail": "npm:^2.0.0"
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
-    "@metamask/providers": "npm:^17.1.1"
-    "@metamask/snaps-sdk": "npm:^6.1.0"
+    "@metamask/providers": "npm:^17.2.0"
+    "@metamask/snaps-sdk": "npm:^6.5.1"
     "@metamask/superstruct": "npm:^3.1.0"
-    "@metamask/utils": "npm:^9.1.0"
+    "@metamask/utils": "npm:^9.2.1"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
     "@types/uuid": "npm:^9.0.8"
@@ -2228,9 +2195,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/providers@npm:^17.1.1, @metamask/providers@npm:^17.1.2":
-  version: 17.1.2
-  resolution: "@metamask/providers@npm:17.1.2"
+"@metamask/providers@npm:^17.1.2, @metamask/providers@npm:^17.2.0":
+  version: 17.2.0
+  resolution: "@metamask/providers@npm:17.2.0"
   dependencies:
     "@metamask/json-rpc-engine": "npm:^9.0.1"
     "@metamask/json-rpc-middleware-stream": "npm:^8.0.1"
@@ -2245,7 +2212,7 @@ __metadata:
     readable-stream: "npm:^3.6.2"
   peerDependencies:
     webextension-polyfill: ^0.10.0 || ^0.11.0 || ^0.12.0
-  checksum: 10/bf555f9774e340d4497c09c980094e759a198f11c5a78b403e639cf01904b9ec3b19a5e9f53567465dd8739da4138e2021ac9a404a99b1a6022add12a4b19a31
+  checksum: 10/b2fc93cdc059528bfeb14a61d6153f9a5f2679e5c6640648c16cd4e5067f758a67c2c6abab962615e878e6b9d7f1bbcd3632584ad7e57ec9df8c16f47b13e608
   languageName: node
   linkType: hard
 
@@ -2266,7 +2233,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/scure-bip39@npm:^2.1.0, @metamask/scure-bip39@npm:^2.1.1":
+"@metamask/scure-bip39@npm:^2.1.1":
   version: 2.1.1
   resolution: "@metamask/scure-bip39@npm:2.1.1"
   dependencies:
@@ -2290,7 +2257,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/snaps-controllers@npm:^9.6.0":
+"@metamask/snaps-controllers@npm:^9.7.0":
   version: 9.7.0
   resolution: "@metamask/snaps-controllers@npm:9.7.0"
   dependencies:
@@ -2355,20 +2322,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/snaps-sdk@npm:^6.1.0, @metamask/snaps-sdk@npm:^6.4.0, @metamask/snaps-sdk@npm:^6.5.0":
-  version: 6.5.0
-  resolution: "@metamask/snaps-sdk@npm:6.5.0"
+"@metamask/snaps-sdk@npm:^6.1.0, @metamask/snaps-sdk@npm:^6.5.0, @metamask/snaps-sdk@npm:^6.5.1":
+  version: 6.5.1
+  resolution: "@metamask/snaps-sdk@npm:6.5.1"
   dependencies:
     "@metamask/key-tree": "npm:^9.1.2"
     "@metamask/providers": "npm:^17.1.2"
     "@metamask/rpc-errors": "npm:^6.3.1"
     "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^9.2.1"
-  checksum: 10/e3da25d20d6adae2cd4845552fe973d0571303d1b9dffdce5d29202707278afac949293aec4470954620d852f30adebd1e54713f2b07c1c341dab09e908e0368
+  checksum: 10/7831fb2ca61a32ad43e971de9307b221f6bd2f65c84a3286f350cfdd2396166c58db6cd2fac9711654a211c8dc2049e591a79ab720b3f5ad562e434f75e95d32
   languageName: node
   linkType: hard
 
-"@metamask/snaps-utils@npm:^7.8.0":
+"@metamask/snaps-utils@npm:^7.8.1":
   version: 7.8.1
   resolution: "@metamask/snaps-utils@npm:7.8.1"
   dependencies:
@@ -2430,27 +2397,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/superstruct@npm:^3.0.0, @metamask/superstruct@npm:^3.1.0":
+"@metamask/superstruct@npm:^3.1.0":
   version: 3.1.0
   resolution: "@metamask/superstruct@npm:3.1.0"
   checksum: 10/5066fe228d5f11da387606d7f9545de2b473ab5a9e0f1bb8aea2f52d3e2c9d25e427151acde61f4a2de80a07a9871fe9505ad06abca6a61b7c3b54ed5c403b01
-  languageName: node
-  linkType: hard
-
-"@metamask/utils@npm:^8.1.0, @metamask/utils@npm:^8.2.0":
-  version: 8.5.0
-  resolution: "@metamask/utils@npm:8.5.0"
-  dependencies:
-    "@ethereumjs/tx": "npm:^4.2.0"
-    "@metamask/superstruct": "npm:^3.0.0"
-    "@noble/hashes": "npm:^1.3.1"
-    "@scure/base": "npm:^1.1.3"
-    "@types/debug": "npm:^4.1.7"
-    debug: "npm:^4.3.4"
-    pony-cause: "npm:^2.1.10"
-    semver: "npm:^7.5.4"
-    uuid: "npm:^9.0.1"
-  checksum: 10/68a42a55f7dc750b75467fb7c05a496c20dac073a2753e0f4d9642c4d8dcb3f9ddf51a09d30337e11637f1777f3dfe22e15b5159dbafb0fdb7bd8c9236056153
   languageName: node
   linkType: hard
 
@@ -2618,15 +2568,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@npmcli/promise-spawn@npm:^6.0.0":
-  version: 6.0.2
-  resolution: "@npmcli/promise-spawn@npm:6.0.2"
-  dependencies:
-    which: "npm:^3.0.0"
-  checksum: 10/cc94a83ff1626ad93d42c2ea583dba1fb2d24cdab49caf0af77a3a0ff9bdbba34e09048b6821d4060ea7a58d4a41d49bece4ae3716929e2077c2fff0f5e94d94
-  languageName: node
-  linkType: hard
-
 "@npmcli/promise-spawn@npm:^7.0.0":
   version: 7.0.2
   resolution: "@npmcli/promise-spawn@npm:7.0.2"
@@ -2647,19 +2588,6 @@ __metadata:
     proc-log: "npm:^4.0.0"
     which: "npm:^4.0.0"
   checksum: 10/256bd580f82b98db93e54065bf9bcc94946be4f2d668a062cf756cb8ea091f58ef7154b3d2450d79738081a150f25cc48f6075351911e672f24ffd34350f02f2
-  languageName: node
-  linkType: hard
-
-"@npmcli/run-script@npm:^6.0.0":
-  version: 6.0.1
-  resolution: "@npmcli/run-script@npm:6.0.1"
-  dependencies:
-    "@npmcli/node-gyp": "npm:^3.0.0"
-    "@npmcli/promise-spawn": "npm:^6.0.0"
-    node-gyp: "npm:^9.0.0"
-    read-package-json-fast: "npm:^3.0.0"
-    which: "npm:^3.0.0"
-  checksum: 10/5f20e31fc5a2c6cddfaa0f295c6e11570a7a2348cb5259d51356fab421df46ef7d364bb6a252d64d701372d07d5e6f3773cc528b7394361c1caefa8c928a1977
   languageName: node
   linkType: hard
 
@@ -3244,11 +3172,11 @@ __metadata:
   linkType: hard
 
 "@types/bn.js@npm:*, @types/bn.js@npm:^5.1.0, @types/bn.js@npm:^5.1.5":
-  version: 5.1.5
-  resolution: "@types/bn.js@npm:5.1.5"
+  version: 5.1.6
+  resolution: "@types/bn.js@npm:5.1.6"
   dependencies:
     "@types/node": "npm:*"
-  checksum: 10/9719330c86aeae0a6a447c974cf0f853ba3660ede20de61f435b03d699e30e6d8b35bf71a8dc9fdc8317784438e83177644ba068ed653d0ae0106e1ecbfe289e
+  checksum: 10/db565b5a2af59b09459d74441153bf23a0e80f1fb2d070330786054e7ce1a7285dc40afcd8f289426c61a83166bdd70814f70e2d439744686aac5d3ea75daf13
   languageName: node
   linkType: hard
 
@@ -3821,7 +3749,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abbrev@npm:1, abbrev@npm:^1.0.0":
+"abbrev@npm:1":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
   checksum: 10/2d882941183c66aa665118bafdab82b7a177e9add5eb2776c33e960a4f3c89cff88a1b38aba13a456de01d0dd9d66a8bea7c903268b21ea91dd1097e1e2e8243
@@ -4392,18 +4320,6 @@ __metadata:
   version: 9.1.2
   resolution: "bignumber.js@npm:9.1.2"
   checksum: 10/d89b8800a987225d2c00dcbf8a69dc08e92aa0880157c851c287b307d31ceb2fc2acb0c62c3e3a3d42b6c5fcae9b004035f13eb4386e56d529d7edac18d5c9d8
-  languageName: node
-  linkType: hard
-
-"bin-links@npm:4.0.1":
-  version: 4.0.1
-  resolution: "bin-links@npm:4.0.1"
-  dependencies:
-    cmd-shim: "npm:^6.0.0"
-    npm-normalize-package-bin: "npm:^3.0.0"
-    read-cmd-shim: "npm:^4.0.0"
-    write-file-atomic: "npm:^5.0.0"
-  checksum: 10/217d81ef7bbf0bc37132afe972b16a5ecc298092e81a480a521bf175f81d6ec78d3a23fc75c40436b88a2ed7377bb524c7d13e45d04a33b236248ea78508315e
   languageName: node
   linkType: hard
 
@@ -9637,26 +9553,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-gyp@npm:^9.0.0":
-  version: 9.3.1
-  resolution: "node-gyp@npm:9.3.1"
-  dependencies:
-    env-paths: "npm:^2.2.0"
-    glob: "npm:^7.1.4"
-    graceful-fs: "npm:^4.2.6"
-    make-fetch-happen: "npm:^10.0.3"
-    nopt: "npm:^6.0.0"
-    npmlog: "npm:^6.0.0"
-    rimraf: "npm:^3.0.2"
-    semver: "npm:^7.3.5"
-    tar: "npm:^6.1.2"
-    which: "npm:^2.0.2"
-  bin:
-    node-gyp: bin/node-gyp.js
-  checksum: 10/e9345b22be0a3256af87a16ba9604362cd8e4db304e67e71dd83bb8e573f3fdbaf69e359b5af572a14a98730cc3e1813679444ee029093d2a2f38ba3cac4ed7e
-  languageName: node
-  linkType: hard
-
 "node-gyp@npm:latest":
   version: 9.1.0
   resolution: "node-gyp@npm:9.1.0"
@@ -9699,17 +9595,6 @@ __metadata:
   bin:
     nopt: bin/nopt.js
   checksum: 10/00f9bb2d16449469ba8ffcf9b8f0eae6bae285ec74b135fec533e5883563d2400c0cd70902d0a7759e47ac031ccf206ace4e86556da08ed3f1c66dda206e9ccd
-  languageName: node
-  linkType: hard
-
-"nopt@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "nopt@npm:6.0.0"
-  dependencies:
-    abbrev: "npm:^1.0.0"
-  bin:
-    nopt: bin/nopt.js
-  checksum: 10/3c1128e07cd0241ae66d6e6a472170baa9f3e84dd4203950ba8df5bafac4efa2166ce917a57ef02b01ba7c40d18b2cc64b29b225fd3640791fe07b24f0b33a32
   languageName: node
   linkType: hard
 
@@ -10389,16 +10274,6 @@ __metadata:
   version: 4.0.0
   resolution: "read-cmd-shim@npm:4.0.0"
   checksum: 10/69a83acf0a3e2357762d5944a6f4a3f3c5527d0f9fe8a5c9362225aaf702ccfa580ff3bc0b84809c99e88861a5e5be147629717f02ff9befdac68fca1ccc7664
-  languageName: node
-  linkType: hard
-
-"read-package-json-fast@npm:^3.0.0":
-  version: 3.0.2
-  resolution: "read-package-json-fast@npm:3.0.2"
-  dependencies:
-    json-parse-even-better-errors: "npm:^3.0.0"
-    npm-normalize-package-bin: "npm:^3.0.0"
-  checksum: 10/8d406869f045f1d76e2a99865a8fd1c1af9c1dc06200b94d2b07eef87ed734b22703a8d72e1cd36ea36cc48e22020bdd187f88243c7dd0563f72114d38c17072
   languageName: node
   linkType: hard
 

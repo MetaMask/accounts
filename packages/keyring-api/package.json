@@ -36,18 +36,18 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/snaps-sdk": "^6.1.0",
+    "@metamask/snaps-sdk": "^6.5.1",
     "@metamask/superstruct": "^3.1.0",
-    "@metamask/utils": "^9.1.0",
+    "@metamask/utils": "^9.2.1",
     "@types/uuid": "^9.0.8",
     "bech32": "^2.0.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@lavamoat/allow-scripts": "^3.0.4",
-    "@lavamoat/preinstall-always-fail": "^2.0.0",
+    "@lavamoat/allow-scripts": "^3.2.1",
+    "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/providers": "^17.1.1",
+    "@metamask/providers": "^17.2.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
     "deepmerge": "^4.2.2",
