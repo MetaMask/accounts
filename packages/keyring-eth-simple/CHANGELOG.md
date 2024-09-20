@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.0.4]
 
-### Uncategorized
+### Changed
 
-- chore: bump '@metamask/_' and '@lavamoat/_' dependencies ([#46](https://github.com/MetaMask/accounts/pull/46))
-- chore: move some `dependencies` to `devDependencies` ([#44](https://github.com/MetaMask/accounts/pull/44))
+- Bump `@metamask/*` and `@lavamoat/*` dependencies ([#46](https://github.com/MetaMask/accounts/pull/46))
+- Move `deepmerge` to `devDependencies` ([#44](https://github.com/MetaMask/accounts/pull/44))
 
 ## [6.0.3]
 
