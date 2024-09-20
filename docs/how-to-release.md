@@ -6,7 +6,7 @@
 To start creating a new release, run:
 
 ```shell
-yarn create-release-branch
+yarn release
 ```
 
 You will then be prompted with your `$EDITOR` to select which packages you want to release:
@@ -53,14 +53,6 @@ Select your packages alongside their version specifier, then save and close your
 
 Update each package's CHANGELOGs (the one you selected) and update them the usual
 way and commit those changes.
-
-Finally, create your PR on [github](https://github.com/MetaMask/accounts/pulls) or use `gh` CLI:
-
-```shell
-VERSION=x.y.z gh pr create \
-  --title "release: $VERSION" \
-  --body "## Description\nThis is the release candidate for version $VERSION. See the changelogs for more details.
-```
 
 > [!IMPORTANT]
 > Your PR **HAS TO BE NAMED**: `release: x.y.z`
