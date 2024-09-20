@@ -57,9 +57,10 @@ way and commit those changes.
 Finally, create your PR on [github](https://github.com/MetaMask/accounts/pulls) or use `gh` CLI:
 
 ```shell
-VERSION=x.y.z gh pr create \
+VERSION=x.y.z; gh pr create \
   --title "release: $VERSION" \
-  --body "## Description\nThis is the release candidate for version $VERSION. See the changelogs for more details.
+  --body "## Description
+This is the release candidate for version $VERSION. See the changelogs for more details."
 ```
 
 > [!IMPORTANT]
