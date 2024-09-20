@@ -35,15 +35,15 @@
   },
   "dependencies": {
     "@ethereumjs/util": "^8.1.0",
-    "@metamask/eth-sig-util": "^7.0.0",
-    "@metamask/utils": "^9.0.0",
+    "@metamask/eth-sig-util": "^7.0.3",
+    "@metamask/utils": "^9.2.1",
     "ethereum-cryptography": "^2.1.2",
     "randombytes": "^2.1.0"
   },
   "devDependencies": {
     "@ethereumjs/tx": "^4.1.1",
-    "@lavamoat/allow-scripts": "^3.0.4",
-    "@metamask/auto-changelog": "^3.1.0",
+    "@lavamoat/allow-scripts": "^3.2.1",
+    "@metamask/auto-changelog": "^3.4.4",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/jest": "^29.5.0",
     "@types/node": "^18.15.10",

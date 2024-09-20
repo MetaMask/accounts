@@ -39,15 +39,15 @@
   "dependencies": {
     "@ethereumjs/tx": "^4.0.0",
     "@ethereumjs/util": "^8.0.0",
-    "@metamask/eth-sig-util": "^7.0.1",
+    "@metamask/eth-sig-util": "^7.0.3",
     "@trezor/connect-plugin-ethereum": "^9.0.3",
     "@trezor/connect-web": "^9.1.11",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
     "@ethereumjs/common": "^3.0.0",
-    "@lavamoat/allow-scripts": "^3.0.4",
-    "@metamask/auto-changelog": "^3.0.0",
+    "@lavamoat/allow-scripts": "^3.2.1",
+    "@metamask/auto-changelog": "^3.4.4",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",
     "@types/jest": "^28.1.6",
