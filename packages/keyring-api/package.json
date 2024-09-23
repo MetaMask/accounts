@@ -62,7 +62,7 @@
     "typescript": "~4.8.4"
   },
   "peerDependencies": {
-    "@metamask/providers": ">=15 <18"
+    "@metamask/providers": "^17.2.0"
   },
   "engines": {
     "node": "^18.18 || >=20"

@@ -2124,7 +2124,7 @@ __metadata:
     typescript: "npm:~4.8.4"
     uuid: "npm:^9.0.1"
   peerDependencies:
-    "@metamask/providers": ">=15 <18"
+    "@metamask/providers": ^17.2.0
   languageName: unknown
   linkType: soft
 
