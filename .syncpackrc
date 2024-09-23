@@ -1,0 +1,11 @@
+{
+  "dependencyTypes": ["prod"],
+  "semverGroups": [
+    {
+      "label": "use caret ranges in production",
+      "packages": ["**"],
+      "dependencies": ["**"],
+      "range": "^"
+    }
+  ]
+}
