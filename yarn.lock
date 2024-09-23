@@ -613,7 +613,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethereumjs/rlp@npm:^4.0.0, @ethereumjs/rlp@npm:^4.0.1":
+"@ethereumjs/rlp@npm:^4.0.1":
   version: 4.0.1
   resolution: "@ethereumjs/rlp@npm:4.0.1"
   bin:
@@ -1542,7 +1542,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-app-eth@npm:^6.26.1":
+"@ledgerhq/hw-app-eth@npm:^6.38.1":
   version: 6.38.1
   resolution: "@ledgerhq/hw-app-eth@npm:6.38.1"
   dependencies:
@@ -1574,7 +1574,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-transport@npm:^6.24.1, @ledgerhq/hw-transport@npm:^6.31.3":
+"@ledgerhq/hw-transport@npm:^6.31.3":
   version: 6.31.3
   resolution: "@ledgerhq/hw-transport@npm:6.31.3"
   dependencies:
@@ -1603,14 +1603,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/types-cryptoassets@npm:^7.6.0":
-  version: 7.15.0
-  resolution: "@ledgerhq/types-cryptoassets@npm:7.15.0"
-  checksum: 10/439c66ce82c749f1dae7460267f7bbf413358331a4d73e3833d99904387eed41402b34cabeb53b2dd71aa61ffe516d31f84c77a44865c15c9f55ff0bff760e76
+"@ledgerhq/types-cryptoassets@npm:^7.15.1":
+  version: 7.15.1
+  resolution: "@ledgerhq/types-cryptoassets@npm:7.15.1"
+  checksum: 10/87f9a826dc895b0ecd96e73c629d0ea7614f19035a12ec03d0118fe35c345b93ff9145bf872ca60b23a626b8f2a8814cd0510a72478b63521c10fa5a38faab7c
   languageName: node
   linkType: hard
 
-"@ledgerhq/types-devices@npm:^6.22.4":
+"@ledgerhq/types-devices@npm:^6.25.3":
   version: 6.25.3
   resolution: "@ledgerhq/types-devices@npm:6.25.3"
   checksum: 10/3264e4767a1891c3d067425c9fb4e2cd2e6daa70754097a3797ea36de78572e704179c598502a9ec6ced216fac13a890e8a70921766a741311394f716f74df92
@@ -1890,14 +1890,14 @@ __metadata:
   resolution: "@metamask/eth-ledger-bridge-keyring@workspace:packages/keyring-eth-ledger-bridge"
   dependencies:
     "@ethereumjs/common": "npm:^3.2.0"
-    "@ethereumjs/rlp": "npm:^4.0.0"
+    "@ethereumjs/rlp": "npm:^4.0.1"
     "@ethereumjs/tx": "npm:^4.2.0"
     "@ethereumjs/util": "npm:^8.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
-    "@ledgerhq/hw-app-eth": "npm:^6.26.1"
-    "@ledgerhq/hw-transport": "npm:^6.24.1"
-    "@ledgerhq/types-cryptoassets": "npm:^7.6.0"
-    "@ledgerhq/types-devices": "npm:^6.22.4"
+    "@ledgerhq/hw-app-eth": "npm:^6.38.1"
+    "@ledgerhq/hw-transport": "npm:^6.31.3"
+    "@ledgerhq/types-cryptoassets": "npm:^7.15.1"
+    "@ledgerhq/types-devices": "npm:^6.25.3"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^7.0.3"
     "@metamask/utils": "npm:^9.2.1"

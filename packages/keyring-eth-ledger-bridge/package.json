@@ -37,19 +37,19 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@ethereumjs/rlp": "^4.0.0",
+    "@ethereumjs/rlp": "^4.0.1",
     "@ethereumjs/tx": "^4.2.0",
     "@ethereumjs/util": "^8.1.0",
-    "@ledgerhq/hw-app-eth": "^6.26.1",
+    "@ledgerhq/hw-app-eth": "^6.38.1",
     "@metamask/eth-sig-util": "^7.0.3",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
     "@ethereumjs/common": "^3.2.0",
     "@lavamoat/allow-scripts": "^3.2.1",
-    "@ledgerhq/hw-transport": "^6.24.1",
-    "@ledgerhq/types-cryptoassets": "^7.6.0",
-    "@ledgerhq/types-devices": "^6.22.4",
+    "@ledgerhq/hw-transport": "^6.31.3",
+    "@ledgerhq/types-cryptoassets": "^7.15.1",
+    "@ledgerhq/types-devices": "^6.25.3",
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/utils": "^9.2.1",
     "@types/ethereumjs-tx": "^1.0.1",
