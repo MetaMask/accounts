@@ -9,12 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.1.3]
 
-### Uncategorized
+### Changed
 
-- Update Release 3.0.0
-- Initialize Release 3.0.0
-- chore(deps): add 'syncpack' and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
-- chore(deps): bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/metamask/accounts/pull/51))
+- Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/metamask/accounts/pull/51))
+- Add 'syncpack' and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
 
 ## [3.1.2]
 
