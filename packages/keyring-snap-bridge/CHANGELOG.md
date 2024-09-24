@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.3.6]
+
 ### Uncategorized
 
 - chore(deps): add 'syncpack' and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
@@ -339,7 +341,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.5...HEAD
+[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.6...HEAD
+[4.3.6]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.5...@metamask/eth-snap-keyring@4.3.6
 [4.3.5]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.4...@metamask/eth-snap-keyring@4.3.5
 [4.3.4]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.3...@metamask/eth-snap-keyring@4.3.4
 [4.3.3]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.2...@metamask/eth-snap-keyring@4.3.3

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.4]
+
 ### Uncategorized
 
 - chore(deps): add 'syncpack' and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
@@ -127,7 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.3...HEAD
+[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.4...HEAD
+[7.0.4]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.3...@metamask/eth-hd-keyring@7.0.4
 [7.0.3]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.2...@metamask/eth-hd-keyring@7.0.3
 [7.0.2]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.1...@metamask/eth-hd-keyring@7.0.2
 [7.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.0...@metamask/eth-hd-keyring@7.0.1

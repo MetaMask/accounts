@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.1.3]
+
 ### Uncategorized
 
 - chore(deps): add 'syncpack' and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
@@ -409,7 +411,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/keyring-api@8.1.2...HEAD
+[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/keyring-api@8.1.3...HEAD
+[8.1.3]: https://github.com/metamask/accounts/compare/@metamask/keyring-api@8.1.2...@metamask/keyring-api@8.1.3
 [8.1.2]: https://github.com/metamask/accounts/compare/@metamask/keyring-api@8.1.1...@metamask/keyring-api@8.1.2
 [8.1.1]: https://github.com/metamask/accounts/compare/@metamask/keyring-api@8.1.0...@metamask/keyring-api@8.1.1
 [8.1.0]: https://github.com/metamask/accounts/compare/@metamask/keyring-api@8.0.2...@metamask/keyring-api@8.1.0
