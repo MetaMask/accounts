@@ -1,8 +1,13 @@
 {
   "semverGroups": [
     {
-      "label": "use caret ranges in production",
-      "dependencyTypes": ["prod"],
+      "label": "use tilde range for typescript",
+      "packages": ["**"],
+      "dependencies": ["typescript"],
+      "range": "~"
+    },
+    {
+      "label": "use caret ranges everywhere",
       "packages": ["**"],
       "dependencies": ["**"],
       "range": "^"
