@@ -2011,7 +2011,7 @@ __metadata:
     typescript: "npm:~4.8.4"
     uuid: "npm:^9.0.1"
   peerDependencies:
-    "@metamask/keyring-api": ^8.1.1
+    "@metamask/keyring-api": 8.1.2
   languageName: unknown
   linkType: soft
 
@@ -3459,7 +3459,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/web@npm:0.0.69":
+"@types/web@npm:^0.0.69":
   version: 0.0.69
   resolution: "@types/web@npm:0.0.69"
   checksum: 10/676c83e1d367d5f56619ed34c6ba50cccd5c394b5474dddaccb9e7dc7e121f26748d377c248da8a7eee106f87688239dd0027d087e3e09e9918f03b7c6082e92

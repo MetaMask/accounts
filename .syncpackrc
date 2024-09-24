@@ -1,5 +1,4 @@
 {
-  "dependencyTypes": ["prod", "dev", "peer"],
   "semverGroups": [
     {
       "label": "use caret ranges in production",
@@ -7,6 +6,15 @@
       "packages": ["**"],
       "dependencies": ["**"],
       "range": "^"
+    }
+  ],
+  "versionGroups": [
+    {
+      "label": "use pinned version of eth-hd-keyring in no-regression test",
+      "dependencyTypes": ["dev"],
+      "packages": ["@metamask/eth-hd-keyring"],
+      "dependencies": ["@metamask/eth-hd-keyring"],
+      "pinVersion": "4.0.1"
     }
   ]
 }
