@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore(deps): add 'syncpack' and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+
 ## [7.0.3]
 
 ### Changed
@@ -123,16 +127,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.3...HEAD
-[7.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.2...@metamask/eth-hd-keyring@7.0.3
-[7.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.1...@metamask/eth-hd-keyring@7.0.2
-[7.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.0...@metamask/eth-hd-keyring@7.0.1
-[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@6.0.2...@metamask/eth-hd-keyring@7.0.0
-[6.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@6.0.1...@metamask/eth-hd-keyring@6.0.2
-[6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@6.0.0...@metamask/eth-hd-keyring@6.0.1
-[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@5.0.1...@metamask/eth-hd-keyring@6.0.0
-[5.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@5.0.0...@metamask/eth-hd-keyring@5.0.1
-[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@4.0.2...@metamask/eth-hd-keyring@5.0.0
-[4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@4.0.1...@metamask/eth-hd-keyring@4.0.2
-[4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@4.0.0...@metamask/eth-hd-keyring@4.0.1
-[4.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-hd-keyring@4.0.0
+[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.3...HEAD
+[7.0.3]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.2...@metamask/eth-hd-keyring@7.0.3
+[7.0.2]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.1...@metamask/eth-hd-keyring@7.0.2
+[7.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.0...@metamask/eth-hd-keyring@7.0.1
+[7.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@6.0.2...@metamask/eth-hd-keyring@7.0.0
+[6.0.2]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@6.0.1...@metamask/eth-hd-keyring@6.0.2
+[6.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@6.0.0...@metamask/eth-hd-keyring@6.0.1
+[6.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@5.0.1...@metamask/eth-hd-keyring@6.0.0
+[5.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@5.0.0...@metamask/eth-hd-keyring@5.0.1
+[5.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@4.0.2...@metamask/eth-hd-keyring@5.0.0
+[4.0.2]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@4.0.1...@metamask/eth-hd-keyring@4.0.2
+[4.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@4.0.0...@metamask/eth-hd-keyring@4.0.1
+[4.0.0]: https://github.com/metamask/accounts/releases/tag/@metamask/eth-hd-keyring@4.0.0

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore(deps): add 'syncpack' and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+
 ## [4.3.5]
 
 ### Changed
@@ -335,37 +339,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.5...HEAD
-[4.3.5]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.4...@metamask/eth-snap-keyring@4.3.5
-[4.3.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.3...@metamask/eth-snap-keyring@4.3.4
-[4.3.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.2...@metamask/eth-snap-keyring@4.3.3
-[4.3.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.1...@metamask/eth-snap-keyring@4.3.2
-[4.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.0...@metamask/eth-snap-keyring@4.3.1
-[4.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.2.1...@metamask/eth-snap-keyring@4.3.0
-[4.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.2.0...@metamask/eth-snap-keyring@4.2.1
-[4.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.1.1...@metamask/eth-snap-keyring@4.2.0
-[4.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.1.0...@metamask/eth-snap-keyring@4.1.1
-[4.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.0.0...@metamask/eth-snap-keyring@4.1.0
-[4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@3.0.0...@metamask/eth-snap-keyring@4.0.0
-[3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@2.2.2...@metamask/eth-snap-keyring@3.0.0
-[2.2.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@2.2.1...@metamask/eth-snap-keyring@2.2.2
-[2.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@2.2.0...@metamask/eth-snap-keyring@2.2.1
-[2.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@2.1.2...@metamask/eth-snap-keyring@2.2.0
-[2.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@2.1.1...@metamask/eth-snap-keyring@2.1.2
-[2.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@2.1.0...@metamask/eth-snap-keyring@2.1.1
-[2.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@2.0.0...@metamask/eth-snap-keyring@2.1.0
-[2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@1.0.0...@metamask/eth-snap-keyring@2.0.0
-[1.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@1.0.0-rc.2...@metamask/eth-snap-keyring@1.0.0
-[1.0.0-rc.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@1.0.0-rc.1...@metamask/eth-snap-keyring@1.0.0-rc.2
-[1.0.0-rc.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.3.1...@metamask/eth-snap-keyring@1.0.0-rc.1
-[0.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.3.0...@metamask/eth-snap-keyring@0.3.1
-[0.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.2.3...@metamask/eth-snap-keyring@0.3.0
-[0.2.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.2.2...@metamask/eth-snap-keyring@0.2.3
-[0.2.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.2.1...@metamask/eth-snap-keyring@0.2.2
-[0.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.2.0...@metamask/eth-snap-keyring@0.2.1
-[0.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.1.4...@metamask/eth-snap-keyring@0.2.0
-[0.1.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.1.3...@metamask/eth-snap-keyring@0.1.4
-[0.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.1.2...@metamask/eth-snap-keyring@0.1.3
-[0.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.1.1...@metamask/eth-snap-keyring@0.1.2
-[0.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@0.1.0...@metamask/eth-snap-keyring@0.1.1
-[0.1.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-snap-keyring@0.1.0
+[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.5...HEAD
+[4.3.5]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.4...@metamask/eth-snap-keyring@4.3.5
+[4.3.4]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.3...@metamask/eth-snap-keyring@4.3.4
+[4.3.3]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.2...@metamask/eth-snap-keyring@4.3.3
+[4.3.2]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.1...@metamask/eth-snap-keyring@4.3.2
+[4.3.1]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.3.0...@metamask/eth-snap-keyring@4.3.1
+[4.3.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.2.1...@metamask/eth-snap-keyring@4.3.0
+[4.2.1]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.2.0...@metamask/eth-snap-keyring@4.2.1
+[4.2.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.1.1...@metamask/eth-snap-keyring@4.2.0
+[4.1.1]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.1.0...@metamask/eth-snap-keyring@4.1.1
+[4.1.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@4.0.0...@metamask/eth-snap-keyring@4.1.0
+[4.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@3.0.0...@metamask/eth-snap-keyring@4.0.0
+[3.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@2.2.2...@metamask/eth-snap-keyring@3.0.0
+[2.2.2]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@2.2.1...@metamask/eth-snap-keyring@2.2.2
+[2.2.1]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@2.2.0...@metamask/eth-snap-keyring@2.2.1
+[2.2.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@2.1.2...@metamask/eth-snap-keyring@2.2.0
+[2.1.2]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@2.1.1...@metamask/eth-snap-keyring@2.1.2
+[2.1.1]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@2.1.0...@metamask/eth-snap-keyring@2.1.1
+[2.1.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@2.0.0...@metamask/eth-snap-keyring@2.1.0
+[2.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@1.0.0...@metamask/eth-snap-keyring@2.0.0
+[1.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@1.0.0-rc.2...@metamask/eth-snap-keyring@1.0.0
+[1.0.0-rc.2]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@1.0.0-rc.1...@metamask/eth-snap-keyring@1.0.0-rc.2
+[1.0.0-rc.1]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.3.1...@metamask/eth-snap-keyring@1.0.0-rc.1
+[0.3.1]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.3.0...@metamask/eth-snap-keyring@0.3.1
+[0.3.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.2.3...@metamask/eth-snap-keyring@0.3.0
+[0.2.3]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.2.2...@metamask/eth-snap-keyring@0.2.3
+[0.2.2]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.2.1...@metamask/eth-snap-keyring@0.2.2
+[0.2.1]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.2.0...@metamask/eth-snap-keyring@0.2.1
+[0.2.0]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.1.4...@metamask/eth-snap-keyring@0.2.0
+[0.1.4]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.1.3...@metamask/eth-snap-keyring@0.1.4
+[0.1.3]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.1.2...@metamask/eth-snap-keyring@0.1.3
+[0.1.2]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.1.1...@metamask/eth-snap-keyring@0.1.2
+[0.1.1]: https://github.com/metamask/accounts/compare/@metamask/eth-snap-keyring@0.1.0...@metamask/eth-snap-keyring@0.1.1
+[0.1.0]: https://github.com/metamask/accounts/releases/tag/@metamask/eth-snap-keyring@0.1.0
