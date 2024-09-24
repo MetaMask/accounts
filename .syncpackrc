@@ -1,0 +1,25 @@
+{
+  "semverGroups": [
+    {
+      "label": "use tilde range for typescript",
+      "packages": ["**"],
+      "dependencies": ["typescript"],
+      "range": "~"
+    },
+    {
+      "label": "use caret ranges everywhere",
+      "packages": ["**"],
+      "dependencies": ["**"],
+      "range": "^"
+    }
+  ],
+  "versionGroups": [
+    {
+      "label": "use pinned version of eth-hd-keyring in non-regression test",
+      "dependencyTypes": ["dev"],
+      "packages": ["@metamask/eth-hd-keyring"],
+      "dependencies": ["@metamask/eth-hd-keyring"],
+      "pinVersion": "4.0.1"
+    }
+  ]
+}
