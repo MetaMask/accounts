@@ -23,7 +23,7 @@
     },
     {
       "label": "use workspace version of the keyring-api",
-      "dependencyTypes": ["dev", "peer"],
+      "dependencyTypes": ["!local"],
       "dependencies": ["@metamask/keyring-api"],
       "pinVersion": "workspace:^"
     }
