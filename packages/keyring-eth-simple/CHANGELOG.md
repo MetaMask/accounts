@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Uncategorized
 
+- Update Release 3.0.0
+- Initialize Release 3.0.0
+- chore(deps): bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
 - chore(deps): add 'syncpack' and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
 
 ## [6.0.4]
@@ -84,13 +87,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/eth-simple-keyring@6.0.5...HEAD
-[6.0.5]: https://github.com/metamask/accounts/compare/@metamask/eth-simple-keyring@6.0.4...@metamask/eth-simple-keyring@6.0.5
-[6.0.4]: https://github.com/metamask/accounts/compare/@metamask/eth-simple-keyring@6.0.3...@metamask/eth-simple-keyring@6.0.4
-[6.0.3]: https://github.com/metamask/accounts/compare/@metamask/eth-simple-keyring@6.0.2...@metamask/eth-simple-keyring@6.0.3
-[6.0.2]: https://github.com/metamask/accounts/compare/@metamask/eth-simple-keyring@6.0.1...@metamask/eth-simple-keyring@6.0.2
-[6.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-simple-keyring@6.0.0...@metamask/eth-simple-keyring@6.0.1
-[6.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-simple-keyring@5.1.1...@metamask/eth-simple-keyring@6.0.0
-[5.1.1]: https://github.com/metamask/accounts/compare/@metamask/eth-simple-keyring@5.1.0...@metamask/eth-simple-keyring@5.1.1
-[5.1.0]: https://github.com/metamask/accounts/compare/@metamask/eth-simple-keyring@5.0.0...@metamask/eth-simple-keyring@5.1.0
-[5.0.0]: https://github.com/metamask/accounts/releases/tag/@metamask/eth-simple-keyring@5.0.0
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.5...HEAD
+[6.0.5]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.4...@metamask/eth-simple-keyring@6.0.5
+[6.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.3...@metamask/eth-simple-keyring@6.0.4
+[6.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.2...@metamask/eth-simple-keyring@6.0.3
+[6.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.1...@metamask/eth-simple-keyring@6.0.2
+[6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.0...@metamask/eth-simple-keyring@6.0.1
+[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@5.1.1...@metamask/eth-simple-keyring@6.0.0
+[5.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@5.1.0...@metamask/eth-simple-keyring@5.1.1
+[5.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@5.0.0...@metamask/eth-simple-keyring@5.1.0
+[5.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-simple-keyring@5.0.0
