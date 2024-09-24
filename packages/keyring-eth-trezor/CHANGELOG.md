@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.3]
+
+### Changed
+
+- Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/metamask/accounts/pull/51))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+
 ## [3.1.2]
 
 ### Changed
@@ -113,7 +120,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.3...HEAD
+[3.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.2...@metamask/eth-trezor-keyring@3.1.3
 [3.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.1...@metamask/eth-trezor-keyring@3.1.2
 [3.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.0...@metamask/eth-trezor-keyring@3.1.1
 [3.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.0.0...@metamask/eth-trezor-keyring@3.1.0
