@@ -20,6 +20,12 @@
       "packages": ["@metamask/eth-hd-keyring"],
       "dependencies": ["@metamask/eth-hd-keyring"],
       "pinVersion": "4.0.1"
+    },
+    {
+      "label": "use workspace version of the keyring-api",
+      "dependencyTypes": ["dev", "peer"],
+      "dependencies": ["@metamask/keyring-api"],
+      "pinVersion": "workspace:^"
     }
   ]
 }
