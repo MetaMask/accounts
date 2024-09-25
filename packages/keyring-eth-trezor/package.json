@@ -42,11 +42,13 @@
     "@metamask/eth-sig-util": "^7.0.3",
     "@trezor/connect-plugin-ethereum": "^9.0.3",
     "@trezor/connect-web": "^9.1.11",
-    "hdkey": "^2.1.0"
+    "hdkey": "^2.1.0",
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "@ethereumjs/common": "^3.2.0",
     "@lavamoat/allow-scripts": "^3.2.1",
+    "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",

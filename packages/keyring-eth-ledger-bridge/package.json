@@ -47,6 +47,7 @@
   "devDependencies": {
     "@ethereumjs/common": "^3.2.0",
     "@lavamoat/allow-scripts": "^3.2.1",
+    "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@ledgerhq/hw-transport": "^6.31.3",
     "@ledgerhq/types-cryptoassets": "^7.15.1",
     "@ledgerhq/types-devices": "^6.25.3",

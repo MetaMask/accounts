@@ -1,9 +1,9 @@
 {
   "semverGroups": [
     {
-      "label": "use tilde range for typescript",
+      "label": "use tilde range for some dependencies",
       "packages": ["**"],
-      "dependencies": ["typescript"],
+      "dependencies": ["eslint-plugin-import", "typescript"],
       "range": "~"
     },
     {
