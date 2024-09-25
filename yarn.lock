@@ -2116,7 +2116,7 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
     "@types/uuid": "npm:^9.0.8"
-    "@types/webextension-polyfill": "npm:^0"
+    "@types/webextension-polyfill": "npm:^0.12.1"
     bech32: "npm:^2.0.0"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
@@ -3473,7 +3473,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/webextension-polyfill@npm:^0":
+"@types/webextension-polyfill@npm:^0.12.1":
   version: 0.12.1
   resolution: "@types/webextension-polyfill@npm:0.12.1"
   checksum: 10/80c1f81af272d378098474a41e0941bf9375261423ea289cd8250efc9a628cec4fa6083cb9cd5c62ff0f828ac235a044c0b95543c0606e894dfd485cea55b0aa
