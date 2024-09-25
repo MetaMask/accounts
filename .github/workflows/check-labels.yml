@@ -1,0 +1,21 @@
+name: Check labels
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+      - unlabeled
+
+jobs:
+  check-labels:
+    name: Check labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail action
+        run: |
+          echo "This PR is labeled as DO-NOT-MERGE."
+          exit 1
+    if: contains(github.event.pull_request.labels.*.name, 'DO-NOT-MERGE')
