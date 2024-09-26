@@ -1,21 +1,21 @@
-// eslint-disable-next-line import/no-mutable-exports
+// eslint-disable-next-line import-x/no-mutable-exports
 let windowShim: any;
 
 try {
   windowShim = window || {
-    addEventListener: () => {
+    addEventListener: (): false => {
       return false;
     },
-    removeEventListener: () => {
+    removeEventListener: (): false => {
       return false;
     },
   };
-} catch (error) {
+} catch {
   windowShim = {
-    addEventListener: () => {
+    addEventListener: (): false => {
       return false;
     },
-    removeEventListener: () => {
+    removeEventListener: (): false => {
       return false;
     },
   };

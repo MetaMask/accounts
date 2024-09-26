@@ -30,7 +30,7 @@ export type MobileBridge = LedgerBridge<LedgerMobileBridgeOptions> & {
  * LedgerMobileBridge is a bridge between the LedgerKeyring and the LedgerTransportMiddleware.
  */
 export class LedgerMobileBridge implements MobileBridge {
-  #transportMiddleware?: TransportMiddleware;
+  readonly #transportMiddleware?: TransportMiddleware;
 
   #opts: LedgerMobileBridgeOptions;
 
@@ -47,6 +47,8 @@ export class LedgerMobileBridge implements MobileBridge {
   /**
    * Method to initializes the keyring.
    * Mobile ledger doesnt not require init.
+   *
+   * @returns A promise that will resolve once the bridge is initialized.
    */
   async init(): Promise<void> {
     return Promise.resolve();

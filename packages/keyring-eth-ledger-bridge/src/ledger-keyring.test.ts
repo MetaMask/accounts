@@ -93,7 +93,7 @@ describe('LedgerKeyring', function () {
    * @param accountIndex - The index of the account to unlock.
    * @returns Returns a promise that resolves when the keyring is unlocked.
    */
-  async function basicSetupToUnlockOneAccount(accountIndex = 0) {
+  async function basicSetupToUnlockOneAccount(accountIndex = 0): Promise<void> {
     keyring.setAccountToUnlock(accountIndex);
     await keyring.addAccounts();
     jest
