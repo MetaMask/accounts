@@ -1,4 +1,3 @@
-/* eslint-disable n/no-sync */
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
@@ -401,7 +400,7 @@ export class SnapKeyring extends EventEmitter {
    * @param opts.method - Method to call.
    * @param opts.params - Method parameters.
    * @param opts.chainId - Selected chain ID (CAIP-2).
-   * @param opts.expectSync - Whether the request should be synchronous.
+   * @param opts.noPending - Whether the response is allowed to be pending.
    * @returns Promise that resolves to the result of the method call.
    */
   async #submitRequest<Response extends Json>({
@@ -409,13 +408,13 @@ export class SnapKeyring extends EventEmitter {
     method,
     params,
     chainId = '',
-    expectSync = false,
+    noPending = false,
   }: {
     address: string;
     method: string;
     params?: Json[] | Record<string, Json>;
     chainId?: string;
-    expectSync?: boolean;
+    noPending?: boolean;
   }): Promise<Json> {
     const { account, snapId } = this.#resolveAddress(address);
     if (!this.#hasMethod(account, method as AccountMethod)) {
@@ -442,9 +441,9 @@ export class SnapKeyring extends EventEmitter {
     // Some methods, like the ones used to prepare and patch user operations,
     // require the Snap to answer synchronously in order to work with the
     // confirmation flow. This check lets the caller enforce this behavior.
-    if (expectSync && response.pending) {
+    if (noPending && response.pending) {
       throw new Error(
-        `Request '${requestId}' to snap '${snapId}' is pending and expectSync is true.`,
+        `Request '${requestId}' to snap '${snapId}' is pending and noPending is true.`,
       );
     }
 
@@ -746,7 +745,7 @@ export class SnapKeyring extends EventEmitter {
         address,
         method: EthMethod.PrepareUserOperation,
         params: toJson<Json[]>(transactions),
-        expectSync: true,
+        noPending: true,
         // We assume the chain ID is already well formatted
         chainId: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
@@ -773,7 +772,7 @@ export class SnapKeyring extends EventEmitter {
         address,
         method: EthMethod.PatchUserOperation,
         params: toJson<Json[]>([userOp]),
-        expectSync: true,
+        noPending: true,
         // We assume the chain ID is already well formatted
         chainId: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
