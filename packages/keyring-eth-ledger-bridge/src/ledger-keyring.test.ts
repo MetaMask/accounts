@@ -388,8 +388,8 @@ describe('LedgerKeyring', function () {
       describe('with a numeric argument', function () {
         it('returns that number of accounts', async function () {
           keyring.setAccountToUnlock(0);
-
           const firstBatch = await keyring.addAccounts(3);
+          keyring.setAccountToUnlock(3);
           const secondBatch = await keyring.addAccounts(2);
 
           expect(firstBatch).toHaveLength(3);
@@ -398,16 +398,16 @@ describe('LedgerKeyring', function () {
 
         it('returns the expected accounts', async function () {
           keyring.setAccountToUnlock(0);
-
           const firstBatch = await keyring.addAccounts(3);
+          keyring.setAccountToUnlock(3);
           const secondBatch = await keyring.addAccounts(2);
 
-          expect(firstBatch).toBe([
+          expect(firstBatch).toStrictEqual([
             fakeAccounts[0],
             fakeAccounts[1],
             fakeAccounts[2],
           ]);
-          expect(secondBatch).toBe([fakeAccounts[3], fakeAccounts[4]]);
+          expect(secondBatch).toStrictEqual([fakeAccounts[3], fakeAccounts[4]]);
         });
       });
 
@@ -435,13 +435,13 @@ describe('LedgerKeyring', function () {
       describe('when called multiple times', function () {
         it('does not remove existing accounts', async function () {
           keyring.setAccountToUnlock(0);
-          await keyring.addAccounts(1);
+          const firstBatch = await keyring.addAccounts(1);
           keyring.setAccountToUnlock(1);
-          const accounts = await keyring.addAccounts(1);
+          const secondBatch = await keyring.addAccounts(1);
 
-          expect(accounts).toHaveLength(2);
-          expect(accounts[0]).toBe(fakeAccounts[0]);
-          expect(accounts[1]).toBe(fakeAccounts[1]);
+          expect(await keyring.getAccounts()).toHaveLength(2);
+          expect(firstBatch).toStrictEqual([fakeAccounts[0]]);
+          expect(secondBatch).toStrictEqual([fakeAccounts[1]]);
         });
       });
     });
