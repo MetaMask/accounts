@@ -1,20 +1,21 @@
-import { EventEmitter } from 'events';
-import * as ethUtil from '@ethereumjs/util';
-import HDKey from 'hdkey';
-import type {
-  EthereumTransactionEIP1559,
-  EthereumSignedTx,
-  EthereumTransaction,
-} from '@trezor/connect-web';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedTransaction, TxData } from '@ethereumjs/tx';
-import type OldEthJsTransaction from 'ethereumjs-tx';
-import { transformTypedData } from '@trezor/connect-plugin-ethereum';
+import * as ethUtil from '@ethereumjs/util';
 import {
   TypedMessage,
   SignTypedDataVersion,
   MessageTypes,
 } from '@metamask/eth-sig-util';
+import { transformTypedData } from '@trezor/connect-plugin-ethereum';
+import type {
+  EthereumTransactionEIP1559,
+  EthereumSignedTx,
+  EthereumTransaction,
+} from '@trezor/connect-web';
+import type OldEthJsTransaction from 'ethereumjs-tx';
+import { EventEmitter } from 'events';
+import HDKey from 'hdkey';
+
 import { TrezorBridge } from './trezor-bridge';
 
 const hdPathString = `m/44'/60'/0'/0`;

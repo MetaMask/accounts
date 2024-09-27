@@ -8,6 +8,7 @@ import type {
   EthereumSignTypedDataTypes,
   EthereumSignTypedHash,
 } from '@trezor/connect-web';
+
 import type { TrezorBridge } from './trezor-bridge';
 
 export class TrezorConnectBridge implements TrezorBridge {

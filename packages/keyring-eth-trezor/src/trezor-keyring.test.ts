@@ -1,17 +1,17 @@
-import * as sinon from 'sinon';
-import EthereumTx from 'ethereumjs-tx';
-import HDKey from 'hdkey';
+import { Common, Chain, Hardfork } from '@ethereumjs/common';
 import {
   TypedTransaction,
   TransactionFactory,
   FeeMarketEIP1559Transaction,
 } from '@ethereumjs/tx';
-import { Common, Chain, Hardfork } from '@ethereumjs/common';
-
 import { Address } from '@ethereumjs/util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
-import { TrezorKeyring, TREZOR_CONNECT_MANIFEST } from './trezor-keyring';
+import EthereumTx from 'ethereumjs-tx';
+import HDKey from 'hdkey';
+import * as sinon from 'sinon';
+
 import { TrezorBridge } from './trezor-bridge';
+import { TrezorKeyring, TREZOR_CONNECT_MANIFEST } from './trezor-keyring';
 
 const fakeAccounts = [
   '0xF30952A1c534CDE7bC471380065726fa8686dfB3',
