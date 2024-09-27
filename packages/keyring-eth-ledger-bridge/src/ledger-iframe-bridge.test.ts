@@ -1,12 +1,12 @@
 import { hasProperty } from '@metamask/utils';
 
-import documentShim from '../test/document.shim';
-import windowShim from '../test/window.shim';
 import {
   type IFrameMessageResponse,
   IFrameMessageAction,
   LedgerIframeBridge,
 } from './ledger-iframe-bridge';
+import documentShim from '../test/document.shim';
+import windowShim from '../test/window.shim';
 
 global.document = documentShim;
 global.window = windowShim;
