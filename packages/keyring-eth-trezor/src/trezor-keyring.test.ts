@@ -205,7 +205,7 @@ describe('TrezorKeyring', function () {
       keyring.hdk = new HDKey();
       try {
         await keyring.unlock();
-      } catch (e) {
+      } catch {
         // Since we only care about ensuring our function gets called,
         // we want to ignore warnings due to stub data
       }
@@ -550,7 +550,7 @@ describe('TrezorKeyring', function () {
 
       try {
         await keyring.signMessage(fakeAccounts[0], 'some msg');
-      } catch (error) {
+      } catch {
         // Since we only care about ensuring our function gets called,
         // we want to ignore warnings due to stub data
       }
@@ -566,7 +566,7 @@ describe('TrezorKeyring', function () {
 
       try {
         await keyring.signPersonalMessage(fakeAccounts[0], 'some msg');
-      } catch (error) {
+      } catch {
         // Since we only care about ensuring our function gets called,
         // we want to ignore warnings due to stub data
       }
