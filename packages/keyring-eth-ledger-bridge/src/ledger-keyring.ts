@@ -232,6 +232,7 @@ export class LedgerKeyring extends EventEmitter {
         .then(async (_) => {
           const from = this.unlockedAccount;
           const to = from + amount;
+          const newAccounts: string[] = [];
           for (let i = from; i < to; i++) {
             const path = this.#getPathForIndex(i);
             let address;
@@ -250,10 +251,11 @@ export class LedgerKeyring extends EventEmitter {
 
             if (!this.accounts.includes(address)) {
               this.accounts = [...this.accounts, address];
+              newAccounts.push(address);
             }
             this.page = 0;
           }
-          resolve(this.accounts.slice());
+          resolve(newAccounts);
         })
         .catch(reject);
     });
