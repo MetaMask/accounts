@@ -1,3 +1,4 @@
+/* eslint-disable n/no-sync */
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
@@ -315,23 +316,23 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<Json> {
     assert(message, SnapMessageStruct);
     switch (message.method) {
-      case KeyringEvent.AccountCreated: {
+      case `${KeyringEvent.AccountCreated}`: {
         return this.#handleAccountCreated(snapId, message);
       }
 
-      case KeyringEvent.AccountUpdated: {
+      case `${KeyringEvent.AccountUpdated}`: {
         return this.#handleAccountUpdated(snapId, message);
       }
 
-      case KeyringEvent.AccountDeleted: {
+      case `${KeyringEvent.AccountDeleted}`: {
         return this.#handleAccountDeleted(snapId, message);
       }
 
-      case KeyringEvent.RequestApproved: {
+      case `${KeyringEvent.RequestApproved}`: {
         return this.#handleRequestApproved(snapId, message);
       }
 
-      case KeyringEvent.RequestRejected: {
+      case `${KeyringEvent.RequestRejected}`: {
         return this.#handleRequestRejected(snapId, message);
       }
 
@@ -570,10 +571,10 @@ export class SnapKeyring extends EventEmitter {
   async #handleAsyncResponse(
     redirect: { message?: string; url?: string },
     snapId: SnapId,
-  ) {
+  ): Promise<void> {
     const { message = '', url = '' } = redirect;
     if (url) {
-      this.#validateRedirectUrl(url, snapId);
+      await this.#validateRedirectUrl(url, snapId);
     }
     await this.#callbacks.redirectUser(snapId, url, message);
   }
@@ -585,7 +586,7 @@ export class SnapKeyring extends EventEmitter {
    * @param snapId - The Snap ID to check allowed origins for.
    * @throws An error if the URL's origin is not in the Snap's allowed origins.
    */
-  #validateRedirectUrl(url: string, snapId: SnapId) {
+  async #validateRedirectUrl(url: string, snapId: SnapId): Promise<void> {
     const { origin } = new URL(url);
     const snap = this.#snapClient.getController().get(snapId);
     if (!snap) {
@@ -605,6 +606,7 @@ export class SnapKeyring extends EventEmitter {
    * @param address - Sender's address.
    * @param transaction - Transaction.
    * @param _opts - Transaction options (not used).
+   * @returns A promise that resolves to the signed transaction.
    */
   async signTransaction(
     address: string,

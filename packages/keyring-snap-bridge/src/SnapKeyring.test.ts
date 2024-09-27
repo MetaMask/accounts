@@ -654,7 +654,7 @@ describe('SnapKeyring', () => {
     const isNotAllowedOrigin = async (
       allowedOrigins: string[],
       redirectUrl: string,
-    ) => {
+    ): Promise<void> => {
       const { origin } = new URL(redirectUrl);
       const snapObject = {
         id: snapId,
