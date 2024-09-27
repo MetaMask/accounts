@@ -106,7 +106,7 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Client used to call the Snap keyring.
    */
-  #snapClient: KeyringSnapControllerClient;
+  readonly #snapClient: KeyringSnapControllerClient;
 
   /**
    * Mapping between account IDs and an object that contains the associated
@@ -120,7 +120,7 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Mapping between request IDs and their deferred promises.
    */
-  #requests: SnapIdMap<{
+  readonly #requests: SnapIdMap<{
     promise: DeferredPromise<any>;
     snapId: SnapId;
   }>;
@@ -128,7 +128,7 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Callbacks used to interact with other components.
    */
-  #callbacks: SnapKeyringCallbacks;
+  readonly #callbacks: SnapKeyringCallbacks;
 
   /**
    * Create a new Snap keyring.
