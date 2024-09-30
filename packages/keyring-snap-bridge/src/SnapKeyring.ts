@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+// This rule seems to be triggering a false positive. Possibly eslint is not
+// inferring the EthMethod, BtcMethod, and InternalAccount types correctly.
+
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
