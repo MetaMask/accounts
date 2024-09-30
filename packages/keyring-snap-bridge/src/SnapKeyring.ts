@@ -577,7 +577,7 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<void> {
     const { message = '', url = '' } = redirect;
     if (url) {
-      await this.#validateRedirectUrl(url, snapId);
+      this.#validateRedirectUrl(url, snapId);
     }
     await this.#callbacks.redirectUser(snapId, url, message);
   }
@@ -589,7 +589,7 @@ export class SnapKeyring extends EventEmitter {
    * @param snapId - The Snap ID to check allowed origins for.
    * @throws An error if the URL's origin is not in the Snap's allowed origins.
    */
-  async #validateRedirectUrl(url: string, snapId: SnapId): Promise<void> {
+  #validateRedirectUrl(url: string, snapId: SnapId): void {
     const { origin } = new URL(url);
     const snap = this.#snapClient.getController().get(snapId);
     if (!snap) {
