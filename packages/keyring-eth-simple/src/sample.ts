@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/naming-convention
-import SimpleKeyring from './simple-keyring';
+import SimpleKeyring from '.';
 
 const keyring = new SimpleKeyring();
 
