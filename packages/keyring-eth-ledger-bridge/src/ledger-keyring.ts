@@ -34,13 +34,13 @@ type SignTransactionPayload = Awaited<
   ReturnType<LedgerBridge<LedgerIframeBridgeOptions>['deviceSignTransaction']>
 >;
 
-type AccountPageEntry = {
+export type AccountPageEntry = {
   address: string;
   balance: number | null;
   index: number;
 };
 
-type AccountPage = AccountPageEntry[];
+export type AccountPage = AccountPageEntry[];
 
 export type AccountDetails = {
   index?: number;
