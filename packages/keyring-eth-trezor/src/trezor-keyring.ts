@@ -37,13 +37,13 @@ export const TREZOR_CONNECT_MANIFEST = {
   appUrl: 'https://metamask.io',
 };
 
-type AccountPageEntry = {
+export type AccountPageEntry = {
   address: string;
   balance: number | null;
   index: number;
 };
 
-type AccountPage = AccountPageEntry[];
+export type AccountPage = AccountPageEntry[];
 
 export interface TrezorControllerOptions {
   hdPath?: string;
