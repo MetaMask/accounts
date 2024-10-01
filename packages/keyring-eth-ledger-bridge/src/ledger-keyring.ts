@@ -123,7 +123,9 @@ export class LedgerKeyring extends EventEmitter {
     return this.bridge.destroy();
   }
 
-  async serialize(): Promise<Partial<LedgerBridgeKeyringOptions>> {
+  async serialize(): Promise<
+    Partial<LedgerBridgeKeyringOptions> // Maybe we should have a proper "state" type here instead of using this "options" type.
+  > {
     return {
       hdPath: this.hdPath,
       accounts: this.accounts,
@@ -134,7 +136,7 @@ export class LedgerKeyring extends EventEmitter {
   }
 
   async deserialize(
-    opts: Partial<LedgerBridgeKeyringOptions> = {},
+    opts: Partial<LedgerBridgeKeyringOptions> = {}, // Same question here?
   ): Promise<void> {
     this.hdPath = opts.hdPath ?? hdPathString;
     this.accounts = opts.accounts ?? [];
