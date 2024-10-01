@@ -8,10 +8,8 @@ import {
   SignTypedDataVersion,
   TypedDataUtils,
 } from '@metamask/eth-sig-util';
-// eslint-disable-next-line import/no-nodejs-modules
 import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
-// eslint-disable-next-line import/no-nodejs-modules
 import { EventEmitter } from 'events';
 import HDKey from 'hdkey';
 
@@ -35,6 +33,14 @@ enum NetworkApiUrls {
 type SignTransactionPayload = Awaited<
   ReturnType<LedgerBridge<LedgerIframeBridgeOptions>['deviceSignTransaction']>
 >;
+
+export type AccountPageEntry = {
+  address: string;
+  balance: number | null;
+  index: number;
+};
+
+export type AccountPage = AccountPageEntry[];
 
 export type AccountDetails = {
   index?: number;
@@ -109,15 +115,17 @@ export class LedgerKeyring extends EventEmitter {
     this.bridge = bridge;
   }
 
-  async init() {
+  async init(): Promise<void> {
     return this.bridge.init();
   }
 
-  async destroy() {
+  async destroy(): Promise<void> {
     return this.bridge.destroy();
   }
 
-  async serialize() {
+  async serialize(): Promise<
+    Partial<LedgerBridgeKeyringOptions> // Maybe we should have a proper "state" type here instead of using this "options" type.
+  > {
     return {
       hdPath: this.hdPath,
       accounts: this.accounts,
@@ -127,7 +135,9 @@ export class LedgerKeyring extends EventEmitter {
     };
   }
 
-  async deserialize(opts: Partial<LedgerBridgeKeyringOptions> = {}) {
+  async deserialize(
+    opts: Partial<LedgerBridgeKeyringOptions> = {}, // Same question here?
+  ): Promise<void> {
     this.hdPath = opts.hdPath ?? hdPathString;
     this.accounts = opts.accounts ?? [];
     this.deviceId = opts.deviceId ?? '';
@@ -148,15 +158,15 @@ export class LedgerKeyring extends EventEmitter {
     return Promise.resolve();
   }
 
-  public setDeviceId(deviceId: string) {
+  public setDeviceId(deviceId: string): void {
     this.deviceId = deviceId;
   }
 
-  public getDeviceId() {
+  public getDeviceId(): string {
     return this.deviceId;
   }
 
-  #migrateAccountDetails(opts: Partial<LedgerBridgeKeyringOptions>) {
+  #migrateAccountDetails(opts: Partial<LedgerBridgeKeyringOptions>): void {
     if (this.#isLedgerLiveHdPath() && opts.accountIndexes) {
       for (const [account, index] of Object.entries(opts.accountIndexes)) {
         this.accountDetails[account] = {
@@ -181,19 +191,19 @@ export class LedgerKeyring extends EventEmitter {
     }
   }
 
-  isUnlocked() {
+  isUnlocked(): boolean {
     return Boolean(this.hdk.publicKey);
   }
 
-  isConnected() {
+  isConnected(): boolean {
     return this.bridge.isDeviceConnected;
   }
 
-  setAccountToUnlock(index: number) {
+  setAccountToUnlock(index: number): void {
     this.unlockedAccount = index;
   }
 
-  setHdPath(hdPath: string) {
+  setHdPath(hdPath: string): void {
     // Reset HDKey if the path changes
     if (this.hdPath !== hdPath) {
       this.hdk = new HDKey();
@@ -259,28 +269,28 @@ export class LedgerKeyring extends EventEmitter {
     });
   }
 
-  getName() {
+  getName(): string {
     return keyringType;
   }
 
-  async getFirstPage() {
+  async getFirstPage(): Promise<AccountPage> {
     this.page = 0;
     return this.#getPage(1);
   }
 
-  async getNextPage() {
+  async getNextPage(): Promise<AccountPage> {
     return this.#getPage(1);
   }
 
-  async getPreviousPage() {
+  async getPreviousPage(): Promise<AccountPage> {
     return this.#getPage(-1);
   }
 
-  async getAccounts() {
+  async getAccounts(): Promise<string[]> {
     return Promise.resolve(this.accounts.slice());
   }
 
-  removeAccount(address: string) {
+  removeAccount(address: string): void {
     const filteredAccounts = this.accounts.filter(
       (a) => a.toLowerCase() !== address.toLowerCase(),
     );
@@ -293,11 +303,11 @@ export class LedgerKeyring extends EventEmitter {
     delete this.accountDetails[ethUtil.toChecksumAddress(address)];
   }
 
-  async attemptMakeApp() {
+  async attemptMakeApp(): Promise<boolean> {
     return this.bridge.attemptMakeApp();
   }
 
-  async updateTransportMethod(transportType: string) {
+  async updateTransportMethod(transportType: string): Promise<boolean> {
     return this.bridge.updateTransportMethod(transportType);
   }
 
@@ -401,12 +411,15 @@ export class LedgerKeyring extends EventEmitter {
     throw new Error('Ledger: The transaction signature is not valid');
   }
 
-  async signMessage(withAccount: string, data: string) {
+  async signMessage(withAccount: string, data: string): Promise<string> {
     return this.signPersonalMessage(withAccount, data);
   }
 
   // For personal_sign, we need to prefix the message:
-  async signPersonalMessage(withAccount: string, message: string) {
+  async signPersonalMessage(
+    withAccount: string,
+    message: string,
+  ): Promise<string> {
     const hdPath = await this.unlockAccountByAddress(withAccount);
 
     if (!hdPath) {
@@ -444,7 +457,7 @@ export class LedgerKeyring extends EventEmitter {
     return signature;
   }
 
-  async unlockAccountByAddress(address: string) {
+  async unlockAccountByAddress(address: string): Promise<string | undefined> {
     const checksummedAddress = ethUtil.toChecksumAddress(address);
     const accountDetails = this.accountDetails[checksummedAddress];
     if (!accountDetails) {
@@ -469,7 +482,7 @@ export class LedgerKeyring extends EventEmitter {
     withAccount: string,
     data: TypedMessage<T>,
     options: { version?: string } = {},
-  ) {
+  ): Promise<string> {
     const isV4 = options.version === 'V4';
     if (!isV4) {
       throw new Error(
@@ -531,11 +544,11 @@ export class LedgerKeyring extends EventEmitter {
     return signature;
   }
 
-  exportAccount() {
+  exportAccount(): void {
     throw new Error('Not supported on this device');
   }
 
-  forgetDevice() {
+  forgetDevice(): void {
     this.accounts = [];
     this.page = 0;
     this.unlockedAccount = 0;
@@ -545,7 +558,7 @@ export class LedgerKeyring extends EventEmitter {
   }
 
   /* PRIVATE METHODS */
-  async #getPage(increment: number) {
+  async #getPage(increment: number): Promise<AccountPage> {
     this.page += increment;
 
     if (this.page <= 0) {
@@ -564,12 +577,8 @@ export class LedgerKeyring extends EventEmitter {
     return accounts;
   }
 
-  async #getAccountsBIP44(from: number, to: number) {
-    const accounts: {
-      address: string;
-      balance: number | null;
-      index: number;
-    }[] = [];
+  async #getAccountsBIP44(from: number, to: number): Promise<AccountPage> {
+    const accounts: AccountPage = [];
 
     for (let i = from; i < to; i++) {
       const path = this.#getPathForIndex(i);
@@ -594,12 +603,8 @@ export class LedgerKeyring extends EventEmitter {
     return accounts;
   }
 
-  #getAccountsLegacy(from: number, to: number) {
-    const accounts: {
-      address: string;
-      balance: number | null;
-      index: number;
-    }[] = [];
+  #getAccountsLegacy(from: number, to: number): AccountPage {
+    const accounts: AccountPage = [];
 
     for (let i = from; i < to; i++) {
       const address = this.#addressFromIndex(pathBase, i);
@@ -613,7 +618,7 @@ export class LedgerKeyring extends EventEmitter {
     return accounts;
   }
 
-  #addressFromIndex(basePath: string, i: number) {
+  #addressFromIndex(basePath: string, i: number): string {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
     const address = ethUtil
       .publicToAddress(dkey.publicKey, true)
@@ -621,7 +626,7 @@ export class LedgerKeyring extends EventEmitter {
     return ethUtil.toChecksumAddress(`0x${address}`);
   }
 
-  #pathFromAddress(address: string) {
+  #pathFromAddress(address: string): string {
     const checksummedAddress = ethUtil.toChecksumAddress(address);
     let index = this.paths[checksummedAddress];
     if (typeof index === 'undefined') {
@@ -639,22 +644,22 @@ export class LedgerKeyring extends EventEmitter {
     return this.#getPathForIndex(index);
   }
 
-  #getPathForIndex(index: number) {
+  #getPathForIndex(index: number): string {
     // Check if the path is BIP 44 (Ledger Live)
     return this.#isLedgerLiveHdPath()
       ? `m/44'/60'/${index}'/0/0`
       : `${this.hdPath}/${index}`;
   }
 
-  #isLedgerLiveHdPath() {
+  #isLedgerLiveHdPath(): boolean {
     return this.hdPath === `m/44'/60'/0'/0/0`;
   }
 
-  #toLedgerPath(path: string) {
+  #toLedgerPath(path: string): string {
     return path.toString().replace('m/', '');
   }
 
-  async #hasPreviousTransactions(address: string) {
+  async #hasPreviousTransactions(address: string): Promise<boolean> {
     const apiUrl = this.#getApiUrl();
     const response = await window.fetch(
       `${apiUrl}/api?module=account&action=txlist&address=${address}&tag=latest&page=1&offset=1`,
@@ -663,7 +668,7 @@ export class LedgerKeyring extends EventEmitter {
     return parsedResponse.status !== '0' && parsedResponse.result.length > 0;
   }
 
-  #getApiUrl() {
+  #getApiUrl(): NetworkApiUrls {
     return this.network;
   }
 }

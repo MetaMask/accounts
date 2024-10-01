@@ -38,7 +38,7 @@ export class InvalidSnapIdError extends Error {
  * item to the map can modify or delete it.
  */
 export class SnapIdMap<Value extends { snapId: SnapId }> {
-  #map: CaseInsensitiveMap<Value>;
+  readonly #map: CaseInsensitiveMap<Value>;
 
   /**
    * Creates a new `SnapIdMap` object.

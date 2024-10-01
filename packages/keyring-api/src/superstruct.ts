@@ -14,6 +14,7 @@ import type {
   Simplify,
 } from '@metamask/superstruct';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const ExactOptionalSymbol: unique symbol;
 
 export type ExactOptionalTag = {

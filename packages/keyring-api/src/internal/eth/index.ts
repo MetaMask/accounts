@@ -1,1 +1,1 @@
-export * from './EthKeyring';
+export type * from './EthKeyring';

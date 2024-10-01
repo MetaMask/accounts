@@ -1,20 +1,21 @@
-import { EventEmitter } from 'events';
-import * as ethUtil from '@ethereumjs/util';
-import HDKey from 'hdkey';
-import type {
-  EthereumTransactionEIP1559,
-  EthereumSignedTx,
-  EthereumTransaction,
-} from '@trezor/connect-web';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedTransaction, TxData } from '@ethereumjs/tx';
-import type OldEthJsTransaction from 'ethereumjs-tx';
-import { transformTypedData } from '@trezor/connect-plugin-ethereum';
+import * as ethUtil from '@ethereumjs/util';
 import {
   TypedMessage,
   SignTypedDataVersion,
   MessageTypes,
 } from '@metamask/eth-sig-util';
+import { transformTypedData } from '@trezor/connect-plugin-ethereum';
+import type {
+  EthereumTransactionEIP1559,
+  EthereumSignedTx,
+  EthereumTransaction,
+} from '@trezor/connect-web';
+import type OldEthJsTransaction from 'ethereumjs-tx';
+import { EventEmitter } from 'events';
+import HDKey from 'hdkey';
+
 import { TrezorBridge } from './trezor-bridge';
 
 const hdPathString = `m/44'/60'/0'/0`;
@@ -36,6 +37,14 @@ export const TREZOR_CONNECT_MANIFEST = {
   appUrl: 'https://metamask.io',
 };
 
+export type AccountPageEntry = {
+  address: string;
+  balance: number | null;
+  index: number;
+};
+
+export type AccountPage = AccountPageEntry[];
+
 export interface TrezorControllerOptions {
   hdPath?: string;
   accounts?: string[];
@@ -52,7 +61,7 @@ export interface TrezorControllerState {
   unlockedAccount: number;
 }
 
-async function wait(ms: number) {
+async function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -116,14 +125,14 @@ export class TrezorKeyring extends EventEmitter {
     return this.bridge.model;
   }
 
-  init() {
+  async init(): Promise<void> {
     return this.bridge.init({
       manifest: TREZOR_CONNECT_MANIFEST,
       lazyLoad: true,
     });
   }
 
-  async destroy() {
+  async destroy(): Promise<void> {
     return this.bridge.dispose();
   }
 
@@ -138,7 +147,7 @@ export class TrezorKeyring extends EventEmitter {
     });
   }
 
-  async deserialize(opts: TrezorControllerOptions = {}) {
+  async deserialize(opts: TrezorControllerOptions = {}): Promise<void> {
     this.hdPath = opts.hdPath ?? hdPathString;
     this.accounts = opts.accounts ?? [];
     this.page = opts.page ?? 0;
@@ -146,11 +155,11 @@ export class TrezorKeyring extends EventEmitter {
     return Promise.resolve();
   }
 
-  isUnlocked() {
+  isUnlocked(): boolean {
     return Boolean(this.hdk?.publicKey);
   }
 
-  async unlock() {
+  async unlock(): Promise<string> {
     if (this.isUnlocked()) {
       return Promise.resolve('already unlocked');
     }
@@ -175,7 +184,7 @@ export class TrezorKeyring extends EventEmitter {
     });
   }
 
-  setAccountToUnlock(index: number | string) {
+  setAccountToUnlock(index: number | string): void {
     this.unlockedAccount = parseInt(String(index), 10);
   }
 
@@ -195,28 +204,26 @@ export class TrezorKeyring extends EventEmitter {
           }
           resolve(this.accounts);
         })
-        .catch((e) => {
+        .catch((e: Error) => {
           reject(e);
         });
     });
   }
 
-  async getFirstPage() {
+  async getFirstPage(): Promise<AccountPage> {
     this.page = 0;
     return this.#getPage(1);
   }
 
-  async getNextPage() {
+  async getNextPage(): Promise<AccountPage> {
     return this.#getPage(1);
   }
 
-  async getPreviousPage() {
+  async getPreviousPage(): Promise<AccountPage> {
     return this.#getPage(-1);
   }
 
-  async #getPage(
-    increment: number,
-  ): Promise<{ address: string; balance: number | null; index: number }[]> {
+  async #getPage(increment: number): Promise<AccountPage> {
     this.page += increment;
 
     if (this.page <= 0) {
@@ -242,17 +249,17 @@ export class TrezorKeyring extends EventEmitter {
           }
           resolve(accounts);
         })
-        .catch((e) => {
+        .catch((e: Error) => {
           reject(e);
         });
     });
   }
 
-  async getAccounts() {
+  async getAccounts(): Promise<string[]> {
     return Promise.resolve(this.accounts.slice());
   }
 
-  removeAccount(address: string) {
+  removeAccount(address: string): void {
     if (
       !this.accounts.map((a) => a.toLowerCase()).includes(address.toLowerCase())
     ) {
@@ -278,7 +285,7 @@ export class TrezorKeyring extends EventEmitter {
   async signTransaction(
     address: string,
     tx: TypedTransaction | OldEthJsTransaction,
-  ) {
+  ): Promise<TypedTransaction | OldEthJsTransaction> {
     if (isOldStyleEthereumjsTx(tx)) {
       // In this version of ethereumjs-tx we must add the chainId in hex format
       // to the initial v value. The chainId must be included in the serialized
@@ -393,12 +400,15 @@ export class TrezorKeyring extends EventEmitter {
     }
   }
 
-  async signMessage(withAccount: string, data: string) {
+  async signMessage(withAccount: string, data: string): Promise<string> {
     return this.signPersonalMessage(withAccount, data);
   }
 
   // For personal_sign, we need to prefix the message:
-  async signPersonalMessage(withAccount: string, message: string) {
+  async signPersonalMessage(
+    withAccount: string,
+    message: string,
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       this.unlock()
         .then((status) => {
@@ -443,15 +453,16 @@ export class TrezorKeyring extends EventEmitter {
     });
   }
 
-  /**
-   * EIP-712 Sign Typed Data
-   */
+  // EIP-712 Sign Typed Data
   async signTypedData<T extends MessageTypes>(
     address: string,
     data: TypedMessage<T>,
     { version }: { version: SignTypedDataVersion },
-  ) {
-    const dataWithHashes = transformTypedData(data, version === 'V4');
+  ): Promise<string> {
+    const dataWithHashes = transformTypedData(
+      data,
+      version === SignTypedDataVersion.V4,
+    );
 
     // set default values for signTypedData
     // Trezor is stricter than @metamask/eth-sig-util in what it accepts
@@ -494,11 +505,11 @@ export class TrezorKeyring extends EventEmitter {
     throw new Error(response.payload?.error || 'Unknown error');
   }
 
-  async exportAccount() {
+  async exportAccount(): Promise<never> {
     return Promise.reject(new Error('Not supported on this device'));
   }
 
-  forgetDevice() {
+  forgetDevice(): void {
     this.accounts = [];
     this.hdk = new HDKey();
     this.page = 0;
@@ -516,7 +527,7 @@ export class TrezorKeyring extends EventEmitter {
    *
    * @param hdPath - The HD path to set.
    */
-  setHdPath(hdPath: keyof typeof ALLOWED_HD_PATHS) {
+  setHdPath(hdPath: keyof typeof ALLOWED_HD_PATHS): void {
     if (!ALLOWED_HD_PATHS[hdPath]) {
       throw new Error(
         `The setHdPath method does not support setting HD Path to ${hdPath}`,
@@ -535,11 +546,11 @@ export class TrezorKeyring extends EventEmitter {
     this.hdPath = hdPath;
   }
 
-  #normalize(buf: Buffer) {
+  #normalize(buf: Buffer): string {
     return ethUtil.bufferToHex(buf).toString();
   }
 
-  #addressFromIndex(basePath: string, i: number) {
+  #addressFromIndex(basePath: string, i: number): string {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
     const address = ethUtil
       .publicToAddress(dkey.publicKey, true)
@@ -547,7 +558,7 @@ export class TrezorKeyring extends EventEmitter {
     return ethUtil.toChecksumAddress(`0x${address}`);
   }
 
-  #pathFromAddress(address: string) {
+  #pathFromAddress(address: string): string {
     const checksummedAddress = ethUtil.toChecksumAddress(address);
     let index = this.paths[checksummedAddress];
     if (typeof index === 'undefined') {

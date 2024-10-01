@@ -20,7 +20,7 @@ export const UrlStruct = define<string>('Url', (value: unknown) => {
   try {
     const url = new URL(value as string);
     return url.protocol === 'http:' || url.protocol === 'https:';
-  } catch (_) {
+  } catch {
     return false;
   }
 });

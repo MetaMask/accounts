@@ -1,24 +1,31 @@
-// eslint-disable-next-line import/no-mutable-exports
+// eslint-disable-next-line import-x/no-mutable-exports
 let documentShim: any;
+
+type Element = {
+  src: boolean;
+  contentWindow: {
+    postMessage: () => boolean;
+  };
+};
 
 const shim = {
   head: {
-    appendChild: (child: { onload?: () => void }) => {
+    appendChild: (child: { onload?: () => void }): void => {
       child.onload?.();
     },
   },
-  createElement: () => ({
+  createElement: (): Element => ({
     src: false,
     contentWindow: {
       postMessage: () => false,
     },
   }),
-  addEventListener: () => false,
+  addEventListener: (): boolean => false,
 };
 
 try {
   documentShim = document || shim;
-} catch (error) {
+} catch {
   documentShim = shim;
 }
 
