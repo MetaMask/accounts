@@ -35,7 +35,7 @@ export type Sender = {
 };
 
 export class KeyringClient implements Keyring {
-  #sender: Sender;
+  readonly #sender: Sender;
 
   /**
    * Create a new instance of `KeyringClient`.

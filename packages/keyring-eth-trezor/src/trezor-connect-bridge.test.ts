@@ -9,8 +9,8 @@
 
 import TrezorConnect, { DEVICE, DEVICE_EVENT } from '@trezor/connect-web';
 
-import { TrezorConnectBridge } from './trezor-connect-bridge';
 import { TrezorBridge } from './trezor-bridge';
+import { TrezorConnectBridge } from './trezor-connect-bridge';
 import { TREZOR_CONNECT_MANIFEST } from './trezor-keyring';
 
 describe('TrezorConnectBridge', function () {

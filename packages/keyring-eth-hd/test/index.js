@@ -1,4 +1,17 @@
 const {
+  TransactionFactory,
+  Transaction: EthereumTx,
+} = require('@ethereumjs/tx');
+const {
+  isValidAddress,
+  bufferToHex,
+  toBuffer,
+  ecrecover,
+  pubToAddress,
+} = require('@ethereumjs/util');
+const oldMMForkBIP39 = require('@metamask/bip39');
+const OldHdKeyring = require('@metamask/eth-hd-keyring');
+const {
   normalize,
   personalSign,
   recoverPersonalSignature,
@@ -8,21 +21,8 @@ const {
   encrypt,
 } = require('@metamask/eth-sig-util');
 const { wordlist } = require('@metamask/scure-bip39/dist/wordlists/english');
-const oldMMForkBIP39 = require('@metamask/bip39');
-const {
-  isValidAddress,
-  bufferToHex,
-  toBuffer,
-  ecrecover,
-  pubToAddress,
-} = require('@ethereumjs/util');
-const {
-  TransactionFactory,
-  Transaction: EthereumTx,
-} = require('@ethereumjs/tx');
-
-const OldHdKeyring = require('@metamask/eth-hd-keyring');
 const { keccak256 } = require('ethereum-cryptography/keccak');
+
 const HdKeyring = require('..');
 
 // Sample account:

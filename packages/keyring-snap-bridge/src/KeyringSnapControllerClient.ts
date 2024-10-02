@@ -10,13 +10,13 @@ import type { Json } from '@metamask/utils';
  * to a snap through a `SnapController`.
  */
 class SnapControllerSender implements Sender {
-  #snapId: SnapId;
+  readonly #snapId: SnapId;
 
-  #origin: string;
+  readonly #origin: string;
 
-  #controller: SnapController;
+  readonly #controller: SnapController;
 
-  #handler: HandlerType;
+  readonly #handler: HandlerType;
 
   /**
    * Create a new instance of `SnapControllerSender`.
@@ -59,7 +59,7 @@ class SnapControllerSender implements Sender {
  * `SnapController`.
  */
 export class KeyringSnapControllerClient extends KeyringClient {
-  #controller: SnapController;
+  readonly #controller: SnapController;
 
   /**
    * Create a new instance of `KeyringSnapControllerClient`.
