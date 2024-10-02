@@ -194,15 +194,17 @@ export class TrezorKeyring extends EventEmitter {
         .then((_) => {
           const from = this.unlockedAccount;
           const to = from + n;
+          const newAccounts = [];
 
           for (let i = from; i < to; i++) {
             const address = this.#addressFromIndex(pathBase, i);
             if (!this.accounts.includes(address)) {
               this.accounts = [...this.accounts, address];
+              newAccounts.push(address);
             }
             this.page = 0;
           }
-          resolve(this.accounts);
+          resolve(newAccounts);
         })
         .catch((e: Error) => {
           reject(e);

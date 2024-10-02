@@ -237,7 +237,9 @@ describe('TrezorKeyring', function () {
         keyring.setAccountToUnlock(0);
         await keyring.addAccounts();
         keyring.setAccountToUnlock(2);
-        const accounts = await keyring.addAccounts();
+        await keyring.addAccounts();
+
+        const accounts = await keyring.getAccounts();
         expect(accounts[0]).toBe(fakeAccounts[0]);
         expect(accounts[1]).toBe(fakeAccounts[2]);
       });
@@ -246,16 +248,26 @@ describe('TrezorKeyring', function () {
     describe('with a numeric argument', function () {
       it('returns that number of accounts', async function () {
         keyring.setAccountToUnlock(0);
-        const accounts = await keyring.addAccounts(5);
-        expect(accounts).toHaveLength(5);
+        const firstBatch = await keyring.addAccounts(3);
+        keyring.setAccountToUnlock(3);
+        const secondBatch = await keyring.addAccounts(2);
+
+        expect(firstBatch).toHaveLength(3);
+        expect(secondBatch).toHaveLength(2);
       });
 
       it('returns the expected accounts', async function () {
         keyring.setAccountToUnlock(0);
-        const accounts = await keyring.addAccounts(3);
-        expect(accounts[0]).toBe(fakeAccounts[0]);
-        expect(accounts[1]).toBe(fakeAccounts[1]);
-        expect(accounts[2]).toBe(fakeAccounts[2]);
+        const firstBatch = await keyring.addAccounts(3);
+        keyring.setAccountToUnlock(3);
+        const secondBatch = await keyring.addAccounts(2);
+
+        expect(firstBatch).toStrictEqual([
+          fakeAccounts[0],
+          fakeAccounts[1],
+          fakeAccounts[2],
+        ]);
+        expect(secondBatch).toStrictEqual([fakeAccounts[3], fakeAccounts[4]]);
       });
     });
   });
