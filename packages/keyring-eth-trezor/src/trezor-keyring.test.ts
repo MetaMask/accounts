@@ -237,7 +237,6 @@ describe('TrezorKeyring', function () {
         keyring.setAccountToUnlock(0);
         await keyring.addAccounts();
         keyring.setAccountToUnlock(2);
-
         await keyring.addAccounts();
 
         const accounts = await keyring.getAccounts();
