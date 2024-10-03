@@ -27,31 +27,20 @@ export const InternalAccountMetadataStruct = object({
   }),
 });
 
-/**
- * Creates an `InternalAccount` from an existing account `superstruct` object.
- *
- * @param accountStruct - An account `superstruct` object.
- * @returns The `InternalAccount` associated to `accountStruct`.
- */
-function asInternalAccountStruct<Account, AccountSchema>(
-  accountStruct: Struct<Account, AccountSchema>,
-) {
-  return object({
-    ...accountStruct.schema,
-    ...InternalAccountMetadataStruct.schema,
-  });
-}
+export const InternalEthEoaAccountStruct = object({
+  ...EthEoaAccountStruct.schema,
+  ...InternalAccountMetadataStruct.schema,
+});
 
-export const InternalEthEoaAccountStruct =
-  asInternalAccountStruct(EthEoaAccountStruct);
+export const InternalEthErc4337AccountStruct = object({
+  ...EthErc4337AccountStruct.schema,
+  ...InternalAccountMetadataStruct.schema,
+});
 
-export const InternalEthErc4337AccountStruct = asInternalAccountStruct(
-  EthErc4337AccountStruct,
-);
-
-export const InternalBtcP2wpkhAccountStruct = asInternalAccountStruct(
-  BtcP2wpkhAccountStruct,
-);
+export const InternalBtcP2wpkhAccountStruct = object({
+  ...BtcP2wpkhAccountStruct.schema,
+  ...InternalAccountMetadataStruct.schema,
+});
 
 export type InternalEthEoaAccount = Infer<typeof InternalEthEoaAccountStruct>;
 

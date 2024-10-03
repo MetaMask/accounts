@@ -1,6 +1,6 @@
 export * from './api';
 export * from './btc';
-export * from './contexts';
+export type * from './contexts';
 export * from './eth';
 export * from './events';
 export * from './internal';

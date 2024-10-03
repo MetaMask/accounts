@@ -1,6 +1,3 @@
-const { HDKey } = require('ethereum-cryptography/hdkey');
-const { keccak256 } = require('ethereum-cryptography/keccak');
-const { bytesToHex } = require('ethereum-cryptography/utils');
 const {
   privateToPublic,
   publicToAddress,
@@ -8,8 +5,6 @@ const {
   arrToBufArr,
   bufferToHex,
 } = require('@ethereumjs/util');
-const bip39 = require('@metamask/scure-bip39');
-const { wordlist } = require('@metamask/scure-bip39/dist/wordlists/english');
 const {
   concatSig,
   decrypt,
@@ -19,7 +14,12 @@ const {
   signTypedData,
   SignTypedDataVersion,
 } = require('@metamask/eth-sig-util');
+const bip39 = require('@metamask/scure-bip39');
+const { wordlist } = require('@metamask/scure-bip39/dist/wordlists/english');
 const { assertIsHexString, remove0x } = require('@metamask/utils');
+const { HDKey } = require('ethereum-cryptography/hdkey');
+const { keccak256 } = require('ethereum-cryptography/keccak');
+const { bytesToHex } = require('ethereum-cryptography/utils');
 
 // Options:
 const hdPathString = `m/44'/60'/0'/0`;

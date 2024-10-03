@@ -9,6 +9,7 @@ import {
 } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
+import { KeyringRpcMethod } from './rpc';
 import {
   BalanceStruct,
   CaipAssetTypeStruct,
@@ -19,7 +20,6 @@ import {
 } from '../api';
 import { object } from '../superstruct';
 import { UuidStruct } from '../utils';
-import { KeyringRpcMethod } from './rpc';
 
 const CommonHeader = {
   jsonrpc: literal('2.0'),

@@ -51,7 +51,7 @@ describe('LedgerIframeBridge', function () {
   function stubKeyringIFramePostMessage(
     bridgeInstance: LedgerIframeBridge,
     fn: (message: IFrameMessageResponse) => void,
-  ) {
+  ): void {
     if (!isIFrameValid(bridgeInstance.iframe)) {
       throw new Error('the iframe is not valid');
     }

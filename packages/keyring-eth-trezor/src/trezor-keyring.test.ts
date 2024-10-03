@@ -1,17 +1,17 @@
-import * as sinon from 'sinon';
-import EthereumTx from 'ethereumjs-tx';
-import HDKey from 'hdkey';
+import { Common, Chain, Hardfork } from '@ethereumjs/common';
 import {
   TypedTransaction,
   TransactionFactory,
   FeeMarketEIP1559Transaction,
 } from '@ethereumjs/tx';
-import { Common, Chain, Hardfork } from '@ethereumjs/common';
-
 import { Address } from '@ethereumjs/util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
-import { TrezorKeyring, TREZOR_CONNECT_MANIFEST } from './trezor-keyring';
+import EthereumTx from 'ethereumjs-tx';
+import HDKey from 'hdkey';
+import * as sinon from 'sinon';
+
 import { TrezorBridge } from './trezor-bridge';
+import { TrezorKeyring, TREZOR_CONNECT_MANIFEST } from './trezor-keyring';
 
 const fakeAccounts = [
   '0xF30952A1c534CDE7bC471380065726fa8686dfB3',
@@ -205,7 +205,7 @@ describe('TrezorKeyring', function () {
       keyring.hdk = new HDKey();
       try {
         await keyring.unlock();
-      } catch (e) {
+      } catch {
         // Since we only care about ensuring our function gets called,
         // we want to ignore warnings due to stub data
       }
@@ -237,7 +237,9 @@ describe('TrezorKeyring', function () {
         keyring.setAccountToUnlock(0);
         await keyring.addAccounts();
         keyring.setAccountToUnlock(2);
-        const accounts = await keyring.addAccounts();
+        await keyring.addAccounts();
+
+        const accounts = await keyring.getAccounts();
         expect(accounts[0]).toBe(fakeAccounts[0]);
         expect(accounts[1]).toBe(fakeAccounts[2]);
       });
@@ -246,16 +248,26 @@ describe('TrezorKeyring', function () {
     describe('with a numeric argument', function () {
       it('returns that number of accounts', async function () {
         keyring.setAccountToUnlock(0);
-        const accounts = await keyring.addAccounts(5);
-        expect(accounts).toHaveLength(5);
+        const firstBatch = await keyring.addAccounts(3);
+        keyring.setAccountToUnlock(3);
+        const secondBatch = await keyring.addAccounts(2);
+
+        expect(firstBatch).toHaveLength(3);
+        expect(secondBatch).toHaveLength(2);
       });
 
       it('returns the expected accounts', async function () {
         keyring.setAccountToUnlock(0);
-        const accounts = await keyring.addAccounts(3);
-        expect(accounts[0]).toBe(fakeAccounts[0]);
-        expect(accounts[1]).toBe(fakeAccounts[1]);
-        expect(accounts[2]).toBe(fakeAccounts[2]);
+        const firstBatch = await keyring.addAccounts(3);
+        keyring.setAccountToUnlock(3);
+        const secondBatch = await keyring.addAccounts(2);
+
+        expect(firstBatch).toStrictEqual([
+          fakeAccounts[0],
+          fakeAccounts[1],
+          fakeAccounts[2],
+        ]);
+        expect(secondBatch).toStrictEqual([fakeAccounts[3], fakeAccounts[4]]);
       });
     });
   });
@@ -550,7 +562,7 @@ describe('TrezorKeyring', function () {
 
       try {
         await keyring.signMessage(fakeAccounts[0], 'some msg');
-      } catch (error) {
+      } catch {
         // Since we only care about ensuring our function gets called,
         // we want to ignore warnings due to stub data
       }
@@ -566,7 +578,7 @@ describe('TrezorKeyring', function () {
 
       try {
         await keyring.signPersonalMessage(fakeAccounts[0], 'some msg');
-      } catch (error) {
+      } catch {
         // Since we only care about ensuring our function gets called,
         // we want to ignore warnings due to stub data
       }

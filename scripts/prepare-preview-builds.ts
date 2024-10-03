@@ -1,5 +1,4 @@
-#!yarn ts-node
-
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import PackageJson from '@npmcli/package-json';
 // import { spawn } from 'node:child_process/promises';
 import { spawn } from 'child_process';
@@ -203,14 +202,14 @@ async function updateWorkspaceResolutions(
 /**
  * Yarn install.
  */
-function yarnInstall() {
+function yarnInstall(): void {
   spawn('yarn', ['install', '--no-immutable'], { stdio: 'inherit' });
 }
 
 /**
  * The entrypoint to this script.
  */
-async function main() {
+async function main(): Promise<void> {
   const { npmScope, commitId } = await parseAndVerifyArguments();
   const previewPkgs = await getWorkspacePreviewPackages(npmScope, commitId);
 

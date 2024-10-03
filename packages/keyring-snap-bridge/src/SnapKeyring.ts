@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+// This rule seems to be triggering a false positive. Possibly eslint is not
+// inferring the EthMethod, BtcMethod, and InternalAccount types correctly.
+
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
@@ -106,7 +110,7 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Client used to call the Snap keyring.
    */
-  #snapClient: KeyringSnapControllerClient;
+  readonly #snapClient: KeyringSnapControllerClient;
 
   /**
    * Mapping between account IDs and an object that contains the associated
@@ -120,7 +124,7 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Mapping between request IDs and their deferred promises.
    */
-  #requests: SnapIdMap<{
+  readonly #requests: SnapIdMap<{
     promise: DeferredPromise<any>;
     snapId: SnapId;
   }>;
@@ -128,7 +132,7 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Callbacks used to interact with other components.
    */
-  #callbacks: SnapKeyringCallbacks;
+  readonly #callbacks: SnapKeyringCallbacks;
 
   /**
    * Create a new Snap keyring.
@@ -315,23 +319,23 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<Json> {
     assert(message, SnapMessageStruct);
     switch (message.method) {
-      case KeyringEvent.AccountCreated: {
+      case `${KeyringEvent.AccountCreated}`: {
         return this.#handleAccountCreated(snapId, message);
       }
 
-      case KeyringEvent.AccountUpdated: {
+      case `${KeyringEvent.AccountUpdated}`: {
         return this.#handleAccountUpdated(snapId, message);
       }
 
-      case KeyringEvent.AccountDeleted: {
+      case `${KeyringEvent.AccountDeleted}`: {
         return this.#handleAccountDeleted(snapId, message);
       }
 
-      case KeyringEvent.RequestApproved: {
+      case `${KeyringEvent.RequestApproved}`: {
         return this.#handleRequestApproved(snapId, message);
       }
 
-      case KeyringEvent.RequestRejected: {
+      case `${KeyringEvent.RequestRejected}`: {
         return this.#handleRequestRejected(snapId, message);
       }
 
@@ -400,7 +404,7 @@ export class SnapKeyring extends EventEmitter {
    * @param opts.method - Method to call.
    * @param opts.params - Method parameters.
    * @param opts.chainId - Selected chain ID (CAIP-2).
-   * @param opts.expectSync - Whether the request should be synchronous.
+   * @param opts.noPending - Whether the response is allowed to be pending.
    * @returns Promise that resolves to the result of the method call.
    */
   async #submitRequest<Response extends Json>({
@@ -408,13 +412,13 @@ export class SnapKeyring extends EventEmitter {
     method,
     params,
     chainId = '',
-    expectSync = false,
+    noPending = false,
   }: {
     address: string;
     method: string;
     params?: Json[] | Record<string, Json>;
     chainId?: string;
-    expectSync?: boolean;
+    noPending?: boolean;
   }): Promise<Json> {
     const { account, snapId } = this.#resolveAddress(address);
     if (!this.#hasMethod(account, method as AccountMethod)) {
@@ -441,9 +445,9 @@ export class SnapKeyring extends EventEmitter {
     // Some methods, like the ones used to prepare and patch user operations,
     // require the Snap to answer synchronously in order to work with the
     // confirmation flow. This check lets the caller enforce this behavior.
-    if (expectSync && response.pending) {
+    if (noPending && response.pending) {
       throw new Error(
-        `Request '${requestId}' to snap '${snapId}' is pending and expectSync is true.`,
+        `Request '${requestId}' to snap '${snapId}' is pending and noPending is true.`,
       );
     }
 
@@ -570,7 +574,7 @@ export class SnapKeyring extends EventEmitter {
   async #handleAsyncResponse(
     redirect: { message?: string; url?: string },
     snapId: SnapId,
-  ) {
+  ): Promise<void> {
     const { message = '', url = '' } = redirect;
     if (url) {
       this.#validateRedirectUrl(url, snapId);
@@ -585,7 +589,7 @@ export class SnapKeyring extends EventEmitter {
    * @param snapId - The Snap ID to check allowed origins for.
    * @throws An error if the URL's origin is not in the Snap's allowed origins.
    */
-  #validateRedirectUrl(url: string, snapId: SnapId) {
+  #validateRedirectUrl(url: string, snapId: SnapId): void {
     const { origin } = new URL(url);
     const snap = this.#snapClient.getController().get(snapId);
     if (!snap) {
@@ -605,6 +609,7 @@ export class SnapKeyring extends EventEmitter {
    * @param address - Sender's address.
    * @param transaction - Transaction.
    * @param _opts - Transaction options (not used).
+   * @returns A promise that resolves to the signed transaction.
    */
   async signTransaction(
     address: string,
@@ -744,7 +749,7 @@ export class SnapKeyring extends EventEmitter {
         address,
         method: EthMethod.PrepareUserOperation,
         params: toJson<Json[]>(transactions),
-        expectSync: true,
+        noPending: true,
         // We assume the chain ID is already well formatted
         chainId: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
@@ -771,7 +776,7 @@ export class SnapKeyring extends EventEmitter {
         address,
         method: EthMethod.PatchUserOperation,
         params: toJson<Json[]>([userOp]),
-        expectSync: true,
+        noPending: true,
         // We assume the chain ID is already well formatted
         chainId: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
