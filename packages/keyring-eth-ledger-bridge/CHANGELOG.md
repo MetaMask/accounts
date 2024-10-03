@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0]
+
 ### Uncategorized
 
 - fix!(keyring-eth-ledger-bridge): change `addAccounts` to return new accounts only ([#63](https://github.com/MetaMask/accounts/pull/63))
@@ -190,7 +192,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.4...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@5.0.0...HEAD
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.4...@metamask/eth-ledger-bridge-keyring@5.0.0
 [4.1.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.3...@metamask/eth-ledger-bridge-keyring@4.1.4
 [4.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.2...@metamask/eth-ledger-bridge-keyring@4.1.3
 [4.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.1...@metamask/eth-ledger-bridge-keyring@4.1.2

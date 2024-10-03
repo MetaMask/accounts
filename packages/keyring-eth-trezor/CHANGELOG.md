@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0]
+
 ### Uncategorized
 
 - fix!(keyring-eth-trezor): change `addAccounts` to return new accounts only ([#64](https://github.com/MetaMask/accounts/pull/64))
@@ -126,7 +128,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.3...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@4.0.0...HEAD
+[4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.3...@metamask/eth-trezor-keyring@4.0.0
 [3.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.2...@metamask/eth-trezor-keyring@3.1.3
 [3.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.1...@metamask/eth-trezor-keyring@3.1.2
 [3.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.0...@metamask/eth-trezor-keyring@3.1.1
