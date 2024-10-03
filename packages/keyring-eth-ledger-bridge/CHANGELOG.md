@@ -9,11 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.0]
 
-### Uncategorized
+### Changed
 
-- fix!(keyring-eth-ledger-bridge): change `addAccounts` to return new accounts only ([#63](https://github.com/MetaMask/accounts/pull/63))
-- chore: update lint tools versions + use ts 5 ([#55](https://github.com/MetaMask/accounts/pull/55))
-- chore: fix post-install validation warnings ([#58](https://github.com/MetaMask/accounts/pull/58))
+- **BREAKING**: `addAccounts` returns newly created accounts only ([#63](https://github.com/MetaMask/accounts/pull/63))
 
 ## [4.1.4]
 
