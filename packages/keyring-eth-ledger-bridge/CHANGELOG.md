@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING**: `addAccounts` returns newly created accounts only ([#63](https://github.com/MetaMask/accounts/pull/63))
+- **BREAKING**: `addAccounts` will now only return newly created accounts ([#63](https://github.com/MetaMask/accounts/pull/63))
+  - This keyring was initially returning every accounts (previous and new ones), which is different from what is expected in the [`Keyring` interface].(https://github.com/MetaMask/utils/blob/v9.2.1/src/keyring.ts#L65)
 
 ## [4.1.4]
 
