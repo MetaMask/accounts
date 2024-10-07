@@ -41,7 +41,6 @@
     "@types/node": "^20.12.12",
     "@types/web": "^0.0.69",
     "@typescript/lib-dom": "npm:@types/web@^0.0.69",
-    "axios@1.7.3": "^1.7.7",
     "ws@7.4.6": "^7.5.10"
   },
   "devDependencies": {
