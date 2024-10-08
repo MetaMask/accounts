@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@ledgerhq/hw-app-eth` dependency to `^6.39.0` ([#68](https://github.com/MetaMask/accounts/pull/68))
   - This new dependency version reduces the resulting package bundle size
+
 ## [5.0.0]
 
 ### Changed
