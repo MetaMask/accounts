@@ -6,7 +6,8 @@ import type { CaipAssetType } from './caip';
 import type { KeyringAccountData } from './export';
 import type { KeyringRequest } from './request';
 import type { KeyringResponse } from './response';
-import type { Transaction } from './transaction';
+import type { TransactionsPage } from './transaction';
+import type { Pagination } from './utils';
 
 /**
  * Keyring interface.
@@ -54,7 +55,10 @@ export type Keyring = {
    * @returns A promise that resolves to the list of transactions for the given
    * account
    */
-  listAccountTransactions?(id: string): Promise<Transaction[]>;
+  listAccountTransactions?(
+    id: string,
+    pagination: Pagination,
+  ): Promise<TransactionsPage>;
 
   /**
    * Retrieve the balances of a given account.
