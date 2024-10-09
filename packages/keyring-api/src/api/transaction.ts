@@ -1,5 +1,6 @@
 import type { Infer } from '@metamask/superstruct';
-import { array, enums, number, string } from '@metamask/superstruct';
+import { array, enums, nullable, number, string } from '@metamask/superstruct';
+import { CaipChainIdStruct } from '@metamask/utils';
 
 import { object } from '../superstruct';
 import { UuidStruct } from '../utils';
@@ -142,7 +143,7 @@ export const TransactionStruct = object({
   /**
    * Chain ID (CAIP-2).
    */
-  chain: string(),
+  chain: CaipChainIdStruct,
 
   /**
    * Account ID (UUIDv4).
@@ -166,23 +167,17 @@ export const TransactionStruct = object({
   status: enums(['submitted', 'pending', 'confirmed', 'failed']),
 
   /**
-   * Timestamp of when the transaction was added to the blockchain.
+   * UNIX timestamp of when the transaction was added to the blockchain. The
+   * timestamp can be null if the transaction has not been included in the
+   * blockchain yet.
    */
-  timestamp: number(),
+  timestamp: nullable(number()),
 
   /**
    * Transaction type. This will be used by MetaMask to enrich the transaction
    * details on the UI.
    */
-  type: enums([
-    'send',
-    'receive',
-    'call',
-    'swap',
-    'bridge',
-    'stake',
-    'unstake',
-  ]),
+  type: enums(['send', 'receive']),
 
   /**
    * Transaction sender addresses and amounts.
@@ -195,7 +190,7 @@ export const TransactionStruct = object({
   to: array(ParticipantStruct),
 
   /**
-   * Transaction fee.
+   * Total transaction fee.
    */
   fee: AmountStruct,
 });
@@ -206,3 +201,18 @@ export const TransactionStruct = object({
  * See {@link TransactionStruct}.
  */
 export type Transaction = Infer<typeof TransactionStruct>;
+
+export const TransactionsPageStruct = object({
+  /**
+   * List of transactions.
+   */
+  transactions: array(TransactionStruct),
+
+  /**
+   * Next cursor to iterate over the results. If null, there are no more
+   * results.
+   */
+  next: nullable(string()),
+});
+
+export type TransactionsPage = Infer<typeof TransactionsPageStruct>;
