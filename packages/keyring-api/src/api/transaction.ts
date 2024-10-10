@@ -2,8 +2,9 @@ import type { Infer } from '@metamask/superstruct';
 import { array, enums, nullable, number, string } from '@metamask/superstruct';
 import { CaipChainIdStruct } from '@metamask/utils';
 
+import { CaipAssetTypeStruct } from './caip';
 import { object } from '../superstruct';
-import { UuidStruct } from '../utils';
+import { StringNumberStruct, UuidStruct } from '../utils';
 
 /**
  * This struct represents an asset.
@@ -18,9 +19,9 @@ import { UuidStruct } from '../utils';
  */
 const AssetStruct = object({
   /**
-   * Asset ID (CAIP-19).
+   * Asset type (CAIP-19).
    */
-  id: string(),
+  type: CaipAssetTypeStruct,
 
   /**
    * Unit of the asset. This has to be one of the supported units for the
@@ -47,7 +48,7 @@ const AmountStruct = object({
   /**
    * Amount in decimal string format.
    */
-  amount: string(),
+  amount: StringNumberStruct,
 
   /**
    * Asset information.
@@ -101,7 +102,7 @@ const ParticipantStruct = object({
  *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
  *       "amount": "0.2001",
  *       "asset": {
- *         "id": "bip122:000000000019d6689c085ae165831e93/slip44:0",
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
  *         "unit": "BTC"
  *       }
  *     }
@@ -111,7 +112,7 @@ const ParticipantStruct = object({
  *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
  *       "amount": "0.1",
  *       "asset": {
- *         "id": "bip122:000000000019d6689c085ae165831e93/slip44:0",
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
  *         "unit": "BTC"
  *       }
  *     },
@@ -119,7 +120,7 @@ const ParticipantStruct = object({
  *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
  *       "amount": "0.1",
  *       "asset": {
- *         "id": "bip122:000000000019d6689c085ae165831e93/slip44:0",
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
  *         "unit": "BTC"
  *       }
  *     }
@@ -127,7 +128,7 @@ const ParticipantStruct = object({
  *   "fee": {
  *     "amount": "0.0001",
  *     "asset": {
- *       "id": "bip122:000000000019d6689c085ae165831e93/slip44:0",
+ *       "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
  *       "unit": "BTC"
  *     }
  *   }
