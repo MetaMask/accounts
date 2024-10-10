@@ -31,7 +31,7 @@
     "@ethereumjs/util": "^8.1.0",
     "@metamask/eth-sig-util": "^7.0.3",
     "@metamask/scure-bip39": "^2.1.1",
-    "@metamask/utils": "^9.2.1",
+    "@metamask/utils": "^9.3.0",
     "ethereum-cryptography": "^2.1.2"
   },
   "devDependencies": {
