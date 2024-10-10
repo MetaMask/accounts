@@ -115,6 +115,24 @@ const ParticipantStruct = object({
 });
 
 /**
+ * Transaction statuses.
+ */
+export enum TransactionStatus {
+  Submitted = 'submitted',
+  Pending = 'pending',
+  Confirmed = 'confirmed',
+  Failed = 'failed',
+}
+
+/**
+ * Transaction types.
+ */
+export enum TransactionType {
+  Send = 'send',
+  Receive = 'receive',
+}
+
+/**
  * This struct represents a blockchain transaction.
  *
  * @example
@@ -198,7 +216,12 @@ export const TransactionStruct = object({
    *
    * - failed: The transaction has failed. For example, it has been reverted.
    */
-  status: enums(['submitted', 'pending', 'confirmed', 'failed']),
+  status: enums([
+    `${TransactionStatus.Submitted}`,
+    `${TransactionStatus.Pending}`,
+    `${TransactionStatus.Confirmed}`,
+    `${TransactionStatus.Failed}`,
+  ]),
 
   /**
    * UNIX timestamp of when the transaction was added to the blockchain. The
@@ -211,7 +234,7 @@ export const TransactionStruct = object({
    * Transaction type. This will be used by MetaMask to enrich the transaction
    * details on the UI.
    */
-  type: enums(['send', 'receive']),
+  type: enums([`${TransactionType.Send}`, `${TransactionType.Receive}`]),
 
   /**
    * Transaction sender addresses and amounts.
