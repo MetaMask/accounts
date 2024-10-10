@@ -7,7 +7,7 @@ import type { KeyringAccountData } from './export';
 import type { KeyringRequest } from './request';
 import type { KeyringResponse } from './response';
 import type { TransactionsPage } from './transaction';
-import type { Pagination } from './utils';
+import type { Pagination } from '../utils';
 
 /**
  * Keyring interface.
