@@ -1,8 +1,19 @@
 import type { Infer } from '@metamask/superstruct';
-import { array, enums, nullable, number, string } from '@metamask/superstruct';
-import { CaipChainIdStruct } from '@metamask/utils';
+import {
+  array,
+  enums,
+  literal,
+  nullable,
+  number,
+  string,
+  union,
+} from '@metamask/superstruct';
+import {
+  CaipChainIdStruct,
+  CaipAssetIdStruct,
+  CaipAssetTypeStruct,
+} from '@metamask/utils';
 
-import { CaipAssetTypeStruct } from './caip';
 import { object } from '../superstruct';
 import { StringNumberStruct, UuidStruct } from '../utils';
 
@@ -17,18 +28,36 @@ import { StringNumberStruct, UuidStruct } from '../utils';
  * },
  * ```
  */
-const AssetStruct = object({
-  /**
-   * Asset type (CAIP-19).
-   */
-  type: CaipAssetTypeStruct,
+const AssetStruct = union([
+  object({
+    /**
+     * It is a fungible asset.
+     */
+    fungible: literal(true),
 
-  /**
-   * Unit of the asset. This has to be one of the supported units for the
-   * asset, as defined by MetaMask.
-   */
-  unit: string(),
-});
+    /**
+     * Asset type (CAIP-19).
+     */
+    type: CaipAssetTypeStruct,
+
+    /**
+     * Unit of the asset. This has to be one of the supported units for the
+     * asset, as defined by MetaMask.
+     */
+    unit: string(),
+  }),
+  object({
+    /**
+     * It is a non-fungible asset.
+     */
+    fungible: literal(false),
+
+    /**
+     * Asset ID (CAIP-19).
+     */
+    id: CaipAssetIdStruct,
+  }),
+]);
 
 /**
  * This struct represents an amount of an asset.
@@ -102,6 +131,7 @@ const ParticipantStruct = object({
  *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
  *       "amount": "0.2001",
  *       "asset": {
+ *         "fungible": true,
  *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
  *         "unit": "BTC"
  *       }
@@ -112,6 +142,7 @@ const ParticipantStruct = object({
  *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
  *       "amount": "0.1",
  *       "asset": {
+ *         "fungible": true,
  *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
  *         "unit": "BTC"
  *       }
@@ -120,6 +151,7 @@ const ParticipantStruct = object({
  *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
  *       "amount": "0.1",
  *       "asset": {
+ *         "fungible": true,
  *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
  *         "unit": "BTC"
  *       }
@@ -128,6 +160,7 @@ const ParticipantStruct = object({
  *   "fee": {
  *     "amount": "0.0001",
  *     "asset": {
+ *       "fungible": true,
  *       "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
  *       "unit": "BTC"
  *     }
