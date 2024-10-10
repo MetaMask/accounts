@@ -10,6 +10,7 @@ import type {
   KeyringResponse,
   CaipAssetType,
   Balance,
+  TransactionsPage,
 } from './api';
 import {
   ApproveRequestResponseStruct,
@@ -21,6 +22,7 @@ import {
   GetAccountResponseStruct,
   GetRequestResponseStruct,
   ListAccountsResponseStruct,
+  ListAccountTransactionsResponseStruct,
   ListRequestsResponseStruct,
   RejectRequestResponseStruct,
   SubmitRequestResponseStruct,
@@ -29,6 +31,7 @@ import {
 import { KeyringRpcMethod } from './internal/rpc';
 import type { JsonRpcRequest } from './JsonRpcRequest';
 import { strictMask } from './superstruct';
+import type { Pagination } from './utils';
 
 export type Sender = {
   send(request: JsonRpcRequest): Promise<Json>;
@@ -101,6 +104,19 @@ export class KeyringClient implements Keyring {
         params: { options },
       }),
       CreateAccountResponseStruct,
+    );
+  }
+
+  async listAccountTransactions(
+    id: string,
+    pagination: Pagination,
+  ): Promise<TransactionsPage> {
+    return strictMask(
+      await this.#send({
+        method: KeyringRpcMethod.ListAccountTransactions,
+        params: { id, pagination },
+      }),
+      ListAccountTransactionsResponseStruct,
     );
   }
 
