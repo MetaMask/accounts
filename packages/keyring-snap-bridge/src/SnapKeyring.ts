@@ -50,6 +50,7 @@ import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
   equalsIgnoreCase,
+  sanitizeUrl,
   strictMask,
   throwError,
   toJson,
@@ -590,15 +591,8 @@ export class SnapKeyring extends EventEmitter {
    * @returns The new sanitized redirect URL.
    */
   #sanitizeRedirectUrl(url: string): string {
-    // We do check for this case since the Snap might not returns any URL at all.
-    if (!url) {
-      return url; // Nothing to sanitize in this case.
-    }
-
-    // For now, we only re-create the URL object which should take care of most of the sanitizing, like replacing
-    // upper-cased letters by their lower-cased counterparts in the "hostname" part.
-    const redirectUrl = new URL(url);
-    return redirectUrl.toString();
+    // We do check if the URL is empty or not since the Snap might not returns any URL at all.
+    return url ? sanitizeUrl(url) : url;
   }
 
   /**
