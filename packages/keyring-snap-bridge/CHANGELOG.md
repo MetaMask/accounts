@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(snap-keyring-bridge): sanitize redirect URL ([#70](https://github.com/MetaMask/accounts/pull/70))
+- chore(deps): bump `@metamask/snaps-*` dependencies ([#65](https://github.com/MetaMask/accounts/pull/65))
+- chore: update lint tools versions + use ts 5 ([#55](https://github.com/MetaMask/accounts/pull/55))
+- chore(deps): bump '@metamask/\*' dependencies ([#59](https://github.com/MetaMask/accounts/pull/59))
+- chore: fix post-install validation warnings ([#58](https://github.com/MetaMask/accounts/pull/58))
+
 ## [4.3.6]
 
 ### Changed
