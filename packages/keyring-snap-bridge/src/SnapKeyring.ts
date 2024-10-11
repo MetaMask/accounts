@@ -575,11 +575,30 @@ export class SnapKeyring extends EventEmitter {
     redirect: { message?: string; url?: string },
     snapId: SnapId,
   ): Promise<void> {
-    const { message = '', url = '' } = redirect;
+    const { message = '', url: redirectUrl = '' } = redirect;
+    const url = this.#sanitizeRedirectUrl(redirectUrl);
     if (url) {
       this.#validateRedirectUrl(url, snapId);
     }
     await this.#callbacks.redirectUser(snapId, url, message);
+  }
+
+  /**
+   * Sanitize a redirect URL.
+   *
+   * @param url - The URL to sanitize.
+   * @returns The new sanitized redirect URL.
+   */
+  #sanitizeRedirectUrl(url: string): string {
+    // We do check for this case since the Snap might not returns any URL at all.
+    if (!url) {
+      return url; // Nothing to sanitize in this case.
+    }
+
+    // For now, we only re-create the URL object which should take care of most of the sanitizing, like replacing
+    // upper-cased letters by their lower-cased counterparts in the "hostname" part.
+    const redirectUrl = new URL(url);
+    return redirectUrl.toString();
   }
 
   /**
