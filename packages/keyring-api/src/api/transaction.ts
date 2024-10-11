@@ -18,7 +18,16 @@ import { object } from '../superstruct';
 import { StringNumberStruct, UuidStruct } from '../utils';
 
 /**
- * This struct represents an asset.
+ * This struct represents an asset. The `fungible` property is used to tag the
+ * union type and allow the following pattern:
+ *
+ * ```ts
+ * if (asset.fungible) {
+ *   // Use asset.type and asset.unit
+ * } else {
+ *   // Use asset.id
+ * }
+ * ```
  *
  * @example
  * ```ts
