@@ -167,7 +167,7 @@ export enum TransactionType {
  *       }
  *     },
  *     {
- *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
+ *       "address": "bc1qwl8399fz829uqvqly9tcatgrgtwp3udnhxfq4k",
  *       "amount": "0.1",
  *       "asset": {
  *         "fungible": true,
