@@ -67,7 +67,8 @@ const AssetStruct = union([
  * fee: {
  *   amount: '0.01',
  *   asset: {
- *     id: 'eip155:1/slip44:60',
+ *     fungible: true,
+ *     type: 'eip155:1/slip44:60',
  *     unit: 'ETH',
  *   },
  * },
