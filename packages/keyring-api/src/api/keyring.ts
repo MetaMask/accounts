@@ -53,7 +53,7 @@ export type Keyring = {
    *
    * @param id - The ID of the account to list the transactions for.
    * @returns A promise that resolves to the list of transactions for the given
-   * account
+   * account.
    */
   listAccountTransactions?(
     id: string,
