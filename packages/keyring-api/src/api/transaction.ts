@@ -212,7 +212,8 @@ export const TransactionStruct = object({
    * - submitted: The transaction has been submitted but is not yet in the
    * blockchain. For example, it can be in the mempool.
    *
-   * - pending: The transaction is in the blockchain has not been confirmed.
+   * - pending: The transaction is in the blockchain but has not been
+   * confirmed yet.
    *
    * - confirmed: The transaction has been confirmed.
    *
