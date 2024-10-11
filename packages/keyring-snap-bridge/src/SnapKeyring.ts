@@ -50,6 +50,7 @@ import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
   equalsIgnoreCase,
+  sanitizeUrl,
   strictMask,
   throwError,
   toJson,
@@ -575,11 +576,23 @@ export class SnapKeyring extends EventEmitter {
     redirect: { message?: string; url?: string },
     snapId: SnapId,
   ): Promise<void> {
-    const { message = '', url = '' } = redirect;
+    const { message = '', url: redirectUrl = '' } = redirect;
+    const url = this.#sanitizeRedirectUrl(redirectUrl);
     if (url) {
       this.#validateRedirectUrl(url, snapId);
     }
     await this.#callbacks.redirectUser(snapId, url, message);
+  }
+
+  /**
+   * Sanitize a redirect URL.
+   *
+   * @param url - The URL to sanitize.
+   * @returns The new sanitized redirect URL.
+   */
+  #sanitizeRedirectUrl(url: string): string {
+    // We do check if the URL is empty or not since the Snap might not returns any URL at all.
+    return url ? sanitizeUrl(url) : url;
   }
 
   /**
