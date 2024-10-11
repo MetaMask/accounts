@@ -23,8 +23,17 @@ import { StringNumberStruct, UuidStruct } from '../utils';
  * @example
  * ```ts
  * asset: {
- *   id: 'eip155:1/slip44:60',
+ *   fungible: true,
+ *   type: 'eip155:1/slip44:60',
  *   unit: 'ETH',
+ * },
+ * ```
+ *
+ * @example
+ * ```ts
+ * asset: {
+ *   fungible: false,
+ *   id: 'hedera:mainnet/nft:0.0.55492/12',
  * },
  * ```
  */
