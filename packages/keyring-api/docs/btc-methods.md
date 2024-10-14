@@ -3,7 +3,7 @@
 Here we document the Bitcoin methods that an account Snap may implement to
 support requests originated from dapps.
 
-## btc_sendmany
+## sendTransaction
 
 This method is similar to the `sendmany` RPC method from Bitcoin Core, but its
 parameters are passed in an object instead of an array, and are named in
@@ -51,7 +51,7 @@ camelCase. Also, dummy values aren't allowed.
 
 ```json
 {
-  "method": "btc_sendmany",
+  "method": "sendTransaction",
   "params": {
     "amounts": {
       "bc1q09vm5lfy0j5reeulh4x5752q25uqqvz34hufdl": "0.01",
