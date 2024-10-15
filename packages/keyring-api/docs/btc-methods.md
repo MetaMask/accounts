@@ -16,8 +16,8 @@ Send bitcoins to one or more recipients.
       - Description: A JSON object with recipient addresses and amounts.
       - Type: `object`
       - Properties:
-        - `[key]: string`: Address of the recipient
-        - `[value]: string`: Amount to send to the recipient in **BTC**
+        - `[key]: string`: Address of the recipient.
+        - `[value]: string`: Amount to send to the recipient in **BTC**.
     - `replaceable` (optional)
       - Description: Allow this transaction to be replaced by a transaction
         with higher fees via BIP 125.
