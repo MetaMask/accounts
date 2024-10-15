@@ -12,7 +12,7 @@ Send bitcoins to one or more recipients.
 - **Transaction intent (required)**
   - Type: `object`
   - Properties:
-    - `amounts`
+    - `recipients`
       - Description: A JSON object with recipient addresses and amounts.
       - Type: `object`
       - Properties:
@@ -41,7 +41,7 @@ Send bitcoins to one or more recipients.
 {
   "method": "sendBitcoin",
   "params": {
-    "amounts": {
+    "recipients": {
       "bc1q09vm5lfy0j5reeulh4x5752q25uqqvz34hufdl": "0.01",
       "bc1q02ad21edsxd23d32dfgqqsz4vv4nmtfzuklhy3": "0.02"
     },
