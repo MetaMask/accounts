@@ -1,6 +1,7 @@
 import type { Infer } from '@metamask/superstruct';
-import { number, string } from '@metamask/superstruct';
-import { exactOptional, object } from '@metamask/utils';
+import { nullable, number, string } from '@metamask/superstruct';
+
+import { exactOptional, object } from '../superstruct';
 
 export const PaginationStruct = object({
   /**
@@ -11,7 +12,7 @@ export const PaginationStruct = object({
   /**
    * Next cursor to iterate over the results.
    */
-  next: exactOptional(string()),
+  next: exactOptional(nullable(string())),
 });
 
 export type Pagination = Infer<typeof PaginationStruct>;
