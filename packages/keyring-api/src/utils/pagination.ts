@@ -16,3 +16,8 @@ export const PaginationStruct = object({
 });
 
 export type Pagination = Infer<typeof PaginationStruct>;
+
+export type Paginated<Type> = {
+  data: Type[];
+  next: string | null;
+};

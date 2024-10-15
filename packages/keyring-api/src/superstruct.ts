@@ -14,6 +14,8 @@ import type {
   Simplify,
 } from '@metamask/superstruct';
 
+import type { Equals } from './utils';
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const ExactOptionalSymbol: unique symbol;
 
@@ -152,3 +154,17 @@ export function strictMask<Type, Schema>(
   assert(value, struct, message);
   return value;
 }
+
+/**
+ * Extracts the type from a struct definition and asserts that it matches the
+ * expected type. If the types do not match, the type `never` is returned.
+ *
+ * @param StructType - The struct type to infer.
+ * @param ExpectedType - The expected type.
+ */
+export type TypedInfer<
+  StructType extends Struct<any, any>,
+  ExpectedType,
+> = Equals<Infer<StructType>, ExpectedType> extends true
+  ? Infer<StructType>
+  : never;

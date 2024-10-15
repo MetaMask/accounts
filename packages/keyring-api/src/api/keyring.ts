@@ -6,8 +6,8 @@ import type { CaipAssetType } from './caip';
 import type { KeyringAccountData } from './export';
 import type { KeyringRequest } from './request';
 import type { KeyringResponse } from './response';
-import type { TransactionsPage } from './transaction';
-import type { Pagination } from '../utils';
+import type { Transaction } from './transaction';
+import type { Paginated, Pagination } from '../utils';
 
 /**
  * Keyring interface.
@@ -49,16 +49,20 @@ export type Keyring = {
   createAccount(options?: Record<string, Json>): Promise<KeyringAccount>;
 
   /**
-   * List the transactions of an account.
+   * Lists the transactions of an account, paginated and ordered by the most
+   * recent first.
+   *
+   * The pagination options are used to limit the number of transactions in the
+   * response and to iterate over the results.
    *
    * @param id - The ID of the account to list the transactions for.
-   * @returns A promise that resolves to the list of transactions for the given
-   * account.
+   * @param pagination - The pagination options.
+   * @returns A promise that resolves to the next page of transactions.
    */
   listAccountTransactions?(
     id: string,
     pagination: Pagination,
-  ): Promise<TransactionsPage>;
+  ): Promise<Paginated<Transaction>>;
 
   /**
    * Retrieve the balances of a given account.

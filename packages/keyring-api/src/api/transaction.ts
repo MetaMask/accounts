@@ -14,7 +14,9 @@ import {
   CaipAssetTypeStruct,
 } from '@metamask/utils';
 
+import type { TypedInfer } from '../superstruct';
 import { object } from '../superstruct';
+import type { Paginated } from '../utils';
 import { StringNumberStruct, UuidStruct } from '../utils';
 
 /**
@@ -280,11 +282,26 @@ export const TransactionStruct = object({
  */
 export type Transaction = Infer<typeof TransactionStruct>;
 
+/**
+ * This struct represents a page of transactions.
+ *
+ * @example
+ * ```ts
+ * {
+ *   data: [
+ *     {
+ *       // Transaction object
+ *     }
+ *   ],
+ *   next: 'c3y1Q6QtqtstbxKX+oqVdEW6',
+ * }
+ * ```
+ */
 export const TransactionsPageStruct = object({
   /**
    * List of transactions.
    */
-  transactions: array(TransactionStruct),
+  data: array(TransactionStruct),
 
   /**
    * Next cursor to iterate over the results. If null, there are no more
@@ -293,4 +310,7 @@ export const TransactionsPageStruct = object({
   next: nullable(string()),
 });
 
-export type TransactionsPage = Infer<typeof TransactionsPageStruct>;
+export type TransactionsPage = TypedInfer<
+  typeof TransactionsPageStruct,
+  Paginated<Transaction>
+>;
