@@ -25,7 +25,7 @@ export const BtcP2wpkhAddressStruct = refine(
  */
 export enum BtcMethod {
   // General transaction methods
-  SendTransaction = 'sendTransaction',
+  SendBitcoin = 'sendBitcoin',
 }
 
 export const BtcP2wpkhAccountStruct = object({
@@ -44,7 +44,7 @@ export const BtcP2wpkhAccountStruct = object({
   /**
    * Account supported methods.
    */
-  methods: array(enums([`${BtcMethod.SendTransaction}`])),
+  methods: array(enums([`${BtcMethod.SendBitcoin}`])),
 });
 
 export type BtcP2wpkhAccount = Infer<typeof BtcP2wpkhAccountStruct>;
