@@ -3,6 +3,18 @@ import { nullable, number, string } from '@metamask/superstruct';
 
 import { exactOptional, object } from '../superstruct';
 
+/**
+ * Pagination struct. This struct is used to specify the limit of items to
+ * return and the next cursor to iterate over the results.
+ *
+ * @example
+ * ```ts
+ * {
+ *   limit: 10,
+ *   next: 'c3y1Q6QtqtstbxKX+oqVdEW6',
+ * }
+ * ```
+ */
 export const PaginationStruct = object({
   /**
    * Maximum number of items to return.
@@ -15,8 +27,29 @@ export const PaginationStruct = object({
   next: exactOptional(nullable(string())),
 });
 
+/**
+ * Pagination object.
+ *
+ * See {@link PaginationStruct}.
+ */
 export type Pagination = Infer<typeof PaginationStruct>;
 
+/**
+ * Page of results. It includes the data and the next cursor to iterate over
+ * the results.
+ *
+ * @example
+ * ```ts
+ * {
+ *   data: [
+ *     {
+ *       // Item object
+ *     }
+ *   ],
+ *   next: 'c3y1Q6QtqtstbxKX+oqVdEW6',
+ * }
+ * ```
+ */
 export type Paginated<Type> = {
   data: Type[];
   next: string | null;
