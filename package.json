@@ -33,7 +33,7 @@
     "release": "./scripts/release.sh",
     "setup": "yarn install",
     "test": "yarn workspaces foreach --all --parallel --verbose run test",
-    "test:clean": "yarn workspaces foreach --all --parallel --verbose run test:clean && yarn test"
+    "test:clean": "yarn workspaces foreach --all --parallel --verbose run test:clean"
   },
   "resolutions": {
     "@types/node": "^20.12.12",
