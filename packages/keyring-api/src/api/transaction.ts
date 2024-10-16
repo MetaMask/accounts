@@ -256,6 +256,15 @@ export const TransactionStruct = object({
   /**
    * Transaction type. This will be used by MetaMask to enrich the transaction
    * details on the UI.
+   *
+   * The possible values are:
+   *
+   * - send: The transaction was originated by the account. If the transaction
+   * has a change output that goes back to the same account, it must be tagged
+   * as a send transaction.
+   *
+   * - receive: The transaction was received by the account, but originated by
+   * another account.
    */
   type: enums([`${TransactionType.Send}`, `${TransactionType.Receive}`]),
 
