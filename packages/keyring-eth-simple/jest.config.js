@@ -17,6 +17,9 @@ module.exports = merge(baseConfig, {
   // An array of regexp pattern strings used to skip coverage collection
   coveragePathIgnorePatterns: ['./src/tests'],
 
+  // An array of glob patterns indicating a set of files for which coverage information should be collected
+  collectCoverageFrom: ['./src/**/*.ts', '!./src/sample.ts'],
+
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
     global: {
