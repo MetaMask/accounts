@@ -310,6 +310,11 @@ export const TransactionsPageStruct = object({
   next: nullable(string()),
 });
 
+/**
+ * Transactions page object.
+ *
+ * See {@link TransactionsPageStruct}.
+ */
 export type TransactionsPage = TypedInfer<
   typeof TransactionsPageStruct,
   Paginated<Transaction>
