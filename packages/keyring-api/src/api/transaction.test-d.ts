@@ -99,25 +99,6 @@ expectNotAssignable<Transaction>({
 
 expectNotAssignable<Transaction>({
   id: '0x123',
-  timestamp: null,
-  chain: 'eip155:1',
-  status: 'submitted',
-  type: 'send',
-  account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
-  from: [],
-  to: [],
-  fee: {
-    amount: '0.0001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
-    },
-  },
-});
-
-expectNotAssignable<Transaction>({
-  id: '0x123',
   // Missing `timestamp`
   chain: 'eip155:1',
   status: 'submitted',
