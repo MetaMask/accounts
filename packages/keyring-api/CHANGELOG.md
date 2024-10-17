@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.0.0]
 
-### Uncategorized
+### Changed
 
-- chore: fix post-install validation warnings ([#58](https://github.com/MetaMask/accounts/pull/58))
+- **BREAKING:** Rename `btc_sendmany` method to `sendBitcoin` ([#73](https://github.com/MetaMask/accounts/pull/73))
+- Add `webextension-polyfill` dependency ([#58](https://github.com/MetaMask/accounts/pull/58))
+  - This removes the post-install warnings when building this package locally.
 
 ## [8.1.3]
 
