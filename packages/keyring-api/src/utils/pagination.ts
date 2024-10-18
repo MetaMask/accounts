@@ -51,6 +51,13 @@ export type Pagination = Infer<typeof PaginationStruct>;
  * ```
  */
 export type Paginated<Type> = {
+  /**
+   * The list of items for this page.
+   */
   data: Type[];
+  
+  /**
+   * Next cursor to iterate over the results if any, will be `null` otherwise.
+   */
   next: string | null;
 };
