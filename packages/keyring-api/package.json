@@ -47,7 +47,7 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/providers": "^17.2.0",
+    "@metamask/providers": "^18.1.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
     "@types/webextension-polyfill": "^0.12.1",
@@ -63,7 +63,7 @@
     "typescript": "~5.4.5"
   },
   "peerDependencies": {
-    "@metamask/providers": "^17.2.0"
+    "@metamask/providers": "^18.1.0"
   },
   "engines": {
     "node": "^18.18 || >=20"
