@@ -162,7 +162,7 @@ export function strictMask<Type, Schema>(
  * @param StructType - The struct type to infer.
  * @param ExpectedType - The expected type.
  */
-export type TypedInfer<
+export type InferEquals<
   StructType extends Struct<any, any>,
   ExpectedType,
 > = Equals<Infer<StructType>, ExpectedType> extends true

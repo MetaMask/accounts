@@ -14,7 +14,7 @@ import {
   CaipAssetTypeStruct,
 } from '@metamask/utils';
 
-import type { TypedInfer } from '../superstruct';
+import type { InferEquals } from '../superstruct';
 import { object } from '../superstruct';
 import type { Paginated } from '../utils';
 import { StringNumberStruct, UuidStruct } from '../utils';
@@ -324,7 +324,7 @@ export const TransactionsPageStruct = object({
  *
  * See {@link TransactionsPageStruct}.
  */
-export type TransactionsPage = TypedInfer<
+export type TransactionsPage = InferEquals<
   typeof TransactionsPageStruct,
   Paginated<Transaction>
 >;
