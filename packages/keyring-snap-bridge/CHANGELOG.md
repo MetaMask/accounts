@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.4.0]
+
+### Added
+
+- Sanitize redirect URL ([#70](https://github.com/MetaMask/accounts/pull/70))
+
+### Changed
+
+- Bump `@metamask/*` dependencies and add `@lavamoat/preinstall-always-fail` ([#65](https://github.com/MetaMask/accounts/pull/65)), ([#59](https://github.com/MetaMask/accounts/pull/59)), ([#58](https://github.com/MetaMask/accounts/pull/58))
+- Use TypeScript 5 ([#55](https://github.com/MetaMask/accounts/pull/55))
+
 ## [4.3.6]
 
 ### Changed
@@ -342,7 +353,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.6...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.4.0...HEAD
+[4.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.6...@metamask/eth-snap-keyring@4.4.0
 [4.3.6]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.5...@metamask/eth-snap-keyring@4.3.6
 [4.3.5]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.4...@metamask/eth-snap-keyring@4.3.5
 [4.3.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.3...@metamask/eth-snap-keyring@4.3.4

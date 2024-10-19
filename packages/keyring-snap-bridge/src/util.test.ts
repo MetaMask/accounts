@@ -1,6 +1,7 @@
 import {
   ensureDefined,
   equalsIgnoreCase,
+  sanitizeUrl,
   throwError,
   toJson,
   unique,
@@ -82,5 +83,40 @@ describe('equalsIgnoreCase', () => {
 
   it('returns false for different strings', () => {
     expect(equalsIgnoreCase('hello', 'world')).toBe(false);
+  });
+});
+
+describe('sanitizeUrl', () => {
+  it.each([
+    // Basic URLs (anchors + GET parameters)
+    ['http://not-https.com', 'http://not-https.com/'],
+    ['https://FOoBaR.com', 'https://foobar.com/'],
+    ['https://FOoBaR.com////', 'https://foobar.com////'],
+    ['https://FOoBaR.com?foobar=FOOBAR', 'https://foobar.com/?foobar=FOOBAR'],
+    ['https://FOoBaR.com#anchor', 'https://foobar.com/#anchor'],
+    // I -> l
+    ['https://IoI.com', 'https://ioi.com/'],
+    // 0 -> O -> o
+    ['https://G00GLE.COM', 'https://g00gle.com/'],
+    // Non-latin characters
+    ['https://wikipedi\u{0430}.com', 'https://xn--wikipedi-86g.com/'],
+    ['https://www.аррӏе.com', 'https://www.xn--80ak6aa92e.com/'],
+  ])(
+    'sanitizes uppercase letter in domain name: %s -> %s',
+    (url, sanitized) => {
+      expect(sanitizeUrl(url)).toBe(sanitized);
+    },
+  );
+
+  it.each([
+    // No domain
+    'http://',
+    'https://',
+    'https://:443',
+    // No protocol
+    'FOoBaR.com',
+    'FOoBaR',
+  ])('throws an error if the URL is not valid', (url) => {
+    expect(() => sanitizeUrl(url)).toThrow(new TypeError('Invalid URL'));
   });
 });

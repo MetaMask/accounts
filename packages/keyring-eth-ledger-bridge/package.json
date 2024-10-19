@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-ledger-bridge-keyring",
-  "version": "4.1.4",
+  "version": "5.0.1",
   "description": "A MetaMask compatible keyring, for ledger hardware wallets",
   "keywords": [
     "ethereum",
@@ -33,14 +33,13 @@
     "publish:preview": "yarn npm publish --tag preview",
     "test": "jest && jest-it-up",
     "test:clean": "jest --clearCache",
-    "test:verbose": "jest --verbose",
     "test:watch": "jest --watch"
   },
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.2",
     "@ethereumjs/tx": "^4.2.0",
     "@ethereumjs/util": "^8.1.0",
-    "@ledgerhq/hw-app-eth": "^6.38.1",
+    "@ledgerhq/hw-app-eth": "^6.39.0",
     "@metamask/eth-sig-util": "^7.0.3",
     "hdkey": "^2.1.0"
   },

@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-snap-keyring",
-  "version": "4.3.6",
+  "version": "4.4.0",
   "description": "Snaps keyring bridge.",
   "repository": {
     "type": "git",
@@ -21,7 +21,6 @@
     "publish:preview": "yarn npm publish --tag preview",
     "test": "jest && jest-it-up",
     "test:clean": "jest --clearCache",
-    "test:verbose": "jest --verbose",
     "test:watch": "jest --watch"
   },
   "dependencies": {

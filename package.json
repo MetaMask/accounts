@@ -1,6 +1,6 @@
 {
   "name": "@metamask/accounts-monorepo",
-  "version": "3.0.0",
+  "version": "7.0.0",
   "private": true,
   "description": "Monorepo for MetaMask accounts related packages",
   "repository": {
@@ -33,10 +33,8 @@
     "readme:update": "ts-node scripts/update-readme-content.ts",
     "release": "./scripts/release.sh",
     "setup": "yarn install",
-    "test": "yarn test:packages",
-    "test:clean": "yarn workspaces foreach --all --parallel --verbose run test:clean && yarn test",
-    "test:packages": "yarn test:verbose --silent --collectCoverage=false --reporters=jest-silent-reporter",
-    "test:verbose": "yarn workspaces foreach --all --parallel --verbose run test:verbose"
+    "test": "yarn workspaces foreach --all --parallel --verbose run test",
+    "test:clean": "yarn workspaces foreach --all --parallel --verbose run test:clean"
   },
   "resolutions": {
     "@types/node": "^20.12.12",

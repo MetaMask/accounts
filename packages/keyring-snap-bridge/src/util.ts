@@ -78,3 +78,15 @@ export function throwError(message: string): never {
 export function equalsIgnoreCase(a: string, b: string): boolean {
   return a.toLowerCase() === b.toLowerCase();
 }
+
+/**
+ * Sanitize a URL.
+ *
+ * @param url - The URL to sanitize.
+ * @returns The new sanitized redirect URL.
+ */
+export function sanitizeUrl(url: string): string {
+  // We use a `URL` object to detect any badly formatted URL and to normalize/sanitize them.
+  const saferUrl = new URL(url);
+  return saferUrl.toString();
+}
