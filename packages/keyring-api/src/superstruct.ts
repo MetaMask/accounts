@@ -152,3 +152,15 @@ export function strictMask<Type, Schema>(
   assert(value, struct, message);
   return value;
 }
+
+/**
+ * Extracts the type from a struct definition and asserts that it extends the
+ * expected type. If the types do not match, the type `never` is returned.
+ *
+ * @param StructType - The struct type to infer.
+ * @param ExpectedType - The expected type.
+ */
+export type InferExtends<
+  StructType extends Struct<any, any>,
+  SuperType,
+> = Infer<StructType> extends SuperType ? Infer<StructType> : never;

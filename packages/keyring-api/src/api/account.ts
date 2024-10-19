@@ -1,5 +1,5 @@
 import type { Infer } from '@metamask/superstruct';
-import { array, enums, record, string } from '@metamask/superstruct';
+import { array, record, string } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
 import { object } from '../superstruct';
@@ -44,11 +44,7 @@ export const KeyringAccountStruct = object({
   /**
    * Account type.
    */
-  type: enums([
-    `${EthAccountType.Eoa}`,
-    `${EthAccountType.Erc4337}`,
-    `${BtcAccountType.P2wpkh}`,
-  ]),
+  type: string(),
 
   /**
    * Account main address.

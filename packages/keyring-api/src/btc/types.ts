@@ -1,8 +1,9 @@
-import type { Infer } from '@metamask/superstruct';
 import { string, array, enums, refine, literal } from '@metamask/superstruct';
 import { bech32 } from 'bech32';
 
+import type { KeyringAccount } from '../api';
 import { KeyringAccountStruct, BtcAccountType } from '../api';
+import type { InferExtends } from '../superstruct';
 import { object } from '../superstruct';
 
 export const BtcP2wpkhAddressStruct = refine(
@@ -47,4 +48,7 @@ export const BtcP2wpkhAccountStruct = object({
   methods: array(enums([`${BtcMethod.SendBitcoin}`])),
 });
 
-export type BtcP2wpkhAccount = Infer<typeof BtcP2wpkhAccountStruct>;
+export type BtcP2wpkhAccount = InferExtends<
+  typeof BtcP2wpkhAccountStruct,
+  KeyringAccount
+>;
