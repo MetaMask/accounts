@@ -5,3 +5,4 @@ export * from './export';
 export type * from './keyring';
 export * from './request';
 export * from './response';
+export * from './transaction';
