@@ -94,7 +94,7 @@ const AssetStruct = union([
  * },
  * ```
  */
-const AmountStruct = object({
+const AssetAmountStruct = object({
   /**
    * Amount in decimal string format.
    */
@@ -128,7 +128,7 @@ const ParticipantStruct = object({
   /**
    * Amount transferred from or to the participant.
    */
-  ...AmountStruct.schema,
+  ...AssetAmountStruct.schema,
 
   /**
    * Participant address.
@@ -281,7 +281,7 @@ export const TransactionStruct = object({
   /**
    * Total transaction fee.
    */
-  fee: AmountStruct,
+  fee: AssetAmountStruct,
 });
 
 /**
