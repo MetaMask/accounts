@@ -11,14 +11,38 @@ expectAssignable<Transaction>({
   account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
   from: [],
   to: [],
-  fee: {
-    amount: '0.0001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
+  fees: [],
+});
+
+expectAssignable<Transaction>({
+  id: '0x123',
+  timestamp: null,
+  chain: 'eip155:1',
+  status: 'submitted',
+  type: 'receive',
+  account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+  from: [],
+  to: [],
+  fees: [
+    {
+      type: 'base',
+      amount: '0.0001',
+      asset: {
+        fungible: true,
+        type: 'eip155:1/slip44:60',
+        unit: 'ETH',
+      },
     },
-  },
+    {
+      type: 'priority',
+      amount: '0.0001',
+      asset: {
+        fungible: true,
+        type: 'eip155:1/slip44:60',
+        unit: 'ETH',
+      },
+    },
+  ],
 });
 
 expectAssignable<Transaction>({
@@ -66,14 +90,17 @@ expectAssignable<Transaction>({
       },
     },
   ],
-  fee: {
-    amount: '0.001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
+  fees: [
+    {
+      type: 'transaction',
+      amount: '0.001',
+      asset: {
+        fungible: true,
+        type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+        unit: 'BTC',
+      },
     },
-  },
+  ],
 });
 
 expectNotAssignable<Transaction>({});
@@ -87,14 +114,7 @@ expectNotAssignable<Transaction>({
   account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
   from: [],
   to: [],
-  fee: {
-    amount: '0.0001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
-    },
-  },
+  fees: [],
 });
 
 expectNotAssignable<Transaction>({
@@ -106,14 +126,7 @@ expectNotAssignable<Transaction>({
   account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
   from: [],
   to: [],
-  fee: {
-    amount: '0.0001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
-    },
-  },
+  fees: [],
 });
 
 expectNotAssignable<Transaction>({
@@ -125,14 +138,7 @@ expectNotAssignable<Transaction>({
   account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
   from: [],
   to: [],
-  fee: {
-    amount: '0.0001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
-    },
-  },
+  fees: [],
 });
 
 expectNotAssignable<Transaction>({
@@ -144,14 +150,7 @@ expectNotAssignable<Transaction>({
   account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
   from: [],
   to: [],
-  fee: {
-    amount: '0.0001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
-    },
-  },
+  fees: [],
 });
 
 expectNotAssignable<Transaction>({
@@ -163,14 +162,7 @@ expectNotAssignable<Transaction>({
   account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
   from: [],
   to: [],
-  fee: {
-    amount: '0.0001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
-    },
-  },
+  fees: [],
 });
 
 expectNotAssignable<Transaction>({
@@ -182,14 +174,7 @@ expectNotAssignable<Transaction>({
   // Missing `account`
   from: [],
   to: [],
-  fee: {
-    amount: '0.0001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
-    },
-  },
+  fees: [],
 });
 
 expectNotAssignable<Transaction>({
@@ -201,14 +186,7 @@ expectNotAssignable<Transaction>({
   account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
   // Missing `from`
   to: [],
-  fee: {
-    amount: '0.0001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
-    },
-  },
+  fees: [],
 });
 
 expectNotAssignable<Transaction>({
@@ -220,14 +198,7 @@ expectNotAssignable<Transaction>({
   account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
   from: [],
   // Missing `to`
-  fee: {
-    amount: '0.0001',
-    asset: {
-      fungible: true,
-      type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-      unit: 'BTC',
-    },
-  },
+  fees: [],
 });
 
 expectNotAssignable<Transaction>({
@@ -239,5 +210,27 @@ expectNotAssignable<Transaction>({
   account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
   from: [],
   to: [],
-  // Missing `fee`
+  // Missing `fees`
+});
+
+expectNotAssignable<Transaction>({
+  id: '0x123',
+  timestamp: null,
+  chain: 'eip155:1',
+  status: 'submitted',
+  type: 'send',
+  account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+  from: [],
+  to: [],
+  fees: [
+    {
+      type: 'invalid-type', // Invalid fee type
+      amount: '0.0001',
+      asset: {
+        fungible: true,
+        type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+        unit: 'BTC',
+      },
+    },
+  ],
 });

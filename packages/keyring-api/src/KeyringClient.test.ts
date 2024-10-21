@@ -121,14 +121,7 @@ describe('KeyringClient', () => {
             timestamp: 1716367781,
             from: [],
             to: [],
-            fee: {
-              amount: '0.001',
-              asset: {
-                fungible: true,
-                type: 'eip155:1/slip44:60',
-                unit: 'ETH',
-              },
-            },
+            fees: [],
           },
           {
             id: '774a9423-9dd4-4b63-81a0-26884be90a35',
@@ -139,14 +132,7 @@ describe('KeyringClient', () => {
             timestamp: null,
             from: [],
             to: [],
-            fee: {
-              amount: '0',
-              asset: {
-                fungible: true,
-                type: 'eip155:1/slip44:60',
-                unit: 'ETH',
-              },
-            },
+            fees: [],
           },
         ],
         next: null,
@@ -180,14 +166,7 @@ describe('KeyringClient', () => {
             timestamp: 1716367781,
             from: [],
             to: [],
-            fee: {
-              amount: '0.001',
-              asset: {
-                fungible: true,
-                type: 'eip155:1/slip44:60',
-                unit: 'ETH',
-              },
-            },
+            fees: [],
           },
           {
             id: '774a9423-9dd4-4b63-81a0-26884be90a35',
@@ -198,14 +177,7 @@ describe('KeyringClient', () => {
             timestamp: null,
             from: [],
             to: [],
-            fee: {
-              amount: '0',
-              asset: {
-                fungible: true,
-                type: 'eip155:1/slip44:60',
-                unit: 'ETH',
-              },
-            },
+            fees: [],
           },
         ],
         next: 'some-cursor',
@@ -239,14 +211,17 @@ describe('KeyringClient', () => {
             timestamp: 1716367781,
             from: [],
             to: [],
-            fee: {
-              amount: 'invalid-amount', // Should be a numeric string
-              asset: {
-                fungible: true,
-                type: 'eip155:1/slip44:60',
-                unit: 'ETH',
+            fees: [
+              {
+                type: 'transaction',
+                amount: 'invalid-amount', // Should be a numeric string
+                asset: {
+                  fungible: true,
+                  type: 'eip155:1/slip44:60',
+                  unit: 'ETH',
+                },
               },
-            },
+            ],
           },
         ],
         next: null,
@@ -258,7 +233,46 @@ describe('KeyringClient', () => {
           limit: 2,
         }),
       ).rejects.toThrow(
-        'At path: data.0.fee.amount -- Expected a value of type `StringNumber`, but received: `"invalid-amount"`',
+        'At path: data.0.fees.0.amount -- Expected a value of type `StringNumber`, but received: `"invalid-amount"`',
+      );
+    });
+
+    it('throwns an error when the fee has an invalid type', async () => {
+      const id = '7bd967bd-9c4a-47cc-9725-75f0d2d8df9d';
+      const expectedResponse = {
+        data: [
+          {
+            id: 'c3d2e7a5-7c3c-4c1b-8d2e-7a57c3c41b8d',
+            account: '03a16e94-df42-46e6-affc-789bd58cf478',
+            chain: 'eip155:1',
+            type: 'send',
+            status: 'confirmed',
+            timestamp: 1716367781,
+            from: [],
+            to: [],
+            fees: [
+              {
+                type: 'invalid-type', // Not a valid fee type
+                amount: '0',
+                asset: {
+                  fungible: true,
+                  type: 'eip155:1/slip44:60',
+                  unit: 'ETH',
+                },
+              },
+            ],
+          },
+        ],
+        next: null,
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      await expect(
+        keyring.listAccountTransactions(id, {
+          limit: 2,
+        }),
+      ).rejects.toThrow(
+        'At path: data.0.fees.0.type -- Expected one of `"transaction","base","priority"`, but received: "invalid-type"',
       );
     });
   });

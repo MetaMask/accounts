@@ -137,6 +137,49 @@ const ParticipantStruct = object({
 });
 
 /**
+ * Fee types.
+ */
+export enum FeeType {
+  /**
+   * Transaction fee. It is the fee type if not other fee types applies.
+   */
+  Transaction = 'transaction',
+
+  /**
+   * Base fee. It is the minimum fee required to include a transaction in the
+   * blockchain.
+   *
+   * For non-confirmed transactions, it must be the maximum base fee. For
+   * confirmed transactions, it must be the actual base fee paid.
+   */
+  Base = 'base',
+
+  /**
+   * Priority fee. It is an optional fee used to prioritize the transaction.
+   *
+   * For non-confirmed transactions, it must be the maximum priority fee. For
+   * confirmed transactions, it must be the actual priority fee paid.
+   */
+  Priority = 'priority',
+}
+
+const FeeStruct = object({
+  /**
+   * Fee amount.
+   */
+  ...AssetAmountStruct.schema,
+
+  /**
+   * Fee type.
+   */
+  type: enums([
+    `${FeeType.Transaction}`,
+    `${FeeType.Base}`,
+    `${FeeType.Priority}`,
+  ]),
+});
+
+/**
  * Transaction statuses.
  */
 export enum TransactionStatus {
@@ -197,14 +240,17 @@ export enum TransactionType {
  *       }
  *     }
  *   ],
- *   "fee": {
- *     "amount": "0.0001",
- *     "asset": {
- *       "fungible": true,
- *       "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
- *       "unit": "BTC"
+ *   "fees": [
+ *     {
+ *       "type": "transaction",
+ *       "amount": "0.0001",
+ *       "asset": {
+ *         "fungible": true,
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
+ *         "unit": "BTC"
+ *       }
  *     }
- *   }
+ *   ]
  * }
  * ```
  */
@@ -281,7 +327,7 @@ export const TransactionStruct = object({
   /**
    * Total transaction fee.
    */
-  fee: AssetAmountStruct,
+  fees: array(FeeStruct),
 });
 
 /**
