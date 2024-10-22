@@ -94,15 +94,14 @@ describe('KeyringClient', () => {
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const transactions = await keyring.listAccountTransactions(id, {
-        limit: 10,
-      });
+      const pagination = { limit: 10 };
+      const transactions = await keyring.listAccountTransactions(id, pagination);
 
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         id: expect.any(String),
         method: 'keyring_listAccountTransactions',
-        params: { id, pagination: { limit: 10 } },
+        params: { id, pagination },
       });
 
       expect(transactions).toStrictEqual(expectedResponse);
