@@ -141,7 +141,7 @@ const ParticipantStruct = object({
  */
 export enum FeeType {
   /**
-   * Transaction fee. It is the fee type if not other fee types applies.
+   * Transaction fee. It is the fee type if no other fee types applies.
    */
   Transaction = 'transaction',
 
