@@ -198,7 +198,7 @@ describe('KeyringClient', () => {
       expect(transactions).toStrictEqual(expectedResponse);
     });
 
-    it('throwns an error when the fee has an invalid amount', async () => {
+    it('throws an error when the fee has an invalid amount', async () => {
       const id = '7bd967bd-9c4a-47cc-9725-75f0d2d8df9d';
       const expectedResponse = {
         data: [
