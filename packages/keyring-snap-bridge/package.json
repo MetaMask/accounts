@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@ethereumjs/tx": "^4.2.0",
-    "@metamask/eth-sig-util": "^7.0.3",
+    "@metamask/eth-sig-util": "^8.0.0",
     "@metamask/snaps-controllers": "^9.10.0",
     "@metamask/snaps-sdk": "^6.7.0",
     "@metamask/snaps-utils": "^8.3.0",

@@ -40,7 +40,7 @@
     "@ethereumjs/tx": "^4.2.0",
     "@ethereumjs/util": "^8.1.0",
     "@ledgerhq/hw-app-eth": "^6.39.0",
-    "@metamask/eth-sig-util": "^7.0.3",
+    "@metamask/eth-sig-util": "^8.0.0",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
