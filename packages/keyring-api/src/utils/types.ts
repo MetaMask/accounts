@@ -33,3 +33,29 @@ export const StringNumberStruct = definePattern(
   /^\d+(\.\d+)?$/u,
 );
 export type StringNumber = Infer<typeof StringNumberStruct>;
+
+/**
+ * This is a helper type used by the {@link Equals} type.
+ */
+type EqualsHelper<Type> = <Dummy>() => Dummy extends Type ? 1 : 2;
+
+/**
+ * A utility type that checks whether two types are exactly the same.
+ *
+ * This type evaluates to `true` if `TypeA` and `TypeB` are identical,
+ * otherwise it evaluates to `false`.
+ *
+ * @template TypeA - The first type to compare.
+ * @template TypeB - The second type to compare.
+ *
+ * @example
+ * ```ts
+ * // Example usage:
+ * type Test1 = Equals<number, number>; // true
+ * type Test2 = Equals<number, string>; // false
+ * type Test3 = Equals<{ a: string }, { a: string }>; // true
+ * type Test4 = Equals<{ a: string }, { a: number }>; // false
+ * ```
+ */
+export type Equals<TypeA, TypeB> =
+  EqualsHelper<TypeA> extends EqualsHelper<TypeB> ? true : false;
