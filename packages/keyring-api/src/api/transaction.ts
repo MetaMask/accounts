@@ -1,110 +1,12 @@
 import type { Infer } from '@metamask/superstruct';
-import {
-  array,
-  enums,
-  literal,
-  nullable,
-  number,
-  string,
-  union,
-} from '@metamask/superstruct';
-import {
-  CaipChainIdStruct,
-  CaipAssetIdStruct,
-  CaipAssetTypeStruct,
-} from '@metamask/utils';
+import { array, enums, nullable, number, string } from '@metamask/superstruct';
+import { CaipChainIdStruct } from '@metamask/utils';
 
+import { AssetAmountStruct } from './asset';
 import type { InferEquals } from '../superstruct';
 import { object } from '../superstruct';
 import type { Paginated } from '../utils';
-import { StringNumberStruct, UuidStruct } from '../utils';
-
-/**
- * This struct represents an asset. The `fungible` property is used to tag the
- * union type and allow the following pattern:
- *
- * ```ts
- * if (asset.fungible) {
- *   // Use asset.type and asset.unit
- * } else {
- *   // Use asset.id
- * }
- * ```
- *
- * @example
- * ```ts
- * asset: {
- *   fungible: true,
- *   type: 'eip155:1/slip44:60',
- *   unit: 'ETH',
- * },
- * ```
- *
- * @example
- * ```ts
- * asset: {
- *   fungible: false,
- *   id: 'hedera:mainnet/nft:0.0.55492/12',
- * },
- * ```
- */
-const AssetStruct = union([
-  object({
-    /**
-     * It is a fungible asset.
-     */
-    fungible: literal(true),
-
-    /**
-     * Asset type (CAIP-19).
-     */
-    type: CaipAssetTypeStruct,
-
-    /**
-     * Unit of the asset. This has to be one of the supported units for the
-     * asset, as defined by MetaMask.
-     */
-    unit: string(),
-  }),
-  object({
-    /**
-     * It is a non-fungible asset.
-     */
-    fungible: literal(false),
-
-    /**
-     * Asset ID (CAIP-19).
-     */
-    id: CaipAssetIdStruct,
-  }),
-]);
-
-/**
- * This struct represents an amount of an asset.
- *
- * @example
- * ```ts
- * fee: {
- *   amount: '0.01',
- *   asset: {
- *     fungible: true,
- *     type: 'eip155:1/slip44:60',
- *     unit: 'ETH',
- *   },
- * },
- * ```
- */
-const AssetAmountStruct = object({
-  /**
-   * Amount in decimal string format.
-   */
-  amount: StringNumberStruct,
-
-  /**
-   * Asset information.
-   */
-  asset: AssetStruct,
-});
+import { UuidStruct } from '../utils';
 
 /**
  * This struct represents a participant in a transaction.
