@@ -95,7 +95,10 @@ describe('KeyringClient', () => {
 
       mockSender.send.mockResolvedValue(expectedResponse);
       const pagination = { limit: 10 };
-      const transactions = await keyring.listAccountTransactions(id, pagination);
+      const transactions = await keyring.listAccountTransactions(
+        id,
+        pagination,
+      );
 
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
@@ -109,6 +112,7 @@ describe('KeyringClient', () => {
 
     it('returns a single page of transactions', async () => {
       const id = '7bd967bd-9c4a-47cc-9725-75f0d2d8df9d';
+      const pagination = { limit: 2 };
       const expectedResponse = {
         data: [
           {
@@ -138,15 +142,16 @@ describe('KeyringClient', () => {
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const transactions = await keyring.listAccountTransactions(id, {
-        limit: 2,
-      });
+      const transactions = await keyring.listAccountTransactions(
+        id,
+        pagination,
+      );
 
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         id: expect.any(String),
         method: 'keyring_listAccountTransactions',
-        params: { id, pagination: { limit: 2 } },
+        params: { id, pagination },
       });
 
       expect(transactions).toStrictEqual(expectedResponse);
@@ -154,6 +159,7 @@ describe('KeyringClient', () => {
 
     it('returns a page of transactions with next', async () => {
       const id = '7bd967bd-9c4a-47cc-9725-75f0d2d8df9d';
+      const pagination = { limit: 2 };
       const expectedResponse = {
         data: [
           {
@@ -183,15 +189,16 @@ describe('KeyringClient', () => {
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const transactions = await keyring.listAccountTransactions(id, {
-        limit: 2,
-      });
+      const transactions = await keyring.listAccountTransactions(
+        id,
+        pagination,
+      );
 
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         id: expect.any(String),
         method: 'keyring_listAccountTransactions',
-        params: { id, pagination: { limit: 2 } },
+        params: { id, pagination },
       });
 
       expect(transactions).toStrictEqual(expectedResponse);
