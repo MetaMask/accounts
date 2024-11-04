@@ -7,7 +7,7 @@ import { object, definePattern } from '../superstruct';
 /**
  * Solana addresses are encoded using Base58
  * Represented as 32 bytes in the format of an Ed25519 PublicKey
- * And a valid Solana address is 44 characters long
+ * And a valid Solana address is usually 44 characters long but can also be 32
  */
 export const SolAddressStruct = definePattern(
   'SolAddress',
