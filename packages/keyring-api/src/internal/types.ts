@@ -1,13 +1,21 @@
 import type { Infer, Struct } from '@metamask/superstruct';
 import { boolean, string, number } from '@metamask/superstruct';
 
-import { BtcAccountType, EthAccountType, KeyringAccountStruct, SolAccountType } from '../api';
+import {
+  BtcAccountType,
+  EthAccountType,
+  KeyringAccountStruct,
+  SolAccountType,
+} from '../api';
 import { BtcP2wpkhAccountStruct } from '../btc/types';
 import { EthEoaAccountStruct, EthErc4337AccountStruct } from '../eth/types';
-import { exactOptional, object } from '../superstruct';
 import { SolEoaAccountStruct } from '../sol/types';
+import { exactOptional, object } from '../superstruct';
 
-export type InternalAccountType = EthAccountType | BtcAccountType | SolAccountType;
+export type InternalAccountType =
+  | EthAccountType
+  | BtcAccountType
+  | SolAccountType;
 
 export const InternalAccountMetadataStruct = object({
   metadata: object({

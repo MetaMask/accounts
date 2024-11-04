@@ -11,7 +11,7 @@ import { object, definePattern } from '../superstruct';
  */
 export const SolAddressStruct = definePattern(
   'SolAddress',
-  /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
+  /^[1-9A-HJ-NP-Za-km-z]{32,44}$/iu,
 );
 
 /**
