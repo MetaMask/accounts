@@ -19,7 +19,7 @@ export const SolAddressStruct = definePattern(
  */
 export enum SolMethod {
   // General transaction methods
-  SendSolana = 'sendSolana',
+  SendAndConfirmTransaction = 'sendAndConfirmTransaction',
 }
 
 export const SolEoaAccountStruct = object({
@@ -38,7 +38,7 @@ export const SolEoaAccountStruct = object({
   /**
    * Account supported methods.
    */
-  methods: array(enums([`${SolMethod.SendSolana}`])),
+  methods: array(enums([`${SolMethod.SendAndConfirmTransaction}`])),
 });
 
 export type SolEoaAccount = Infer<typeof SolEoaAccountStruct>;
