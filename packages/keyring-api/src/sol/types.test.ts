@@ -8,5 +8,19 @@ describe('types', () => {
     ])('is valid address; %s', (address) => {
       expect(() => SolAddressStruct.assert(address)).not.toThrow();
     });
+
+    it.each([
+      // Invalid lengths, too long (45 chars)
+      '7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV11',
+      // Too short (31 chars)
+      '7EcDhSYGxXyscszYEp35KHN8vvw',
+      // Empty or invalid input
+      '',
+      // Eth style address
+      '0x1234',
+      'not-an-address',
+    ])('rejects invalid address; %s', (address) => {
+      expect(() => SolAddressStruct.assert(address)).toThrow();
+    });
   });
 });
