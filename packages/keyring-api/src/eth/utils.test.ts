@@ -6,7 +6,7 @@ describe('isEvmAccountType', () => {
     [EthAccountType.Eoa, true],
     [EthAccountType.Erc4337, true],
     [BtcAccountType.P2wpkh, false],
-    [SolAccountType.Eoa, false],
+    [SolAccountType.DataAccount, false],
     [{}, false],
     [null, false],
     ['bitcoin', false],

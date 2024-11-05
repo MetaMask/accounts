@@ -33,7 +33,7 @@ export const SolEoaAccountStruct = object({
   /**
    * Account type.
    */
-  type: literal(`${SolAccountType.Eoa}`),
+  type: literal(`${SolAccountType.DataAccount}`),
 
   /**
    * Account supported methods.

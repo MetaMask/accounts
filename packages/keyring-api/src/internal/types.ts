@@ -78,7 +78,7 @@ export const InternalAccountStructs: Record<
   [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,
   [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,
   [`${BtcAccountType.P2wpkh}`]: InternalBtcP2wpkhAccountStruct,
-  [`${SolAccountType.Eoa}`]: InternalSolEoaAccountStruct,
+  [`${SolAccountType.DataAccount}`]: InternalSolEoaAccountStruct,
 };
 
 export type InternalAccountTypes =
