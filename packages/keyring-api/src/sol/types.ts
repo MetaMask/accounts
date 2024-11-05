@@ -5,9 +5,9 @@ import { KeyringAccountStruct, SolAccountType } from '../api';
 import { object, definePattern } from '../superstruct';
 
 /**
- * Solana addresses are encoded using Base58
- * Represented as 32 bytes in the format of an Ed25519 PublicKey
- * And a valid Solana address is usually 44 characters long but can also be 32
+ * Solana addresses are represented in the format of a 256-bit ed25519 public key and
+ * are encoded using base58.
+ * They are usually 32 to 44 characters long.
  */
 export const SolAddressStruct = definePattern(
   'SolAddress',
