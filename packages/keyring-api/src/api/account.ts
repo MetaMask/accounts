@@ -24,7 +24,7 @@ export enum BtcAccountType {
  * Supported Solana account types.
  */
 export enum SolAccountType {
-  Eoa = 'solana:system',
+  Eoa = 'solana:eoa',
 }
 
 /**
