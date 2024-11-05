@@ -1,12 +1,21 @@
 import type { Infer, Struct } from '@metamask/superstruct';
 import { boolean, string, number } from '@metamask/superstruct';
 
-import { BtcAccountType, EthAccountType, KeyringAccountStruct } from '../api';
+import {
+  BtcAccountType,
+  EthAccountType,
+  KeyringAccountStruct,
+  SolAccountType,
+} from '../api';
 import { BtcP2wpkhAccountStruct } from '../btc/types';
 import { EthEoaAccountStruct, EthErc4337AccountStruct } from '../eth/types';
+import { SolDataAccountStruct } from '../sol/types';
 import { exactOptional, object } from '../superstruct';
 
-export type InternalAccountType = EthAccountType | BtcAccountType;
+export type InternalAccountType =
+  | EthAccountType
+  | BtcAccountType
+  | SolAccountType;
 
 export const InternalAccountMetadataStruct = object({
   metadata: object({
@@ -42,6 +51,11 @@ export const InternalBtcP2wpkhAccountStruct = object({
   ...InternalAccountMetadataStruct.schema,
 });
 
+export const InternalSolDataAccountStruct = object({
+  ...SolDataAccountStruct.schema,
+  ...InternalAccountMetadataStruct.schema,
+});
+
 export type InternalEthEoaAccount = Infer<typeof InternalEthEoaAccountStruct>;
 
 export type InternalEthErc4337Account = Infer<
@@ -52,21 +66,26 @@ export type InternalBtcP2wpkhAccount = Infer<
   typeof InternalBtcP2wpkhAccountStruct
 >;
 
+export type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;
+
 export const InternalAccountStructs: Record<
   string,
   | Struct<InternalEthEoaAccount>
   | Struct<InternalEthErc4337Account>
   | Struct<InternalBtcP2wpkhAccount>
+  | Struct<InternalSolDataAccount>
 > = {
   [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,
   [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,
   [`${BtcAccountType.P2wpkh}`]: InternalBtcP2wpkhAccountStruct,
+  [`${SolAccountType.DataAccount}`]: InternalSolDataAccountStruct,
 };
 
 export type InternalAccountTypes =
   | InternalEthEoaAccount
   | InternalEthErc4337Account
-  | InternalBtcP2wpkhAccount;
+  | InternalBtcP2wpkhAccount
+  | InternalSolDataAccount;
 
 export const InternalAccountStruct = object({
   ...KeyringAccountStruct.schema,
