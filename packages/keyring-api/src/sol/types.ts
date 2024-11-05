@@ -22,7 +22,7 @@ export enum SolMethod {
   SendAndConfirmTransaction = 'sendAndConfirmTransaction',
 }
 
-export const SolEoaAccountStruct = object({
+export const SolDataAccountStruct = object({
   ...KeyringAccountStruct.schema,
 
   /**
@@ -41,4 +41,4 @@ export const SolEoaAccountStruct = object({
   methods: array(enums([`${SolMethod.SendAndConfirmTransaction}`])),
 });
 
-export type SolEoaAccount = Infer<typeof SolEoaAccountStruct>;
+export type SolDataAccount = Infer<typeof SolDataAccountStruct>;

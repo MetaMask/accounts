@@ -9,7 +9,7 @@ import {
 } from '../api';
 import { BtcP2wpkhAccountStruct } from '../btc/types';
 import { EthEoaAccountStruct, EthErc4337AccountStruct } from '../eth/types';
-import { SolEoaAccountStruct } from '../sol/types';
+import { SolDataAccountStruct } from '../sol/types';
 import { exactOptional, object } from '../superstruct';
 
 export type InternalAccountType =
@@ -51,8 +51,8 @@ export const InternalBtcP2wpkhAccountStruct = object({
   ...InternalAccountMetadataStruct.schema,
 });
 
-export const InternalSolEoaAccountStruct = object({
-  ...SolEoaAccountStruct.schema,
+export const InternalSolDataAccountStruct = object({
+  ...SolDataAccountStruct.schema,
   ...InternalAccountMetadataStruct.schema,
 });
 
@@ -66,26 +66,26 @@ export type InternalBtcP2wpkhAccount = Infer<
   typeof InternalBtcP2wpkhAccountStruct
 >;
 
-export type InternalSolEoaAccount = Infer<typeof InternalSolEoaAccountStruct>;
+export type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;
 
 export const InternalAccountStructs: Record<
   string,
   | Struct<InternalEthEoaAccount>
   | Struct<InternalEthErc4337Account>
   | Struct<InternalBtcP2wpkhAccount>
-  | Struct<InternalSolEoaAccount>
+  | Struct<InternalSolDataAccount>
 > = {
   [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,
   [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,
   [`${BtcAccountType.P2wpkh}`]: InternalBtcP2wpkhAccountStruct,
-  [`${SolAccountType.DataAccount}`]: InternalSolEoaAccountStruct,
+  [`${SolAccountType.DataAccount}`]: InternalSolDataAccountStruct,
 };
 
 export type InternalAccountTypes =
   | InternalEthEoaAccount
   | InternalEthErc4337Account
   | InternalBtcP2wpkhAccount
-  | InternalSolEoaAccount;
+  | InternalSolDataAccount;
 
 export const InternalAccountStruct = object({
   ...KeyringAccountStruct.schema,
