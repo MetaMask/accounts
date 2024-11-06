@@ -80,6 +80,7 @@ module.exports = {
     // @metamask/keyring-eth-hd
     {
       files: ['packages/keyring-eth-hd/**/*.js'],
+      excludedFiles: ['packages/keyring-eth-hd/jest.config.js'],
       extends: ['@metamask/eslint-config-nodejs'],
       parserOptions,
       rules: {
