@@ -551,6 +551,7 @@ export class LedgerKeyring extends EventEmitter {
   }
 
   forgetDevice(): void {
+    this.deviceId = '';
     this.accounts = [];
     this.page = 0;
     this.unlockedAccount = 0;
