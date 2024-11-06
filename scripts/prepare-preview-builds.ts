@@ -143,6 +143,30 @@ async function updateWorkspacePackagesWithPreviewInfo(
       version: pkg.previewVersion,
     });
 
+    // FIXME: Looks like peer dependencies do not play well with resolutions, so move the
+    // workspace packages as normal dependencies in this case
+    const peerDepKey = 'peerDependencies';
+    if (peerDepKey in pkgJson.content) {
+      const depKey = 'dependencies';
+      const deps = pkgJson.content[depKey];
+      const peerDeps = pkgJson.content[peerDepKey];
+
+      for (const { name, version } of previewPkgs) {
+        // Only consider dependenc that refers to a local workspace package
+        if (name in peerDeps && peerDeps[name] === 'workspace:^') {
+          // Move this dependency as a normal dependency with a "fixed" version
+          deps[name] = version;
+          delete peerDeps[name];
+        }
+      }
+
+      // Finally override both dependencies
+      pkgJson.update({
+        [depKey]: deps,
+        [peerDepKey]: peerDeps,
+      });
+    }
+
     // Update dependencies that refers to a workspace package. We pin the current version
     // of that package instead, and `yarn` will resolve this using the global resolutions
     // (see `updateWorkspaceResolutions`)
