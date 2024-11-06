@@ -580,6 +580,17 @@ describe('LedgerKeyring', function () {
         expect(keyring.isUnlocked()).toBe(false);
         expect(accounts).toHaveLength(0);
       });
+
+      it('deviceId should be cleared after forgetting the device', async function () {
+        // Add an account
+        keyring.setAccountToUnlock(0);
+        await keyring.addAccounts();
+        keyring.setDeviceId('device-id');
+
+        // Wipe the keyring
+        keyring.forgetDevice();
+        expect(keyring.getDeviceId()).toBe('');
+      });
     });
 
     describe('attemptMakeApp', function () {
