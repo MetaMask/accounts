@@ -1,12 +1,11 @@
 import { isEvmAccountType } from './utils';
-import { BtcAccountType, EthAccountType, SolAccountType } from '../api';
+import { BtcAccountType, EthAccountType } from '../api';
 
 describe('isEvmAccountType', () => {
   it.each([
     [EthAccountType.Eoa, true],
     [EthAccountType.Erc4337, true],
     [BtcAccountType.P2wpkh, false],
-    [SolAccountType.DataAccount, false],
     [{}, false],
     [null, false],
     ['bitcoin', false],
