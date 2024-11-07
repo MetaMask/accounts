@@ -21,20 +21,12 @@ export enum BtcAccountType {
 }
 
 /**
- * Supported Solana account types.
- */
-export enum SolAccountType {
-  DataAccount = 'solana:data-account',
-}
-
-/**
  * Supported account types.
  */
 export type KeyringAccountType =
   | `${EthAccountType.Eoa}`
   | `${EthAccountType.Erc4337}`
-  | `${BtcAccountType.P2wpkh}`
-  | `${SolAccountType.DataAccount}`;
+  | `${BtcAccountType.P2wpkh}`;
 
 /**
  * A struct which represents a Keyring account object. It is abstract enough to
@@ -56,7 +48,6 @@ export const KeyringAccountStruct = object({
     `${EthAccountType.Eoa}`,
     `${EthAccountType.Erc4337}`,
     `${BtcAccountType.P2wpkh}`,
-    `${SolAccountType.DataAccount}`,
   ]),
 
   /**
