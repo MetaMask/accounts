@@ -7,13 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- chore: bump dependency `eth-sig-util@^7.0.3` -> `^8.0.0` ([#79](https://github.com/MetaMask/accounts/pull/79))
-- chore: update jest config + include coverage for `yarn test` command ([#74](https://github.com/MetaMask/accounts/pull/74))
-- chore: update lint tools versions + use ts 5 ([#55](https://github.com/MetaMask/accounts/pull/55))
-- chore: fix post-install validation warnings ([#58](https://github.com/MetaMask/accounts/pull/58))
-
 ## [6.0.5]
 
 ### Changed
