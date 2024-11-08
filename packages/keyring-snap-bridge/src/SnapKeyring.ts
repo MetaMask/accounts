@@ -105,12 +105,12 @@ export type SnapKeyringCallbacks = {
  * Normalize account's address.
  *
  * @param account - The account.
- * @returns The normalized account's address.
+ * @returns The normalized account address.
  */
 function normalizeAccountAddress(account: KeyringAccount): string {
   // FIXME: Is it required to lowercase the address here? For now we'll keep this behavior
-  // only for Ethereum address and use the original one for other non-EVM accounts.
-  // For example, solana addresses are case-sensitives.
+  // only for Ethereum addresses and use the original address for other non-EVM accounts.
+  // For example, Solana addresses are case-sensitives.
   return isEvmAccountType(account.type)
     ? account.address.toLowerCase()
     : account.address;
