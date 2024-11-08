@@ -95,7 +95,6 @@ describe('SnapKeyring', () => {
     methods: ETH_EOA_METHODS,
     type: EthAccountType.Eoa,
   };
-
   const ethErc4337Account = {
     id: 'fc926fff-f515-4eb5-9952-720bbd9b9849',
     address: '0x2f15b30952aebe0ed5fdbfe5bf16fb9ecdb31d9a'.toLowerCase(),
@@ -247,6 +246,7 @@ describe('SnapKeyring', () => {
           'Snap "a-different-snap-id" is not allowed to set "b05d918a-b37c-497a-bb28-3d15c0d56b7a"',
         );
       });
+
       describe('with options', () => {
         it.each([
           [
@@ -705,6 +705,7 @@ describe('SnapKeyring', () => {
       expect(await keyring.getAccounts()).toStrictEqual([]);
     });
   });
+
   describe('async request redirect', () => {
     const isNotAllowedOrigin = async (
       allowedOrigins: string[],
