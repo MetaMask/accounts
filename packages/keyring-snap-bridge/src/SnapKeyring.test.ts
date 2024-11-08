@@ -463,7 +463,7 @@ describe('SnapKeyring', () => {
           ethEoaAccount2.address.toLowerCase(),
           ethEoaAccount3.address.toLowerCase(),
           ethErc4337Account.address.toLowerCase(),
-          btcP2wpkhAccount.address.toLowerCase(),
+          btcP2wpkhAccount.address,
         ]);
       });
 
@@ -477,7 +477,7 @@ describe('SnapKeyring', () => {
           ethEoaAccount2.address.toLowerCase(),
           ethEoaAccount3.address.toLowerCase(),
           ethErc4337Account.address.toLowerCase(),
-          btcP2wpkhAccount.address.toLowerCase(),
+          btcP2wpkhAccount.address,
         ]);
       });
 
@@ -647,9 +647,13 @@ describe('SnapKeyring', () => {
   describe('getAccounts', () => {
     it('returns all account addresses', async () => {
       const addresses = await keyring.getAccounts();
-      expect(addresses).toStrictEqual(
-        accounts.map((a) => a.address.toLowerCase()),
-      );
+      expect(addresses).toStrictEqual([
+        ethEoaAccount1.address.toLocaleLowerCase(),
+        ethEoaAccount2.address.toLocaleLowerCase(),
+        ethEoaAccount3.address.toLocaleLowerCase(),
+        ethErc4337Account.address.toLocaleLowerCase(),
+        btcP2wpkhAccount.address,
+      ]);
     });
   });
 
