@@ -9,12 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [10.0.0]
 
-### Uncategorized
+### Changed
 
-- Revert "feat: adds Solana account type to keyring API (#82)" ([#82](https://github.com/MetaMask/accounts/pull/82))
-- feat: adds Solana account type to keyring API ([#82](https://github.com/MetaMask/accounts/pull/82))
-- chore: add propietary license to `keyring-api` and `keyring-snap-bridge` ([#83](https://github.com/MetaMask/accounts/pull/83))
-- chore(keyring-api): update peer dependency `@metamask/providers@^17.2.0` -> `^18.1.0` ([#76](https://github.com/MetaMask/accounts/pull/76))
+- Add proprietary license ([#83](https://github.com/MetaMask/accounts/pull/83))
+- **BREAKING:** Bump peer dependency `@metamask/providers` from `^17.2.0` to `^18.1.0` ([#76](https://github.com/MetaMask/accounts/pull/76))
 
 ## [9.0.0]
 

@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.0]
 
-### Uncategorized
+### Changed
 
-- chore: update jest config + include coverage for `yarn test` command ([#74](https://github.com/MetaMask/accounts/pull/74))
+- Add proprietary license ([#83](https://github.com/MetaMask/accounts/pull/83))
+- **BREAKING**: Bump `@metamask/eth-sig-util` dependency from `^7.0.3` to `^8.0.0` ([#79](https://github.com/MetaMask/accounts/pull/79))
+  - `signTypedData` no longer support `number` for addresses, see [here](https://github.com/MetaMask/eth-sig-util/blob/main/CHANGELOG.md#800).
 
 ## [4.4.0]
 
