@@ -648,10 +648,10 @@ describe('SnapKeyring', () => {
     it('returns all account addresses', async () => {
       const addresses = await keyring.getAccounts();
       expect(addresses).toStrictEqual([
-        ethEoaAccount1.address.toLocaleLowerCase(),
-        ethEoaAccount2.address.toLocaleLowerCase(),
-        ethEoaAccount3.address.toLocaleLowerCase(),
-        ethErc4337Account.address.toLocaleLowerCase(),
+        ethEoaAccount1.address.toLowerCase(),
+        ethEoaAccount2.address.toLowerCase(),
+        ethEoaAccount3.address.toLowerCase(),
+        ethErc4337Account.address.toLowerCase(),
         btcP2wpkhAccount.address,
       ]);
     });
