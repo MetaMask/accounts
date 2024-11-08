@@ -12,6 +12,8 @@ import {
   BtcMethod,
   EthAccountType,
   EthMethod,
+  SolAccountType,
+  SolMethod,
 } from '@metamask/keyring-api';
 import { KeyringEvent } from '@metamask/keyring-api/dist/events';
 import type { SnapController } from '@metamask/snaps-controllers';
@@ -148,6 +150,59 @@ describe('SnapKeyring', () => {
 
   describe('handleKeyringSnapMessage', () => {
     describe('#handleAccountCreated', () => {
+      it('creates the account with a lower-cased address for EVM', async () => {
+        const evmAccount = {
+          id: 'b05d918a-b37c-497a-bb28-3d15c0d56b7a',
+          options: {},
+          methods: ETH_EOA_METHODS,
+          type: EthAccountType.Eoa,
+          // Even checksummed address will be lower-cased by the bridge.
+          address: '0x6431726EEE67570BF6f0Cf892aE0a3988F03903F',
+        };
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: {
+              ...(evmAccount as unknown as KeyringAccount),
+              id: '56189183-9b89-4ae6-90d9-99d167b28520',
+            },
+          },
+        });
+        expect(mockCallbacks.addAccount).toHaveBeenLastCalledWith(
+          evmAccount.address.toLowerCase(),
+          snapId,
+          expect.any(Function),
+          undefined,
+          undefined,
+        );
+      });
+
+      it('creates the account without updating the address for non-EVM', async () => {
+        const nonEvmAccount = {
+          id: 'b05d918a-b37c-497a-bb28-3d15c0d56b7a',
+          options: {},
+          methods: [...Object.values(SolMethod)],
+          type: SolAccountType.DataAccount,
+          address: '4k3s6XreQwU9Jht6FzZt8c5yDGrNo8tZ9pGE6S5YjowM',
+        };
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: {
+              ...(nonEvmAccount as unknown as KeyringAccount),
+              id: '56189183-9b89-4ae6-90d9-99d167b28520',
+            },
+          },
+        });
+        expect(mockCallbacks.addAccount).toHaveBeenLastCalledWith(
+          nonEvmAccount.address,
+          snapId,
+          expect.any(Function),
+          undefined,
+          undefined,
+        );
+      });
+
       it('cannot add an account that already exists (address)', async () => {
         mockCallbacks.addressExists.mockResolvedValue(true);
         await expect(
