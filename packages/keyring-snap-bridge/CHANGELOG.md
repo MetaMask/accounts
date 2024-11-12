@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0]
+
+### Changed
+
+- Add proprietary license ([#83](https://github.com/MetaMask/accounts/pull/83))
+- **BREAKING**: Bump `@metamask/eth-sig-util` dependency from `^7.0.3` to `^8.0.0` ([#79](https://github.com/MetaMask/accounts/pull/79))
+  - `signTypedData` no longer support `number` for addresses, see [here](https://github.com/MetaMask/eth-sig-util/blob/main/CHANGELOG.md#800).
+
 ## [4.4.0]
 
 ### Added
@@ -353,7 +361,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.4.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@5.0.0...HEAD
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.4.0...@metamask/eth-snap-keyring@5.0.0
 [4.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.6...@metamask/eth-snap-keyring@4.4.0
 [4.3.6]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.5...@metamask/eth-snap-keyring@4.3.6
 [4.3.5]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.4...@metamask/eth-snap-keyring@4.3.5

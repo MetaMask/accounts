@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.0]
+
+### Changed
+
+- Add proprietary license ([#83](https://github.com/MetaMask/accounts/pull/83))
+- **BREAKING:** Bump peer dependency `@metamask/providers` from `^17.2.0` to `^18.1.0` ([#76](https://github.com/MetaMask/accounts/pull/76))
+
 ## [9.0.0]
 
 ### Changed
@@ -418,7 +425,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@9.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@10.0.0...HEAD
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@9.0.0...@metamask/keyring-api@10.0.0
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.1.3...@metamask/keyring-api@9.0.0
 [8.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.1.2...@metamask/keyring-api@8.1.3
 [8.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.1.1...@metamask/keyring-api@8.1.2
