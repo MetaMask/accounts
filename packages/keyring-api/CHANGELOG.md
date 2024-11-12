@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: adds Solana account type to keyring API ([#93](https://github.com/MetaMask/accounts/pull/93))
+
 ## [10.0.0]
 
 ### Changed
