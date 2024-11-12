@@ -1,12 +1,19 @@
 import type { Infer } from '@metamask/superstruct';
-import { array, enums, nullable, number, string } from '@metamask/superstruct';
+import {
+  array,
+  enums,
+  nullable,
+  number,
+  string,
+  union,
+} from '@metamask/superstruct';
 import { CaipChainIdStruct } from '@metamask/utils';
 
-import { AssetAmountStruct } from './asset';
+import { FunginleAssetStruct, NonFunginleAssetStruct } from './asset';
 import type { InferEquals } from '../superstruct';
 import { object } from '../superstruct';
 import type { Paginated } from '../utils';
-import { UuidStruct } from '../utils';
+import { StringNumberStruct, UuidStruct } from '../utils';
 
 /**
  * This struct represents a participant in a transaction.
@@ -26,17 +33,40 @@ import { UuidStruct } from '../utils';
  * ],
  * ```
  */
-const ParticipantStruct = object({
-  /**
-   * Amount transferred from or to the participant.
-   */
-  ...AssetAmountStruct.schema,
+const ParticipantStruct = union([
+  object({
+    /**
+     * Participant address.
+     */
+    address: string(),
 
-  /**
-   * Participant address.
-   */
-  address: string(),
-});
+    /**
+     * Asset being transferred.
+     */
+    asset: FunginleAssetStruct,
+
+    /**
+     * Amount of the asset.
+     */
+    amount: StringNumberStruct,
+
+    /**
+     * Asset unit.
+     */
+    unit: string(),
+  }),
+  object({
+    /**
+     * Participant address.
+     */
+    address: string(),
+
+    /**
+     * Asset being transferred.
+     */
+    asset: NonFunginleAssetStruct,
+  }),
+]);
 
 /**
  * Fee types.
@@ -65,28 +95,55 @@ export enum FeeType {
   Priority = 'priority',
 }
 
-const FeeStruct = object({
-  /**
-   * Fee amount.
-   */
-  ...AssetAmountStruct.schema,
+const FeeStruct = union([
+  object({
+    /**
+     * Asset used to pay for the fee.
+     */
+    asset: FunginleAssetStruct,
 
-  /**
-   * Fee type.
-   */
-  type: enums([
-    `${FeeType.Transaction}`,
-    `${FeeType.Base}`,
-    `${FeeType.Priority}`,
-  ]),
-});
+    /**
+     * Amount of the asset.
+     */
+    amount: StringNumberStruct,
+
+    /**
+     * Asset unit.
+     */
+    unit: string(),
+
+    /**
+     * Fee type.
+     */
+    type: enums([
+      `${FeeType.Transaction}`,
+      `${FeeType.Base}`,
+      `${FeeType.Priority}`,
+    ]),
+  }),
+  object({
+    /**
+     * Asset used to pay for the fee.
+     */
+    asset: NonFunginleAssetStruct,
+
+    /**
+     * Fee type.
+     */
+    type: enums([
+      `${FeeType.Transaction}`,
+      `${FeeType.Base}`,
+      `${FeeType.Priority}`,
+    ]),
+  }),
+]);
 
 /**
  * Transaction statuses.
  */
 export enum TransactionStatus {
   Submitted = 'submitted',
-  Pending = 'pending',
+  Unconfirmed = 'unconfirmed',
   Confirmed = 'confirmed',
   Failed = 'failed',
 }
@@ -114,43 +171,43 @@ export enum TransactionType {
  *   "from": [
  *     {
  *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
- *       "amount": "0.2001",
  *       "asset": {
  *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
- *         "unit": "BTC"
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0"
  *       }
+ *       "amount": "0.2001",
+ *       "unit": "BTC"
  *     }
  *   ],
  *   "to": [
  *     {
  *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
- *       "amount": "0.1",
  *       "asset": {
  *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
- *         "unit": "BTC"
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0"
  *       }
+ *       "amount": "0.1",
+ *       "unit": "BTC"
  *     },
  *     {
  *       "address": "bc1qwl8399fz829uqvqly9tcatgrgtwp3udnhxfq4k",
- *       "amount": "0.1",
  *       "asset": {
  *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
- *         "unit": "BTC"
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0"
  *       }
+ *       "amount": "0.1",
+ *       "unit": "BTC"
  *     }
  *   ],
  *   "fees": [
  *     {
  *       "type": "transaction",
- *       "amount": "0.0001",
  *       "asset": {
  *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
- *         "unit": "BTC"
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0"
  *       }
+ *       "amount": "0.0001",
+ *       "unit": "BTC"
  *     }
  *   ]
  * }
@@ -180,7 +237,7 @@ export const TransactionStruct = object({
    * - submitted: The transaction has been submitted but is not yet in the
    * blockchain. For example, it can be in the mempool.
    *
-   * - pending: The transaction is in the blockchain but has not been
+   * - unconfirmed: The transaction is in the blockchain but has not been
    * confirmed yet.
    *
    * - confirmed: The transaction has been confirmed.
@@ -189,7 +246,7 @@ export const TransactionStruct = object({
    */
   status: enums([
     `${TransactionStatus.Submitted}`,
-    `${TransactionStatus.Pending}`,
+    `${TransactionStatus.Unconfirmed}`,
     `${TransactionStatus.Confirmed}`,
     `${TransactionStatus.Failed}`,
   ]),
@@ -230,6 +287,31 @@ export const TransactionStruct = object({
    * Total transaction fee.
    */
   fees: array(FeeStruct),
+
+  /**
+   * List of events related to the transaction.
+   *
+   * The events are tracked in a best-effort basis and may not be available for
+   * all transactions.
+   */
+  events: array(
+    object({
+      /**
+       * Event type.
+       */
+      type: enums([
+        `${TransactionStatus.Submitted}`,
+        `${TransactionStatus.Unconfirmed}`,
+        `${TransactionStatus.Confirmed}`,
+        `${TransactionStatus.Failed}`,
+      ]),
+
+      /**
+       * UNIX timestamp of when the event was occurred.
+       */
+      timestamp: nullable(number()),
+    }),
+  ),
 });
 
 /**

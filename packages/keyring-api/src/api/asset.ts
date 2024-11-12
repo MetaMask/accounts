@@ -11,7 +11,51 @@ import { StringNumberStruct } from '../utils';
  *
  * ```ts
  * if (asset.fungible) {
- *   // Use asset.type and asset.unit
+ *   // Use asset.type
+ * } else {
+ *   // Use asset.id
+ * }
+ * ```
+ * /**
+ * Fungible asset struct.
+ */
+export const FunginleAssetStruct = object({
+  /**
+   * It is a fungible asset.
+   */
+  fungible: literal(true),
+
+  /**
+   * Asset type (CAIP-19).
+   */
+  type: CaipAssetTypeStruct,
+});
+
+/**
+ * Non-fungible asset struct.
+ */
+export const NonFunginleAssetStruct = object({
+  /**
+   * It is a non-fungible asset.
+   */
+  fungible: literal(false),
+
+  /**
+   * Asset ID (CAIP-19).
+   */
+  id: CaipAssetIdStruct,
+});
+
+/**
+ * This struct represents an asset, including the amount and unit if the asset
+ * is fungible.
+ *
+ * The `fungible` property of the `asset` field is used to tag the union type
+ * and allow the following pattern:
+ *
+ * ```ts
+ * if (asset.fungible) {
+ *   // Use asset.type
  * } else {
  *   // Use asset.id
  * }
@@ -19,9 +63,12 @@ import { StringNumberStruct } from '../utils';
  *
  * @example
  * ```ts
- * asset: {
- *   fungible: true,
- *   type: 'eip155:1/slip44:60',
+ * fee: {
+ *   asset: {
+ *     fungible: true,
+ *     type: 'eip155:1/slip44:60',
+ *   },
+ *   amount: '0.01',
  *   unit: 'ETH',
  * },
  * ```
@@ -34,67 +81,21 @@ import { StringNumberStruct } from '../utils';
  * },
  * ```
  */
-export const AssetStruct = union([
+export const AssetAmountStruct = union([
   object({
-    /**
-     * It is a fungible asset.
-     */
-    fungible: literal(true),
+    asset: FunginleAssetStruct,
 
     /**
-     * Asset type (CAIP-19).
+     * Amount of the asset.
      */
-    type: CaipAssetTypeStruct,
+    amount: StringNumberStruct,
 
     /**
-     * Unit of the asset. This has to be one of the supported units for the
-     * asset, as defined by MetaMask.
+     * Asset unit.
      */
     unit: string(),
   }),
   object({
-    /**
-     * It is a non-fungible asset.
-     */
-    fungible: literal(false),
-
-    /**
-     * Asset ID (CAIP-19).
-     */
-    id: CaipAssetIdStruct,
+    asset: NonFunginleAssetStruct,
   }),
 ]);
-
-/**
- * Asset type.
- *
- * See {@link AssetStruct}.
- */
-export type Asset = Infer<typeof AssetStruct>;
-
-/**
- * This struct represents an amount of an asset.
- *
- * @example
- * ```ts
- * fee: {
- *   amount: '0.01',
- *   asset: {
- *     fungible: true,
- *     type: 'eip155:1/slip44:60',
- *     unit: 'ETH',
- *   },
- * },
- * ```
- */
-export const AssetAmountStruct = object({
-  /**
-   * Amount in decimal string format.
-   */
-  amount: StringNumberStruct,
-
-  /**
-   * Asset information.
-   */
-  asset: AssetStruct,
-});
