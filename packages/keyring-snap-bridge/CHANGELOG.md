@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.1]
+
+### Fixed
+
+- Do not lower address for non-EVM accounts during account creation ([#90](https://github.com/MetaMask/accounts/pull/90))
+
 ## [5.0.0]
 
 ### Changed
@@ -361,7 +367,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@5.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@5.0.1...HEAD
+[5.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@5.0.0...@metamask/eth-snap-keyring@5.0.1
 [5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.4.0...@metamask/eth-snap-keyring@5.0.0
 [4.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.6...@metamask/eth-snap-keyring@4.4.0
 [4.3.6]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.5...@metamask/eth-snap-keyring@4.3.6
