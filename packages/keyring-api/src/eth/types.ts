@@ -1,7 +1,8 @@
-import type { Infer } from '@metamask/superstruct';
 import { array, enums, literal } from '@metamask/superstruct';
 
+import type { KeyringAccount } from '../api';
 import { EthAccountType, KeyringAccountStruct } from '../api';
+import type { InferExtends } from '../superstruct';
 import { object, definePattern } from '../superstruct';
 
 export const EthBytesStruct = definePattern('EthBytes', /^0x[0-9a-f]*$/iu);
@@ -61,7 +62,10 @@ export const EthEoaAccountStruct = object({
   ),
 });
 
-export type EthEoaAccount = Infer<typeof EthEoaAccountStruct>;
+export type EthEoaAccount = InferExtends<
+  typeof EthEoaAccountStruct,
+  KeyringAccount
+>;
 
 export const EthErc4337AccountStruct = object({
   ...KeyringAccountStruct.schema,
@@ -93,4 +97,7 @@ export const EthErc4337AccountStruct = object({
   ),
 });
 
-export type EthErc4337Account = Infer<typeof EthErc4337AccountStruct>;
+export type EthErc4337Account = InferExtends<
+  typeof EthErc4337AccountStruct,
+  KeyringAccount
+>;
