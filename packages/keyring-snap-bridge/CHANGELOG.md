@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.1]
 
-### Uncategorized
+### Fixed
 
-- fix: do not lower address for non-EVM accounts during account creation ([#90](https://github.com/MetaMask/accounts/pull/90))
+- Do not lower address for non-EVM accounts during account creation ([#90](https://github.com/MetaMask/accounts/pull/90))
 
 ## [5.0.0]
 
