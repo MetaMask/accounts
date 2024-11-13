@@ -5,6 +5,7 @@ export * from './eth';
 export * from './sol';
 export * from './events';
 export * from './internal';
+export * from './JsonRpcRequest';
 export * from './KeyringClient';
 export * from './KeyringSnapRpcClient';
 export * from './rpc-handler';
