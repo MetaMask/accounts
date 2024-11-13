@@ -25,6 +25,7 @@ import {
   EthBytesStruct,
   EthMethod,
   EthUserOperationPatchStruct,
+  isEvmAccountType,
   KeyringEvent,
   RequestApprovedEventStruct,
   RequestRejectedEventStruct,
@@ -101,6 +102,21 @@ export type SnapKeyringCallbacks = {
 };
 
 /**
+ * Normalize account's address.
+ *
+ * @param account - The account.
+ * @returns The normalized account address.
+ */
+function normalizeAccountAddress(account: KeyringAccount): string {
+  // FIXME: Is it required to lowercase the address here? For now we'll keep this behavior
+  // only for Ethereum addresses and use the original address for other non-EVM accounts.
+  // For example, Solana addresses are case-sensitives.
+  return isEvmAccountType(account.type)
+    ? account.address.toLowerCase()
+    : account.address;
+}
+
+/**
  * Keyring bridge implementation to support Snaps.
  */
 export class SnapKeyring extends EventEmitter {
@@ -169,8 +185,9 @@ export class SnapKeyring extends EventEmitter {
     // The UI still uses the account address to identify accounts, so we need
     // to block the creation of duplicate accounts for now to prevent accounts
     // from being overwritten.
-    if (await this.#callbacks.addressExists(account.address.toLowerCase())) {
-      throw new Error(`Account address '${account.address}' already exists`);
+    const address = normalizeAccountAddress(account);
+    if (await this.#callbacks.addressExists(address)) {
+      throw new Error(`Account address '${address}' already exists`);
     }
 
     // A Snap could try to create an account with a different address but with
@@ -180,7 +197,7 @@ export class SnapKeyring extends EventEmitter {
     }
 
     await this.#callbacks.addAccount(
-      account.address.toLowerCase(),
+      address,
       snapId,
       async (accepted: boolean) => {
         if (accepted) {
@@ -249,12 +266,10 @@ export class SnapKeyring extends EventEmitter {
 
     // At this point we know that the account exists, so we can safely
     // destructure it.
-    const {
-      account: { address },
-    } = entry;
+    const { account } = entry;
 
     await this.#callbacks.removeAccount(
-      address.toLowerCase(),
+      normalizeAccountAddress(account),
       snapId,
       async (accepted) => {
         if (accepted) {
@@ -378,7 +393,7 @@ export class SnapKeyring extends EventEmitter {
   async getAccounts(): Promise<string[]> {
     return unique(
       [...this.#accounts.values()].map(({ account }) =>
-        account.address.toLowerCase(),
+        normalizeAccountAddress(account),
       ),
     );
   }
@@ -393,7 +408,7 @@ export class SnapKeyring extends EventEmitter {
     return unique(
       [...this.#accounts.values()]
         .filter(({ snapId: accountSnapId }) => accountSnapId === snapId)
-        .map(({ account }) => account.address.toLowerCase()),
+        .map(({ account }) => normalizeAccountAddress(account)),
     );
   }
 
@@ -937,7 +952,10 @@ export class SnapKeyring extends EventEmitter {
         // account address to be lowercase. This workaround should be removed
         // once we migrated the UI to use the account ID instead of the account
         // address.
-        address: account.address.toLowerCase(),
+        //
+        // NOTE: We convert the address only for EVM accounts, see
+        // `normalizeAccountAddress`.
+        address: normalizeAccountAddress(account),
         metadata: {
           name: '',
           importTime: 0,

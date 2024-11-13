@@ -12,6 +12,8 @@ import {
   BtcMethod,
   EthAccountType,
   EthMethod,
+  SolAccountType,
+  SolMethod,
 } from '@metamask/keyring-api';
 import { KeyringEvent } from '@metamask/keyring-api/dist/events';
 import type { SnapController } from '@metamask/snaps-controllers';
@@ -93,7 +95,6 @@ describe('SnapKeyring', () => {
     methods: ETH_EOA_METHODS,
     type: EthAccountType.Eoa,
   };
-
   const ethErc4337Account = {
     id: 'fc926fff-f515-4eb5-9952-720bbd9b9849',
     address: '0x2f15b30952aebe0ed5fdbfe5bf16fb9ecdb31d9a'.toLowerCase(),
@@ -103,10 +104,17 @@ describe('SnapKeyring', () => {
   };
   const btcP2wpkhAccount = {
     id: '11cffca0-12cc-4779-8f82-23273c062e29',
-    address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'.toLowerCase(),
+    address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
     options: {},
     methods: [...Object.values(BtcMethod)],
     type: BtcAccountType.P2wpkh,
+  };
+  const solDataAccount = {
+    id: '780ee179-5ab5-449d-9c25-34e12c1ada66',
+    address: '3d4v35MRK57xM2Nte3E3rTQU1zyXGVrkXJ6FuEjVoKzM',
+    options: {},
+    methods: [...Object.values(SolMethod)],
+    type: SolAccountType.DataAccount,
   };
 
   const accounts = [
@@ -115,6 +123,7 @@ describe('SnapKeyring', () => {
     ethEoaAccount3,
     ethErc4337Account,
     btcP2wpkhAccount,
+    solDataAccount,
   ] as const;
 
   const executionContext: KeyringExecutionContext = {
@@ -148,6 +157,59 @@ describe('SnapKeyring', () => {
 
   describe('handleKeyringSnapMessage', () => {
     describe('#handleAccountCreated', () => {
+      it('creates the account with a lower-cased address for EVM', async () => {
+        const evmAccount = {
+          id: 'b05d918a-b37c-497a-bb28-3d15c0d56b7a',
+          options: {},
+          methods: ETH_EOA_METHODS,
+          type: EthAccountType.Eoa,
+          // Even checksummed address will be lower-cased by the bridge.
+          address: '0x6431726EEE67570BF6f0Cf892aE0a3988F03903F',
+        };
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: {
+              ...(evmAccount as unknown as KeyringAccount),
+              id: '56189183-9b89-4ae6-90d9-99d167b28520',
+            },
+          },
+        });
+        expect(mockCallbacks.addAccount).toHaveBeenLastCalledWith(
+          evmAccount.address.toLowerCase(),
+          snapId,
+          expect.any(Function),
+          undefined,
+          undefined,
+        );
+      });
+
+      it('creates the account without updating the address for non-EVM', async () => {
+        const nonEvmAccount = {
+          id: 'b05d918a-b37c-497a-bb28-3d15c0d56b7a',
+          options: {},
+          methods: [...Object.values(SolMethod)],
+          type: SolAccountType.DataAccount,
+          address: '4k3s6XreQwU9Jht6FzZt8c5yDGrNo8tZ9pGE6S5YjowM',
+        };
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: {
+              ...(nonEvmAccount as unknown as KeyringAccount),
+              id: '56189183-9b89-4ae6-90d9-99d167b28520',
+            },
+          },
+        });
+        expect(mockCallbacks.addAccount).toHaveBeenLastCalledWith(
+          nonEvmAccount.address,
+          snapId,
+          expect.any(Function),
+          undefined,
+          undefined,
+        );
+      });
+
       it('cannot add an account that already exists (address)', async () => {
         mockCallbacks.addressExists.mockResolvedValue(true);
         await expect(
@@ -192,6 +254,7 @@ describe('SnapKeyring', () => {
           'Snap "a-different-snap-id" is not allowed to set "b05d918a-b37c-497a-bb28-3d15c0d56b7a"',
         );
       });
+
       describe('with options', () => {
         it.each([
           [
@@ -408,7 +471,8 @@ describe('SnapKeyring', () => {
           ethEoaAccount2.address.toLowerCase(),
           ethEoaAccount3.address.toLowerCase(),
           ethErc4337Account.address.toLowerCase(),
-          btcP2wpkhAccount.address.toLowerCase(),
+          btcP2wpkhAccount.address,
+          solDataAccount.address,
         ]);
       });
 
@@ -422,7 +486,8 @@ describe('SnapKeyring', () => {
           ethEoaAccount2.address.toLowerCase(),
           ethEoaAccount3.address.toLowerCase(),
           ethErc4337Account.address.toLowerCase(),
-          btcP2wpkhAccount.address.toLowerCase(),
+          btcP2wpkhAccount.address,
+          solDataAccount.address,
         ]);
       });
 
@@ -592,9 +657,14 @@ describe('SnapKeyring', () => {
   describe('getAccounts', () => {
     it('returns all account addresses', async () => {
       const addresses = await keyring.getAccounts();
-      expect(addresses).toStrictEqual(
-        accounts.map((a) => a.address.toLowerCase()),
-      );
+      expect(addresses).toStrictEqual([
+        ethEoaAccount1.address.toLowerCase(),
+        ethEoaAccount2.address.toLowerCase(),
+        ethEoaAccount3.address.toLowerCase(),
+        ethErc4337Account.address.toLowerCase(),
+        btcP2wpkhAccount.address,
+        solDataAccount.address,
+      ]);
     });
   });
 
@@ -607,6 +677,7 @@ describe('SnapKeyring', () => {
           [ethEoaAccount3.id]: { account: ethEoaAccount3, snapId },
           [ethErc4337Account.id]: { account: ethErc4337Account, snapId },
           [btcP2wpkhAccount.id]: { account: btcP2wpkhAccount, snapId },
+          [solDataAccount.id]: { account: solDataAccount, snapId },
         },
       };
       const state = await keyring.serialize();
@@ -650,6 +721,7 @@ describe('SnapKeyring', () => {
       expect(await keyring.getAccounts()).toStrictEqual([]);
     });
   });
+
   describe('async request redirect', () => {
     const isNotAllowedOrigin = async (
       allowedOrigins: string[],
@@ -1280,6 +1352,7 @@ describe('SnapKeyring', () => {
         accounts[2].address,
         accounts[3].address,
         accounts[4].address,
+        accounts[5].address,
       ]);
     });
 
@@ -1292,6 +1365,7 @@ describe('SnapKeyring', () => {
         accounts[2].address,
         accounts[3].address,
         accounts[4].address,
+        accounts[5].address,
       ]);
       expect(console.error).toHaveBeenCalledWith(
         "Account '0xc728514df8a7f9271f4b7a4dd2aa6d2d723d3ee3' may not have been removed from snap 'local:snap.mock':",
@@ -1335,9 +1409,7 @@ describe('SnapKeyring', () => {
   describe('getAccountsBySnapId', () => {
     it('returns the list of addresses of a Snap', async () => {
       const addresses = await keyring.getAccountsBySnapId(snapId);
-      expect(addresses).toStrictEqual(
-        accounts.map((a) => a.address.toLowerCase()),
-      );
+      expect(addresses).toStrictEqual(accounts.map((a) => a.address));
     });
   });
 
