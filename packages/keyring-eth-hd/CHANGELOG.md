@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.0.0]
+
 ### Uncategorized
 
 - chore: bump dependency `eth-sig-util@^7.0.3` -> `^8.0.0` ([#79](https://github.com/MetaMask/accounts/pull/79))
@@ -135,7 +137,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.4...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@8.0.0...HEAD
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.4...@metamask/eth-hd-keyring@8.0.0
 [7.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.3...@metamask/eth-hd-keyring@7.0.4
 [7.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.2...@metamask/eth-hd-keyring@7.0.3
 [7.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.1...@metamask/eth-hd-keyring@7.0.2
