@@ -15,7 +15,7 @@ import {
   SolAccountType,
   SolMethod,
 } from '@metamask/keyring-api';
-import { KeyringEvent } from '@metamask/keyring-api/dist/events';
+import { KeyringEvent } from '@metamask/keyring-api';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
