@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.0.0]
 
-### Uncategorized
+### Changed
 
-- build!: build packages with `ts-bridge` ([#40](https://github.com/MetaMask/accounts/pull/40))
+- **BREAKING:** Build packages with `ts-bridge` ([#40](https://github.com/MetaMask/accounts/pull/40))
 
 ## [6.0.0]
 

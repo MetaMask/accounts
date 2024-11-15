@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.0.0]
 
-### Uncategorized
+### Changed
 
-- chore: bump typescript to version 5.6.3 ([#97](https://github.com/MetaMask/accounts/pull/97))
-- build!: build packages with `ts-bridge` ([#40](https://github.com/MetaMask/accounts/pull/40))
+- **BREAKING:** Build packages with `ts-bridge` ([#40](https://github.com/MetaMask/accounts/pull/40))
+- Use TypeScript 5.6.3 ([#97](https://github.com/MetaMask/accounts/pull/97))
 
 ## [10.1.0]
 
