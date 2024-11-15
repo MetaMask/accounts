@@ -225,7 +225,7 @@ describe('LedgerMobileBridge', function () {
     });
 
     it('throws error when transport.deviceModel is not set', async function () {
-      // @ts-ignore `deviceModel` must be null to validate this test case
+      // @ts-expect-error `deviceModel` must be null to validate this test case
       mockTransport.deviceModel = null;
       await expect(
         bridge.updateTransportMethod(mockTransport as unknown as Transport),
