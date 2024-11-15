@@ -29,7 +29,7 @@ describe('LedgerMobileBridge', function () {
   };
 
   const mockTransport = {
-    deviceModel: { id: '' } as MockDeviceModel, // Will be set by `beforeEach`
+    deviceModel: { id: '' } as MockDeviceModel, // `id` will be set by `beforeEach`
     send: jest.fn(),
     close: jest.fn(),
     decorateAppAPIMethods: jest.fn(),
