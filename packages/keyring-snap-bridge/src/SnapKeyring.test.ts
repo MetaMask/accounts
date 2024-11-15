@@ -394,7 +394,7 @@ describe('SnapKeyring', () => {
 
       it('fails when the EthMethod is not supported after update', async () => {
         // Update first account to remove `EthMethod.PersonalSign`
-        let updatedMethods = Object.values(EthMethod).filter(
+        let updatedMethods: EthMethod[] = Object.values(EthMethod).filter(
           (method) => method !== EthMethod.PersonalSign,
         );
         expect(
