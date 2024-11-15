@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.0]
+
+### Changed
+
+- **BREAKING**: Bump `@metamask/eth-sig-util` dependency from `^7.0.3` to `^8.0.0` ([#79](https://github.com/MetaMask/accounts/pull/79))
+  - `signTypedData` no longer support `number` for addresses, see [here](https://github.com/MetaMask/eth-sig-util/blob/main/CHANGELOG.md#800).
+- Use TypeScript 5 ([#55](https://github.com/MetaMask/accounts/pull/55))
+
 ## [6.0.5]
 
 ### Changed
@@ -85,7 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.5...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@7.0.0...HEAD
+[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.5...@metamask/eth-simple-keyring@7.0.0
 [6.0.5]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.4...@metamask/eth-simple-keyring@6.0.5
 [6.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.3...@metamask/eth-simple-keyring@6.0.4
 [6.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.2...@metamask/eth-simple-keyring@6.0.3
