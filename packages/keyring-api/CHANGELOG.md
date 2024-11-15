@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING:** Build packages with `ts-bridge` ([#40](https://github.com/MetaMask/accounts/pull/40))
-- Use TypeScript 5.6.3 ([#97](https://github.com/MetaMask/accounts/pull/97))
 
 ## [10.1.0]
 
