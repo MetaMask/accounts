@@ -11,11 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **BREAKING:** Add ESM build ([#40](https://github.com/MetaMask/accounts/pull/40))
+  - It's no longer possible to import files from `./dist` directly.
 - Export type `JsonRpcRequest` ([#95](https://github.com/MetaMask/accounts/pull/95))
-
-### Changed
-
-- **BREAKING:** Build packages with `ts-bridge` ([#40](https://github.com/MetaMask/accounts/pull/40))
 
 ## [5.0.1]
 

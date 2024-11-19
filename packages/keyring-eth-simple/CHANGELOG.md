@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.0.0]
 
-### Changed
+### Added
 
-- **BREAKING:** Build packages with `ts-bridge` ([#40](https://github.com/MetaMask/accounts/pull/40))
+- **BREAKING:** Add ESM build ([#40](https://github.com/MetaMask/accounts/pull/40))
+  - It's no longer possible to import files from `./dist` directly.
 
 ## [7.0.0]
 
