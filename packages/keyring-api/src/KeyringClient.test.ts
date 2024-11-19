@@ -125,6 +125,7 @@ describe('KeyringClient', () => {
             from: [],
             to: [],
             fees: [],
+            events: [],
           },
           {
             id: '774a9423-9dd4-4b63-81a0-26884be90a35',
@@ -136,6 +137,7 @@ describe('KeyringClient', () => {
             from: [],
             to: [],
             fees: [],
+            events: [],
           },
         ],
         next: null,
@@ -172,6 +174,7 @@ describe('KeyringClient', () => {
             from: [],
             to: [],
             fees: [],
+            events: [],
           },
           {
             id: '774a9423-9dd4-4b63-81a0-26884be90a35',
@@ -183,6 +186,7 @@ describe('KeyringClient', () => {
             from: [],
             to: [],
             fees: [],
+            events: [],
           },
         ],
         next: 'some-cursor',
@@ -220,14 +224,15 @@ describe('KeyringClient', () => {
             fees: [
               {
                 type: 'transaction',
-                amount: 'invalid-amount', // Should be a numeric string
                 asset: {
                   fungible: true,
                   type: 'eip155:1/slip44:60',
                   unit: 'ETH',
+                  amount: 'invalid-amount', // Should be a numeric string
                 },
               },
             ],
+            events: [],
           },
         ],
         next: null,
@@ -239,7 +244,7 @@ describe('KeyringClient', () => {
           limit: 2,
         }),
       ).rejects.toThrow(
-        'At path: data.0.fees.0.amount -- Expected a value of type `StringNumber`, but received: `"invalid-amount"`',
+        'At path: data.0.fees.0.asset.amount -- Expected a value of type `StringNumber`, but received: `"invalid-amount"`',
       );
     });
 
@@ -259,14 +264,15 @@ describe('KeyringClient', () => {
             fees: [
               {
                 type: 'invalid-type', // Not a valid fee type
-                amount: '0',
                 asset: {
                   fungible: true,
                   type: 'eip155:1/slip44:60',
-                  unit: 'ETH',
                 },
+                amount: '0',
+                unit: 'ETH',
               },
             ],
+            events: [],
           },
         ],
         next: null,

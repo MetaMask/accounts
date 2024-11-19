@@ -6,6 +6,7 @@ expectAssignable<Asset>({
   fungible: true,
   type: 'eip155:1/slip44:60',
   unit: 'ETH',
+  amount: '0.01',
 });
 
 expectAssignable<Asset>({

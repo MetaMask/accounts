@@ -12,6 +12,7 @@ expectAssignable<Transaction>({
   from: [],
   to: [],
   fees: [],
+  events: [],
 });
 
 expectAssignable<Transaction>({
@@ -26,23 +27,24 @@ expectAssignable<Transaction>({
   fees: [
     {
       type: 'base',
-      amount: '0.0001',
       asset: {
         fungible: true,
         type: 'eip155:1/slip44:60',
         unit: 'ETH',
+        amount: '0.0001',
       },
     },
     {
       type: 'priority',
-      amount: '0.0001',
       asset: {
         fungible: true,
         type: 'eip155:1/slip44:60',
         unit: 'ETH',
+        amount: '0.0001',
       },
     },
   ],
+  events: [],
 });
 
 expectAssignable<Transaction>({
@@ -55,16 +57,15 @@ expectAssignable<Transaction>({
   from: [
     {
       address: 'tb1q4q7h8wuplrpmkxqvv6rrrq7qyhhjsj5uqcsxqu',
-      amount: '0.002',
       asset: {
         fungible: true,
         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
         unit: 'BTC',
+        amount: '0.002',
       },
     },
     {
       address: 'tb1q4q7h8wuplrpmkxqvv6rrrq7qyhhjsj5uqcsxqu',
-      amount: '1',
       asset: {
         fungible: false,
         id: 'bip122:000000000019d6689c085ae165831e93/slip44:0/brc20:0x1234567890abcdef',
@@ -74,16 +75,15 @@ expectAssignable<Transaction>({
   to: [
     {
       address: 'tb1q4q7h8wuplrpmkxqvv6rrrq7qyhhjsj5uqcsxqu',
-      amount: '0.001',
       asset: {
         fungible: true,
         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
         unit: 'BTC',
+        amount: '0.001',
       },
     },
     {
       address: 'tb1q4q7h8wuplrpmkxqvv6rrrq7qyhhjsj5uqcsxqu',
-      amount: '1',
       asset: {
         fungible: false,
         id: 'bip122:000000000019d6689c085ae165831e93/slip44:0/brc20:0x1234567890abcdef',
@@ -93,12 +93,18 @@ expectAssignable<Transaction>({
   fees: [
     {
       type: 'transaction',
-      amount: '0.001',
       asset: {
         fungible: true,
         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
         unit: 'BTC',
+        amount: '0.001',
       },
+    },
+  ],
+  events: [
+    {
+      status: 'confirmed',
+      timestamp: 1728648847,
     },
   ],
 });

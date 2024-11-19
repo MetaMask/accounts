@@ -1,72 +1,51 @@
 import type { Infer } from '@metamask/superstruct';
-import {
-  array,
-  enums,
-  nullable,
-  number,
-  string,
-  union,
-} from '@metamask/superstruct';
+import { array, enums, nullable, number, string } from '@metamask/superstruct';
 import { CaipChainIdStruct } from '@metamask/utils';
 
-import { FunginleAssetStruct, NonFunginleAssetStruct } from './asset';
+import { AssetStruct } from './asset';
 import type { InferEquals } from '../superstruct';
 import { object } from '../superstruct';
 import type { Paginated } from '../utils';
-import { StringNumberStruct, UuidStruct } from '../utils';
+import { UuidStruct } from '../utils';
 
 /**
  * This struct represents a participant in a transaction.
  *
  * @example
  * ```ts
- * from: [
- *   {
- *     address: '0x1234...',
+ * {
+ *   address: '0x1234...',
+ *   asset: {
+ *     fungible: true,
+ *     type: 'eip155:1/slip44:60',
+ *     unit: 'ETH',
  *     amount: '0.01',
- *     asset: {
- *       fungible: true,
- *       type: 'eip155:1/slip44:60',
- *       unit: 'ETH',
- *     },
  *   },
- * ],
+ * },
+ * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *   address: '0x1234...',
+ *   asset: {
+ *     fungible: false,
+ *     type: 'eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d/771769',
+ *   },
+ * },
  * ```
  */
-const ParticipantStruct = union([
-  object({
-    /**
-     * Participant address.
-     */
-    address: string(),
+const ParticipantStruct = object({
+  /**
+   * Participant address.
+   */
+  address: string(),
 
-    /**
-     * Asset being transferred.
-     */
-    asset: FunginleAssetStruct,
-
-    /**
-     * Amount of the asset.
-     */
-    amount: StringNumberStruct,
-
-    /**
-     * Asset unit.
-     */
-    unit: string(),
-  }),
-  object({
-    /**
-     * Participant address.
-     */
-    address: string(),
-
-    /**
-     * Asset being transferred.
-     */
-    asset: NonFunginleAssetStruct,
-  }),
-]);
+  /**
+   * Asset being transferred.
+   */
+  asset: nullable(AssetStruct),
+});
 
 /**
  * Fee types.
@@ -95,51 +74,36 @@ export enum FeeType {
   Priority = 'priority',
 }
 
-const FeeStruct = union([
-  object({
-    /**
-     * Asset used to pay for the fee.
-     */
-    asset: FunginleAssetStruct,
+const FeeStruct = object({
+  /**
+   * Fee type.
+   */
+  type: enums([
+    `${FeeType.Transaction}`,
+    `${FeeType.Base}`,
+    `${FeeType.Priority}`,
+  ]),
 
-    /**
-     * Amount of the asset.
-     */
-    amount: StringNumberStruct,
-
-    /**
-     * Asset unit.
-     */
-    unit: string(),
-
-    /**
-     * Fee type.
-     */
-    type: enums([
-      `${FeeType.Transaction}`,
-      `${FeeType.Base}`,
-      `${FeeType.Priority}`,
-    ]),
-  }),
-  object({
-    /**
-     * Asset used to pay for the fee.
-     */
-    asset: NonFunginleAssetStruct,
-
-    /**
-     * Fee type.
-     */
-    type: enums([
-      `${FeeType.Transaction}`,
-      `${FeeType.Base}`,
-      `${FeeType.Priority}`,
-    ]),
-  }),
-]);
+  /**
+   * Asset used to pay for the fee.
+   */
+  asset: AssetStruct,
+});
 
 /**
  * Transaction statuses.
+ *
+ * The possible values are:
+ *
+ * - submitted: The transaction has been submitted but is not yet in the
+ * blockchain. For example, it can be in the mempool.
+ *
+ * - unconfirmed: The transaction is in the blockchain but has not been
+ * confirmed yet.
+ *
+ * - confirmed: The transaction has been confirmed.
+ *
+ * - failed: The transaction has failed. For example, it has been reverted.
  */
 export enum TransactionStatus {
   Submitted = 'submitted',
@@ -173,10 +137,10 @@ export enum TransactionType {
  *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
  *       "asset": {
  *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0"
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
+ *         "unit": "BTC",
+ *         "amount": "0.1"
  *       }
- *       "amount": "0.2001",
- *       "unit": "BTC"
  *     }
  *   ],
  *   "to": [
@@ -184,19 +148,19 @@ export enum TransactionType {
  *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
  *       "asset": {
  *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0"
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
+ *         "unit": "BTC",
+ *         "amount": "0.1"
  *       }
- *       "amount": "0.1",
- *       "unit": "BTC"
  *     },
  *     {
  *       "address": "bc1qwl8399fz829uqvqly9tcatgrgtwp3udnhxfq4k",
  *       "asset": {
  *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0"
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
+ *         "unit": "BTC",
+ *         "amount": "0.1"
  *       }
- *       "amount": "0.1",
- *       "unit": "BTC"
  *     }
  *   ],
  *   "fees": [
@@ -204,10 +168,10 @@ export enum TransactionType {
  *       "type": "transaction",
  *       "asset": {
  *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0"
+ *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
+ *         "unit": "BTC",
+ *         "amount": "0.1"
  *       }
- *       "amount": "0.0001",
- *       "unit": "BTC"
  *     }
  *   ]
  * }
@@ -230,19 +194,7 @@ export const TransactionStruct = object({
   account: UuidStruct,
 
   /**
-   * Transaction status.
-   *
-   * The possible values are:
-   *
-   * - submitted: The transaction has been submitted but is not yet in the
-   * blockchain. For example, it can be in the mempool.
-   *
-   * - unconfirmed: The transaction is in the blockchain but has not been
-   * confirmed yet.
-   *
-   * - confirmed: The transaction has been confirmed.
-   *
-   * - failed: The transaction has failed. For example, it has been reverted.
+   * Transaction status {@see TransactionStatus}.
    */
   status: enums([
     `${TransactionStatus.Submitted}`,
@@ -297,9 +249,9 @@ export const TransactionStruct = object({
   events: array(
     object({
       /**
-       * Event type.
+       * New status of the transaction.
        */
-      type: enums([
+      status: enums([
         `${TransactionStatus.Submitted}`,
         `${TransactionStatus.Unconfirmed}`,
         `${TransactionStatus.Confirmed}`,

@@ -1,7 +1,13 @@
-import { literal } from '@metamask/superstruct';
-import { CaipAssetIdStruct, CaipAssetTypeStruct } from '@metamask/utils';
+import type { Infer } from '@metamask/superstruct';
+import { literal, string } from '@metamask/superstruct';
+import {
+  CaipAssetIdStruct,
+  CaipAssetTypeStruct,
+  isPlainObject,
+} from '@metamask/utils';
 
-import { object } from '../superstruct';
+import { object, selectiveUnion } from '../superstruct';
+import { StringNumberStruct } from '../utils';
 
 /**
  * This struct represents an asset. The `fungible` property is used to tag the
@@ -17,7 +23,7 @@ import { object } from '../superstruct';
  * /**
  * Fungible asset struct.
  */
-export const FunginleAssetStruct = object({
+export const FungibleAssetStruct = object({
   /**
    * It is a fungible asset.
    */
@@ -27,12 +33,22 @@ export const FunginleAssetStruct = object({
    * Asset type (CAIP-19).
    */
   type: CaipAssetTypeStruct,
+
+  /**
+   * Asset unit.
+   */
+  unit: string(),
+
+  /**
+   * Asset amount.
+   */
+  amount: StringNumberStruct,
 });
 
 /**
  * Non-fungible asset struct.
  */
-export const NonFunginleAssetStruct = object({
+export const NonFungibleAssetStruct = object({
   /**
    * It is a non-fungible asset.
    */
@@ -43,3 +59,35 @@ export const NonFunginleAssetStruct = object({
    */
   id: CaipAssetIdStruct,
 });
+
+/**
+ * Asset struct.
+ *
+ * @example
+ * ```ts
+ * {
+ *   fungible: true,
+ *   type: 'eip155:1/slip44:60',
+ *   unit: 'ETH',
+ *   amount: '0.01',
+ * }
+ * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *   fungible: false,
+ *   id: 'eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d/771769',
+ * }
+ * ```
+ */
+export const AssetStruct = selectiveUnion((value: any) => {
+  return isPlainObject(value) && !value.fungible
+    ? NonFungibleAssetStruct
+    : FungibleAssetStruct;
+});
+
+/**
+ * Asset type {@see AssetStruct}.
+ */
+export type Asset = Infer<typeof AssetStruct>;
