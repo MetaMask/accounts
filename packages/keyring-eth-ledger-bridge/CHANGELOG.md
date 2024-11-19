@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.0]
+
+### Added
+
+- **BREAKING:** Add ESM build ([#40](https://github.com/MetaMask/accounts/pull/40))
+  - It's no longer possible to import files from `./dist` directly.
+
 ## [6.0.0]
 
 ### Changed
@@ -209,7 +216,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@6.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@7.0.0...HEAD
+[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@6.0.0...@metamask/eth-ledger-bridge-keyring@7.0.0
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@5.0.1...@metamask/eth-ledger-bridge-keyring@6.0.0
 [5.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@5.0.0...@metamask/eth-ledger-bridge-keyring@5.0.1
 [5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.4...@metamask/eth-ledger-bridge-keyring@5.0.0
