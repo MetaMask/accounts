@@ -494,18 +494,6 @@ export class LedgerKeyring extends EventEmitter {
 
     const { domain, types, primaryType, message } =
       TypedDataUtils.sanitizeData(data);
-    const domainSeparatorHex = TypedDataUtils.hashStruct(
-      'EIP712Domain',
-      domain,
-      types,
-      SignTypedDataVersion.V4,
-    ).toString('hex');
-    const hashStructMessageHex = TypedDataUtils.hashStruct(
-      primaryType.toString(),
-      message,
-      types,
-      SignTypedDataVersion.V4,
-    ).toString('hex');
 
     const hdPath = await this.unlockAccountByAddress(withAccount);
 
@@ -513,12 +501,24 @@ export class LedgerKeyring extends EventEmitter {
       throw new Error('Ledger: Unknown error while signing message');
     }
 
+    const pt = primaryType.toString();
+
     let payload;
     try {
       payload = await this.bridge.deviceSignTypedData({
         hdPath,
-        domainSeparatorHex,
-        hashStructMessageHex,
+        message: {
+          domain: {
+            name: domain.name,
+            chainId: domain.chainId,
+            version: domain.version,
+            verifyingContract: domain.verifyingContract,
+            salt: domain.salt? new TextDecoder().decode(domain.salt): undefined,
+          },
+          types,
+          primaryType: pt,
+          message,
+        },
       });
     } catch (error) {
       throw error instanceof Error

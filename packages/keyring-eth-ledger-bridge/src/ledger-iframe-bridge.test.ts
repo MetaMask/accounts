@@ -443,8 +443,18 @@ describe('LedgerIframeBridge', function () {
       };
       const params = {
         hdPath: "m/44'/60'/0'/0",
-        domainSeparatorHex: '',
-        hashStructMessageHex: '',
+        message: {
+          domain: {
+            chainId: 1,
+            verifyingContract: '0xdsf',
+          },
+          primaryType: 'string',
+          types: {
+            EIP712Domain: [],
+            string: [],
+          },
+          message: { test: 'test' },
+        },
       };
 
       stubKeyringIFramePostMessage(bridge, (message) => {
@@ -475,8 +485,18 @@ describe('LedgerIframeBridge', function () {
       const errorMessage = 'Ledger Error';
       const params = {
         hdPath: "m/44'/60'/0'/0",
-        domainSeparatorHex: '',
-        hashStructMessageHex: '',
+        message: {
+          domain: {
+            chainId: 1,
+            verifyingContract: '0xdsf',
+          },
+          primaryType: 'string',
+          types: {
+            EIP712Domain: [],
+            string: [],
+          },
+          message: { test: 'test' },
+        },
       };
 
       stubKeyringIFramePostMessage(bridge, (message) => {
