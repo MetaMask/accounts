@@ -1,4 +1,3 @@
-import ledgerService from '@ledgerhq/hw-app-eth/lib/services/ledger';
 import Transport from '@ledgerhq/hw-transport';
 import { EIP712Message } from '@ledgerhq/types-live';
 
@@ -21,7 +20,7 @@ describe('LedgerMobileBridge', function () {
 
   const mockEthApp = {
     signEIP712Message: jest.fn(),
-    clearSignTransaction : jest.fn(),
+    clearSignTransaction: jest.fn(),
     getAddress: jest.fn(),
     signPersonalMessage: jest.fn(),
     openEthApp: jest.fn(),
