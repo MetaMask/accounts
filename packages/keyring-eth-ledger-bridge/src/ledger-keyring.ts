@@ -513,7 +513,9 @@ export class LedgerKeyring extends EventEmitter {
             chainId: domain.chainId,
             version: domain.version,
             verifyingContract: domain.verifyingContract,
-            salt: domain.salt? new TextDecoder().decode(domain.salt): undefined,
+            salt: domain.salt
+              ? new TextDecoder().decode(domain.salt)
+              : undefined,
           },
           types,
           primaryType: pt,
