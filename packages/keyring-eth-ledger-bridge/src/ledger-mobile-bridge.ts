@@ -112,9 +112,7 @@ export class LedgerMobileBridge implements MobileBridge {
     tx,
     hdPath,
   }: LedgerSignTransactionParams): Promise<LedgerSignTransactionResponse> {
-    const ethApp = this.#getEthApp();
-
-    return ethApp.clearSignTransaction(hdPath, tx, {
+    return this.#getEthApp().clearSignTransaction(hdPath, tx, {
       externalPlugins: true,
       erc20: true,
       nft: true,
