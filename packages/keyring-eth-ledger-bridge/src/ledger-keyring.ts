@@ -514,7 +514,7 @@ export class LedgerKeyring extends EventEmitter {
             version: domain.version,
             verifyingContract: domain.verifyingContract,
             salt: domain.salt
-              ? new TextDecoder().decode(domain.salt)
+              ? this.#arrayBufferToString(domain.salt)
               : undefined,
           },
           types,
@@ -560,6 +560,11 @@ export class LedgerKeyring extends EventEmitter {
     this.paths = {};
     this.accountDetails = {};
     this.hdk = new HDKey();
+  }
+
+  #arrayBufferToString(buffer: ArrayBuffer): string {
+    const uint8Array = new Uint8Array(buffer);
+    return String.fromCharCode(...uint8Array);
   }
 
   /* PRIVATE METHODS */
