@@ -928,6 +928,7 @@ describe('LedgerKeyring', function () {
           name: 'Ether Mail',
           verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
           version: '1',
+          salt: new TextEncoder().encode('hello'),
         },
         message: {
           contents: 'Hello, Bob!',
@@ -993,6 +994,33 @@ describe('LedgerKeyring', function () {
         const result = await keyring.signTypedData(
           fakeAccounts[15],
           fixtureData,
+          options,
+        );
+        expect(result).toBe(
+          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e321b',
+        );
+      });
+
+      it('resolves properly when message domain salt is undefined', async function () {
+        const fixtureDataWithoutSalt = {
+          ...fixtureData,
+          domain: {
+            ...fixtureData.domain,
+            salt: undefined,
+          },
+        };
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignTypedData')
+          .mockImplementation(async () => ({
+            v: 27,
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          }));
+
+        const result = await keyring.signTypedData(
+          fakeAccounts[15],
+          fixtureDataWithoutSalt,
           options,
         );
         expect(result).toBe(
