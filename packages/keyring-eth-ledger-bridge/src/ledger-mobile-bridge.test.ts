@@ -168,18 +168,18 @@ describe('LedgerMobileBridge', function () {
       });
     });
 
-    // it('throws an error when tx format is not correct', async function () {
-    //   const hdPath = "m/44'/60'/0'/0/0";
-    //   const tx = '';
-    //   await expect(
-    //     bridge.deviceSignTransaction({
-    //       hdPath,
-    //       tx,
-    //     }),
-    //   ).rejects.toThrow(Error);
-    //   expect(transportMiddlewareGetEthAppSpy).toHaveBeenCalledTimes(0);
-    //   expect(mockEthApp.clearSignTransaction).toHaveBeenCalledTimes(0);
-    // });
+    it('returns undefined when tx format is not correct', async function () {
+      const hdPath = "m/44'/60'/0'/0/0";
+      const tx = '';
+      expect(
+        await bridge.deviceSignTransaction({
+          hdPath,
+          tx,
+        }),
+      ).toBeUndefined();
+      expect(transportMiddlewareGetEthAppSpy).toHaveBeenCalledTimes(1);
+      expect(mockEthApp.clearSignTransaction).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('deviceSignTypedData', function () {
