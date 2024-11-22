@@ -1,11 +1,11 @@
-const {
+import {
   privateToPublic,
   publicToAddress,
   ecsign,
   arrToBufArr,
   bufferToHex,
-} = require('@ethereumjs/util');
-const {
+} from '@ethereumjs/util';
+import {
   concatSig,
   decrypt,
   getEncryptionPublicKey,
@@ -13,13 +13,18 @@ const {
   personalSign,
   signTypedData,
   SignTypedDataVersion,
-} = require('@metamask/eth-sig-util');
-const bip39 = require('@metamask/scure-bip39');
-const { wordlist } = require('@metamask/scure-bip39/dist/wordlists/english');
-const { assertIsHexString, remove0x } = require('@metamask/utils');
-const { HDKey } = require('ethereum-cryptography/hdkey');
-const { keccak256 } = require('ethereum-cryptography/keccak');
-const { bytesToHex } = require('ethereum-cryptography/utils');
+} from '@metamask/eth-sig-util';
+import {
+  generateMnemonic,
+  // eslint-disable-next-line n/no-sync
+  mnemonicToSeedSync,
+  validateMnemonic,
+} from '@metamask/scure-bip39';
+import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
+import { assertIsHexString, remove0x } from '@metamask/utils';
+import { HDKey } from 'ethereum-cryptography/hdkey';
+import { keccak256 } from 'ethereum-cryptography/keccak';
+import { bytesToHex } from 'ethereum-cryptography/utils';
 
 // Options:
 const hdPathString = `m/44'/60'/0'/0`;
@@ -34,7 +39,7 @@ class HdKeyring {
   }
 
   generateRandomMnemonic() {
-    this._initFromMnemonic(bip39.generateMnemonic(wordlist));
+    this._initFromMnemonic(generateMnemonic(wordlist));
   }
 
   _uint8ArrayToString(mnemonic) {
@@ -287,7 +292,7 @@ class HdKeyring {
     this.mnemonic = this._mnemonicToUint8Array(mnemonic);
 
     // validate before initializing
-    const isValid = bip39.validateMnemonic(this.mnemonic, wordlist);
+    const isValid = validateMnemonic(this.mnemonic, wordlist);
     if (!isValid) {
       throw new Error(
         'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
@@ -295,7 +300,7 @@ class HdKeyring {
     }
 
     // eslint-disable-next-line n/no-sync
-    const seed = bip39.mnemonicToSeedSync(this.mnemonic, wordlist);
+    const seed = mnemonicToSeedSync(this.mnemonic, wordlist);
     this.hdWallet = HDKey.fromMasterSeed(seed);
     this.root = this.hdWallet.derive(this.hdPath);
   }
@@ -309,4 +314,4 @@ class HdKeyring {
 }
 
 HdKeyring.type = type;
-module.exports = HdKeyring;
+export default HdKeyring;
