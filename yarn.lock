@@ -2000,6 +2000,7 @@ __metadata:
     "@metamask/keyring-api": "workspace:^"
     "@metamask/keyring-internal-api": "workspace:^"
     "@metamask/keyring-snap-internal-client": "workspace:^"
+    "@metamask/keyring-utils": "workspace:^"
     "@metamask/providers": "npm:^18.1.0"
     "@metamask/snaps-controllers": "npm:^9.10.0"
     "@metamask/snaps-sdk": "npm:^6.7.0"

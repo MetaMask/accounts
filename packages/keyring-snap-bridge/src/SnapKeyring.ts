@@ -7,17 +7,13 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
-  AccountCreatedEventStruct,
-  AccountDeletedEventStruct,
-  AccountUpdatedEventStruct,
-  EthBaseUserOperationStruct,
   EthBytesStruct,
   EthMethod,
+  EthScopes,
+  EthBaseUserOperationStruct,
   EthUserOperationPatchStruct,
   isEvmAccountType,
   KeyringEvent,
-  RequestApprovedEventStruct,
-  RequestRejectedEventStruct,
 } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
@@ -31,6 +27,7 @@ import type {
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { KeyringSnapControllerClient } from '@metamask/keyring-snap-internal-client';
+import { strictMask } from '@metamask/keyring-utils';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { Snap } from '@metamask/snaps-utils';
@@ -44,7 +41,15 @@ import {
 import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
+import type { KeyringAccountFromEvent } from './account';
 import { DeferredPromise } from './DeferredPromise';
+import {
+  AccountCreatedEventStruct,
+  AccountUpdatedEventStruct,
+  AccountDeletedEventStruct,
+  RequestApprovedEventStruct,
+  RequestRejectedEventStruct,
+} from './events';
 import { projectLogger as log } from './logger';
 import { SnapIdMap } from './SnapIdMap';
 import type { SnapMessage } from './types';
@@ -52,7 +57,6 @@ import { SnapMessageStruct } from './types';
 import {
   equalsIgnoreCase,
   sanitizeUrl,
-  strictMask,
   throwError,
   toJson,
   unique,
@@ -168,6 +172,28 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Transform an account coming from events. This account might have optional fields that
+   * are required by the Keyring API. This function will automatically provides the missing
+   * fields with some default values.
+   *
+   * @param account - The account (coming from keyring events) to transform.
+   * @returns A valid KeyringAccount.
+   */
+  #transformAccountFromEvent(account: KeyringAccountFromEvent): KeyringAccount {
+    if (account.scopes !== undefined) {
+      return account as KeyringAccount;
+    }
+
+    // If no scope is provided, we add a default scopes and consider this account as an EVM account.
+    return {
+      ...account,
+
+      // This account will be compatible for any EVM networks (which is why we use "namespace" here).
+      scopes: [EthScopes.Namespace],
+    };
+  }
+
+  /**
    * Handle an Account Created event from a Snap.
    *
    * @param snapId - Snap ID.
@@ -179,8 +205,15 @@ export class SnapKeyring extends EventEmitter {
     message: SnapMessage,
   ): Promise<null> {
     assert(message, AccountCreatedEventStruct);
-    const { account, accountNameSuggestion, displayConfirmation } =
-      message.params;
+    const {
+      account: newAccountFromEvent,
+      accountNameSuggestion,
+      displayConfirmation,
+    } = message.params;
+
+    // To keep the retro-compatibility with older keyring-api versions, we mark some fields
+    // as optional and provide them here if they are missing.
+    const account = this.#transformAccountFromEvent(newAccountFromEvent);
 
     // The UI still uses the account address to identify accounts, so we need
     // to block the creation of duplicate accounts for now to prevent accounts
@@ -223,10 +256,14 @@ export class SnapKeyring extends EventEmitter {
     message: SnapMessage,
   ): Promise<null> {
     assert(message, AccountUpdatedEventStruct);
-    const { account: newAccount } = message.params;
+    const { account: newAccountFromEvent } = message.params;
     const { account: oldAccount } =
-      this.#accounts.get(snapId, newAccount.id) ??
-      throwError(`Account '${newAccount.id}' not found`);
+      this.#accounts.get(snapId, newAccountFromEvent.id) ??
+      throwError(`Account '${newAccountFromEvent.id}' not found`);
+
+    // To keep the retro-compatibility with older keyring-api versions, we mark some fields
+    // as optional and provide them here if they are missing.
+    const newAccount = this.#transformAccountFromEvent(newAccountFromEvent);
 
     // The address of the account cannot be changed. In the future, we will
     // support changing the address of an account since it will be required to

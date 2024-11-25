@@ -323,6 +323,56 @@ describe('SnapKeyring', () => {
           },
         );
       });
+
+      it('creates an account and registers it properly', async () => {
+        // Reset the keyring so it's empty.
+        keyring = new SnapKeyring(
+          mockSnapController as unknown as SnapController,
+          mockCallbacks,
+        );
+
+        const account = ethEoaAccount1;
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account,
+          },
+        });
+
+        const keyringAccounts = keyring.listAccounts();
+        expect(keyringAccounts.length).toBeGreaterThan(0);
+        expect(keyringAccounts[0]).toStrictEqual({
+          ...account,
+          metadata: expect.any(Object),
+        });
+      });
+
+      it('creates the account and set a default scopes if not provided', async () => {
+        // Reset the keyring so it's empty.
+        keyring = new SnapKeyring(
+          mockSnapController as unknown as SnapController,
+          mockCallbacks,
+        );
+
+        // Omit `scopes` from `account`.
+        const { scopes: _, ...account } = ethEoaAccount1;
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: account as unknown as KeyringAccount,
+          },
+        });
+
+        const keyringAccounts = keyring.listAccounts();
+        expect(keyringAccounts.length).toBeGreaterThan(0);
+        expect(keyringAccounts[0]).toStrictEqual({
+          ...account,
+          metadata: expect.any(Object),
+          // By default, new EVM accounts will have this scopes if it not provided
+          // during the account creation flow.
+          scopes: [EthScopes.Namespace],
+        });
+      });
     });
 
     describe('#handleAccountUpdated', () => {
@@ -459,6 +509,25 @@ describe('SnapKeyring', () => {
         ).rejects.toThrow(
           `Method '${EthMethod.SignTransaction}' not supported for account ${ethEoaAccount1.address}`,
         );
+      });
+
+      it('updates the account and set a default scopes if not provided', async () => {
+        // Omit `scopes` from `account`.
+        const { scopes: _, ...account } = ethEoaAccount1;
+
+        // Return the updated list of accounts when the keyring requests it.
+        mockSnapController.handleRequest.mockResolvedValue([{ ...account }]);
+
+        expect(
+          await keyring.handleKeyringSnapMessage(snapId, {
+            method: KeyringEvent.AccountUpdated,
+            params: { account },
+          }),
+        ).toBeNull();
+
+        const keyringAccounts = keyring.listAccounts();
+        expect(keyringAccounts.length).toBeGreaterThan(0);
+        expect(keyringAccounts[0]?.scopes).toStrictEqual([EthScopes.Namespace]);
       });
     });
 
