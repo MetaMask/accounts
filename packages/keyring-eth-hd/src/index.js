@@ -14,11 +14,8 @@ import {
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
-import {
-  generateMnemonic,
-  mnemonicToSeed,
-  validateMnemonic,
-} from '@metamask/scure-bip39';
+import { generateMnemonic } from '@metamask/scure-bip39';
+import { mnemonicToSeed } from '@metamask/key-tree';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { assertIsHexString, remove0x } from '@metamask/utils';
 import { HDKey } from 'ethereum-cryptography/hdkey';
@@ -30,10 +27,13 @@ const hdPathString = `m/44'/60'/0'/0`;
 const type = 'HD Key Tree';
 
 class HdKeyring {
+  #cryptographicFunctions;
+
   /* PUBLIC METHODS */
-  constructor() {
+  constructor(opts = {}) {
     this.type = type;
     this._wallets = [];
+    this.#cryptographicFunctions = opts.cryptographicFunctions;
   }
 
   async generateRandomMnemonic() {
@@ -289,15 +289,11 @@ class HdKeyring {
 
     this.mnemonic = this._mnemonicToUint8Array(mnemonic);
 
-    // validate before initializing
-    const isValid = validateMnemonic(this.mnemonic, wordlist);
-    if (!isValid) {
-      throw new Error(
-        'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
-      );
-    }
-
-    const seed = await mnemonicToSeed(this.mnemonic, wordlist);
+    const seed = await mnemonicToSeed(
+      this.mnemonic,
+      '',
+      this.#cryptographicFunctions,
+    );
     this.hdWallet = HDKey.fromMasterSeed(seed);
     this.root = this.hdWallet.derive(this.hdPath);
   }
