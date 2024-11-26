@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(keyring-eth-hd): allow passing native implementations of cryptography ([#102](https://github.com/MetaMask/accounts/pull/102))
+- refactor(keyring-eth-hd)!: move seed generation to deserialization ([#100](https://github.com/MetaMask/accounts/pull/100))
+- build!: build packages with `ts-bridge` ([#40](https://github.com/MetaMask/accounts/pull/40))
+
 ## [8.0.0]
 
 ### Changed
