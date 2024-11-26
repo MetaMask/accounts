@@ -23,10 +23,10 @@ module.exports = merge(baseConfig, {
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
     global: {
-      branches: 90.14,
-      functions: 95.95,
-      lines: 94.77,
-      statements: 94.83,
+      branches: 91.91,
+      functions: 96,
+      lines: 95.02,
+      statements: 95.07,
     },
   },
 });
