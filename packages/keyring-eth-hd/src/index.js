@@ -27,13 +27,13 @@ const hdPathString = `m/44'/60'/0'/0`;
 const type = 'HD Key Tree';
 
 class HdKeyring {
-  #cryptographicFunctions;
+  _cryptographicFunctions;
 
   /* PUBLIC METHODS */
   constructor(opts = {}) {
     this.type = type;
     this._wallets = [];
-    this.#cryptographicFunctions = opts.cryptographicFunctions;
+    this._cryptographicFunctions = opts.cryptographicFunctions;
   }
 
   async generateRandomMnemonic() {
@@ -292,7 +292,7 @@ class HdKeyring {
     const seed = await mnemonicToSeed(
       this.mnemonic,
       '',
-      this.#cryptographicFunctions,
+      this._cryptographicFunctions,
     );
     this.hdWallet = HDKey.fromMasterSeed(seed);
     this.root = this.hdWallet.derive(this.hdPath);
