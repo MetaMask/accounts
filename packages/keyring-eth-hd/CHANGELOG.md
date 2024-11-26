@@ -12,8 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING**: Move seed generation to deserialization ([#100](https://github.com/MetaMask/accounts/pull/100))
+  - Using the constructor directly no longer generates the seed required for account derivation.
   - Both `serialize` and `deserialize` are now proper `async` methods.
-- **BREAKING**: Allow passing native custom cryptographics functions ([#102](https://github.com/MetaMask/accounts/pull/102))
+- **BREAKING**: Allow passing native custom cryptographic functions ([#102](https://github.com/MetaMask/accounts/pull/102))
   - The seed generation is now relying `@metamask/key-tree` package (instead of `@metamask/scure-bip39`).
   - The `constructor` now allows a new option `cryptographicFunctions` which allows the use of custom cryptographics functions during seed generation.
 
