@@ -9,13 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.0.0]
 
-### Uncategorized
+### Changed
 
-- Revert "release: 13.0.0 (#103)" ([#103](https://github.com/MetaMask/accounts/pull/103))
-- release: 13.0.0 ([#103](https://github.com/MetaMask/accounts/pull/103))
-- feat(keyring-eth-hd): allow passing native implementations of cryptography ([#102](https://github.com/MetaMask/accounts/pull/102))
-- refactor(keyring-eth-hd)!: move seed generation to deserialization ([#100](https://github.com/MetaMask/accounts/pull/100))
-- build!: build packages with `ts-bridge` ([#40](https://github.com/MetaMask/accounts/pull/40))
+- **BREAKING**: Move seed generation to deserialization ([#100](https://github.com/MetaMask/accounts/pull/100))
+  - Using the constructor directly no longer generates the seed required for account derivation.
+  - Both `serialize` and `deserialize` are now proper `async` methods.
+- Allow passing native custom cryptographic functions ([#102](https://github.com/MetaMask/accounts/pull/102))
+  - The seed generation is now relying `@metamask/key-tree` package (instead of `@metamask/scure-bip39`).
+  - The `constructor` now allows a new option `cryptographicFunctions` which allows the use of custom cryptographic functions during seed generation.
 
 ## [8.0.0]
 
