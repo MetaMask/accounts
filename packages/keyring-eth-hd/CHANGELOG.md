@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.0.0]
 
-### Uncategorized
+### Changed
 
-- feat(keyring-eth-hd): allow passing native implementations of cryptography ([#102](https://github.com/MetaMask/accounts/pull/102))
-- refactor(keyring-eth-hd)!: move seed generation to deserialization ([#100](https://github.com/MetaMask/accounts/pull/100))
-- build!: build packages with `ts-bridge` ([#40](https://github.com/MetaMask/accounts/pull/40))
+- **BREAKING**: Move seed generation to deserialization ([#100](https://github.com/MetaMask/accounts/pull/100))
+  - Both `serialize` and `deserialize` are now proper `async` methods.
+- **BREAKING**: Allow passing native custom cryptographics functions ([#102](https://github.com/MetaMask/accounts/pull/102))
+  - The seed generation is now relying `@metamask/key-tree` package (instead of `@metamask/scure-bip39`).
+  - The `constructor` now allows a new option `cryptographicFunctions` which allows the use of custom cryptographics functions during seed generation.
 
 ## [8.0.0]
 
