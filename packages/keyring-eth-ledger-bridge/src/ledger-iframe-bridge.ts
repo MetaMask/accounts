@@ -117,7 +117,7 @@ export class LedgerIframeBridge
   ) {
     this.#validateConfiguration(opts);
     this.#opts = {
-      bridgeUrl: opts?.bridgeUrl,
+      bridgeUrl: opts.bridgeUrl,
     };
   }
 
@@ -141,7 +141,7 @@ export class LedgerIframeBridge
 
   async setOptions(opts: LedgerIframeBridgeOptions): Promise<void> {
     this.#validateConfiguration(opts);
-    if (this.#opts?.bridgeUrl !== opts.bridgeUrl) {
+    if (this.#opts.bridgeUrl !== opts.bridgeUrl) {
       this.#opts.bridgeUrl = opts.bridgeUrl;
       await this.destroy();
       await this.init();
