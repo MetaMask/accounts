@@ -1875,7 +1875,7 @@ __metadata:
     "@metamask/bip39": "npm:^4.0.0"
     "@metamask/eth-hd-keyring": "npm:4.0.1"
     "@metamask/eth-sig-util": "npm:^8.0.0"
-    "@metamask/key-tree": "npm:^9.1.2"
+    "@metamask/key-tree": "npm:^10.0.0"
     "@metamask/scure-bip39": "npm:^2.1.1"
     "@metamask/utils": "npm:^9.2.1"
     "@ts-bridge/cli": "npm:^0.6.0"
@@ -2099,6 +2099,19 @@ __metadata:
     "@metamask/utils": "npm:^9.1.0"
     readable-stream: "npm:^3.6.2"
   checksum: 10/93c842e1ac8e624c65d888cb3539b38ade5b8415ea45f649d78dad91e7139f11fa96bbf89136998d21def7711b3f710939f8e4498ce31a6cf461892e3f4ba176
+  languageName: node
+  linkType: hard
+
+"@metamask/key-tree@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@metamask/key-tree@npm:10.0.0"
+  dependencies:
+    "@metamask/scure-bip39": "npm:^2.1.1"
+    "@metamask/utils": "npm:^10.0.1"
+    "@noble/curves": "npm:^1.2.0"
+    "@noble/hashes": "npm:^1.3.2"
+    "@scure/base": "npm:^1.0.0"
+  checksum: 10/a9f1b3d28e41b84ab11a811abb3e0809b4919da642778136c3a9f67b035961920ee31546e7fcb452da2e0781c15fa2427da9de353e99bc83f56da10a2d35d0d3
   languageName: node
   linkType: hard
 
@@ -2412,6 +2425,23 @@ __metadata:
   version: 3.1.0
   resolution: "@metamask/superstruct@npm:3.1.0"
   checksum: 10/5066fe228d5f11da387606d7f9545de2b473ab5a9e0f1bb8aea2f52d3e2c9d25e427151acde61f4a2de80a07a9871fe9505ad06abca6a61b7c3b54ed5c403b01
+  languageName: node
+  linkType: hard
+
+"@metamask/utils@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@metamask/utils@npm:10.0.1"
+  dependencies:
+    "@ethereumjs/tx": "npm:^4.2.0"
+    "@metamask/superstruct": "npm:^3.1.0"
+    "@noble/hashes": "npm:^1.3.1"
+    "@scure/base": "npm:^1.1.3"
+    "@types/debug": "npm:^4.1.7"
+    debug: "npm:^4.3.4"
+    pony-cause: "npm:^2.1.10"
+    semver: "npm:^7.5.4"
+    uuid: "npm:^9.0.1"
+  checksum: 10/c8e3d7578d05a1da4abb6c6712ec78ef6990801269f6529f4bb237b7d6e228d10a40738ccab81ad554f2fd51670267d086dc5be1a31c6d1f7040d4c0469d9d13
   languageName: node
   linkType: hard
 
