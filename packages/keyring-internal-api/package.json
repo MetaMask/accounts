@@ -32,10 +32,9 @@
     "dist/"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
-    "build:clean": "rimraf dist && yarn build",
+    "build": "ts-bridge --project tsconfig.build.json --no-references",
+    "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "build:force": "tsc --build tsconfig.build.json --force",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-internal-api",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-internal-api",
     "publish:preview": "yarn npm publish --tag preview",
