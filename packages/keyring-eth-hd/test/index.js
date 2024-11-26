@@ -18,6 +18,7 @@ import {
   encrypt,
 } from '@metamask/eth-sig-util';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
+import { webcrypto } from 'crypto';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 
 import HdKeyring from '../src';
@@ -192,8 +193,7 @@ describe('hd-keyring', () => {
 
     it('deserializes using custom cryptography', async () => {
       const pbkdf2Sha512 = async (password, salt, iterations, keyLength) => {
-        /* eslint-disable no-restricted-globals */
-        const key = await crypto.subtle.importKey(
+        const key = await webcrypto.subtle.importKey(
           'raw',
           password,
           { name: 'PBKDF2' },
@@ -201,7 +201,7 @@ describe('hd-keyring', () => {
           ['deriveBits'],
         );
 
-        const derivedBits = await crypto.subtle.deriveBits(
+        const derivedBits = await webcrypto.subtle.deriveBits(
           {
             name: 'PBKDF2',
             salt,
@@ -211,7 +211,6 @@ describe('hd-keyring', () => {
           key,
           keyLength * 8,
         );
-        /* eslint-enable no-restricted-globals */
 
         return new Uint8Array(derivedBits);
       };
