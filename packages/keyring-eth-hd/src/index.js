@@ -31,6 +31,7 @@ class HdKeyring {
   constructor(opts = {}) {
     this.type = type;
     this._wallets = [];
+    // Cryptographic functions to be used by `@metamask/key-tree`. It will use built-in implementations if not provided here.
     this._cryptographicFunctions = opts.cryptographicFunctions;
   }
 
@@ -289,7 +290,7 @@ class HdKeyring {
 
     const seed = await mnemonicToSeed(
       this.mnemonic,
-      '',
+      '', // No passphrase
       this._cryptographicFunctions,
     );
     this.hdWallet = HDKey.fromMasterSeed(seed);
