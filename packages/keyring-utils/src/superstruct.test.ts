@@ -1,6 +1,6 @@
 import { is, literal, max, number, string, union } from '@metamask/superstruct';
 
-import { exactOptional, object } from '.';
+import { exactOptional, object, strictMask } from '.';
 
 describe('@metamask/superstruct', () => {
   describe('exactOptional', () => {
@@ -68,5 +68,26 @@ describe('@metamask/superstruct', () => {
       expect(is({ foo: -1 }, struct)).toBe(true);
       expect(is({ foo: 1 }, struct)).toBe(false);
     });
+  });
+
+  describe('strictMask', () => {
+    const struct = object({
+      foo: string(),
+      bar: number(),
+    });
+
+    it('is valid',
+      () => {
+        expect(() => strictMask({ foo: 'foo', bar: 1 }, struct)).not.toThrow();
+      },
+    );
+
+    it('fails if the object is not strictly matching',
+      () => {
+        expect(() => strictMask({ foo: 'foo', bar: 1, zzz: [] }, struct)).toThrow();
+        expect(() => strictMask({ foo: 'foo' }, struct)).toThrow();
+        expect(() => strictMask({ bar: 1 }, struct)).toThrow();
+      },
+    );
   });
 });
