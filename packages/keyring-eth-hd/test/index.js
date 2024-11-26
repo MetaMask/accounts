@@ -191,7 +191,8 @@ describe('hd-keyring', () => {
     });
 
     it('deserializes using custom cryptography', async () => {
-      async function pbkdf2Sha512(password, salt, iterations, keyLength) {
+      const pbkdf2Sha512 = async (password, salt, iterations, keyLength) => {
+        /* eslint-disable no-restricted-globals */
         const key = await crypto.subtle.importKey(
           'raw',
           password,
@@ -210,9 +211,10 @@ describe('hd-keyring', () => {
           key,
           keyLength * 8,
         );
+        /* eslint-enable no-restricted-globals */
 
         return new Uint8Array(derivedBits);
-      }
+      };
 
       const cryptographicFunctions = {
         pbkdf2Sha512: jest.fn().mockImplementation(pbkdf2Sha512),

@@ -14,8 +14,8 @@ import {
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
-import { generateMnemonic } from '@metamask/scure-bip39';
 import { mnemonicToSeed } from '@metamask/key-tree';
+import { generateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { assertIsHexString, remove0x } from '@metamask/utils';
 import { HDKey } from 'ethereum-cryptography/hdkey';
@@ -27,8 +27,6 @@ const hdPathString = `m/44'/60'/0'/0`;
 const type = 'HD Key Tree';
 
 class HdKeyring {
-  _cryptographicFunctions;
-
   /* PUBLIC METHODS */
   constructor(opts = {}) {
     this.type = type;
