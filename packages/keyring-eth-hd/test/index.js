@@ -18,6 +18,7 @@ import {
   encrypt,
 } from '@metamask/eth-sig-util';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
+import { webcrypto } from 'crypto';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 
 import HdKeyring from '../src';
@@ -190,6 +191,46 @@ describe('hd-keyring', () => {
       expect(accounts[1]).toStrictEqual(secondAcct);
     });
 
+    it('deserializes using custom cryptography', async () => {
+      const pbkdf2Sha512 = async (password, salt, iterations, keyLength) => {
+        const key = await webcrypto.subtle.importKey(
+          'raw',
+          password,
+          { name: 'PBKDF2' },
+          false,
+          ['deriveBits'],
+        );
+
+        const derivedBits = await webcrypto.subtle.deriveBits(
+          {
+            name: 'PBKDF2',
+            salt,
+            iterations,
+            hash: { name: 'SHA-512' },
+          },
+          key,
+          keyLength * 8,
+        );
+
+        return new Uint8Array(derivedBits);
+      };
+
+      const cryptographicFunctions = {
+        pbkdf2Sha512: jest.fn().mockImplementation(pbkdf2Sha512),
+      };
+      const keyring = new HdKeyring({ cryptographicFunctions });
+
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+        numberOfAccounts: 2,
+      });
+
+      const accounts = await keyring.getAccounts();
+      expect(accounts[0]).toStrictEqual(firstAcct);
+      expect(accounts[1]).toStrictEqual(secondAcct);
+      expect(cryptographicFunctions.pbkdf2Sha512).toHaveBeenCalledTimes(1);
+    });
+
     it('throws on invalid mnemonic', async () => {
       const keyring = new HdKeyring();
 
@@ -199,7 +240,7 @@ describe('hd-keyring', () => {
           numberOfAccounts: 2,
         }),
       ).rejects.toThrow(
-        'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
+        'Invalid mnemonic phrase: The mnemonic phrase must consist of 12, 15, 18, 21, or 24 words.',
       );
     });
 
