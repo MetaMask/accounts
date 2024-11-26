@@ -177,6 +177,29 @@ describe('LedgerIframeBridge', function () {
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
+
+    it('throws an error when unknown error occur', async function () {
+      const errorMessage = 'Unknown error occurred';
+
+      stubKeyringIFramePostMessage(bridge, (message) => {
+        expect(message).toStrictEqual({
+          action: IFrameMessageAction.LedgerMakeApp,
+          messageId: 1,
+          target: LEDGER_IFRAME_ID,
+        });
+
+        bridge.messageCallbacks[message.messageId]?.({
+          action: IFrameMessageAction.LedgerMakeApp,
+          messageId: 1,
+          success: false,
+        });
+      });
+
+      await expect(bridge.attemptMakeApp()).rejects.toThrow(errorMessage);
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
+    });
   });
 
   describe('updateTransportMethod', function () {
