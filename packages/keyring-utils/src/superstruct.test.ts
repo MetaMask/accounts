@@ -76,18 +76,16 @@ describe('@metamask/superstruct', () => {
       bar: number(),
     });
 
-    it('is valid',
-      () => {
-        expect(() => strictMask({ foo: 'foo', bar: 1 }, struct)).not.toThrow();
-      },
-    );
+    it('is valid', () => {
+      expect(() => strictMask({ foo: 'foo', bar: 1 }, struct)).not.toThrow();
+    });
 
-    it('fails if the object is not strictly matching',
-      () => {
-        expect(() => strictMask({ foo: 'foo', bar: 1, zzz: [] }, struct)).toThrow();
-        expect(() => strictMask({ foo: 'foo' }, struct)).toThrow();
-        expect(() => strictMask({ bar: 1 }, struct)).toThrow();
-      },
-    );
+    it('fails if the object is not strictly matching', () => {
+      expect(() =>
+        strictMask({ foo: 'foo', bar: 1, zzz: [] }, struct),
+      ).toThrow();
+      expect(() => strictMask({ foo: 'foo' }, struct)).toThrow();
+      expect(() => strictMask({ bar: 1 }, struct)).toThrow();
+    });
   });
 });

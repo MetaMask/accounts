@@ -1,13 +1,24 @@
 import { is, assert } from '@metamask/superstruct';
 
-import { StringNumberStruct, UrlStruct } from './types';
+import { StringNumberStruct, UrlStruct, UuidStruct } from './types';
 
-describe('types', () => {
-  it('is a valid URL', () => {
-    const url = 'https://api.example.com';
-    expect(() => assert(url, UrlStruct)).not.toThrow();
+describe('UuidStruct', () => {
+  it('is a valid UUID', () => {
+    const uuid = '47d782ac-15c8-4c81-8bfe-759ae1be4a3e';
+    expect(() => assert(uuid, UuidStruct)).not.toThrow();
   });
 
+  it.each([
+    '',
+    'invalid-uuid',
+    '47d782ac_15c8_4c81_8bfe_759ae1be4a3e',
+    '47d782ac15c84c818bfe759ae1be4a3e',
+  ])('fails if the UUID is a valid', (uuid) => {
+    expect(() => assert(uuid, UuidStruct)).toThrow();
+  });
+});
+
+describe('UrlStruct', () => {
   it('is a valid URL', () => {
     const url = 'https://api.example.com';
     expect(() => assert(url, UrlStruct)).not.toThrow();
