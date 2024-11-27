@@ -6,7 +6,7 @@ import type {
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
-} from '../../eth';
+} from '.';
 
 export type EthKeyring<State extends Json> = Keyring<State> & {
   /**
