@@ -41,7 +41,7 @@
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",
     "test:source": "jest && jest-it-up",
-    "test:types": "tsd",
+    "test:types": "../../scripts/tsd-test.sh ./src",
     "test:watch": "jest --watch"
   },
   "dependencies": {
@@ -82,6 +82,9 @@
     }
   },
   "tsd": {
-    "directory": "src"
+    "directory": "src",
+    "compilerOptions": {
+      "composite": "false"
+    }
   }
 }

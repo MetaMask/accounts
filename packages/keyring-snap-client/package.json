@@ -41,7 +41,7 @@
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",
     "test:source": "jest && jest-it-up",
-    "test:types": "tsd",
+    "test:types": "echo 'No tests to run for now'",
     "test:watch": "jest --watch"
   },
   "dependencies": {
