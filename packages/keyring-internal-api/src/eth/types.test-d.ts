@@ -2,10 +2,10 @@ import { expectAssignable, expectNotAssignable } from 'tsd';
 
 import type { EthEoaAccount, EthErc4337Account } from './types';
 import { EthMethod } from './types';
-import type { KeyringAccount } from '../api';
-import { EthAccountType } from '../api';
-import type { Extends } from '../utils';
-import { expectTrue } from '../utils';
+import type { KeyringAccount } from '@metamask/keyring-api';
+import { EthAccountType } from '@metamask/keyring-api';
+import type { Extends } from '@metamask/keyring-utils';
+import { expectTrue } from '@metamask/keyring-utils';
 
 const id = '606a7759-b0fb-48e4-9874-bab62ff8e7eb';
 const address = '0x000';
