@@ -42,7 +42,6 @@
     "test:clean": "jest --clearCache",
     "test:source": "jest && jest-it-up",
     "test:types": "tsd",
-    "test:verbose": "jest --verbose",
     "test:watch": "jest --watch"
   },
   "dependencies": {
