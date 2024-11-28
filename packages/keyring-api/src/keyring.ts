@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+// This rule seems to be triggering a false positive on the `KeyringAccount`.
+
 import type { Json } from '@metamask/utils';
 
 import type { KeyringAccount } from './account';
