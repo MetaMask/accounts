@@ -26,7 +26,7 @@
       }
     }
   },
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "files": [
     "dist/"
