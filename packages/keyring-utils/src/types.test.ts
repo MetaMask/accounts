@@ -14,7 +14,9 @@ describe('UuidStruct', () => {
     '47d782ac_15c8_4c81_8bfe_759ae1be4a3e',
     '47d782ac15c84c818bfe759ae1be4a3e',
   ])('fails if the UUID is a valid', (uuid) => {
-    expect(() => assert(uuid, UuidStruct)).toThrow();
+    expect(() => assert(uuid, UuidStruct)).toThrow(
+      `Expected a value of type \`UuidV4\`, but received: \`"${uuid}"\``,
+    );
   });
 });
 

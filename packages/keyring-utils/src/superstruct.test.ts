@@ -81,11 +81,15 @@ describe('@metamask/superstruct', () => {
     });
 
     it('fails if the object is not strictly matching', () => {
-      expect(() =>
-        strictMask({ foo: 'foo', bar: 1, zzz: [] }, struct),
-      ).toThrow();
-      expect(() => strictMask({ foo: 'foo' }, struct)).toThrow();
-      expect(() => strictMask({ bar: 1 }, struct)).toThrow();
+      expect(() => strictMask({ foo: 'foo', bar: 1, zzz: [] }, struct)).toThrow(
+        'At path: zzz -- Expected a value of type `never`, but received: ``',
+      );
+      expect(() => strictMask({ foo: 'foo' }, struct)).toThrow(
+        'At path: bar -- Expected a number, but received: undefined',
+      );
+      expect(() => strictMask({ bar: 1 }, struct)).toThrow(
+        'At path: foo -- Expected a string, but received: undefined',
+      );
     });
   });
 });

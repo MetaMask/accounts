@@ -3,7 +3,7 @@ import { is } from '@metamask/superstruct';
 import { KeyringAccountDataStruct } from './export';
 
 describe('KeyringAccountDataStruct', () => {
-  const sym = Symbol();
+  const sym = Symbol('Unique symbol for testing purposes');
   it.each([
     // Valid
     { data: { foo: 'bar' }, expected: true },
