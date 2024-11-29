@@ -250,7 +250,7 @@ export const TransactionStruct = object({
       ]),
 
       /**
-       * UNIX timestamp of when the event was occurred.
+       * UNIX timestamp of when the event occurred.
        */
       timestamp: nullable(number()),
     }),
