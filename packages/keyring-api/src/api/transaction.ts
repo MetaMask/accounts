@@ -202,8 +202,8 @@ export const TransactionStruct = object({
   timestamp: nullable(number()),
 
   /**
-   * Transaction type. This will be used by MetaMask to enrich the transaction
-   * details on the UI.
+   * Transaction type {@see TransactionType}. This will be used by MetaMask to enrich the transaction
+   * details on the UI. 
    *
    * The possible values are:
    *
