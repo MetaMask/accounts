@@ -30,7 +30,7 @@ import { UuidStruct } from '../utils';
  *   address: '0x1234...',
  *   asset: {
  *     fungible: false,
- *     type: 'eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d/771769',
+ *     id: 'eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d/771769',
  *   },
  * },
  * ```
