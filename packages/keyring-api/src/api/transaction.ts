@@ -195,13 +195,6 @@ export const TransactionStruct = object({
   ]),
 
   /**
-   * UNIX timestamp of when the transaction was added to the blockchain. The
-   * timestamp can be null if the transaction has not been included in the
-   * blockchain yet.
-   */
-  timestamp: nullable(number()),
-
-  /**
    * Transaction type. This will be used by MetaMask to enrich the transaction
    * details on the UI.
    *

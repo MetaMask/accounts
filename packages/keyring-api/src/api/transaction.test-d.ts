@@ -4,7 +4,6 @@ import type { Transaction } from './transaction';
 
 expectAssignable<Transaction>({
   id: '0x123',
-  timestamp: null,
   chain: 'eip155:1',
   status: 'submitted',
   type: 'send',
@@ -17,7 +16,6 @@ expectAssignable<Transaction>({
 
 expectAssignable<Transaction>({
   id: '0x123',
-  timestamp: null,
   chain: 'eip155:1',
   status: 'submitted',
   type: 'receive',
@@ -49,7 +47,6 @@ expectAssignable<Transaction>({
 
 expectAssignable<Transaction>({
   id: '0x123',
-  timestamp: 1728648847,
   chain: 'eip155:1',
   status: 'submitted',
   type: 'send',
