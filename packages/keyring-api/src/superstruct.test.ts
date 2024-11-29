@@ -1,6 +1,8 @@
 import type { Struct } from '@metamask/superstruct';
 import {
   assert,
+  coerce,
+  create,
   is,
   literal,
   max,
@@ -87,7 +89,7 @@ describe('selectiveUnion', () => {
 
   const structB = object({
     tag: literal('b'),
-    b: number(),
+    b: coerce(number(), string(), (value) => parseFloat(value)),
   });
 
   const selector = (value: any): Struct<any, any> => {
@@ -120,5 +122,12 @@ describe('selectiveUnion', () => {
     { obj: { tag: 'b', b: 1 }, expected: true },
   ])('returns $expected for is($obj, <struct>)', ({ obj, expected }) => {
     expect(is({ ...obj }, struct)).toBe(expected);
+  });
+
+  it.each([
+    { obj: { tag: 'a', a: 'hi' }, want: { tag: 'a', a: 'hi' } },
+    { obj: { tag: 'b', b: '1' }, want: { tag: 'b', b: 1 } },
+  ])('coerces $obj to $want', ({ obj, want }) => {
+    expect(create(obj, struct)).toStrictEqual(want);
   });
 });
