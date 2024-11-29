@@ -10,17 +10,6 @@ import { object, selectiveUnion } from '../superstruct';
 import { StringNumberStruct } from '../utils';
 
 /**
- * This struct represents an asset. The `fungible` property is used to tag the
- * union type and allow the following pattern:
- *
- * ```ts
- * if (asset.fungible) {
- *   // Use asset.type
- * } else {
- *   // Use asset.id
- * }
- * ```
- * /**
  * Fungible asset struct.
  */
 export const FungibleAssetStruct = object({
@@ -61,7 +50,22 @@ export const NonFungibleAssetStruct = object({
 });
 
 /**
- * Asset struct.
+ * Asset struct. This represents a fungible or non-fungible asset. Fungible
+ * assets include an amount and a unit in addition to the asset type. While
+ * non-fungible assets include only an asset ID.
+ *
+ * See {@link NonFungibleAssetStruct} and {@link FungibleAssetStruct}.
+ *
+ * All assets have a `fungible` property that is used to tag the union and
+ * allow the following pattern:
+ *
+ * ```ts
+ * if (asset.fungible) {
+ *   // Use asset.type
+ * } else {
+ *   // Use asset.id
+ * }
+ * ```
  *
  * @example
  * ```ts

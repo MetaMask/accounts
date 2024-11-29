@@ -34,6 +34,14 @@ import { UuidStruct } from '../utils';
  *   },
  * },
  * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *   address: '0x1234...',
+ *   asset: null,
+ * },
+ * ```
  */
 const ParticipantStruct = object({
   /**
@@ -69,6 +77,9 @@ export enum FeeType {
   Priority = 'priority',
 }
 
+/**
+ * This struct represents a transaction fee.
+ */
 const FeeStruct = object({
   /**
    * Fee type {@see FeeType}.
