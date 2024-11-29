@@ -52,11 +52,6 @@ const ParticipantStruct = object({
  */
 export enum FeeType {
   /**
-   * Transaction fee. It is the fee type if no other fee types applies.
-   */
-  Transaction = 'transaction',
-
-  /**
    * Base fee. It is the minimum fee required to include a transaction in the
    * blockchain.
    *
@@ -78,11 +73,7 @@ const FeeStruct = object({
   /**
    * Fee type.
    */
-  type: enums([
-    `${FeeType.Transaction}`,
-    `${FeeType.Base}`,
-    `${FeeType.Priority}`,
-  ]),
+  type: enums([`${FeeType.Base}`, `${FeeType.Priority}`]),
 
   /**
    * Asset used to pay for the fee.
@@ -163,9 +154,9 @@ export enum TransactionType {
  *       },
  *     },
  *   ],
- *   "fees": [
+ *   fees: [
  *     {
- *       type: 'transaction',
+ *       type: 'priority',
  *       asset: {
  *         fungible: true,
  *         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',

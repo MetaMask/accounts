@@ -223,7 +223,7 @@ describe('KeyringClient', () => {
             to: [],
             fees: [
               {
-                type: 'transaction',
+                type: 'priority',
                 asset: {
                   fungible: true,
                   type: 'eip155:1/slip44:60',
@@ -284,7 +284,7 @@ describe('KeyringClient', () => {
           limit: 2,
         }),
       ).rejects.toThrow(
-        'At path: data.0.fees.0.type -- Expected one of `"transaction","base","priority"`, but received: "invalid-type"',
+        'At path: data.0.fees.0.type -- Expected one of `"base","priority"`, but received: "invalid-type"',
       );
     });
   });
