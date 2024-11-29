@@ -14,8 +14,8 @@ import {
   EthMethod,
   SolAccountType,
   SolMethod,
+  KeyringEvent,
 } from '@metamask/keyring-api';
-import { KeyringEvent } from '@metamask/keyring-api/dist/events';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
@@ -394,7 +394,7 @@ describe('SnapKeyring', () => {
 
       it('fails when the EthMethod is not supported after update', async () => {
         // Update first account to remove `EthMethod.PersonalSign`
-        let updatedMethods = Object.values(EthMethod).filter(
+        let updatedMethods: EthMethod[] = Object.values(EthMethod).filter(
           (method) => method !== EthMethod.PersonalSign,
         );
         expect(

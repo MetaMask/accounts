@@ -5,6 +5,10 @@ import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
 import { LedgerMobileBridge } from './ledger-mobile-bridge';
 import { LedgerTransportMiddleware } from './ledger-transport-middleware';
 
+type MockDeviceModel = {
+  id: string;
+};
+
 const DEVICE_ID = 'DEVICE_ID';
 
 describe('LedgerMobileBridge', function () {
@@ -25,7 +29,7 @@ describe('LedgerMobileBridge', function () {
   };
 
   const mockTransport = {
-    deviceModel: {} || null,
+    deviceModel: { id: '' } as MockDeviceModel, // `id` will be set by `beforeEach`
     send: jest.fn(),
     close: jest.fn(),
     decorateAppAPIMethods: jest.fn(),
@@ -220,7 +224,8 @@ describe('LedgerMobileBridge', function () {
       );
     });
 
-    it('throws error when transport.deviceMode is not set', async function () {
+    it('throws error when transport.deviceModel is not set', async function () {
+      // @ts-expect-error `deviceModel` must be null to validate this test case
       mockTransport.deviceModel = null;
       await expect(
         bridge.updateTransportMethod(mockTransport as unknown as Transport),
