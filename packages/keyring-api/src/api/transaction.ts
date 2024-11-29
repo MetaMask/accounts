@@ -138,6 +138,26 @@ export enum TransactionType {
 }
 
 /**
+ * This struct represents a transaction event.
+ */
+export const TransactionEventStruct = object({
+  /**
+   * New status of the transaction.
+   */
+  status: enums([
+    `${TransactionStatus.Submitted}`,
+    `${TransactionStatus.Unconfirmed}`,
+    `${TransactionStatus.Confirmed}`,
+    `${TransactionStatus.Failed}`,
+  ]),
+
+  /**
+   * UNIX timestamp of when the event occurred.
+   */
+  timestamp: nullable(number()),
+});
+
+/**
  * This struct represents a blockchain transaction.
  *
  * @example
@@ -249,29 +269,12 @@ export const TransactionStruct = object({
   fees: array(FeeStruct),
 
   /**
-   * List of events related to the transaction.
+   * List of events related to the transaction {@see TransactionEventStruct}.
    *
    * The events are tracked in a best-effort basis and may not be available for
    * all transactions.
    */
-  events: array(
-    object({
-      /**
-       * New status of the transaction.
-       */
-      status: enums([
-        `${TransactionStatus.Submitted}`,
-        `${TransactionStatus.Unconfirmed}`,
-        `${TransactionStatus.Confirmed}`,
-        `${TransactionStatus.Failed}`,
-      ]),
-
-      /**
-       * UNIX timestamp of when the event occurred.
-       */
-      timestamp: nullable(number()),
-    }),
-  ),
+  events: array(TransactionEventStruct),
 });
 
 /**
