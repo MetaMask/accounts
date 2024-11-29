@@ -101,18 +101,18 @@ export enum TransactionStatus {
    * blockchain. For example, it can be in the mempool.
    */
   Submitted = 'submitted',
-  
+
   /**
    * The transaction is in the blockchain but has not been
    * confirmed yet.
    */
   Unconfirmed = 'unconfirmed',
-  
+
   /**
    * The transaction has been confirmed.
    */
   Confirmed = 'confirmed',
-  
+
   /**
    * The transaction has failed. For example, it has been reverted.
    */
@@ -129,7 +129,7 @@ export enum TransactionType {
    * as a send transaction.
    */
   Send = 'send',
-  
+
   /**
    * The transaction was received by the account, but originated by
    * another account.
@@ -229,7 +229,7 @@ export const TransactionStruct = object({
 
   /**
    * Transaction type {@see TransactionType}. This will be used by MetaMask to enrich the transaction
-   * details on the UI. 
+   * details on the UI.
    */
   type: enums([`${TransactionType.Send}`, `${TransactionType.Receive}`]),
 
