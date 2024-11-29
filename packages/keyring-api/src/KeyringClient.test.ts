@@ -111,7 +111,8 @@ describe('KeyringClient', () => {
     });
 
     it('returns a single page of transactions', async () => {
-      const id = '7bd967bd-9c4a-47cc-9725-75f0d2d8df9d';
+      const id =
+        'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6';
       const pagination = { limit: 2 };
       const expectedResponse = {
         data: [
@@ -160,7 +161,8 @@ describe('KeyringClient', () => {
     });
 
     it('returns a page of transactions with next', async () => {
-      const id = '7bd967bd-9c4a-47cc-9725-75f0d2d8df9d';
+      const id =
+        'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6';
       const pagination = { limit: 2 };
       const expectedResponse = {
         data: [
@@ -209,7 +211,8 @@ describe('KeyringClient', () => {
     });
 
     it('throws an error when the fee has an invalid amount', async () => {
-      const id = '7bd967bd-9c4a-47cc-9725-75f0d2d8df9d';
+      const id =
+        'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6';
       const expectedResponse = {
         data: [
           {
@@ -249,7 +252,8 @@ describe('KeyringClient', () => {
     });
 
     it('throws an error when the fee has an invalid type', async () => {
-      const id = '7bd967bd-9c4a-47cc-9725-75f0d2d8df9d';
+      const id =
+        'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6';
       const expectedResponse = {
         data: [
           {
