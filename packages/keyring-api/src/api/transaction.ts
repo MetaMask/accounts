@@ -107,7 +107,17 @@ export enum TransactionStatus {
  * Transaction types.
  */
 export enum TransactionType {
+  /**
+   * The transaction was originated by the account. If the transaction
+   * has a change output that goes back to the same account, it must be tagged
+   * as a send transaction.
+   */
   Send = 'send',
+  
+  /**
+   * The transaction was received by the account, but originated by
+   * another account.
+   */
   Receive = 'receive',
 }
 
