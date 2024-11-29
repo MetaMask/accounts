@@ -83,23 +83,28 @@ const FeeStruct = object({
 
 /**
  * Transaction statuses.
- *
- * The possible values are:
- *
- * - submitted: The transaction has been submitted but is not yet in the
- * blockchain. For example, it can be in the mempool.
- *
- * - unconfirmed: The transaction is in the blockchain but has not been
- * confirmed yet.
- *
- * - confirmed: The transaction has been confirmed.
- *
- * - failed: The transaction has failed. For example, it has been reverted.
  */
 export enum TransactionStatus {
+  /**
+   * The transaction has been submitted but is not yet in the
+   * blockchain. For example, it can be in the mempool.
+   */
   Submitted = 'submitted',
+  
+  /**
+   * The transaction is in the blockchain but has not been
+   * confirmed yet.
+   */
   Unconfirmed = 'unconfirmed',
+  
+  /**
+   * The transaction has been confirmed.
+   */
   Confirmed = 'confirmed',
+  
+  /**
+   * The transaction has failed. For example, it has been reverted.
+   */
   Failed = 'failed',
 }
 
