@@ -1,4 +1,5 @@
 import type { Keyring } from '@metamask/keyring-api';
+import { KeyringRpcMethod } from '@metamask/keyring-api';
 import {
   GetAccountRequestStruct,
   CreateAccountRequestStruct,
@@ -13,7 +14,6 @@ import {
   ListAccountsRequestStruct,
   ListRequestsRequestStruct,
   GetAccountBalancesRequestStruct,
-  KeyringRpcMethod,
 } from '@metamask/keyring-internal-api';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';

@@ -8,14 +8,14 @@ import {
   EthAccountType,
   KeyringAccountStruct,
   SolAccountType,
+  BtcP2wpkhAccountStruct,
+  EthEoaAccountStruct,
+  EthErc4337AccountStruct,
+  SolDataAccountStruct,
 } from '@metamask/keyring-api';
 import { exactOptional, object } from '@metamask/keyring-utils';
 import type { Infer, Struct } from '@metamask/superstruct';
 import { boolean, string, number } from '@metamask/superstruct';
-
-import { BtcP2wpkhAccountStruct } from './btc/types';
-import { EthEoaAccountStruct, EthErc4337AccountStruct } from './eth/types';
-import { SolDataAccountStruct } from './sol/types';
 
 export type InternalAccountType =
   | EthAccountType

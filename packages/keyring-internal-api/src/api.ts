@@ -5,6 +5,7 @@ import {
   KeyringAccountStruct,
   KeyringRequestStruct,
   KeyringResponseStruct,
+  KeyringRpcMethod,
 } from '@metamask/keyring-api';
 import { object, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
@@ -17,8 +18,6 @@ import {
   union,
 } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
-
-import { KeyringRpcMethod } from './rpc';
 
 const CommonHeader = {
   jsonrpc: literal('2.0'),

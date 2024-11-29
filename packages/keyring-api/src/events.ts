@@ -1,7 +1,8 @@
-import { KeyringAccountStruct } from '@metamask/keyring-api';
 import { exactOptional, object, UuidStruct } from '@metamask/keyring-utils';
 import { boolean, literal, string } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
+
+import { KeyringAccountStruct } from './api';
 
 /**
  * Supported keyring events.

@@ -1,12 +1,11 @@
-import type { KeyringExecutionContext } from '@metamask/keyring-api';
-import type { Json, Keyring } from '@metamask/utils';
-
 import type {
+  KeyringExecutionContext,
   EthBaseTransaction,
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
-} from '.';
+} from '@metamask/keyring-api';
+import type { Json, Keyring } from '@metamask/utils';
 
 export type EthKeyring<State extends Json> = Keyring<State> & {
   /**
