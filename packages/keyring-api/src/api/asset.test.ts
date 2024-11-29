@@ -1,4 +1,4 @@
-import { assert, is } from '@metamask/superstruct';
+import { is } from '@metamask/superstruct';
 
 import { AssetStruct } from './asset';
 
