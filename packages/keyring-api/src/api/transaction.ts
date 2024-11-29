@@ -125,56 +125,56 @@ export enum TransactionType {
  *
  * @example
  * ```ts
- * {
- *   "id": "f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6",
- *   "chain": "bip122:000000000019d6689c085ae165831e93",
- *   "account": "b9beb861-9761-4b97-89ce-d992be5f34da",
- *   "status": "confirmed",
- *   "timestamp": 1716367781,
- *   "type": "send",
- *   "from": [
+ * const tx = {
+ *   id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+ *   chain: 'bip122:000000000019d6689c085ae165831e93',
+ *   account: 'b9beb861-9761-4b97-89ce-d992be5f34da',
+ *   status: 'confirmed',
+ *   timestamp: 1716367781,
+ *   type: 'send',
+ *   from: [
  *     {
- *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
- *       "asset": {
- *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
- *         "unit": "BTC",
- *         "amount": "0.1"
- *       }
- *     }
+ *       address: 'bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah',
+ *       asset: {
+ *         fungible: true,
+ *         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+ *         unit: 'BTC',
+ *         amount: '0.1',
+ *       },
+ *     },
  *   ],
- *   "to": [
+ *   to: [
  *     {
- *       "address": "bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah",
- *       "asset": {
- *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
- *         "unit": "BTC",
- *         "amount": "0.1"
- *       }
+ *       address: 'bc1qrp0yzgkf8rawkuvdlhnjfj2fnjwm0m8727kgah',
+ *       asset: {
+ *         fungible: true,
+ *         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+ *         unit: 'BTC',
+ *         amount: '0.1',
+ *       },
  *     },
  *     {
- *       "address": "bc1qwl8399fz829uqvqly9tcatgrgtwp3udnhxfq4k",
- *       "asset": {
- *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
- *         "unit": "BTC",
- *         "amount": "0.1"
- *       }
- *     }
+ *       address: 'bc1qwl8399fz829uqvqly9tcatgrgtwp3udnhxfq4k',
+ *       asset: {
+ *         fungible: true,
+ *         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+ *         unit: 'BTC',
+ *         amount: '0.1',
+ *       },
+ *     },
  *   ],
  *   "fees": [
  *     {
- *       "type": "transaction",
- *       "asset": {
- *         "fungible": true,
- *         "type": "bip122:000000000019d6689c085ae165831e93/slip44:0",
- *         "unit": "BTC",
- *         "amount": "0.1"
- *       }
- *     }
- *   ]
- * }
+ *       type: 'transaction',
+ *       asset: {
+ *         fungible: true,
+ *         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+ *         unit: 'BTC',
+ *         amount: '0.1',
+ *       },
+ *     },
+ *   ],
+ * };
  * ```
  */
 export const TransactionStruct = object({
