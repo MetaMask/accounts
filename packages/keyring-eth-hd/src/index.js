@@ -14,12 +14,8 @@ import {
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
-import {
-  generateMnemonic,
-  // eslint-disable-next-line n/no-sync
-  mnemonicToSeedSync,
-  validateMnemonic,
-} from '@metamask/scure-bip39';
+import { mnemonicToSeed } from '@metamask/key-tree';
+import { generateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { assertIsHexString, remove0x } from '@metamask/utils';
 import { HDKey } from 'ethereum-cryptography/hdkey';
@@ -35,11 +31,12 @@ class HdKeyring {
   constructor(opts = {}) {
     this.type = type;
     this._wallets = [];
-    this.deserialize(opts);
+    // Cryptographic functions to be used by `@metamask/key-tree`. It will use built-in implementations if not provided here.
+    this._cryptographicFunctions = opts.cryptographicFunctions;
   }
 
-  generateRandomMnemonic() {
-    this._initFromMnemonic(generateMnemonic(wordlist));
+  async generateRandomMnemonic() {
+    await this._initFromMnemonic(generateMnemonic(wordlist));
   }
 
   _uint8ArrayToString(mnemonic) {
@@ -84,20 +81,20 @@ class HdKeyring {
     return mnemonicData;
   }
 
-  serialize() {
+  async serialize() {
     const mnemonicAsString = this._uint8ArrayToString(this.mnemonic);
     const uint8ArrayMnemonic = new TextEncoder('utf-8').encode(
       mnemonicAsString,
     );
 
-    return Promise.resolve({
+    return {
       mnemonic: Array.from(uint8ArrayMnemonic),
       numberOfAccounts: this._wallets.length,
       hdPath: this.hdPath,
-    });
+    };
   }
 
-  deserialize(opts = {}) {
+  async deserialize(opts = {}) {
     if (opts.numberOfAccounts && !opts.mnemonic) {
       throw new Error(
         'Eth-Hd-Keyring: Deserialize method cannot be called with an opts value for numberOfAccounts and no menmonic',
@@ -116,14 +113,14 @@ class HdKeyring {
     this.hdPath = opts.hdPath || hdPathString;
 
     if (opts.mnemonic) {
-      this._initFromMnemonic(opts.mnemonic);
+      await this._initFromMnemonic(opts.mnemonic);
     }
 
     if (opts.numberOfAccounts) {
       return this.addAccounts(opts.numberOfAccounts);
     }
 
-    return Promise.resolve([]);
+    return [];
   }
 
   addAccounts(numberOfAccounts = 1) {
@@ -282,7 +279,7 @@ class HdKeyring {
    * as a string, an array of UTF-8 bytes, or a Buffer. Mnemonic input
    * passed as type buffer or array of UTF-8 bytes must be NFKD normalized.
    */
-  _initFromMnemonic(mnemonic) {
+  async _initFromMnemonic(mnemonic) {
     if (this.root) {
       throw new Error(
         'Eth-Hd-Keyring: Secret recovery phrase already provided',
@@ -291,16 +288,11 @@ class HdKeyring {
 
     this.mnemonic = this._mnemonicToUint8Array(mnemonic);
 
-    // validate before initializing
-    const isValid = validateMnemonic(this.mnemonic, wordlist);
-    if (!isValid) {
-      throw new Error(
-        'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
-      );
-    }
-
-    // eslint-disable-next-line n/no-sync
-    const seed = mnemonicToSeedSync(this.mnemonic, wordlist);
+    const seed = await mnemonicToSeed(
+      this.mnemonic,
+      '', // No passphrase
+      this._cryptographicFunctions,
+    );
     this.hdWallet = HDKey.fromMasterSeed(seed);
     this.root = this.hdWallet.derive(this.hdPath);
   }

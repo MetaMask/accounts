@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.0]
+
+### Added
+
+- **BREAKING:** Add ESM build ([#40](https://github.com/MetaMask/accounts/pull/40))
+  - It's no longer possible to import files from `./dist` directly.
+
 ## [5.0.0]
 
 ### Changed
@@ -134,7 +141,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@5.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.0...HEAD
+[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@5.0.0...@metamask/eth-trezor-keyring@6.0.0
 [5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@4.0.0...@metamask/eth-trezor-keyring@5.0.0
 [4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.3...@metamask/eth-trezor-keyring@4.0.0
 [3.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.2...@metamask/eth-trezor-keyring@3.1.3
