@@ -1902,7 +1902,7 @@ __metadata:
     "@ledgerhq/types-devices": "npm:^6.25.3"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.0.0"
-    "@metamask/utils": "npm:^9.2.1"
+    "@metamask/utils": "npm:^9.3.0"
     "@ts-bridge/cli": "npm:^0.6.0"
     "@types/ethereumjs-tx": "npm:^1.0.1"
     "@types/hdkey": "npm:^2.0.1"
