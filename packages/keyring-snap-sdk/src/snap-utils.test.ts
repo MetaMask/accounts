@@ -1,4 +1,5 @@
-import { KeyringEvent } from './events';
+import { KeyringEvent } from '@metamask/keyring-api';
+
 import { emitSnapKeyringEvent } from './snap-utils';
 
 describe('emitSnapKeyringEvent', () => {

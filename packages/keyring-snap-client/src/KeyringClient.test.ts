@@ -3,7 +3,7 @@ import type {
   KeyringRequest,
   KeyringResponse,
 } from '@metamask/keyring-api';
-import { KeyringRpcMethod } from '@metamask/keyring-internal-api';
+import { KeyringRpcMethod } from '@metamask/keyring-api';
 
 import { KeyringClient } from '.'; // Import from `index.ts` to test the public API
 

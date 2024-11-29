@@ -3,23 +3,19 @@ import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
   KeyringAccount,
   KeyringExecutionContext,
+  EthBaseUserOperation,
+  EthUserOperation,
+  EthUserOperationPatch,
 } from '@metamask/keyring-api';
 import {
   BtcAccountType,
   EthAccountType,
   SolAccountType,
-} from '@metamask/keyring-api';
-import type {
-  EthBaseUserOperation,
-  EthUserOperation,
-  EthUserOperationPatch,
-} from '@metamask/keyring-internal-api';
-import {
   BtcMethod,
   EthMethod,
   SolMethod,
   KeyringEvent,
-} from '@metamask/keyring-internal-api';
+} from '@metamask/keyring-api';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';

@@ -1,5 +1,6 @@
 import { is } from '@metamask/superstruct';
 
+import { EthAccountType } from './api';
 import {
   AccountCreatedEventStruct,
   AccountDeletedEventStruct,
@@ -8,7 +9,6 @@ import {
   RequestRejectedEventStruct,
   KeyringEvent,
 } from './events';
-import { EthAccountType } from '../api';
 
 describe('events', () => {
   describe('AccountCreatedEventStruct', () => {
