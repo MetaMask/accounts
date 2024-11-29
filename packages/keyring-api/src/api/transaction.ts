@@ -71,7 +71,7 @@ export enum FeeType {
 
 const FeeStruct = object({
   /**
-   * Fee type.
+   * Fee type {@see FeeType}.
    */
   type: enums([`${FeeType.Base}`, `${FeeType.Priority}`]),
 
