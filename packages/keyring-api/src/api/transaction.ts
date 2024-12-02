@@ -298,6 +298,18 @@ export type Transaction = Infer<typeof TransactionStruct>;
  *   next: 'c3y1Q6QtqtstbxKX+oqVdEW6',
  * }
  * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *   data: [
+ *     {
+ *       // Transaction object
+ *     }
+ *   ],
+ *   next: null, // No more results
+ * }**
+ * ```
  */
 export const TransactionsPageStruct = object({
   /**
