@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.1.0]
+
 ### Uncategorized
 
 - feat: add `listAccountTransactions` method ([#41](https://github.com/MetaMask/accounts/pull/41))
@@ -442,7 +444,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@11.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@11.1.0...HEAD
+[11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@11.0.0...@metamask/keyring-api@11.1.0
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@10.1.0...@metamask/keyring-api@11.0.0
 [10.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@10.0.0...@metamask/keyring-api@10.1.0
 [10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@9.0.0...@metamask/keyring-api@10.0.0
