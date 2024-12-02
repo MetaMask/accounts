@@ -41,7 +41,7 @@
     "@metamask/snaps-sdk": "^6.7.0",
     "@metamask/snaps-utils": "^8.3.0",
     "@metamask/superstruct": "^3.1.0",
-    "@metamask/utils": "^9.2.1",
+    "@metamask/utils": "^9.3.0",
     "@types/uuid": "^9.0.8",
     "uuid": "^9.0.1"
   },

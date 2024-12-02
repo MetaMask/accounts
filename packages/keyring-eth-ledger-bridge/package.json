@@ -62,7 +62,7 @@
     "@ledgerhq/types-cryptoassets": "^7.15.1",
     "@ledgerhq/types-devices": "^6.25.3",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/utils": "^9.2.1",
+    "@metamask/utils": "^9.3.0",
     "@ts-bridge/cli": "^0.6.0",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",

@@ -48,7 +48,7 @@
     "@metamask/eth-sig-util": "^8.0.0",
     "@metamask/key-tree": "^10.0.0",
     "@metamask/scure-bip39": "^2.1.1",
-    "@metamask/utils": "^9.2.1",
+    "@metamask/utils": "^9.3.0",
     "ethereum-cryptography": "^2.1.2"
   },
   "devDependencies": {
