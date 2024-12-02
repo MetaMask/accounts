@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.1.0]
 
-### Uncategorized
+### Added
 
-- feat: add `listAccountTransactions` method ([#41](https://github.com/MetaMask/accounts/pull/41))
+- Add `listAccountTransactions` keyring method ([#41](https://github.com/MetaMask/accounts/pull/41))
 
 ## [11.0.0]
 
