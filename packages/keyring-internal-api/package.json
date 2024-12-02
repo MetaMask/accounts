@@ -48,7 +48,7 @@
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/superstruct": "^3.1.0",
-    "@metamask/utils": "^9.2.1"
+    "@metamask/utils": "^9.3.0"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
