@@ -3,7 +3,7 @@ import { expectAssignable, expectNotAssignable } from 'tsd';
 import type { Transaction } from './transaction';
 
 expectAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: null,
   chain: 'eip155:1',
   status: 'submitted',
@@ -16,7 +16,7 @@ expectAssignable<Transaction>({
 });
 
 expectAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: null,
   chain: 'eip155:1',
   status: 'submitted',
@@ -48,7 +48,7 @@ expectAssignable<Transaction>({
 });
 
 expectAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: 1728648847,
   chain: 'eip155:1',
   status: 'submitted',
@@ -124,7 +124,7 @@ expectNotAssignable<Transaction>({
 });
 
 expectNotAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   // Missing `timestamp`
   chain: 'eip155:1',
   status: 'submitted',
@@ -136,7 +136,7 @@ expectNotAssignable<Transaction>({
 });
 
 expectNotAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: null,
   // Missing `chain`
   status: 'submitted',
@@ -148,7 +148,7 @@ expectNotAssignable<Transaction>({
 });
 
 expectNotAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: null,
   chain: 'eip155:1',
   // Missing `status`
@@ -160,7 +160,7 @@ expectNotAssignable<Transaction>({
 });
 
 expectNotAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: null,
   chain: 'eip155:1',
   status: 'submitted',
@@ -172,7 +172,7 @@ expectNotAssignable<Transaction>({
 });
 
 expectNotAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: null,
   chain: 'eip155:1',
   status: 'submitted',
@@ -184,7 +184,7 @@ expectNotAssignable<Transaction>({
 });
 
 expectNotAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: null,
   chain: 'eip155:1',
   status: 'submitted',
@@ -196,7 +196,7 @@ expectNotAssignable<Transaction>({
 });
 
 expectNotAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: null,
   chain: 'eip155:1',
   status: 'submitted',
@@ -208,7 +208,7 @@ expectNotAssignable<Transaction>({
 });
 
 expectNotAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: null,
   chain: 'eip155:1',
   status: 'submitted',
@@ -220,7 +220,7 @@ expectNotAssignable<Transaction>({
 });
 
 expectNotAssignable<Transaction>({
-  id: '0x123',
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
   timestamp: null,
   chain: 'eip155:1',
   status: 'submitted',
