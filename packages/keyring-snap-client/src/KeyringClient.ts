@@ -6,6 +6,8 @@ import type {
   KeyringResponse,
   CaipAssetType,
   Balance,
+  TransactionsPage,
+  Pagination,
 } from '@metamask/keyring-api';
 import { KeyringRpcMethod } from '@metamask/keyring-api';
 import {
@@ -18,6 +20,7 @@ import {
   GetAccountResponseStruct,
   GetRequestResponseStruct,
   ListAccountsResponseStruct,
+  ListAccountTransactionsResponseStruct,
   ListRequestsResponseStruct,
   RejectRequestResponseStruct,
   SubmitRequestResponseStruct,
@@ -100,6 +103,19 @@ export class KeyringClient implements Keyring {
         params: { options },
       }),
       CreateAccountResponseStruct,
+    );
+  }
+
+  async listAccountTransactions(
+    id: string,
+    pagination: Pagination,
+  ): Promise<TransactionsPage> {
+    return strictMask(
+      await this.#send({
+        method: KeyringRpcMethod.ListAccountTransactions,
+        params: { id, pagination },
+      }),
+      ListAccountTransactionsResponseStruct,
     );
   }
 

@@ -6,6 +6,8 @@ import {
   KeyringRequestStruct,
   KeyringResponseStruct,
   KeyringRpcMethod,
+  PaginationStruct,
+  TransactionsPageStruct,
 } from '@metamask/keyring-api';
 import { object, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
@@ -71,6 +73,28 @@ export type CreateAccountRequest = Infer<typeof CreateAccountRequestStruct>;
 export const CreateAccountResponseStruct = KeyringAccountStruct;
 
 export type CreateAccountResponse = Infer<typeof CreateAccountResponseStruct>;
+
+// ----------------------------------------------------------------------------
+// List account transactions
+
+export const ListAccountTransactionsRequestStruct = object({
+  ...CommonHeader,
+  method: literal('keyring_listAccountTransactions'),
+  params: object({
+    id: UuidStruct,
+    pagination: PaginationStruct,
+  }),
+});
+
+export type ListAccountTransactionsRequest = Infer<
+  typeof ListAccountTransactionsRequestStruct
+>;
+
+export const ListAccountTransactionsResponseStruct = TransactionsPageStruct;
+
+export type ListAccountTransactionsResponse = Infer<
+  typeof ListAccountTransactionsResponseStruct
+>;
 
 // ----------------------------------------------------------------------------
 // Get account balances

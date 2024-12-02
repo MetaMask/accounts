@@ -3,6 +3,7 @@ import { KeyringRpcMethod } from '@metamask/keyring-api';
 import {
   GetAccountRequestStruct,
   CreateAccountRequestStruct,
+  ListAccountTransactionsRequestStruct,
   ApproveRequestRequestStruct,
   DeleteAccountRequestStruct,
   ExportAccountRequestStruct,
@@ -60,6 +61,17 @@ async function dispatchRequest(
     case `${KeyringRpcMethod.CreateAccount}`: {
       assert(request, CreateAccountRequestStruct);
       return keyring.createAccount(request.params.options);
+    }
+
+    case `${KeyringRpcMethod.ListAccountTransactions}`: {
+      if (keyring.listAccountTransactions === undefined) {
+        throw new MethodNotSupportedError(request.method);
+      }
+      assert(request, ListAccountTransactionsRequestStruct);
+      return keyring.listAccountTransactions(
+        request.params.id,
+        request.params.pagination,
+      );
     }
 
     case `${KeyringRpcMethod.GetAccountBalances}`: {
