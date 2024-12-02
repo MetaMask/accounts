@@ -111,14 +111,13 @@ describe('KeyringClient', () => {
     });
 
     it('returns a single page of transactions', async () => {
-      const id =
-        'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6';
+      const id = '03a16e94-df42-46e6-affc-789bd58cf478';
       const pagination = { limit: 2 };
       const expectedResponse = {
         data: [
           {
-            id: 'c3d2e7a5-7c3c-4c1b-8d2e-7a57c3c41b8d',
-            account: '03a16e94-df42-46e6-affc-789bd58cf478',
+            id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+            account: id,
             chain: 'eip155:1',
             type: 'send',
             status: 'confirmed',
@@ -129,8 +128,8 @@ describe('KeyringClient', () => {
             events: [],
           },
           {
-            id: '774a9423-9dd4-4b63-81a0-26884be90a35',
-            account: '03a16e94-df42-46e6-affc-789bd58cf478',
+            id: 'ff6b24b2a7d8168890bd511e5c934dc94da31fe7e86d0aa46b601b45dbaab389',
+            account: id,
             chain: 'eip155:1',
             type: 'receive',
             status: 'submitted',
@@ -161,14 +160,13 @@ describe('KeyringClient', () => {
     });
 
     it('returns a page of transactions with next', async () => {
-      const id =
-        'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6';
+      const id = '03a16e94-df42-46e6-affc-789bd58cf478';
       const pagination = { limit: 2 };
       const expectedResponse = {
         data: [
           {
-            id: 'c3d2e7a5-7c3c-4c1b-8d2e-7a57c3c41b8d',
-            account: '03a16e94-df42-46e6-affc-789bd58cf478',
+            id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+            account: id,
             chain: 'eip155:1',
             type: 'send',
             status: 'confirmed',
@@ -179,8 +177,8 @@ describe('KeyringClient', () => {
             events: [],
           },
           {
-            id: '774a9423-9dd4-4b63-81a0-26884be90a35',
-            account: '03a16e94-df42-46e6-affc-789bd58cf478',
+            id: 'ff6b24b2a7d8168890bd511e5c934dc94da31fe7e86d0aa46b601b45dbaab389',
+            account: id,
             chain: 'eip155:1',
             type: 'receive',
             status: 'submitted',
@@ -211,13 +209,12 @@ describe('KeyringClient', () => {
     });
 
     it('throws an error when the fee has an invalid amount', async () => {
-      const id =
-        'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6';
+      const id = '03a16e94-df42-46e6-affc-789bd58cf478';
       const expectedResponse = {
         data: [
           {
-            id: 'c3d2e7a5-7c3c-4c1b-8d2e-7a57c3c41b8d',
-            account: '03a16e94-df42-46e6-affc-789bd58cf478',
+            id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+            account: id,
             chain: 'eip155:1',
             type: 'send',
             status: 'confirmed',
@@ -252,13 +249,12 @@ describe('KeyringClient', () => {
     });
 
     it('throws an error when the fee has an invalid type', async () => {
-      const id =
-        'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6';
+      const id = '03a16e94-df42-46e6-affc-789bd58cf478';
       const expectedResponse = {
         data: [
           {
-            id: 'c3d2e7a5-7c3c-4c1b-8d2e-7a57c3c41b8d',
-            account: '03a16e94-df42-46e6-affc-789bd58cf478',
+            id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+            account: id,
             chain: 'eip155:1',
             type: 'send',
             status: 'confirmed',
