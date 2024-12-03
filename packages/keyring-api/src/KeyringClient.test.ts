@@ -85,6 +85,210 @@ describe('KeyringClient', () => {
     });
   });
 
+  describe('listAccountTransactions', () => {
+    it('returns an empty list of transactions', async () => {
+      const id = '49116980-0712-4fa5-b045-e4294f1d440e';
+      const expectedResponse = {
+        data: [],
+        next: null,
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const pagination = { limit: 10 };
+      const transactions = await keyring.listAccountTransactions(
+        id,
+        pagination,
+      );
+
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_listAccountTransactions',
+        params: { id, pagination },
+      });
+
+      expect(transactions).toStrictEqual(expectedResponse);
+    });
+
+    it('returns a single page of transactions', async () => {
+      const id = '03a16e94-df42-46e6-affc-789bd58cf478';
+      const pagination = { limit: 2 };
+      const expectedResponse = {
+        data: [
+          {
+            id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+            account: id,
+            chain: 'eip155:1',
+            type: 'send',
+            status: 'confirmed',
+            timestamp: 1716367781,
+            from: [],
+            to: [],
+            fees: [],
+            events: [],
+          },
+          {
+            id: 'ff6b24b2a7d8168890bd511e5c934dc94da31fe7e86d0aa46b601b45dbaab389',
+            account: id,
+            chain: 'eip155:1',
+            type: 'receive',
+            status: 'submitted',
+            timestamp: null,
+            from: [],
+            to: [],
+            fees: [],
+            events: [],
+          },
+        ],
+        next: null,
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const transactions = await keyring.listAccountTransactions(
+        id,
+        pagination,
+      );
+
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_listAccountTransactions',
+        params: { id, pagination },
+      });
+
+      expect(transactions).toStrictEqual(expectedResponse);
+    });
+
+    it('returns a page of transactions with next', async () => {
+      const id = '03a16e94-df42-46e6-affc-789bd58cf478';
+      const pagination = { limit: 2 };
+      const expectedResponse = {
+        data: [
+          {
+            id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+            account: id,
+            chain: 'eip155:1',
+            type: 'send',
+            status: 'confirmed',
+            timestamp: 1716367781,
+            from: [],
+            to: [],
+            fees: [],
+            events: [],
+          },
+          {
+            id: 'ff6b24b2a7d8168890bd511e5c934dc94da31fe7e86d0aa46b601b45dbaab389',
+            account: id,
+            chain: 'eip155:1',
+            type: 'receive',
+            status: 'submitted',
+            timestamp: null,
+            from: [],
+            to: [],
+            fees: [],
+            events: [],
+          },
+        ],
+        next: 'some-cursor',
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const transactions = await keyring.listAccountTransactions(
+        id,
+        pagination,
+      );
+
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_listAccountTransactions',
+        params: { id, pagination },
+      });
+
+      expect(transactions).toStrictEqual(expectedResponse);
+    });
+
+    it('throws an error when the fee has an invalid amount', async () => {
+      const id = '03a16e94-df42-46e6-affc-789bd58cf478';
+      const expectedResponse = {
+        data: [
+          {
+            id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+            account: id,
+            chain: 'eip155:1',
+            type: 'send',
+            status: 'confirmed',
+            timestamp: 1716367781,
+            from: [],
+            to: [],
+            fees: [
+              {
+                type: 'priority',
+                asset: {
+                  fungible: true,
+                  type: 'eip155:1/slip44:60',
+                  unit: 'ETH',
+                  amount: 'invalid-amount', // Should be a numeric string
+                },
+              },
+            ],
+            events: [],
+          },
+        ],
+        next: null,
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      await expect(
+        keyring.listAccountTransactions(id, {
+          limit: 2,
+        }),
+      ).rejects.toThrow(
+        'At path: data.0.fees.0.asset.amount -- Expected a value of type `StringNumber`, but received: `"invalid-amount"`',
+      );
+    });
+
+    it('throws an error when the fee has an invalid type', async () => {
+      const id = '03a16e94-df42-46e6-affc-789bd58cf478';
+      const expectedResponse = {
+        data: [
+          {
+            id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+            account: id,
+            chain: 'eip155:1',
+            type: 'send',
+            status: 'confirmed',
+            timestamp: 1716367781,
+            from: [],
+            to: [],
+            fees: [
+              {
+                type: 'invalid-type', // Not a valid fee type
+                asset: {
+                  fungible: true,
+                  type: 'eip155:1/slip44:60',
+                },
+                amount: '0',
+                unit: 'ETH',
+              },
+            ],
+            events: [],
+          },
+        ],
+        next: null,
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      await expect(
+        keyring.listAccountTransactions(id, {
+          limit: 2,
+        }),
+      ).rejects.toThrow(
+        'At path: data.0.fees.0.type -- Expected one of `"base","priority"`, but received: "invalid-type"',
+      );
+    });
+  });
+
   describe('getAccountBalances', () => {
     it('returns a valid response', async () => {
       const assets = ['bip122:000000000019d6689c085ae165831e93/slip44:0'];
