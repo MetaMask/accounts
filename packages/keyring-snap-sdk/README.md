@@ -1,6 +1,6 @@
 # MetaMask Keyring Snap SDK
 
-Various JavaScript/TypeScript utilities required by the Snap Keyring.
+Various JavaScript/TypeScript utilities that can be used by Snap Accounts.
 
 ## Installation
 

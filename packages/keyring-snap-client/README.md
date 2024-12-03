@@ -1,6 +1,6 @@
 # MetaMask Keyring Snap Clients
 
-TODO
+Clients that can be used to communicate with a Snap Account using various providers.
 
 ## Installation
 
