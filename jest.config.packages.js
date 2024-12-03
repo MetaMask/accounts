@@ -89,10 +89,6 @@ module.exports = {
     // FIXME: For now we do require to build some packages (keyring-api) that is then used
     // in the keyring-snap package. This might be fixed after splitting the keyring-api into
     // smaller internal packages!
-    // TODO: Remove this after the split of the keyring-api
-    // {
-    '^@metamask/keyring-api/dist/(.*)$': ['<rootDir>/../keyring-api/dist/$1'],
-    // }
     '^jest-environment-jsdom$': ['<rootDir>/../keyring-api/dist/$1'],
     '^@metamask/(.+)$': [
       '<rootDir>/../$1/src',
