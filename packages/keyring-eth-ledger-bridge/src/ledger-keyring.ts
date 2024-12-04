@@ -501,8 +501,6 @@ export class LedgerKeyring extends EventEmitter {
       throw new Error('Ledger: Unknown error while signing message');
     }
 
-    const pt = primaryType.toString();
-
     let payload;
     try {
       payload = await this.bridge.deviceSignTypedData({
@@ -513,11 +511,7 @@ export class LedgerKeyring extends EventEmitter {
             chainId: domain.chainId,
             version: domain.version,
             verifyingContract: domain.verifyingContract,
-            salt: domain.salt
-              // We convert this to a plain string to avoid encoding issue on the
-              // mobile side (to avoid using `TextDecoder`).
-              ? this.#arrayBufferToString(domain.salt)
-              : undefined,
+            salt: this.#convertSaltIfAny(domain.salt),
           },
           types,
           primaryType: primaryType.toString(),
@@ -564,9 +558,15 @@ export class LedgerKeyring extends EventEmitter {
     this.hdk = new HDKey();
   }
 
-  #arrayBufferToString(buffer: ArrayBuffer): string {
-    const uint8Array = new Uint8Array(buffer);
-    return String.fromCharCode(...uint8Array);
+  #convertSaltIfAny(salt: ArrayBuffer | undefined): string | undefined {
+    if (!salt) {
+      return undefined;
+    }
+
+    // We convert this to a plain string to avoid encoding issue on the
+    // mobile side (to avoid using `TextDecoder`).
+    const saltBytes = new Uint8Array(salt);
+    return String.fromCharCode(...saltBytes);
   }
 
   /* PRIVATE METHODS */
