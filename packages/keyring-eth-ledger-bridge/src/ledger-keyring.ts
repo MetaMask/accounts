@@ -520,7 +520,7 @@ export class LedgerKeyring extends EventEmitter {
               : undefined,
           },
           types,
-          primaryType: pt,
+          primaryType: primaryType.toString(),
           message,
         },
       });
