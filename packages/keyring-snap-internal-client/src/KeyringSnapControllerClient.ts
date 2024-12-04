@@ -1,10 +1,9 @@
+import { KeyringClient, type Sender } from '@metamask/keyring-snap-client';
 import type { JsonRpcRequest } from '@metamask/keyring-snap-sdk';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 import type { Json } from '@metamask/utils';
-
-import { KeyringClient, type Sender } from './KeyringClient';
 
 /**
  * Implementation of the `Sender` interface that can be used to send requests
@@ -28,7 +27,7 @@ class SnapControllerSender implements Sender {
    * @param handler - The handler type.
    */
   constructor(
-    controller: any,
+    controller: SnapController,
     snapId: SnapId,
     origin: string,
     handler: HandlerType,

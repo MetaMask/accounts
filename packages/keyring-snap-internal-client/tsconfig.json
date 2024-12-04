@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "baseUrl": "./"
+  },
+  "include": [
+    "./src",
+    "../keyring-snap-client/src/KeyringSnapRpcClient.test.ts",
+    "../keyring-snap-client/src/KeyringSnapRpcClient.ts"
+  ],
+  "exclude": ["./dist/**/*"]
+}

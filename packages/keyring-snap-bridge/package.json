@@ -39,7 +39,7 @@
     "@metamask/eth-sig-util": "^8.0.0",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-internal-api": "workspace:^",
-    "@metamask/keyring-snap-client": "workspace:^",
+    "@metamask/keyring-snap-internal-client": "workspace:^",
     "@metamask/keyring-snap-sdk": "workspace:^",
     "@metamask/snaps-controllers": "^9.10.0",
     "@metamask/snaps-sdk": "^6.7.0",

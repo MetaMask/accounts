@@ -9,7 +9,6 @@ import type {
   TransactionsPage,
   Pagination,
 } from '@metamask/keyring-api';
-import { KeyringRpcMethod } from '@metamask/keyring-api';
 import {
   ApproveRequestResponseStruct,
   CreateAccountResponseStruct,
@@ -25,7 +24,8 @@ import {
   RejectRequestResponseStruct,
   SubmitRequestResponseStruct,
   UpdateAccountResponseStruct,
-} from '@metamask/keyring-internal-api';
+  KeyringRpcMethod,
+} from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-snap-sdk';
 import { strictMask } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';

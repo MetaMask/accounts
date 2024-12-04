@@ -9,6 +9,7 @@
     { "path": "./packages/keyring-snap-bridge/tsconfig.build.json" },
     { "path": "./packages/keyring-snap-sdk/tsconfig.build.json" },
     { "path": "./packages/keyring-snap-client/tsconfig.build.json" },
+    { "path": "./packages/keyring-snap-internal-client/tsconfig.build.json" },
     { "path": "./packages/keyring-utils/tsconfig.build.json" }
   ],
   "files": [],
