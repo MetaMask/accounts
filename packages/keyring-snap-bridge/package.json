@@ -24,7 +24,7 @@
     "dist/"
   ],
   "scripts": {
-    "build": "yarn workspace $(jq -r '.name' ../keyring-api/package.json) build:force && ts-bridge --project tsconfig.build.json --no-references",
+    "build": "ts-bridge --project tsconfig.build.json --no-references",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-snap-keyring",
