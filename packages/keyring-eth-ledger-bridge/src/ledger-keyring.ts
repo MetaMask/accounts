@@ -514,6 +514,8 @@ export class LedgerKeyring extends EventEmitter {
             version: domain.version,
             verifyingContract: domain.verifyingContract,
             salt: domain.salt
+              // We convert this to a plain string to avoid encoding issue on the
+              // mobile side (to avoid using `TextDecoder`).
               ? this.#arrayBufferToString(domain.salt)
               : undefined,
           },
