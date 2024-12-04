@@ -7,10 +7,10 @@ import type { KeyringAccount } from './account';
 import type { Balance } from './balance';
 import type { CaipAssetType } from './caip';
 import type { KeyringAccountData } from './export';
+import type { Paginated, Pagination } from './pagination';
 import type { KeyringRequest } from './request';
 import type { KeyringResponse } from './response';
 import type { Transaction } from './transaction';
-import type { Paginated, Pagination } from '../utils';
 
 /**
  * Keyring interface.

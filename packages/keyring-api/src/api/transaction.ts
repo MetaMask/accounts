@@ -5,7 +5,7 @@ import { array, enums, nullable, number, string } from '@metamask/superstruct';
 import { CaipChainIdStruct } from '@metamask/utils';
 
 import { AssetStruct } from './asset';
-import type { Paginated } from '../utils';
+import type { Paginated } from './pagination';
 
 /**
  * This struct represents a participant in a transaction.

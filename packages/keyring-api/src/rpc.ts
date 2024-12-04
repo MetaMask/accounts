@@ -18,8 +18,8 @@ import {
   KeyringRequestStruct,
   KeyringResponseStruct,
   TransactionsPageStruct,
+  PaginationStruct,
 } from './api';
-import { PaginationStruct } from './utils';
 
 /**
  * Keyring RPC methods used by the API.
