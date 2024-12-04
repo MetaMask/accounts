@@ -15,4 +15,11 @@ package_test_dir="$1"
 # with `--files` works everytime. So for now, we just use this wrapper for our typing tests.
 # NOTE: This directive is expected since we want the output to be splitted:
 # shellcheck disable=SC2046
-tsd $(find "${package_test_dir}" -name "*.test-d.ts" -exec echo -n "--files {} " \;)
+package_test_files="$(find "${package_test_dir}" -name "*.test-d.ts" -exec echo -n "--files {} " \;)"
+if [ "${package_test_files}" == "" ]; then
+  # If there's no files, we prevent from calling `tsd` with no arguments, otherwise it fallsback
+  # to the original behavior which is to test every `*d.ts` files.
+  echo "Nothing to test with tsd."
+else
+  tsd "${package_test_files}"
+fi
