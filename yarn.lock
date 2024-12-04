@@ -1626,6 +1626,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/types-live@npm:^6.54.0":
+  version: 6.54.0
+  resolution: "@ledgerhq/types-live@npm:6.54.0"
+  dependencies:
+    bignumber.js: "npm:^9.1.2"
+    rxjs: "npm:^7.8.1"
+  checksum: 10/90cf2207d10ab4f8db8461670fe53b74d56b19eb67b9f868e3159aba2fc77ca3b015a6f67af316cf3bd0711db395af11218dc845194c05f193a106a44730fcda
+  languageName: node
+  linkType: hard
+
 "@metamask/abi-utils@npm:^2.0.4":
   version: 2.0.4
   resolution: "@metamask/abi-utils@npm:2.0.4"
@@ -1900,7 +1910,7 @@ __metadata:
     "@ledgerhq/hw-transport": "npm:^6.31.3"
     "@ledgerhq/types-cryptoassets": "npm:^7.15.1"
     "@ledgerhq/types-devices": "npm:^6.25.3"
-    "@ledgerhq/types-live": "npm:^6.52.0"
+    "@ledgerhq/types-live": "npm:^6.54.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.0.0"
     "@metamask/utils": "npm:^9.3.0"
