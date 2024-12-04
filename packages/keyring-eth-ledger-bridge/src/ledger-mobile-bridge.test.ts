@@ -179,6 +179,11 @@ describe('LedgerMobileBridge', function () {
       ).toBeUndefined();
       expect(transportMiddlewareGetEthAppSpy).toHaveBeenCalledTimes(1);
       expect(mockEthApp.clearSignTransaction).toHaveBeenCalledTimes(1);
+      expect(mockEthApp.clearSignTransaction).toHaveBeenCalledWith(hdPath, tx, {
+        externalPlugins: true,
+        erc20: true,
+        nft: true,
+      });
     });
   });
 
