@@ -13,7 +13,7 @@
       "path": "../keyring-api/tsconfig.build.json"
     },
     {
-      "path": "../keyring-snap-sdk/tsconfig.build.json"
+      "path": "../keyring-utils/tsconfig.build.json"
     }
   ],
   "include": ["./src/**/*.ts"],

@@ -1,5 +1,5 @@
 import { KeyringClient, type Sender } from '@metamask/keyring-snap-client';
-import type { JsonRpcRequest } from '@metamask/keyring-snap-sdk';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';

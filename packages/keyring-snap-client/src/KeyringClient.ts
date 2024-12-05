@@ -26,7 +26,7 @@ import {
   UpdateAccountResponseStruct,
   KeyringRpcMethod,
 } from '@metamask/keyring-api';
-import type { JsonRpcRequest } from '@metamask/keyring-snap-sdk';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';

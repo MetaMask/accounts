@@ -1,4 +1,4 @@
-import type { JsonRpcRequest } from '@metamask/keyring-snap-sdk';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { MetaMaskInpageProvider } from '@metamask/providers';
 import type { Json } from '@metamask/utils';
 

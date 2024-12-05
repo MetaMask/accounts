@@ -16,11 +16,10 @@ import {
   ListRequestsRequestStruct,
   GetAccountBalancesRequestStruct,
 } from '@metamask/keyring-api';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
-
-import type { JsonRpcRequest } from './JsonRpcRequest';
-import { JsonRpcRequestStruct } from './JsonRpcRequest';
 
 /**
  * Error thrown when a keyring JSON-RPC method is not supported.

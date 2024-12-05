@@ -39,16 +39,16 @@
     "@metamask/eth-sig-util": "^8.0.0",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-internal-api": "workspace:^",
+    "@metamask/keyring-snap-client": "workspace:^",
     "@metamask/keyring-snap-internal-client": "workspace:^",
-    "@metamask/keyring-snap-sdk": "workspace:^",
+    "@metamask/keyring-utils": "workspace:^",
     "@metamask/snaps-controllers": "^9.10.0",
     "@metamask/snaps-sdk": "^6.7.0",
     "@metamask/snaps-utils": "^8.3.0",
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^9.3.0",
     "@types/uuid": "^9.0.8",
-    "uuid": "^9.0.1",
-    "webextension-polyfill": "^0.12.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",

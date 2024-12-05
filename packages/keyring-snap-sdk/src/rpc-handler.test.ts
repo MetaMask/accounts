@@ -1,7 +1,7 @@
 import { KeyringRpcMethod, isKeyringRpcMethod } from '@metamask/keyring-api';
 import type { Keyring, GetAccountBalancesRequest } from '@metamask/keyring-api';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
-import type { JsonRpcRequest } from './JsonRpcRequest';
 import { handleKeyringRequest } from './rpc-handler';
 
 describe('handleKeyringRequest', () => {

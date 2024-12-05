@@ -1,4 +1,3 @@
-import { exactOptional, object } from '@metamask/keyring-utils';
 import {
   array,
   literal,
@@ -9,6 +8,8 @@ import {
 } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
+
+import { exactOptional, object } from '.';
 
 export const JsonRpcRequestStruct = object({
   jsonrpc: literal('2.0'),
