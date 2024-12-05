@@ -23,6 +23,8 @@ type WorkspacePreviewPackage = WorkspacePackage & {
   version: string;
 };
 
+type DependenciesRecord = Record<string, string>;
+
 class UsageError extends Error {
   constructor(message: string) {
     // 1 because `ts-node` is being used as a launcher, so argv[0] is ts-node "bin.js"
@@ -148,8 +150,8 @@ async function updateWorkspacePackagesWithPreviewInfo(
     const peerDepKey = 'peerDependencies';
     if (peerDepKey in pkgJson.content) {
       const depKey = 'dependencies';
-      const deps = pkgJson.content[depKey];
-      const peerDeps = pkgJson.content[peerDepKey];
+      const deps = pkgJson.content[depKey] as DependenciesRecord;
+      const peerDeps = pkgJson.content[peerDepKey] as DependenciesRecord;
 
       for (const { name, version } of previewPkgs) {
         // Only consider dependenc that refers to a local workspace package
@@ -171,7 +173,7 @@ async function updateWorkspacePackagesWithPreviewInfo(
     // of that package instead, and `yarn` will resolve this using the global resolutions
     // (see `updateWorkspaceResolutions`)
     for (const depKey of ['dependencies', 'devDependencies']) {
-      const deps = pkgJson.content[depKey];
+      const deps = pkgJson.content[depKey] as DependenciesRecord;
 
       for (const { name, version } of previewPkgs) {
         // Only consider dependenc that refers to a local workspace package

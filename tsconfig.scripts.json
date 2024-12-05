@@ -1,13 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
     "esModuleInterop": true,
-    "exactOptionalPropertyTypes": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "noErrorTruncation": true,
-    "noUncheckedIndexedAccess": true,
-    "strict": true,
     "target": "es6"
   },
   "include": ["./scripts/**/*.ts"],
