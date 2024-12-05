@@ -50,10 +50,10 @@ linkStyle default opacity:0.5
   keyring_internal_api --> keyring_utils;
   eth_snap_keyring --> keyring_api;
   eth_snap_keyring --> keyring_internal_api;
+  eth_snap_keyring --> keyring_snap_client;
   eth_snap_keyring --> keyring_snap_internal_client;
-  eth_snap_keyring --> keyring_snap_sdk;
+  eth_snap_keyring --> keyring_utils;
   keyring_snap_client --> keyring_api;
-  keyring_snap_client --> keyring_snap_sdk;
   keyring_snap_client --> keyring_utils;
   keyring_snap_internal_client --> keyring_api;
   keyring_snap_internal_client --> keyring_snap_client;
