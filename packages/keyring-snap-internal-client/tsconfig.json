@@ -3,10 +3,6 @@
   "compilerOptions": {
     "baseUrl": "./"
   },
-  "include": [
-    "./src",
-    "../keyring-snap-client/src/KeyringSnapRpcClient.test.ts",
-    "../keyring-snap-client/src/KeyringSnapRpcClient.ts"
-  ],
+  "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }

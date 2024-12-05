@@ -7,10 +7,6 @@ describe('BalanceStruct', () => {
     // Valid
     { balance: { amount: '1.0', unit: 'ETH' }, expected: true },
     { balance: { amount: '0.1', unit: 'BTC' }, expected: true },
-    // FIXME: Those are not valid for `StringNumberStruct`, but they should be:
-    // { balance: { amount: '.1', unit: 'gwei' }, expected: true },
-    // { balance: { amount: '.1', unit: 'wei' }, expected: true },
-    // { balance: { amount: '1.', unit: 'sat' }, expected: true },
     // Missing amount
     { balance: { unit: 'ETH' }, expected: false },
     // Missing unit

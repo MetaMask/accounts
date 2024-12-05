@@ -8,6 +8,6 @@
       "path": "../keyring-api/tsconfig.build.json"
     }
   ],
-  "include": ["./src", "../keyring-api/src/api.ts"],
+  "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }

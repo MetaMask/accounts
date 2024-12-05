@@ -86,10 +86,6 @@ module.exports = {
   // Here we ensure that Jest resolves `@metamask/*` imports to the uncompiled source code for packages that live in this repo.
   // NOTE: This must be synchronized with the `paths` option in `tsconfig.packages.json`.
   moduleNameMapper: {
-    // FIXME: For now we do require to build some packages (keyring-api) that is then used
-    // in the keyring-snap package. This might be fixed after splitting the keyring-api into
-    // smaller internal packages!
-    '^jest-environment-jsdom$': ['<rootDir>/../keyring-api/dist/$1'],
     '^@metamask/(.+)$': [
       '<rootDir>/../$1/src',
       // Some @metamask/* packages we are referencing aren't in this monorepo,
