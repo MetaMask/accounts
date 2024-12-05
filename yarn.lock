@@ -2269,7 +2269,6 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/keyring-api": "workspace:^"
-    "@metamask/keyring-internal-api": "workspace:^"
     "@metamask/keyring-utils": "workspace:^"
     "@metamask/providers": "npm:^18.1.0"
     "@metamask/snaps-sdk": "npm:^6.7.0"
