@@ -1616,13 +1616,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/types-live@npm:^6.52.0, @ledgerhq/types-live@npm:^6.54.0":
-  version: 6.54.0
-  resolution: "@ledgerhq/types-live@npm:6.54.0"
+"@ledgerhq/types-live@npm:^6.52.0":
+  version: 6.52.0
+  resolution: "@ledgerhq/types-live@npm:6.52.0"
   dependencies:
     bignumber.js: "npm:^9.1.2"
     rxjs: "npm:^7.8.1"
-  checksum: 10/90cf2207d10ab4f8db8461670fe53b74d56b19eb67b9f868e3159aba2fc77ca3b015a6f67af316cf3bd0711db395af11218dc845194c05f193a106a44730fcda
+  checksum: 10/c410f02159538d66f59956512fc5bab2cb17edee7f6a15a517c31d89d6c730e52691666bb2e1d98718c701e94306dd7498544ea3d7772ff0b5ad6522fb2c335c
   languageName: node
   linkType: hard
 
@@ -1900,7 +1900,7 @@ __metadata:
     "@ledgerhq/hw-transport": "npm:^6.31.3"
     "@ledgerhq/types-cryptoassets": "npm:^7.15.1"
     "@ledgerhq/types-devices": "npm:^6.25.3"
-    "@ledgerhq/types-live": "npm:^6.54.0"
+    "@ledgerhq/types-live": "npm:^6.52.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.0.0"
     "@metamask/utils": "npm:^9.3.0"
