@@ -1,4 +1,3 @@
-import type { HDNodeResponse } from '@trezor/connect/lib/types/api/getPublicKey';
 import TrezorConnect, { DEVICE_EVENT, DEVICE } from '@trezor/connect-web';
 import type {
   EthereumSignedTx,
@@ -13,7 +12,7 @@ import type {
   EthereumSignTypedHash,
 } from '@trezor/connect-web';
 
-import type { TrezorBridge } from './trezor-bridge';
+import type { TrezorBridge, TrezorConnectPublicKey } from './trezor-bridge';
 
 export class TrezorConnectBridge implements TrezorBridge {
   model?: string;
@@ -51,7 +50,7 @@ export class TrezorConnectBridge implements TrezorBridge {
   getPublicKey(params: {
     path: string;
     coin: string;
-  }): Response<HDNodeResponse> {
+  }): Response<TrezorConnectPublicKey> {
     return TrezorConnect.getPublicKey(params);
   }
 
