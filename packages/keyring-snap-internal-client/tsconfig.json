@@ -3,6 +3,14 @@
   "compilerOptions": {
     "baseUrl": "./"
   },
+  "references": [
+    {
+      "path": "../keyring-api/tsconfig.build.json"
+    },
+    {
+      "path": "../keyring-snap-client/tsconfig.build.json"
+    }
+  ],
   "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }
