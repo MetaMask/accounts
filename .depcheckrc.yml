@@ -5,10 +5,12 @@ ignore-patterns:
 ignores:
   # Ignore depcheck itself (seems to be required for monorepos)
   - 'depcheck'
-  # Ignore tsd even if it not used yet in some pacakges
+  # Ignore tsd even if it not used yet in some packages
   - 'tsd'
   # Ignore dependencies imported implicitly by TypeScript
   - '@types/*'
+  # Ignore peer dependencies that appears unused, but are required
+  - 'webextension-polyfill'
   # Ignore tools (packages which we use as executables and not libraries)
   - 'rimraf'
   - '@lavamoat/allow-scripts'

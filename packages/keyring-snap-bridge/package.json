@@ -48,7 +48,8 @@
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^9.3.0",
     "@types/uuid": "^9.0.8",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",

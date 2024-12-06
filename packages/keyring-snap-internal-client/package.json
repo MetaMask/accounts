@@ -50,7 +50,8 @@
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/snaps-controllers": "^9.10.0",
     "@metamask/snaps-sdk": "^6.7.0",
-    "@metamask/snaps-utils": "^8.3.0"
+    "@metamask/snaps-utils": "^8.3.0",
+    "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
