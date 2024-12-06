@@ -41,7 +41,7 @@
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",
     "test:source": "jest && jest-it-up",
-    "test:types": "echo 'No tests to run for now'",
+    "test:types": "../../scripts/tsd-test.sh ./src",
     "test:watch": "jest --watch"
   },
   "dependencies": {
@@ -51,9 +51,6 @@
     "@metamask/snaps-controllers": "^9.10.0",
     "@metamask/snaps-sdk": "^6.7.0",
     "@metamask/snaps-utils": "^8.3.0",
-    "@metamask/superstruct": "^3.1.0",
-    "@types/uuid": "^9.0.8",
-    "uuid": "^9.0.1",
     "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
@@ -92,6 +89,9 @@
     }
   },
   "tsd": {
-    "directory": "src"
+    "directory": "src",
+    "compilerOptions": {
+      "composite": "false"
+    }
   }
 }

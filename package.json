@@ -14,21 +14,22 @@
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json",
     "build:clean": "yarn build --clean",
-    "build:docs": "yarn workspaces foreach --all --no-private --parallel --interlaced --verbose run build:docs",
+    "build:docs": "yarn foreach build:docs",
+    "foreach": "yarn workspaces foreach --all --parallel --verbose --exclude '@metamask/accounts-monorepo' run",
     "lint": "yarn lint:eslint && yarn lint:misc --check && yarn constraints && yarn lint:dependencies",
-    "lint:dependencies": "depcheck && yarn dedupe --check && syncpack list-mismatches",
-    "lint:dependencies:fix": "depcheck && yarn dedupe && syncpack fix-mismatches",
+    "lint:dependencies": "yarn foreach depcheck && yarn dedupe --check && syncpack list-mismatches",
+    "lint:dependencies:fix": "yarn foreach depcheck && yarn dedupe && syncpack fix-mismatches",
     "lint:eslint": "eslint . --cache --ext js,cjs,mjs,ts",
     "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write && yarn constraints --fix && yarn lint:dependencies:fix",
     "lint:misc": "prettier '**/*.json' '**/*.md' '!**/CHANGELOG.old.md' '**/*.yml' '!.yarnrc.yml' '!merged-packages/**' --ignore-path .gitignore",
     "prepare:preview": "ts-node --project tsconfig.scripts.json scripts/prepare-preview-builds.ts",
     "prepare:preview:local": "yarn prepare:preview @metamask-previews $(git rev-parse --short HEAD)",
-    "publish:preview": "yarn workspaces foreach --all --no-private --parallel --verbose run publish:preview",
+    "publish:preview": "yarn foreach publish:preview",
     "readme:update": "ts-node --project tsconfig.scripts.json scripts/update-readme-content.ts",
     "release": "./scripts/release.sh",
     "setup": "yarn install",
-    "test": "yarn workspaces foreach --all --parallel --verbose run test",
-    "test:clean": "yarn workspaces foreach --all --parallel --verbose run test:clean"
+    "test": "yarn foreach test",
+    "test:clean": "yarn foreach test:clean"
   },
   "resolutions": {
     "@types/node": "^20.12.12",

@@ -11,6 +11,10 @@ import type {
   EthereumSignTypedHash,
 } from '@trezor/connect-web';
 
+// TrezorConnect.getPublicKey has two overloads
+// It is not possible to extract them from the library using utility types
+export type ExtendedPublicKey = { publicKey: string; chainCode: string };
+
 export interface TrezorBridge {
   model?: string;
 
@@ -22,12 +26,10 @@ export interface TrezorBridge {
 
   dispose(): Promise<void>;
 
-  // TrezorConnect.getPublicKey has two overloads
-  // It is not possible to extract them from the library using utility types
   getPublicKey(params: {
     path: string;
     coin: string;
-  }): Response<{ publicKey: string; chainCode: string }>;
+  }): Response<ExtendedPublicKey>;
 
   ethereumSignTransaction(
     params: Params<EthereumSignTransaction>,

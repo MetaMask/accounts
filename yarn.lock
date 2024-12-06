@@ -2016,9 +2016,11 @@ __metadata:
     jest-it-up: "npm:^3.1.0"
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
+    tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.6.3"
     uuid: "npm:^9.0.1"
+    webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
     "@metamask/keyring-api": "workspace:^"
     "@metamask/providers": ^18.1.0
@@ -2234,12 +2236,10 @@ __metadata:
     "@metamask/snaps-controllers": "npm:^9.10.0"
     "@metamask/snaps-sdk": "npm:^6.7.0"
     "@metamask/snaps-utils": "npm:^8.3.0"
-    "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^9.3.0"
     "@ts-bridge/cli": "npm:^0.6.0"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
-    "@types/uuid": "npm:^9.0.8"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
@@ -2250,7 +2250,6 @@ __metadata:
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.6.3"
-    uuid: "npm:^9.0.1"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
     "@metamask/providers": ^18.1.0
@@ -2283,6 +2282,7 @@ __metadata:
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.6.3"
+    webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
     "@metamask/providers": ^18.1.0
   languageName: unknown
