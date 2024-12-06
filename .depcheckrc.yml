@@ -1,6 +1,7 @@
 ---
 ignore-patterns:
   - '.yarn'
+  - 'dist/'
 ignores:
   # Ignore dependencies imported implicitly by TypeScript
   - '@types/*'
