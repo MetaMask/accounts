@@ -15,7 +15,7 @@
     "build": "ts-bridge --project tsconfig.build.json",
     "build:clean": "yarn build --clean",
     "build:docs": "yarn foreach build:docs",
-    "foreach": "yarn workspaces foreach --all --parallel --verbose run",
+    "foreach": "yarn workspaces foreach --all --parallel --verbose --exclude '@metamask/accounts-monorepo' run",
     "lint": "yarn lint:eslint && yarn lint:misc --check && yarn constraints && yarn lint:dependencies",
     "lint:dependencies": "yarn foreach depcheck && yarn dedupe --check && syncpack list-mismatches",
     "lint:dependencies:fix": "yarn foreach depcheck && yarn dedupe && syncpack fix-mismatches",
