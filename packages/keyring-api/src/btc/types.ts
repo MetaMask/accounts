@@ -1,9 +1,9 @@
+import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { string, array, enums, refine, literal } from '@metamask/superstruct';
 import { bech32 } from 'bech32';
 
-import { KeyringAccountStruct, BtcAccountType } from '../api';
-import { object } from '../superstruct';
+import { BtcAccountType, KeyringAccountStruct } from '../api';
 
 export const BtcP2wpkhAddressStruct = refine(
   string(),

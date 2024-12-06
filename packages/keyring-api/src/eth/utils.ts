@@ -1,5 +1,5 @@
-import type { KeyringAccountType } from '../api';
 import { EthAccountType } from '../api';
+import type { KeyringAccountType } from '../api';
 
 /**
  * Checks if the given type is an EVM account type.

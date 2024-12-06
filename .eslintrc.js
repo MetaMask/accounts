@@ -66,6 +66,16 @@ module.exports = {
         '@typescript-eslint/naming-convention': 'warn',
       },
     },
+    // @metamask/keyring-utils
+    {
+      files: ['packages/keyring-utils/src/**/*.ts'],
+      extends: ['@metamask/eslint-config-typescript'],
+      parserOptions,
+      rules: {
+        // TODO: re-lint everything once the migration is done
+        '@typescript-eslint/no-explicit-any': 'off',
+      },
+    },
     // @metamask/keyring-api
     {
       files: ['packages/keyring-api/src/**/*.ts'],
@@ -75,6 +85,18 @@ module.exports = {
         // TODO: re-lint everything once the migration is done
         'import/order': 'off',
         'jsdoc/newline-after-description': 'off',
+      },
+    },
+    // @metamask/keyring-internal-api
+    {
+      files: ['packages/keyring-internal-api/src/**/*.ts'],
+      extends: ['@metamask/eslint-config-typescript'],
+      parserOptions,
+      rules: {
+        // FIXME: for some reason, it seems eslint is not able to infere those (this
+        // works on the original repository, so there might be some side-effects now that
+        // we are building in a monorepo)
+        '@typescript-eslint/restrict-template-expressions': 'off',
       },
     },
     // @metamask/keyring-eth-hd
@@ -158,6 +180,32 @@ module.exports = {
     // @metamask/keyring-snap-bridge
     {
       files: ['packages/keyring-snap-bridge/src/**/*.ts'],
+      extends: ['@metamask/eslint-config-typescript'],
+      parserOptions,
+      rules: {
+        // TODO: re-lint everything once the migration is done
+        '@typescript-eslint/no-explicit-any': 'off',
+        // FIXME: for some reason, it seems eslint is not able to infere those (this
+        // works on the original repository, so there might be some side-effects now that
+        // we are building in a monorepo)
+        '@typescript-eslint/restrict-template-expressions': 'off',
+      },
+    },
+    // @metamask/keyring-snap-sdk
+    {
+      files: ['packages/keyring-snap-sdk/src/**/*.test.ts'],
+      extends: ['@metamask/eslint-config-typescript'],
+      parserOptions,
+      rules: {
+        // FIXME: for some reason, it seems eslint is not able to infere those (this
+        // works on the original repository, so there might be some side-effects now that
+        // we are building in a monorepo)
+        '@typescript-eslint/restrict-template-expressions': 'off',
+      },
+    },
+    // @metamask/keyring-snap-client
+    {
+      files: ['packages/keyring-snap-client/src/**/*.ts'],
       extends: ['@metamask/eslint-config-typescript'],
       parserOptions,
       rules: {

@@ -1997,6 +1997,10 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.0.0"
+    "@metamask/keyring-api": "workspace:^"
+    "@metamask/keyring-internal-api": "workspace:^"
+    "@metamask/keyring-snap-internal-client": "workspace:^"
+    "@metamask/providers": "npm:^18.1.0"
     "@metamask/snaps-controllers": "npm:^9.10.0"
     "@metamask/snaps-sdk": "npm:^6.7.0"
     "@metamask/snaps-utils": "npm:^8.3.0"
@@ -2017,6 +2021,7 @@ __metadata:
     uuid: "npm:^9.0.1"
   peerDependencies:
     "@metamask/keyring-api": "workspace:^"
+    "@metamask/providers": ^18.1.0
   languageName: unknown
   linkType: soft
 
@@ -2128,21 +2133,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/keyring-api@workspace:packages/keyring-api":
+"@metamask/keyring-api@workspace:^, @metamask/keyring-api@workspace:packages/keyring-api":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-api@workspace:packages/keyring-api"
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
-    "@metamask/providers": "npm:^18.1.0"
-    "@metamask/snaps-sdk": "npm:^6.7.0"
+    "@metamask/keyring-utils": "workspace:^"
     "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^9.3.0"
     "@ts-bridge/cli": "npm:^0.6.0"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
-    "@types/uuid": "npm:^9.0.8"
     "@types/webextension-polyfill": "npm:^0.12.1"
     bech32: "npm:^2.0.0"
     deepmerge: "npm:^4.2.2"
@@ -2154,10 +2157,159 @@ __metadata:
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.6.3"
+  languageName: unknown
+  linkType: soft
+
+"@metamask/keyring-internal-api@workspace:^, @metamask/keyring-internal-api@workspace:packages/keyring-internal-api":
+  version: 0.0.0-use.local
+  resolution: "@metamask/keyring-internal-api@workspace:packages/keyring-internal-api"
+  dependencies:
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/keyring-api": "workspace:^"
+    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/superstruct": "npm:^3.1.0"
+    "@metamask/utils": "npm:^9.3.0"
+    "@ts-bridge/cli": "npm:^0.6.0"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.12.12"
+    deepmerge: "npm:^4.2.2"
+    depcheck: "npm:^1.4.7"
+    jest: "npm:^29.5.0"
+    jest-it-up: "npm:^3.1.0"
+    rimraf: "npm:^5.0.7"
+    ts-jest: "npm:^29.0.5"
+    ts-node: "npm:^10.9.2"
+    tsd: "npm:^0.31.0"
+    typedoc: "npm:^0.25.13"
+    typescript: "npm:~5.6.3"
+  languageName: unknown
+  linkType: soft
+
+"@metamask/keyring-snap-client@workspace:^, @metamask/keyring-snap-client@workspace:packages/keyring-snap-client":
+  version: 0.0.0-use.local
+  resolution: "@metamask/keyring-snap-client@workspace:packages/keyring-snap-client"
+  dependencies:
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/keyring-api": "workspace:^"
+    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/providers": "npm:^18.1.0"
+    "@metamask/superstruct": "npm:^3.1.0"
+    "@metamask/utils": "npm:^9.3.0"
+    "@ts-bridge/cli": "npm:^0.6.0"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.12.12"
+    "@types/uuid": "npm:^9.0.8"
+    deepmerge: "npm:^4.2.2"
+    depcheck: "npm:^1.4.7"
+    jest: "npm:^29.5.0"
+    jest-it-up: "npm:^3.1.0"
+    rimraf: "npm:^5.0.7"
+    ts-jest: "npm:^29.0.5"
+    ts-node: "npm:^10.9.2"
+    tsd: "npm:^0.31.0"
+    typedoc: "npm:^0.25.13"
+    typescript: "npm:~5.6.3"
     uuid: "npm:^9.0.1"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
     "@metamask/providers": ^18.1.0
+  languageName: unknown
+  linkType: soft
+
+"@metamask/keyring-snap-internal-client@workspace:^, @metamask/keyring-snap-internal-client@workspace:packages/keyring-snap-internal-client":
+  version: 0.0.0-use.local
+  resolution: "@metamask/keyring-snap-internal-client@workspace:packages/keyring-snap-internal-client"
+  dependencies:
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/keyring-api": "workspace:^"
+    "@metamask/keyring-snap-client": "workspace:^"
+    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/providers": "npm:^18.1.0"
+    "@metamask/snaps-controllers": "npm:^9.10.0"
+    "@metamask/snaps-sdk": "npm:^6.7.0"
+    "@metamask/snaps-utils": "npm:^8.3.0"
+    "@metamask/superstruct": "npm:^3.1.0"
+    "@metamask/utils": "npm:^9.3.0"
+    "@ts-bridge/cli": "npm:^0.6.0"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.12.12"
+    "@types/uuid": "npm:^9.0.8"
+    deepmerge: "npm:^4.2.2"
+    depcheck: "npm:^1.4.7"
+    jest: "npm:^29.5.0"
+    jest-it-up: "npm:^3.1.0"
+    rimraf: "npm:^5.0.7"
+    ts-jest: "npm:^29.0.5"
+    ts-node: "npm:^10.9.2"
+    tsd: "npm:^0.31.0"
+    typedoc: "npm:^0.25.13"
+    typescript: "npm:~5.6.3"
+    uuid: "npm:^9.0.1"
+    webextension-polyfill: "npm:^0.12.0"
+  peerDependencies:
+    "@metamask/providers": ^18.1.0
+  languageName: unknown
+  linkType: soft
+
+"@metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk":
+  version: 0.0.0-use.local
+  resolution: "@metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk"
+  dependencies:
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/keyring-api": "workspace:^"
+    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/providers": "npm:^18.1.0"
+    "@metamask/snaps-sdk": "npm:^6.7.0"
+    "@metamask/superstruct": "npm:^3.1.0"
+    "@metamask/utils": "npm:^9.3.0"
+    "@ts-bridge/cli": "npm:^0.6.0"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.12.12"
+    deepmerge: "npm:^4.2.2"
+    depcheck: "npm:^1.4.7"
+    jest: "npm:^29.5.0"
+    jest-it-up: "npm:^3.1.0"
+    rimraf: "npm:^5.0.7"
+    ts-jest: "npm:^29.0.5"
+    ts-node: "npm:^10.9.2"
+    tsd: "npm:^0.31.0"
+    typedoc: "npm:^0.25.13"
+    typescript: "npm:~5.6.3"
+  peerDependencies:
+    "@metamask/providers": ^18.1.0
+  languageName: unknown
+  linkType: soft
+
+"@metamask/keyring-utils@workspace:^, @metamask/keyring-utils@workspace:packages/keyring-utils":
+  version: 0.0.0-use.local
+  resolution: "@metamask/keyring-utils@workspace:packages/keyring-utils"
+  dependencies:
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/superstruct": "npm:^3.1.0"
+    "@metamask/utils": "npm:^9.3.0"
+    "@ts-bridge/cli": "npm:^0.6.0"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.12.12"
+    deepmerge: "npm:^4.2.2"
+    depcheck: "npm:^1.4.7"
+    jest: "npm:^29.5.0"
+    jest-it-up: "npm:^3.1.0"
+    rimraf: "npm:^5.0.7"
+    ts-jest: "npm:^29.0.5"
+    ts-node: "npm:^10.9.2"
+    tsd: "npm:^0.31.0"
+    typedoc: "npm:^0.25.13"
+    typescript: "npm:~5.6.3"
   languageName: unknown
   linkType: soft
 
@@ -6769,7 +6921,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^10.2.2, glob@npm:^10.3.10":
+"glob@npm:^10.2.2, glob@npm:^10.3.10, glob@npm:^10.3.7":
   version: 10.4.5
   resolution: "glob@npm:10.4.5"
   dependencies:
@@ -10038,6 +10190,17 @@ __metadata:
   bin:
     rimraf: bin.js
   checksum: 10/063ffaccaaaca2cfd0ef3beafb12d6a03dd7ff1260d752d62a6077b5dfff6ae81bea571f655bb6b589d366930ec1bdd285d40d560c0dae9b12f125e54eb743d5
+  languageName: node
+  linkType: hard
+
+"rimraf@npm:^5.0.7":
+  version: 5.0.10
+  resolution: "rimraf@npm:5.0.10"
+  dependencies:
+    glob: "npm:^10.3.7"
+  bin:
+    rimraf: dist/esm/bin.mjs
+  checksum: 10/f3b8ce81eecbde4628b07bdf9e2fa8b684e0caea4999acb1e3b0402c695cd41f28cd075609a808e61ce2672f528ca079f675ab1d8e8d5f86d56643a03e0b8d2e
   languageName: node
   linkType: hard
 

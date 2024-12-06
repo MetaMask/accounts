@@ -1,12 +1,11 @@
+import type { InferEquals } from '@metamask/keyring-utils';
+import { object, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, enums, nullable, number, string } from '@metamask/superstruct';
 import { CaipChainIdStruct } from '@metamask/utils';
 
 import { AssetStruct } from './asset';
-import type { InferEquals } from '../superstruct';
-import { object } from '../superstruct';
-import type { Paginated } from '../utils';
-import { UuidStruct } from '../utils';
+import type { Paginated } from './pagination';
 
 /**
  * This struct represents a participant in a transaction.

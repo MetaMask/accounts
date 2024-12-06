@@ -26,6 +26,36 @@
       "dependencyTypes": ["!local"],
       "dependencies": ["@metamask/keyring-api"],
       "pinVersion": "workspace:^"
-    }
+    },
+    {
+      "label": "use workspace version of the keyring-internal-api",
+      "dependencyTypes": ["!local"],
+      "dependencies": ["@metamask/keyring-internal-api"],
+      "pinVersion": "workspace:^"
+    },
+    {
+      "label": "use workspace version of the keyring-snap-sdk",
+      "dependencyTypes": ["!local"],
+      "dependencies": ["@metamask/keyring-snap-sdk"],
+      "pinVersion": "workspace:^"
+    },
+    {
+      "label": "use workspace version of the keyring-snap-client",
+      "dependencyTypes": ["!local"],
+      "dependencies": ["@metamask/keyring-snap-client"],
+      "pinVersion": "workspace:^"
+    },
+    {
+      "label": "use workspace version of the keyring-snap-internal-client",
+      "dependencyTypes": ["!local"],
+      "dependencies": ["@metamask/keyring-snap-internal-client"],
+      "pinVersion": "workspace:^"
+    },
+    {
+      "label": "use workspace version of the keyring-utils",
+      "dependencyTypes": ["!local"],
+      "dependencies": ["@metamask/keyring-utils"],
+      "pinVersion": "workspace:^"
+    },
   ]
 }

@@ -1,3 +1,8 @@
+import {
+  object,
+  selectiveUnion,
+  StringNumberStruct,
+} from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { literal, string } from '@metamask/superstruct';
 import {
@@ -5,9 +10,6 @@ import {
   CaipAssetTypeStruct,
   isPlainObject,
 } from '@metamask/utils';
-
-import { object, selectiveUnion } from '../superstruct';
-import { StringNumberStruct } from '../utils';
 
 /**
  * Fungible asset struct.

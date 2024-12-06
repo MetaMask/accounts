@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+// This rule seems to be triggering a false positive on the `KeyringAccount`.
+
 import type { Json } from '@metamask/utils';
 
 import type { KeyringAccount } from './account';
 import type { Balance } from './balance';
 import type { CaipAssetType } from './caip';
 import type { KeyringAccountData } from './export';
+import type { Paginated, Pagination } from './pagination';
 import type { KeyringRequest } from './request';
 import type { KeyringResponse } from './response';
 import type { Transaction } from './transaction';
-import type { Paginated, Pagination } from '../utils';
 
 /**
  * Keyring interface.

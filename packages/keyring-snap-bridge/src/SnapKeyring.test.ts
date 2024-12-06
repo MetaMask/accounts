@@ -1,18 +1,18 @@
 import { TransactionFactory } from '@ethereumjs/tx';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
+  KeyringAccount,
+  KeyringExecutionContext,
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
-  KeyringAccount,
-  KeyringExecutionContext,
 } from '@metamask/keyring-api';
 import {
   BtcAccountType,
-  BtcMethod,
   EthAccountType,
-  EthMethod,
   SolAccountType,
+  BtcMethod,
+  EthMethod,
   SolMethod,
   KeyringEvent,
 } from '@metamask/keyring-api';
