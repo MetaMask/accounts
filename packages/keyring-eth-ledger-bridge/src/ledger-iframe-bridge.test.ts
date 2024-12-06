@@ -177,6 +177,29 @@ describe('LedgerIframeBridge', function () {
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
+
+    it('throws an error when unknown error occur', async function () {
+      const errorMessage = 'Unknown error occurred';
+
+      stubKeyringIFramePostMessage(bridge, (message) => {
+        expect(message).toStrictEqual({
+          action: IFrameMessageAction.LedgerMakeApp,
+          messageId: 1,
+          target: LEDGER_IFRAME_ID,
+        });
+
+        bridge.messageCallbacks[message.messageId]?.({
+          action: IFrameMessageAction.LedgerMakeApp,
+          messageId: 1,
+          success: false,
+        });
+      });
+
+      await expect(bridge.attemptMakeApp()).rejects.toThrow(errorMessage);
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
+    });
   });
 
   describe('updateTransportMethod', function () {
@@ -435,16 +458,27 @@ describe('LedgerIframeBridge', function () {
   });
 
   describe('deviceSignTypedData', function () {
+    const params = {
+      hdPath: "m/44'/60'/0'/0",
+      message: {
+        domain: {
+          chainId: 1,
+          verifyingContract: '0xdsf',
+        },
+        primaryType: 'string',
+        types: {
+          EIP712Domain: [],
+          string: [],
+        },
+        message: { test: 'test' },
+      },
+    };
+
     it('sends and processes a successful ledger-sign-typed-data message', async function () {
       const payload = {
         v: 0,
         r: '',
         s: '',
-      };
-      const params = {
-        hdPath: "m/44'/60'/0'/0",
-        domainSeparatorHex: '',
-        hashStructMessageHex: '',
       };
 
       stubKeyringIFramePostMessage(bridge, (message) => {
@@ -473,11 +507,6 @@ describe('LedgerIframeBridge', function () {
 
     it('throws an error when a ledger-sign-typed-data message is not successful', async function () {
       const errorMessage = 'Ledger Error';
-      const params = {
-        hdPath: "m/44'/60'/0'/0",
-        domainSeparatorHex: '',
-        hashStructMessageHex: '',
-      };
 
       stubKeyringIFramePostMessage(bridge, (message) => {
         expect(message).toStrictEqual({

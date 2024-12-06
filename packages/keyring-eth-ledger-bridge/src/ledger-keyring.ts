@@ -494,18 +494,6 @@ export class LedgerKeyring extends EventEmitter {
 
     const { domain, types, primaryType, message } =
       TypedDataUtils.sanitizeData(data);
-    const domainSeparatorHex = TypedDataUtils.hashStruct(
-      'EIP712Domain',
-      domain,
-      types,
-      SignTypedDataVersion.V4,
-    ).toString('hex');
-    const hashStructMessageHex = TypedDataUtils.hashStruct(
-      primaryType.toString(),
-      message,
-      types,
-      SignTypedDataVersion.V4,
-    ).toString('hex');
 
     const hdPath = await this.unlockAccountByAddress(withAccount);
 
@@ -517,8 +505,18 @@ export class LedgerKeyring extends EventEmitter {
     try {
       payload = await this.bridge.deviceSignTypedData({
         hdPath,
-        domainSeparatorHex,
-        hashStructMessageHex,
+        message: {
+          domain: {
+            name: domain.name,
+            chainId: domain.chainId,
+            version: domain.version,
+            verifyingContract: domain.verifyingContract,
+            salt: this.#convertSaltIfAny(domain.salt),
+          },
+          types,
+          primaryType: primaryType.toString(),
+          message,
+        },
       });
     } catch (error) {
       throw error instanceof Error
@@ -558,6 +556,17 @@ export class LedgerKeyring extends EventEmitter {
     this.paths = {};
     this.accountDetails = {};
     this.hdk = new HDKey();
+  }
+
+  #convertSaltIfAny(salt: ArrayBuffer | undefined): string | undefined {
+    if (!salt) {
+      return undefined;
+    }
+
+    // We convert this to a plain string to avoid encoding issue on the
+    // mobile side (to avoid using `TextDecoder`).
+    const saltBytes = new Uint8Array(salt);
+    return String.fromCharCode(...saltBytes);
   }
 
   /* PRIVATE METHODS */
