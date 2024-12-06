@@ -3,6 +3,11 @@
   "compilerOptions": {
     "baseUrl": "./"
   },
+  "references": [
+    {
+      "path": "../keyring-api/tsconfig.build.json"
+    }
+  ],
   "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }
