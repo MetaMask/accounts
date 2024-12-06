@@ -24,3 +24,6 @@ ignores:
   # @metamask/eth-ledger-bridge-keyring
   - '@ledgerhq/types-cryptoassets'
   - '@ledgerhq/types-devices'
+  # Ignore dependency that is used with jest "directives" (thus, they cannot be detected
+  # by depcheck properly)
+  - 'jest-environment-jsdom'
