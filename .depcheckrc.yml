@@ -5,6 +5,8 @@ ignore-patterns:
 ignores:
   # Ignore depcheck itself (seems to be required for monorepos)
   - 'depcheck'
+  # Ignore tsd even if it not used yet in some pacakges
+  - 'tsd'
   # Ignore dependencies imported implicitly by TypeScript
   - '@types/*'
   # Ignore tools (packages which we use as executables and not libraries)

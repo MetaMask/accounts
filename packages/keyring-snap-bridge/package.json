@@ -30,8 +30,10 @@
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-snap-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-snap-keyring",
     "publish:preview": "yarn npm publish --tag preview",
-    "test": "jest && jest-it-up",
+    "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",
+    "test:source": "jest && jest-it-up",
+    "test:types": "../../scripts/tsd-test.sh ./src",
     "test:watch": "jest --watch"
   },
   "dependencies": {
@@ -62,6 +64,7 @@
     "jest-it-up": "^3.1.0",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
+    "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
     "typescript": "~5.6.3"
   },
@@ -82,6 +85,12 @@
       "@metamask/snaps-utils>@metamask/permission-controller>@metamask/controller-utils>ethereumjs-util>ethereum-cryptography>secp256k1": false,
       "@metamask/snaps-controllers>@metamask/phishing-controller>@metamask/controller-utils>ethereumjs-util>ethereum-cryptography>keccak": false,
       "@metamask/snaps-controllers>@metamask/phishing-controller>@metamask/controller-utils>ethereumjs-util>ethereum-cryptography>secp256k1": false
+    }
+  },
+  "tsd": {
+    "directory": "src",
+    "compilerOptions": {
+      "composite": "false"
     }
   }
 }
