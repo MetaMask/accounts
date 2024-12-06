@@ -12,7 +12,7 @@ import type {
   EthereumSignTypedHash,
 } from '@trezor/connect-web';
 
-import type { TrezorBridge, TrezorConnectPublicKey } from './trezor-bridge';
+import type { TrezorBridge, ExtendedPublicKey } from './trezor-bridge';
 
 export class TrezorConnectBridge implements TrezorBridge {
   model?: string;
@@ -50,7 +50,7 @@ export class TrezorConnectBridge implements TrezorBridge {
   getPublicKey(params: {
     path: string;
     coin: string;
-  }): Response<TrezorConnectPublicKey> {
+  }): Response<ExtendedPublicKey> {
     return TrezorConnect.getPublicKey(params);
   }
 
