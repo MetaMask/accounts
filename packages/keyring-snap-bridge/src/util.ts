@@ -1,26 +1,4 @@
-import type { Struct } from '@metamask/superstruct';
-import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
-
-/**
- * Assert that a value is valid according to a struct.
- *
- * It is similar to superstruct's mask function, but it does not ignore extra
- * properties.
- *
- * @param value - Value to check.
- * @param struct - Struct to validate the value against.
- * @param message - Error message to throw if the value is not valid.
- * @returns The value if it is valid.
- */
-export function strictMask<Type, Schema>(
-  value: unknown,
-  struct: Struct<Type, Schema>,
-  message?: string,
-): Type {
-  assert(value, struct, message);
-  return value;
-}
 
 /**
  * Remove duplicate entries from an array.
