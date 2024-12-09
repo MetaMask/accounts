@@ -9,12 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.0.0]
 
-### Uncategorized
+### Changed
 
-- Revert "release: 15.0.0 (#123)" ([#123](https://github.com/MetaMask/accounts/pull/123))
-- release: 15.0.0 ([#123](https://github.com/MetaMask/accounts/pull/123))
-- feat(keyring-eth-ledger-bridge)!: enable ledger clear signing ([#99](https://github.com/MetaMask/accounts/pull/99))
-- feat: add `listAccountTransactions` method ([#41](https://github.com/MetaMask/accounts/pull/41))
+- **BREAKING:** Enable Ledger clear signing ([#99](https://github.com/MetaMask/accounts/pull/99))
+  - The `LedgerSignTypedDataParams` type now requires a new `message` field which replaces the `domainSeparatorHex` and `hashStructMessage}Hex` fields.
 
 ## [7.0.0]
 
