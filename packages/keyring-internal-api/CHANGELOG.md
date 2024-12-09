@@ -7,4 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- refactor: split keyring-api ([#24](https://github.com/MetaMask/accounts/pull/24))
+
 [Unreleased]: https://github.com/MetaMask/accounts/

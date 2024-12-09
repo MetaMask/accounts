@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(keyring-eth-ledger-bridge)!: enable ledger clear signing ([#99](https://github.com/MetaMask/accounts/pull/99))
+- feat: add `listAccountTransactions` method ([#41](https://github.com/MetaMask/accounts/pull/41))
+
 ## [7.0.0]
 
 ### Added
