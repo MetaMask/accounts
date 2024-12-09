@@ -7,13 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [8.0.0]
-
-### Changed
-
-- **BREAKING:** Enable Ledger clear signing ([#99](https://github.com/MetaMask/accounts/pull/99))
-  - The `LedgerSignTypedDataParams` type now requires a new `message` field which replaces the `domainSeparatorHex` and `hashStructMessage}Hex` fields.
-
 ## [7.0.0]
 
 ### Added
@@ -223,8 +216,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.0...HEAD
-[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@7.0.0...@metamask/eth-ledger-bridge-keyring@8.0.0
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@7.0.0...HEAD
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@6.0.0...@metamask/eth-ledger-bridge-keyring@7.0.0
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@5.0.1...@metamask/eth-ledger-bridge-keyring@6.0.0
 [5.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@5.0.0...@metamask/eth-ledger-bridge-keyring@5.0.1
