@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 /**
  * Scopes for EVM account type. See {@link KeyringAccount.scopes}.
  */

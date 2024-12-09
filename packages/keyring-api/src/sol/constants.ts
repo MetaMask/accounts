@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 /**
  * Scopes for Solana account type. See {@link KeyringAccount.scopes}.
  */
