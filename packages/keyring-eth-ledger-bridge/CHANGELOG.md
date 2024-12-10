@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.0.1]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
+  - This new version fixes a bug with CJS re-exports.
+
 ## [8.0.0]
 
 ### Changed
@@ -223,7 +230,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.1...HEAD
+[8.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.0...@metamask/eth-ledger-bridge-keyring@8.0.1
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@7.0.0...@metamask/eth-ledger-bridge-keyring@8.0.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@6.0.0...@metamask/eth-ledger-bridge-keyring@7.0.0
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@5.0.1...@metamask/eth-ledger-bridge-keyring@6.0.0

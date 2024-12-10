@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.0]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
+  - This new version fixes a bug with CJS re-exports.
+- Uses new `keyring-api` splitted packages ([#24](https://github.com/MetaMask/accounts/pull/24))
+
 ## [6.0.0]
 
 ### Added
@@ -375,7 +383,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@6.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.0.0...HEAD
+[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@6.0.0...@metamask/eth-snap-keyring@7.0.0
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@5.0.1...@metamask/eth-snap-keyring@6.0.0
 [5.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@5.0.0...@metamask/eth-snap-keyring@5.0.1
 [5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.4.0...@metamask/eth-snap-keyring@5.0.0
