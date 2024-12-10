@@ -1,12 +1,12 @@
 {
-  "name": "@metamask/keyring-snap-internal-client",
+  "name": "@metamask/keyring-internal-snap-client",
   "version": "0.0.0",
   "description": "MetaMask Keyring Snap internal clients",
   "keywords": [
     "metamask",
     "keyring"
   ],
-  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-snap-internal-client#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-internal-snap-client#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
@@ -35,8 +35,8 @@
     "build": "ts-bridge --project tsconfig.build.json --no-references",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-snap-internal-client",
-    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-snap-internal-client",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-internal-snap-client",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-internal-snap-client",
     "publish:preview": "yarn npm publish --tag preview",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",
