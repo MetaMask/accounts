@@ -52,8 +52,7 @@
     "@metamask/eth-sig-util": "^8.1.2",
     "@trezor/connect-plugin-ethereum": "^9.0.3",
     "@trezor/connect-web": "^9.1.11",
-    "hdkey": "^2.1.0",
-    "tslib": "^2.6.2"
+    "hdkey": "^2.1.0"
   },
   "devDependencies": {
     "@ethereumjs/common": "^3.2.0",
@@ -76,8 +75,12 @@
     "sinon": "^19.0.2",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
+    "tslib": "^2.6.2",
     "typedoc": "^0.25.13",
     "typescript": "~5.6.3"
+  },
+  "peerDependencies": {
+    "tslib": "^2.6.2"
   },
   "engines": {
     "node": "^18.18 || >=20"

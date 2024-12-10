@@ -45,7 +45,6 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^11.0.1"
@@ -54,6 +53,7 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/keyring-api": "workspace:^",
     "@ts-bridge/cli": "^0.6.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
@@ -67,6 +67,9 @@
     "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
     "typescript": "~5.6.3"
+  },
+  "peerDependencies": {
+    "@metamask/keyring-api": "workspace:^"
   },
   "engines": {
     "node": "^18.18 || >=20"

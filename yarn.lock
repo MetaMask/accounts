@@ -1883,6 +1883,7 @@ __metadata:
     deepmerge: "npm:^4.2.2"
     ethereum-cryptography: "npm:^2.1.2"
     jest: "npm:^29.5.0"
+    typescript: "npm:~5.6.3"
   languageName: unknown
   linkType: soft
 
@@ -1994,9 +1995,6 @@ __metadata:
   resolution: "@metamask/eth-snap-keyring@workspace:packages/keyring-snap-bridge"
   dependencies:
     "@ethereumjs/tx": "npm:^4.2.0"
-    "@lavamoat/allow-scripts": "npm:^3.2.1"
-    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.1.2"
     "@metamask/keyring-api": "workspace:^"
     "@metamask/keyring-internal-api": "workspace:^"
@@ -2025,7 +2023,6 @@ __metadata:
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
     "@metamask/keyring-api": "workspace:^"
-    "@metamask/providers": ^18.3.1
   languageName: unknown
   linkType: soft
 
@@ -2062,6 +2059,8 @@ __metadata:
     tslib: "npm:^2.6.2"
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.6.3"
+  peerDependencies:
+    tslib: ^2.6.2
   languageName: unknown
   linkType: soft
 
@@ -2150,7 +2149,6 @@ __metadata:
     "@ts-bridge/cli": "npm:^0.6.1"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
-    "@types/webextension-polyfill": "npm:^0.12.1"
     bech32: "npm:^2.0.0"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
@@ -2188,6 +2186,8 @@ __metadata:
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.6.3"
+  peerDependencies:
+    "@metamask/keyring-api": "workspace:^"
   languageName: unknown
   linkType: soft
 
@@ -2220,8 +2220,6 @@ __metadata:
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.6.3"
     webextension-polyfill: "npm:^0.12.0"
-  peerDependencies:
-    "@metamask/providers": ^18.3.1
   languageName: unknown
   linkType: soft
 
@@ -2234,7 +2232,6 @@ __metadata:
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/keyring-api": "workspace:^"
     "@metamask/keyring-utils": "workspace:^"
-    "@metamask/providers": "npm:^18.3.1"
     "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^11.0.1"
     "@ts-bridge/cli": "npm:^0.6.1"
@@ -2252,9 +2249,8 @@ __metadata:
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.6.3"
     uuid: "npm:^9.0.1"
-    webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
-    "@metamask/providers": ^18.3.1
+    "@metamask/keyring-api": "workspace:^"
   languageName: unknown
   linkType: soft
 
@@ -2286,7 +2282,7 @@ __metadata:
     typescript: "npm:~5.6.3"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
-    "@metamask/providers": ^18.3.1
+    "@metamask/keyring-api": "workspace:^"
   languageName: unknown
   linkType: soft
 
@@ -3675,13 +3671,6 @@ __metadata:
   version: 0.0.69
   resolution: "@types/web@npm:0.0.69"
   checksum: 10/676c83e1d367d5f56619ed34c6ba50cccd5c394b5474dddaccb9e7dc7e121f26748d377c248da8a7eee106f87688239dd0027d087e3e09e9918f03b7c6082e92
-  languageName: node
-  linkType: hard
-
-"@types/webextension-polyfill@npm:^0.12.1":
-  version: 0.12.1
-  resolution: "@types/webextension-polyfill@npm:0.12.1"
-  checksum: 10/80c1f81af272d378098474a41e0941bf9375261423ea289cd8250efc9a628cec4fa6083cb9cd5c62ff0f828ac235a044c0b95543c0606e894dfd485cea55b0aa
   languageName: node
   linkType: hard
 
