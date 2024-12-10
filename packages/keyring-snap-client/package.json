@@ -45,17 +45,16 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/superstruct": "^3.1.0",
     "@types/uuid": "^9.0.8",
-    "uuid": "^9.0.1",
-    "webextension-polyfill": "^0.12.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/keyring-api": "workspace:^",
     "@metamask/providers": "^18.1.0",
     "@metamask/utils": "^9.3.0",
     "@ts-bridge/cli": "^0.6.1",
@@ -70,9 +69,11 @@
     "ts-node": "^10.9.2",
     "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
-    "typescript": "~5.6.3"
+    "typescript": "~5.6.3",
+    "webextension-polyfill": "^0.12.0"
   },
   "peerDependencies": {
+    "@metamask/keyring-api": "workspace:^",
     "@metamask/providers": "^18.1.0"
   },
   "engines": {
