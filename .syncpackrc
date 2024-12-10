@@ -46,9 +46,9 @@
       "pinVersion": "workspace:^"
     },
     {
-      "label": "use workspace version of the keyring-snap-internal-client",
+      "label": "use workspace version of the keyring-internal-snap-client",
       "dependencyTypes": ["!local"],
-      "dependencies": ["@metamask/keyring-snap-internal-client"],
+      "dependencies": ["@metamask/keyring-internal-snap-client"],
       "pinVersion": "workspace:^"
     },
     {
