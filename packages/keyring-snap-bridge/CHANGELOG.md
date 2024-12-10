@@ -9,12 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.0.0]
 
-### Uncategorized
+### Changed
 
-- refactor: keyring-snap-internal-client -> keyring-internal-snap-client ([#127](https://github.com/MetaMask/accounts/pull/127))
-- build: use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
-- fix: depcheck ([#119](https://github.com/MetaMask/accounts/pull/119))
-- refactor: split keyring-api ([#24](https://github.com/MetaMask/accounts/pull/24))
+- Use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
+  - This new version fixes a bug with CJS reexports.
+- Uses new `keyring-api` splitted packages ([#24](https://github.com/MetaMask/accounts/pull/24))
 
 ## [6.0.0]
 

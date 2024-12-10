@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.0.1]
 
-### Uncategorized
+### Changed
 
-- build: use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
-- fix: depcheck ([#119](https://github.com/MetaMask/accounts/pull/119))
+- Use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
+  - This new version fixes a bug with CJS reexports.
 
 ## [6.0.0]
 

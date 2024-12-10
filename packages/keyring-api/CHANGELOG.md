@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [12.0.0]
 
-### Uncategorized
+### Changed
 
-- build: use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
-- refactor: split keyring-api ([#24](https://github.com/MetaMask/accounts/pull/24))
+- Use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
+  - This new version fixes a bug with CJS reexports.
+- Split into several smaller packages ([#24](https://github.com/MetaMask/accounts/pull/24))
+  - This should improve dependencies management.
+  - Internal related types (internal to both clients) have been moved to `keyring-internal-*` packages.
+  - Keyring API clients (mainly used by dapps) have been moved to `keyring-snap-client` package.
+  - Common utils have been moevd to `keyring-utils` package.
 
 ## [11.1.0]
 
