@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0]
+
 ### Uncategorized
 
 - build: use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
 
-[Unreleased]: https://github.com/MetaMask/accounts/
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@1.0.0...HEAD
+[1.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/keyring-utils@1.0.0

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.0.1]
+
 ### Uncategorized
 
 - build: use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
@@ -146,7 +148,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.1...HEAD
+[6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.0...@metamask/eth-trezor-keyring@6.0.1
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@5.0.0...@metamask/eth-trezor-keyring@6.0.0
 [5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@4.0.0...@metamask/eth-trezor-keyring@5.0.0
 [4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.3...@metamask/eth-trezor-keyring@4.0.0
