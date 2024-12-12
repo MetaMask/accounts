@@ -1,6 +1,13 @@
 import { object, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { array, enums, record, string, union } from '@metamask/superstruct';
+import {
+  nonempty,
+  array,
+  enums,
+  record,
+  string,
+  union,
+} from '@metamask/superstruct';
 import {
   CaipChainIdStruct,
   CaipNamespaceStruct,
@@ -69,7 +76,7 @@ export const KeyringAccountStruct = object({
   /**
    * Account supported scopes (CAIP-2 chain IDs).
    */
-  scopes: array(union([CaipNamespaceStruct, CaipChainIdStruct])),
+  scopes: nonempty(array(union([CaipNamespaceStruct, CaipChainIdStruct]))),
 
   /**
    * Account options.
