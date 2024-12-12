@@ -1,7 +1,8 @@
 import { object, definePattern } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { array, enums, literal } from '@metamask/superstruct';
+import { nonempty, array, enums, literal } from '@metamask/superstruct';
 
+import { EthScopes } from '.';
 import { EthAccountType, KeyringAccountStruct } from '../api';
 
 export const EthBytesStruct = definePattern('EthBytes', /^0x[0-9a-f]*$/iu);
@@ -45,6 +46,11 @@ export const EthEoaAccountStruct = object({
    * Account type.
    */
   type: literal(`${EthAccountType.Eoa}`),
+
+  /**
+   * Account scopes (must be ['eip155']).
+   */
+  scopes: nonempty(array(literal(EthScopes.Namespace))),
 
   /**
    * Account supported methods.
