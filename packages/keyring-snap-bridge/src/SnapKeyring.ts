@@ -14,6 +14,7 @@ import {
   EthUserOperationPatchStruct,
   isEvmAccountType,
   KeyringEvent,
+  EthAccountType,
 } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
@@ -30,7 +31,7 @@ import { KeyringSnapControllerClient } from '@metamask/keyring-snap-internal-cli
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
-import type { Snap } from '@metamask/snaps-utils';
+import { isEqual, type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 import {
@@ -180,17 +181,31 @@ export class SnapKeyring extends EventEmitter {
    * @returns A valid KeyringAccount.
    */
   #transformAccountFromEvent(account: KeyringAccountFromEvent): KeyringAccount {
-    if (account.scopes !== undefined) {
-      return account as KeyringAccount;
+    const { type, scopes } = account;
+
+    if (type === EthAccountType.Eoa) {
+      // EVM EOA account are compatible with any EVM networks, and we use CAIP-2
+      // namespaces when the scope relates to ALL chains (from that namespace).
+      const namespace = EthScopes.Namespace;
+
+      if (scopes && !isEqual(scopes, [namespace])) {
+        // Those accounts must use `['eip155']` for their `scopes`.
+        throw new Error(`EVM EOA accounts must use scopes: [${namespace}]`);
+      }
+
+      // If `scopes` is not defined, then we will end-up here and inject it.
+      return {
+        ...account,
+        scopes: [namespace],
+      };
     }
 
-    // If no scope is provided, we add a default scopes and consider this account as an EVM account.
-    return {
-      ...account,
+    // For all other accounts (non-EVM and ERC4337), the Snap is expected to provide its scopes!
+    if (!scopes) {
+      throw new Error(`Account scopes is required for non-EVM accounts`);
+    }
 
-      // This account will be compatible for any EVM networks (which is why we use "namespace" here).
-      scopes: [EthScopes.Namespace],
-    };
+    return account as KeyringAccount;
   }
 
   /**

@@ -347,7 +347,7 @@ describe('SnapKeyring', () => {
         });
       });
 
-      it('creates the account and set a default scopes if not provided', async () => {
+      it('creates an EOA account and set a default scopes if not provided', async () => {
         // Reset the keyring so it's empty.
         keyring = new SnapKeyring(
           mockSnapController as unknown as SnapController,
@@ -372,6 +372,50 @@ describe('SnapKeyring', () => {
           // during the account creation flow.
           scopes: [EthScopes.Namespace],
         });
+      });
+
+      it('creating an EOA account with the wrong scopes will throw an error', async () => {
+        // Reset the keyring so it's empty.
+        keyring = new SnapKeyring(
+          mockSnapController as unknown as SnapController,
+          mockCallbacks,
+        );
+
+        // Force `scopes` to something else
+        const account: KeyringAccount = {
+          ...ethEoaAccount1,
+
+          // EOA accounts are compatible on every EVM chains and MUST USE ['eip155']. Here
+          // were using a more specific scopes, which is now allowed by the Snap keyring.
+          scopes: [EthScopes.Mainnet],
+        };
+        await expect(
+          keyring.handleKeyringSnapMessage(snapId, {
+            method: KeyringEvent.AccountCreated,
+            params: {
+              account,
+            },
+          }),
+        ).rejects.toThrow('EVM EOA accounts must use scopes: [eip155]');
+      });
+
+      it('creating a non-EVM account with the no scope will throw an error', async () => {
+        // Reset the keyring so it's empty.
+        keyring = new SnapKeyring(
+          mockSnapController as unknown as SnapController,
+          mockCallbacks,
+        );
+
+        // Omit `scopes` from non-EVM `account`.
+        const { scopes: _, ...account } = btcP2wpkhAccount;
+        await expect(
+          keyring.handleKeyringSnapMessage(snapId, {
+            method: KeyringEvent.AccountCreated,
+            params: {
+              account,
+            },
+          }),
+        ).rejects.toThrow('Account scopes is required for non-EVM accounts');
       });
     });
 
@@ -511,7 +555,7 @@ describe('SnapKeyring', () => {
         );
       });
 
-      it('updates the account and set a default scopes if not provided', async () => {
+      it('updates an EOA account and set a default scopes if not provided', async () => {
         // Omit `scopes` from `account`.
         const { scopes: _, ...account } = ethEoaAccount1;
 
@@ -528,6 +572,35 @@ describe('SnapKeyring', () => {
         const keyringAccounts = keyring.listAccounts();
         expect(keyringAccounts.length).toBeGreaterThan(0);
         expect(keyringAccounts[0]?.scopes).toStrictEqual([EthScopes.Namespace]);
+      });
+
+      it('updates an EOA account with a wrong scope will throw an error', async () => {
+        const account = { ...ethEoaAccount1, scopes: [EthScopes.Mainnet] };
+
+        // Return the updated list of accounts when the keyring requests it.
+        mockSnapController.handleRequest.mockResolvedValue([{ ...account }]);
+
+        await expect(
+          keyring.handleKeyringSnapMessage(snapId, {
+            method: KeyringEvent.AccountUpdated,
+            params: { account },
+          }),
+        ).rejects.toThrow('EVM EOA accounts must use scopes: [eip155]');
+      });
+
+      it('updates a non-EVM account with the no scope will throw an error', async () => {
+        // Omit `scopes` from non-EVM `account`.
+        const { scopes: _, ...account } = btcP2wpkhAccount;
+
+        // Return the updated list of accounts when the keyring requests it.
+        mockSnapController.handleRequest.mockResolvedValue([{ ...account }]);
+
+        await expect(
+          keyring.handleKeyringSnapMessage(snapId, {
+            method: KeyringEvent.AccountUpdated,
+            params: { account },
+          }),
+        ).rejects.toThrow('Account scopes is required for non-EVM accounts');
       });
     });
 
