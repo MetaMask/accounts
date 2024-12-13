@@ -27,7 +27,7 @@ import type {
   EthUserOperationPatch,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
-import { KeyringSnapControllerClient } from '@metamask/keyring-snap-internal-client';
+import { KeyringSnapControllerClient } from '@metamask/keyring-internal-snap-client';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
