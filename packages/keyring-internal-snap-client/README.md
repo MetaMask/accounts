@@ -4,11 +4,11 @@ Clients that can be used to communicate with a Snap Account using various provid
 
 ## Installation
 
-`yarn add @metamask/keyring-snap-internal-client`
+`yarn add @metamask/keyring-internal-snap-client`
 
 or
 
-`npm install @metamask/keyring-snap-internal-client`
+`npm install @metamask/keyring-internal-snap-client`
 
 ## Contributing
 
