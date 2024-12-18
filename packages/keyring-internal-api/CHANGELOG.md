@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(keyring-api)!: add `scopes` field to `KeyringAccount` ([#101](https://github.com/MetaMask/accounts.git/pull/101))
+
 ## [1.0.0]
 
 ### Added
@@ -15,5 +19,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@1.0.0...HEAD
-[1.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/keyring-internal-api@1.0.0
+[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-api@1.0.0...HEAD
+[1.0.0]: https://github.com/MetaMask/accounts.git/releases/tag/@metamask/keyring-internal-api@1.0.0
