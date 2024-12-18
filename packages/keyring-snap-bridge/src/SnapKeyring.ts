@@ -7,17 +7,14 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
-  AccountCreatedEventStruct,
-  AccountDeletedEventStruct,
-  AccountUpdatedEventStruct,
-  EthBaseUserOperationStruct,
   EthBytesStruct,
   EthMethod,
+  EthScopes,
+  EthBaseUserOperationStruct,
   EthUserOperationPatchStruct,
   isEvmAccountType,
   KeyringEvent,
-  RequestApprovedEventStruct,
-  RequestRejectedEventStruct,
+  EthAccountType,
 } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
@@ -31,9 +28,10 @@ import type {
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { KeyringSnapControllerClient } from '@metamask/keyring-internal-snap-client';
+import { strictMask } from '@metamask/keyring-utils';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
-import type { Snap } from '@metamask/snaps-utils';
+import { isEqual, type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 import {
@@ -44,7 +42,15 @@ import {
 import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
+import type { KeyringAccountFromEvent } from './account';
 import { DeferredPromise } from './DeferredPromise';
+import {
+  AccountCreatedEventStruct,
+  AccountUpdatedEventStruct,
+  AccountDeletedEventStruct,
+  RequestApprovedEventStruct,
+  RequestRejectedEventStruct,
+} from './events';
 import { projectLogger as log } from './logger';
 import { SnapIdMap } from './SnapIdMap';
 import type { SnapMessage } from './types';
@@ -52,7 +58,6 @@ import { SnapMessageStruct } from './types';
 import {
   equalsIgnoreCase,
   sanitizeUrl,
-  strictMask,
   throwError,
   toJson,
   unique,
@@ -168,6 +173,42 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Transform an account coming from events. This account might have optional fields that
+   * are required by the Keyring API. This function will automatically provides the missing
+   * fields with some default values.
+   *
+   * @param account - The account (coming from keyring events) to transform.
+   * @returns A valid KeyringAccount.
+   */
+  #transformAccountFromEvent(account: KeyringAccountFromEvent): KeyringAccount {
+    const { type, scopes } = account;
+
+    if (type === EthAccountType.Eoa) {
+      // EVM EOA account are compatible with any EVM networks, and we use CAIP-2
+      // namespaces when the scope relates to ALL chains (from that namespace).
+      const namespace = EthScopes.Namespace;
+
+      if (scopes && !isEqual(scopes, [namespace])) {
+        // Those accounts must use `['eip155']` for their `scopes`.
+        throw new Error(`EVM EOA accounts must use scopes: [${namespace}]`);
+      }
+
+      // If `scopes` is not defined, then we will end-up here and inject it.
+      return {
+        ...account,
+        scopes: [namespace],
+      };
+    }
+
+    // For all other accounts (non-EVM and ERC4337), the Snap is expected to provide its scopes!
+    if (!scopes) {
+      throw new Error(`Account scopes is required for non-EVM accounts`);
+    }
+
+    return account as KeyringAccount;
+  }
+
+  /**
    * Handle an Account Created event from a Snap.
    *
    * @param snapId - Snap ID.
@@ -179,8 +220,15 @@ export class SnapKeyring extends EventEmitter {
     message: SnapMessage,
   ): Promise<null> {
     assert(message, AccountCreatedEventStruct);
-    const { account, accountNameSuggestion, displayConfirmation } =
-      message.params;
+    const {
+      account: newAccountFromEvent,
+      accountNameSuggestion,
+      displayConfirmation,
+    } = message.params;
+
+    // To keep the retro-compatibility with older keyring-api versions, we mark some fields
+    // as optional and provide them here if they are missing.
+    const account = this.#transformAccountFromEvent(newAccountFromEvent);
 
     // The UI still uses the account address to identify accounts, so we need
     // to block the creation of duplicate accounts for now to prevent accounts
@@ -223,10 +271,14 @@ export class SnapKeyring extends EventEmitter {
     message: SnapMessage,
   ): Promise<null> {
     assert(message, AccountUpdatedEventStruct);
-    const { account: newAccount } = message.params;
+    const { account: newAccountFromEvent } = message.params;
     const { account: oldAccount } =
-      this.#accounts.get(snapId, newAccount.id) ??
-      throwError(`Account '${newAccount.id}' not found`);
+      this.#accounts.get(snapId, newAccountFromEvent.id) ??
+      throwError(`Account '${newAccountFromEvent.id}' not found`);
+
+    // To keep the retro-compatibility with older keyring-api versions, we mark some fields
+    // as optional and provide them here if they are missing.
+    const newAccount = this.#transformAccountFromEvent(newAccountFromEvent);
 
     // The address of the account cannot be changed. In the future, we will
     // support changing the address of an account since it will be required to

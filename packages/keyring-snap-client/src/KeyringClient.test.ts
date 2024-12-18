@@ -26,6 +26,7 @@ describe('KeyringClient', () => {
           address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
           options: {},
           methods: [],
+          scopes: ['eip155'],
           type: 'eip155:eoa',
         },
       ];
@@ -44,11 +45,12 @@ describe('KeyringClient', () => {
   describe('getAccount', () => {
     it('should send a request to get an account by ID and return the response', async () => {
       const id = '49116980-0712-4fa5-b045-e4294f1d440e';
-      const expectedResponse = {
+      const expectedResponse: KeyringAccount = {
         id: '49116980-0712-4fa5-b045-e4294f1d440e',
         address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
         options: {},
         methods: [],
+        scopes: ['eip155'],
         type: 'eip155:eoa',
       };
 
@@ -66,11 +68,12 @@ describe('KeyringClient', () => {
 
   describe('createAccount', () => {
     it('should send a request to create an account and return the response', async () => {
-      const expectedResponse = {
+      const expectedResponse: KeyringAccount = {
         id: '49116980-0712-4fa5-b045-e4294f1d440e',
         address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
         options: {},
         methods: [],
+        scopes: ['eip155'],
         type: 'eip155:eoa',
       };
 
@@ -374,6 +377,7 @@ describe('KeyringClient', () => {
         address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
         options: {},
         methods: [],
+        scopes: ['eip155'],
         type: 'eip155:eoa',
       };
 

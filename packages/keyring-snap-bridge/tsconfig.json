@@ -9,7 +9,8 @@
   "references": [
     { "path": "../keyring-api/tsconfig.build.json" },
     { "path": "../keyring-internal-api/tsconfig.build.json" },
-    { "path": "../keyring-internal-snap-client/tsconfig.build.json" }
+    { "path": "../keyring-internal-snap-client/tsconfig.build.json" },
+    { "path": "../keyring-utils/tsconfig.build.json" }
   ],
   "include": ["./src"],
   "exclude": ["./dist/**/*"]
