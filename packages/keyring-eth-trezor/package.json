@@ -49,7 +49,7 @@
   "dependencies": {
     "@ethereumjs/tx": "^4.2.0",
     "@ethereumjs/util": "^8.1.0",
-    "@metamask/eth-sig-util": "^8.0.0",
+    "@metamask/eth-sig-util": "^8.1.2",
     "@trezor/connect-plugin-ethereum": "^9.0.3",
     "@trezor/connect-web": "^9.1.11",
     "hdkey": "^2.1.0",
