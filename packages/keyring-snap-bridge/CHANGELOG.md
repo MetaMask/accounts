@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update `@metamask/keyring-api` to version 13.0.0 ([#101](https://github.com/MetaMask/accounts/pull/101))
+- Bump `@metamask/keyring-api` from `^12.0.0` to `^13.0.0` ([#101](https://github.com/MetaMask/accounts/pull/101))
 
 ## [7.0.0]
 
