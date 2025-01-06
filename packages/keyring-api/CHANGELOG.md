@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.0.0]
+
+### Added
+
+- New scope constant values added for Ethereum, Bitcoin, and Solana ([#101](https://github.com/MetaMask/accounts/pull/101))
+
+### Changed
+
+- **BREAKING:** Add `scopes` field to `KeyringAccount` ([#101](https://github.com/MetaMask/accounts/pull/101))
+
 ## [12.0.0]
 
 ### Changed
@@ -456,7 +466,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@12.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@13.0.0...HEAD
+[13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@12.0.0...@metamask/keyring-api@13.0.0
 [12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@11.1.0...@metamask/keyring-api@12.0.0
 [11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@11.0.0...@metamask/keyring-api@11.1.0
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@10.1.0...@metamask/keyring-api@11.0.0
