@@ -9,13 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [13.0.0]
 
-### Changed
-
-- **BREAKING:** Add `scopes` field to `KeyringAccount` ([#101](https://github.com/MetaMask/accounts/pull/101))
-
 ### Added
 
 - New scope constant values added for Ethereum, Bitcoin, and Solana ([#101](https://github.com/MetaMask/accounts/pull/101))
+
+### Changed
+
+- **BREAKING:** Add `scopes` field to `KeyringAccount` ([#101](https://github.com/MetaMask/accounts/pull/101))
 
 ## [12.0.0]
 
