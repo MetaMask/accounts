@@ -7,20 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [8.0.0]
-
-### Changed
-
-- **BREAKING:** Bump `@metamask/keyring-api` from `^12.0.0` to `^13.0.0` ([#101](https://github.com/MetaMask/accounts/pull/101))
-  - This change was not properly reported as breaking on the `7.1.0`.
-  - `KeyringAccount` and `InternalAccount` have a new required field (`scopes`) and are part of the public API.
-- **BREAKING:** Bump `@metamask/keyring-internal-api` from `^1.0.0` to `^2.0.0` ([#135](https://github.com/MetaMask/accounts/pull/135))
-  - This change was not properly reported as breaking on the `7.1.0`.
-  - `InternalAccount` extends `KeyringAccount` which has a new required field (`scopes`) and is part of the public API.
-- **BREAKING:** Bump `@metamask/keyring-snap-internal-client` from `^1.0.0` to `^2.0.0` ([#135](https://github.com/MetaMask/accounts/pull/135))
-  - This change was not properly reported as breaking on the `7.1.0`.
-  - `KeyringAccount` has a new required field (`scopes`) and is part of the public API.
-
 ## [7.1.0]
 
 ### Changed
@@ -403,8 +389,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.0.0...HEAD
-[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.1.0...@metamask/eth-snap-keyring@8.0.0
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.1.0...HEAD
 [7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.0.0...@metamask/eth-snap-keyring@7.1.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@6.0.0...@metamask/eth-snap-keyring@7.0.0
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@5.0.1...@metamask/eth-snap-keyring@6.0.0
