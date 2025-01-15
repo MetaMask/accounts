@@ -10,6 +10,7 @@ describe('handleKeyringRequest', () => {
     getAccount: jest.fn(),
     createAccount: jest.fn(),
     listAccountTransactions: jest.fn(),
+    listAccountAssets: jest.fn(),
     getAccountBalances: jest.fn(),
     filterAccountChains: jest.fn(),
     updateAccount: jest.fn(),
@@ -151,6 +152,43 @@ describe('handleKeyringRequest', () => {
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
       'Method not supported: keyring_listAccountTransactions',
+    );
+  });
+
+  it('calls keyring_listAccountAssets', async () => {
+    const accountId = '5767f284-5273-44c1-9556-31959b2afd10';
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '9f014e5b-262b-4fb9-99b7-642d5afa21ee',
+      method: KeyringRpcMethod.ListAccountAssets,
+      params: {
+        id: accountId,
+      },
+    };
+
+    const dummyResponse = 'ListAccountAssets result';
+    keyring.listAccountAssets.mockResolvedValue(dummyResponse);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.listAccountAssets).toHaveBeenCalledWith(accountId);
+    expect(result).toBe(dummyResponse);
+  });
+
+  it('throws an error if `keyring_listAccountAssets` is not implemented', async () => {
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '57854955-7c1f-4603-92a8-69de8e6c678a',
+      method: KeyringRpcMethod.ListAccountAssets,
+      params: {
+        id: '46e59db9-8e05-46a9-a73e-f514c55e7894',
+      },
+    };
+
+    const partialKeyring: Keyring = { ...keyring };
+    delete partialKeyring.listAccountAssets;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      'Method not supported: keyring_listAccountAssets',
     );
   });
 

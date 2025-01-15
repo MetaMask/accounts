@@ -15,6 +15,7 @@ import {
   ListAccountsRequestStruct,
   ListRequestsRequestStruct,
   GetAccountBalancesRequestStruct,
+  ListAccountAssetsRequestStruct,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
@@ -71,6 +72,14 @@ async function dispatchRequest(
         request.params.id,
         request.params.pagination,
       );
+    }
+
+    case `${KeyringRpcMethod.ListAccountAssets}`: {
+      if (keyring.listAccountAssets === undefined) {
+        throw new MethodNotSupportedError(request.method);
+      }
+      assert(request, ListAccountAssetsRequestStruct);
+      return keyring.listAccountAssets(request.params.id);
     }
 
     case `${KeyringRpcMethod.GetAccountBalances}`: {
