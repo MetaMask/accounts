@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix(keyring-eth-ledger-bridge): fix webpack build about non-exported `EIP712Message` type ([#140](https://github.com/MetaMask/accounts/pull/140))
+- Bump MetaMask dependencies ([#134](https://github.com/MetaMask/accounts/pull/134))
+
 ## [8.0.1]
 
 ### Changed
