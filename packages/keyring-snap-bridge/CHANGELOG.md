@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.1.0]
 
-### Uncategorized
+### Added
 
-- feat(keyring-snap-bridge): add Snap keyring migrations ([#147](https://github.com/MetaMask/accounts/pull/147))
+- Add Snap keyring migrations ([#147](https://github.com/MetaMask/accounts/pull/147))
+  - This is required to support the new `scopes` field on `KeyringAccount`. The keyring state will now be automatically migrated upon deserialization to match the latest `KeyringAccount` type requirements.
 
 ## [8.0.0]
 

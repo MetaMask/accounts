@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0]
 
-### Uncategorized
+### Added
 
-- feat(keyring-snap-bridge): add Snap keyring migrations ([#147](https://github.com/MetaMask/accounts/pull/147))
-- Bump MetaMask dependencies ([#134](https://github.com/MetaMask/accounts/pull/134))
+- Add Bitcoin address helpers ([#147](https://github.com/MetaMask/accounts/pull/147))
+
+### Changed
+
+- Bump `@metamask/utils` from `^9.3.0` to `^11.0.1` ([#134](https://github.com/MetaMask/accounts/pull/134))
 
 ## [1.0.0]
 
