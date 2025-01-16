@@ -4,17 +4,19 @@ import {
   AccountDeletedEventStruct,
   RequestApprovedEventStruct,
   RequestRejectedEventStruct,
+  KeyringAccountStruct,
 } from '@metamask/keyring-api';
 import { object } from '@metamask/keyring-utils';
+import { union } from '@metamask/superstruct';
 
-import { KeyringAccountFromEventStruct } from './account';
+import { KeyringAccountV1Struct } from './account';
 
 export const AccountCreatedEventStruct = object({
   ...OriginalAccountCreatedEventStruct.schema,
 
   params: object({
     ...OriginalAccountCreatedEventStruct.schema.params.schema,
-    account: KeyringAccountFromEventStruct,
+    account: union([KeyringAccountV1Struct, KeyringAccountStruct]),
   }),
 });
 
@@ -23,7 +25,7 @@ export const AccountUpdatedEventStruct = object({
 
   params: object({
     ...OriginalAccountUpdatedEventStruct.schema.params.schema,
-    account: KeyringAccountFromEventStruct,
+    account: union([KeyringAccountV1Struct, KeyringAccountStruct]),
   }),
 });
 
