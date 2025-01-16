@@ -409,7 +409,9 @@ export class SnapKeyring extends EventEmitter {
     for (const [snapId, entry] of Object.entries(state.accounts)) {
       // V1 accounts are missing the scopes.
       if (isAccountV1(entry.account)) {
-        log(`Found a KeyringAccountV1, migrating to V2: ${entry.account.id}`);
+        console.info(
+          `SnapKeyring - Found a KeyringAccountV1, migrating to V2: ${entry.account.id}`,
+        );
         accounts[snapId] = {
           ...entry,
           account: migrateAccountV1(entry.account),
