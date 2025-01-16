@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.1.0]
+
+### Added
+
+- Add Snap keyring migrations ([#147](https://github.com/MetaMask/accounts/pull/147))
+  - This is required to support the new `scopes` field on `KeyringAccount`. The keyring state will now be automatically migrated upon deserialization to match the latest `KeyringAccount` type requirements.
+
 ## [8.0.0]
 
 ### Changed
@@ -403,7 +410,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.1.0...HEAD
+[8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.0.0...@metamask/eth-snap-keyring@8.1.0
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.1.0...@metamask/eth-snap-keyring@8.0.0
 [7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.0.0...@metamask/eth-snap-keyring@7.1.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@6.0.0...@metamask/eth-snap-keyring@7.0.0
