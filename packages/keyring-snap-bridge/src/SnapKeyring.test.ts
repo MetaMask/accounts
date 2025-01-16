@@ -16,6 +16,8 @@ import {
   EthMethod,
   SolMethod,
   KeyringEvent,
+  BtcScopes,
+  SolScopes,
 } from '@metamask/keyring-api';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -23,6 +25,8 @@ import { toCaipChainId } from '@metamask/utils';
 
 import type { KeyringState } from '.';
 import { SnapKeyring } from '.';
+import type { KeyringAccountV1 } from './account';
+import { migrateAccountV1 } from './migrations';
 
 const regexForUUIDInRequiredSyncErrorMessage =
   /Request '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}' to snap 'local:snap.mock' is pending and noPending is true/u;
@@ -41,6 +45,18 @@ const ETH_EOA_METHODS = [
   EthMethod.SignTypedDataV3,
   EthMethod.SignTypedDataV4,
 ];
+
+/**
+ * Removes scopes field from a `KeyringAccount`.
+ *
+ * @param account - The account.
+ * @returns The same account without it's scopes field (becoming a `KeyringAccountV1`.
+ */
+function noScopes(account: KeyringAccount): KeyringAccountV1 {
+  const { scopes, ...accountV1 } = account;
+
+  return accountV1;
+}
 
 describe('SnapKeyring', () => {
   let keyring: SnapKeyring;
@@ -112,7 +128,15 @@ describe('SnapKeyring', () => {
     address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
     options: {},
     methods: [...Object.values(BtcMethod)],
-    scopes: ['bip122:000000000019d6689c085ae165831e93'],
+    scopes: [BtcScopes.Mainnet],
+    type: BtcAccountType.P2wpkh,
+  };
+  const btcP2wpkhTestnetAccount = {
+    id: 'cac9ecb8-94de-442f-8e19-6b2439b2deb1',
+    address: 'tb1q6rmsq3vlfdhjdhtkxlqtuhhlr6pmj09y6w43g8',
+    options: {},
+    methods: [...Object.values(BtcMethod)],
+    scopes: [BtcScopes.Testnet],
     type: BtcAccountType.P2wpkh,
   };
   const solDataAccount = {
@@ -120,8 +144,21 @@ describe('SnapKeyring', () => {
     address: '3d4v35MRK57xM2Nte3E3rTQU1zyXGVrkXJ6FuEjVoKzM',
     options: {},
     methods: [...Object.values(SolMethod)],
-    scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+    scopes: [SolScopes.Mainnet, SolScopes.Testnet, SolScopes.Devnet],
     type: SolAccountType.DataAccount,
+  };
+  const unknownAccount: KeyringAccount = {
+    id: 'b0cd527b-c936-4f6d-b4c0-2b776288a4cf',
+    address: '?',
+    options: {},
+    methods: [],
+    // For unknown accounts, we consider them as EVM EOA for now, so just re-use the
+    // same scopes.
+    scopes: [EthScopes.Namespace],
+    // This should be really possible to create such account, but since we potentially
+    // migrate data upon the Snap keyring initialization, we want to cover edge-cases
+    // like this one to avoid crashing and blocking everything...
+    type: 'unknown:type' as KeyringAccount['type'],
   };
 
   const accounts = [
@@ -355,7 +392,7 @@ describe('SnapKeyring', () => {
         );
 
         // Omit `scopes` from `account`.
-        const { scopes: _, ...account } = ethEoaAccount1;
+        const account = noScopes(ethEoaAccount1);
         await keyring.handleKeyringSnapMessage(snapId, {
           method: KeyringEvent.AccountCreated,
           params: {
@@ -374,31 +411,6 @@ describe('SnapKeyring', () => {
         });
       });
 
-      it('creating an EOA account with the wrong scopes will throw an error', async () => {
-        // Reset the keyring so it's empty.
-        keyring = new SnapKeyring(
-          mockSnapController as unknown as SnapController,
-          mockCallbacks,
-        );
-
-        // Force `scopes` to something else
-        const account: KeyringAccount = {
-          ...ethEoaAccount1,
-
-          // EOA accounts are compatible on every EVM chains and MUST USE ['eip155']. Here
-          // were using a more specific scopes, which is now allowed by the Snap keyring.
-          scopes: [EthScopes.Mainnet],
-        };
-        await expect(
-          keyring.handleKeyringSnapMessage(snapId, {
-            method: KeyringEvent.AccountCreated,
-            params: {
-              account,
-            },
-          }),
-        ).rejects.toThrow('EVM EOA accounts must use scopes: [eip155]');
-      });
-
       it('creating a non-EVM account with the no scope will throw an error', async () => {
         // Reset the keyring so it's empty.
         keyring = new SnapKeyring(
@@ -407,7 +419,7 @@ describe('SnapKeyring', () => {
         );
 
         // Omit `scopes` from non-EVM `account`.
-        const { scopes: _, ...account } = btcP2wpkhAccount;
+        const account = noScopes(btcP2wpkhAccount);
         await expect(
           keyring.handleKeyringSnapMessage(snapId, {
             method: KeyringEvent.AccountCreated,
@@ -415,7 +427,9 @@ describe('SnapKeyring', () => {
               account,
             },
           }),
-        ).rejects.toThrow('Account scopes is required for non-EVM accounts');
+        ).rejects.toThrow(
+          'Account scopes is required for non-EVM and ERC4337 accounts',
+        );
       });
     });
 
@@ -557,7 +571,7 @@ describe('SnapKeyring', () => {
 
       it('updates an EOA account and set a default scopes if not provided', async () => {
         // Omit `scopes` from `account`.
-        const { scopes: _, ...account } = ethEoaAccount1;
+        const account = noScopes(ethEoaAccount1);
 
         // Return the updated list of accounts when the keyring requests it.
         mockSnapController.handleRequest.mockResolvedValue([{ ...account }]);
@@ -574,8 +588,9 @@ describe('SnapKeyring', () => {
         expect(keyringAccounts[0]?.scopes).toStrictEqual([EthScopes.Namespace]);
       });
 
-      it('updates an EOA account with a wrong scope will throw an error', async () => {
-        const account = { ...ethEoaAccount1, scopes: [EthScopes.Mainnet] };
+      it('updates a ERC4337 account with the no scope will throw an error', async () => {
+        // Omit `scopes` from non-EVM `account`.
+        const account = noScopes(ethErc4337Account);
 
         // Return the updated list of accounts when the keyring requests it.
         mockSnapController.handleRequest.mockResolvedValue([{ ...account }]);
@@ -585,12 +600,14 @@ describe('SnapKeyring', () => {
             method: KeyringEvent.AccountUpdated,
             params: { account },
           }),
-        ).rejects.toThrow('EVM EOA accounts must use scopes: [eip155]');
+        ).rejects.toThrow(
+          'Account scopes is required for non-EVM and ERC4337 accounts',
+        );
       });
 
       it('updates a non-EVM account with the no scope will throw an error', async () => {
         // Omit `scopes` from non-EVM `account`.
-        const { scopes: _, ...account } = btcP2wpkhAccount;
+        const account = noScopes(btcP2wpkhAccount);
 
         // Return the updated list of accounts when the keyring requests it.
         mockSnapController.handleRequest.mockResolvedValue([{ ...account }]);
@@ -600,7 +617,9 @@ describe('SnapKeyring', () => {
             method: KeyringEvent.AccountUpdated,
             params: { account },
           }),
-        ).rejects.toThrow('Account scopes is required for non-EVM accounts');
+        ).rejects.toThrow(
+          'Account scopes is required for non-EVM and ERC4337 accounts',
+        );
       });
     });
 
@@ -871,6 +890,43 @@ describe('SnapKeyring', () => {
       ).rejects.toThrow('Cannot convert undefined or null to object');
       expect(await keyring.getAccounts()).toStrictEqual([]);
     });
+
+    it.each([
+      ethEoaAccount1,
+      ethErc4337Account,
+      btcP2wpkhAccount,
+      btcP2wpkhTestnetAccount,
+      solDataAccount,
+      unknownAccount,
+    ])('migrates accounts v1: %s', async (expectedAccount: KeyringAccount) => {
+      // A v1 account has no scopes, so remove it.
+      const state = {
+        accounts: {
+          [expectedAccount.id]: {
+            account: noScopes(expectedAccount),
+            snapId,
+          },
+        },
+      };
+      await keyring.deserialize(state as unknown as KeyringState);
+      const account = keyring.getAccountByAddress(expectedAccount.address);
+      expect(account).toBeDefined();
+      expect(account?.scopes).toStrictEqual(expectedAccount.scopes);
+    });
+
+    it.each([
+      ethEoaAccount1,
+      ethErc4337Account,
+      btcP2wpkhAccount,
+      btcP2wpkhTestnetAccount,
+      solDataAccount,
+      unknownAccount,
+    ])(
+      'migrates v2 accounts to v1 accounts is noop: %s',
+      async (expectedAccount: KeyringAccount) => {
+        expect(migrateAccountV1(expectedAccount)).toBe(expectedAccount);
+      },
+    );
   });
 
   describe('async request redirect', () => {

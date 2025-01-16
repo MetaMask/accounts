@@ -9,12 +9,10 @@ import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
   EthBytesStruct,
   EthMethod,
-  EthScopes,
   EthBaseUserOperationStruct,
   EthUserOperationPatchStruct,
   isEvmAccountType,
   KeyringEvent,
-  EthAccountType,
 } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
@@ -31,7 +29,7 @@ import { KeyringSnapControllerClient } from '@metamask/keyring-internal-snap-cli
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
-import { isEqual, type Snap } from '@metamask/snaps-utils';
+import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 import {
@@ -42,7 +40,6 @@ import {
 import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
-import type { KeyringAccountFromEvent } from './account';
 import { DeferredPromise } from './DeferredPromise';
 import {
   AccountCreatedEventStruct,
@@ -52,6 +49,11 @@ import {
   RequestRejectedEventStruct,
 } from './events';
 import { projectLogger as log } from './logger';
+import {
+  isAccountV1,
+  migrateAccountV1,
+  transformAccountV1,
+} from './migrations';
 import { SnapIdMap } from './SnapIdMap';
 import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
@@ -173,42 +175,6 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
-   * Transform an account coming from events. This account might have optional fields that
-   * are required by the Keyring API. This function will automatically provides the missing
-   * fields with some default values.
-   *
-   * @param account - The account (coming from keyring events) to transform.
-   * @returns A valid KeyringAccount.
-   */
-  #transformAccountFromEvent(account: KeyringAccountFromEvent): KeyringAccount {
-    const { type, scopes } = account;
-
-    if (type === EthAccountType.Eoa) {
-      // EVM EOA account are compatible with any EVM networks, and we use CAIP-2
-      // namespaces when the scope relates to ALL chains (from that namespace).
-      const namespace = EthScopes.Namespace;
-
-      if (scopes && !isEqual(scopes, [namespace])) {
-        // Those accounts must use `['eip155']` for their `scopes`.
-        throw new Error(`EVM EOA accounts must use scopes: [${namespace}]`);
-      }
-
-      // If `scopes` is not defined, then we will end-up here and inject it.
-      return {
-        ...account,
-        scopes: [namespace],
-      };
-    }
-
-    // For all other accounts (non-EVM and ERC4337), the Snap is expected to provide its scopes!
-    if (!scopes) {
-      throw new Error(`Account scopes is required for non-EVM accounts`);
-    }
-
-    return account as KeyringAccount;
-  }
-
-  /**
    * Handle an Account Created event from a Snap.
    *
    * @param snapId - Snap ID.
@@ -228,7 +194,7 @@ export class SnapKeyring extends EventEmitter {
 
     // To keep the retro-compatibility with older keyring-api versions, we mark some fields
     // as optional and provide them here if they are missing.
-    const account = this.#transformAccountFromEvent(newAccountFromEvent);
+    const account = transformAccountV1(newAccountFromEvent);
 
     // The UI still uses the account address to identify accounts, so we need
     // to block the creation of duplicate accounts for now to prevent accounts
@@ -278,7 +244,7 @@ export class SnapKeyring extends EventEmitter {
 
     // To keep the retro-compatibility with older keyring-api versions, we mark some fields
     // as optional and provide them here if they are missing.
-    const newAccount = this.#transformAccountFromEvent(newAccountFromEvent);
+    const newAccount = transformAccountV1(newAccountFromEvent);
 
     // The address of the account cannot be changed. In the future, we will
     // support changing the address of an account since it will be required to
@@ -434,7 +400,26 @@ export class SnapKeyring extends EventEmitter {
     if (state === undefined) {
       return;
     }
-    this.#accounts = SnapIdMap.fromObject(state.accounts);
+
+    // Running Snap keyring migrations. We might have some accounts that have a
+    // different "version" than the one we expect.
+    // In this case, we "transform" then directly when deserializing to convert
+    // them in the final account version.
+    const accounts: KeyringState['accounts'] = {};
+    for (const [snapId, entry] of Object.entries(state.accounts)) {
+      // V1 accounts are missing the scopes.
+      if (isAccountV1(entry.account)) {
+        log(`Found a KeyringAccountV1, migrating to V2: ${entry.account.id}`);
+        accounts[snapId] = {
+          ...entry,
+          account: migrateAccountV1(entry.account),
+        };
+      } else {
+        accounts[snapId] = entry;
+      }
+    }
+
+    this.#accounts = SnapIdMap.fromObject(accounts);
   }
 
   /**

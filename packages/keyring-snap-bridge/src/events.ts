@@ -7,14 +7,14 @@ import {
 } from '@metamask/keyring-api';
 import { object } from '@metamask/keyring-utils';
 
-import { KeyringAccountFromEventStruct } from './account';
+import { KeyringAccountV1Struct } from './account';
 
 export const AccountCreatedEventStruct = object({
   ...OriginalAccountCreatedEventStruct.schema,
 
   params: object({
     ...OriginalAccountCreatedEventStruct.schema.params.schema,
-    account: KeyringAccountFromEventStruct,
+    account: KeyringAccountV1Struct,
   }),
 });
 
@@ -23,7 +23,7 @@ export const AccountUpdatedEventStruct = object({
 
   params: object({
     ...OriginalAccountUpdatedEventStruct.schema.params.schema,
-    account: KeyringAccountFromEventStruct,
+    account: KeyringAccountV1Struct,
   }),
 });
 
