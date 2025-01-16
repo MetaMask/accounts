@@ -26,7 +26,7 @@ import { toCaipChainId } from '@metamask/utils';
 import type { KeyringState } from '.';
 import { SnapKeyring } from '.';
 import type { KeyringAccountV1 } from './account';
-import { migrateAccountV1 } from './migrations';
+import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
 
 const regexForUUIDInRequiredSyncErrorMessage =
   /Request '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}' to snap 'local:snap.mock' is pending and noPending is true/u;
@@ -897,7 +897,6 @@ describe('SnapKeyring', () => {
       btcP2wpkhAccount,
       btcP2wpkhTestnetAccount,
       solDataAccount,
-      unknownAccount,
     ])('migrates accounts v1: %s', async (expectedAccount: KeyringAccount) => {
       // A v1 account has no scopes, so remove it.
       const state = {
@@ -920,13 +919,18 @@ describe('SnapKeyring', () => {
       btcP2wpkhAccount,
       btcP2wpkhTestnetAccount,
       solDataAccount,
-      unknownAccount,
     ])(
       'migrates v2 accounts to v1 accounts is noop: %s',
-      async (expectedAccount: KeyringAccount) => {
+      (expectedAccount: KeyringAccount) => {
         expect(migrateAccountV1(expectedAccount)).toBe(expectedAccount);
       },
     );
+
+    it('unknown v1 accounts scopes defaults to EOA scopes', () => {
+      expect(getScopesForAccountV1(unknownAccount)).toStrictEqual([
+        EthScopes.Namespace,
+      ]);
+    });
   });
 
   describe('async request redirect', () => {
