@@ -10,7 +10,7 @@ import {
 /**
  * A CAIP-19 asset type identifier, i.e., a human-readable type of asset identifier.
  */
-export const CaipAssetTypeStruct = definePattern(
+export const CaipAssetTypeStruct = definePattern<CaipAssetType>(
   'CaipAssetType',
   CAIP_ASSET_TYPE_REGEX,
 );
@@ -18,7 +18,7 @@ export const CaipAssetTypeStruct = definePattern(
 /**
  * A CAIP-19 asset ID identifier, i.e., a human-readable type of asset ID.
  */
-export const CaipAssetIdStruct = definePattern(
+export const CaipAssetIdStruct = definePattern<CaipAssetId>(
   'CaipAssetId',
   CAIP_ASSET_ID_REGEX,
 );
