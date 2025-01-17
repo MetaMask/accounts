@@ -9,8 +9,11 @@ import {
   LedgerSignTypedDataParams,
   LedgerSignTypedDataResponse,
 } from './ledger-bridge';
+import { projectLogger as log } from './logger';
 
 const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
+
+const IFRAME_INIT_TIMEOUT = 4000;
 
 export enum IFrameMessageAction {
   LedgerConnectionChange = 'ledger-connection-change',
@@ -121,12 +124,21 @@ export class LedgerIframeBridge
     };
   }
 
+  /**
+   * Attempts the initialization of the LedgerIframeBridge instance.
+   *
+   * If the iframe fails to load within the timeout, the initialization
+   * will fail gracefully and will be reattempted later on when the iframe
+   * is needed for communication with the device.
+   *
+   * @returns A promise that resolves when the initialization attempt is complete.
+   */
   async init(): Promise<void> {
-    await this.#setupIframe(this.#opts.bridgeUrl);
-
-    this.eventListener = this.#eventListener.bind(this, this.#opts.bridgeUrl);
-
-    window.addEventListener('message', this.eventListener);
+    try {
+      await this.#init();
+    } catch (error) {
+      log('Failed to initialize LedgerIframeBridge', error);
+    }
   }
 
   async destroy(): Promise<void> {
@@ -149,6 +161,11 @@ export class LedgerIframeBridge
   }
 
   async attemptMakeApp(): Promise<boolean> {
+    // If the iframe isn't loaded yet, the initialization is reattempted
+    if (!this.iframeLoaded) {
+      await this.#init();
+    }
+
     return new Promise((resolve, reject) => {
       this.#sendMessage(
         {
@@ -169,13 +186,12 @@ export class LedgerIframeBridge
   }
 
   async updateTransportMethod(transportType: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      // If the iframe isn't loaded yet, let's store the desired transportType value and
-      // optimistically return a successful promise
-      if (!this.iframeLoaded) {
-        throw new Error('The iframe is not loaded yet');
-      }
+    // If the iframe isn't loaded yet, the initialization is reattempted
+    if (!this.iframeLoaded) {
+      await this.#init();
+    }
 
+    return new Promise((resolve, reject) => {
       this.#sendMessage(
         {
           action: IFrameMessageAction.LedgerUpdateTransport,
@@ -256,6 +272,11 @@ export class LedgerIframeBridge
     | LedgerSignMessageResponse
     | LedgerSignTypedDataResponse
   > {
+    // If the iframe isn't loaded yet, the initialization is reattempted
+    if (!this.iframeLoaded) {
+      await this.#init();
+    }
+
     return new Promise((resolve, reject) => {
       this.#sendMessage(
         {
@@ -277,8 +298,20 @@ export class LedgerIframeBridge
     });
   }
 
+  async #init(): Promise<void> {
+    await this.#setupIframe(this.#opts.bridgeUrl);
+    this.eventListener = this.#eventListener.bind(this, this.#opts.bridgeUrl);
+    window.addEventListener('message', this.eventListener);
+  }
+
   async #setupIframe(bridgeUrl: string): Promise<void> {
-    return new Promise((resolve) => {
+    const timeout = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('Ledger initialization timed out'));
+      }, IFRAME_INIT_TIMEOUT);
+    });
+
+    const initIframe = new Promise<void>((resolve, reject) => {
       this.iframe = document.createElement('iframe');
       this.iframe.src = bridgeUrl;
       this.iframe.allow = `hid 'src'`;
@@ -286,8 +319,17 @@ export class LedgerIframeBridge
         this.iframeLoaded = true;
         resolve();
       };
+      this.iframe.onerror = (): void => {
+        if (this.iframe) {
+          document.head.removeChild(this.iframe);
+        }
+        this.iframeLoaded = false;
+        reject(new Error('Failed to load iframe'));
+      };
       document.head.appendChild(this.iframe);
     });
+
+    await Promise.race([initIframe, timeout]);
   }
 
   #getOrigin(bridgeUrl: string): string {
