@@ -5,7 +5,7 @@ import type { Json } from '@metamask/utils';
 
 import type { KeyringAccount } from './account';
 import type { Balance } from './balance';
-import type { CaipAssetType } from './caip';
+import type { CaipAssetType, CaipAssetTypeOrId } from './caip';
 import type { KeyringAccountData } from './export';
 import type { Paginated, Pagination } from './pagination';
 import type { KeyringRequest } from './request';
@@ -50,6 +50,17 @@ export type Keyring = {
    * object without any private information.
    */
   createAccount(options?: Record<string, Json>): Promise<KeyringAccount>;
+
+  /**
+   * Lists the assets of an account (fungibles and non-fungibles) represented
+   * by their respective CAIP-19:
+   * - Asset types for fungibles assets.
+   * - Asset IDs for non-fungible ones.
+   *
+   * @param id - The ID of the account to list the assets for.
+   * @returns A promise that resolves to list of assets for that account.
+   */
+  listAccountAssets?(id: string): Promise<CaipAssetTypeOrId[]>;
 
   /**
    * Lists the transactions of an account, paginated and ordered by the most
