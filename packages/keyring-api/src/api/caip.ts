@@ -12,7 +12,7 @@ const CAIP_ASSET_TYPE_OR_ID_REGEX =
   /^(?<chainId>(?<namespace>[-a-z0-9]{3,8}):(?<reference>[-_a-zA-Z0-9]{1,32}))\/(?<assetNamespace>[-a-z0-9]{3,8}):(?<assetReference>[-.%a-zA-Z0-9]{1,128})(\/(?<tokenId>[-.%a-zA-Z0-9]{1,78}))?$/u;
 
 /**
- * A CAIP-19 asset type or asset ID identifier, i.e., a human-readable type of asset identifier.
+ * A CAIP-19 asset type identifier, i.e., a human-readable type of asset identifier.
  */
 export const CaipAssetTypeStruct = definePattern<CaipAssetType>(
   'CaipAssetType',
