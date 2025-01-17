@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: add `listAccountAssets` method ([#148](https://github.com/MetaMask/accounts/pull/148))
+
 ## [2.0.0]
 
 ### Changed
