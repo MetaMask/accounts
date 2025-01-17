@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- Bump MetaMask dependencies ([#134](https://github.com/MetaMask/accounts/pull/134))
-
 ## [8.0.1]
 
 ### Changed
