@@ -1,4 +1,5 @@
 import type {
+  CaipAssetType,
   KeyringAccount,
   KeyringRequest,
   KeyringResponse,
@@ -295,7 +296,9 @@ describe('KeyringClient', () => {
 
   describe('getAccountBalances', () => {
     it('returns a valid response', async () => {
-      const assets = ['bip122:000000000019d6689c085ae165831e93/slip44:0'];
+      const assets: CaipAssetType[] = [
+        'bip122:000000000019d6689c085ae165831e93/slip44:0',
+      ];
       const id = '1617ea08-d4b6-48bf-ba83-901ef1e45ed7';
       const expectedResponse = {
         [assets[0] as string]: {
@@ -318,7 +321,9 @@ describe('KeyringClient', () => {
     });
 
     it('throws an error because the amount has the wrong type', async () => {
-      const assets = ['bip122:000000000019d6689c085ae165831e93/slip44:0'];
+      const assets: CaipAssetType[] = [
+        'bip122:000000000019d6689c085ae165831e93/slip44:0',
+      ];
       const id = '1617ea08-d4b6-48bf-ba83-901ef1e45ed7';
       const expectedResponse = {
         [assets[0] as string]: {
@@ -334,7 +339,9 @@ describe('KeyringClient', () => {
     });
 
     it("throws an error because the amount isn't a StringNumber", async () => {
-      const assets = ['bip122:000000000019d6689c085ae165831e93/slip44:0'];
+      const assets: CaipAssetType[] = [
+        'bip122:000000000019d6689c085ae165831e93/slip44:0',
+      ];
       const id = '1617ea08-d4b6-48bf-ba83-901ef1e45ed7';
       const expectedResponse = {
         [assets[0] as string]: {
