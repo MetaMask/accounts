@@ -5,6 +5,7 @@ import {
   toBuffer,
   ecrecover,
   pubToAddress,
+  zeroAddress,
 } from '@ethereumjs/util';
 import * as oldMMForkBIP39 from '@metamask/bip39';
 import OldHdKeyring from '@metamask/eth-hd-keyring';
@@ -678,6 +679,52 @@ describe('hd-keyring', () => {
 
       await expect(
         keyring.signMessage(notKeyringAddress, message),
+      ).rejects.toThrow('HD Keyring - Unable to find matching address.');
+    });
+  });
+
+  describe('#signEIP7702Authorization', () => {
+    const chainId = '0x1';
+    const nonce = 1;
+    const contractAddress = '0x0000000000000000000000000000000000000001';
+
+    const authorization = [chainId, contractAddress, nonce];
+
+    it('returns the expected value', async () => {
+      const keyring = new HdKeyring();
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+        numberOfAccounts: 1,
+      });
+
+      const signature = await keyring.signEIP7702Authorization(
+        firstAcct,
+        authorization,
+      );
+      expect(signature).not.toBe(contractAddress);
+    });
+
+    it('throw error if empty address is passed', async () => {
+      const keyring = new HdKeyring();
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+        numberOfAccounts: 1,
+      });
+
+      await expect(
+        keyring.signEIP7702Authorization('', authorization),
+      ).rejects.toThrow('Must specify address.');
+    });
+
+    it('throw error if address not associated with the current keyring is passed', async () => {
+      const keyring = new HdKeyring();
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+        numberOfAccounts: 1,
+      });
+
+      await expect(
+        keyring.signEIP7702Authorization(notKeyringAddress, authorization),
       ).rejects.toThrow('HD Keyring - Unable to find matching address.');
     });
   });

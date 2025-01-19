@@ -13,6 +13,7 @@ import {
   personalSign,
   signTypedData,
   SignTypedDataVersion,
+  signEIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { mnemonicToSeed } from '@metamask/key-tree';
 import { generateMnemonic } from '@metamask/scure-bip39';
@@ -216,6 +217,12 @@ class HdKeyring {
 
     const privateKey = this._getPrivateKeyFor(withAccount, opts);
     return signTypedData({ privateKey, data: typedData, version });
+  }
+
+  async signEIP7702Authorization(withAccount, authorization, opts) {
+    const privateKey = this._getPrivateKeyFor(withAccount, opts);
+
+    return signEIP7702Authorization({ privateKey, authorization });
   }
 
   removeAccount(account) {
