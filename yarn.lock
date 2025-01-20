@@ -2023,6 +2023,8 @@ __metadata:
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
     "@metamask/keyring-api": "workspace:^"
+    "@metamask/providers": ^18.3.1
+    webextension-polyfill: ^0.10.0 || ^0.11.0 || ^0.12.0
   languageName: unknown
   linkType: soft
 
@@ -2220,6 +2222,9 @@ __metadata:
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.6.3"
     webextension-polyfill: "npm:^0.12.0"
+  peerDependencies:
+    "@metamask/providers": ^18.3.1
+    webextension-polyfill: ^0.10.0 || ^0.11.0 || ^0.12.0
   languageName: unknown
   linkType: soft
 
@@ -2283,6 +2288,8 @@ __metadata:
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
     "@metamask/keyring-api": "workspace:^"
+    "@metamask/providers": ^18.3.1
+    webextension-polyfill: ^0.10.0 || ^0.11.0 || ^0.12.0
   languageName: unknown
   linkType: soft
 

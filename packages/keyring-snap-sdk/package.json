@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@metamask/keyring-utils": "workspace:^",
+    "@metamask/snaps-sdk": "^6.7.0",
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^11.0.1"
   },
@@ -55,7 +56,6 @@
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/providers": "^18.3.1",
-    "@metamask/snaps-sdk": "^6.7.0",
     "@ts-bridge/cli": "^0.6.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
@@ -72,7 +72,9 @@
     "webextension-polyfill": "^0.12.0"
   },
   "peerDependencies": {
-    "@metamask/keyring-api": "workspace:^"
+    "@metamask/keyring-api": "workspace:^",
+    "@metamask/providers": "^18.3.1",
+    "webextension-polyfill": "^0.10.0 || ^0.11.0 || ^0.12.0"
   },
   "engines": {
     "node": "^18.18 || >=20"
