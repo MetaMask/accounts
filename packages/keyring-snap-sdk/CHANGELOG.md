@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.0]
 
-### Uncategorized
+### Added
 
-- feat: add `listAccountAssets` method ([#148](https://github.com/MetaMask/accounts/pull/148))
+- Add support of `listAccountAssets` keyring method ([#148](https://github.com/MetaMask/accounts/pull/148))
 
 ## [2.0.0]
 

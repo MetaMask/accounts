@@ -9,10 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.0]
 
-### Uncategorized
+### Added
 
-- feat: add `listAccountAssets` method ([#148](https://github.com/MetaMask/accounts/pull/148))
-- refactor!: use better CAIP types + add generic type in `definePattern` ([#150](https://github.com/MetaMask/accounts/pull/150))
+- Add `listAccountAssets` keyring method ([#148](https://github.com/MetaMask/accounts/pull/148))
+
+### Changed
+
+- Make `CaipAssetType` type more restritive ([#150](https://github.com/MetaMask/accounts/pull/150))
+  - It used to be a `string` but it has been restricted with a template literal type that matches CAIP-19 asset type.
 
 ## [2.0.0]
 

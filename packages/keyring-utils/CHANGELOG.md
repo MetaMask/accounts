@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0]
 
-### Uncategorized
+### Changed
 
-- refactor!: use better CAIP types + add generic type in `definePattern` ([#150](https://github.com/MetaMask/accounts/pull/150))
+- Add generic type in `definePattern` ([#150](https://github.com/MetaMask/accounts/pull/150))
+  - It allows to use template literal type that matches the pattern.
 
 ## [1.1.0]
 
