@@ -50,7 +50,7 @@
     "@ethereumjs/rlp": "^5.0.2",
     "@ethereumjs/tx": "^4.2.0",
     "@ethereumjs/util": "^8.1.0",
-    "@ledgerhq/hw-app-eth": "^6.39.0",
+    "@ledgerhq/hw-app-eth": "^6.42.0",
     "@metamask/eth-sig-util": "^8.1.2",
     "hdkey": "^2.1.0"
   },
