@@ -25,9 +25,8 @@ import type {
   EthUserOperationPatch,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
-import { KeyringSnapControllerClient } from '@metamask/keyring-internal-snap-client';
+import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import { strictMask } from '@metamask/keyring-utils';
-import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
@@ -55,6 +54,7 @@ import {
   transformAccountV1,
 } from './migrations';
 import { SnapIdMap } from './SnapIdMap';
+import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
@@ -132,9 +132,14 @@ export class SnapKeyring extends EventEmitter {
   type: string;
 
   /**
+   * Messenger to dispatch requests to the Snaps controller.
+   */
+  readonly #messenger: SnapKeyringMessenger;
+
+  /**
    * Client used to call the Snap keyring.
    */
-  readonly #snapClient: KeyringSnapControllerClient;
+  readonly #snapClient: KeyringInternalSnapClient;
 
   /**
    * Mapping between account IDs and an object that contains the associated
@@ -161,14 +166,18 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Create a new Snap keyring.
    *
-   * @param controller - Snaps controller.
+   * @param messenger - Snap keyring messenger.
    * @param callbacks - Callbacks used to interact with other components.
    * @returns A new Snap keyring.
    */
-  constructor(controller: SnapController, callbacks: SnapKeyringCallbacks) {
+  constructor(
+    messenger: SnapKeyringMessenger,
+    callbacks: SnapKeyringCallbacks,
+  ) {
     super();
     this.type = SnapKeyring.type;
-    this.#snapClient = new KeyringSnapControllerClient({ controller });
+    this.#messenger = messenger;
+    this.#snapClient = new KeyringInternalSnapClient({ messenger });
     this.#requests = new SnapIdMap();
     this.#accounts = new SnapIdMap();
     this.#callbacks = callbacks;
@@ -658,7 +667,7 @@ export class SnapKeyring extends EventEmitter {
    */
   #validateRedirectUrl(url: string, snapId: SnapId): void {
     const { origin } = new URL(url);
-    const snap = this.#snapClient.getController().get(snapId);
+    const snap = this.#getSnap(snapId);
     if (!snap) {
       throw new Error(`Snap '${snapId}' not found.`);
     }
@@ -935,6 +944,16 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Get the Snap associated with the given Snap ID.
+   *
+   * @param snapId - Snap ID.
+   * @returns The Snap or undefined if the Snap cannot be found.
+   */
+  #getSnap(snapId: SnapId): Snap | undefined {
+    return this.#messenger.call('SnapController:get', snapId);
+  }
+
+  /**
    * Get the metadata of a Snap keyring account.
    *
    * @param snapId - Snap ID.
@@ -943,7 +962,7 @@ export class SnapKeyring extends EventEmitter {
   #getSnapMetadata(
     snapId: SnapId,
   ): InternalAccount['metadata']['snap'] | undefined {
-    const snap = this.#snapClient.getController().get(snapId);
+    const snap = this.#getSnap(snapId);
     return snap
       ? { id: snapId, name: snap.manifest.proposedName, enabled: snap.enabled }
       : undefined;
