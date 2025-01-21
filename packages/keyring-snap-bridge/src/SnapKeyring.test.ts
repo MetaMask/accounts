@@ -7,6 +7,9 @@ import type {
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
+  AccountBalancesUpdatedEventPayload,
+  AccountTransactionsUpdatedEventPayload,
+  AccountAssetListUpdatedEventPayload,
 } from '@metamask/keyring-api';
 import {
   EthScopes,
@@ -28,8 +31,10 @@ import { SnapKeyring } from '.';
 import type { KeyringAccountV1 } from './account';
 import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
 import type {
-  SnapKeyringAllowedActions,
-  SnapKeyringAllowedEvents,
+  AllowedActions,
+  AllowedEvents,
+  SnapKeyringActions,
+  SnapKeyringEvents,
   SnapKeyringMessenger,
 } from './SnapKeyringMessenger';
 
@@ -225,8 +230,10 @@ describe('SnapKeyring', () => {
 
   // Fake the ControllerMessenger and registers all mock actions here:
   const controllerMessenger: ControllerMessenger<
-    SnapKeyringAllowedActions,
-    SnapKeyringAllowedEvents
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+    SnapKeyringActions | AllowedActions,
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+    SnapKeyringEvents | AllowedEvents
   > = new ControllerMessenger();
   controllerMessenger.registerActionHandler(
     'SnapController:get',
@@ -240,7 +247,7 @@ describe('SnapKeyring', () => {
   // Now extracts a rectricted messenger for the Snap keyring only.
   const mockSnapKeyringMessenger: SnapKeyringMessenger =
     controllerMessenger.getRestricted({
-      name: 'MockSnapKeyringMessenger',
+      name: 'SnapKeyring',
       allowedEvents: [],
       allowedActions: ['SnapController:get', 'SnapController:handleRequest'],
     });
@@ -490,6 +497,109 @@ describe('SnapKeyring', () => {
         ).rejects.toThrow(
           'Account scopes is required for non-EVM and ERC4337 accounts',
         );
+      });
+
+      it('receives an account balances update event and re-publish it to the messenger', async () => {
+        const mockPublishedEventCallback = jest.fn();
+        mockSnapKeyringMessenger.subscribe(
+          'SnapKeyring:accountBalancesUpdated',
+          mockPublishedEventCallback,
+        );
+
+        const account = ethEoaAccount1;
+        const event: AccountBalancesUpdatedEventPayload = {
+          balances: {
+            [account.id]: {
+              'bip122:000000000019d6689c085ae165831e93/slip44:0': {
+                amount: '0.1',
+                unit: 'BTC',
+              },
+            },
+          },
+        };
+
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountBalancesUpdated,
+          params: event,
+        });
+        expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
+      });
+
+      it('receives an transactions update event and re-publish it to the messenger', async () => {
+        const mockPublishedEventCallback = jest.fn();
+        mockSnapKeyringMessenger.subscribe(
+          'SnapKeyring:accountTransactionsUpdated',
+          mockPublishedEventCallback,
+        );
+
+        const account = ethEoaAccount1;
+        const event: AccountTransactionsUpdatedEventPayload = {
+          transactions: {
+            [account.id]: [
+              {
+                id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+                timestamp: null,
+                chain: 'eip155:1',
+                status: 'submitted',
+                type: 'receive',
+                account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+                from: [],
+                to: [],
+                fees: [
+                  {
+                    type: 'base',
+                    asset: {
+                      fungible: true,
+                      type: 'eip155:1/slip44:60',
+                      unit: 'ETH',
+                      amount: '0.0001',
+                    },
+                  },
+                  {
+                    type: 'priority',
+                    asset: {
+                      fungible: true,
+                      type: 'eip155:1/slip44:60',
+                      unit: 'ETH',
+                      amount: '0.0001',
+                    },
+                  },
+                ],
+                events: [],
+              },
+            ],
+          },
+        };
+
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountTransactionsUpdated,
+          params: event,
+        });
+        expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
+      });
+
+      it('receives an asset list update event and re-publish it to the messenger', async () => {
+        const mockPublishedEventCallback = jest.fn();
+        mockSnapKeyringMessenger.subscribe(
+          'SnapKeyring:accountAssetListUpdated',
+          mockPublishedEventCallback,
+        );
+
+        const account = ethEoaAccount1;
+        const event: AccountAssetListUpdatedEventPayload = {
+          assets: {
+            [account.id]: {
+              added: ['bip122:000000000019d6689c085ae165831e93/slip44:0'],
+              removed: ['bip122:000000000933ea01ad0ee984209779ba/slip44:0'],
+            },
+          },
+        };
+
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountAssetListUpdated,
+          params: event,
+        });
+        expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
       });
     });
 

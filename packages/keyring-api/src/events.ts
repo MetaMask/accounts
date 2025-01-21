@@ -1,8 +1,13 @@
 import { exactOptional, object, UuidStruct } from '@metamask/keyring-utils';
-import { boolean, literal, string } from '@metamask/superstruct';
-import { JsonStruct } from '@metamask/utils';
+import type { Infer } from '@metamask/superstruct';
+import { array, boolean, literal, record, string } from '@metamask/superstruct';
+import { CaipAssetTypeStruct, JsonStruct } from '@metamask/utils';
 
-import { KeyringAccountStruct } from './api';
+import {
+  AccountIdStruct,
+  KeyringAccountStruct,
+  TransactionStruct,
+} from './api';
 
 /**
  * Supported keyring events.
@@ -16,6 +21,11 @@ export enum KeyringEvent {
   // Request events
   RequestApproved = 'notify:requestApproved',
   RequestRejected = 'notify:requestRejected',
+
+  // Assets related events
+  AccountBalancesUpdated = 'notify:accountBalancesUpdated',
+  AccountAssetListUpdated = 'notify:accountAssetListUpdated',
+  AccountTransactionsUpdated = 'notify:accountTransactionsUpdated',
 }
 
 export const AccountCreatedEventStruct = object({
@@ -87,3 +97,82 @@ export const RequestRejectedEventStruct = object({
     id: UuidStruct,
   }),
 });
+
+// Assets related events:
+// -----------------------------------------------------------------------------------------------
+
+export const AccountBalancesUpdatedEventStruct = object({
+  method: literal(`${KeyringEvent.AccountBalancesUpdated}`),
+  params: object({
+    balances: record(
+      AccountIdStruct,
+      record(
+        CaipAssetTypeStruct,
+        object({
+          amount: string(),
+          unit: string(),
+        }),
+      ),
+    ),
+  }),
+});
+
+/**
+ * Event emitted when the balances of an account are updated.
+ *
+ * Only changes are reported.
+ *
+ * The Snap can choose to emit this event for multiple accounts at once.
+ */
+export type AccountBalancesUpdatedEvent = Infer<
+  typeof AccountBalancesUpdatedEventStruct
+>;
+export type AccountBalancesUpdatedEventPayload =
+  AccountBalancesUpdatedEvent['params'];
+
+export const AccountTransactionsUpdatedEventStruct = object({
+  method: literal(`${KeyringEvent.AccountTransactionsUpdated}`),
+  params: object({
+    transactions: record(AccountIdStruct, array(TransactionStruct)),
+  }),
+});
+
+/**
+ * Event emitted when the transactions of an account are updated (added or
+ * changed).
+ *
+ * Only changes are reported.
+ *
+ * The Snap can choose to emit this event for multiple accounts at once.
+ */
+export type AccountTransactionsUpdatedEvent = Infer<
+  typeof AccountTransactionsUpdatedEventStruct
+>;
+export type AccountTransactionsUpdatedEventPayload =
+  AccountTransactionsUpdatedEvent['params'];
+
+export const AccountAssetListUpdatedEventStruct = object({
+  method: literal(`${KeyringEvent.AccountAssetListUpdated}`),
+  params: object({
+    assets: record(
+      AccountIdStruct,
+      object({
+        added: array(CaipAssetTypeStruct), // TODO: Use CaipAssetIdOrType
+        removed: array(CaipAssetTypeStruct), // TODO: Use CaipAssetIdOrType
+      }),
+    ),
+  }),
+});
+
+/**
+ * Event emitted when the assets of an account are updated.
+ *
+ * Only changes are reported.
+ *
+ * The Snap can choose to emit this event for multiple accounts at once.
+ */
+export type AccountAssetListUpdatedEvent = Infer<
+  typeof AccountAssetListUpdatedEventStruct
+>;
+export type AccountAssetListUpdatedEventPayload =
+  AccountAssetListUpdatedEvent['params'];

@@ -46,6 +46,11 @@ export type KeyringAccountType =
   | `${SolAccountType.DataAccount}`;
 
 /**
+ * Account ID (UUIDv4).
+ */
+export const AccountIdStruct = UuidStruct; // Alias for better naming purposes.
+
+/**
  * A struct which represents a Keyring account object. It is abstract enough to
  * be used with any blockchain. Specific blockchain account types should extend
  * this struct.
@@ -56,7 +61,7 @@ export const KeyringAccountStruct = object({
   /**
    * Account ID (UUIDv4).
    */
-  id: UuidStruct,
+  id: AccountIdStruct,
 
   /**
    * Account type.

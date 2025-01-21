@@ -13,6 +13,9 @@ import {
   EthUserOperationPatchStruct,
   isEvmAccountType,
   KeyringEvent,
+  AccountAssetListUpdatedEventStruct,
+  AccountBalancesUpdatedEventStruct,
+  AccountTransactionsUpdatedEventStruct,
 } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
@@ -350,6 +353,48 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Handle a balances updated event from a Snap.
+   *
+   * @param message - Event message.
+   * @returns `null`.
+   */
+  async #handleAccountBalancesUpdated(message: SnapMessage): Promise<null> {
+    assert(message, AccountBalancesUpdatedEventStruct);
+    const event = message.params;
+
+    this.#messenger.publish('SnapKeyring:accountBalancesUpdated', event);
+    return null;
+  }
+
+  /**
+   * Handle a asset list updated event from a Snap.
+   *
+   * @param message - Event message.
+   * @returns `null`.
+   */
+  async #handleAccountAssetListUpdated(message: SnapMessage): Promise<null> {
+    assert(message, AccountAssetListUpdatedEventStruct);
+    const event = message.params;
+
+    this.#messenger.publish('SnapKeyring:accountAssetListUpdated', event);
+    return null;
+  }
+
+  /**
+   * Handle a transactions updated event from a Snap.
+   *
+   * @param message - Event message.
+   * @returns `null`.
+   */
+  async #handleAccountTransactionsUpdated(message: SnapMessage): Promise<null> {
+    assert(message, AccountTransactionsUpdatedEventStruct);
+    const event = message.params;
+
+    this.#messenger.publish('SnapKeyring:accountTransactionsUpdated', event);
+    return null;
+  }
+
+  /**
    * Handle a message from a Snap.
    *
    * @param snapId - ID of the Snap.
@@ -380,6 +425,19 @@ export class SnapKeyring extends EventEmitter {
 
       case `${KeyringEvent.RequestRejected}`: {
         return this.#handleRequestRejected(snapId, message);
+      }
+
+      // Assets related events:
+      case `${KeyringEvent.AccountBalancesUpdated}`: {
+        return this.#handleAccountBalancesUpdated(message);
+      }
+
+      case `${KeyringEvent.AccountAssetListUpdated}`: {
+        return this.#handleAccountAssetListUpdated(message);
+      }
+
+      case `${KeyringEvent.AccountTransactionsUpdated}`: {
+        return this.#handleAccountTransactionsUpdated(message);
       }
 
       default:
