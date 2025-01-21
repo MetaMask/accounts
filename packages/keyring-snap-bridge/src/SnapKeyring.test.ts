@@ -203,7 +203,7 @@ describe('SnapKeyring', () => {
   // Now extracts a rectricted messenger for the Snap keyring only.
   const mockSnapKeyringMessenger: SnapKeyringMessenger =
     controllerMessenger.getRestricted({
-      name: 'MockSnapKeyringMessenger',
+      name: 'SnapKeyring',
       allowedEvents: [],
       allowedActions: ['SnapController:get', 'SnapController:handleRequest'],
     });
