@@ -1,4 +1,6 @@
 import type {
+  CaipAssetType,
+  CaipAssetTypeOrId,
   KeyringAccount,
   KeyringRequest,
   KeyringResponse,
@@ -293,9 +295,64 @@ describe('KeyringClient', () => {
     });
   });
 
+  describe('listAccountAssets', () => {
+    it('returns an empty list of assets', async () => {
+      const id = '4eda78cd-aed8-42c1-a2a0-4c9b36e8282f';
+      const expectedResponse: CaipAssetTypeOrId[] = [];
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const assets = await keyring.listAccountAssets(id);
+
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_listAccountAssets',
+        params: { id },
+      });
+
+      expect(assets).toStrictEqual(expectedResponse);
+    });
+
+    it('returns a non-empty assets list', async () => {
+      const id = '4eda78cd-aed8-42c1-a2a0-4c9b36e8282f';
+      const expectedResponse: CaipAssetTypeOrId[] = [
+        // DAI Token
+        'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
+        // CryptoKitties Collection
+        'eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d',
+        // CryptoKitties Collectible #771769
+        'eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d/771769',
+      ];
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const assets = await keyring.listAccountAssets(id);
+
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_listAccountAssets',
+        params: { id },
+      });
+
+      expect(assets).toStrictEqual(expectedResponse);
+    });
+
+    it('throws an error if one asset is not CAIP-19 compliant', async () => {
+      const id = '4eda78cd-aed8-42c1-a2a0-4c9b36e8282f';
+      const expectedResponse = ['not:compliant'];
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      await expect(keyring.listAccountAssets(id)).rejects.toThrow(
+        'At path: 0 -- Expected a value of type `CaipAssetTypeOrId`, but received: `"not:compliant"`',
+      );
+    });
+  });
+
   describe('getAccountBalances', () => {
     it('returns a valid response', async () => {
-      const assets = ['bip122:000000000019d6689c085ae165831e93/slip44:0'];
+      const assets: CaipAssetType[] = [
+        'bip122:000000000019d6689c085ae165831e93/slip44:0',
+      ];
       const id = '1617ea08-d4b6-48bf-ba83-901ef1e45ed7';
       const expectedResponse = {
         [assets[0] as string]: {
@@ -318,7 +375,9 @@ describe('KeyringClient', () => {
     });
 
     it('throws an error because the amount has the wrong type', async () => {
-      const assets = ['bip122:000000000019d6689c085ae165831e93/slip44:0'];
+      const assets: CaipAssetType[] = [
+        'bip122:000000000019d6689c085ae165831e93/slip44:0',
+      ];
       const id = '1617ea08-d4b6-48bf-ba83-901ef1e45ed7';
       const expectedResponse = {
         [assets[0] as string]: {
@@ -334,7 +393,9 @@ describe('KeyringClient', () => {
     });
 
     it("throws an error because the amount isn't a StringNumber", async () => {
-      const assets = ['bip122:000000000019d6689c085ae165831e93/slip44:0'];
+      const assets: CaipAssetType[] = [
+        'bip122:000000000019d6689c085ae165831e93/slip44:0',
+      ];
       const id = '1617ea08-d4b6-48bf-ba83-901ef1e45ed7';
       const expectedResponse = {
         [assets[0] as string]: {
