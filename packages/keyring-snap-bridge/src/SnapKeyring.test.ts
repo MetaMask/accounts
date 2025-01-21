@@ -68,50 +68,6 @@ function noScopes(account: KeyringAccount): KeyringAccountV1 {
   return accountV1;
 }
 
-/*
-class MockMessenger {
-  readonly #messenger: SnapKeyringMessenger;
-
-  get: jest.Mock = jest.fn();
-
-  handleRequest: jest.Mock = jest.fn();
-
-  constructor(
-    messenger: ControllerMessenger<
-      SnapKeyringAllowedActions,
-      SnapKeyringAllowedEvents
-    >,
-  ) {
-    messenger.registerActionHandler('SnapController:get', this.get);
-    messenger.registerActionHandler(
-      'SnapController:handleRequest',
-      this.handleRequest,
-    );
-
-    this.#messenger = messenger.getRestricted({
-      name: 'MockSnapKeyringMessenger',
-      allowedEvents: [],
-      allowedActions: ['SnapController:get', 'SnapController:handleRequest'],
-    });
-  }
-
-  getMessenger(): SnapKeyringMessenger {
-    return this.#messenger;
-  }
-
-  call(action: string, ...args: any): unknown {
-    switch (action) {
-      case 'SnapController:get':
-        return this.get(...args);
-      case 'SnapController:handleRequest':
-        return this.handleRequest(...args);
-      default:
-        throw new Error(`Unexpected action call: ${action}`);
-    }
-  }
-}
-*/
-
 describe('SnapKeyring', () => {
   let keyring: SnapKeyring;
 
