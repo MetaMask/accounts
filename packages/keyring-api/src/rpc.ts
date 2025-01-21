@@ -19,6 +19,7 @@ import {
   KeyringResponseStruct,
   TransactionsPageStruct,
   PaginationStruct,
+  CaipAssetTypeOrIdStruct,
 } from './api';
 
 /**
@@ -28,6 +29,7 @@ export enum KeyringRpcMethod {
   ListAccounts = 'keyring_listAccounts',
   GetAccount = 'keyring_getAccount',
   CreateAccount = 'keyring_createAccount',
+  ListAccountAssets = 'keyring_listAccountAssets',
   ListAccountTransactions = 'keyring_listAccountTransactions',
   GetAccountBalances = 'keyring_getAccountBalances',
   FilterAccountChains = 'keyring_filterAccountChains',
@@ -126,6 +128,27 @@ export const ListAccountTransactionsResponseStruct = TransactionsPageStruct;
 
 export type ListAccountTransactionsResponse = Infer<
   typeof ListAccountTransactionsResponseStruct
+>;
+
+// ----------------------------------------------------------------------------
+// List account assets
+
+export const ListAccountAssetsRequestStruct = object({
+  ...CommonHeader,
+  method: literal('keyring_listAccountAssets'),
+  params: object({
+    id: UuidStruct,
+  }),
+});
+
+export type ListAccountAssetsRequest = Infer<
+  typeof ListAccountAssetsRequestStruct
+>;
+
+export const ListAccountAssetsResponseStruct = array(CaipAssetTypeOrIdStruct);
+
+export type ListAccountAssetsResponse = Infer<
+  typeof ListAccountAssetsResponseStruct
 >;
 
 // ----------------------------------------------------------------------------
