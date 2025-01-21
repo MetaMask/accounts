@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [9.0.0]
+## [8.1.1]
 
 ### Changed
 
-- **BREAKING:** Bump `@metamask/keyring-api` peer dependency from `^13.0.0` to `^14.0.0` ([#TODO](TODO))
+- Bump `@metamask/keyring-api` from `^13.0.0` to `^14.0.0` ([#155](https://github.com/MetaMask/accounts/pull/155))
 
 ## [8.1.0]
 
@@ -416,8 +416,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.0.0...HEAD
-[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.1.0...@metamask/eth-snap-keyring@9.0.0
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.1.1...HEAD
+[8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.1.0...@metamask/eth-snap-keyring@8.1.1
 [8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.0.0...@metamask/eth-snap-keyring@8.1.0
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.1.0...@metamask/eth-snap-keyring@8.0.0
 [7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.0.0...@metamask/eth-snap-keyring@7.1.0

@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Make `CaipAssetType` type more restritive ([#150](https://github.com/MetaMask/accounts/pull/150))
+- **BREAKING:** Make `CaipAssetType` type more restritive ([#150](https://github.com/MetaMask/accounts/pull/150))
   - It used to be a `string` but it has been restricted with a template literal type that matches CAIP-19 asset type.
 
 ## [2.0.0]
