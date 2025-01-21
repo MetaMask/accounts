@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.0]
 
+### Added
+
+- Add `listAccountAssets` keyring method ([#148](https://github.com/MetaMask/accounts/pull/148))
+  - This is inherited from the `KeyringClient` changes.
+
 ### Changed
 
 - **BREAKING:** Bump `@metamask/keyring-api` from `^13.0.0` to `^14.0.0` ([#155](https://github.com/MetaMask/accounts/pull/155))
