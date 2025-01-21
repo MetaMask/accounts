@@ -5,6 +5,7 @@ import { CaipAssetTypeStruct, JsonStruct } from '@metamask/utils';
 
 import {
   AccountIdStruct,
+  CaipAssetTypeOrIdStruct,
   KeyringAccountStruct,
   TransactionStruct,
 } from './api';
@@ -207,12 +208,12 @@ export const AccountAssetListUpdatedEventStruct = object({
         /**
          * New assets detected.
          */
-        added: array(CaipAssetTypeStruct), // TODO: Use CaipAssetIdOrType
+        added: array(CaipAssetTypeOrIdStruct),
 
         /**
          * Assets no longer available on that account.
          */
-        removed: array(CaipAssetTypeStruct), // TODO: Use CaipAssetIdOrType
+        removed: array(CaipAssetTypeOrIdStruct),
       }),
     ),
   }),
