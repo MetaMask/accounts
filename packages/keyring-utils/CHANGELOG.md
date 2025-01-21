@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0]
+
+### Changed
+
+- Add generic type in `definePattern` ([#150](https://github.com/MetaMask/accounts/pull/150))
+  - It allows to use template literal type that matches the pattern.
+
 ## [1.1.0]
 
 ### Added
@@ -25,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@1.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@1.2.0...HEAD
+[1.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@1.1.0...@metamask/keyring-utils@1.2.0
 [1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@1.0.0...@metamask/keyring-utils@1.1.0
 [1.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/keyring-utils@1.0.0

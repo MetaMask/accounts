@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0]
+
+### Added
+
+- Add support of `listAccountAssets` keyring method ([#148](https://github.com/MetaMask/accounts/pull/148))
+
 ## [2.0.0]
 
 ### Changed
@@ -29,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.1.0...HEAD
+[2.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.0.0...@metamask/keyring-snap-sdk@2.1.0
 [2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@1.1.0...@metamask/keyring-snap-sdk@2.0.0
 [1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@1.0.0...@metamask/keyring-snap-sdk@1.1.0
 [1.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/keyring-snap-sdk@1.0.0
