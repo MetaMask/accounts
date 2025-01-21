@@ -104,12 +104,36 @@ export const RequestRejectedEventStruct = object({
 export const AccountBalancesUpdatedEventStruct = object({
   method: literal(`${KeyringEvent.AccountBalancesUpdated}`),
   params: object({
+    /**
+     * Balances updates of accounts owned by the Snap.
+     */
     balances: record(
+      /**
+       * Account ID.
+       */
       AccountIdStruct,
+
+      /**
+       * Mapping of each owned assets and their respective balances for that account.
+       */
       record(
+        /**
+         * Asset type (CAIP-19).
+         */
         CaipAssetTypeStruct,
+
+        /**
+         * Balance information for a given asset.
+         */
         object({
+          /**
+           * Balance's amount.
+           */
           amount: string(),
+
+          /**
+           * Balance's unit.
+           */
           unit: string(),
         }),
       ),
@@ -133,7 +157,20 @@ export type AccountBalancesUpdatedEventPayload =
 export const AccountTransactionsUpdatedEventStruct = object({
   method: literal(`${KeyringEvent.AccountTransactionsUpdated}`),
   params: object({
-    transactions: record(AccountIdStruct, array(TransactionStruct)),
+    /**
+     * Transactions updates of accounts owned by the Snap.
+     */
+    transactions: record(
+      /**
+       * Account ID.
+       */
+      AccountIdStruct,
+
+      /**
+       * List of updated transactions for that account.
+       */
+      array(TransactionStruct),
+    ),
   }),
 });
 
@@ -154,10 +191,27 @@ export type AccountTransactionsUpdatedEventPayload =
 export const AccountAssetListUpdatedEventStruct = object({
   method: literal(`${KeyringEvent.AccountAssetListUpdated}`),
   params: object({
+    /**
+     * Asset list update of accounts owned by the Snap.
+     */
     assets: record(
+      /**
+       * Account ID.
+       */
       AccountIdStruct,
+
+      /**
+       * Asset list changes for that account.
+       */
       object({
+        /**
+         * New assets detected.
+         */
         added: array(CaipAssetTypeStruct), // TODO: Use CaipAssetIdOrType
+
+        /**
+         * Assets no longer available on that account.
+         */
         removed: array(CaipAssetTypeStruct), // TODO: Use CaipAssetIdOrType
       }),
     ),
