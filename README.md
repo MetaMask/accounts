@@ -46,17 +46,17 @@ linkStyle default opacity:0.5
   keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
   keyring_utils(["@metamask/keyring-utils"]);
   keyring_api --> keyring_utils;
-  keyring_internal_api --> keyring_api;
   keyring_internal_api --> keyring_utils;
-  keyring_internal_snap_client --> keyring_api;
+  keyring_internal_api --> keyring_api;
   keyring_internal_snap_client --> keyring_snap_client;
   keyring_internal_snap_client --> keyring_utils;
-  eth_snap_keyring --> keyring_api;
+  keyring_internal_snap_client --> keyring_api;
   eth_snap_keyring --> keyring_internal_api;
   eth_snap_keyring --> keyring_internal_snap_client;
   eth_snap_keyring --> keyring_utils;
-  keyring_snap_client --> keyring_api;
+  eth_snap_keyring --> keyring_api;
   keyring_snap_client --> keyring_utils;
+  keyring_snap_client --> keyring_api;
   keyring_snap_sdk --> keyring_utils;
   keyring_snap_sdk --> keyring_api;
 ```

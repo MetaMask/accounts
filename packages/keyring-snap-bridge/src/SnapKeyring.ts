@@ -29,7 +29,7 @@ import { KeyringSnapControllerClient } from '@metamask/keyring-internal-snap-cli
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapController } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
-import { type Snap } from '@metamask/snaps-utils';
+import type { Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 import {

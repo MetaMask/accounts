@@ -23,7 +23,7 @@
     },
     {
       "label": "use workspace version of the keyring-api",
-      "dependencyTypes": ["!local"],
+      "dependencyTypes": ["!peer", "!local"],
       "dependencies": ["@metamask/keyring-api"],
       "pinVersion": "workspace:^"
     },
@@ -57,5 +57,12 @@
       "dependencies": ["@metamask/keyring-utils"],
       "pinVersion": "workspace:^"
     },
+    {
+      "label": "use same range than @metamask/providers for webextension-polyfill",
+      "packages": ["**"],
+      "dependencyTypes": ["peer"],
+      "dependencies": ["webextension-polyfill"],
+      "range": "^0.10.0 || ^0.11.0 || ^0.12.0"
+    }
   ]
 }
