@@ -6,6 +6,7 @@ import { CaipAssetTypeStruct, JsonStruct } from '@metamask/utils';
 import {
   AccountIdStruct,
   CaipAssetTypeOrIdStruct,
+  FungibleAssetAmountStruct,
   KeyringAccountStruct,
   TransactionStruct,
 } from './api';
@@ -126,17 +127,7 @@ export const AccountBalancesUpdatedEventStruct = object({
         /**
          * Balance information for a given asset.
          */
-        object({
-          /**
-           * Balance's amount.
-           */
-          amount: string(),
-
-          /**
-           * Balance's unit.
-           */
-          unit: string(),
-        }),
+        FungibleAssetAmountStruct,
       ),
     ),
   }),
