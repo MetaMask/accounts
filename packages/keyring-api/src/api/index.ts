@@ -1,4 +1,5 @@
 export * from './account';
+export * from './address';
 export * from './asset';
 export * from './balance';
 export * from './export';

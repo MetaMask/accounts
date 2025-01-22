@@ -16,6 +16,7 @@ import {
   ListRequestsRequestStruct,
   GetAccountBalancesRequestStruct,
   ListAccountAssetsRequestStruct,
+  ResolveAccountAddressRequestStruct,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
@@ -90,6 +91,14 @@ async function dispatchRequest(
       return keyring.getAccountBalances(
         request.params.id,
         request.params.assets,
+      );
+    }
+
+    case `${KeyringRpcMethod.ResolveAccountAddress}`: {
+      assert(request, ResolveAccountAddressRequestStruct);
+      return keyring.resolveAccountAddress(
+        request.params.scope,
+        request.params.request,
       );
     }
 
