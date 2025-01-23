@@ -31,9 +31,7 @@ import { SnapKeyring } from '.';
 import type { KeyringAccountV1 } from './account';
 import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
 import type {
-  AllowedActions,
-  AllowedEvents,
-  SnapKeyringActions,
+  SnapKeyringAllowedActions,
   SnapKeyringEvents,
   SnapKeyringMessenger,
 } from './SnapKeyringMessenger';
@@ -186,10 +184,8 @@ describe('SnapKeyring', () => {
 
   // Fake the ControllerMessenger and registers all mock actions here:
   const controllerMessenger: ControllerMessenger<
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    SnapKeyringActions | AllowedActions,
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    SnapKeyringEvents | AllowedEvents
+    SnapKeyringAllowedActions,
+    SnapKeyringEvents
   > = new ControllerMessenger();
   controllerMessenger.registerActionHandler(
     'SnapController:get',

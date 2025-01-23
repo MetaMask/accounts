@@ -31,18 +31,12 @@ export type SnapKeyringEvents =
   | SnapKeyringAccountBalancesUpdatedEvent
   | SnapKeyringAccountTransactionsUpdatedEvent;
 
-export type SnapKeyringActions = never;
-
-export type AllowedEvents = never;
-
-export type AllowedActions = HandleSnapRequest | GetSnap;
+export type SnapKeyringAllowedActions = HandleSnapRequest | GetSnap;
 
 export type SnapKeyringMessenger = RestrictedControllerMessenger<
   'SnapKeyring',
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  AllowedActions | SnapKeyringActions,
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-  AllowedEvents | SnapKeyringEvents,
-  AllowedActions['type'],
-  AllowedEvents['type']
+  SnapKeyringAllowedActions,
+  SnapKeyringEvents,
+  SnapKeyringAllowedActions['type'],
+  never
 >;
