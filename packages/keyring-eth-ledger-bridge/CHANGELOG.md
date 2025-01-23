@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.0.3]
 
+### Fixed
+
+- Bump `@ledgerhq/hw-app-eth` dependency from `^6.39.0` to `^6.42.0` ([#153](https://github.com/MetaMask/accounts/pull/153))
+  - Required to fix handling of EIP-712 content.
+
 ## [8.0.2]
 
 ### Changed
