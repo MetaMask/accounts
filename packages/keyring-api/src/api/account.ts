@@ -1,4 +1,4 @@
-import { object, UuidStruct } from '@metamask/keyring-utils';
+import { AccountIdStruct, object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   nonempty,
@@ -44,11 +44,6 @@ export type KeyringAccountType =
   | `${EthAccountType.Erc4337}`
   | `${BtcAccountType.P2wpkh}`
   | `${SolAccountType.DataAccount}`;
-
-/**
- * Account ID (UUIDv4).
- */
-export const AccountIdStruct = UuidStruct; // Alias for better naming purposes.
 
 /**
  * A struct which represents a Keyring account object. It is abstract enough to
