@@ -4,6 +4,7 @@
 
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
+import type { ExtractEventPayload } from '@metamask/base-controller';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
@@ -57,7 +58,10 @@ import {
   transformAccountV1,
 } from './migrations';
 import { SnapIdMap } from './SnapIdMap';
-import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
+import type {
+  SnapKeyringEvents,
+  SnapKeyringMessenger,
+} from './SnapKeyringMessenger';
 import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
@@ -353,6 +357,23 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Re-publish an account event.
+   *
+   * @param event - The event type. This is a unique identifier for this event.
+   * @param payload - The event payload. The type of the parameters for each event handler must
+   * match the type of this payload.
+   * @template EventType - A Snap keyring event type.
+   * @returns `null`.
+   */
+  async #rePublishAccountEvent<EventType extends SnapKeyringEvents['type']>(
+    event: EventType,
+    ...payload: ExtractEventPayload<SnapKeyringEvents, EventType>
+  ): Promise<null> {
+    this.#messenger.publish(event, ...payload);
+    return null;
+  }
+
+  /**
    * Handle a balances updated event from a Snap.
    *
    * @param message - Event message.
@@ -360,10 +381,10 @@ export class SnapKeyring extends EventEmitter {
    */
   async #handleAccountBalancesUpdated(message: SnapMessage): Promise<null> {
     assert(message, AccountBalancesUpdatedEventStruct);
-    const event = message.params;
-
-    this.#messenger.publish('SnapKeyring:accountBalancesUpdated', event);
-    return null;
+    return this.#rePublishAccountEvent(
+      'SnapKeyring:accountBalancesUpdated',
+      message.params,
+    );
   }
 
   /**
@@ -374,10 +395,10 @@ export class SnapKeyring extends EventEmitter {
    */
   async #handleAccountAssetListUpdated(message: SnapMessage): Promise<null> {
     assert(message, AccountAssetListUpdatedEventStruct);
-    const event = message.params;
-
-    this.#messenger.publish('SnapKeyring:accountAssetListUpdated', event);
-    return null;
+    return this.#rePublishAccountEvent(
+      'SnapKeyring:accountAssetListUpdated',
+      message.params,
+    );
   }
 
   /**
@@ -388,10 +409,10 @@ export class SnapKeyring extends EventEmitter {
    */
   async #handleAccountTransactionsUpdated(message: SnapMessage): Promise<null> {
     assert(message, AccountTransactionsUpdatedEventStruct);
-    const event = message.params;
-
-    this.#messenger.publish('SnapKeyring:accountTransactionsUpdated', event);
-    return null;
+    return this.#rePublishAccountEvent(
+      'SnapKeyring:accountTransactionsUpdated',
+      message.params,
+    );
   }
 
   /**
