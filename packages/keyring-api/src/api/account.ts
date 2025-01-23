@@ -1,4 +1,4 @@
-import { object, UuidStruct } from '@metamask/keyring-utils';
+import { AccountIdStruct, object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   nonempty,
@@ -56,7 +56,7 @@ export const KeyringAccountStruct = object({
   /**
    * Account ID (UUIDv4).
    */
-  id: UuidStruct,
+  id: AccountIdStruct,
 
   /**
    * Account type.

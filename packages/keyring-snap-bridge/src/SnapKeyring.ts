@@ -4,6 +4,7 @@
 
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
+import type { ExtractEventPayload } from '@metamask/base-controller';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
@@ -13,6 +14,9 @@ import {
   EthUserOperationPatchStruct,
   isEvmAccountType,
   KeyringEvent,
+  AccountAssetListUpdatedEventStruct,
+  AccountBalancesUpdatedEventStruct,
+  AccountTransactionsUpdatedEventStruct,
 } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
@@ -54,7 +58,10 @@ import {
   transformAccountV1,
 } from './migrations';
 import { SnapIdMap } from './SnapIdMap';
-import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
+import type {
+  SnapKeyringEvents,
+  SnapKeyringMessenger,
+} from './SnapKeyringMessenger';
 import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
@@ -350,6 +357,65 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Re-publish an account event.
+   *
+   * @param event - The event type. This is a unique identifier for this event.
+   * @param payload - The event payload. The type of the parameters for each event handler must
+   * match the type of this payload.
+   * @template EventType - A Snap keyring event type.
+   * @returns `null`.
+   */
+  async #rePublishAccountEvent<EventType extends SnapKeyringEvents['type']>(
+    event: EventType,
+    ...payload: ExtractEventPayload<SnapKeyringEvents, EventType>
+  ): Promise<null> {
+    this.#messenger.publish(event, ...payload);
+    return null;
+  }
+
+  /**
+   * Handle a balances updated event from a Snap.
+   *
+   * @param message - Event message.
+   * @returns `null`.
+   */
+  async #handleAccountBalancesUpdated(message: SnapMessage): Promise<null> {
+    assert(message, AccountBalancesUpdatedEventStruct);
+    return this.#rePublishAccountEvent(
+      'SnapKeyring:accountBalancesUpdated',
+      message.params,
+    );
+  }
+
+  /**
+   * Handle a asset list updated event from a Snap.
+   *
+   * @param message - Event message.
+   * @returns `null`.
+   */
+  async #handleAccountAssetListUpdated(message: SnapMessage): Promise<null> {
+    assert(message, AccountAssetListUpdatedEventStruct);
+    return this.#rePublishAccountEvent(
+      'SnapKeyring:accountAssetListUpdated',
+      message.params,
+    );
+  }
+
+  /**
+   * Handle a transactions updated event from a Snap.
+   *
+   * @param message - Event message.
+   * @returns `null`.
+   */
+  async #handleAccountTransactionsUpdated(message: SnapMessage): Promise<null> {
+    assert(message, AccountTransactionsUpdatedEventStruct);
+    return this.#rePublishAccountEvent(
+      'SnapKeyring:accountTransactionsUpdated',
+      message.params,
+    );
+  }
+
+  /**
    * Handle a message from a Snap.
    *
    * @param snapId - ID of the Snap.
@@ -380,6 +446,19 @@ export class SnapKeyring extends EventEmitter {
 
       case `${KeyringEvent.RequestRejected}`: {
         return this.#handleRequestRejected(snapId, message);
+      }
+
+      // Assets related events:
+      case `${KeyringEvent.AccountBalancesUpdated}`: {
+        return this.#handleAccountBalancesUpdated(message);
+      }
+
+      case `${KeyringEvent.AccountAssetListUpdated}`: {
+        return this.#handleAccountAssetListUpdated(message);
+      }
+
+      case `${KeyringEvent.AccountTransactionsUpdated}`: {
+        return this.#handleAccountTransactionsUpdated(message);
       }
 
       default:
