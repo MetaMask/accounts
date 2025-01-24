@@ -6,4 +6,5 @@
 export enum EthScopes {
   Namespace = 'eip155',
   Mainnet = 'eip155:1',
+  Testnet = 'eip155:11155111',
 }

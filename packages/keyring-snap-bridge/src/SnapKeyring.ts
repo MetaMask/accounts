@@ -43,6 +43,7 @@ import {
 import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
+import { transformAccount } from './account';
 import { DeferredPromise } from './DeferredPromise';
 import {
   AccountCreatedEventStruct,
@@ -52,11 +53,7 @@ import {
   RequestRejectedEventStruct,
 } from './events';
 import { projectLogger as log } from './logger';
-import {
-  isAccountV1,
-  migrateAccountV1,
-  transformAccountV1,
-} from './migrations';
+import { isAccountV1, migrateAccountV1 } from './migrations';
 import { SnapIdMap } from './SnapIdMap';
 import type {
   SnapKeyringEvents,
@@ -208,9 +205,8 @@ export class SnapKeyring extends EventEmitter {
       displayConfirmation,
     } = message.params;
 
-    // To keep the retro-compatibility with older keyring-api versions, we mark some fields
-    // as optional and provide them here if they are missing.
-    const account = transformAccountV1(newAccountFromEvent);
+    // Potentially migrate the account.
+    const account = transformAccount(newAccountFromEvent);
 
     // The UI still uses the account address to identify accounts, so we need
     // to block the creation of duplicate accounts for now to prevent accounts
@@ -258,9 +254,8 @@ export class SnapKeyring extends EventEmitter {
       this.#accounts.get(snapId, newAccountFromEvent.id) ??
       throwError(`Account '${newAccountFromEvent.id}' not found`);
 
-    // To keep the retro-compatibility with older keyring-api versions, we mark some fields
-    // as optional and provide them here if they are missing.
-    const newAccount = transformAccountV1(newAccountFromEvent);
+    // Potentially migrate the account.
+    const newAccount = transformAccount(newAccountFromEvent);
 
     // The address of the account cannot be changed. In the future, we will
     // support changing the address of an account since it will be required to

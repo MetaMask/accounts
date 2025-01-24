@@ -117,7 +117,7 @@ describe('SnapKeyring', () => {
   };
   const ethEoaAccount3 = {
     id: 'c6697bcf-5710-4751-a1cb-340e4b50617a',
-    address: '0xab1G3q98V7C67T9103g30C0417610237A137d763'.toLowerCase(),
+    address: '0xf7bDe8609231033c69E502C08f85153f8A1548F2'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
     scopes: [EthScopes.Namespace],
@@ -128,7 +128,7 @@ describe('SnapKeyring', () => {
     address: '0x2f15b30952aebe0ed5fdbfe5bf16fb9ecdb31d9a'.toLowerCase(),
     options: {},
     methods: ETH_4337_METHODS,
-    scopes: [EthScopes.Namespace],
+    scopes: [EthScopes.Testnet],
     type: EthAccountType.Erc4337,
   };
   const btcP2wpkhAccount = {
@@ -163,7 +163,7 @@ describe('SnapKeyring', () => {
     // For unknown accounts, we consider them as EVM EOA for now, so just re-use the
     // same scopes.
     scopes: [EthScopes.Namespace],
-    // This should be really possible to create such account, but since we potentially
+    // This should not be really possible to create such account, but since we potentially
     // migrate data upon the Snap keyring initialization, we want to cover edge-cases
     // like this one to avoid crashing and blocking everything...
     type: 'unknown:type' as KeyringAccount['type'],
@@ -312,7 +312,7 @@ describe('SnapKeyring', () => {
             params: {
               account: {
                 ...(ethEoaAccount1 as unknown as KeyringAccount),
-                address: '0x0',
+                address: ethEoaAccount2.address,
               },
             },
           }),
@@ -447,7 +447,7 @@ describe('SnapKeyring', () => {
             },
           }),
         ).rejects.toThrow(
-          'Account scopes is required for non-EVM and ERC4337 accounts',
+          'At path: scopes -- Expected an array value, but received: undefined',
         );
       });
 
@@ -633,7 +633,7 @@ describe('SnapKeyring', () => {
 
       it('fails when the EthMethod is not supported after update', async () => {
         // Update first account to remove `EthMethod.PersonalSign`
-        let updatedMethods: EthMethod[] = Object.values(EthMethod).filter(
+        let updatedMethods: EthMethod[] = Object.values(ETH_EOA_METHODS).filter(
           (method) => method !== EthMethod.PersonalSign,
         );
         expect(
@@ -656,7 +656,7 @@ describe('SnapKeyring', () => {
           `Method '${EthMethod.PersonalSign}' not supported for account ${ethEoaAccount1.address}`,
         );
         // Restore `EthMethod.PersonalSign` and remove `EthMethod.SignTransaction`
-        updatedMethods = Object.values(EthMethod).filter(
+        updatedMethods = Object.values(ETH_EOA_METHODS).filter(
           (method) => method !== EthMethod.SignTransaction,
         );
         expect(
@@ -723,7 +723,7 @@ describe('SnapKeyring', () => {
             params: { account },
           }),
         ).rejects.toThrow(
-          'Account scopes is required for non-EVM and ERC4337 accounts',
+          'At path: scopes -- Expected an array value, but received: undefined',
         );
       });
 
@@ -740,7 +740,7 @@ describe('SnapKeyring', () => {
             params: { account },
           }),
         ).rejects.toThrow(
-          'Account scopes is required for non-EVM and ERC4337 accounts',
+          'At path: scopes -- Expected an array value, but received: undefined',
         );
       });
     });

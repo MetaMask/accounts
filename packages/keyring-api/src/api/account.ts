@@ -74,7 +74,7 @@ export const KeyringAccountStruct = object({
   address: string(),
 
   /**
-   * Account supported scopes (CAIP-2 chain IDs).
+   * Account supported scopes (CAIP-2 chain IDs or CAIP-2 namespaces).
    */
   scopes: nonempty(array(union([CaipNamespaceStruct, CaipChainIdStruct]))),
 

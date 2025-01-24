@@ -1,6 +1,7 @@
 import { object, definePattern } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { nonempty, array, enums, literal } from '@metamask/superstruct';
+import { CaipChainIdStruct } from '@metamask/utils';
 
 import { EthScopes } from '.';
 import { EthAccountType, KeyringAccountStruct } from '../api';
@@ -81,6 +82,11 @@ export const EthErc4337AccountStruct = object({
    * Account type.
    */
   type: literal(`${EthAccountType.Erc4337}`),
+
+  /**
+   * Account supported scopes (CAIP-2 chain IDs).
+   */
+  scopes: nonempty(array(CaipChainIdStruct)),
 
   /**
    * Account supported methods.
