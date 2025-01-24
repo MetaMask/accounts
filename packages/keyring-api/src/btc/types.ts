@@ -6,7 +6,7 @@ import {
   enums,
   refine,
   literal,
-  nonempty,
+  size,
 } from '@metamask/superstruct';
 import { CaipChainIdStruct } from '@metamask/utils';
 import { bech32 } from 'bech32';
@@ -50,9 +50,11 @@ export const BtcP2wpkhAccountStruct = object({
   type: literal(`${BtcAccountType.P2wpkh}`),
 
   /**
-   * Account supported scopes (CAIP-2 chain IDs).
+   * Account supported scope (CAIP-2 chain ID).
+   *
+   * NOTE: We consider a Bitcoin address to be valid on only 1 network at time.
    */
-  scopes: nonempty(array(CaipChainIdStruct)), // TODO: Would be great to further restrict this to be an array of 1 element?
+  scopes: size(array(CaipChainIdStruct), 1),
 
   /**
    * Account supported methods.
