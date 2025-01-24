@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [15.0.0]
 
-### Uncategorized
+### Added
 
-- feat: add `account{AssetList,Balances,Transactions}Updated` keyring events + re-publish ([#154](https://github.com/MetaMask/accounts/pull/154))
+- Add `account{AssetList,Balances,Transactions}UpdatedEventStruct` keyring events ([#154](https://github.com/MetaMask/accounts/pull/154))
+
+### Changed
+
+- **BREAKING:** Make specific `*AccountStruct.scopes` more strict ([#159](https://github.com/MetaMask/accounts/pull/159))
 
 ## [14.0.0]
 

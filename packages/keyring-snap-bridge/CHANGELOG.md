@@ -9,11 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.0.0]
 
-### Uncategorized
+### Added
 
-- fix!: make `scopes` more restrictive ([#159](https://github.com/MetaMask/accounts/pull/159))
-- feat: add `account{AssetList,Balances,Transactions}Updated` keyring events + re-publish ([#154](https://github.com/MetaMask/accounts/pull/154))
-- feat!: use `Messenger` instead of `SnapsController` ([#152](https://github.com/MetaMask/accounts/pull/152))
+- Add `account{AssetList,Balances,Transactions}Updated` keyring events and re-publish them through the new `Messenger` ([#154](https://github.com/MetaMask/accounts/pull/154))
+
+### Changed
+
+- **BREAKING:** Use `Messenger` instead of `SnapsController` ([#152](https://github.com/MetaMask/accounts/pull/152))
+  - This allows to break the runtime dependency we had with some `snaps-*` pacakges.
+- **BREAKING:** Make `scopes` more strict ([#159](https://github.com/MetaMask/accounts/pull/159))
+  - We now use specific `*AccountStucts` when checking created/updated accounts to make the `scopes` sent by the Snap are valid regarding their account type definition.
 
 ## [8.1.1]
 
