@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix!: make `scopes` more restrictive ([#159](https://github.com/MetaMask/accounts/pull/159))
+- feat: add `account{AssetList,Balances,Transactions}Updated` keyring events + re-publish ([#154](https://github.com/MetaMask/accounts/pull/154))
+- feat!: use `Messenger` instead of `SnapsController` ([#152](https://github.com/MetaMask/accounts/pull/152))
+
 ## [8.1.1]
 
 ### Changed

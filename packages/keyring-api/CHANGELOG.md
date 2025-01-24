@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: add `account{AssetList,Balances,Transactions}Updated` keyring events + re-publish ([#154](https://github.com/MetaMask/accounts/pull/154))
+
 ## [14.0.0]
 
 ### Added
