@@ -1,5 +1,4 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
-import { EthScopes } from '@metamask/keyring-api';
 
 import { transformAccount } from './account';
 

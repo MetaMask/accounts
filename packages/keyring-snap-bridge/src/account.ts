@@ -1,4 +1,4 @@
-import type { BtcP2wpkhAccount, EthEoaAccount, EthErc4337Account, KeyringAccount, KeyringAccountType, SolDataAccount } from '@metamask/keyring-api';
+import type { KeyringAccount, KeyringAccountType } from '@metamask/keyring-api';
 import {
   BtcAccountType,
   BtcP2wpkhAccountStruct,
@@ -9,7 +9,8 @@ import {
   SolAccountType,
   SolDataAccountStruct,
 } from '@metamask/keyring-api';
-import { assert, omit, Struct, type Infer } from '@metamask/superstruct';
+import { assert, omit, type Infer } from '@metamask/superstruct';
+
 import { isAccountV1, transformAccountV1 } from './migrations';
 
 /**

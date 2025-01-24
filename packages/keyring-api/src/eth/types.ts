@@ -1,10 +1,10 @@
 import { object, definePattern } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { nonempty, array, enums, literal } from '@metamask/superstruct';
+import { CaipChainIdStruct } from '@metamask/utils';
 
 import { EthScopes } from '.';
 import { EthAccountType, KeyringAccountStruct } from '../api';
-import { CaipChainIdStruct } from '@metamask/utils';
 
 export const EthBytesStruct = definePattern('EthBytes', /^0x[0-9a-f]*$/iu);
 
