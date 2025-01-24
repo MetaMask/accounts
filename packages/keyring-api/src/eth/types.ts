@@ -4,6 +4,7 @@ import { nonempty, array, enums, literal } from '@metamask/superstruct';
 
 import { EthScopes } from '.';
 import { EthAccountType, KeyringAccountStruct } from '../api';
+import { CaipChainIdStruct } from '@metamask/utils';
 
 export const EthBytesStruct = definePattern('EthBytes', /^0x[0-9a-f]*$/iu);
 
@@ -81,6 +82,11 @@ export const EthErc4337AccountStruct = object({
    * Account type.
    */
   type: literal(`${EthAccountType.Erc4337}`),
+
+  /**
+   * Account supported scopes (CAIP-2 chain IDs).
+   */
+  scopes: nonempty(array(CaipChainIdStruct)),
 
   /**
    * Account supported methods.

@@ -1,6 +1,14 @@
 import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { string, array, enums, refine, literal } from '@metamask/superstruct';
+import {
+  string,
+  array,
+  enums,
+  refine,
+  literal,
+  nonempty,
+} from '@metamask/superstruct';
+import { CaipChainIdStruct } from '@metamask/utils';
 import { bech32 } from 'bech32';
 
 import { BtcAccountType, KeyringAccountStruct } from '../api';
@@ -40,6 +48,11 @@ export const BtcP2wpkhAccountStruct = object({
    * Account type.
    */
   type: literal(`${BtcAccountType.P2wpkh}`),
+
+  /**
+   * Account supported scopes (CAIP-2 chain IDs).
+   */
+  scopes: nonempty(array(CaipChainIdStruct)), // TODO: Would be great to further restrict this to be an array of 1 element?
 
   /**
    * Account supported methods.
