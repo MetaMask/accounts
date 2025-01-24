@@ -128,7 +128,7 @@ describe('SnapKeyring', () => {
     address: '0x2f15b30952aebe0ed5fdbfe5bf16fb9ecdb31d9a'.toLowerCase(),
     options: {},
     methods: ETH_4337_METHODS,
-    scopes: [EthScopes.Mainnet],
+    scopes: [EthScopes.Testnet],
     type: EthAccountType.Erc4337,
   };
   const btcP2wpkhAccount = {
