@@ -117,7 +117,7 @@ describe('SnapKeyring', () => {
   };
   const ethEoaAccount3 = {
     id: 'c6697bcf-5710-4751-a1cb-340e4b50617a',
-    address: '0xab1G3q98V7C67T9103g30C0417610237A137d763'.toLowerCase(),
+    address: '0xf7bDe8609231033c69E502C08f85153f8A1548F2'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
     scopes: [EthScopes.Namespace],
@@ -312,7 +312,7 @@ describe('SnapKeyring', () => {
             params: {
               account: {
                 ...(ethEoaAccount1 as unknown as KeyringAccount),
-                address: '0x0',
+                address: ethEoaAccount2.address,
               },
             },
           }),
