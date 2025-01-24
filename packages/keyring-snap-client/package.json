@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-snap-client",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "MetaMask Keyring Snap clients",
   "keywords": [
     "metamask",

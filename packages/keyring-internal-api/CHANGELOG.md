@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0]
+
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^14.0.0` to `^15.0.0` ([#160](https://github.com/MetaMask/accounts/pull/160))
+  - The `scopes` from each `*AccountStruct` types is now more strict which impact all `Internal*AccountStruct` types.
+
 ## [2.0.1]
 
 ### Changed
@@ -35,7 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@2.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@3.0.0...HEAD
+[3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@2.0.1...@metamask/keyring-internal-api@3.0.0
 [2.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@2.0.0...@metamask/keyring-internal-api@2.0.1
 [2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@1.1.0...@metamask/keyring-internal-api@2.0.0
 [1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@1.0.0...@metamask/keyring-internal-api@1.1.0
