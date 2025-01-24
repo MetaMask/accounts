@@ -54,7 +54,7 @@ describe('types', () => {
       );
     });
 
-    it('throws an error if there is multiple scopes', () => {
+    it('throws an error if there are multiple scopes', () => {
       const account: BtcP2wpkhAccount = {
         ...MOCK_ACCOUNT,
         scopes: [BtcScopes.Mainnet, BtcScopes.Testnet],
