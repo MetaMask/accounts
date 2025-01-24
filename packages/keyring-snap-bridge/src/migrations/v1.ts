@@ -45,10 +45,10 @@ export function getScopesForAccountV1(accountV1: KeyringAccountV1): string[] {
     case EthAccountType.Erc4337: {
       // EVM Erc4337 account
       // NOTE: A Smart Contract account might not be compatible with every chain, in this case we just default
-      // to mainnet since we cannot really "guess" it from here.
-      // Also, there's no official Snap as of today that uses this account type. So
-      // this case should never happen.
-      return [EthScopes.Mainnet];
+      // to testnet since we cannot really "guess" it from here.
+      // Also, there's no official Snap as of today that uses this account type. So this case should never happen
+      // in production.
+      return [EthScopes.Testnet];
     }
     case BtcAccountType.P2wpkh: {
       // Bitcoin uses different accounts for testnet and mainnet
