@@ -128,7 +128,7 @@ describe('SnapKeyring', () => {
     address: '0x2f15b30952aebe0ed5fdbfe5bf16fb9ecdb31d9a'.toLowerCase(),
     options: {},
     methods: ETH_4337_METHODS,
-    scopes: [EthScopes.Namespace],
+    scopes: [EthScopes.Mainnet],
     type: EthAccountType.Erc4337,
   };
   const btcP2wpkhAccount = {
@@ -447,7 +447,7 @@ describe('SnapKeyring', () => {
             },
           }),
         ).rejects.toThrow(
-          'Account scopes is required for non-EVM and ERC4337 accounts',
+          'At path: scopes -- Expected an array value, but received: undefined',
         );
       });
 
@@ -633,7 +633,7 @@ describe('SnapKeyring', () => {
 
       it('fails when the EthMethod is not supported after update', async () => {
         // Update first account to remove `EthMethod.PersonalSign`
-        let updatedMethods: EthMethod[] = Object.values(EthMethod).filter(
+        let updatedMethods: EthMethod[] = Object.values(ETH_EOA_METHODS).filter(
           (method) => method !== EthMethod.PersonalSign,
         );
         expect(
@@ -656,7 +656,7 @@ describe('SnapKeyring', () => {
           `Method '${EthMethod.PersonalSign}' not supported for account ${ethEoaAccount1.address}`,
         );
         // Restore `EthMethod.PersonalSign` and remove `EthMethod.SignTransaction`
-        updatedMethods = Object.values(EthMethod).filter(
+        updatedMethods = Object.values(ETH_EOA_METHODS).filter(
           (method) => method !== EthMethod.SignTransaction,
         );
         expect(
@@ -723,7 +723,7 @@ describe('SnapKeyring', () => {
             params: { account },
           }),
         ).rejects.toThrow(
-          'Account scopes is required for non-EVM and ERC4337 accounts',
+          'At path: scopes -- Expected an array value, but received: undefined',
         );
       });
 
@@ -740,7 +740,7 @@ describe('SnapKeyring', () => {
             params: { account },
           }),
         ).rejects.toThrow(
-          'Account scopes is required for non-EVM and ERC4337 accounts',
+          'At path: scopes -- Expected an array value, but received: undefined',
         );
       });
     });

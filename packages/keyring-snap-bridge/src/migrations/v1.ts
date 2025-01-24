@@ -10,7 +10,7 @@ import {
 import { isBtcMainnetAddress } from '@metamask/keyring-utils';
 import { is } from '@metamask/superstruct';
 
-import { KeyringAccountV1Struct, type KeyringAccountV1 } from '../account';
+import { assertKeyringAccount, KeyringAccountV1Struct, type KeyringAccountV1 } from '../account';
 
 /**
  * Checks if an account is an `KeyringAccount` v1.
@@ -40,10 +40,11 @@ export function getScopesForAccountV1(accountV1: KeyringAccountV1): string[] {
     }
     case EthAccountType.Erc4337: {
       // EVM Erc4337 account
-      // NOTE: A Smart Contract account might not be compatible with every chain, but we still use
-      // "generic" scope for now. Also, there's no official Snap as of today that uses this account type. So
+      // NOTE: A Smart Contract account might not be compatible with every chain, in this case we just default
+      // to mainnet since we cannot really "guess" it from here.
+      // Also, there's no official Snap as of today that uses this account type. So
       // this case should never happen.
-      return [EthScopes.Namespace];
+      return [EthScopes.Mainnet];
     }
     case BtcAccountType.P2wpkh: {
       // Bitcoin uses different accounts for testnet and mainnet
@@ -77,24 +78,20 @@ export function transformAccountV1(
 ): KeyringAccount {
   const { type } = accountV1;
 
-  if (!isAccountV1(accountV1)) {
-    // Nothing to do in this case.
-    return accountV1 as KeyringAccount;
-  }
-
+  // EVM EOA account are compatible with any EVM networks, and we use CAIP-2
+  // namespaces when the scope relates to ALL chains (from that namespace).
+  // So we can automatically inject a valid `scopes` for this, but not for
+  // other kind of accounts.
   if (type === EthAccountType.Eoa) {
-    // EVM EOA account are compatible with any EVM networks, and we use CAIP-2
-    // namespaces when the scope relates to ALL chains (from that namespace).
     return {
       ...accountV1,
       scopes: getScopesForAccountV1(accountV1),
     };
   }
 
-  // For all non-EVM Snaps and ERC4337 Snaps, the scopes is required.
-  throw new Error(
-    `Account scopes is required for non-EVM and ERC4337 accounts`,
-  );
+  // For all other non-EVM and ERC4337 Snap accounts, the `scopes` is required, and
+  // each `*AccountStruct` should assert that automatically.
+  return assertKeyringAccount(accountV1);
 }
 
 /**
