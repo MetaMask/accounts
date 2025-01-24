@@ -163,7 +163,7 @@ describe('SnapKeyring', () => {
     // For unknown accounts, we consider them as EVM EOA for now, so just re-use the
     // same scopes.
     scopes: [EthScopes.Namespace],
-    // This should be really possible to create such account, but since we potentially
+    // This should not be really possible to create such account, but since we potentially
     // migrate data upon the Snap keyring initialization, we want to cover edge-cases
     // like this one to avoid crashing and blocking everything...
     type: 'unknown:type' as KeyringAccount['type'],
