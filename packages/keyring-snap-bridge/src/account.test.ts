@@ -3,7 +3,7 @@ import type { KeyringAccount } from '@metamask/keyring-api';
 import { transformAccount } from './account';
 
 describe('account', () => {
-  it('throw for unknown account type', () => {
+  it('throws for unknown account type', () => {
     const unknownAccount = {
       // This should not be really possible to create such account, but since we potentially
       // migrate data upon the Snap keyring initialization, we want to cover edge-cases
