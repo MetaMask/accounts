@@ -23,6 +23,7 @@ import {
   BtcScope,
   SolScope,
 } from '@metamask/keyring-api';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
 
@@ -1760,6 +1761,70 @@ describe('SnapKeyring', () => {
             keyring: { type: 'Snap Keyring' },
           },
         },
+      );
+    });
+  });
+
+  describe('resolveAccountAddress', () => {
+    const address = '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb';
+    const scope = toCaipChainId(EthScopes.Namespace, executionContext.chainId);
+    const request: JsonRpcRequest = {
+      id: '3d8a0bda-285c-4551-abe8-f52af39d3095',
+      jsonrpc: '2.0',
+      method: EthMethod.SignTransaction,
+      params: {
+        from: address,
+        to: 'someone-else',
+      },
+    };
+
+    it('returns a resolved address', async () => {
+      mockMessenger.handleRequest.mockReturnValueOnce({
+        address,
+      });
+
+      const resolved = await keyring.resolveAccountAddress(
+        snapId,
+        scope,
+        request,
+      );
+
+      expect(resolved).toStrictEqual({ address });
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_resolveAccountAddress',
+          params: {
+            scope,
+            request,
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('returns `null` if no address has been resolved', async () => {
+      mockMessenger.handleRequest.mockReturnValueOnce(null);
+
+      const resolved = await keyring.resolveAccountAddress(
+        snapId,
+        scope,
+        request,
+      );
+
+      expect(resolved).toBeNull();
+    });
+
+    it('throws an error if the Snap ID is not know from the keyring', async () => {
+      const badSnapId = 'local:bad-snap-id' as SnapId;
+
+      await expect(
+        keyring.resolveAccountAddress(badSnapId, scope, request),
+      ).rejects.toThrow(
+        `Unable to resolve account's address: unknown Snap ID: ${badSnapId}`,
       );
     });
   });

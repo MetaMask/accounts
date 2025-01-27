@@ -27,9 +27,12 @@ import type {
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
+  CaipChainId,
+  ResolvedAccountAddress,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
@@ -532,6 +535,42 @@ export class SnapKeyring extends EventEmitter {
         .filter(({ snapId: accountSnapId }) => accountSnapId === snapId)
         .map(({ account }) => normalizeAccountAddress(account)),
     );
+  }
+
+  /**
+   * Checks if a Snap ID is known from the keyring.
+   *
+   * @param snapId - Snap ID.
+   * @returns `true` if the Snap ID is known, `false` otherwise.
+   */
+  hasSnapId(snapId: SnapId): boolean {
+    return this.#accounts.hasSnapId(snapId);
+  }
+
+  /**
+   * Resolve the Snap account's address associated from a signing request.
+   *
+   * @param snapId - Snap ID.
+   * @param scope - CAIP-2 chain ID.
+   * @param request - Signing request object.
+   * @throws An error if the Snap ID is not known from the keyring.
+   * @returns The resolved address if found, `null` otherwise.
+   */
+  async resolveAccountAddress(
+    snapId: SnapId,
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+  ): Promise<ResolvedAccountAddress | null> {
+    // We do check that the incoming Snap ID is known by the keyring.
+    if (!this.hasSnapId(snapId)) {
+      throw new Error(
+        `Unable to resolve account's address: unknown Snap ID: ${snapId}`,
+      );
+    }
+
+    return await this.#snapClient
+      .withSnapId(snapId)
+      .resolveAccountAddress(scope, request);
   }
 
   /**
