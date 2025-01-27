@@ -158,6 +158,17 @@ export class SnapIdMap<Value extends { snapId: SnapId }> {
   }
 
   /**
+   * Checks if a snap ID exists in the map.
+   *
+   * @param snapId - Snap ID present in the value to check.
+   * @returns `true` if the snap ID is present in the map, `false` otherwise.
+   */
+  hasSnapId(snapId: SnapId): boolean {
+    // We could used a reverse-mapping to map Snap ID to their actual key too. For now, this will do the trick.
+    return [...this.#map.values()].some((value) => value.snapId === snapId);
+  }
+
+  /**
    * Deletes a key from the map.
    *
    * If the given key is not present in the map or the Snap IDs don't match,
