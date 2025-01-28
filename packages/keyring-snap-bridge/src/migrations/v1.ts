@@ -45,7 +45,7 @@ export function getScopesForAccountV1(
       // 'eip155:0' scope as defined in the EVM CAIP-10 namespaces.
       //
       // See: https://namespaces.chainagnostic.org/eip155/caip10
-      return [EthScopes.Eoa];
+      return [EthScope.Eoa];
     }
     case EthAccountType.Erc4337: {
       // EVM Erc4337 account
@@ -69,7 +69,7 @@ export function getScopesForAccountV1(
     }
     default:
       // We re-use EOA scopes if we don't know what to do for now.
-      return [EthScopes.Eoa];
+      return [EthScope.Eoa];
   }
 }
 
