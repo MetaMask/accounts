@@ -83,7 +83,7 @@ function isJsCastedBuffer(
   );
 }
 
-export class HdKeyring {
+class HdKeyring {
   static type: string = type;
 
   type: string = type;
@@ -588,3 +588,5 @@ export class HdKeyring {
     ).toLowerCase();
   }
 }
+
+export default HdKeyring;
