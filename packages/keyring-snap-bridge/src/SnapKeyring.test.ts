@@ -24,7 +24,7 @@ import {
   SolScope,
 } from '@metamask/keyring-api';
 import type { SnapId } from '@metamask/snaps-sdk';
-import { toCaipChainId } from '@metamask/utils';
+import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
 
 import type { KeyringState } from '.';
 import { SnapKeyring } from '.';
@@ -104,7 +104,7 @@ describe('SnapKeyring', () => {
     address: '0xC728514Df8A7F9271f4B7a4dd2Aa6d2D723d3eE3'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
-    scopes: [EthScope.Namespace],
+    scopes: [EthScope.Eoa],
     type: EthAccountType.Eoa,
   };
   const ethEoaAccount2 = {
@@ -112,7 +112,7 @@ describe('SnapKeyring', () => {
     address: '0x34b13912eAc00152bE0Cb409A301Ab8E55739e63'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
-    scopes: [EthScope.Namespace],
+    scopes: [EthScope.Eoa],
     type: EthAccountType.Eoa,
   };
   const ethEoaAccount3 = {
@@ -120,7 +120,7 @@ describe('SnapKeyring', () => {
     address: '0xf7bDe8609231033c69E502C08f85153f8A1548F2'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
-    scopes: [EthScope.Namespace],
+    scopes: [EthScope.Eoa],
     type: EthAccountType.Eoa,
   };
   const ethErc4337Account = {
@@ -162,7 +162,7 @@ describe('SnapKeyring', () => {
     methods: [],
     // For unknown accounts, we consider them as EVM EOA for now, so just re-use the
     // same scopes.
-    scopes: [EthScope.Namespace],
+    scopes: [EthScope.Eoa],
     // This should not be really possible to create such account, but since we potentially
     // migrate data upon the Snap keyring initialization, we want to cover edge-cases
     // like this one to avoid crashing and blocking everything...
@@ -237,7 +237,7 @@ describe('SnapKeyring', () => {
           id: 'b05d918a-b37c-497a-bb28-3d15c0d56b7a',
           options: {},
           methods: ETH_EOA_METHODS,
-          scopes: [EthScope.Namespace],
+          scopes: [EthScope.Eoa],
           type: EthAccountType.Eoa,
           // Even checksummed address will be lower-cased by the bridge.
           address: '0x6431726EEE67570BF6f0Cf892aE0a3988F03903F',
@@ -429,7 +429,7 @@ describe('SnapKeyring', () => {
           metadata: expect.any(Object),
           // By default, new EVM accounts will have this scopes if it not provided
           // during the account creation flow.
-          scopes: [EthScope.Namespace],
+          scopes: [EthScope.Eoa],
         });
       });
 
@@ -707,7 +707,7 @@ describe('SnapKeyring', () => {
 
         const keyringAccounts = keyring.listAccounts();
         expect(keyringAccounts.length).toBeGreaterThan(0);
-        expect(keyringAccounts[0]?.scopes).toStrictEqual([EthScope.Namespace]);
+        expect(keyringAccounts[0]?.scopes).toStrictEqual([EthScope.Eoa]);
       });
 
       it('updates a ERC4337 account with the no scope will throw an error', async () => {
@@ -1044,7 +1044,7 @@ describe('SnapKeyring', () => {
 
     it('unknown v1 accounts scopes defaults to EOA scopes', () => {
       expect(getScopesForAccountV1(unknownAccount)).toStrictEqual([
-        EthScope.Namespace,
+        EthScope.Eoa,
       ]);
     });
   });
@@ -1472,7 +1472,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScope.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_prepareUserOperation',
@@ -1525,7 +1528,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScope.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_patchUserOperation',
@@ -1574,7 +1580,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScope.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_signUserOperation',
@@ -1799,7 +1808,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScope.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_prepareUserOperation',
@@ -1866,7 +1878,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScope.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_patchUserOperation',

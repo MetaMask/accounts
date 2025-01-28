@@ -49,9 +49,9 @@ export const EthEoaAccountStruct = object({
   type: literal(`${EthAccountType.Eoa}`),
 
   /**
-   * Account scopes (must be ['eip155']).
+   * Account scopes (must be ['eip155:0']).
    */
-  scopes: nonempty(array(literal(EthScope.Namespace))),
+  scopes: nonempty(array(literal(EthScope.Eoa))),
 
   /**
    * Account supported methods.

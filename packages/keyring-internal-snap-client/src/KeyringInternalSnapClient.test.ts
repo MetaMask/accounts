@@ -15,7 +15,7 @@ describe('KeyringInternalSnapClient', () => {
       address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
       options: {},
       methods: [],
-      scopes: ['eip155'],
+      scopes: ['eip155:0'],
       type: 'eip155:eoa',
     },
   ];

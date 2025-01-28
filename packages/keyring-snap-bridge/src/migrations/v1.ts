@@ -9,6 +9,7 @@ import {
 } from '@metamask/keyring-api';
 import { isBtcMainnetAddress } from '@metamask/keyring-utils';
 import { is } from '@metamask/superstruct';
+import type { CaipChainId } from '@metamask/utils';
 
 import {
   assertKeyringAccount,
@@ -35,12 +36,16 @@ export function isAccountV1(
  * @param accountV1 - A v1 account.
  * @returns The list of scopes for that accounts.
  */
-export function getScopesForAccountV1(accountV1: KeyringAccountV1): string[] {
+export function getScopesForAccountV1(
+  accountV1: KeyringAccountV1,
+): CaipChainId[] {
   switch (accountV1.type) {
     case EthAccountType.Eoa: {
-      // EVM EOA account are compatible with any EVM networks, and we use CAIP-2
-      // namespaces when the scope relates to ALL chains (from that namespace).
-      return [EthScope.Namespace];
+      // EVM EOA account are compatible with any EVM networks, we use the
+      // 'eip155:0' scope as defined in the EVM CAIP-10 namespaces.
+      //
+      // See: https://namespaces.chainagnostic.org/eip155/caip10
+      return [EthScope.Eoa];
     }
     case EthAccountType.Erc4337: {
       // EVM Erc4337 account
@@ -64,7 +69,7 @@ export function getScopesForAccountV1(accountV1: KeyringAccountV1): string[] {
     }
     default:
       // We re-use EOA scopes if we don't know what to do for now.
-      return [EthScope.Namespace];
+      return [EthScope.Eoa];
   }
 }
 

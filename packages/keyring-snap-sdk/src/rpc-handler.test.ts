@@ -226,7 +226,7 @@ describe('handleKeyringRequest', () => {
           address: '0x0',
           options: {},
           methods: [],
-          scopes: ['eip155'],
+          scopes: ['eip155:0'],
           type: 'eip155:eoa',
         },
       },
@@ -240,7 +240,7 @@ describe('handleKeyringRequest', () => {
       address: '0x0',
       options: {},
       methods: [],
-      scopes: ['eip155'],
+      scopes: ['eip155:0'],
       type: 'eip155:eoa',
     });
     expect(result).toBe('UpdateAccount result');

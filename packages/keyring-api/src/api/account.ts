@@ -1,18 +1,7 @@
 import { AccountIdStruct, object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import {
-  nonempty,
-  array,
-  enums,
-  record,
-  string,
-  union,
-} from '@metamask/superstruct';
-import {
-  CaipChainIdStruct,
-  CaipNamespaceStruct,
-  JsonStruct,
-} from '@metamask/utils';
+import { nonempty, array, enums, record, string } from '@metamask/superstruct';
+import { CaipChainIdStruct, JsonStruct } from '@metamask/utils';
 
 /**
  * Supported Ethereum account types.
@@ -74,9 +63,9 @@ export const KeyringAccountStruct = object({
   address: string(),
 
   /**
-   * Account supported scopes (CAIP-2 chain IDs or CAIP-2 namespaces).
+   * Account supported scopes (CAIP-2 chain IDs).
    */
-  scopes: nonempty(array(union([CaipNamespaceStruct, CaipChainIdStruct]))),
+  scopes: nonempty(array(CaipChainIdStruct)),
 
   /**
    * Account options.
