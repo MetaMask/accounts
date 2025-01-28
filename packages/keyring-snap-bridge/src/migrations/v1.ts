@@ -1,10 +1,10 @@
 import {
   BtcAccountType,
-  BtcScopes,
+  BtcScope,
   EthAccountType,
-  EthScopes,
+  EthScope,
   SolAccountType,
-  SolScopes,
+  SolScope,
   type KeyringAccount,
 } from '@metamask/keyring-api';
 import { isBtcMainnetAddress } from '@metamask/keyring-utils';
@@ -40,7 +40,7 @@ export function getScopesForAccountV1(accountV1: KeyringAccountV1): string[] {
     case EthAccountType.Eoa: {
       // EVM EOA account are compatible with any EVM networks, and we use CAIP-2
       // namespaces when the scope relates to ALL chains (from that namespace).
-      return [EthScopes.Namespace];
+      return [EthScope.Namespace];
     }
     case EthAccountType.Erc4337: {
       // EVM Erc4337 account
@@ -48,23 +48,23 @@ export function getScopesForAccountV1(accountV1: KeyringAccountV1): string[] {
       // to testnet since we cannot really "guess" it from here.
       // Also, there's no official Snap as of today that uses this account type. So this case should never happen
       // in production.
-      return [EthScopes.Testnet];
+      return [EthScope.Testnet];
     }
     case BtcAccountType.P2wpkh: {
       // Bitcoin uses different accounts for testnet and mainnet
       return [
         isBtcMainnetAddress(accountV1.address)
-          ? BtcScopes.Mainnet
-          : BtcScopes.Testnet,
+          ? BtcScope.Mainnet
+          : BtcScope.Testnet,
       ];
     }
     case SolAccountType.DataAccount: {
       // Solana account supports multiple chains.
-      return [SolScopes.Mainnet, SolScopes.Testnet, SolScopes.Devnet];
+      return [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet];
     }
     default:
       // We re-use EOA scopes if we don't know what to do for now.
-      return [EthScopes.Namespace];
+      return [EthScope.Namespace];
   }
 }
 

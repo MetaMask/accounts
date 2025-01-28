@@ -3,7 +3,7 @@
 /**
  * Scopes for Solana account type. See {@link KeyringAccount.scopes}.
  */
-export enum SolScopes {
+export enum SolScope {
   Namespace = 'solana',
   Devnet = 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1',
   Mainnet = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',

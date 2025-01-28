@@ -1,4 +1,4 @@
-import { BtcScopes } from './constants';
+import { BtcScope } from './constants';
 import type { BtcP2wpkhAccount } from './types';
 import {
   BtcMethod,
@@ -13,7 +13,7 @@ const MOCK_ACCOUNT = {
   address: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
   methods: [BtcMethod.SendBitcoin],
   options: {},
-  scopes: [BtcScopes.Mainnet],
+  scopes: [BtcScope.Mainnet],
 };
 
 describe('types', () => {
@@ -57,7 +57,7 @@ describe('types', () => {
     it('throws an error if there are multiple scopes', () => {
       const account: BtcP2wpkhAccount = {
         ...MOCK_ACCOUNT,
-        scopes: [BtcScopes.Mainnet, BtcScopes.Testnet],
+        scopes: [BtcScope.Mainnet, BtcScope.Testnet],
       };
       expect(() => BtcP2wpkhAccountStruct.assert(account)).toThrow(
         'At path: scopes -- Expected a array with a length of `1` but received one with a length of `2`',
