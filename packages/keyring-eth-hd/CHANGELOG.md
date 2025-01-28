@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING**: Added types to `HdKeyring` ([#161](https://github.com/MetaMask/accounts/pull/161))
+- **BREAKING**: Added types to `HdKeyring` ([#166](https://github.com/MetaMask/accounts/pull/166))
   - All methods on `HdKeyring` retain their existing signatures, but now have types.
 
 ## [9.0.1]
