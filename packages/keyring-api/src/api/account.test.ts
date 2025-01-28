@@ -52,7 +52,7 @@ describe('api', () => {
         scopes: [scope],
       };
       expect(() => assert(account, KeyringAccountStruct)).toThrow(
-        `At path: scopes.0 -- Expected the value to satisfy a union of \`string | string\`, but received: "${scope}"`,
+        `At path: scopes.0 -- Expected a string matching \`/^(?<namespace>[-a-z0-9]{3,8}):(?<reference>[-_a-zA-Z0-9]{1,32})$/\` but received "${scope}"`,
       );
     });
   });
