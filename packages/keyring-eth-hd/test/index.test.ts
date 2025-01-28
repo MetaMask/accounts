@@ -7,7 +7,6 @@ import {
   pubToAddress,
 } from '@ethereumjs/util';
 import * as oldMMForkBIP39 from '@metamask/bip39';
-import OldHdKeyring from '@metamask/eth-hd-keyring';
 import {
   normalize,
   personalSign,
@@ -16,12 +15,17 @@ import {
   signTypedData,
   SignTypedDataVersion,
   encrypt,
+  type EthEncryptedData,
+  type TypedMessage,
+  type MessageTypes,
 } from '@metamask/eth-sig-util';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { webcrypto } from 'crypto';
 import { keccak256 } from 'ethereum-cryptography/keccak';
+// eslint-disable-next-line @typescript-eslint/naming-convention
+import OldHdKeyring from 'old-hd-keyring';
 
-import HdKeyring from '../src';
+import { HdKeyring } from '../src';
 
 // Sample account:
 const privKeyHex =
@@ -37,7 +41,7 @@ const notKeyringAddress = '0xbD20F6F5F1616947a39E11926E78ec94817B3931';
 describe('hd-keyring', () => {
   describe('compare old bip39 implementation with new', () => {
     it('should derive the same accounts from the same mnemonics', async () => {
-      const mnemonics = [];
+      const mnemonics: Buffer[] = [];
       for (let i = 0; i < 99; i++) {
         mnemonics.push(oldMMForkBIP39.generateMnemonic());
       }
@@ -55,11 +59,11 @@ describe('hd-keyring', () => {
           });
           const newAccounts = await newHDKeyring.getAccounts();
           const oldAccounts = await oldHDKeyring.getAccounts();
-          await expect(newAccounts[0]).toStrictEqual(oldAccounts[0]);
+          expect(newAccounts[0]).toStrictEqual(oldAccounts[0]);
 
-          await expect(newAccounts[1]).toStrictEqual(oldAccounts[1]);
+          expect(newAccounts[1]).toStrictEqual(oldAccounts[1]);
 
-          await expect(newAccounts[2]).toStrictEqual(oldAccounts[2]);
+          expect(newAccounts[2]).toStrictEqual(oldAccounts[2]);
         }),
       );
     });
@@ -131,7 +135,7 @@ describe('hd-keyring', () => {
     });
 
     it('serializes mnemonic passed in as a an array of utf8 encoded bytes in the same format', async () => {
-      const uint8Array = new TextEncoder('utf-8').encode(sampleMnemonic);
+      const uint8Array = new TextEncoder().encode(sampleMnemonic);
       const mnemonicAsArrayOfUtf8EncodedBytes = Array.from(uint8Array);
       const keyring = new HdKeyring();
       await keyring.deserialize({
@@ -192,10 +196,15 @@ describe('hd-keyring', () => {
     });
 
     it('deserializes using custom cryptography', async () => {
-      const pbkdf2Sha512 = async (password, salt, iterations, keyLength) => {
+      const pbkdf2Sha512 = async (
+        password: string,
+        salt: BufferSource,
+        iterations: number,
+        keyLength: number,
+      ): Promise<Uint8Array> => {
         const key = await webcrypto.subtle.importKey(
           'raw',
-          password,
+          Buffer.from(password),
           { name: 'PBKDF2' },
           false,
           ['deriveBits'],
@@ -290,7 +299,7 @@ describe('hd-keyring', () => {
 
       it('throws an error when no SRP has been generated yet', async () => {
         const keyring = new HdKeyring();
-        expect(() => keyring.addAccounts()).toThrow(
+        await expect(keyring.addAccounts()).rejects.toThrow(
           'Eth-Hd-Keyring: No secret recovery phrase provided',
         );
       });
@@ -346,7 +355,7 @@ describe('hd-keyring', () => {
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
       const addresses = await keyring.getAccounts();
-      const address = addresses[0];
+      const address = addresses[0] as string;
       const signature = await keyring.signTypedData(address, typedData);
       const restored = recoverTypedSignature({
         data: typedData,
@@ -372,7 +381,7 @@ describe('hd-keyring', () => {
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
       const addresses = await keyring.getAccounts();
-      const address = addresses[0];
+      const address = addresses[0] as string;
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V1,
       });
@@ -388,7 +397,7 @@ describe('hd-keyring', () => {
   describe('#signTypedData_v3', () => {
     it('signs in a compliant and recoverable way', async () => {
       const keyring = new HdKeyring();
-      const typedData = {
+      const typedData: TypedMessage<MessageTypes> = {
         types: {
           EIP712Domain: [],
         },
@@ -402,7 +411,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
       });
       const addresses = await keyring.getAccounts();
-      const address = addresses[0];
+      const address = addresses[0] as string;
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V3,
       });
@@ -418,7 +427,7 @@ describe('hd-keyring', () => {
   describe('#signTypedData_v3 signature verification', () => {
     it('signs in a recoverable way.', async () => {
       const keyring = new HdKeyring();
-      const typedData = {
+      const typedData: TypedMessage<MessageTypes> = {
         types: {
           EIP712Domain: [
             { name: 'name', type: 'string' },
@@ -460,7 +469,7 @@ describe('hd-keyring', () => {
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
       const addresses = await keyring.getAccounts();
-      const address = addresses[0];
+      const address = addresses[0] as string;
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V3,
       });
@@ -552,17 +561,17 @@ describe('hd-keyring', () => {
         mnemonic: sampleMnemonic,
         numberOfAccounts: 1,
       });
-      const sig = await keyring.signPersonalMessage(address, message, {
+      const signature = await keyring.signPersonalMessage(address, message, {
         withAppKeyOrigin: 'someapp.origin.io',
       });
 
-      expect(sig).toStrictEqual(expectedSig);
+      expect(signature).toStrictEqual(expectedSig);
     });
 
     it('should signTypedData with the expected key when passed a withAppKeyOrigin', async () => {
       const keyring = new HdKeyring();
       const address = firstAcct;
-      const typedData = {
+      const typedData: TypedMessage<MessageTypes> = {
         types: {
           EIP712Domain: [],
         },
@@ -586,11 +595,11 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
       });
 
-      const sig = await keyring.signTypedData(address, typedData, {
+      const signature = await keyring.signTypedData(address, typedData, {
         withAppKeyOrigin: 'someapp.origin.io',
         version: SignTypedDataVersion.V3,
       });
-      expect(sig).toStrictEqual(expectedSig);
+      expect(signature).toStrictEqual(expectedSig);
     });
   });
 
@@ -634,11 +643,11 @@ describe('hd-keyring', () => {
       signatures.forEach((sgn, index) => {
         const accountAddress = addresses[index];
 
-        const r = toBuffer(sgn.slice(0, 66));
-        const s = toBuffer(`0x${sgn.slice(66, 130)}`);
-        const v = BigInt(`0x${sgn.slice(130, 132)}`);
-        const m = toBuffer(msgHashHex);
-        const pub = ecrecover(m, v, r, s);
+        const signatureR = toBuffer(sgn.slice(0, 66));
+        const signatureS = toBuffer(`0x${sgn.slice(66, 130)}`);
+        const signatureV = BigInt(`0x${sgn.slice(130, 132)}`);
+        const messageHash = toBuffer(msgHashHex);
+        const pub = ecrecover(messageHash, signatureV, signatureR, signatureS);
         const adr = `0x${pubToAddress(pub).toString('hex')}`;
 
         expect(adr).toBe(accountAddress);
@@ -683,7 +692,7 @@ describe('hd-keyring', () => {
   });
 
   describe('#removeAccount', function () {
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -697,7 +706,7 @@ describe('hd-keyring', () => {
       it('should remove that account', async function () {
         const addresses = await keyring.getAccounts();
         expect(addresses).toHaveLength(1);
-        keyring.removeAccount(addresses[0]);
+        keyring.removeAccount(addresses[0] as string);
         const addressesAfterRemoval = await keyring.getAccounts();
         expect(addressesAfterRemoval).toHaveLength(0);
       });
@@ -714,7 +723,7 @@ describe('hd-keyring', () => {
   });
 
   describe('getAppKeyAddress', function () {
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -769,6 +778,7 @@ describe('hd-keyring', () => {
     });
 
     it('should throw error if the provided origin is not a string', async function () {
+      // @ts-expect-error testing invalid input
       await expect(keyring.getAppKeyAddress(firstAcct, [])).rejects.toThrow(
         `'origin' must be a non-empty string`,
       );
@@ -782,7 +792,7 @@ describe('hd-keyring', () => {
   });
 
   describe('exportAccount', function () {
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -809,7 +819,7 @@ describe('hd-keyring', () => {
 
   describe('#encryptionPublicKey', function () {
     const publicKey = 'LV7lWhd0mUDcvxkMU2o6uKXftu25zq4bMYdmMqppXic=';
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -840,7 +850,7 @@ describe('hd-keyring', () => {
   });
 
   describe('#signTypedData V4 signature verification', function () {
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -854,7 +864,7 @@ describe('hd-keyring', () => {
       '0x220917664ef676d592bd709a5bffedaf69c5f6c72f13c6c4547a41d211f0923c3180893b1dec023433f11b664fabda22b74b57d21094f7798fc85b7650f8edbb1b';
 
     it('returns the expected value', async function () {
-      const typedData = {
+      const typedData: TypedMessage<MessageTypes> = {
         types: {
           EIP712Domain: [
             { name: 'name', type: 'string' },
@@ -908,9 +918,13 @@ describe('hd-keyring', () => {
       const addresses = await keyring.getAccounts();
       const [address] = addresses;
 
-      const signature = await keyring.signTypedData(address, typedData, {
-        version: 'V4',
-      });
+      const signature = await keyring.signTypedData(
+        address as string,
+        typedData,
+        {
+          version: SignTypedDataVersion.V4,
+        },
+      );
       expect(signature).toBe(expectedSignature);
       const restored = recoverTypedSignature({
         data: typedData,
@@ -923,7 +937,7 @@ describe('hd-keyring', () => {
 
   describe('#decryptMessage', function () {
     const message = 'Hello world!';
-    let encryptedMessage, keyring;
+    let encryptedMessage: EthEncryptedData, keyring: HdKeyring;
 
     beforeEach(async () => {
       keyring = new HdKeyring();
@@ -958,6 +972,7 @@ describe('hd-keyring', () => {
     });
 
     it('throw error if wrong encrypted data object is passed', async function () {
+      // @ts-expect-error - passing an empty object to test the error
       await expect(keyring.decryptMessage(firstAcct, {})).rejects.toThrow(
         'Encryption type/version not supported.',
       );
@@ -965,7 +980,7 @@ describe('hd-keyring', () => {
   });
 
   describe('#signTransaction', function () {
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
