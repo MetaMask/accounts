@@ -240,6 +240,18 @@ class HdKeyring {
     return publicKey;
   }
 
+  getFingerprint() {
+    const firstIndexFingerprint = this.root.deriveChild(0).fingerprint;
+    console.log('firstIndexFingerprint', firstIndexFingerprint);
+    const fingerprint = keccak256(
+      Buffer.from(this.root.deriveChild(0).fingerprint.toString()),
+    );
+    console.log('fingerPrint', fingerprint);
+    const result = Buffer.from(fingerprint).toString('hex');
+    console.log('result', result);
+    return result;
+  }
+
   _getPrivateKeyFor(address, opts = {}) {
     if (!address) {
       throw new Error('Must specify address.');
