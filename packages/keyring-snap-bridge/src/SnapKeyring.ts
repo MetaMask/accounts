@@ -511,6 +511,24 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Get an account and its associated Snap ID from its ID.
+   *
+   * @param id - Account ID.
+   * @throws An error if the account could not be found.
+   * @returns The account associated with the given account ID in this keyring.
+   */
+  #getAccount(id: string): { account: KeyringAccount; snapId: SnapId } {
+    const found = [...this.#accounts.values()].find(
+      (entry) => entry.account.id === id,
+    );
+
+    if (!found) {
+      throw new Error(`Unable to get account: unknown account ID: '${id}'`);
+    }
+    return found;
+  }
+
+  /**
    * Get the addresses of the accounts in this keyring.
    *
    * @returns The addresses of the accounts in this keyring.
@@ -576,11 +594,54 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Submit a request to a Snap.
    *
+   * This request cannot be an asynchronous keyring request.
+   *
+   * @param opts - Request options.
+   * @param opts.id - Account ID.
+   * @param opts.method - Method to call.
+   * @param opts.params - Method parameters.
+   * @param opts.scope - Selected chain ID (CAIP-2).
+   * @returns Promise that resolves to the result of the method call.
+   */
+  async submitRequest({
+    id,
+    method,
+    params,
+    scope,
+  }: {
+    id: string;
+    method: string;
+    params?: Json[] | Record<string, Json>;
+    scope: string;
+  }): Promise<Json> {
+    const { account, snapId } = this.#getAccount(id);
+
+    const { requestId, response } = await this.#submitSnapRequest({
+      snapId,
+      account,
+      method: method as AccountMethod,
+      params,
+      scope,
+    });
+
+    // For now, we enforce responses to be synchronous.
+    if (response.pending) {
+      throw new Error(
+        `Request for Snap '${snapId}' with method '${method}' must be synchronous.`,
+      );
+    }
+
+    return this.#handleSyncResponse(response, requestId, snapId);
+  }
+
+  /**
+   * Submit a request to a Snap.
+   *
    * @param opts - Request options.
    * @param opts.address - Account address.
    * @param opts.method - Method to call.
    * @param opts.params - Method parameters.
-   * @param opts.chainId - Selected chain ID (CAIP-2).
+   * @param opts.scope - Selected chain ID (CAIP-2).
    * @param opts.noPending - Whether the response is allowed to be pending.
    * @returns Promise that resolves to the result of the method call.
    */
@@ -588,36 +649,25 @@ export class SnapKeyring extends EventEmitter {
     address,
     method,
     params,
-    chainId = '',
+    scope = '',
     noPending = false,
   }: {
     address: string;
     method: string;
     params?: Json[] | Record<string, Json>;
-    chainId?: string;
+    scope?: string;
     noPending?: boolean;
   }): Promise<Json> {
     const { account, snapId } = this.#resolveAddress(address);
-    if (!this.#hasMethod(account, method as AccountMethod)) {
-      throw new Error(
-        `Method '${method}' not supported for account ${account.address}`,
-      );
-    }
 
-    const requestId = uuid();
-
-    // Create the promise before calling the Snap to prevent a race condition
-    // where the Snap responds before we have a chance to create it.
-    const promise = this.#createRequestPromise<Response>(requestId, snapId);
-
-    const response = await this.#submitSnapRequest({
-      snapId,
-      requestId,
-      account,
-      method: method as AccountMethod,
-      params,
-      chainId,
-    });
+    const { requestId, requestPromise, response } =
+      await this.#submitSnapRequest<Response>({
+        snapId,
+        account,
+        method: method as AccountMethod,
+        params,
+        scope,
+      });
 
     // Some methods, like the ones used to prepare and patch user operations,
     // require the Snap to answer synchronously in order to work with the
@@ -628,7 +678,7 @@ export class SnapKeyring extends EventEmitter {
       this.#clearRequestPromise(requestId, snapId);
 
       throw new Error(
-        `Request '${requestId}' to snap '${snapId}' is pending and noPending is true.`,
+        `Request '${requestId}' to Snap '${snapId}' is pending and noPending is true.`,
       );
     }
 
@@ -643,7 +693,7 @@ export class SnapKeyring extends EventEmitter {
       await this.#handleAsyncResponse(response.redirect, snapId);
     }
 
-    return promise.promise;
+    return requestPromise.promise;
   }
 
   /**
@@ -651,33 +701,50 @@ export class SnapKeyring extends EventEmitter {
    *
    * @param options - The options for the Snap request.
    * @param options.snapId - The Snap ID to submit the request to.
-   * @param options.requestId - The unique identifier for the request.
    * @param options.account - The account to use for the request.
    * @param options.method - The Ethereum method to call.
    * @param options.params - The parameters to pass to the method, can be undefined.
-   * @param options.chainId - The chain ID to use for the request, can be an empty string.
+   * @param options.scope - The chain ID to use for the request, can be an empty string.
    * @returns A promise that resolves to the keyring response from the Snap.
    * @throws An error if the Snap fails to respond or if there's an issue with the request submission.
    */
-  async #submitSnapRequest({
+  async #submitSnapRequest<Response extends Json>({
     snapId,
-    requestId,
     account,
     method,
     params,
-    chainId,
+    scope,
   }: {
     snapId: SnapId;
-    requestId: string;
     account: KeyringAccount;
     method: AccountMethod;
     params?: Json[] | Record<string, Json> | undefined;
-    chainId: string;
-  }): Promise<KeyringResponse> {
+    scope: string;
+  }): Promise<{
+    requestId: string;
+    requestPromise: DeferredPromise<Response>;
+    response: KeyringResponse;
+  }> {
+    if (!this.#hasMethod(account, method)) {
+      throw new Error(
+        `Method '${method}' not supported for account ${account.address}`,
+      );
+    }
+
+    // Generate a new random request ID to keep track of the request execution flow.
+    const requestId = uuid();
+
+    // Create the promise before calling the Snap to prevent a race condition
+    // where the Snap responds before we have a chance to create it.
+    const requestPromise = this.#createRequestPromise<Response>(
+      requestId,
+      snapId,
+    );
+
     try {
       const request = {
         id: requestId,
-        scope: chainId,
+        scope,
         account: account.id,
         request: {
           method,
@@ -687,7 +754,15 @@ export class SnapKeyring extends EventEmitter {
 
       log('Submit Snap request: ', request);
 
-      return await this.#snapClient.withSnapId(snapId).submitRequest(request);
+      const response = await this.#snapClient
+        .withSnapId(snapId)
+        .submitRequest(request);
+
+      return {
+        requestId,
+        requestPromise,
+        response,
+      };
     } catch (error) {
       log('Snap Request failed: ', { requestId });
 
@@ -831,7 +906,7 @@ export class SnapKeyring extends EventEmitter {
       address,
       method: EthMethod.SignTransaction,
       params: [tx],
-      chainId: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
+      scope: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
     });
 
     // ! It's *** CRITICAL *** that we mask the signature here, otherwise the
@@ -888,7 +963,7 @@ export class SnapKeyring extends EventEmitter {
         ...(chainId === undefined
           ? {}
           : {
-              chainId: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
+              scope: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
             }),
       }),
       EthBytesStruct,
@@ -954,7 +1029,7 @@ export class SnapKeyring extends EventEmitter {
         params: toJson<Json[]>(transactions),
         noPending: true,
         // We assume the chain ID is already well formatted
-        chainId: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
+        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
       EthBaseUserOperationStruct,
     );
@@ -981,7 +1056,7 @@ export class SnapKeyring extends EventEmitter {
         params: toJson<Json[]>([userOp]),
         noPending: true,
         // We assume the chain ID is already well formatted
-        chainId: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
+        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
       EthUserOperationPatchStruct,
     );
@@ -1006,7 +1081,7 @@ export class SnapKeyring extends EventEmitter {
         method: EthMethod.SignUserOperation,
         params: toJson<Json[]>([userOp]),
         // We assume the chain ID is already well formatted
-        chainId: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
+        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
       EthBytesStruct,
     );

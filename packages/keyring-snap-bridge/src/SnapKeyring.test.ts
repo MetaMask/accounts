@@ -38,7 +38,7 @@ import type {
 } from './SnapKeyringMessenger';
 
 const regexForUUIDInRequiredSyncErrorMessage =
-  /Request '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}' to snap 'local:snap.mock' is pending and noPending is true/u;
+  /Request '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}' to Snap 'local:snap.mock' is pending and noPending is true/u;
 
 const ETH_4337_METHODS = [
   EthMethod.PatchUserOperation,
@@ -1825,6 +1825,97 @@ describe('SnapKeyring', () => {
         keyring.resolveAccountAddress(badSnapId, scope, request),
       ).rejects.toThrow(
         `Unable to resolve account's address: unknown Snap ID: ${badSnapId}`,
+      );
+    });
+  });
+
+  describe('submitRequest', () => {
+    const account = ethEoaAccount1;
+    const scope = EthScopes.Testnet;
+    const method = EthMethod.SignTransaction;
+    const params = {
+      from: 'me',
+      to: 'you',
+    };
+
+    it('submits a request', async () => {
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: false,
+        result: null,
+      });
+
+      await keyring.submitRequest({
+        id: account.id,
+        method,
+        params,
+        scope,
+      });
+
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_submitRequest',
+          params: {
+            id: expect.any(String),
+            scope,
+            account: account.id,
+            request: {
+              method,
+              params,
+            },
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('throws an error for asynchronous request', async () => {
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: true,
+      });
+
+      await expect(
+        keyring.submitRequest({
+          id: account.id,
+          method,
+          params,
+          scope,
+        }),
+      ).rejects.toThrow(
+        `Request for Snap '${snapId}' with method '${method}' must be synchronous.`,
+      );
+    });
+
+    it('throws an error when using an unknown account id', async () => {
+      const unknownAccountId = 'unknown-account-id';
+
+      await expect(
+        keyring.submitRequest({
+          id: unknownAccountId,
+          method,
+          params,
+          scope,
+        }),
+      ).rejects.toThrow(
+        `Unable to get account: unknown account ID: '${unknownAccountId}'`,
+      );
+    });
+
+    it('throws an error when the method is not supported by the account', async () => {
+      const unknownAccountMethod = EthMethod.PrepareUserOperation; // Not available for EOAs.
+
+      await expect(
+        keyring.submitRequest({
+          id: account.id,
+          method: unknownAccountMethod,
+          params,
+          scope,
+        }),
+      ).rejects.toThrow(
+        `Method '${unknownAccountMethod}' not supported for account ${account.address}`,
       );
     });
   });
