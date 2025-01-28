@@ -181,14 +181,15 @@ class HdKeyring {
     }
 
     const oldLen = this.#wallets.length;
-    const newWallets = [];
+    const newWallets: HDKey[] = [];
     for (let i = oldLen; i < numberOfAccounts + oldLen; i++) {
       const wallet = this.root.deriveChild(i);
       newWallets.push(wallet);
       this.#wallets.push(wallet);
     }
     const hexWallets = newWallets.map((wallet) => {
-      return this.#addressfromPublicKey(wallet.publicKey as Uint8Array);
+      assert(wallet.publicKey, 'Expected public key to be set');
+      return this.#addressfromPublicKey(wallet.publicKey);
     });
     return Promise.resolve(hexWallets);
   }
