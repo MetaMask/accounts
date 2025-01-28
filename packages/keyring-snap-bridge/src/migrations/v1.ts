@@ -92,10 +92,6 @@ export function transformAccountV1(
   // So we can automatically inject a valid `scopes` for this, but not for
   // other kind of accounts.
   if (type === EthAccountType.Eoa) {
-    // EVM EOA accounts are compatible with any EVM networks, we use the
-    // 'eip155:0' scope as defined in the EVM CAIP-10 namespaces.
-    //
-    // See: https://namespaces.chainagnostic.org/eip155/caip10
     return {
       ...accountV1,
       scopes: getScopesForAccountV1(accountV1),
