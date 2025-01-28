@@ -3,8 +3,7 @@
 /**
  * Scopes for Bitcoin account type. See {@link KeyringAccount.scopes}.
  */
-export enum BtcScope {
-  Namespace = 'bip122',
+export enum BtcScopes {
   Mainnet = 'bip122:000000000019d6689c085ae165831e93',
   Testnet = 'bip122:000000000933ea01ad0ee984209779ba',
   Testnet4 = 'bip122:00000000da84f2bafbbc53dee25a72ae',

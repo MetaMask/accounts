@@ -15,8 +15,7 @@ import {
 } from '@metamask/keyring-api';
 import { exactOptional, object } from '@metamask/keyring-utils';
 import type { Infer, Struct } from '@metamask/superstruct';
-import { boolean, string, number, array } from '@metamask/superstruct';
-import { CaipChainIdStruct } from '@metamask/utils';
+import { boolean, string, number } from '@metamask/superstruct';
 
 export type InternalAccountType =
   | EthAccountType
@@ -39,25 +38,6 @@ export const InternalAccountMetadataStruct = object({
     keyring: object({
       type: string(),
     }),
-
-    /**
-     * List of chain IDs that the account is compatible with.
-     *
-     * This differs from the `scopes` field. The `scopes` field can include
-     * namespaces, which are used to indicate that the account is compatible
-     * with all chains within a given namespace.
-     *
-     * Namespaces are useful because it might not be possible to list every
-     * individual chain at the time of account creation. This is due to the
-     * dynamic nature of chain availability (new chains may be added in the
-     * future) and because the account creator may not know which specific
-     * networks are supported by the client.
-     *
-     * The `chainIds` field provides a precise list of supported chains and is
-     * dynamically updated by the client to reflect the networks currently
-     * compatible with the account.
-     */
-    chainIds: array(CaipChainIdStruct),
   }),
 });
 
