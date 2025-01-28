@@ -3,7 +3,7 @@ import type { Infer } from '@metamask/superstruct';
 import { nonempty, array, enums, literal } from '@metamask/superstruct';
 import { CaipChainIdStruct } from '@metamask/utils';
 
-import { EthScopes } from '.';
+import { EthScope } from '.';
 import { EthAccountType, KeyringAccountStruct } from '../api';
 
 export const EthBytesStruct = definePattern('EthBytes', /^0x[0-9a-f]*$/iu);
@@ -51,7 +51,7 @@ export const EthEoaAccountStruct = object({
   /**
    * Account scopes (must be ['eip155']).
    */
-  scopes: nonempty(array(literal(EthScopes.Namespace))),
+  scopes: nonempty(array(literal(EthScope.Namespace))),
 
   /**
    * Account supported methods.
