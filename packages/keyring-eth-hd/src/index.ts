@@ -198,10 +198,11 @@ class HdKeyring {
    *
    * @returns The addresses of all accounts in the keyring.
    */
-  async getAccounts(): Promise<string[]> {
-    return this.#wallets.map((wallet) =>
-      this.#addressfromPublicKey(wallet.publicKey as Uint8Array),
-    );
+  getAccounts(): string[] {
+    return this.#wallets.map((wallet) => {
+      assert(wallet.publicKey, 'Expected public key to be set');
+      return this.#addressfromPublicKey(wallet.publicKey);
+    });
   }
 
   /**
