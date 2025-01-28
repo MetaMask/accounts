@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING**: This package now has no default export ([#161](https://github.com/MetaMask/accounts/pull/161))
 - **BREAKING**: Added types to `HdKeyring` ([#161](https://github.com/MetaMask/accounts/pull/161))
   - All methods on `HdKeyring` retain their existing signatures, but now have types.
 
