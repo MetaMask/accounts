@@ -6,6 +6,6 @@
     "exactOptionalPropertyTypes": false,
     "target": "es2017"
   },
-  "include": ["./src"],
+  "include": ["./src", "./types"],
   "exclude": ["./dist/**/*"]
 }

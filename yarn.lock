@@ -1663,19 +1663,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/eth-hd-keyring@npm:4.0.1":
-  version: 4.0.1
-  resolution: "@metamask/eth-hd-keyring@npm:4.0.1"
-  dependencies:
-    "@metamask/bip39": "npm:^4.0.0"
-    "@metamask/eth-sig-util": "npm:^4.0.0"
-    eth-simple-keyring: "npm:^4.2.0"
-    ethereumjs-util: "npm:^7.0.9"
-    ethereumjs-wallet: "npm:^1.0.1"
-  checksum: 10/71db7b9b71a89e6eb5a57138d3db4227d12ea36a4213403dd689229ce4e6c06e03a2df7ef8bcafd46b389ee0300d8ecb4f8f1ceceb43afcc1263a99a6fad3d07
-  languageName: node
-  linkType: hard
-
 "@metamask/eth-hd-keyring@workspace:packages/keyring-eth-hd":
   version: 0.0.0-use.local
   resolution: "@metamask/eth-hd-keyring@workspace:packages/keyring-eth-hd"
@@ -1686,7 +1673,6 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/bip39": "npm:^4.0.0"
-    "@metamask/eth-hd-keyring": "npm:4.0.1"
     "@metamask/eth-sig-util": "npm:^8.1.2"
     "@metamask/key-tree": "npm:^10.0.2"
     "@metamask/scure-bip39": "npm:^2.1.1"
@@ -1696,6 +1682,7 @@ __metadata:
     deepmerge: "npm:^4.2.2"
     ethereum-cryptography: "npm:^2.1.2"
     jest: "npm:^29.5.0"
+    old-hd-keyring: "npm:@metamask/eth-hd-keyring@^4.0.1"
   languageName: unknown
   linkType: soft
 
@@ -9198,6 +9185,19 @@ __metadata:
     has-symbols: "npm:^1.0.3"
     object-keys: "npm:^1.1.1"
   checksum: 10/dbb22da4cda82e1658349ea62b80815f587b47131b3dd7a4ab7f84190ab31d206bbd8fe7e26ae3220c55b65725ac4529825f6142154211220302aa6b1518045d
+  languageName: node
+  linkType: hard
+
+"old-hd-keyring@npm:@metamask/eth-hd-keyring@^4.0.1":
+  version: 4.0.2
+  resolution: "@metamask/eth-hd-keyring@npm:4.0.2"
+  dependencies:
+    "@metamask/bip39": "npm:^4.0.0"
+    "@metamask/eth-sig-util": "npm:^4.0.0"
+    eth-simple-keyring: "npm:^4.2.0"
+    ethereumjs-util: "npm:^7.0.9"
+    ethereumjs-wallet: "npm:^1.0.1"
+  checksum: 10/50a44b8c87c55d834838e2ebc2d58ab85d0b83315a3ec22e266e7d24b2c5c9c8007c32d639a82e905ee6d66fe185ca595614026476c9849d373595bd55757805
   languageName: node
   linkType: hard
 
