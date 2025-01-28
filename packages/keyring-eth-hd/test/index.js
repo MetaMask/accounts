@@ -1014,4 +1014,40 @@ describe('hd-keyring', () => {
       ).rejects.toThrow('HD Keyring - Unable to find matching address.');
     });
   });
+
+  describe('#getFingerprint', () => {
+    let keyring;
+
+    beforeEach(async () => {
+      keyring = new HdKeyring();
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+        numberOfAccounts: 1,
+      });
+    });
+
+    it('returns the correct fingerprint for the HD wallet', async () => {
+      const fingerprint = await keyring.getFingerprint();
+      // The fingerprint should be a 4-byte hex string
+      expect(fingerprint).toMatch(/^0x[0-9a-f]{64}$/iu);
+    });
+
+    it('returns the same fingerprint for the same mnemonic', async () => {
+      const fingerprint1 = await keyring.getFingerprint();
+      const fingerprint2 = await keyring.getFingerprint();
+      expect(fingerprint1).toBe(fingerprint2);
+    });
+
+    it('returns different fingerprints for different mnemonics', async () => {
+      const keyring2 = new HdKeyring();
+      await keyring2.deserialize({
+        mnemonic: 'test test test test test test test test test test test junk',
+        numberOfAccounts: 1,
+      });
+
+      const fingerprint1 = await keyring.getFingerprint();
+      const fingerprint2 = await keyring2.getFingerprint();
+      expect(fingerprint1).not.toBe(fingerprint2);
+    });
+  });
 });

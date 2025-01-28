@@ -14,13 +14,47 @@ import {
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
-import { mnemonicToSeed } from '@metamask/key-tree';
+import { mnemonicToSeed, SLIP10Node, hmacSha512 } from '@metamask/key-tree';
 import { generateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
-import { assertIsHexString, remove0x } from '@metamask/utils';
+import {
+  assertIsHexString,
+  remove0x,
+  stringToBytes,
+  createDataView,
+  add0x,
+} from '@metamask/utils';
 import { HDKey } from 'ethereum-cryptography/hdkey';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 import { bytesToHex } from 'ethereum-cryptography/utils';
+
+/**
+ * Get a BIP-32 derivation path array from a hash, which is compatible with
+ * `@metamask/key-tree`. The hash is assumed to be 32 bytes long.
+ *
+ * @param hash - The hash to derive indices from.
+ * @returns The derived indices as a HardenedBIP32Node array.
+ */
+function getDerivationPathArray(hash) {
+  const HARDENED_VALUE = 0x80000000;
+  const array = [];
+  const view = createDataView(hash);
+
+  for (let index = 0; index < 8; index++) {
+    const uint32 = view.getUint32(index * 4);
+
+    // This is essentially `index | 0x80000000`. Because JavaScript numbers are
+    // signed, we use the bitwise unsigned right shift operator to ensure that
+    // the result is a positive number.
+    // eslint-disable-next-line no-bitwise
+    const pathIndex = (uint32 | HARDENED_VALUE) >>> 0;
+    array.push(`bip32:${pathIndex - HARDENED_VALUE}'`);
+  }
+
+  return array;
+}
+
+const fingerprintSalt = 'eth-hd-keyring';
 
 // Options:
 const hdPathString = `m/44'/60'/0'/0`;
@@ -240,16 +274,20 @@ class HdKeyring {
     return publicKey;
   }
 
-  getFingerprint() {
-    const firstIndexFingerprint = this.root.deriveChild(0).fingerprint;
-    console.log('firstIndexFingerprint', firstIndexFingerprint);
-    const fingerprint = keccak256(
-      Buffer.from(this.root.deriveChild(0).fingerprint.toString()),
+  async getFingerprint() {
+    const saltBytes = stringToBytes(fingerprintSalt);
+    const hash = keccak256(saltBytes);
+    const computedDerivationPath = getDerivationPathArray(hash);
+
+    const { privateKey } = await SLIP10Node.fromDerivationPath(
+      {
+        derivationPath: [this.mnemonic, `bip32:1`, ...computedDerivationPath],
+        curve: 'secp256k1',
+      },
+      hmacSha512,
     );
-    console.log('fingerPrint', fingerprint);
-    const result = Buffer.from(fingerprint).toString('hex');
-    console.log('result', result);
-    return result;
+
+    return add0x(privateKey);
   }
 
   _getPrivateKeyFor(address, opts = {}) {
