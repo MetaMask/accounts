@@ -647,33 +647,6 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
-   * Check if an account supports the given method.
-   *
-   * @param account - The account object to check for method support.
-   * @param method - The Ethereum method to validate.
-   * @returns `true` if the method is supported, `false` otherwise.
-   */
-  #hasMethod(account: KeyringAccount, method: AccountMethod): boolean {
-    return (account.methods as AccountMethod[]).includes(method);
-  }
-
-  /**
-   * Creates a promise for a request and adds it to the map of requests.
-   *
-   * @param requestId - The unique identifier for the request.
-   * @param snapId - The Snap ID associated with the request.
-   * @returns A DeferredPromise instance.
-   */
-  #createRequestPromise<Response>(
-    requestId: string,
-    snapId: SnapId,
-  ): DeferredPromise<Response> {
-    const promise = new DeferredPromise<Response>();
-    this.#requests.set(requestId, { promise, snapId });
-    return promise;
-  }
-
-  /**
    * Submits a request to a Snap.
    *
    * @param options - The options for the Snap request.
@@ -722,6 +695,33 @@ export class SnapKeyring extends EventEmitter {
       this.#clearRequestPromise(requestId, snapId);
       throw error;
     }
+  }
+
+  /**
+   * Check if an account supports the given method.
+   *
+   * @param account - The account object to check for method support.
+   * @param method - The Ethereum method to validate.
+   * @returns `true` if the method is supported, `false` otherwise.
+   */
+  #hasMethod(account: KeyringAccount, method: AccountMethod): boolean {
+    return (account.methods as AccountMethod[]).includes(method);
+  }
+
+  /**
+   * Creates a promise for a request and adds it to the map of requests.
+   *
+   * @param requestId - The unique identifier for the request.
+   * @param snapId - The Snap ID associated with the request.
+   * @returns A DeferredPromise instance.
+   */
+  #createRequestPromise<Response>(
+    requestId: string,
+    snapId: SnapId,
+  ): DeferredPromise<Response> {
+    const promise = new DeferredPromise<Response>();
+    this.#requests.set(requestId, { promise, snapId });
+    return promise;
   }
 
   /**
