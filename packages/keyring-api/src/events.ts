@@ -6,10 +6,13 @@ import {
 } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, boolean, literal, record, string } from '@metamask/superstruct';
-import { CaipAssetTypeStruct, JsonStruct } from '@metamask/utils';
+import {
+  CaipAssetTypeStruct,
+  CaipAssetTypeOrIdStruct,
+  JsonStruct,
+} from '@metamask/utils';
 
 import {
-  CaipAssetTypeOrIdStruct,
   FungibleAssetAmountStruct,
   KeyringAccountStruct,
   TransactionStruct,

@@ -4,11 +4,9 @@ import type {
   KeyringRequest,
   KeyringAccountData,
   KeyringResponse,
-  CaipAssetType,
   Balance,
   TransactionsPage,
   Pagination,
-  CaipAssetTypeOrId,
 } from '@metamask/keyring-api';
 import {
   ApproveRequestResponseStruct,
@@ -31,7 +29,7 @@ import {
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
-import type { Json } from '@metamask/utils';
+import type { CaipAssetType, CaipAssetTypeOrId, Json } from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
 export type Sender = {

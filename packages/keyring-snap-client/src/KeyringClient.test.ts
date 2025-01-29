@@ -1,11 +1,10 @@
 import type {
-  CaipAssetType,
-  CaipAssetTypeOrId,
   KeyringAccount,
   KeyringRequest,
   KeyringResponse,
 } from '@metamask/keyring-api';
 import { KeyringRpcMethod } from '@metamask/keyring-api';
+import type { CaipAssetType, CaipAssetTypeOrId } from '@metamask/utils';
 
 import { KeyringClient } from '.'; // Import from `index.ts` to test the public API
 
