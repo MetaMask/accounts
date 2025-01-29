@@ -2,7 +2,7 @@ import type { Infer } from '@metamask/superstruct';
 import { object, string } from '@metamask/superstruct';
 
 /**
- * The resolved address of an account.
+ * An account's address that has been resolved from a signing request.
  */
 export const ResolvedAccountAddressStruct = object({
   /**
