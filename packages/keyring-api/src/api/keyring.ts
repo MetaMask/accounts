@@ -128,7 +128,7 @@ export type Keyring = {
    * be used to process this signing request, or null if none candidates
    * could be found.
    */
-  resolveAccountAddress(
+  resolveAccountAddress?(
     scope: CaipChainId,
     request: JsonRpcRequest,
   ): Promise<ResolvedAccountAddress | null>;

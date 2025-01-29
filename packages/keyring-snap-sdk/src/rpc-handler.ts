@@ -95,6 +95,9 @@ async function dispatchRequest(
     }
 
     case `${KeyringRpcMethod.ResolveAccountAddress}`: {
+      if (keyring.resolveAccountAddress === undefined) {
+        throw new MethodNotSupportedError(request.method);
+      }
       assert(request, ResolveAccountAddressRequestStruct);
       return keyring.resolveAccountAddress(
         request.params.scope,
