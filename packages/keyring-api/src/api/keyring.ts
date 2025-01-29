@@ -13,7 +13,6 @@ import type { KeyringRequest } from './request';
 import type { KeyringResponse } from './response';
 import type { Transaction } from './transaction';
 
-
 /**
  * Keyring interface.
  *

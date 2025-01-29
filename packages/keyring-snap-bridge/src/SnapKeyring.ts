@@ -27,7 +27,6 @@ import type {
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
-  CaipChainId,
   ResolvedAccountAddress,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
@@ -37,7 +36,7 @@ import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
-import type { Json } from '@metamask/utils';
+import type { Json, CaipChainId } from '@metamask/utils';
 import {
   bigIntToHex,
   KnownCaipNamespace,

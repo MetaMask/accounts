@@ -31,7 +31,12 @@ import {
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
-import type { CaipChainId, CaipAssetType, CaipAssetTypeOrId, Json } from '@metamask/utils';
+import type {
+  CaipChainId,
+  CaipAssetType,
+  CaipAssetTypeOrId,
+  Json,
+} from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
 export type Sender = {
