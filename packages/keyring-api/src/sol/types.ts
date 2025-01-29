@@ -1,7 +1,7 @@
-import { object, definePattern } from '@metamask/keyring-utils';
+import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, enums, literal, nonempty } from '@metamask/superstruct';
-import { CaipChainIdStruct } from '@metamask/utils';
+import { definePattern, CaipChainIdStruct } from '@metamask/utils';
 
 import { KeyringAccountStruct, SolAccountType } from '../api';
 
