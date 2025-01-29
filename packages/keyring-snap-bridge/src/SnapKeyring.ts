@@ -595,24 +595,26 @@ export class SnapKeyring extends EventEmitter {
    * This request cannot be an asynchronous keyring request.
    *
    * @param opts - Request options.
-   * @param opts.id - Account ID.
+   * @param opts.account - Account ID.
    * @param opts.method - Method to call.
    * @param opts.params - Method parameters.
    * @param opts.scope - Selected chain ID (CAIP-2).
    * @returns Promise that resolves to the result of the method call.
    */
   async submitRequest({
-    id,
+    account: accountId,
     method,
     params,
     scope,
   }: {
-    id: string;
+    // NOTE: We use `account` here rather than `id` to avoid ambiguity with a "request ID".
+    // We already use this same field name for `KeyringAccount`s.
+    account: string;
     method: string;
     params?: Json[] | Record<string, Json>;
     scope: string;
   }): Promise<Json> {
-    const { account, snapId } = this.#getAccount(id);
+    const { account, snapId } = this.#getAccount(accountId);
 
     return await this.#submitSnapRequest({
       snapId,

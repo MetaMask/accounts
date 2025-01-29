@@ -1848,7 +1848,7 @@ describe('SnapKeyring', () => {
       });
 
       await keyring.submitRequest({
-        id: account.id,
+        account: account.id,
         method,
         params,
         scope,
@@ -1882,7 +1882,7 @@ describe('SnapKeyring', () => {
 
       await expect(
         keyring.submitRequest({
-          id: account.id,
+          account: account.id,
           method,
           params,
           scope,
@@ -1895,7 +1895,7 @@ describe('SnapKeyring', () => {
 
       await expect(
         keyring.submitRequest({
-          id: unknownAccountId,
+          account: unknownAccountId,
           method,
           params,
           scope,
@@ -1910,7 +1910,7 @@ describe('SnapKeyring', () => {
 
       await expect(
         keyring.submitRequest({
-          id: account.id,
+          account: account.id,
           method: unknownAccountMethod,
           params,
           scope,
