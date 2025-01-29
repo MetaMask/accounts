@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- refactor!: remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
+- refactor!: enforce that `scopes` contains CAIP-2 chain IDs ([#165](https://github.com/MetaMask/accounts/pull/165))
+
 ## [3.0.1]
 
 ### Changed

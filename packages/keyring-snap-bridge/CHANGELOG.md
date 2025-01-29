@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix(keyring-snap-bridge): fix async Snap request (submitRequest) leak ([#171](https://github.com/MetaMask/accounts/pull/171))
+- refactor!: remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
+- refactor!: rename `*Scopes` enums to `*Scope` ([#164](https://github.com/MetaMask/accounts/pull/164))
+
 ## [9.0.0]
 
 ### Added
