@@ -1767,7 +1767,10 @@ describe('SnapKeyring', () => {
 
   describe('resolveAccountAddress', () => {
     const address = '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb';
-    const scope = toCaipChainId(EthScopes.Namespace, executionContext.chainId);
+    const scope = toCaipChainId(
+      KnownCaipNamespace.Eip155,
+      executionContext.chainId,
+    );
     const request: JsonRpcRequest = {
       id: '3d8a0bda-285c-4551-abe8-f52af39d3095',
       jsonrpc: '2.0',
@@ -1831,7 +1834,7 @@ describe('SnapKeyring', () => {
 
   describe('submitRequest', () => {
     const account = ethEoaAccount1;
-    const scope = EthScopes.Testnet;
+    const scope = EthScope.Testnet;
     const method = EthMethod.SignTransaction;
     const params = {
       from: 'me',
