@@ -11,9 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **BREAKING:** Add `resolveAccountAddress` keyring method ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-  - This method is **required**.
-  - Those new methods are required by the new signing request routing system (see SIP-26).
+- Add `resolveAccountAddress` keyring method ([#157](https://github.com/MetaMask/accounts/pull/157))
 
 ### Changed
 

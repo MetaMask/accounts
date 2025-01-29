@@ -11,12 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `submitRequest` and `resolveAccountAddress` methods ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `submitRequest` and `resolveAccountAddress` methods ([#157](https://github.com/MetaMask/accounts/pull/157))
   - Those new methods are required by the new signing request routing system (see SIP-26).
 
 ### Changed
 
-- Bump `@metamask/keyring-api` from `^15.0.0` to `^16.0.0` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Bump `@metamask/keyring-api` from `^15.0.0` to `^16.0.0` ([#172](https://github.com/MetaMask/accounts/pull/172))
 - Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
 
 ### Fixed
