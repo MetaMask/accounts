@@ -20,6 +20,7 @@ import {
   type MessageTypes,
 } from '@metamask/eth-sig-util';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
+import { assert, type Hex } from '@metamask/utils';
 import { webcrypto } from 'crypto';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -38,6 +39,12 @@ const firstAcct = '0x1c96099350f13d558464ec79b9be4445aa0ef579';
 const secondAcct = '0x1b00aed43a693f3a957f9feb5cc08afa031e37a0';
 
 const notKeyringAddress = '0xbD20F6F5F1616947a39E11926E78ec94817B3931';
+
+const getAddressAtIndex = (keyring: HdKeyring, index: number): Hex => {
+  const accounts = keyring.getAccounts();
+  assert(accounts[index], `Account not found at index ${index}`);
+  return accounts[index];
+};
 
 describe('hd-keyring', () => {
   describe('compare old bip39 implementation with new', () => {
@@ -355,8 +362,7 @@ describe('hd-keyring', () => {
       await keyring.deserialize();
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
-      const addresses = keyring.getAccounts();
-      const address = addresses[0] as string;
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData);
       const restored = recoverTypedSignature({
         data: typedData,
@@ -381,8 +387,7 @@ describe('hd-keyring', () => {
       await keyring.deserialize();
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
-      const addresses = keyring.getAccounts();
-      const address = addresses[0] as string;
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V1,
       });
@@ -411,8 +416,7 @@ describe('hd-keyring', () => {
         mnemonic: sampleMnemonic,
         numberOfAccounts: 1,
       });
-      const addresses = keyring.getAccounts();
-      const address = addresses[0] as string;
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V3,
       });
@@ -469,8 +473,7 @@ describe('hd-keyring', () => {
       await keyring.deserialize();
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
-      const addresses = keyring.getAccounts();
-      const address = addresses[0] as string;
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V3,
       });
@@ -674,6 +677,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
       });
 
+      // @ts-expect-error testing invalid input
       await expect(keyring.signMessage('', message)).rejects.toThrow(
         'Must specify address.',
       );
@@ -707,7 +711,7 @@ describe('hd-keyring', () => {
       it('should remove that account', async function () {
         const addresses = keyring.getAccounts();
         expect(addresses).toHaveLength(1);
-        keyring.removeAccount(addresses[0] as string);
+        keyring.removeAccount(getAddressAtIndex(keyring, 0));
         const addressesAfterRemoval = keyring.getAccounts();
         expect(addressesAfterRemoval).toHaveLength(0);
       });
@@ -838,6 +842,7 @@ describe('hd-keyring', () => {
     });
 
     it('throw error if address is blank', async function () {
+      // @ts-expect-error - passing an empty string to test the error
       await expect(keyring.getEncryptionPublicKey('')).rejects.toThrow(
         'Must specify address.',
       );
@@ -916,16 +921,11 @@ describe('hd-keyring', () => {
         },
       };
 
-      const addresses = keyring.getAccounts();
-      const [address] = addresses;
+      const address = getAddressAtIndex(keyring, 0);
 
-      const signature = await keyring.signTypedData(
-        address as string,
-        typedData,
-        {
-          version: SignTypedDataVersion.V4,
-        },
-      );
+      const signature = await keyring.signTypedData(address, typedData, {
+        version: SignTypedDataVersion.V4,
+      });
       expect(signature).toBe(expectedSignature);
       const restored = recoverTypedSignature({
         data: typedData,
@@ -1018,6 +1018,7 @@ describe('hd-keyring', () => {
 
     it('returns rejected promise if empty address is passed', async function () {
       const tx = TransactionFactory.fromTxData(txParams);
+      // @ts-expect-error testing invalid input
       await expect(keyring.signTransaction('', tx)).rejects.toThrow(
         'Must specify address.',
       );

@@ -25,7 +25,13 @@ import {
 } from '@metamask/key-tree';
 import { generateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
-import { assert, assertIsHexString, remove0x } from '@metamask/utils';
+import {
+  add0x,
+  assert,
+  assertIsHexString,
+  type Hex,
+  remove0x,
+} from '@metamask/utils';
 import { HDKey } from 'ethereum-cryptography/hdkey';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 import { bytesToHex } from 'ethereum-cryptography/utils';
@@ -172,7 +178,7 @@ class HdKeyring {
    * @param numberOfAccounts - The number of accounts to add.
    * @returns The addresses of the new accounts.
    */
-  async addAccounts(numberOfAccounts = 1): Promise<string[]> {
+  async addAccounts(numberOfAccounts = 1): Promise<Hex[]> {
     if (!this.root) {
       throw new Error('Eth-Hd-Keyring: No secret recovery phrase provided');
     }
@@ -196,7 +202,7 @@ class HdKeyring {
    *
    * @returns The addresses of all accounts in the keyring.
    */
-  getAccounts(): string[] {
+  getAccounts(): Hex[] {
     return this.#wallets.map((wallet) => {
       assert(wallet.publicKey, 'Expected public key to be set');
       return this.#addressfromPublicKey(wallet.publicKey);
@@ -210,7 +216,7 @@ class HdKeyring {
    * @param origin - The origin of the app requesting the account.
    * @returns The public address of the account.
    */
-  async getAppKeyAddress(address: string, origin: string): Promise<string> {
+  async getAppKeyAddress(address: Hex, origin: string): Promise<Hex> {
     if (!origin || typeof origin !== 'string') {
       throw new Error(`'origin' must be a non-empty string`);
     }
@@ -218,10 +224,9 @@ class HdKeyring {
       withAppKeyOrigin: origin,
     });
     assert(wallet.publicKey, 'Expected public key to be set');
-    const appKeyAddress = normalize(
+    const appKeyAddress = this.#normalizeAddress(
       publicToAddress(wallet.publicKey).toString('hex'),
     );
-    assert(appKeyAddress, 'Expected app key address to be set');
     return appKeyAddress;
   }
 
@@ -235,7 +240,7 @@ class HdKeyring {
    * @returns The private key of the account.
    */
   async exportAccount(
-    address: string,
+    address: Hex,
     opts?: { withAppKeyOrigin: string },
   ): Promise<string> {
     const wallet = opts
@@ -258,7 +263,7 @@ class HdKeyring {
    * @returns The signed transaction.
    */
   async signTransaction(
-    address: string,
+    address: Hex,
     tx: TypedTransaction,
     opts = {},
   ): Promise<TypedTransaction> {
@@ -277,7 +282,7 @@ class HdKeyring {
    * @returns The signature of the message.
    */
   async signMessage(
-    address: string,
+    address: Hex,
     data: string,
     opts: HDKeyringAccountSelectionOptions = {},
   ): Promise<string> {
@@ -304,7 +309,7 @@ class HdKeyring {
    * @returns The signature of the message.
    */
   async signPersonalMessage(
-    address: string,
+    address: Hex,
     msgHex: string,
     opts: HDKeyringAccountSelectionOptions = {},
   ): Promise<string> {
@@ -323,7 +328,7 @@ class HdKeyring {
    * @returns The decrypted message.
    */
   async decryptMessage(
-    withAccount: string,
+    withAccount: Hex,
     encryptedData: EthEncryptedData,
   ): Promise<string> {
     const wallet = this.#getWalletForAccount(withAccount);
@@ -343,7 +348,7 @@ class HdKeyring {
    * @returns The signature of the message.
    */
   async signTypedData<Types extends MessageTypes>(
-    withAccount: string,
+    withAccount: Hex,
     typedData: TypedDataV1 | TypedMessage<Types>,
     opts: HDKeyringAccountSelectionOptions & {
       version: SignTypedDataVersion;
@@ -367,9 +372,8 @@ class HdKeyring {
    *
    * @param account - The address of the account to remove.
    */
-  removeAccount(account: string): void {
-    const address = normalize(account);
-    assert(address, 'Must specify a valid address.');
+  removeAccount(account: Hex): void {
+    const address = this.#normalizeAddress(account);
     if (
       !this.#wallets
         .map(
@@ -394,7 +398,7 @@ class HdKeyring {
    * @returns The public key of the account.
    */
   async getEncryptionPublicKey(
-    withAccount: string,
+    withAccount: Hex,
     opts: HDKeyringAccountSelectionOptions = {},
   ): Promise<string> {
     const privKey = this.#getPrivateKeyFor(withAccount, opts);
@@ -478,7 +482,7 @@ class HdKeyring {
    * @returns The private key of the account.
    */
   #getPrivateKeyFor(
-    address: string,
+    address: Hex,
     opts?: HDKeyringAccountSelectionOptions,
   ): Uint8Array | Buffer {
     if (!address) {
@@ -495,7 +499,7 @@ class HdKeyring {
    * @param account - The address of the account.
    * @returns The wallet for the account as HDKey.
    */
-  #getWalletForAccount(account: string): HDKey;
+  #getWalletForAccount(account: Hex): HDKey;
 
   /**
    * Get the wallet for the specified account and app origin.
@@ -505,7 +509,7 @@ class HdKeyring {
    * @returns A key pair representing the wallet.
    */
   #getWalletForAccount(
-    accounts: string,
+    accounts: Hex,
     opts: { withAppKeyOrigin: string },
   ): { privateKey: Buffer; publicKey: Buffer };
 
@@ -518,15 +522,15 @@ class HdKeyring {
    * @returns A key pair representing the wallet.
    */
   #getWalletForAccount(
-    account: string,
+    account: Hex,
     opts?: HDKeyringAccountSelectionOptions,
   ): HDKey | { privateKey: Buffer; publicKey: Buffer };
 
   #getWalletForAccount(
-    account: string,
+    account: Hex,
     { withAppKeyOrigin }: HDKeyringAccountSelectionOptions = {},
   ): HDKey | { privateKey: Buffer; publicKey: Buffer } {
-    const address = normalize(account);
+    const address = this.#normalizeAddress(account);
     const wallet = this.#wallets.find(({ publicKey }) => {
       return publicKey && this.#addressfromPublicKey(publicKey) === address;
     });
@@ -581,10 +585,22 @@ class HdKeyring {
    * @param publicKey - The public key of the account.
    * @returns The address of the account.
    */
-  #addressfromPublicKey(publicKey: Uint8Array): string {
-    return bufferToHex(
-      publicToAddress(Buffer.from(publicKey), true),
-    ).toLowerCase();
+  #addressfromPublicKey(publicKey: Uint8Array): Hex {
+    return add0x(
+      bufferToHex(publicToAddress(Buffer.from(publicKey), true)).toLowerCase(),
+    );
+  }
+
+  /**
+   * Normalize an address to a lower-cased '0x'-prefixed hex string.
+   *
+   * @param address - The address to normalize.
+   * @returns The normalized address.
+   */
+  #normalizeAddress(address: string): Hex {
+    const normalized = normalize(address);
+    assert(normalized, 'Expected address to be set');
+    return add0x(normalized);
   }
 }
 
