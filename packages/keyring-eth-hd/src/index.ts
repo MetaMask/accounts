@@ -34,11 +34,6 @@ import { bytesToHex } from 'ethereum-cryptography/utils';
 const hdPathString = `m/44'/60'/0'/0`;
 const type = 'HD Key Tree';
 
-type JsCastedBuffer = {
-  type: 'Buffer';
-  data: unknown;
-};
-
 export type HDKeyringOptions = {
   cryptographicFunctions?: CryptographicFunctions;
 };
@@ -65,21 +60,23 @@ export type HDKeyringAccountSelectionOptions = {
   withAppKeyOrigin?: string;
 };
 
+type SerializedBuffer = ReturnType<Buffer['toJSON']>;
+
 /**
- * Checks if the given value is a JsCastedBuffer.
+ * Checks if the given value is a valid serialized Buffer compatible with
+ * the return type of `Buffer.toJSON`.
  *
- * @param maybeJsCastedBuffer - The value to check.
- * @returns `true` if the value is a JsCastedBuffer, `false` otherwise.
+ * @param value - The value to check.
+ * @returns `true` if the value is a valid serialized buffer, `false` otherwise.
  */
-function isJsCastedBuffer(
-  maybeJsCastedBuffer: unknown,
-): maybeJsCastedBuffer is JsCastedBuffer {
+function isSerializedBuffer(value: unknown): value is SerializedBuffer {
   return (
-    typeof maybeJsCastedBuffer === 'object' &&
-    maybeJsCastedBuffer !== null &&
-    'type' in maybeJsCastedBuffer &&
-    maybeJsCastedBuffer.type === 'Buffer' &&
-    'data' in maybeJsCastedBuffer
+    typeof value === 'object' &&
+    value !== null &&
+    'type' in value &&
+    value.type === 'Buffer' &&
+    'data' in value &&
+    Array.isArray(value.data)
   );
 }
 
@@ -438,11 +435,11 @@ class HdKeyring {
    * @returns The Uint8Array mnemonic.
    */
   #mnemonicToUint8Array(
-    mnemonic: Buffer | JsCastedBuffer | string | Uint8Array | number[],
+    mnemonic: Buffer | SerializedBuffer | string | Uint8Array | number[],
   ): Uint8Array {
     let mnemonicData: unknown = mnemonic;
     // when encrypted/decrypted, buffers get cast into js object with a property type set to buffer
-    if (isJsCastedBuffer(mnemonic)) {
+    if (isSerializedBuffer(mnemonic)) {
       mnemonicData = mnemonic.data;
     }
 
