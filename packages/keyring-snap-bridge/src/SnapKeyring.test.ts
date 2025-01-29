@@ -1827,7 +1827,7 @@ describe('SnapKeyring', () => {
       await expect(
         keyring.resolveAccountAddress(badSnapId, scope, request),
       ).rejects.toThrow(
-        `Unable to resolve account's address: unknown Snap ID: ${badSnapId}`,
+        `Unable to resolve account address: unknown Snap ID: ${badSnapId}`,
       );
     });
   });
