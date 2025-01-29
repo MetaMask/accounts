@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.1]
 
-### Uncategorized
+### Changed
 
-- refactor!: remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
+- Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
 
 ## [1.3.0]
 

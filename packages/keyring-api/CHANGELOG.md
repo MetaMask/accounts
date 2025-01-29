@@ -9,10 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [16.0.0]
 
-### Uncategorized
+### Added
 
-- refactor!: remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
-- refactor!: enforce that `scopes` contains CAIP-2 chain IDs ([#165](https://github.com/MetaMask/accounts/pull/165))
+- **BREAKING:** Add `resolveAccountAddress` keyring method ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - This method is **required**.
+  - Those new methods are required by the new signing request routing system (see SIP-26).
+
+### Changed
+
+- **BREAKING:** Remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
+  - We now rely on CAIP definitions coming `@metamask/utils`.
+- **BREAKING:** Enforce that `scopes` contains CAIP-2 chain IDs ([#165](https://github.com/MetaMask/accounts/pull/165))
+  - Initially `scopes` accepted CAIP-2 namespaces as well to address the EVM EOA accounts that supports all EVM chains. This has been dropped in favor of `eip155:0` scope.
+- **BREAKING:** Rename `*Scopes` enums to `*Scope` ([#165](https://github.com/MetaMask/accounts/pull/165))
+- Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
 
 ## [15.0.0]
 

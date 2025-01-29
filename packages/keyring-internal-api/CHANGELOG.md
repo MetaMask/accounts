@@ -9,10 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.0]
 
-### Uncategorized
+### Changed
 
-- refactor!: remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
-- refactor!: enforce that `scopes` contains CAIP-2 chain IDs ([#165](https://github.com/MetaMask/accounts/pull/165))
+- **BREAKING:** Bump `@metamask/keyring-api` from `^15.0.0` to `^16.0.0` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - The `scopes` from each `*AccountStruct` types is now more strict (remove support of CAIP-2 namespaces) which impact all `Internal*AccountStruct` types.
+- Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
 
 ## [3.0.0]
 

@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.1]
 
-### Uncategorized
+### Changed
 
-- refactor!: remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
-- refactor!: enforce that `scopes` contains CAIP-2 chain IDs ([#165](https://github.com/MetaMask/accounts/pull/165))
+- Bump `@metamask/keyring-api` from `^14.0.0` to `^16.0.0` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO)), [#160](https://github.com/MetaMask/accounts/pull/160)
+- Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
 
 ## [2.1.0]
 
