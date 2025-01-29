@@ -1887,9 +1887,7 @@ describe('SnapKeyring', () => {
           params,
           scope,
         }),
-      ).rejects.toThrow(
-        `Request for Snap '${snapId}' with method '${method}' must be synchronous.`,
-      );
+      ).rejects.toThrow(regexForUUIDInRequiredSyncErrorMessage);
     });
 
     it('throws an error when using an unknown account id', async () => {

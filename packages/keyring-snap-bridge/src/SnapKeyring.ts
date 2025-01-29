@@ -21,7 +21,6 @@ import {
 import type {
   KeyringAccount,
   KeyringExecutionContext,
-  KeyringResponse,
   BtcMethod,
   EthBaseTransaction,
   EthBaseUserOperation,
@@ -591,7 +590,7 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
-   * Submit a request to a Snap.
+   * Submit a request to a Snap from an account ID.
    *
    * This request cannot be an asynchronous keyring request.
    *
@@ -615,26 +614,20 @@ export class SnapKeyring extends EventEmitter {
   }): Promise<Json> {
     const { account, snapId } = this.#getAccount(id);
 
-    const { requestId, response } = await this.#submitSnapRequest({
+    return await this.#submitSnapRequest({
       snapId,
       account,
       method: method as AccountMethod,
       params,
       scope,
+      // For non-EVM (in the context of the multichain API and SIP-26), we enforce responses
+      // to be synchronous.
+      noPending: true,
     });
-
-    // For now, we enforce responses to be synchronous.
-    if (response.pending) {
-      throw new Error(
-        `Request for Snap '${snapId}' with method '${method}' must be synchronous.`,
-      );
-    }
-
-    return this.#handleSyncResponse(response, requestId, snapId);
   }
 
   /**
-   * Submit a request to a Snap.
+   * Submit a request to a Snap from an account address.
    *
    * @param opts - Request options.
    * @param opts.address - Account address.
@@ -656,43 +649,17 @@ export class SnapKeyring extends EventEmitter {
     params?: Json[] | Record<string, Json>;
     scope?: string;
     noPending?: boolean;
-  }): Promise<Json> {
+  }): Promise<Response> {
     const { account, snapId } = this.#resolveAddress(address);
 
-    const { requestId, requestPromise, response } =
-      await this.#submitSnapRequest<Response>({
-        snapId,
-        account,
-        method: method as AccountMethod,
-        params,
-        scope,
-      });
-
-    // Some methods, like the ones used to prepare and patch user operations,
-    // require the Snap to answer synchronously in order to work with the
-    // confirmation flow. This check lets the caller enforce this behavior.
-    if (noPending && response.pending) {
-      // If the Snap is not allowed to execute asynchronous request, delete
-      // the promise to prevent a leak.
-      this.#clearRequestPromise(requestId, snapId);
-
-      throw new Error(
-        `Request '${requestId}' to Snap '${snapId}' is pending and noPending is true.`,
-      );
-    }
-
-    // If the Snap answers synchronously, the promise must be removed from the
-    // map to prevent a leak.
-    if (!response.pending) {
-      return this.#handleSyncResponse(response, requestId, snapId);
-    }
-
-    // If the Snap answers asynchronously, we will inform the user with a redirect
-    if (response.redirect?.message || response.redirect?.url) {
-      await this.#handleAsyncResponse(response.redirect, snapId);
-    }
-
-    return requestPromise.promise;
+    return await this.#submitSnapRequest<Response>({
+      snapId,
+      account,
+      method: method as AccountMethod,
+      params,
+      scope,
+      noPending,
+    });
   }
 
   /**
@@ -704,6 +671,7 @@ export class SnapKeyring extends EventEmitter {
    * @param options.method - The Ethereum method to call.
    * @param options.params - The parameters to pass to the method, can be undefined.
    * @param options.scope - The chain ID to use for the request, can be an empty string.
+   * @param options.noPending - Whether the response is allowed to be pending.
    * @returns A promise that resolves to the keyring response from the Snap.
    * @throws An error if the Snap fails to respond or if there's an issue with the request submission.
    */
@@ -713,17 +681,15 @@ export class SnapKeyring extends EventEmitter {
     method,
     params,
     scope,
+    noPending,
   }: {
     snapId: SnapId;
     account: KeyringAccount;
     method: AccountMethod;
     params?: Json[] | Record<string, Json> | undefined;
     scope: string;
-  }): Promise<{
-    requestId: string;
-    requestPromise: DeferredPromise<Response>;
-    response: KeyringResponse;
-  }> {
+    noPending: boolean;
+  }): Promise<Response> {
     if (!this.#hasMethod(account, method)) {
       throw new Error(
         `Method '${method}' not supported for account ${account.address}`,
@@ -757,11 +723,27 @@ export class SnapKeyring extends EventEmitter {
         .withSnapId(snapId)
         .submitRequest(request);
 
-      return {
-        requestId,
-        requestPromise,
-        response,
-      };
+      // Some methods, like the ones used to prepare and patch user operations,
+      // require the Snap to answer synchronously in order to work with the
+      // confirmation flow. This check lets the caller enforce this behavior.
+      if (noPending && response.pending) {
+        throw new Error(
+          `Request '${requestId}' to Snap '${snapId}' is pending and noPending is true.`,
+        );
+      }
+
+      // If the Snap answers synchronously, the promise must be removed from the
+      // map to prevent a leak.
+      if (!response.pending) {
+        return this.#handleSyncResponse<Response>(response, requestId, snapId);
+      }
+
+      // If the Snap answers asynchronously, we will inform the user with a redirect
+      if (response.redirect?.message || response.redirect?.url) {
+        await this.#handleAsyncResponse(response.redirect, snapId);
+      }
+
+      return requestPromise.promise;
     } catch (error) {
       log('Snap Request failed: ', { requestId });
 
@@ -818,13 +800,14 @@ export class SnapKeyring extends EventEmitter {
    * @param snapId - The Snap ID associated with the request.
    * @returns The result from the Snap response.
    */
-  #handleSyncResponse(
+  #handleSyncResponse<Response extends Json>(
     response: { pending: false; result: Json },
     requestId: string,
     snapId: SnapId,
-  ): Json {
+  ): Response {
     this.#requests.delete(snapId, requestId);
-    return response.result;
+    // We consider `Response` to be compatible with `result` here.
+    return response.result as Response;
   }
 
   /**
