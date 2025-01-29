@@ -124,7 +124,7 @@ export type Keyring = {
    * could be found.
    */
   resolveAccountAddress(
-    id: string,
+    scope: CaipChainId,
     request: JsonRpcRequest,
   ): Promise<ResolvedAccountAddress | null>;
 
