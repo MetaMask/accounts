@@ -2,9 +2,9 @@ import type { InferEquals } from '@metamask/keyring-utils';
 import { object, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, enums, nullable, number, string } from '@metamask/superstruct';
-import { CaipChainIdStruct } from '@metamask/utils';
 
 import { AssetStruct } from './asset';
+import { CaipChainIdStruct } from './caip';
 import type { Paginated } from './pagination';
 
 /**

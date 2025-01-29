@@ -14,7 +14,11 @@ module.exports = merge(baseConfig, {
   // The display name when running multiple projects
   displayName,
 
-  coveragePathIgnorePatterns: ['./src/tests'],
+  coveragePathIgnorePatterns: [
+    './src/tests',
+    // We re-exports some CAIP types from `@metamask/utils`, no need to cover them.
+    './src/api/caip',
+  ],
 
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {

@@ -8,10 +8,13 @@ import {
   literal,
   size,
 } from '@metamask/superstruct';
-import { CaipChainIdStruct } from '@metamask/utils';
 import { bech32 } from 'bech32';
 
-import { BtcAccountType, KeyringAccountStruct } from '../api';
+import {
+  BtcAccountType,
+  KeyringAccountStruct,
+  CaipChainIdStruct,
+} from '../api';
 
 export const BtcP2wpkhAddressStruct = refine(
   string(),

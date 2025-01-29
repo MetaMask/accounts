@@ -1,14 +1,3 @@
-import type {
-  Keyring,
-  KeyringAccount,
-  KeyringRequest,
-  KeyringAccountData,
-  KeyringResponse,
-  Balance,
-  TransactionsPage,
-  Pagination,
-  ResolvedAccountAddress,
-} from '@metamask/keyring-api';
 import {
   ApproveRequestResponseStruct,
   CreateAccountResponseStruct,
@@ -28,15 +17,24 @@ import {
   KeyringRpcMethod,
   ResolveAccountAddressResponseStruct,
 } from '@metamask/keyring-api';
-import type { JsonRpcRequest } from '@metamask/keyring-utils';
-import { strictMask } from '@metamask/keyring-utils';
-import { assert } from '@metamask/superstruct';
 import type {
+  Keyring,
+  KeyringAccount,
+  KeyringRequest,
+  KeyringAccountData,
+  KeyringResponse,
+  Balance,
+  TransactionsPage,
+  Pagination,
+  ResolvedAccountAddress,
   CaipChainId,
   CaipAssetType,
   CaipAssetTypeOrId,
-  Json,
-} from '@metamask/utils';
+} from '@metamask/keyring-api';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import { strictMask } from '@metamask/keyring-utils';
+import { assert } from '@metamask/superstruct';
+import type { Json } from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
 export type Sender = {
