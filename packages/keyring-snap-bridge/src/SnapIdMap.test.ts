@@ -98,7 +98,7 @@ describe('SnapIdMap', () => {
   });
 
   describe('hasSnapId', () => {
-    it('returns false when the snapID is not in the map', () => {
+    it('returns false when the snapId is not in the map', () => {
       const map = new SnapIdMap<{ snapId: SnapId; value: number }>();
       const hasSnapId = map.hasSnapId(SNAP_1_ID);
       expect(hasSnapId).toBe(false);
