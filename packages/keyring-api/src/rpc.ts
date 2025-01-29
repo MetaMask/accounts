@@ -8,18 +8,20 @@ import {
   string,
   union,
 } from '@metamask/superstruct';
-import { JsonStruct } from '@metamask/utils';
+import {
+  JsonStruct,
+  CaipAssetTypeStruct,
+  CaipAssetTypeOrIdStruct,
+} from '@metamask/utils';
 
 import {
   BalanceStruct,
-  CaipAssetTypeStruct,
   KeyringAccountDataStruct,
   KeyringAccountStruct,
   KeyringRequestStruct,
   KeyringResponseStruct,
   TransactionsPageStruct,
   PaginationStruct,
-  CaipAssetTypeOrIdStruct,
 } from './api';
 
 /**
