@@ -581,7 +581,7 @@ export class SnapKeyring extends EventEmitter {
     // We do check that the incoming Snap ID is known by the keyring.
     if (!this.hasSnapId(snapId)) {
       throw new Error(
-        `Unable to resolve account's address: unknown Snap ID: ${snapId}`,
+        `Unable to resolve account address: unknown Snap ID: ${snapId}`,
       );
     }
 
