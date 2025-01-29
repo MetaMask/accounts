@@ -584,6 +584,10 @@ export class SnapKeyring extends EventEmitter {
     // require the Snap to answer synchronously in order to work with the
     // confirmation flow. This check lets the caller enforce this behavior.
     if (noPending && response.pending) {
+      // If the Snap is not allowed to execute asynchronous request, delete
+      // the promise to prevent a leak.
+      this.#clearRequestPromise(requestId, snapId);
+
       throw new Error(
         `Request '${requestId}' to snap '${snapId}' is pending and noPending is true.`,
       );
@@ -676,9 +680,19 @@ export class SnapKeyring extends EventEmitter {
       log('Snap Request failed: ', { requestId });
 
       // If the Snap failed to respond, delete the promise to prevent a leak.
-      this.#requests.delete(snapId, requestId);
+      this.#clearRequestPromise(requestId, snapId);
       throw error;
     }
+  }
+
+  /**
+   * Clear a promise for a request and delete it from the map of requests.
+   *
+   * @param requestId - The unique identifier for the request.
+   * @param snapId - The Snap ID associated with the request.
+   */
+  #clearRequestPromise(requestId: string, snapId: SnapId): void {
+    this.#requests.delete(snapId, requestId);
   }
 
   /**
