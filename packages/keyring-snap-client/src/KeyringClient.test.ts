@@ -1,15 +1,13 @@
+import { BtcMethod, KeyringRpcMethod } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
   KeyringRequest,
   KeyringResponse,
-} from '@metamask/keyring-api';
-import { BtcMethod, KeyringRpcMethod } from '@metamask/keyring-api';
-import type { JsonRpcRequest } from '@metamask/keyring-utils';
-import type {
   CaipChainId,
   CaipAssetType,
   CaipAssetTypeOrId,
-} from '@metamask/utils';
+} from '@metamask/keyring-api';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
 import { KeyringClient } from '.'; // Import from `index.ts` to test the public API
 

@@ -13,14 +13,12 @@ import {
   string,
   union,
 } from '@metamask/superstruct';
+import { JsonStruct } from '@metamask/utils';
+
 import {
-  JsonStruct,
   CaipAssetTypeStruct,
   CaipAssetTypeOrIdStruct,
   CaipChainIdStruct,
-} from '@metamask/utils';
-
-import {
   BalanceStruct,
   KeyringAccountDataStruct,
   KeyringAccountStruct,

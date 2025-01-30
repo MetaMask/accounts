@@ -1,15 +1,14 @@
 import {
   BtcAccountType,
-  BtcScope,
   EthAccountType,
-  EthScope,
   SolAccountType,
+  BtcScope,
+  EthScope,
   SolScope,
-  type KeyringAccount,
 } from '@metamask/keyring-api';
+import type { CaipChainId, KeyringAccount } from '@metamask/keyring-api';
 import { isBtcMainnetAddress } from '@metamask/keyring-utils';
 import { is } from '@metamask/superstruct';
-import type { CaipChainId } from '@metamask/utils';
 
 import {
   assertKeyringAccount,

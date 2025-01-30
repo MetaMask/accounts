@@ -2,16 +2,12 @@
 // This rule seems to be triggering a false positive on the `KeyringAccount`.
 
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
-import type {
-  Json,
-  CaipChainId,
-  CaipAssetType,
-  CaipAssetTypeOrId,
-} from '@metamask/utils';
+import type { Json } from '@metamask/utils';
 
 import type { KeyringAccount } from './account';
 import type { ResolvedAccountAddress } from './address';
 import type { Balance } from './balance';
+import type { CaipChainId, CaipAssetType, CaipAssetTypeOrId } from './caip';
 import type { KeyringAccountData } from './export';
 import type { Paginated, Pagination } from './pagination';
 import type { KeyringRequest } from './request';
