@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// istanbul ignore file
 
 /**
  * Scopes for Bitcoin account type. See {@link KeyringAccount.scopes}.
