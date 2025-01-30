@@ -1479,8 +1479,8 @@ __metadata:
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     jest-silent-reporter: "npm:^0.5.0"
-    prettier: "npm:^3.4.2"
-    prettier-plugin-packagejson: "npm:^2.5.8"
+    prettier: "npm:^2.8.8"
+    prettier-plugin-packagejson: "npm:^2.5.2"
     syncpack: "npm:^13.0.0"
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
@@ -1512,19 +1512,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/auto-changelog@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@metamask/auto-changelog@npm:4.1.0"
+"@metamask/auto-changelog@npm:^3.4.4":
+  version: 3.4.4
+  resolution: "@metamask/auto-changelog@npm:3.4.4"
   dependencies:
     diff: "npm:^5.0.0"
     execa: "npm:^5.1.1"
+    prettier: "npm:^2.8.8"
     semver: "npm:^7.3.5"
     yargs: "npm:^17.0.1"
-  peerDependencies:
-    prettier: ">=3.0.0"
   bin:
     auto-changelog: dist/cli.js
-  checksum: 10/fe31a9eb364939c83bc5098482b761ca93593081680c4cba17b221150b4d32636cb25fd708e3692c198feddc95d8bcf524e19fa93567fb5aa30b03ea93249250
+  checksum: 10/70e98529a153ebeab10410dbc3f567014999f77ed82f2b52f1b36501b28a4e3614c809a90c89600a739d7710595bfecc30e2260410e6afac7539f8db65a48f2c
   languageName: node
   linkType: hard
 
@@ -1679,7 +1678,7 @@ __metadata:
     "@ethereumjs/util": "npm:^8.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/bip39": "npm:^4.0.0"
     "@metamask/eth-hd-keyring": "npm:4.0.1"
     "@metamask/eth-sig-util": "npm:^8.2.0"
@@ -1709,7 +1708,7 @@ __metadata:
     "@ledgerhq/types-cryptoassets": "npm:^7.15.1"
     "@ledgerhq/types-devices": "npm:^6.25.3"
     "@ledgerhq/types-live": "npm:^6.52.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/utils": "npm:^11.1.0"
     "@ts-bridge/cli": "npm:^0.6.1"
@@ -1777,7 +1776,7 @@ __metadata:
     "@ethereumjs/util": "npm:^8.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/utils": "npm:^11.1.0"
     "@ts-bridge/cli": "npm:^0.6.1"
@@ -1805,7 +1804,7 @@ __metadata:
     "@ethereumjs/tx": "npm:^4.2.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/base-controller": "npm:^7.1.1"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/keyring-api": "workspace:^"
@@ -1845,7 +1844,7 @@ __metadata:
     "@ethereumjs/util": "npm:^8.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@trezor/connect-plugin-ethereum": "npm:^9.0.3"
     "@trezor/connect-web": "npm:^9.1.11"
@@ -1926,7 +1925,7 @@ __metadata:
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/keyring-utils": "workspace:^"
     "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^11.1.0"
@@ -1953,7 +1952,7 @@ __metadata:
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/keyring-api": "workspace:^"
     "@metamask/keyring-utils": "workspace:^"
     "@metamask/superstruct": "npm:^3.1.0"
@@ -1980,7 +1979,7 @@ __metadata:
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/base-controller": "npm:^7.1.1"
     "@metamask/keyring-api": "workspace:^"
     "@metamask/keyring-snap-client": "workspace:^"
@@ -2011,7 +2010,7 @@ __metadata:
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/keyring-api": "workspace:^"
     "@metamask/keyring-utils": "workspace:^"
     "@metamask/providers": "npm:^19.0.0"
@@ -2044,7 +2043,7 @@ __metadata:
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/keyring-api": "workspace:^"
     "@metamask/keyring-utils": "workspace:^"
     "@metamask/providers": "npm:^19.0.0"
@@ -2076,7 +2075,7 @@ __metadata:
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^4.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^11.1.0"
     "@ts-bridge/cli": "npm:^0.6.1"
@@ -9502,7 +9501,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-packagejson@npm:^2.5.8":
+"prettier-plugin-packagejson@npm:^2.5.2":
   version: 2.5.8
   resolution: "prettier-plugin-packagejson@npm:2.5.8"
   dependencies:
@@ -9523,15 +9522,6 @@ __metadata:
   bin:
     prettier: bin-prettier.js
   checksum: 10/00cdb6ab0281f98306cd1847425c24cbaaa48a5ff03633945ab4c701901b8e96ad558eb0777364ffc312f437af9b5a07d0f45346266e8245beaf6247b9c62b24
-  languageName: node
-  linkType: hard
-
-"prettier@npm:^3.4.2":
-  version: 3.4.2
-  resolution: "prettier@npm:3.4.2"
-  bin:
-    prettier: bin/prettier.cjs
-  checksum: 10/a3e806fb0b635818964d472d35d27e21a4e17150c679047f5501e1f23bd4aa806adf660f0c0d35214a210d5d440da6896c2e86156da55f221a57938278dc326e
   languageName: node
   linkType: hard
 

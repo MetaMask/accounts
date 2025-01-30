@@ -55,7 +55,7 @@
     "@ethereumjs/tx": "^4.2.0",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
-    "@metamask/auto-changelog": "^4.1.0",
+    "@metamask/auto-changelog": "^3.4.4",
     "@metamask/bip39": "^4.0.0",
     "@metamask/eth-hd-keyring": "4.0.1",
     "@ts-bridge/cli": "^0.6.1",

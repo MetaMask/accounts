@@ -52,7 +52,7 @@
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
-    "@metamask/auto-changelog": "^4.1.0",
+    "@metamask/auto-changelog": "^3.4.4",
     "@metamask/snaps-controllers": "^9.18.0",
     "@metamask/snaps-sdk": "^6.16.0",
     "@metamask/snaps-utils": "^8.9.1",
