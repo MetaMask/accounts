@@ -51,7 +51,7 @@
     "@ethereumjs/tx": "^4.2.0",
     "@ethereumjs/util": "^8.1.0",
     "@ledgerhq/hw-app-eth": "^6.42.0",
-    "@metamask/eth-sig-util": "^8.1.2",
+    "@metamask/eth-sig-util": "^8.2.0",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
@@ -62,7 +62,7 @@
     "@ledgerhq/types-cryptoassets": "^7.15.1",
     "@ledgerhq/types-devices": "^6.25.3",
     "@ledgerhq/types-live": "^6.52.0",
-    "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/auto-changelog": "^4.1.0",
     "@metamask/utils": "^11.1.0",
     "@ts-bridge/cli": "^0.6.1",
     "@types/ethereumjs-tx": "^1.0.1",
