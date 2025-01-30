@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [16.1.0]
+
+### Added
+
+- Re-export `Caip*` types and structs ([#174](https://github.com/MetaMask/accounts/pull/174))
+
+## [16.0.0]
+
+### Added
+
+- Add `resolveAccountAddress` keyring method ([#157](https://github.com/MetaMask/accounts/pull/157))
+
+### Changed
+
+- **BREAKING:** Remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
+  - We now rely on CAIP definitions coming `@metamask/utils`.
+- **BREAKING:** Enforce that `scopes` contains CAIP-2 chain IDs ([#165](https://github.com/MetaMask/accounts/pull/165))
+  - Initially `scopes` accepted CAIP-2 namespaces as well to address the EVM EOA accounts that supports all EVM chains. This has been dropped in favor of `eip155:0` scope.
+- **BREAKING:** Rename `*Scopes` enums to `*Scope` ([#165](https://github.com/MetaMask/accounts/pull/165))
+- Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
+
 ## [15.0.0]
 
 ### Added
@@ -487,7 +508,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@15.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@16.1.0...HEAD
+[16.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@16.0.0...@metamask/keyring-api@16.1.0
+[16.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@15.0.0...@metamask/keyring-api@16.0.0
 [15.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@14.0.0...@metamask/keyring-api@15.0.0
 [14.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@13.0.0...@metamask/keyring-api@14.0.0
 [13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@12.0.0...@metamask/keyring-api@13.0.0

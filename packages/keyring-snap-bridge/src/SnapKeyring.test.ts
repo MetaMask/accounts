@@ -23,8 +23,9 @@ import {
   BtcScope,
   SolScope,
 } from '@metamask/keyring-api';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
-import { toCaipChainId } from '@metamask/utils';
+import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
 
 import type { KeyringState } from '.';
 import { SnapKeyring } from '.';
@@ -37,7 +38,7 @@ import type {
 } from './SnapKeyringMessenger';
 
 const regexForUUIDInRequiredSyncErrorMessage =
-  /Request '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}' to snap 'local:snap.mock' is pending and noPending is true/u;
+  /Request '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}' to Snap 'local:snap.mock' is pending and noPending is true/u;
 
 const ETH_4337_METHODS = [
   EthMethod.PatchUserOperation,
@@ -104,7 +105,7 @@ describe('SnapKeyring', () => {
     address: '0xC728514Df8A7F9271f4B7a4dd2Aa6d2D723d3eE3'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
-    scopes: [EthScope.Namespace],
+    scopes: [EthScope.Eoa],
     type: EthAccountType.Eoa,
   };
   const ethEoaAccount2 = {
@@ -112,7 +113,7 @@ describe('SnapKeyring', () => {
     address: '0x34b13912eAc00152bE0Cb409A301Ab8E55739e63'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
-    scopes: [EthScope.Namespace],
+    scopes: [EthScope.Eoa],
     type: EthAccountType.Eoa,
   };
   const ethEoaAccount3 = {
@@ -120,7 +121,7 @@ describe('SnapKeyring', () => {
     address: '0xf7bDe8609231033c69E502C08f85153f8A1548F2'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
-    scopes: [EthScope.Namespace],
+    scopes: [EthScope.Eoa],
     type: EthAccountType.Eoa,
   };
   const ethErc4337Account = {
@@ -162,7 +163,7 @@ describe('SnapKeyring', () => {
     methods: [],
     // For unknown accounts, we consider them as EVM EOA for now, so just re-use the
     // same scopes.
-    scopes: [EthScope.Namespace],
+    scopes: [EthScope.Eoa],
     // This should not be really possible to create such account, but since we potentially
     // migrate data upon the Snap keyring initialization, we want to cover edge-cases
     // like this one to avoid crashing and blocking everything...
@@ -237,7 +238,7 @@ describe('SnapKeyring', () => {
           id: 'b05d918a-b37c-497a-bb28-3d15c0d56b7a',
           options: {},
           methods: ETH_EOA_METHODS,
-          scopes: [EthScope.Namespace],
+          scopes: [EthScope.Eoa],
           type: EthAccountType.Eoa,
           // Even checksummed address will be lower-cased by the bridge.
           address: '0x6431726EEE67570BF6f0Cf892aE0a3988F03903F',
@@ -429,7 +430,7 @@ describe('SnapKeyring', () => {
           metadata: expect.any(Object),
           // By default, new EVM accounts will have this scopes if it not provided
           // during the account creation flow.
-          scopes: [EthScope.Namespace],
+          scopes: [EthScope.Eoa],
         });
       });
 
@@ -707,7 +708,7 @@ describe('SnapKeyring', () => {
 
         const keyringAccounts = keyring.listAccounts();
         expect(keyringAccounts.length).toBeGreaterThan(0);
-        expect(keyringAccounts[0]?.scopes).toStrictEqual([EthScope.Namespace]);
+        expect(keyringAccounts[0]?.scopes).toStrictEqual([EthScope.Eoa]);
       });
 
       it('updates a ERC4337 account with the no scope will throw an error', async () => {
@@ -1044,7 +1045,7 @@ describe('SnapKeyring', () => {
 
     it('unknown v1 accounts scopes defaults to EOA scopes', () => {
       expect(getScopesForAccountV1(unknownAccount)).toStrictEqual([
-        EthScope.Namespace,
+        EthScope.Eoa,
       ]);
     });
   });
@@ -1472,7 +1473,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScope.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_prepareUserOperation',
@@ -1525,7 +1529,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScope.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_patchUserOperation',
@@ -1574,7 +1581,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScope.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_signUserOperation',
@@ -1755,6 +1765,162 @@ describe('SnapKeyring', () => {
     });
   });
 
+  describe('resolveAccountAddress', () => {
+    const address = '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb';
+    const scope = toCaipChainId(
+      KnownCaipNamespace.Eip155,
+      executionContext.chainId,
+    );
+    const request: JsonRpcRequest = {
+      id: '3d8a0bda-285c-4551-abe8-f52af39d3095',
+      jsonrpc: '2.0',
+      method: EthMethod.SignTransaction,
+      params: {
+        from: address,
+        to: 'someone-else',
+      },
+    };
+
+    it('returns a resolved address', async () => {
+      mockMessenger.handleRequest.mockReturnValueOnce({
+        address,
+      });
+
+      const resolved = await keyring.resolveAccountAddress(
+        snapId,
+        scope,
+        request,
+      );
+
+      expect(resolved).toStrictEqual({ address });
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_resolveAccountAddress',
+          params: {
+            scope,
+            request,
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('returns `null` if no address has been resolved', async () => {
+      mockMessenger.handleRequest.mockReturnValueOnce(null);
+
+      const resolved = await keyring.resolveAccountAddress(
+        snapId,
+        scope,
+        request,
+      );
+
+      expect(resolved).toBeNull();
+    });
+
+    it('throws an error if the Snap ID is not know from the keyring', async () => {
+      const badSnapId = 'local:bad-snap-id' as SnapId;
+
+      await expect(
+        keyring.resolveAccountAddress(badSnapId, scope, request),
+      ).rejects.toThrow(
+        `Unable to resolve account address: unknown Snap ID: ${badSnapId}`,
+      );
+    });
+  });
+
+  describe('submitRequest', () => {
+    const account = ethEoaAccount1;
+    const scope = EthScope.Testnet;
+    const method = EthMethod.SignTransaction;
+    const params = {
+      from: 'me',
+      to: 'you',
+    };
+
+    it('submits a request', async () => {
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: false,
+        result: null,
+      });
+
+      await keyring.submitRequest({
+        account: account.id,
+        method,
+        params,
+        scope,
+      });
+
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_submitRequest',
+          params: {
+            id: expect.any(String),
+            scope,
+            account: account.id,
+            request: {
+              method,
+              params,
+            },
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('throws an error for asynchronous request', async () => {
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: true,
+      });
+
+      await expect(
+        keyring.submitRequest({
+          account: account.id,
+          method,
+          params,
+          scope,
+        }),
+      ).rejects.toThrow(regexForUUIDInRequiredSyncErrorMessage);
+    });
+
+    it('throws an error when using an unknown account id', async () => {
+      const unknownAccountId = 'unknown-account-id';
+
+      await expect(
+        keyring.submitRequest({
+          account: unknownAccountId,
+          method,
+          params,
+          scope,
+        }),
+      ).rejects.toThrow(
+        `Unable to get account: unknown account ID: '${unknownAccountId}'`,
+      );
+    });
+
+    it('throws an error when the method is not supported by the account', async () => {
+      const unknownAccountMethod = EthMethod.PrepareUserOperation; // Not available for EOAs.
+
+      await expect(
+        keyring.submitRequest({
+          account: account.id,
+          method: unknownAccountMethod,
+          params,
+          scope,
+        }),
+      ).rejects.toThrow(
+        `Method '${unknownAccountMethod}' not supported for account ${account.address}`,
+      );
+    });
+  });
+
   describe('prepareUserOperation', () => {
     const mockIntents = [
       {
@@ -1799,7 +1965,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScope.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_prepareUserOperation',
@@ -1866,7 +2035,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScope.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_patchUserOperation',

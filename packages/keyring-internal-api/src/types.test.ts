@@ -5,7 +5,7 @@ import { InternalAccountStruct } from '.';
 
 describe('InternalAccount', () => {
   it.each([
-    { type: 'eip155:eoa', address: '0x000', scopes: ['eip155'] },
+    { type: 'eip155:eoa', address: '0x000', scopes: ['eip155:0'] },
     {
       type: 'bip122:p2wpkh',
       address: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
@@ -37,7 +37,7 @@ describe('InternalAccount', () => {
       address: '0x000',
       options: {},
       methods: [],
-      scopes: ['eip155'],
+      scopes: ['eip155:0'],
       type: 'eip155:eoa',
       metadata: {
         keyring: {},
@@ -57,7 +57,7 @@ describe('InternalAccount', () => {
       address: '0x000',
       options: {},
       methods: [],
-      scopes: ['eip155'],
+      scopes: ['eip155:0'],
       type: 'eip155:eoa',
       metadata: {
         name: 'Account 1',
@@ -76,7 +76,7 @@ describe('InternalAccount', () => {
       address: '0x000',
       options: {},
       methods: [],
-      scopes: ['eip155'],
+      scopes: ['eip155:0'],
       type: 'eip155:eoa',
     };
 
@@ -105,7 +105,7 @@ describe('InternalAccount', () => {
       address: '0x000',
       options: {},
       methods: [],
-      scopes: ['eip155'],
+      scopes: ['eip155:0'],
       type: 'eip155:eoa',
       metadata: {
         keyring: {
@@ -129,7 +129,7 @@ describe('InternalAccount', () => {
       options: {},
       methods: [],
       type: 'eip155:eoa',
-      scopes: ['eip155'],
+      scopes: ['eip155:0'],
       metadata: {
         keyring: {
           type: 'Test Keyring',
@@ -155,7 +155,7 @@ describe('InternalAccount', () => {
         address: '0x000',
         options: {},
         methods: [],
-        scopes: ['eip155'],
+        scopes: ['eip155:0'],
         type: 'eip155:eoa',
         metadata: {
           keyring: {

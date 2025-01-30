@@ -1,4 +1,4 @@
-/* istanbul ignore file */
+// istanbul ignore file
 
 import { createProjectLogger, createModuleLogger } from '@metamask/utils';
 

@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 // This rule seems to be triggering a false positive on the `KeyringAccount`.
 
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
 import type { KeyringAccount } from './account';
+import type { ResolvedAccountAddress } from './address';
 import type { Balance } from './balance';
-import type { CaipAssetType, CaipAssetTypeOrId } from './caip';
+import type { CaipChainId, CaipAssetType, CaipAssetTypeOrId } from './caip';
 import type { KeyringAccountData } from './export';
 import type { Paginated, Pagination } from './pagination';
 import type { KeyringRequest } from './request';
@@ -109,6 +111,23 @@ export type Keyring = {
     id: string,
     assets: CaipAssetType[],
   ): Promise<Record<CaipAssetType, Balance>>;
+
+  /**
+   * Resolves the address of an account from a signing request.
+   *
+   * This is required by the routing system of MetaMask to dispatch
+   * incoming non-EVM dapp signing requests.
+   *
+   * @param scope - Request's scope (CAIP-2).
+   * @param request - Signing request object.
+   * @returns A Promise that resolves to the account address that must
+   * be used to process this signing request, or null if none candidates
+   * could be found.
+   */
+  resolveAccountAddress?(
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+  ): Promise<ResolvedAccountAddress | null>;
 
   /**
    * Filter supported chains for a given account.

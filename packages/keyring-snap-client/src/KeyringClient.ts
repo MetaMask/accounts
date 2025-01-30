@@ -1,15 +1,3 @@
-import type {
-  Keyring,
-  KeyringAccount,
-  KeyringRequest,
-  KeyringAccountData,
-  KeyringResponse,
-  CaipAssetType,
-  Balance,
-  TransactionsPage,
-  Pagination,
-  CaipAssetTypeOrId,
-} from '@metamask/keyring-api';
 import {
   ApproveRequestResponseStruct,
   CreateAccountResponseStruct,
@@ -27,6 +15,21 @@ import {
   SubmitRequestResponseStruct,
   UpdateAccountResponseStruct,
   KeyringRpcMethod,
+  ResolveAccountAddressResponseStruct,
+} from '@metamask/keyring-api';
+import type {
+  Keyring,
+  KeyringAccount,
+  KeyringRequest,
+  KeyringAccountData,
+  KeyringResponse,
+  Balance,
+  TransactionsPage,
+  Pagination,
+  ResolvedAccountAddress,
+  CaipChainId,
+  CaipAssetType,
+  CaipAssetTypeOrId,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
@@ -128,6 +131,21 @@ export class KeyringClient implements Keyring {
         params: { id },
       }),
       ListAccountAssetsResponseStruct,
+    );
+  }
+
+  async resolveAccountAddress(
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+    // FIXME: eslint is complaning about `ResolvedAccountAddress` being `any`, so disable this for now:
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  ): Promise<ResolvedAccountAddress | null> {
+    return strictMask(
+      await this.#send({
+        method: KeyringRpcMethod.ResolveAccountAddress,
+        params: { scope, request },
+      }),
+      ResolveAccountAddressResponseStruct,
     );
   }
 
