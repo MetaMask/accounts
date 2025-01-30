@@ -28,7 +28,8 @@ const ALLOWED_HD_PATHS = {
   [SLIP0044TestnetPath]: true,
 } as const;
 
-const keyringType = 'Trezor Hardware';
+const trezorKeyringType = 'Trezor Hardware';
+const oneKeyKeyringType = 'OneKey Hardware';
 const pathBase = 'm';
 const MAX_INDEX = 1000;
 const DELAY_BETWEEN_POPUPS = 1000;
@@ -85,9 +86,9 @@ function isOldStyleEthereumjsTx(
 }
 
 export class TrezorKeyring extends EventEmitter {
-  static type: string = keyringType;
+  static type: string = trezorKeyringType;
 
-  readonly type: string = keyringType;
+  readonly type: string = trezorKeyringType;
 
   accounts: readonly string[] = [];
 
@@ -577,4 +578,10 @@ export class TrezorKeyring extends EventEmitter {
     }
     return `${this.hdPath}/${index}`;
   }
+}
+
+export class OneKeyKeyring extends TrezorKeyring {
+  static type: string = oneKeyKeyringType;
+
+  readonly type: string = oneKeyKeyringType;
 }
