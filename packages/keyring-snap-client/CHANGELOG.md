@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: re-export `Caip*` types/structs ([#174](https://github.com/MetaMask/accounts/pull/174))
+
 ## [3.0.2]
 
 ### Changed
