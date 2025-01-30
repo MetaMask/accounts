@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-snap-keyring",
-  "version": "9.1.0",
+  "version": "9.1.1",
   "description": "Snaps keyring bridge.",
   "repository": {
     "type": "git",
