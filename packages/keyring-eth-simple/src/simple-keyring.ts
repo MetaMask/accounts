@@ -12,9 +12,11 @@ import {
 import {
   concatSig,
   decrypt,
+  EIP7702Authorization,
   getEncryptionPublicKey,
   normalize,
   personalSign,
+  signEIP7702Authorization,
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
@@ -94,6 +96,16 @@ export default class SimpleKeyring implements Keyring<string[]> {
     const signedTx = transaction.sign(privKey);
     // Newer versions of Ethereumjs-tx are immutable and return a new tx object
     return signedTx ?? transaction;
+  }
+
+  async signEIP7702Authorization(
+    address: Hex,
+    authorization: EIP7702Authorization,
+    opts: KeyringOpt = {},
+  ) {
+    const privateKey = this.#getPrivateKeyFor(address, opts);
+
+    return signEIP7702Authorization({ privateKey, authorization });
   }
 
   // For eth_sign, we need to sign arbitrary data:

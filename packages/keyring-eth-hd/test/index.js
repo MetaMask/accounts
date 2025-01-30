@@ -5,13 +5,13 @@ import {
   toBuffer,
   ecrecover,
   pubToAddress,
-  zeroAddress,
 } from '@ethereumjs/util';
 import * as oldMMForkBIP39 from '@metamask/bip39';
 import OldHdKeyring from '@metamask/eth-hd-keyring';
 import {
   normalize,
   personalSign,
+  recoverEIP7702Authorization,
   recoverPersonalSignature,
   recoverTypedSignature,
   signTypedData,
@@ -684,9 +684,9 @@ describe('hd-keyring', () => {
   });
 
   describe('#signEIP7702Authorization', () => {
-    const chainId = '0x1';
+    const chainId = 1;
     const nonce = 1;
-    const contractAddress = '0x0000000000000000000000000000000000000001';
+    const contractAddress = '0x1234567890abcdef1234567890abcdef12345678';
 
     const authorization = [chainId, contractAddress, nonce];
 
@@ -701,7 +701,13 @@ describe('hd-keyring', () => {
         firstAcct,
         authorization,
       );
-      expect(signature).not.toBe(contractAddress);
+
+      const recovered = recoverEIP7702Authorization({
+        signature,
+        authorization,
+      });
+
+      expect(recovered.toLowerCase()).toEqual(firstAcct.toLowerCase());
     });
 
     it('throw error if empty address is passed', async () => {
