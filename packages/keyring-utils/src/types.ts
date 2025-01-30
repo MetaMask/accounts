@@ -1,6 +1,5 @@
 import { define, type Infer } from '@metamask/superstruct';
-
-import { definePattern } from './superstruct';
+import { definePattern } from '@metamask/utils';
 
 /**
  * UUIDv4 struct.
