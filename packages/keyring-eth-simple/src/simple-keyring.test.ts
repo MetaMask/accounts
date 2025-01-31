@@ -12,7 +12,6 @@ import {
   EIP7702Authorization,
   encrypt,
   getEncryptionPublicKey,
-  hashEIP7702Authorization,
   MessageTypes,
   personalSign,
   recoverEIP7702Authorization,
@@ -551,9 +550,9 @@ describe('simple-keyring', function () {
     const address = '0x29c76e6ad8f28bb1004902578fb108c507be341b';
     const privKeyHex =
       '0x4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0';
-    const signerAddress =
-      '0x' +
-      privateToAddress(Buffer.from(privKeyHex.slice(2), 'hex')).toString('hex');
+    const signerAddress = `0x${privateToAddress(
+      Buffer.from(privKeyHex.slice(2), 'hex'),
+    ).toString('hex')}`;
 
     const chainId = 1;
     const nonce = 1;
@@ -579,7 +578,9 @@ describe('simple-keyring', function () {
         authorization,
       });
 
-      expect(recovered.toLowerCase()).toEqual(signerAddress.toLowerCase());
+      expect(recovered.toLowerCase()).toStrictEqual(
+        signerAddress.toLowerCase(),
+      );
     });
 
     it('throws an error if the address is not in the keyring', async function () {
