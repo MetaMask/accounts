@@ -1,5 +1,5 @@
 import { TransactionFactory } from '@ethereumjs/tx';
-import { ControllerMessenger } from '@metamask/base-controller';
+import { Messenger } from '@metamask/base-controller';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
   KeyringAccount,
@@ -183,23 +183,18 @@ describe('SnapKeyring', () => {
     chainId: '1',
   };
 
-  // Fake the ControllerMessenger and registers all mock actions here:
-  const controllerMessenger: ControllerMessenger<
-    SnapKeyringAllowedActions,
-    SnapKeyringEvents
-  > = new ControllerMessenger();
-  controllerMessenger.registerActionHandler(
-    'SnapController:get',
-    mockMessenger.get,
-  );
-  controllerMessenger.registerActionHandler(
+  // Fake the Messenger and registers all mock actions here:
+  const messenger: Messenger<SnapKeyringAllowedActions, SnapKeyringEvents> =
+    new Messenger();
+  messenger.registerActionHandler('SnapController:get', mockMessenger.get);
+  messenger.registerActionHandler(
     'SnapController:handleRequest',
     mockMessenger.handleRequest,
   );
 
-  // Now extracts a rectricted messenger for the Snap keyring only.
+  // Now extracts a restricted messenger for the Snap keyring only.
   const mockSnapKeyringMessenger: SnapKeyringMessenger =
-    controllerMessenger.getRestricted({
+    messenger.getRestricted({
       name: 'SnapKeyring',
       allowedEvents: [],
       allowedActions: ['SnapController:get', 'SnapController:handleRequest'],
