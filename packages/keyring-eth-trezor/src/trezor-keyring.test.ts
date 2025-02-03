@@ -133,6 +133,15 @@ describe('TrezorKeyring', function () {
     });
   });
 
+  describe('getModel', function () {
+    it('gets bridge model', async function () {
+      keyring.bridge.model = 'foo';
+      const model = keyring.getModel();
+
+      expect(model).toBe('foo');
+    });
+  });
+
   describe('init', function () {
     it('initialises the bridge', async function () {
       const initStub = sinon.stub().resolves();
