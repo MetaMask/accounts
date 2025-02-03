@@ -442,7 +442,8 @@ class HdKeyring {
     mnemonic: Buffer | SerializedBuffer | string | Uint8Array | number[],
   ): Uint8Array {
     let mnemonicData: unknown = mnemonic;
-    // when encrypted/decrypted, buffers get cast into js object with a property type set to buffer
+    // When using `Buffer.toJSON()`, the Buffer is serialized into an object
+    // with the structure `{ type: 'Buffer', data: [...] }`
     if (isSerializedBuffer(mnemonic)) {
       mnemonicData = mnemonic.data;
     }
