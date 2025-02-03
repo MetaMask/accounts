@@ -14,7 +14,7 @@ import {
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
-import { mnemonicToSeed, SLIP10Node, hmacSha512 } from '@metamask/key-tree';
+import { mnemonicToSeed, SLIP10Node } from '@metamask/key-tree';
 import { generateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import {
@@ -32,8 +32,8 @@ import { bytesToHex } from 'ethereum-cryptography/utils';
  * Get a BIP-32 derivation path array from a hash, which is compatible with
  * `@metamask/key-tree`. The hash is assumed to be 32 bytes long.
  *
- * @param hash - The hash to derive indices from.
- * @returns The derived indices as a HardenedBIP32Node array.
+ * @param {string} hash - The hash to derive indices from.
+ * @returns {Array<string>} The derived indices as a HardenedBIP32Node array.
  */
 function getDerivationPathArray(hash) {
   const HARDENED_VALUE = 0x80000000;
@@ -284,7 +284,7 @@ class HdKeyring {
         derivationPath: [this.mnemonic, `bip32:1`, ...computedDerivationPath],
         curve: 'secp256k1',
       },
-      hmacSha512,
+      this._cryptographicFunctions,
     );
 
     return add0x(privateKey);
