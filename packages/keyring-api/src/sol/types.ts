@@ -24,7 +24,11 @@ export const SolAddressStruct = definePattern(
  */
 export enum SolMethod {
   // General transaction methods
-  SendAndConfirmTransaction = 'sendAndConfirmTransaction',
+  SignAndSendTransaction = 'signAndSendTransaction',
+  SignAndSendAllTransactions = 'signAndSendAllTransactions',
+  SignTransaction = 'signTransaction',
+  SignMessage = 'signMessage',
+  SignIn = 'signIn',
 }
 
 export const SolDataAccountStruct = object({
@@ -48,7 +52,7 @@ export const SolDataAccountStruct = object({
   /**
    * Account supported methods.
    */
-  methods: array(enums([`${SolMethod.SendAndConfirmTransaction}`])),
+  methods: array(enums(Object.values(SolMethod))),
 });
 
 export type SolDataAccount = Infer<typeof SolDataAccountStruct>;
