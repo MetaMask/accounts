@@ -1,4 +1,4 @@
-import type { RestrictedControllerMessenger } from '@metamask/base-controller';
+import type { RestrictedMessenger } from '@metamask/base-controller';
 import type {
   AccountAssetListUpdatedEventPayload,
   AccountBalancesUpdatedEventPayload,
@@ -33,7 +33,7 @@ export type SnapKeyringEvents =
 
 export type SnapKeyringAllowedActions = HandleSnapRequest | GetSnap;
 
-export type SnapKeyringMessenger = RestrictedControllerMessenger<
+export type SnapKeyringMessenger = RestrictedMessenger<
   'SnapKeyring',
   SnapKeyringAllowedActions,
   SnapKeyringEvents,
