@@ -24,11 +24,11 @@ export const SolAddressStruct = definePattern(
  */
 export enum SolMethod {
   // General transaction methods
-  SignAndSendTransaction = 'signAndSendTransaction',
-  SignAndSendAllTransactions = 'signAndSendAllTransactions',
-  SignTransaction = 'signTransaction',
-  SignMessage = 'signMessage',
-  SignIn = 'signIn',
+  SignAndSendTransaction = 'solana:signAndSendTransaction',
+  SignAndSendAllTransactions = 'solana:signAndSendAllTransactions',
+  SignTransaction = 'solana:signTransaction',
+  SignMessage = 'solana:signMessage',
+  SignIn = 'solana:signIn',
 }
 
 export const SolDataAccountStruct = object({
