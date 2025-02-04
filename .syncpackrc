@@ -1,4 +1,14 @@
 {
+  "customTypes": {
+    "engines": {
+      "path": "engines",
+      "strategy": "versionsByName"
+    },
+    "packageManager": {
+      "path": "packageManager",
+      "strategy": "name@version"
+    }
+  },
   "semverGroups": [
     {
       "label": "use tilde range for some dependencies",
@@ -7,7 +17,13 @@
       "range": "~"
     },
     {
-      "label": "use caret ranges everywhere",
+      "label": "use exact versions for some dependencies",
+      "packages": ["**"],
+      "dependencies": ["yarn"],
+      "range": ""
+    },
+    {
+      "label": "use caret ranges everywhere else",
       "packages": ["**"],
       "dependencies": ["**"],
       "range": "^"
@@ -15,47 +31,14 @@
   ],
   "versionGroups": [
     {
-      "label": "use pinned version of eth-hd-keyring in non-regression test",
-      "dependencyTypes": ["dev"],
-      "packages": ["@metamask/eth-hd-keyring"],
-      "dependencies": ["@metamask/eth-hd-keyring"],
-      "pinVersion": "4.0.1"
-    },
-    {
-      "label": "use workspace version of the keyring-api",
+      "label": "use workspace version of packages in the monorepo",
+      "packages": ["**"],
       "dependencyTypes": ["!local"],
-      "dependencies": ["@metamask/keyring-api"],
+      "dependencies": [
+        "@metamask/keyring-**",
+        "@metamask/eth-**-keyring"
+      ],
       "pinVersion": "workspace:^"
-    },
-    {
-      "label": "use workspace version of the keyring-internal-api",
-      "dependencyTypes": ["!local"],
-      "dependencies": ["@metamask/keyring-internal-api"],
-      "pinVersion": "workspace:^"
-    },
-    {
-      "label": "use workspace version of the keyring-snap-sdk",
-      "dependencyTypes": ["!local"],
-      "dependencies": ["@metamask/keyring-snap-sdk"],
-      "pinVersion": "workspace:^"
-    },
-    {
-      "label": "use workspace version of the keyring-snap-client",
-      "dependencyTypes": ["!local"],
-      "dependencies": ["@metamask/keyring-snap-client"],
-      "pinVersion": "workspace:^"
-    },
-    {
-      "label": "use workspace version of the keyring-internal-snap-client",
-      "dependencyTypes": ["!local"],
-      "dependencies": ["@metamask/keyring-internal-snap-client"],
-      "pinVersion": "workspace:^"
-    },
-    {
-      "label": "use workspace version of the keyring-utils",
-      "dependencyTypes": ["!local"],
-      "dependencies": ["@metamask/keyring-utils"],
-      "pinVersion": "workspace:^"
-    },
+    }
   ]
 }
