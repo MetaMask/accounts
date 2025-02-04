@@ -26,6 +26,7 @@ import {
   KeyringResponseStruct,
   TransactionsPageStruct,
   PaginationStruct,
+  CaipAccountIdStruct,
 } from './api';
 
 /**
@@ -201,7 +202,7 @@ export type ResolveAccountAddressRequest = Infer<
 
 export const ResolveAccountAddressResponseStruct = nullable(
   object({
-    address: string(),
+    address: CaipAccountIdStruct,
   }),
 );
 

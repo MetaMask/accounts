@@ -1,12 +1,14 @@
 // istanbul ignore file
 
 import {
+  CaipAccountIdStruct,
   CaipAssetIdStruct,
   CaipAssetTypeStruct,
   CaipAssetTypeOrIdStruct,
   CaipChainIdStruct,
 } from '@metamask/utils';
 import type {
+  CaipAccountId,
   CaipAssetId,
   CaipAssetType,
   CaipAssetTypeOrId,
@@ -14,9 +16,16 @@ import type {
 } from '@metamask/utils';
 
 export {
+  CaipAccountIdStruct,
   CaipAssetIdStruct,
   CaipAssetTypeStruct,
   CaipAssetTypeOrIdStruct,
   CaipChainIdStruct,
 };
-export type { CaipAssetId, CaipAssetType, CaipAssetTypeOrId, CaipChainId };
+export type {
+  CaipAccountId,
+  CaipAssetId,
+  CaipAssetType,
+  CaipAssetTypeOrId,
+  CaipChainId,
+};

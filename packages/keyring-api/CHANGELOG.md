@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Re-export `CaipAccountId` type and struct ([#186](https://github.com/MetaMask/accounts/pull/186))
+
+### Changed
+
+- **BREAKING:** Use `CaipAccountId` for `ResolvedAccountAddress.address` ([#186](https://github.com/MetaMask/accounts/pull/186))
+  - This was missing from SIP-26, but we expect this address to be CAIP-10 compliant.
+
 ## [16.1.0]
 
 ### Added
