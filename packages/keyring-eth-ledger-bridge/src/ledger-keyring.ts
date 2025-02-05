@@ -219,8 +219,9 @@ export class LedgerKeyring
 
   async unlock(hdPath?: string, updateHdk = true): Promise<Hex> {
     if (this.isUnlocked() && !hdPath) {
-      // @ts-expect-error  TODO: change this to a proper return type
-      return 'already unlocked';
+      return this.#getChecksumHexAddress(
+        ethUtil.publicToAddress(this.hdk.publicKey, true).toString('hex'),
+      );
     }
     const path = hdPath ? this.#toLedgerPath(hdPath) : this.hdPath;
 
@@ -638,7 +639,7 @@ export class LedgerKeyring
     const address = ethUtil
       .publicToAddress(dkey.publicKey, true)
       .toString('hex');
-    return getChecksumAddress(add0x(address));
+    return this.#getChecksumHexAddress(add0x(address));
   }
 
   #pathFromAddress(address: string): string {
@@ -685,5 +686,9 @@ export class LedgerKeyring
 
   #getApiUrl(): NetworkApiUrls {
     return this.network;
+  }
+
+  #getChecksumHexAddress(address: string): Hex {
+    return getChecksumAddress(add0x(address));
   }
 }
