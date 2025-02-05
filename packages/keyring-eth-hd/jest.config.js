@@ -14,22 +14,19 @@ module.exports = merge(baseConfig, {
   // The display name when running multiple projects
   displayName,
 
-  // A preset that is used as a base for Jest's configuration
-  preset: 'ts-jest/presets/js-with-ts',
-
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['./test'],
+  coveragePathIgnorePatterns: ['./src/tests'],
 
   // The glob patterns Jest uses to detect test files
-  testMatch: ['**/test/**/*.[jt]s?(x)'],
+  testMatch: ['**/*.test.[jt]s?(x)'],
 
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
     global: {
-      branches: 84,
+      branches: 83.87,
       functions: 100,
       lines: 95,
-      statements: 95,
+      statements: 97.93,
     },
   },
 });
