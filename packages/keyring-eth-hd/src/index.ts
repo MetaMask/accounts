@@ -376,13 +376,13 @@ class HdKeyring {
    * @param withAccount - The address of the account.
    * @param authorization - The EIP-7702 authorization to sign.
    * @param opts - The options for selecting the account.
-   * @returns The signed authorization.
+   * @returns The signature of the authorization.
    */
   async signEip7702Authorization(
     withAccount: Hex,
     authorization: EIP7702Authorization,
     opts?: HDKeyringAccountSelectionOptions,
-  ) {
+  ): Promise<string> {
     const privateKey = this.#getPrivateKeyFor(withAccount, opts);
     return signEIP7702Authorization({
       privateKey: Buffer.from(privateKey),
