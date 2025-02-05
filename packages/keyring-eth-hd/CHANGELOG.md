@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** The `HdKeyring` is not exported as default anymore ([#161](https://github.com/MetaMask/accounts/pull/161))
+
 ## [10.0.0]
 
 ### Added
