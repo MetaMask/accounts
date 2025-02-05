@@ -19,7 +19,7 @@ import {
   type EthEncryptedData,
   type TypedMessage,
   type MessageTypes,
-  EIP7702Authorization,
+  type EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { assert, type Hex } from '@metamask/utils';
@@ -726,7 +726,7 @@ describe('hd-keyring', () => {
         authorization,
       });
 
-      expect(recovered.toLowerCase()).toEqual(firstAcct.toLowerCase());
+      expect(recovered.toLowerCase()).toStrictEqual(firstAcct.toLowerCase());
     });
 
     it('throw an error if an empty address is passed', async () => {

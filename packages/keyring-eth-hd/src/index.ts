@@ -9,7 +9,7 @@ import {
 import {
   concatSig,
   decrypt,
-  EIP7702Authorization,
+  type EIP7702Authorization,
   type EthEncryptedData,
   getEncryptionPublicKey,
   type MessageTypes,
