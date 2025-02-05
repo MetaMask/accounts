@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore(deps): bump `@metamask/*` dependencies ([#177](https://github.com/MetaMask/accounts/pull/177))
+- Bump MetaMask dependencies ([#134](https://github.com/MetaMask/accounts/pull/134))
+
 ## [6.0.1]
 
 ### Changed

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore(deps): bump `@metamask/*` dependencies ([#177](https://github.com/MetaMask/accounts/pull/177))
+- refactor!: remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
+
 ## [8.0.3]
 
 ### Fixed

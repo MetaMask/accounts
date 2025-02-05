@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- Add signEIP7702Authorization and corresponding tests to hd and simple Eth keyrings ([#182](https://github.com/MetaMask/accounts/pull/182))
+- refactor!: remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
+- Bump MetaMask dependencies ([#134](https://github.com/MetaMask/accounts/pull/134))
+
 ## [8.0.1]
 
 ### Changed

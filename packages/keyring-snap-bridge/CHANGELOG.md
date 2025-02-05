@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix(keyring-api)!: use CaipAccountId for ResolveAccountAddress.address ([#186](https://github.com/MetaMask/accounts/pull/186))
+- chore: Rename `ControllerMessenger` to `Messenger` ([#185](https://github.com/MetaMask/accounts/pull/185))
+- chore(deps): bump `@metamask/*` dependencies ([#177](https://github.com/MetaMask/accounts/pull/177))
+
 ## [9.1.1]
 
 ### Changed
