@@ -49,6 +49,7 @@
     "@ethereumjs/tx": "^4.2.0",
     "@ethereumjs/util": "^8.1.0",
     "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/utils": "^11.1.0",
     "@trezor/connect-plugin-ethereum": "^9.0.3",
     "@trezor/connect-web": "^9.1.11",
     "hdkey": "^2.1.0",
@@ -115,7 +116,9 @@
       "@trezor/connect-web>@trezor/connect>@trezor/blockchain-link>ws>bufferutil": false,
       "@trezor/connect-web>@trezor/connect>@trezor/blockchain-link>ws>utf-8-validate": false,
       "@trezor/connect-web>@trezor/connect>@trezor/protobuf>protobufjs": false,
-      "@trezor/connect-web>@trezor/connect>@trezor/transport>usb": false
+      "@trezor/connect-web>@trezor/connect>@trezor/transport>usb": false,
+      "jest-environment-jsdom>jsdom>ws>bufferutil": false,
+      "jest-environment-jsdom>jsdom>ws>utf-8-validate": false
     }
   }
 }
