@@ -219,9 +219,8 @@ class HdKeyring {
     return signTypedData({ privateKey, data: typedData, version });
   }
 
-  async signEIP7702Authorization(withAccount, authorization, opts) {
+  async signEip7702Authorization(withAccount, authorization, opts) {
     const privateKey = this._getPrivateKeyFor(withAccount, opts);
-
     return signEIP7702Authorization({ privateKey, authorization });
   }
 

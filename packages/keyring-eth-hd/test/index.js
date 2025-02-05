@@ -683,7 +683,7 @@ describe('hd-keyring', () => {
     });
   });
 
-  describe('#signEIP7702Authorization', () => {
+  describe('#signEip7702Authorization', () => {
     const chainId = 1;
     const nonce = 1;
     const contractAddress = '0x1234567890abcdef1234567890abcdef12345678';
@@ -697,7 +697,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
       });
 
-      const signature = await keyring.signEIP7702Authorization(
+      const signature = await keyring.signEip7702Authorization(
         firstAcct,
         authorization,
       );
@@ -710,7 +710,7 @@ describe('hd-keyring', () => {
       expect(recovered.toLowerCase()).toEqual(firstAcct.toLowerCase());
     });
 
-    it('throw error if empty address is passed', async () => {
+    it('throw an error if an empty address is passed', async () => {
       const keyring = new HdKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
@@ -722,7 +722,7 @@ describe('hd-keyring', () => {
       ).rejects.toThrow('Must specify address.');
     });
 
-    it('throw error if address not associated with the current keyring is passed', async () => {
+    it('throw an error if the given address is not associated with the current keyring', async () => {
       const keyring = new HdKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,

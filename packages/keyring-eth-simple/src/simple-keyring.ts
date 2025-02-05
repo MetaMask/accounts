@@ -98,13 +98,12 @@ export default class SimpleKeyring implements Keyring<string[]> {
     return signedTx ?? transaction;
   }
 
-  async signEIP7702Authorization(
+  async signEip7702Authorization(
     address: Hex,
     authorization: EIP7702Authorization,
     opts: KeyringOpt = {},
   ): Promise<string> {
     const privateKey = this.#getPrivateKeyFor(address, opts);
-
     return signEIP7702Authorization({ privateKey, authorization });
   }
 
