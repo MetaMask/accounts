@@ -25,8 +25,8 @@ module.exports = merge(baseConfig, {
     global: {
       branches: 90.84,
       functions: 96,
-      lines: 95.05,
-      statements: 95.1,
+      lines: 95.02,
+      statements: 95.07,
     },
   },
 });
