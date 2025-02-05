@@ -124,7 +124,7 @@ export class LedgerKeyring implements Keyring<LedgerKeyringSerializedState> {
   }
 
   async serialize(): Promise<
-    Partial<LedgerBridgeKeyringOptions> // Maybe we should have a proper "state" type here instead of using this "options" type.
+    Omit<LedgerKeyringSerializedState, 'accountIndexes'>
   > {
     return {
       hdPath: this.hdPath,
@@ -135,9 +135,7 @@ export class LedgerKeyring implements Keyring<LedgerKeyringSerializedState> {
     };
   }
 
-  async deserialize(
-    opts: Partial<LedgerBridgeKeyringOptions> = {}, // Same question here?
-  ): Promise<void> {
+  async deserialize(opts: LedgerKeyringSerializedState = {}): Promise<void> {
     this.hdPath = opts.hdPath ?? hdPathString;
     this.accounts = opts.accounts ?? [];
     this.deviceId = opts.deviceId ?? '';
