@@ -17,7 +17,6 @@
     "url": "https://github.com/MetaMask/eth-ledger-bridge-keyring.git"
   },
   "license": "ISC",
-  "author": "Bruno Barbieri",
   "exports": {
     ".": {
       "import": {
