@@ -7,10 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.0]
+
+### Added
+
+- Add `signEip7702Authorization` method ([#182](https://github.com/MetaMask/accounts/pull/182))
+
 ### Changed
 
 - **BREAKING**: Added types to `HdKeyring` ([#166](https://github.com/MetaMask/accounts/pull/166))
   - All methods on `HdKeyring` retain their existing signatures, but now have types.
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177)), ([#134](https://github.com/MetaMask/accounts/pull/134))
+- Bump `@metamask/utils` dependency from `^9.3.1` to `11.1.0` ([#134](https://github.com/MetaMask/accounts/pull/134)), ([#167](https://github.com/MetaMask/accounts/pull/167))
 
 ## [9.0.1]
 
@@ -160,7 +168,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@9.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@10.0.0...HEAD
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@9.0.1...@metamask/eth-hd-keyring@10.0.0
 [9.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@9.0.0...@metamask/eth-hd-keyring@9.0.1
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@8.0.0...@metamask/eth-hd-keyring@9.0.0
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.4...@metamask/eth-hd-keyring@8.0.0

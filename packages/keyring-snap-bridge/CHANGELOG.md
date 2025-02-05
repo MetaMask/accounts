@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.0]
+
+### Changed
+
+- **BREAKING:** Use `CaipAccountId` for `ResolvedAccountAddress.address` ([#186](https://github.com/MetaMask/accounts/pull/186))
+  - This was missing from SIP-26, but we expect this address to be CAIP-10 compliant.
+- Bump `@metamask/keyring-api` from `^16.1.0` to `^17.0.0` ([#192](https://github.com/MetaMask/accounts/pull/192))
+- Rename `ControllerMessenger` to `Messenger` ([#185](https://github.com/MetaMask/accounts/pull/185))
+- Bump `@metamask/snaps-controllers` dependency from `^9.10.0` to `^9.18.0` ([#177](https://github.com/MetaMask/accounts/pull/177))
+- Bump `@metamask/snaps-sdk` dependency from `^6.7.0` to `^6.16.0` ([#177](https://github.com/MetaMask/accounts/pull/177))
+- Bump `@metamask/snaps-utils` dependency from `^8.3.0` to `^8.9.1` ([#177](https://github.com/MetaMask/accounts/pull/177))
+
 ## [9.1.1]
 
 ### Changed
@@ -452,7 +464,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@10.0.0...HEAD
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.1...@metamask/eth-snap-keyring@10.0.0
 [9.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.0...@metamask/eth-snap-keyring@9.1.1
 [9.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.0.0...@metamask/eth-snap-keyring@9.1.0
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.1.1...@metamask/eth-snap-keyring@9.0.0

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [17.0.0]
+
 ### Added
 
 - Re-export `CaipAccountId` type and struct ([#186](https://github.com/MetaMask/accounts/pull/186))
@@ -517,7 +519,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@16.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.0.0...HEAD
+[17.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@16.1.0...@metamask/keyring-api@17.0.0
 [16.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@16.0.0...@metamask/keyring-api@16.1.0
 [16.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@15.0.0...@metamask/keyring-api@16.0.0
 [15.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@14.0.0...@metamask/keyring-api@15.0.0
