@@ -510,10 +510,6 @@ export class TrezorKeyring implements Keyring<Json> {
     throw new Error(response.payload?.error || 'Unknown error');
   }
 
-  async exportAccount(): Promise<never> {
-    return Promise.reject(new Error('Not supported on this device'));
-  }
-
   forgetDevice(): void {
     this.accounts = [];
     this.hdk = new HDKey();
