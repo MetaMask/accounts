@@ -115,6 +115,17 @@ describe('LedgerIframeBridge', function () {
       expect(addEventListenerSpy).toHaveBeenCalledTimes(1);
       expect(bridge.iframeLoaded).toBe(true);
     });
+
+    it('fails silently when an error is thrown', async function () {
+      bridge = new LedgerIframeBridge();
+      jest.spyOn(document, 'createElement').mockImplementation(() => {
+        throw new Error('Error');
+      });
+
+      await bridge.init();
+
+      expect(bridge.iframeLoaded).toBe(false);
+    });
   });
 
   describe('destroy', function () {
@@ -229,12 +240,38 @@ describe('LedgerIframeBridge', function () {
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
 
-    it('throws an error when the bridge is not initialized', async function () {
-      bridge = new LedgerIframeBridge();
+    it('throws an error when the bridge fails to initialize', async function () {
+      bridge = new LedgerIframeBridge({ bridgeUrl: BRIDGE_URL });
+      jest.spyOn(global.document, 'createElement').mockImplementation(() => {
+        throw new Error('Error');
+      });
 
       await expect(bridge.updateTransportMethod('u2f')).rejects.toThrow(
-        'The iframe is not loaded yet',
+        'Error',
       );
+    });
+
+    it('retries bridge initialization if iframe is not loaded', async function () {
+      bridge = new LedgerIframeBridge({ bridgeUrl: BRIDGE_URL });
+      const mockIframe = {
+        contentWindow: {
+          postMessage: (message: { messageId: number }): void => {
+            bridge.messageCallbacks[message.messageId]?.({
+              action: IFrameMessageAction.LedgerUpdateTransport,
+              messageId: 1,
+              success: true,
+            });
+          },
+        },
+        onload: jest.fn(),
+      };
+      jest
+        .spyOn(document, 'createElement')
+        .mockReturnValue(mockIframe as unknown as HTMLElement);
+
+      await bridge.updateTransportMethod('u2f');
+
+      expect(bridge.iframeLoaded).toBe(true);
     });
 
     it('throws an error when a ledger-update-transport message is not successful', async function () {
