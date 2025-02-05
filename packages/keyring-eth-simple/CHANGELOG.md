@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.0.2]
+
 ### Uncategorized
 
 - Add signEIP7702Authorization and corresponding tests to hd and simple Eth keyrings ([#182](https://github.com/MetaMask/accounts/pull/182))
@@ -113,7 +115,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.0.2...HEAD
+[8.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.0.1...@metamask/eth-simple-keyring@8.0.2
 [8.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.0.0...@metamask/eth-simple-keyring@8.0.1
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@7.0.0...@metamask/eth-simple-keyring@8.0.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.5...@metamask/eth-simple-keyring@7.0.0

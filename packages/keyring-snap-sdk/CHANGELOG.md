@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0]
+
 ### Uncategorized
 
 - chore(deps): bump `@metamask/*` dependencies ([#177](https://github.com/MetaMask/accounts/pull/177))
@@ -52,7 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.1.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.0.0...HEAD
+[3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.1.2...@metamask/keyring-snap-sdk@3.0.0
 [2.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.1.1...@metamask/keyring-snap-sdk@2.1.2
 [2.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.1.0...@metamask/keyring-snap-sdk@2.1.1
 [2.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.0.0...@metamask/keyring-snap-sdk@2.1.0
