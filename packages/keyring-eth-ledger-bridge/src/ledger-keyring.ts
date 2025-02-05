@@ -11,7 +11,6 @@ import {
 import { add0x, getChecksumAddress, Hex, Keyring } from '@metamask/utils';
 import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
-import { EventEmitter } from 'events';
 import HDKey from 'hdkey';
 
 import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
@@ -79,10 +78,7 @@ function isOldStyleEthereumjsTx(
   return 'getChainId' in tx && typeof tx.getChainId === 'function';
 }
 
-export class LedgerKeyring
-  extends EventEmitter
-  implements Keyring<LedgerKeyringSerializedState>
-{
+export class LedgerKeyring implements Keyring<LedgerKeyringSerializedState> {
   static type: string = keyringType;
 
   deviceId = '';
@@ -112,8 +108,6 @@ export class LedgerKeyring
   bridge: LedgerBridge<LedgerBridgeOptions>;
 
   constructor({ bridge }: { bridge: LedgerBridge<LedgerBridgeOptions> }) {
-    super();
-
     if (!bridge) {
       throw new Error('Bridge is a required dependency for the keyring');
     }
