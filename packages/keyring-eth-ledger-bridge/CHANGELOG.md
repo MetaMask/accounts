@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The `signTypedData` method now accepts an `Hex` typed value as the `withAccount` parameter
   - The `unlockAccountByAddress` method now accepts an `Hex` typed value as the `address` parameter
 
+### Removed
+
+- **BREAKING:** The `exportAccount` method has been removed
+
 ## [8.0.4]
 
 ### Changed
