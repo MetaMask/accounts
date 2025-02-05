@@ -8,6 +8,7 @@ import {
   SignTypedDataVersion,
   TypedDataUtils,
 } from '@metamask/eth-sig-util';
+import { add0x, getChecksumAddress, Hex, Keyring } from '@metamask/utils';
 import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import { EventEmitter } from 'events';
@@ -50,12 +51,14 @@ export type AccountDetails = {
 
 export type LedgerBridgeKeyringOptions = {
   hdPath: string;
-  accounts: readonly string[];
+  accounts: Hex[];
   deviceId: string;
-  accountDetails: Readonly<Record<string, AccountDetails>>;
-  accountIndexes: Readonly<Record<string, number>>;
+  accountDetails: Readonly<Record<Hex, AccountDetails>>;
+  accountIndexes: Readonly<Record<Hex, number>>;
   implementFullBIP44: boolean;
 };
+
+export type LedgerKeyringSerializedState = Partial<LedgerBridgeKeyringOptions>;
 
 /**
  * Check if the given transaction is made with ethereumjs-tx or @ethereumjs/tx
@@ -76,7 +79,10 @@ function isOldStyleEthereumjsTx(
   return 'getChainId' in tx && typeof tx.getChainId === 'function';
 }
 
-export class LedgerKeyring extends EventEmitter {
+export class LedgerKeyring
+  extends EventEmitter
+  implements Keyring<LedgerKeyringSerializedState>
+{
   static type: string = keyringType;
 
   deviceId = '';
@@ -89,7 +95,7 @@ export class LedgerKeyring extends EventEmitter {
 
   unlockedAccount = 0;
 
-  accounts: readonly string[] = [];
+  accounts: readonly Hex[] = [];
 
   accountDetails: Record<string, AccountDetails> = {};
 
@@ -128,7 +134,7 @@ export class LedgerKeyring extends EventEmitter {
   > {
     return {
       hdPath: this.hdPath,
-      accounts: this.accounts,
+      accounts: this.accounts.slice(),
       deviceId: this.deviceId,
       accountDetails: this.accountDetails,
       implementFullBIP44: false,
@@ -211,8 +217,9 @@ export class LedgerKeyring extends EventEmitter {
     this.hdPath = hdPath;
   }
 
-  async unlock(hdPath?: string, updateHdk = true): Promise<string> {
+  async unlock(hdPath?: string, updateHdk = true): Promise<Hex> {
     if (this.isUnlocked() && !hdPath) {
+      // @ts-expect-error  TODO: change this to a proper return type
       return 'already unlocked';
     }
     const path = hdPath ? this.#toLedgerPath(hdPath) : this.hdPath;
@@ -233,19 +240,19 @@ export class LedgerKeyring extends EventEmitter {
       this.hdk.chainCode = Buffer.from(payload.chainCode, 'hex');
     }
 
-    return payload.address;
+    return add0x(payload.address);
   }
 
-  async addAccounts(amount = 1): Promise<string[]> {
+  async addAccounts(amount: number): Promise<Hex[]> {
     return new Promise((resolve, reject) => {
       this.unlock()
         .then(async (_) => {
           const from = this.unlockedAccount;
           const to = from + amount;
-          const newAccounts: string[] = [];
+          const newAccounts: Hex[] = [];
           for (let i = from; i < to; i++) {
             const path = this.#getPathForIndex(i);
-            let address;
+            let address: Hex;
             if (this.#isLedgerLiveHdPath()) {
               address = await this.unlock(path);
             } else {
@@ -288,7 +295,7 @@ export class LedgerKeyring extends EventEmitter {
     return this.#getPage(-1);
   }
 
-  async getAccounts(): Promise<string[]> {
+  async getAccounts(): Promise<Hex[]> {
     return Promise.resolve(this.accounts.slice());
   }
 
@@ -544,10 +551,6 @@ export class LedgerKeyring extends EventEmitter {
     return signature;
   }
 
-  exportAccount(): void {
-    throw new Error('Not supported on this device');
-  }
-
   forgetDevice(): void {
     this.deviceId = '';
     this.accounts = [];
@@ -630,12 +633,12 @@ export class LedgerKeyring extends EventEmitter {
     return accounts;
   }
 
-  #addressFromIndex(basePath: string, i: number): string {
+  #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
     const address = ethUtil
       .publicToAddress(dkey.publicKey, true)
       .toString('hex');
-    return ethUtil.toChecksumAddress(`0x${address}`);
+    return getChecksumAddress(add0x(address));
   }
 
   #pathFromAddress(address: string): string {
