@@ -658,22 +658,6 @@ describe('TrezorKeyring', function () {
     });
   });
 
-  describe('exportAccount', function () {
-    it('should throw an error because it is not supported', async function () {
-      let error: unknown = null;
-      try {
-        await keyring.exportAccount();
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error instanceof Error).toBe(true);
-      expect((error as Error).toString()).toBe(
-        'Error: Not supported on this device',
-      );
-    });
-  });
-
   describe('forgetDevice', function () {
     it('should clear the content of the keyring', async function () {
       // Add an account
