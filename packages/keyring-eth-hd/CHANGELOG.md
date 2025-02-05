@@ -9,17 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [10.0.0]
 
-### Uncategorized
+### Added
 
-- Add signEIP7702Authorization and corresponding tests to hd and simple Eth keyrings ([#182](https://github.com/MetaMask/accounts/pull/182))
-- chore(deps): bump `@metamask/*` dependencies ([#177](https://github.com/MetaMask/accounts/pull/177))
-- refactor!: remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
-- Bump MetaMask dependencies ([#134](https://github.com/MetaMask/accounts/pull/134))
+- Add `signEip7702Authorization` method ([#182](https://github.com/MetaMask/accounts/pull/182))
 
 ### Changed
 
 - **BREAKING**: Added types to `HdKeyring` ([#166](https://github.com/MetaMask/accounts/pull/166))
   - All methods on `HdKeyring` retain their existing signatures, but now have types.
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177)), ([#134](https://github.com/MetaMask/accounts/pull/134))
+- Bump `@metamask/utils` dependency from `^9.3.1` to `11.0.1` ([#134](https://github.com/MetaMask/accounts/pull/134))
 
 ## [9.0.1]
 

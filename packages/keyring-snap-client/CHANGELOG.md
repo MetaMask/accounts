@@ -9,10 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.0]
 
-### Uncategorized
+### Changed
 
-- fix(keyring-api)!: use CaipAccountId for ResolveAccountAddress.address ([#186](https://github.com/MetaMask/accounts/pull/186))
-- chore(deps): bump `@metamask/*` dependencies ([#177](https://github.com/MetaMask/accounts/pull/177))
+- **BREAKING:** Use `CaipAccountId` for `ResolvedAccountAddress.address` ([#186](https://github.com/MetaMask/accounts/pull/186))
+  - This was missing from SIP-26, but we expect this address to be CAIP-10 compliant.
+- **BREAKING:** Bump `@metamask/providers` peer dependency from `^18.3.1` to `^19.0.0` ([#177](https://github.com/MetaMask/accounts/pull/177))
 
 ## [3.0.3]
 
