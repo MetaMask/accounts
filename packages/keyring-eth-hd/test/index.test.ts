@@ -7,7 +7,6 @@ import {
   pubToAddress,
 } from '@ethereumjs/util';
 import * as oldMMForkBIP39 from '@metamask/bip39';
-import OldHdKeyring from '@metamask/eth-hd-keyring';
 import {
   normalize,
   personalSign,
@@ -17,11 +16,19 @@ import {
   signTypedData,
   SignTypedDataVersion,
   encrypt,
+  type EthEncryptedData,
+  type TypedMessage,
+  type MessageTypes,
+  EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
+import { assert, type Hex } from '@metamask/utils';
 import { webcrypto } from 'crypto';
 import { keccak256 } from 'ethereum-cryptography/keccak';
+// eslint-disable-next-line @typescript-eslint/naming-convention
+import OldHdKeyring from 'old-hd-keyring';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import HdKeyring from '../src';
 
 // Sample account:
@@ -35,10 +42,16 @@ const secondAcct = '0x1b00aed43a693f3a957f9feb5cc08afa031e37a0';
 
 const notKeyringAddress = '0xbD20F6F5F1616947a39E11926E78ec94817B3931';
 
+const getAddressAtIndex = (keyring: HdKeyring, index: number): Hex => {
+  const accounts = keyring.getAccounts();
+  assert(accounts[index], `Account not found at index ${index}`);
+  return accounts[index];
+};
+
 describe('hd-keyring', () => {
   describe('compare old bip39 implementation with new', () => {
     it('should derive the same accounts from the same mnemonics', async () => {
-      const mnemonics = [];
+      const mnemonics: Buffer[] = [];
       for (let i = 0; i < 99; i++) {
         mnemonics.push(oldMMForkBIP39.generateMnemonic());
       }
@@ -54,13 +67,13 @@ describe('hd-keyring', () => {
             mnemonic,
             numberOfAccounts: 3,
           });
-          const newAccounts = await newHDKeyring.getAccounts();
+          const newAccounts = newHDKeyring.getAccounts();
           const oldAccounts = await oldHDKeyring.getAccounts();
-          await expect(newAccounts[0]).toStrictEqual(oldAccounts[0]);
+          expect(newAccounts[0]).toStrictEqual(oldAccounts[0]);
 
-          await expect(newAccounts[1]).toStrictEqual(oldAccounts[1]);
+          expect(newAccounts[1]).toStrictEqual(oldAccounts[1]);
 
-          await expect(newAccounts[2]).toStrictEqual(oldAccounts[2]);
+          expect(newAccounts[2]).toStrictEqual(oldAccounts[2]);
         }),
       );
     });
@@ -132,7 +145,7 @@ describe('hd-keyring', () => {
     });
 
     it('serializes mnemonic passed in as a an array of utf8 encoded bytes in the same format', async () => {
-      const uint8Array = new TextEncoder('utf-8').encode(sampleMnemonic);
+      const uint8Array = new TextEncoder().encode(sampleMnemonic);
       const mnemonicAsArrayOfUtf8EncodedBytes = Array.from(uint8Array);
       const keyring = new HdKeyring();
       await keyring.deserialize({
@@ -155,7 +168,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 2,
       });
 
-      const accounts = await keyring.getAccounts();
+      const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
     });
@@ -168,7 +181,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 2,
       });
 
-      const accounts = await keyring.getAccounts();
+      const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
     });
@@ -187,16 +200,21 @@ describe('hd-keyring', () => {
         numberOfAccounts: 2,
       });
 
-      const accounts = await keyring.getAccounts();
+      const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
     });
 
     it('deserializes using custom cryptography', async () => {
-      const pbkdf2Sha512 = async (password, salt, iterations, keyLength) => {
+      const pbkdf2Sha512 = async (
+        password: string,
+        salt: BufferSource,
+        iterations: number,
+        keyLength: number,
+      ): Promise<Uint8Array> => {
         const key = await webcrypto.subtle.importKey(
           'raw',
-          password,
+          Buffer.from(password),
           { name: 'PBKDF2' },
           false,
           ['deriveBits'],
@@ -226,7 +244,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 2,
       });
 
-      const accounts = await keyring.getAccounts();
+      const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
       expect(cryptographicFunctions.pbkdf2Sha512).toHaveBeenCalledTimes(1);
@@ -263,11 +281,11 @@ describe('hd-keyring', () => {
         mnemonic: sampleMnemonic,
         numberOfAccounts: 1,
       });
-      const accountsFirstCheck = await keyring.getAccounts();
+      const accountsFirstCheck = keyring.getAccounts();
 
       expect(accountsFirstCheck).toHaveLength(1);
       await keyring.addAccounts(1);
-      const accountsSecondCheck = await keyring.getAccounts();
+      const accountsSecondCheck = keyring.getAccounts();
       expect(accountsSecondCheck[0]).toStrictEqual(firstAcct);
       expect(accountsSecondCheck[1]).toStrictEqual(secondAcct);
       expect(accountsSecondCheck).toHaveLength(2);
@@ -285,13 +303,13 @@ describe('hd-keyring', () => {
         await keyring.deserialize();
         await keyring.generateRandomMnemonic();
         await keyring.addAccounts();
-        const accounts = await keyring.getAccounts();
+        const accounts = keyring.getAccounts();
         expect(accounts).toHaveLength(1);
       });
 
       it('throws an error when no SRP has been generated yet', async () => {
         const keyring = new HdKeyring();
-        expect(() => keyring.addAccounts()).toThrow(
+        await expect(keyring.addAccounts()).rejects.toThrow(
           'Eth-Hd-Keyring: No secret recovery phrase provided',
         );
       });
@@ -303,7 +321,7 @@ describe('hd-keyring', () => {
         await keyring.deserialize();
         await keyring.generateRandomMnemonic();
         await keyring.addAccounts(3);
-        const accounts = await keyring.getAccounts();
+        const accounts = keyring.getAccounts();
         expect(accounts).toHaveLength(3);
       });
     });
@@ -346,8 +364,7 @@ describe('hd-keyring', () => {
       await keyring.deserialize();
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
-      const addresses = await keyring.getAccounts();
-      const address = addresses[0];
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData);
       const restored = recoverTypedSignature({
         data: typedData,
@@ -372,8 +389,7 @@ describe('hd-keyring', () => {
       await keyring.deserialize();
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
-      const addresses = await keyring.getAccounts();
-      const address = addresses[0];
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V1,
       });
@@ -389,7 +405,7 @@ describe('hd-keyring', () => {
   describe('#signTypedData_v3', () => {
     it('signs in a compliant and recoverable way', async () => {
       const keyring = new HdKeyring();
-      const typedData = {
+      const typedData: TypedMessage<MessageTypes> = {
         types: {
           EIP712Domain: [],
         },
@@ -402,8 +418,7 @@ describe('hd-keyring', () => {
         mnemonic: sampleMnemonic,
         numberOfAccounts: 1,
       });
-      const addresses = await keyring.getAccounts();
-      const address = addresses[0];
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V3,
       });
@@ -419,7 +434,7 @@ describe('hd-keyring', () => {
   describe('#signTypedData_v3 signature verification', () => {
     it('signs in a recoverable way.', async () => {
       const keyring = new HdKeyring();
-      const typedData = {
+      const typedData: TypedMessage<MessageTypes> = {
         types: {
           EIP712Domain: [
             { name: 'name', type: 'string' },
@@ -460,8 +475,7 @@ describe('hd-keyring', () => {
       await keyring.deserialize();
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
-      const addresses = await keyring.getAccounts();
-      const address = addresses[0];
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V3,
       });
@@ -483,7 +497,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
         hdPath: hdPathString,
       });
-      const addresses = await keyring.getAccounts();
+      const addresses = keyring.getAccounts();
       expect(addresses[0]).toStrictEqual(firstAcct);
       const serialized = await keyring.serialize();
       expect(serialized.hdPath).toStrictEqual(hdPathString);
@@ -497,7 +511,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
         hdPath: hdPathString,
       });
-      const addresses = await keyring.getAccounts();
+      const addresses = keyring.getAccounts();
       expect(addresses[0]).not.toBe(firstAcct);
       const serialized = await keyring.serialize();
       expect(serialized.hdPath).toStrictEqual(hdPathString);
@@ -515,7 +529,7 @@ describe('hd-keyring', () => {
         const keyring = new HdKeyring({
           numberOfAccounts: 1,
         })
-        const originalAccounts = await keyring.getAccounts()
+        const originalAccounts = keyring.getAccounts()
         const serialized = await keyring.serialize()
         const mnemonic = serialized.mnemonic
 
@@ -523,7 +537,7 @@ describe('hd-keyring', () => {
           numberOfAccounts: 1,
           mnemonic,
         })
-        const restoredAccounts = await keyring.getAccounts()
+        const restoredAccounts = keyring.getAccounts()
 
         const first = originalAccounts[0]
         const restored = restoredAccounts[0]
@@ -553,17 +567,17 @@ describe('hd-keyring', () => {
         mnemonic: sampleMnemonic,
         numberOfAccounts: 1,
       });
-      const sig = await keyring.signPersonalMessage(address, message, {
+      const signature = await keyring.signPersonalMessage(address, message, {
         withAppKeyOrigin: 'someapp.origin.io',
       });
 
-      expect(sig).toStrictEqual(expectedSig);
+      expect(signature).toStrictEqual(expectedSig);
     });
 
     it('should signTypedData with the expected key when passed a withAppKeyOrigin', async () => {
       const keyring = new HdKeyring();
       const address = firstAcct;
-      const typedData = {
+      const typedData: TypedMessage<MessageTypes> = {
         types: {
           EIP712Domain: [],
         },
@@ -587,11 +601,11 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
       });
 
-      const sig = await keyring.signTypedData(address, typedData, {
+      const signature = await keyring.signTypedData(address, typedData, {
         withAppKeyOrigin: 'someapp.origin.io',
         version: SignTypedDataVersion.V3,
       });
-      expect(sig).toStrictEqual(expectedSig);
+      expect(signature).toStrictEqual(expectedSig);
     });
   });
 
@@ -626,7 +640,7 @@ describe('hd-keyring', () => {
         Buffer.from(keccak256(Buffer.from(localMessage))),
       );
       await keyring.addAccounts(9);
-      const addresses = await keyring.getAccounts();
+      const addresses = keyring.getAccounts();
       const signatures = await Promise.all(
         addresses.map(async (accountAddress) => {
           return await keyring.signMessage(accountAddress, msgHashHex);
@@ -635,11 +649,11 @@ describe('hd-keyring', () => {
       signatures.forEach((sgn, index) => {
         const accountAddress = addresses[index];
 
-        const r = toBuffer(sgn.slice(0, 66));
-        const s = toBuffer(`0x${sgn.slice(66, 130)}`);
-        const v = BigInt(`0x${sgn.slice(130, 132)}`);
-        const m = toBuffer(msgHashHex);
-        const pub = ecrecover(m, v, r, s);
+        const signatureR = toBuffer(sgn.slice(0, 66));
+        const signatureS = toBuffer(`0x${sgn.slice(66, 130)}`);
+        const signatureV = BigInt(`0x${sgn.slice(130, 132)}`);
+        const messageHash = toBuffer(msgHashHex);
+        const pub = ecrecover(messageHash, signatureV, signatureR, signatureS);
         const adr = `0x${pubToAddress(pub).toString('hex')}`;
 
         expect(adr).toBe(accountAddress);
@@ -665,6 +679,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
       });
 
+      // @ts-expect-error testing invalid input
       await expect(keyring.signMessage('', message)).rejects.toThrow(
         'Must specify address.',
       );
@@ -688,7 +703,11 @@ describe('hd-keyring', () => {
     const nonce = 1;
     const contractAddress = '0x1234567890abcdef1234567890abcdef12345678';
 
-    const authorization = [chainId, contractAddress, nonce];
+    const authorization: EIP7702Authorization = [
+      chainId,
+      contractAddress,
+      nonce,
+    ];
 
     it('returns the expected value', async () => {
       const keyring = new HdKeyring();
@@ -718,7 +737,7 @@ describe('hd-keyring', () => {
       });
 
       await expect(
-        keyring.signEIP7702Authorization('', authorization),
+        keyring.signEip7702Authorization('' as Hex, authorization),
       ).rejects.toThrow('Must specify address.');
     });
 
@@ -730,13 +749,13 @@ describe('hd-keyring', () => {
       });
 
       await expect(
-        keyring.signEIP7702Authorization(notKeyringAddress, authorization),
+        keyring.signEip7702Authorization(notKeyringAddress, authorization),
       ).rejects.toThrow('HD Keyring - Unable to find matching address.');
     });
   });
 
   describe('#removeAccount', function () {
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -748,10 +767,10 @@ describe('hd-keyring', () => {
 
     describe('if the account exists', function () {
       it('should remove that account', async function () {
-        const addresses = await keyring.getAccounts();
+        const addresses = keyring.getAccounts();
         expect(addresses).toHaveLength(1);
-        keyring.removeAccount(addresses[0]);
-        const addressesAfterRemoval = await keyring.getAccounts();
+        keyring.removeAccount(getAddressAtIndex(keyring, 0));
+        const addressesAfterRemoval = keyring.getAccounts();
         expect(addressesAfterRemoval).toHaveLength(0);
       });
     });
@@ -767,7 +786,7 @@ describe('hd-keyring', () => {
   });
 
   describe('getAppKeyAddress', function () {
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -822,6 +841,7 @@ describe('hd-keyring', () => {
     });
 
     it('should throw error if the provided origin is not a string', async function () {
+      // @ts-expect-error testing invalid input
       await expect(keyring.getAppKeyAddress(firstAcct, [])).rejects.toThrow(
         `'origin' must be a non-empty string`,
       );
@@ -835,7 +855,7 @@ describe('hd-keyring', () => {
   });
 
   describe('exportAccount', function () {
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -862,7 +882,7 @@ describe('hd-keyring', () => {
 
   describe('#encryptionPublicKey', function () {
     const publicKey = 'LV7lWhd0mUDcvxkMU2o6uKXftu25zq4bMYdmMqppXic=';
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -880,6 +900,7 @@ describe('hd-keyring', () => {
     });
 
     it('throw error if address is blank', async function () {
+      // @ts-expect-error - passing an empty string to test the error
       await expect(keyring.getEncryptionPublicKey('')).rejects.toThrow(
         'Must specify address.',
       );
@@ -893,7 +914,7 @@ describe('hd-keyring', () => {
   });
 
   describe('#signTypedData V4 signature verification', function () {
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -907,7 +928,7 @@ describe('hd-keyring', () => {
       '0x220917664ef676d592bd709a5bffedaf69c5f6c72f13c6c4547a41d211f0923c3180893b1dec023433f11b664fabda22b74b57d21094f7798fc85b7650f8edbb1b';
 
     it('returns the expected value', async function () {
-      const typedData = {
+      const typedData: TypedMessage<MessageTypes> = {
         types: {
           EIP712Domain: [
             { name: 'name', type: 'string' },
@@ -958,11 +979,10 @@ describe('hd-keyring', () => {
         },
       };
 
-      const addresses = await keyring.getAccounts();
-      const [address] = addresses;
+      const address = getAddressAtIndex(keyring, 0);
 
       const signature = await keyring.signTypedData(address, typedData, {
-        version: 'V4',
+        version: SignTypedDataVersion.V4,
       });
       expect(signature).toBe(expectedSignature);
       const restored = recoverTypedSignature({
@@ -976,7 +996,7 @@ describe('hd-keyring', () => {
 
   describe('#decryptMessage', function () {
     const message = 'Hello world!';
-    let encryptedMessage, keyring;
+    let encryptedMessage: EthEncryptedData, keyring: HdKeyring;
 
     beforeEach(async () => {
       keyring = new HdKeyring();
@@ -1011,6 +1031,7 @@ describe('hd-keyring', () => {
     });
 
     it('throw error if wrong encrypted data object is passed', async function () {
+      // @ts-expect-error - passing an empty object to test the error
       await expect(keyring.decryptMessage(firstAcct, {})).rejects.toThrow(
         'Encryption type/version not supported.',
       );
@@ -1018,7 +1039,7 @@ describe('hd-keyring', () => {
   });
 
   describe('#signTransaction', function () {
-    let keyring;
+    let keyring: HdKeyring;
     beforeEach(async () => {
       keyring = new HdKeyring();
 
@@ -1055,6 +1076,7 @@ describe('hd-keyring', () => {
 
     it('returns rejected promise if empty address is passed', async function () {
       const tx = TransactionFactory.fromTxData(txParams);
+      // @ts-expect-error testing invalid input
       await expect(keyring.signTransaction('', tx)).rejects.toThrow(
         'Must specify address.',
       );
