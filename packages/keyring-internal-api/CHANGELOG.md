@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Bump `@metamask/keyring-api` from `^15.0.0` to `^16.0.0` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- **BREAKING:** Bump `@metamask/keyring-api` from `^15.0.0` to `^16.0.0` ([#172](https://github.com/MetaMask/accounts/pull/172))
   - The `scopes` from each `*AccountStruct` types is now more strict (remove support of CAIP-2 namespaces) which impact all `Internal*AccountStruct` types.
 - Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
 
