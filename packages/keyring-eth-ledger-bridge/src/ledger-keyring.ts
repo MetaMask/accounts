@@ -317,7 +317,7 @@ export class LedgerKeyring implements Keyring<LedgerKeyringSerializedState> {
 
   // tx is an instance of the ethereumjs-transaction class.
   async signTransaction(
-    address: string,
+    address: Hex,
     tx: TypedTransaction | OldEthJsTransaction,
   ): Promise<TypedTransaction | OldEthJsTransaction> {
     let rawTxHex;
@@ -383,7 +383,7 @@ export class LedgerKeyring implements Keyring<LedgerKeyringSerializedState> {
   }
 
   async #signTransaction(
-    address: string,
+    address: Hex,
     rawTxHex: string,
     handleSigning: (
       payload: SignTransactionPayload,
@@ -415,13 +415,13 @@ export class LedgerKeyring implements Keyring<LedgerKeyringSerializedState> {
     throw new Error('Ledger: The transaction signature is not valid');
   }
 
-  async signMessage(withAccount: string, data: string): Promise<string> {
+  async signMessage(withAccount: Hex, data: string): Promise<string> {
     return this.signPersonalMessage(withAccount, data);
   }
 
   // For personal_sign, we need to prefix the message:
   async signPersonalMessage(
-    withAccount: string,
+    withAccount: Hex,
     message: string,
   ): Promise<string> {
     const hdPath = await this.unlockAccountByAddress(withAccount);
@@ -461,7 +461,7 @@ export class LedgerKeyring implements Keyring<LedgerKeyringSerializedState> {
     return signature;
   }
 
-  async unlockAccountByAddress(address: string): Promise<string | undefined> {
+  async unlockAccountByAddress(address: Hex): Promise<string | undefined> {
     const checksummedAddress = ethUtil.toChecksumAddress(address);
     const accountDetails = this.accountDetails[checksummedAddress];
     if (!accountDetails) {
@@ -483,7 +483,7 @@ export class LedgerKeyring implements Keyring<LedgerKeyringSerializedState> {
   }
 
   async signTypedData<T extends MessageTypes>(
-    withAccount: string,
+    withAccount: Hex,
     data: TypedMessage<T>,
     options: { version?: string } = {},
   ): Promise<string> {
