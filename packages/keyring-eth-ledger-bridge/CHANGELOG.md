@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - The method now returns a promise resolving to an array of `Hex` addresses.
   - The `unlock` method now returns `Promise<Hex>`
   - The `getAccounts` method now returns `Promise<Hex[]>`
+  - The `signTransaction` method now accepts an `Hex` typed value as the `address` parameter
+  - The `signMessage` method now accepts an `Hex` typed value as the `withAccount` parameter
+  - The `signPersonalMessage` method now accepts an `Hex` typed value as the `withAccount` parameter
+  - The `signTypedData` method now accepts an `Hex` typed value as the `withAccount` parameter
+  - The `unlockAccountByAddress` method now accepts an `Hex` typed value as the `address` parameter
 
 ## [8.0.4]
 
