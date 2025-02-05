@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** `LedgerKeyring` now implements the `Keyring<Json>` type ([#194](https://github.com/MetaMask/accounts/pull/194))
+  - The class does not extend `EventEmitter` anymore.
+  - The `LedgerKeyring.accounts` class variable is now a `readonly Hex[]` array.
+  - The `addAccounts` method signature has been changed
+    - An `amount` number parameter is now required to specify the number of accounts to add.
+    - The method now returns a promise resolving to an array of `Hex` addresses.
+  - The `unlock` method now returns `Promise<Hex>`
+  - The `getAccounts` method now returns `Promise<Hex[]>`
+
 ## [8.0.4]
 
 ### Changed
