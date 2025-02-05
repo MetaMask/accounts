@@ -10,6 +10,7 @@ import * as oldMMForkBIP39 from '@metamask/bip39';
 import {
   normalize,
   personalSign,
+  recoverEIP7702Authorization,
   recoverPersonalSignature,
   recoverTypedSignature,
   signTypedData,
@@ -18,6 +19,7 @@ import {
   type EthEncryptedData,
   type TypedMessage,
   type MessageTypes,
+  type EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { assert, type Hex } from '@metamask/utils';
@@ -692,6 +694,62 @@ describe('hd-keyring', () => {
 
       await expect(
         keyring.signMessage(notKeyringAddress, message),
+      ).rejects.toThrow('HD Keyring - Unable to find matching address.');
+    });
+  });
+
+  describe('#signEip7702Authorization', () => {
+    const chainId = 1;
+    const nonce = 1;
+    const contractAddress = '0x1234567890abcdef1234567890abcdef12345678';
+
+    const authorization: EIP7702Authorization = [
+      chainId,
+      contractAddress,
+      nonce,
+    ];
+
+    it('returns the expected value', async () => {
+      const keyring = new HdKeyring();
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+        numberOfAccounts: 1,
+      });
+
+      const signature = await keyring.signEip7702Authorization(
+        firstAcct,
+        authorization,
+      );
+
+      const recovered = recoverEIP7702Authorization({
+        signature,
+        authorization,
+      });
+
+      expect(recovered.toLowerCase()).toStrictEqual(firstAcct.toLowerCase());
+    });
+
+    it('throw an error if an empty address is passed', async () => {
+      const keyring = new HdKeyring();
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+        numberOfAccounts: 1,
+      });
+
+      await expect(
+        keyring.signEip7702Authorization('' as Hex, authorization),
+      ).rejects.toThrow('Must specify address.');
+    });
+
+    it('throw an error if the given address is not associated with the current keyring', async () => {
+      const keyring = new HdKeyring();
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+        numberOfAccounts: 1,
+      });
+
+      await expect(
+        keyring.signEip7702Authorization(notKeyringAddress, authorization),
       ).rejects.toThrow('HD Keyring - Unable to find matching address.');
     });
   });
