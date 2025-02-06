@@ -1,0 +1,51 @@
+name: Validate PR Title
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  pull-requests: read
+
+jobs:
+  validate-pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        # Hash of version 5.5.3
+        uses: amannn/action-semantic-pull-request@0723387faaf9b38adef4775cd42cfd5155ed6017
+        with:
+          types: |
+            build
+            chore
+            ci
+            docs
+            feat
+            fix
+            perf
+            refactor
+            release
+            revert
+            style
+            test
+          scopes: |
+            keyring-api
+            keyring-eth-hd
+            keyring-eth-ledger-bridge
+            keyring-eth-simple
+            keyring-eth-trezor
+            keyring-internal-api
+            keyring-internal-snap-client
+            keyring-snap-bridge
+            keyring-snap-client
+            keyring-snap-sdk
+            keyring-utils
+          subjectPattern: '^(?![A-Z]).+$'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
