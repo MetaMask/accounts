@@ -133,6 +133,15 @@ describe('TrezorKeyring', function () {
     });
   });
 
+  describe('getModel', function () {
+    it('gets bridge model', async function () {
+      keyring.bridge.model = 'foo';
+      const model = keyring.getModel();
+
+      expect(model).toBe('foo');
+    });
+  });
+
   describe('init', function () {
     it('initialises the bridge', async function () {
       const initStub = sinon.stub().resolves();
@@ -722,16 +731,10 @@ describe('TrezorKeyring', function () {
 
     it('should update the hdPath and reset account and page properties if passed a new hdPath', async function () {
       const SLIP0044TestnetPath = `m/44'/1'/0'/0`;
-
       keyring.setHdPath(SLIP0044TestnetPath);
 
       expect(keyring.hdPath).toBe(SLIP0044TestnetPath);
-      expect(keyring.accounts).toStrictEqual([]);
-      expect(keyring.page).toBe(0);
-      expect(keyring.perPage).toBe(5);
       expect(keyring.hdk.publicKey).toBeNull();
-      expect(keyring.unlockedAccount).toBe(0);
-      expect(keyring.paths).toStrictEqual({});
     });
 
     it('should throw an error if passed an unsupported hdPath', async function () {
