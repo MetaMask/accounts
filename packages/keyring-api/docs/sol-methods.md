@@ -47,7 +47,7 @@ Signs and sends a transaction to the Solana blockchain.
       - Type: `string`
     - `chain` (required)
       - Description: The chain ID of the transaction.
-    - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
+      - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
     - `options` (optional)
       - Description: Transaction options.
       - Type: `object`
