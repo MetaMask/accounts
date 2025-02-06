@@ -429,7 +429,7 @@ describe('KeyringClient', () => {
 
     it('should send a request to resolve an account address from a signing request and return the response', async () => {
       const expectedResponse = {
-        address: 'tb1qspc3kwj3zfnltjpucn7ugahr8lhrgg86wzpvs3',
+        address: `${scope}:tb1qspc3kwj3zfnltjpucn7ugahr8lhrgg86wzpvs3`,
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
@@ -472,7 +472,7 @@ describe('KeyringClient', () => {
       await expect(
         keyring.resolveAccountAddress(scope, request),
       ).rejects.toThrow(
-        'At path: address -- Expected a string, but received: undefined',
+        'At path: address -- Expected a value of type `CaipAccountId`, but received: `undefined`',
       );
     });
   });

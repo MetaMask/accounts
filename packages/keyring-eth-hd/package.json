@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-hd-keyring",
-  "version": "9.0.1",
+  "version": "10.0.0",
   "description": "A simple standard interface for a seed phrase generated set of Ethereum accounts.",
   "keywords": [
     "ethereum",
@@ -15,7 +15,6 @@
     "url": "https://github.com/MetaMask/eth-hd-keyring.git"
   },
   "license": "ISC",
-  "author": "Dan Finlay",
   "exports": {
     ".": {
       "import": {

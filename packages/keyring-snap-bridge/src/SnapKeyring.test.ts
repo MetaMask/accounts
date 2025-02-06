@@ -1761,11 +1761,11 @@ describe('SnapKeyring', () => {
   });
 
   describe('resolveAccountAddress', () => {
-    const address = '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb';
     const scope = toCaipChainId(
       KnownCaipNamespace.Eip155,
       executionContext.chainId,
     );
+    const address = '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb';
     const request: JsonRpcRequest = {
       id: '3d8a0bda-285c-4551-abe8-f52af39d3095',
       jsonrpc: '2.0',
@@ -1777,9 +1777,10 @@ describe('SnapKeyring', () => {
     };
 
     it('returns a resolved address', async () => {
-      mockMessenger.handleRequest.mockReturnValueOnce({
-        address,
-      });
+      const mockResponse = {
+        address: `${scope}:${address}`,
+      };
+      mockMessenger.handleRequest.mockReturnValueOnce(mockResponse);
 
       const resolved = await keyring.resolveAccountAddress(
         snapId,
@@ -1787,7 +1788,7 @@ describe('SnapKeyring', () => {
         request,
       );
 
-      expect(resolved).toStrictEqual({ address });
+      expect(resolved).toStrictEqual(mockResponse);
       expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         handler: 'onKeyringRequest',
         origin: 'metamask',

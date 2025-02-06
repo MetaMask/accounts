@@ -3,15 +3,18 @@ import {
   bufferToHex,
   ecrecover,
   isValidAddress,
+  privateToAddress,
   pubToAddress,
   stripHexPrefix,
   toBuffer,
 } from '@ethereumjs/util';
 import {
+  EIP7702Authorization,
   encrypt,
   getEncryptionPublicKey,
   MessageTypes,
   personalSign,
+  recoverEIP7702Authorization,
   recoverPersonalSignature,
   recoverTypedSignature,
   signTypedData,
@@ -540,6 +543,51 @@ describe('simple-keyring', function () {
         version: SignTypedDataVersion.V4,
       });
       expect(restored).toBe(address);
+    });
+  });
+
+  describe('#signEip7702Authorization', function () {
+    const address = '0x29c76e6ad8f28bb1004902578fb108c507be341b';
+    const privKeyHex =
+      '0x4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0';
+    const signerAddress = `0x${privateToAddress(
+      Buffer.from(privKeyHex.slice(2), 'hex'),
+    ).toString('hex')}`;
+
+    const chainId = 1;
+    const nonce = 1;
+    const contractAddress = '0x1234567890abcdef1234567890abcdef12345678';
+
+    const authorization: EIP7702Authorization = [
+      chainId,
+      contractAddress,
+      nonce,
+    ];
+
+    it('returns the expected value', async function () {
+      await keyring.deserialize([privKeyHex]);
+      const signature = await keyring.signEip7702Authorization(
+        address,
+        authorization,
+      );
+
+      expect(typeof signature).toBe('string');
+
+      const recovered = recoverEIP7702Authorization({
+        signature,
+        authorization,
+      });
+
+      expect(recovered.toLowerCase()).toStrictEqual(
+        signerAddress.toLowerCase(),
+      );
+    });
+
+    it('throws an error if the address is not in the keyring', async function () {
+      await keyring.deserialize([privKeyHex]);
+      await expect(
+        keyring.signEip7702Authorization(notKeyringAddress, authorization),
+      ).rejects.toThrow('Simple Keyring - Unable to find matching address.');
     });
   });
 

@@ -1,14 +1,15 @@
 import type { Infer } from '@metamask/superstruct';
-import { object, string } from '@metamask/superstruct';
+import { object } from '@metamask/superstruct';
+import { CaipAccountIdStruct } from '@metamask/utils';
 
 /**
  * An account's address that has been resolved from a signing request.
  */
 export const ResolvedAccountAddressStruct = object({
   /**
-   * Account main address.
+   * Account main address (CAIP-10 account ID).
    */
-  address: string(),
+  address: CaipAccountIdStruct,
 });
 
 /**

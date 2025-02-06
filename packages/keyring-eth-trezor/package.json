@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-trezor-keyring",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "description": "A MetaMask compatible keyring, for trezor hardware wallets",
   "keywords": [
     "ethereum",
@@ -17,7 +17,6 @@
     "url": "https://github.com/MetaMask/eth-trezor-keyring.git"
   },
   "license": "ISC",
-  "author": "Bruno Barbieri",
   "exports": {
     ".": {
       "import": {
