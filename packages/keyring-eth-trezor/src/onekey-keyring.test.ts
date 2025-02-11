@@ -9,7 +9,7 @@ const fakeXPubKey =
   'xpub6FnCn6nSzZAw5Tw7cgR9bi15UV96gLZhjDstkXXxvCLsUXBGXPdSnLFbdpq8p9HmGsApME5hQTZ3emM2rnY5agb9rXpVGyy3bdW6EEgAtqt';
 const fakeHdKey = HDKey.fromExtendedKey(fakeXPubKey);
 
-describe('TrezorKeyring', function () {
+describe('OneKeyKeyring', function () {
   let keyring: OneKeyKeyring;
   let bridge: TrezorBridge;
 
