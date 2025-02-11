@@ -45,6 +45,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@ethereumjs/tx": "^4.2.0",
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^11.1.0",
     "bitcoin-address-validation": "^2.2.3"
