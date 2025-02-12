@@ -3,7 +3,7 @@
 Here we document the Solana methods that an account Snap may implement to
 support requests originated from dapps.
 
-## [solana:signAndSendTransaction](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signAndSendTransaction.ts#L10)
+## [signAndSendTransaction](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signAndSendTransaction.ts#L10)
 
 Signs and sends a transaction to the Solana blockchain.
 
@@ -12,6 +12,10 @@ Signs and sends a transaction to the Solana blockchain.
 - **Transaction intent (required)**
   - Type: `object`
   - Properties:
+    - `origin` (required)
+      - Description: The origin of the transaction.
+      - Type: `string`
+      - Example: `https://example.com`
     - `account` (required)
       - Description: The account to sign the transaction.
       - Type: `object`
@@ -19,35 +23,13 @@ Signs and sends a transaction to the Solana blockchain.
         - `address` (required)
           - Description: The address of the account.
           - Type: `string`
-        - `publicKey` (required)
-          - Description: The public key of the account.
-          - Type: `string`
-        - `chains` (required)
-          - Description: The chains supported by the account.
-          - Type: `array`
-          - Items:
-            - Type: `string`
-            - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
-            - Example: `solana:mainnet`
-        - `features` (required)
-          - Description: The features supported by the account.
-          - Type: `array`
-          - Items:
-            - Type: `string`
-            - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
-            - Example: `solana:signAndSendTransaction`
-        - `label` (optional)
-          - Description: The label of the account.
-          - Type: `string`
-        - `icon` (optional)
-          - Description: The icon of the account.
-          - Type: `string`
     - `transaction` (required)
       - Description: The base64 encoded transaction to sign and send.
       - Type: `string`
-    - `chain` (required)
-      - Description: The chain ID of the transaction.
-      - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
+    - `scope` (required)
+      - Description: The scope of the transaction.
+      - Type: `Caip2String`
+      - Example: `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`
     - `options` (optional)
       - Description: Transaction options.
       - Type: `object`
@@ -71,16 +53,14 @@ Signs and sends a transaction to the Solana blockchain.
 
 ```json
 {
-  "method": "solana:signAndSendTransaction",
+  "method": "signAndSendTransaction",
   "params": {
+    "origin": "https://example.com",
     "account": {
-      "address": "1234567890",
-      "publicKey": "1234567890",
-      "chains": ["solana:mainnet"],
-      "features": ["solana:signAndSendTransaction"]
+      "address": "1234567890"
     },
     "transaction": "1234567890",
-    "chain": "solana:mainnet",
+    "scope": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
     "options": {
       "commitment": "confirmed",
       "skipPreflight": "true",
@@ -98,7 +78,7 @@ Signs and sends a transaction to the Solana blockchain.
 }
 ```
 
-## [solana:signTransaction](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signTransaction.ts#L4)
+## [signTransaction](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signTransaction.ts#L4)
 
 Signs a transaction to the Solana blockchain.
 
@@ -107,6 +87,10 @@ Signs a transaction to the Solana blockchain.
 - **Transaction intent (required)**
   - Type: `object`
   - Properties:
+    - `origin` (required)
+      - Description: The origin of the transaction.
+      - Type: `string`
+      - Example: `https://example.com`
     - `account` (required)
       - Description: The account to sign the transaction.
       - Type: `object`
@@ -114,35 +98,13 @@ Signs a transaction to the Solana blockchain.
         - `address` (required)
           - Description: The address of the account.
           - Type: `string`
-        - `publicKey` (required)
-          - Description: The public key of the account.
-          - Type: `string`
-        - `chains` (required)
-          - Description: The chains supported by the account.
-          - Type: `array`
-          - Items:
-            - Type: `string`
-            - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
-            - Example: `solana:mainnet`
-        - `features` (required)
-          - Description: The features supported by the account.
-          - Type: `array`
-          - Items:
-            - Type: `string`
-            - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
-            - Example: `solana:signAndSendTransaction`
-        - `label` (optional)
-          - Description: The label of the account.
-          - Type: `string`
-        - `icon` (optional)
-          - Description: The icon of the account.
-          - Type: `string`
     - `transaction` (required)
       - Description: The base64 encoded transaction to sign.
       - Type: `string`
-    - `chain` (optional)
-      - Description: The chain ID of the transaction.
-    - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
+    - `scope` (required)
+      - Description: The scope of the transaction.
+      - Type: `Caip2String`
+      - Example: `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`
     - `options` (optional)
       - Description: Transaction options.
       - Type: `object`
@@ -165,16 +127,14 @@ Signs a transaction to the Solana blockchain.
 
 ```json
 {
-  "method": "solana:signTransaction",
+  "method": "signTransaction",
   "params": {
+    "origin": "https://example.com",
     "account": {
-      "address": "1234567890",
-      "publicKey": "1234567890",
-      "chains": ["solana:mainnet"],
-      "features": ["solana:signTransaction"]
+      "address": "1234567890"
     },
     "transaction": "1234567890",
-    "chain": "solana:mainnet",
+    "scope": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
     "options": {
       "preflightCommitment": "confirmed",
       "minContextSlot": 100
@@ -191,7 +151,7 @@ Signs a transaction to the Solana blockchain.
 }
 ```
 
-## [solana:signMessage](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signMessage.ts#L4)
+## [signMessage](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signMessage.ts#L4)
 
 Signs a message to the Solana blockchain.
 
@@ -200,35 +160,16 @@ Signs a message to the Solana blockchain.
 - **Message intent (required)**
   - Type: `object`
   - Properties:
+    - `origin` (required)
+      - Description: The origin of the message.
+      - Type: `string`
+      - Example: `https://example.com`
     - `account` (required)
       - Description: The account to sign the message.
       - Type: `object`
       - Properties:
         - `address` (required)
           - Description: The address of the account.
-          - Type: `string`
-        - `publicKey` (required)
-          - Description: The public key of the account.
-          - Type: `string`
-        - `chains` (required)
-          - Description: The chains supported by the account.
-          - Type: `array`
-          - Items:
-            - Type: `string`
-            - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
-            - Example: `solana:mainnet`
-        - `features` (required)
-          - Description: The features supported by the account.
-          - Type: `array`
-          - Items:
-            - Type: `string`
-            - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
-            - Example: `solana:signMessage`
-        - `label` (optional)
-          - Description: The label of the account.
-          - Type: `string`
-        - `icon` (optional)
-          - Description: The icon of the account.
           - Type: `string`
     - `message` (required)
       - Description: The base64 encoded message to sign.
@@ -255,13 +196,11 @@ Signs a message to the Solana blockchain.
 
 ```json
 {
-  "method": "solana:signMessage",
+  "method": "signMessage",
   "params": {
+    "origin": "https://example.com",
     "account": {
-      "address": "1234567890",
-      "publicKey": "1234567890",
-      "chains": ["solana:mainnet"],
-      "features": ["solana:signMessage"]
+      "address": "1234567890"
     },
     "message": "1234567890"
   }
@@ -278,7 +217,7 @@ Signs a message to the Solana blockchain.
 }
 ```
 
-## [solana:signAndSendAllTransactions](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signAndSendAllTransactions.ts#L8)
+## [signAndSendAllTransactions](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signAndSendAllTransactions.ts#L8)
 
 Signs and sends all transactions to the Solana blockchain.
 
@@ -287,6 +226,10 @@ Signs and sends all transactions to the Solana blockchain.
 - **Transaction intents (required)**
   - Type: `object`
   - Properties:
+    - `origin` (required)
+      - Description: The origin of the transactions.
+      - Type: `string`
+      - Example: `https://example.com`
     - `transactions` (required)
       - Description: The transactions to sign and send.
       - Type: `array`
@@ -299,35 +242,13 @@ Signs and sends all transactions to the Solana blockchain.
               - `address` (required)
                 - Description: The address of the account.
                 - Type: `string`
-              - `publicKey` (required)
-                - Description: The public key of the account.
-                - Type: `string`
-              - `chains` (required)
-                - Description: The chains supported by the account.
-                - Type: `array`
-                - Items:
-                  - Type: `string`
-                  - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
-                  - Example: `solana:mainnet`
-              - `features` (required)
-                - Description: The features supported by the account.
-                - Type: `array`
-                - Items:
-                  - Type: `string`
-                  - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
-                  - Example: `solana:signAndSendTransaction`
-              - `label` (optional)
-                - Description: The label of the account.
-                - Type: `string`
-              - `icon` (optional)
-                - Description: The icon of the account.
-                - Type: `string`
         - `transaction` (required)
           - Description: The base64 encoded transaction to sign and send.
           - Type: `string`
-        - `chain` (required)
-          - Description: The chain ID of the transaction.
-          - [Type](https://github.com/wallet-standard/wallet-standard/blob/c6fa5fd7d58e9ea1e6762127d16585fbb56ff88a/packages/core/base/src/identifier.ts#L8): `${namespace}:${reference}`
+        - `scope` (required)
+          - Description: The scope of the transaction.
+          - Type: `Caip2String`
+          - Example: `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`
     - `options` (optional)
       - Description: Transaction options.
       - Type: `object`
@@ -353,17 +274,15 @@ Signs and sends all transactions to the Solana blockchain.
 
 ```json
 {
-  "method": "solana:signAndSendAllTransactions",
+  "method": "signAndSendAllTransactions",
   "params": {
+    "origin": "https://example.com",
     "transactions": [
       {
         "transaction": "1234567890",
-        "chain": "solana:mainnet",
+        "scope": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
         "account": {
-          "address": "1234567890",
-          "publicKey": "1234567890",
-          "chains": ["solana:mainnet"],
-          "features": ["solana:signAndSendTransaction"]
+          "address": "1234567890"
         },
         "options": {
           "commitment": "confirmed",
@@ -386,7 +305,7 @@ Signs and sends all transactions to the Solana blockchain.
 ]
 ```
 
-## [solana:signIn](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signIn.ts#L4)
+## [signIn](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signIn.ts#L4)
 
 Signs in to the Solana blockchain.
 
@@ -440,7 +359,11 @@ Signs in to the Solana blockchain.
   - Properties:
     - `account` (required)
       - Description: The account that signed the message.
-      - Type: `WalletAccount`
+      - Type: `object`
+      - Properties:
+        - `address` (required)
+          - Description: The address of the account.
+          - Type: `string`
     - `signedMessage` (required)
       - Description: Message bytes that were signed. The wallet may prefix or otherwise modify the message before signing it.
       - Type: `string`
@@ -457,7 +380,7 @@ Signs in to the Solana blockchain.
 
 ```json
 {
-  "method": "solana:signIn",
+  "method": "signIn",
   "params": {
     "domain": "example.com"
   }
@@ -469,10 +392,7 @@ Signs in to the Solana blockchain.
 ```json
 {
   "account": {
-    "address": "1234567890",
-    "publicKey": "1234567890",
-    "chains": ["solana:mainnet"],
-    "features": ["solana:signIn"]
+    "address": "1234567890"
   },
   "signedMessage": "1234567890",
   "signature": "1234567890",
