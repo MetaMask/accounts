@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix: `Keyring.serialize` and `Keyring.deserialize` types ([#205](https://github.com/MetaMask/accounts/pull/205))
+- feat: add `Keyring` type from `@metamask/utils` ([#201](https://github.com/MetaMask/accounts/pull/201))
+
 ## [2.0.0]
 
 ### Changed
