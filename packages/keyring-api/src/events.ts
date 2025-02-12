@@ -254,66 +254,23 @@ export type AccountAssetListUpdatedEvent = Infer<
 export type AccountAssetListUpdatedEventPayload =
   AccountAssetListUpdatedEvent['params'];
 
-// Events mapping:
-// -----------------------------------------------------------------------------------------------
-
-export type KeyringAccountCreatedEvent = {
-  event: KeyringEvent.AccountCreated;
-  payload: AccountCreatedEventPayload;
-};
-
-export type KeyringAccountUpdatedEvent = {
-  event: KeyringEvent.AccountUpdated;
-  payload: AccountUpdatedEventPayload;
-};
-
-export type KeyringAccountDeletedEvent = {
-  event: KeyringEvent.AccountDeleted;
-  payload: AccountDeletedEventPayload;
-};
-
-export type KeyringAccountAssetListUpdatedEvent = {
-  event: KeyringEvent.AccountAssetListUpdated;
-  payload: AccountAssetListUpdatedEventPayload;
-};
-
-export type KeyringAccountBalancesUpdatedEvent = {
-  event: KeyringEvent.AccountBalancesUpdated;
-  payload: AccountBalancesUpdatedEventPayload;
-};
-
-export type KeyringAccountTransactionsUpdatedEvent = {
-  event: KeyringEvent.AccountTransactionsUpdated;
-  payload: AccountTransactionsUpdatedEventPayload;
-};
-
-export type KeyringRequestApprovedEvent = {
-  event: KeyringEvent.RequestApproved;
-  payload: RequestApprovedEventPayload;
-};
-
-export type KeyringRequestRejectedEvent = {
-  event: KeyringEvent.RequestRejected;
-  payload: RequestRejectedEventPayload;
-};
-
 /**
  * Keyring events.
  */
 export type KeyringEvents =
-  | KeyringAccountCreatedEvent
-  | KeyringAccountUpdatedEvent
-  | KeyringAccountDeletedEvent
-  | KeyringAccountAssetListUpdatedEvent
-  | KeyringAccountBalancesUpdatedEvent
-  | KeyringAccountTransactionsUpdatedEvent
-  | KeyringRequestApprovedEvent
-  | KeyringRequestRejectedEvent;
+  | AccountCreatedEvent
+  | AccountUpdatedEvent
+  | AccountDeletedEvent
+  | AccountAssetListUpdatedEvent
+  | AccountBalancesUpdatedEvent
+  | AccountTransactionsUpdatedEvent
+  | RequestApprovedEvent
+  | RequestRejectedEvent;
 
 /**
  * Extract the payload for a given `KeyringEvent` event.
  */
-export type KeyringEventPayloadFrom<Event extends KeyringEvent> = Extract<
+export type KeyringEventPayload<Event extends KeyringEvent> = Extract<
   KeyringEvents,
-  { event: Event }
->['payload'];
+  { method: Event }
+>['params'];
