@@ -1,33 +1,40 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+// This rule seems to be triggering a false positive. Possibly eslint is not
+// inferring the `EthMethod`, `BtcMethod`, and `InternalAccount` types correctly.
+
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
+import type { ExtractEventPayload } from '@metamask/base-controller';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
+import {
+  EthBytesStruct,
+  EthMethod,
+  EthBaseUserOperationStruct,
+  EthUserOperationPatchStruct,
+  isEvmAccountType,
+  KeyringEvent,
+  AccountAssetListUpdatedEventStruct,
+  AccountBalancesUpdatedEventStruct,
+  AccountTransactionsUpdatedEventStruct,
+} from '@metamask/keyring-api';
 import type {
+  KeyringAccount,
+  KeyringExecutionContext,
   BtcMethod,
   EthBaseTransaction,
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
-  InternalAccount,
-  KeyringAccount,
-  KeyringExecutionContext,
-  KeyringResponse,
+  ResolvedAccountAddress,
+  CaipChainId,
 } from '@metamask/keyring-api';
-import {
-  AccountCreatedEventStruct,
-  AccountDeletedEventStruct,
-  AccountUpdatedEventStruct,
-  EthBaseUserOperationStruct,
-  EthBytesStruct,
-  EthMethod,
-  EthUserOperationPatchStruct,
-  KeyringEvent,
-  RequestApprovedEventStruct,
-  RequestRejectedEventStruct,
-} from '@metamask/keyring-api';
-import type { SnapController } from '@metamask/snaps-controllers';
+import type { InternalAccount } from '@metamask/keyring-internal-api';
+import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
-import type { Snap } from '@metamask/snaps-utils';
+import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 import {
@@ -38,15 +45,27 @@ import {
 import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
+import { transformAccount } from './account';
 import { DeferredPromise } from './DeferredPromise';
-import { KeyringSnapControllerClient } from './KeyringSnapControllerClient';
+import {
+  AccountCreatedEventStruct,
+  AccountUpdatedEventStruct,
+  AccountDeletedEventStruct,
+  RequestApprovedEventStruct,
+  RequestRejectedEventStruct,
+} from './events';
 import { projectLogger as log } from './logger';
+import { isAccountV1, migrateAccountV1 } from './migrations';
 import { SnapIdMap } from './SnapIdMap';
+import type {
+  SnapKeyringEvents,
+  SnapKeyringMessenger,
+} from './SnapKeyringMessenger';
 import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
   equalsIgnoreCase,
-  strictMask,
+  sanitizeUrl,
   throwError,
   toJson,
   unique,
@@ -96,6 +115,21 @@ export type SnapKeyringCallbacks = {
 };
 
 /**
+ * Normalize account's address.
+ *
+ * @param account - The account.
+ * @returns The normalized account address.
+ */
+function normalizeAccountAddress(account: KeyringAccount): string {
+  // FIXME: Is it required to lowercase the address here? For now we'll keep this behavior
+  // only for Ethereum addresses and use the original address for other non-EVM accounts.
+  // For example, Solana addresses are case-sensitives.
+  return isEvmAccountType(account.type)
+    ? account.address.toLowerCase()
+    : account.address;
+}
+
+/**
  * Keyring bridge implementation to support Snaps.
  */
 export class SnapKeyring extends EventEmitter {
@@ -104,9 +138,14 @@ export class SnapKeyring extends EventEmitter {
   type: string;
 
   /**
+   * Messenger to dispatch requests to the Snaps controller.
+   */
+  readonly #messenger: SnapKeyringMessenger;
+
+  /**
    * Client used to call the Snap keyring.
    */
-  #snapClient: KeyringSnapControllerClient;
+  readonly #snapClient: KeyringInternalSnapClient;
 
   /**
    * Mapping between account IDs and an object that contains the associated
@@ -120,7 +159,7 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Mapping between request IDs and their deferred promises.
    */
-  #requests: SnapIdMap<{
+  readonly #requests: SnapIdMap<{
     promise: DeferredPromise<any>;
     snapId: SnapId;
   }>;
@@ -128,19 +167,23 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Callbacks used to interact with other components.
    */
-  #callbacks: SnapKeyringCallbacks;
+  readonly #callbacks: SnapKeyringCallbacks;
 
   /**
    * Create a new Snap keyring.
    *
-   * @param controller - Snaps controller.
+   * @param messenger - Snap keyring messenger.
    * @param callbacks - Callbacks used to interact with other components.
    * @returns A new Snap keyring.
    */
-  constructor(controller: SnapController, callbacks: SnapKeyringCallbacks) {
+  constructor(
+    messenger: SnapKeyringMessenger,
+    callbacks: SnapKeyringCallbacks,
+  ) {
     super();
     this.type = SnapKeyring.type;
-    this.#snapClient = new KeyringSnapControllerClient({ controller });
+    this.#messenger = messenger;
+    this.#snapClient = new KeyringInternalSnapClient({ messenger });
     this.#requests = new SnapIdMap();
     this.#accounts = new SnapIdMap();
     this.#callbacks = callbacks;
@@ -158,14 +201,21 @@ export class SnapKeyring extends EventEmitter {
     message: SnapMessage,
   ): Promise<null> {
     assert(message, AccountCreatedEventStruct);
-    const { account, accountNameSuggestion, displayConfirmation } =
-      message.params;
+    const {
+      account: newAccountFromEvent,
+      accountNameSuggestion,
+      displayConfirmation,
+    } = message.params;
+
+    // Potentially migrate the account.
+    const account = transformAccount(newAccountFromEvent);
 
     // The UI still uses the account address to identify accounts, so we need
     // to block the creation of duplicate accounts for now to prevent accounts
     // from being overwritten.
-    if (await this.#callbacks.addressExists(account.address.toLowerCase())) {
-      throw new Error(`Account address '${account.address}' already exists`);
+    const address = normalizeAccountAddress(account);
+    if (await this.#callbacks.addressExists(address)) {
+      throw new Error(`Account address '${address}' already exists`);
     }
 
     // A Snap could try to create an account with a different address but with
@@ -175,7 +225,7 @@ export class SnapKeyring extends EventEmitter {
     }
 
     await this.#callbacks.addAccount(
-      account.address.toLowerCase(),
+      address,
       snapId,
       async (accepted: boolean) => {
         if (accepted) {
@@ -201,10 +251,13 @@ export class SnapKeyring extends EventEmitter {
     message: SnapMessage,
   ): Promise<null> {
     assert(message, AccountUpdatedEventStruct);
-    const { account: newAccount } = message.params;
+    const { account: newAccountFromEvent } = message.params;
     const { account: oldAccount } =
-      this.#accounts.get(snapId, newAccount.id) ??
-      throwError(`Account '${newAccount.id}' not found`);
+      this.#accounts.get(snapId, newAccountFromEvent.id) ??
+      throwError(`Account '${newAccountFromEvent.id}' not found`);
+
+    // Potentially migrate the account.
+    const newAccount = transformAccount(newAccountFromEvent);
 
     // The address of the account cannot be changed. In the future, we will
     // support changing the address of an account since it will be required to
@@ -244,12 +297,10 @@ export class SnapKeyring extends EventEmitter {
 
     // At this point we know that the account exists, so we can safely
     // destructure it.
-    const {
-      account: { address },
-    } = entry;
+    const { account } = entry;
 
     await this.#callbacks.removeAccount(
-      address.toLowerCase(),
+      normalizeAccountAddress(account),
       snapId,
       async (accepted) => {
         if (accepted) {
@@ -303,6 +354,65 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Re-publish an account event.
+   *
+   * @param event - The event type. This is a unique identifier for this event.
+   * @param payload - The event payload. The type of the parameters for each event handler must
+   * match the type of this payload.
+   * @template EventType - A Snap keyring event type.
+   * @returns `null`.
+   */
+  async #rePublishAccountEvent<EventType extends SnapKeyringEvents['type']>(
+    event: EventType,
+    ...payload: ExtractEventPayload<SnapKeyringEvents, EventType>
+  ): Promise<null> {
+    this.#messenger.publish(event, ...payload);
+    return null;
+  }
+
+  /**
+   * Handle a balances updated event from a Snap.
+   *
+   * @param message - Event message.
+   * @returns `null`.
+   */
+  async #handleAccountBalancesUpdated(message: SnapMessage): Promise<null> {
+    assert(message, AccountBalancesUpdatedEventStruct);
+    return this.#rePublishAccountEvent(
+      'SnapKeyring:accountBalancesUpdated',
+      message.params,
+    );
+  }
+
+  /**
+   * Handle a asset list updated event from a Snap.
+   *
+   * @param message - Event message.
+   * @returns `null`.
+   */
+  async #handleAccountAssetListUpdated(message: SnapMessage): Promise<null> {
+    assert(message, AccountAssetListUpdatedEventStruct);
+    return this.#rePublishAccountEvent(
+      'SnapKeyring:accountAssetListUpdated',
+      message.params,
+    );
+  }
+
+  /**
+   * Handle a transactions updated event from a Snap.
+   *
+   * @param message - Event message.
+   * @returns `null`.
+   */
+  async #handleAccountTransactionsUpdated(message: SnapMessage): Promise<null> {
+    assert(message, AccountTransactionsUpdatedEventStruct);
+    return this.#rePublishAccountEvent(
+      'SnapKeyring:accountTransactionsUpdated',
+      message.params,
+    );
+  }
+
+  /**
    * Handle a message from a Snap.
    *
    * @param snapId - ID of the Snap.
@@ -315,24 +425,37 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<Json> {
     assert(message, SnapMessageStruct);
     switch (message.method) {
-      case KeyringEvent.AccountCreated: {
+      case `${KeyringEvent.AccountCreated}`: {
         return this.#handleAccountCreated(snapId, message);
       }
 
-      case KeyringEvent.AccountUpdated: {
+      case `${KeyringEvent.AccountUpdated}`: {
         return this.#handleAccountUpdated(snapId, message);
       }
 
-      case KeyringEvent.AccountDeleted: {
+      case `${KeyringEvent.AccountDeleted}`: {
         return this.#handleAccountDeleted(snapId, message);
       }
 
-      case KeyringEvent.RequestApproved: {
+      case `${KeyringEvent.RequestApproved}`: {
         return this.#handleRequestApproved(snapId, message);
       }
 
-      case KeyringEvent.RequestRejected: {
+      case `${KeyringEvent.RequestRejected}`: {
         return this.#handleRequestRejected(snapId, message);
+      }
+
+      // Assets related events:
+      case `${KeyringEvent.AccountBalancesUpdated}`: {
+        return this.#handleAccountBalancesUpdated(message);
+      }
+
+      case `${KeyringEvent.AccountAssetListUpdated}`: {
+        return this.#handleAccountAssetListUpdated(message);
+      }
+
+      case `${KeyringEvent.AccountTransactionsUpdated}`: {
+        return this.#handleAccountTransactionsUpdated(message);
       }
 
       default:
@@ -362,7 +485,46 @@ export class SnapKeyring extends EventEmitter {
     if (state === undefined) {
       return;
     }
-    this.#accounts = SnapIdMap.fromObject(state.accounts);
+
+    // Running Snap keyring migrations. We might have some accounts that have a
+    // different "version" than the one we expect.
+    // In this case, we "transform" then directly when deserializing to convert
+    // them in the final account version.
+    const accounts: KeyringState['accounts'] = {};
+    for (const [snapId, entry] of Object.entries(state.accounts)) {
+      // V1 accounts are missing the scopes.
+      if (isAccountV1(entry.account)) {
+        console.info(
+          `SnapKeyring - Found a KeyringAccountV1, migrating to V2: ${entry.account.id}`,
+        );
+        accounts[snapId] = {
+          ...entry,
+          account: migrateAccountV1(entry.account),
+        };
+      } else {
+        accounts[snapId] = entry;
+      }
+    }
+
+    this.#accounts = SnapIdMap.fromObject(accounts);
+  }
+
+  /**
+   * Get an account and its associated Snap ID from its ID.
+   *
+   * @param id - Account ID.
+   * @throws An error if the account could not be found.
+   * @returns The account associated with the given account ID in this keyring.
+   */
+  #getAccount(id: string): { account: KeyringAccount; snapId: SnapId } {
+    const found = [...this.#accounts.values()].find(
+      (entry) => entry.account.id === id,
+    );
+
+    if (!found) {
+      throw new Error(`Unable to get account: unknown account ID: '${id}'`);
+    }
+    return found;
   }
 
   /**
@@ -373,7 +535,7 @@ export class SnapKeyring extends EventEmitter {
   async getAccounts(): Promise<string[]> {
     return unique(
       [...this.#accounts.values()].map(({ account }) =>
-        account.address.toLowerCase(),
+        normalizeAccountAddress(account),
       ),
     );
   }
@@ -388,77 +550,210 @@ export class SnapKeyring extends EventEmitter {
     return unique(
       [...this.#accounts.values()]
         .filter(({ snapId: accountSnapId }) => accountSnapId === snapId)
-        .map(({ account }) => account.address.toLowerCase()),
+        .map(({ account }) => normalizeAccountAddress(account)),
     );
   }
 
   /**
-   * Submit a request to a Snap.
+   * Checks if a Snap ID is known from the keyring.
+   *
+   * @param snapId - Snap ID.
+   * @returns `true` if the Snap ID is known, `false` otherwise.
+   */
+  hasSnapId(snapId: SnapId): boolean {
+    return this.#accounts.hasSnapId(snapId);
+  }
+
+  /**
+   * Resolve the Snap account's address associated from a signing request.
+   *
+   * @param snapId - Snap ID.
+   * @param scope - CAIP-2 chain ID.
+   * @param request - Signing request object.
+   * @throws An error if the Snap ID is not known from the keyring.
+   * @returns The resolved address if found, `null` otherwise.
+   */
+  async resolveAccountAddress(
+    snapId: SnapId,
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+  ): Promise<ResolvedAccountAddress | null> {
+    // We do check that the incoming Snap ID is known by the keyring.
+    if (!this.hasSnapId(snapId)) {
+      throw new Error(
+        `Unable to resolve account address: unknown Snap ID: ${snapId}`,
+      );
+    }
+
+    return await this.#snapClient
+      .withSnapId(snapId)
+      .resolveAccountAddress(scope, request);
+  }
+
+  /**
+   * Submit a request to a Snap from an account ID.
+   *
+   * This request cannot be an asynchronous keyring request.
+   *
+   * @param opts - Request options.
+   * @param opts.account - Account ID.
+   * @param opts.method - Method to call.
+   * @param opts.params - Method parameters.
+   * @param opts.scope - Selected chain ID (CAIP-2).
+   * @returns Promise that resolves to the result of the method call.
+   */
+  async submitRequest({
+    account: accountId,
+    method,
+    params,
+    scope,
+  }: {
+    // NOTE: We use `account` here rather than `id` to avoid ambiguity with a "request ID".
+    // We already use this same field name for `KeyringAccount`s.
+    account: string;
+    method: string;
+    params?: Json[] | Record<string, Json>;
+    scope: string;
+  }): Promise<Json> {
+    const { account, snapId } = this.#getAccount(accountId);
+
+    return await this.#submitSnapRequest({
+      snapId,
+      account,
+      method: method as AccountMethod,
+      params,
+      scope,
+      // For non-EVM (in the context of the multichain API and SIP-26), we enforce responses
+      // to be synchronous.
+      noPending: true,
+    });
+  }
+
+  /**
+   * Submit a request to a Snap from an account address.
    *
    * @param opts - Request options.
    * @param opts.address - Account address.
    * @param opts.method - Method to call.
    * @param opts.params - Method parameters.
-   * @param opts.chainId - Selected chain ID (CAIP-2).
-   * @param opts.expectSync - Whether the request should be synchronous.
+   * @param opts.scope - Selected chain ID (CAIP-2).
+   * @param opts.noPending - Whether the response is allowed to be pending.
    * @returns Promise that resolves to the result of the method call.
    */
   async #submitRequest<Response extends Json>({
     address,
     method,
     params,
-    chainId = '',
-    expectSync = false,
+    scope = '',
+    noPending = false,
   }: {
     address: string;
     method: string;
     params?: Json[] | Record<string, Json>;
-    chainId?: string;
-    expectSync?: boolean;
-  }): Promise<Json> {
+    scope?: string;
+    noPending?: boolean;
+  }): Promise<Response> {
     const { account, snapId } = this.#resolveAddress(address);
-    if (!this.#hasMethod(account, method as AccountMethod)) {
+
+    return await this.#submitSnapRequest<Response>({
+      snapId,
+      account,
+      method: method as AccountMethod,
+      params,
+      scope,
+      noPending,
+    });
+  }
+
+  /**
+   * Submits a request to a Snap.
+   *
+   * @param options - The options for the Snap request.
+   * @param options.snapId - The Snap ID to submit the request to.
+   * @param options.account - The account to use for the request.
+   * @param options.method - The Ethereum method to call.
+   * @param options.params - The parameters to pass to the method, can be undefined.
+   * @param options.scope - The chain ID to use for the request, can be an empty string.
+   * @param options.noPending - Whether the response is allowed to be pending.
+   * @returns A promise that resolves to the keyring response from the Snap.
+   * @throws An error if the Snap fails to respond or if there's an issue with the request submission.
+   */
+  async #submitSnapRequest<Response extends Json>({
+    snapId,
+    account,
+    method,
+    params,
+    scope,
+    noPending,
+  }: {
+    snapId: SnapId;
+    account: KeyringAccount;
+    method: AccountMethod;
+    params?: Json[] | Record<string, Json> | undefined;
+    scope: string;
+    noPending: boolean;
+  }): Promise<Response> {
+    if (!this.#hasMethod(account, method)) {
       throw new Error(
         `Method '${method}' not supported for account ${account.address}`,
       );
     }
 
+    // Generate a new random request ID to keep track of the request execution flow.
     const requestId = uuid();
 
     // Create the promise before calling the Snap to prevent a race condition
     // where the Snap responds before we have a chance to create it.
-    const promise = this.#createRequestPromise<Response>(requestId, snapId);
-
-    const response = await this.#submitSnapRequest({
-      snapId,
+    const requestPromise = this.#createRequestPromise<Response>(
       requestId,
-      account,
-      method: method as AccountMethod,
-      params,
-      chainId,
-    });
+      snapId,
+    );
 
-    // Some methods, like the ones used to prepare and patch user operations,
-    // require the Snap to answer synchronously in order to work with the
-    // confirmation flow. This check lets the caller enforce this behavior.
-    if (expectSync && response.pending) {
-      throw new Error(
-        `Request '${requestId}' to snap '${snapId}' is pending and expectSync is true.`,
-      );
+    try {
+      const request = {
+        id: requestId,
+        scope,
+        account: account.id,
+        request: {
+          method,
+          ...(params !== undefined && { params }),
+        },
+      };
+
+      log('Submit Snap request: ', request);
+
+      const response = await this.#snapClient
+        .withSnapId(snapId)
+        .submitRequest(request);
+
+      // Some methods, like the ones used to prepare and patch user operations,
+      // require the Snap to answer synchronously in order to work with the
+      // confirmation flow. This check lets the caller enforce this behavior.
+      if (noPending && response.pending) {
+        throw new Error(
+          `Request '${requestId}' to Snap '${snapId}' is pending and noPending is true.`,
+        );
+      }
+
+      // If the Snap answers synchronously, the promise must be removed from the
+      // map to prevent a leak.
+      if (!response.pending) {
+        return this.#handleSyncResponse<Response>(response, requestId, snapId);
+      }
+
+      // If the Snap answers asynchronously, we will inform the user with a redirect
+      if (response.redirect?.message || response.redirect?.url) {
+        await this.#handleAsyncResponse(response.redirect, snapId);
+      }
+
+      return requestPromise.promise;
+    } catch (error) {
+      log('Snap Request failed: ', { requestId });
+
+      // If the Snap failed to respond, delete the promise to prevent a leak.
+      this.#clearRequestPromise(requestId, snapId);
+      throw error;
     }
-
-    // If the Snap answers synchronously, the promise must be removed from the
-    // map to prevent a leak.
-    if (!response.pending) {
-      return this.#handleSyncResponse(response, requestId, snapId);
-    }
-
-    // If the Snap answers asynchronously, we will inform the user with a redirect
-    if (response.redirect?.message || response.redirect?.url) {
-      await this.#handleAsyncResponse(response.redirect, snapId);
-    }
-
-    return promise.promise;
   }
 
   /**
@@ -489,54 +784,13 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
-   * Submits a request to a Snap.
+   * Clear a promise for a request and delete it from the map of requests.
    *
-   * @param options - The options for the Snap request.
-   * @param options.snapId - The Snap ID to submit the request to.
-   * @param options.requestId - The unique identifier for the request.
-   * @param options.account - The account to use for the request.
-   * @param options.method - The Ethereum method to call.
-   * @param options.params - The parameters to pass to the method, can be undefined.
-   * @param options.chainId - The chain ID to use for the request, can be an empty string.
-   * @returns A promise that resolves to the keyring response from the Snap.
-   * @throws An error if the Snap fails to respond or if there's an issue with the request submission.
+   * @param requestId - The unique identifier for the request.
+   * @param snapId - The Snap ID associated with the request.
    */
-  async #submitSnapRequest({
-    snapId,
-    requestId,
-    account,
-    method,
-    params,
-    chainId,
-  }: {
-    snapId: SnapId;
-    requestId: string;
-    account: KeyringAccount;
-    method: AccountMethod;
-    params?: Json[] | Record<string, Json> | undefined;
-    chainId: string;
-  }): Promise<KeyringResponse> {
-    try {
-      const request = {
-        id: requestId,
-        scope: chainId,
-        account: account.id,
-        request: {
-          method,
-          ...(params !== undefined && { params }),
-        },
-      };
-
-      log('Submit Snap request: ', request);
-
-      return await this.#snapClient.withSnapId(snapId).submitRequest(request);
-    } catch (error) {
-      log('Snap Request failed: ', { requestId });
-
-      // If the Snap failed to respond, delete the promise to prevent a leak.
-      this.#requests.delete(snapId, requestId);
-      throw error;
-    }
+  #clearRequestPromise(requestId: string, snapId: SnapId): void {
+    this.#requests.delete(snapId, requestId);
   }
 
   /**
@@ -549,13 +803,14 @@ export class SnapKeyring extends EventEmitter {
    * @param snapId - The Snap ID associated with the request.
    * @returns The result from the Snap response.
    */
-  #handleSyncResponse(
+  #handleSyncResponse<Response extends Json>(
     response: { pending: false; result: Json },
     requestId: string,
     snapId: SnapId,
-  ): Json {
+  ): Response {
     this.#requests.delete(snapId, requestId);
-    return response.result;
+    // We consider `Response` to be compatible with `result` here.
+    return response.result as Response;
   }
 
   /**
@@ -570,12 +825,24 @@ export class SnapKeyring extends EventEmitter {
   async #handleAsyncResponse(
     redirect: { message?: string; url?: string },
     snapId: SnapId,
-  ) {
-    const { message = '', url = '' } = redirect;
+  ): Promise<void> {
+    const { message = '', url: redirectUrl = '' } = redirect;
+    const url = this.#sanitizeRedirectUrl(redirectUrl);
     if (url) {
       this.#validateRedirectUrl(url, snapId);
     }
     await this.#callbacks.redirectUser(snapId, url, message);
+  }
+
+  /**
+   * Sanitize a redirect URL.
+   *
+   * @param url - The URL to sanitize.
+   * @returns The new sanitized redirect URL.
+   */
+  #sanitizeRedirectUrl(url: string): string {
+    // We do check if the URL is empty or not since the Snap might not returns any URL at all.
+    return url ? sanitizeUrl(url) : url;
   }
 
   /**
@@ -585,9 +852,9 @@ export class SnapKeyring extends EventEmitter {
    * @param snapId - The Snap ID to check allowed origins for.
    * @throws An error if the URL's origin is not in the Snap's allowed origins.
    */
-  #validateRedirectUrl(url: string, snapId: SnapId) {
+  #validateRedirectUrl(url: string, snapId: SnapId): void {
     const { origin } = new URL(url);
-    const snap = this.#snapClient.getController().get(snapId);
+    const snap = this.#getSnap(snapId);
     if (!snap) {
       throw new Error(`Snap '${snapId}' not found.`);
     }
@@ -605,6 +872,7 @@ export class SnapKeyring extends EventEmitter {
    * @param address - Sender's address.
    * @param transaction - Transaction.
    * @param _opts - Transaction options (not used).
+   * @returns A promise that resolves to the signed transaction.
    */
   async signTransaction(
     address: string,
@@ -623,7 +891,7 @@ export class SnapKeyring extends EventEmitter {
       address,
       method: EthMethod.SignTransaction,
       params: [tx],
-      chainId: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
+      scope: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
     });
 
     // ! It's *** CRITICAL *** that we mask the signature here, otherwise the
@@ -680,7 +948,7 @@ export class SnapKeyring extends EventEmitter {
         ...(chainId === undefined
           ? {}
           : {
-              chainId: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
+              scope: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
             }),
       }),
       EthBytesStruct,
@@ -744,9 +1012,9 @@ export class SnapKeyring extends EventEmitter {
         address,
         method: EthMethod.PrepareUserOperation,
         params: toJson<Json[]>(transactions),
-        expectSync: true,
+        noPending: true,
         // We assume the chain ID is already well formatted
-        chainId: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
+        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
       EthBaseUserOperationStruct,
     );
@@ -771,9 +1039,9 @@ export class SnapKeyring extends EventEmitter {
         address,
         method: EthMethod.PatchUserOperation,
         params: toJson<Json[]>([userOp]),
-        expectSync: true,
+        noPending: true,
         // We assume the chain ID is already well formatted
-        chainId: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
+        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
       EthUserOperationPatchStruct,
     );
@@ -798,7 +1066,7 @@ export class SnapKeyring extends EventEmitter {
         method: EthMethod.SignUserOperation,
         params: toJson<Json[]>([userOp]),
         // We assume the chain ID is already well formatted
-        chainId: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
+        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
       EthBytesStruct,
     );
@@ -863,6 +1131,16 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Get the Snap associated with the given Snap ID.
+   *
+   * @param snapId - Snap ID.
+   * @returns The Snap or undefined if the Snap cannot be found.
+   */
+  #getSnap(snapId: SnapId): Snap | undefined {
+    return this.#messenger.call('SnapController:get', snapId);
+  }
+
+  /**
    * Get the metadata of a Snap keyring account.
    *
    * @param snapId - Snap ID.
@@ -871,7 +1149,7 @@ export class SnapKeyring extends EventEmitter {
   #getSnapMetadata(
     snapId: SnapId,
   ): InternalAccount['metadata']['snap'] | undefined {
-    const snap = this.#snapClient.getController().get(snapId);
+    const snap = this.#getSnap(snapId);
     return snap
       ? { id: snapId, name: snap.manifest.proposedName, enabled: snap.enabled }
       : undefined;
@@ -919,7 +1197,10 @@ export class SnapKeyring extends EventEmitter {
         // account address to be lowercase. This workaround should be removed
         // once we migrated the UI to use the account ID instead of the account
         // address.
-        address: account.address.toLowerCase(),
+        //
+        // NOTE: We convert the address only for EVM accounts, see
+        // `normalizeAccountAddress`.
+        address: normalizeAccountAddress(account),
         metadata: {
           name: '',
           importTime: 0,

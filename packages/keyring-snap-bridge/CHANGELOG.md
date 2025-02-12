@@ -7,6 +7,135 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.0]
+
+### Changed
+
+- **BREAKING:** Use `CaipAccountId` for `ResolvedAccountAddress.address` ([#186](https://github.com/MetaMask/accounts/pull/186))
+  - This was missing from SIP-26, but we expect this address to be CAIP-10 compliant.
+- Bump `@metamask/keyring-api` from `^16.1.0` to `^17.0.0` ([#192](https://github.com/MetaMask/accounts/pull/192))
+- Rename `ControllerMessenger` to `Messenger` ([#185](https://github.com/MetaMask/accounts/pull/185))
+- Bump `@metamask/snaps-controllers` dependency from `^9.10.0` to `^9.18.0` ([#177](https://github.com/MetaMask/accounts/pull/177))
+- Bump `@metamask/snaps-sdk` dependency from `^6.7.0` to `^6.16.0` ([#177](https://github.com/MetaMask/accounts/pull/177))
+- Bump `@metamask/snaps-utils` dependency from `^8.3.0` to `^8.9.1` ([#177](https://github.com/MetaMask/accounts/pull/177))
+
+## [9.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^16.0.0` to `^16.1.0` ([#176](https://github.com/MetaMask/accounts/pull/176))
+
+## [9.1.0]
+
+### Added
+
+- Add `submitRequest` and `resolveAccountAddress` methods ([#157](https://github.com/MetaMask/accounts/pull/157))
+  - Those new methods are required by the new signing request routing system (see SIP-26).
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^15.0.0` to `^16.0.0` ([#172](https://github.com/MetaMask/accounts/pull/172))
+- Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
+
+### Fixed
+
+- Fix async Snap request leak ([#171](https://github.com/MetaMask/accounts/pull/171))
+  - There was a leak with the deferred promises when an asynchronous request was not allowed.
+
+## [9.0.0]
+
+### Added
+
+- Add `account{AssetList,Balances,Transactions}Updated` keyring events and re-publish them through the new `Messenger` ([#154](https://github.com/MetaMask/accounts/pull/154))
+
+### Changed
+
+- **BREAKING:** Use `Messenger` instead of `SnapsController` ([#152](https://github.com/MetaMask/accounts/pull/152))
+  - This allows to break the runtime dependency we had with some `snaps-*` pacakges.
+- **BREAKING:** Make `scopes` more strict ([#159](https://github.com/MetaMask/accounts/pull/159))
+  - We now use specific `*AccountStucts` when checking created/updated accounts to make the `scopes` sent by the Snap are valid regarding their account type definition.
+
+## [8.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^13.0.0` to `^14.0.0` ([#155](https://github.com/MetaMask/accounts/pull/155))
+
+## [8.1.0]
+
+### Added
+
+- Add Snap keyring migrations ([#147](https://github.com/MetaMask/accounts/pull/147))
+  - This is required to support the new `scopes` field on `KeyringAccount`. The keyring state will now be automatically migrated upon deserialization to match the latest `KeyringAccount` type requirements.
+
+## [8.0.0]
+
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^12.0.0` to `^13.0.0` ([#101](https://github.com/MetaMask/accounts/pull/101))
+  - This change was not properly reported as breaking on the `7.1.0`.
+  - `KeyringAccount` and `InternalAccount` have a new required field (`scopes`) and are part of the public API.
+- **BREAKING:** Bump `@metamask/keyring-internal-api` from `^1.0.0` to `^2.0.0` ([#135](https://github.com/MetaMask/accounts/pull/135))
+  - This change was not properly reported as breaking on the `7.1.0`.
+  - `InternalAccount` extends `KeyringAccount` which has a new required field (`scopes`) and is part of the public API.
+- **BREAKING:** Bump `@metamask/keyring-snap-internal-client` from `^1.0.0` to `^2.0.0` ([#135](https://github.com/MetaMask/accounts/pull/135))
+  - This change was not properly reported as breaking on the `7.1.0`.
+  - `KeyringAccount` has a new required field (`scopes`) and is part of the public API.
+
+## [7.1.0]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^12.0.0` to `^13.0.0` ([#101](https://github.com/MetaMask/accounts/pull/101))
+
+## [7.0.0]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
+  - This new version fixes a bug with CJS re-exports.
+- Uses new `keyring-api` splitted packages ([#24](https://github.com/MetaMask/accounts/pull/24))
+
+## [6.0.0]
+
+### Added
+
+- **BREAKING:** Add ESM build ([#40](https://github.com/MetaMask/accounts/pull/40))
+  - It's no longer possible to import files from `./dist` directly.
+- Export type `JsonRpcRequest` ([#95](https://github.com/MetaMask/accounts/pull/95))
+
+## [5.0.1]
+
+### Fixed
+
+- Do not lower address for non-EVM accounts during account creation ([#90](https://github.com/MetaMask/accounts/pull/90))
+
+## [5.0.0]
+
+### Changed
+
+- Add proprietary license ([#83](https://github.com/MetaMask/accounts/pull/83))
+- **BREAKING**: Bump `@metamask/eth-sig-util` dependency from `^7.0.3` to `^8.0.0` ([#79](https://github.com/MetaMask/accounts/pull/79))
+  - `signTypedData` no longer support `number` for addresses, see [here](https://github.com/MetaMask/eth-sig-util/blob/main/CHANGELOG.md#800).
+
+## [4.4.0]
+
+### Added
+
+- Sanitize redirect URL ([#70](https://github.com/MetaMask/accounts/pull/70))
+
+### Changed
+
+- Bump `@metamask/*` dependencies and add `@lavamoat/preinstall-always-fail` ([#65](https://github.com/MetaMask/accounts/pull/65)), ([#59](https://github.com/MetaMask/accounts/pull/59)), ([#58](https://github.com/MetaMask/accounts/pull/58))
+- Use TypeScript 5 ([#55](https://github.com/MetaMask/accounts/pull/55))
+
+## [4.3.6]
+
+### Changed
+
+- Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+
 ## [4.3.5]
 
 ### Changed
@@ -335,7 +464,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.5...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@10.0.0...HEAD
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.1...@metamask/eth-snap-keyring@10.0.0
+[9.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.0...@metamask/eth-snap-keyring@9.1.1
+[9.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.0.0...@metamask/eth-snap-keyring@9.1.0
+[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.1.1...@metamask/eth-snap-keyring@9.0.0
+[8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.1.0...@metamask/eth-snap-keyring@8.1.1
+[8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.0.0...@metamask/eth-snap-keyring@8.1.0
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.1.0...@metamask/eth-snap-keyring@8.0.0
+[7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.0.0...@metamask/eth-snap-keyring@7.1.0
+[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@6.0.0...@metamask/eth-snap-keyring@7.0.0
+[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@5.0.1...@metamask/eth-snap-keyring@6.0.0
+[5.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@5.0.0...@metamask/eth-snap-keyring@5.0.1
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.4.0...@metamask/eth-snap-keyring@5.0.0
+[4.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.6...@metamask/eth-snap-keyring@4.4.0
+[4.3.6]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.5...@metamask/eth-snap-keyring@4.3.6
 [4.3.5]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.4...@metamask/eth-snap-keyring@4.3.5
 [4.3.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.3...@metamask/eth-snap-keyring@4.3.4
 [4.3.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@4.3.2...@metamask/eth-snap-keyring@4.3.3

@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.1.0]
+
+### Added
+
+- Add new dedicated `OneKeyKeyring` keyring ([#175](https://github.com/MetaMask/accounts/pull/175))
+  - This keyring is similar to the `TrezorKeyring` but will allow to distinguish both types of devices, the transport layer (bridge) remains the same.
+
+## [6.0.2]
+
+### Changed
+
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177)), ([#134](https://github.com/MetaMask/accounts/pull/134))
+
+## [6.0.1]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
+  - This new version fixes a bug with CJS re-exports.
+
+## [6.0.0]
+
+### Added
+
+- **BREAKING:** Add ESM build ([#40](https://github.com/MetaMask/accounts/pull/40))
+  - It's no longer possible to import files from `./dist` directly.
+
+## [5.0.0]
+
+### Changed
+
+- **BREAKING**: Bump `@metamask/eth-sig-util` dependency from `^7.0.3` to `^8.0.0` ([#79](https://github.com/MetaMask/accounts/pull/79))
+  - `signTypedData` no longer support `number` for addresses, see [here](https://github.com/MetaMask/eth-sig-util/blob/main/CHANGELOG.md#800).
+
+## [4.0.0]
+
+### Changed
+
+- **BREAKING**: `addAccounts` will now only return newly created accounts ([#64](https://github.com/MetaMask/accounts/pull/64))
+  - This keyring was initially returning every accounts (previous and new ones), which is different from what is expected in the [`Keyring` interface].(https://github.com/MetaMask/utils/blob/v9.2.1/src/keyring.ts#L65)
+
+## [3.1.3]
+
+### Changed
+
+- Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/metamask/accounts/pull/51))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+
 ## [3.1.2]
 
 ### Changed
@@ -113,7 +161,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.0...HEAD
+[6.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.2...@metamask/eth-trezor-keyring@6.1.0
+[6.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.1...@metamask/eth-trezor-keyring@6.0.2
+[6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.0...@metamask/eth-trezor-keyring@6.0.1
+[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@5.0.0...@metamask/eth-trezor-keyring@6.0.0
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@4.0.0...@metamask/eth-trezor-keyring@5.0.0
+[4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.3...@metamask/eth-trezor-keyring@4.0.0
+[3.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.2...@metamask/eth-trezor-keyring@3.1.3
 [3.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.1...@metamask/eth-trezor-keyring@3.1.2
 [3.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.1.0...@metamask/eth-trezor-keyring@3.1.1
 [3.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@3.0.0...@metamask/eth-trezor-keyring@3.1.0

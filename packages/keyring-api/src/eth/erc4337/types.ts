@@ -1,11 +1,11 @@
+import { exactOptional, object, UrlStruct } from '@metamask/keyring-utils';
 import { type Infer } from '@metamask/superstruct';
 
-import { exactOptional, object } from '../../superstruct';
-import { UrlStruct } from '../../utils';
 import { EthAddressStruct, EthBytesStruct, EthUint256Struct } from '../types';
 
 /**
  * Struct of a UserOperation as defined by ERC-4337.
+ *
  * @see https://eips.ethereum.org/EIPS/eip-4337#definitions
  */
 export const EthUserOperationStruct = object({

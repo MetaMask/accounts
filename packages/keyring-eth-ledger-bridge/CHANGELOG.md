@@ -7,6 +7,83 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.0.4]
+
+### Changed
+
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177)), ([#134](https://github.com/MetaMask/accounts/pull/134))
+- Bump `@metamask/utils` dependency from `^9.3.1` to `11.1.0` ([#134](https://github.com/MetaMask/accounts/pull/134)), ([#167](https://github.com/MetaMask/accounts/pull/167))
+
+## [8.0.3]
+
+### Fixed
+
+- Bump `@ledgerhq/hw-app-eth` dependency from `^6.39.0` to `^6.42.0` ([#153](https://github.com/MetaMask/accounts/pull/153))
+  - Required to fix handling of EIP-712 content.
+
+## [8.0.2]
+
+### Changed
+
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `^8.1.2` ([#134](https://github.com/MetaMask/accounts/pull/134))
+
+### Fixed
+
+- Fix webpack build about non-exported `EIP712Message` type ([#140](https://github.com/MetaMask/accounts/pull/140))
+
+## [8.0.1]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
+  - This new version fixes a bug with CJS re-exports.
+
+## [8.0.0]
+
+### Changed
+
+- **BREAKING:** Enable Ledger clear signing ([#99](https://github.com/MetaMask/accounts/pull/99))
+  - The `LedgerSignTypedDataParams` type now requires a new `message` field which replaces the `domainSeparatorHex` and `hashStructMessage}Hex` fields.
+
+## [7.0.0]
+
+### Added
+
+- **BREAKING:** Add ESM build ([#40](https://github.com/MetaMask/accounts/pull/40))
+  - It's no longer possible to import files from `./dist` directly.
+
+## [6.0.0]
+
+### Changed
+
+- **BREAKING**: Bump `@metamask/eth-sig-util` dependency from `^7.0.3` to `^8.0.0` ([#79](https://github.com/MetaMask/accounts/pull/79))
+  - `signTypedData` no longer support `number` for addresses, see [here](https://github.com/MetaMask/eth-sig-util/blob/main/CHANGELOG.md#800).
+
+### Fixed
+
+- Device ID will now be cleared up when forgetting a device ([#86](https://github.com/MetaMask/accounts/pull/86))
+
+## [5.0.1]
+
+### Changed
+
+- Bump `@ledgerhq/hw-app-eth` dependency to `^6.39.0` ([#68](https://github.com/MetaMask/accounts/pull/68))
+  - This new dependency version reduces the resulting package bundle size.
+
+## [5.0.0]
+
+### Changed
+
+- **BREAKING**: `addAccounts` will now only return newly created accounts ([#63](https://github.com/MetaMask/accounts/pull/63))
+  - This keyring was initially returning every accounts (previous and new ones), which is different from what is expected in the [`Keyring` interface].(https://github.com/MetaMask/utils/blob/v9.2.1/src/keyring.ts#L65)
+
+## [4.1.4]
+
+### Changed
+
+- Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+
 ## [4.1.3]
 
 ### Changed
@@ -177,7 +254,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.3...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.4...HEAD
+[8.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.3...@metamask/eth-ledger-bridge-keyring@8.0.4
+[8.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.2...@metamask/eth-ledger-bridge-keyring@8.0.3
+[8.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.1...@metamask/eth-ledger-bridge-keyring@8.0.2
+[8.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.0...@metamask/eth-ledger-bridge-keyring@8.0.1
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@7.0.0...@metamask/eth-ledger-bridge-keyring@8.0.0
+[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@6.0.0...@metamask/eth-ledger-bridge-keyring@7.0.0
+[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@5.0.1...@metamask/eth-ledger-bridge-keyring@6.0.0
+[5.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@5.0.0...@metamask/eth-ledger-bridge-keyring@5.0.1
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.4...@metamask/eth-ledger-bridge-keyring@5.0.0
+[4.1.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.3...@metamask/eth-ledger-bridge-keyring@4.1.4
 [4.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.2...@metamask/eth-ledger-bridge-keyring@4.1.3
 [4.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.1...@metamask/eth-ledger-bridge-keyring@4.1.2
 [4.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.0...@metamask/eth-ledger-bridge-keyring@4.1.1

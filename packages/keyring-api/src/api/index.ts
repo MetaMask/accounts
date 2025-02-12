@@ -1,7 +1,11 @@
 export * from './account';
+export * from './address';
+export * from './asset';
 export * from './balance';
 export * from './caip';
 export * from './export';
-export * from './keyring';
 export * from './request';
 export * from './response';
+export * from './transaction';
+export * from './pagination';
+export type * from './keyring';

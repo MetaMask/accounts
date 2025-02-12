@@ -12,9 +12,11 @@ import {
 import {
   concatSig,
   decrypt,
+  EIP7702Authorization,
   getEncryptionPublicKey,
   normalize,
   personalSign,
+  signEIP7702Authorization,
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
@@ -27,8 +29,14 @@ type KeyringOpt = {
   version?: SignTypedDataVersion | string;
 };
 
+type Wallet = {
+  privateKey: Buffer;
+  publicKey: Buffer;
+};
+
 const TYPE = 'Simple Key Pair';
 
+// FIXME: This should not be exported as default.
 export default class SimpleKeyring implements Keyring<string[]> {
   #wallets: { privateKey: Buffer; publicKey: Buffer }[];
 
@@ -46,11 +54,11 @@ export default class SimpleKeyring implements Keyring<string[]> {
     });
   }
 
-  async serialize() {
+  async serialize(): Promise<string[]> {
     return this.#wallets.map((a) => a.privateKey.toString('hex'));
   }
 
-  async deserialize(privateKeys: string[] = []) {
+  async deserialize(privateKeys: string[] = []): Promise<void> {
     this.#wallets = privateKeys.map((hexPrivateKey) => {
       const strippedHexPrivateKey = stripHexPrefix(hexPrivateKey);
       const privateKey = Buffer.from(strippedHexPrivateKey, 'hex');
@@ -59,7 +67,7 @@ export default class SimpleKeyring implements Keyring<string[]> {
     });
   }
 
-  async addAccounts(numAccounts = 1) {
+  async addAccounts(numAccounts = 1): Promise<Hex[]> {
     const newWallets = [];
     for (let i = 0; i < numAccounts; i++) {
       const privateKey = generateKey();
@@ -73,7 +81,7 @@ export default class SimpleKeyring implements Keyring<string[]> {
     return hexWallets;
   }
 
-  async getAccounts() {
+  async getAccounts(): Promise<Hex[]> {
     return this.#wallets.map(({ publicKey }) =>
       add0x(bufferToHex(publicToAddress(publicKey))),
     );
@@ -87,7 +95,16 @@ export default class SimpleKeyring implements Keyring<string[]> {
     const privKey = this.#getPrivateKeyFor(address, opts);
     const signedTx = transaction.sign(privKey);
     // Newer versions of Ethereumjs-tx are immutable and return a new tx object
-    return signedTx === undefined ? transaction : signedTx;
+    return signedTx ?? transaction;
+  }
+
+  async signEip7702Authorization(
+    address: Hex,
+    authorization: EIP7702Authorization,
+    opts: KeyringOpt = {},
+  ): Promise<string> {
+    const privateKey = this.#getPrivateKeyFor(address, opts);
+    return signEIP7702Authorization({ privateKey, authorization });
   }
 
   // For eth_sign, we need to sign arbitrary data:
@@ -95,7 +112,7 @@ export default class SimpleKeyring implements Keyring<string[]> {
     address: Hex,
     data: string,
     opts = { withAppKeyOrigin: '', validateMessage: true },
-  ) {
+  ): Promise<string> {
     const message = stripHexPrefix(data);
     if (
       opts.validateMessage &&
@@ -114,13 +131,16 @@ export default class SimpleKeyring implements Keyring<string[]> {
     address: Hex,
     msgHex: Hex,
     opts = { withAppKeyOrigin: '' },
-  ) {
+  ): Promise<string> {
     const privKey = this.#getPrivateKeyFor(address, opts);
     return personalSign({ privateKey: privKey, data: msgHex });
   }
 
   // For eth_decryptMessage:
-  async decryptMessage(withAccount: Hex, encryptedData: Eip1024EncryptedData) {
+  async decryptMessage(
+    withAccount: Hex,
+    encryptedData: Eip1024EncryptedData,
+  ): Promise<string> {
     const wallet = this.#getWalletForAccount(withAccount);
     const privateKey = wallet.privateKey.toString('hex');
     return decrypt({ privateKey, encryptedData });
@@ -131,7 +151,7 @@ export default class SimpleKeyring implements Keyring<string[]> {
     address: Hex,
     typedData: any,
     opts: KeyringOpt = { version: SignTypedDataVersion.V1 },
-  ) {
+  ): Promise<string> {
     // Treat invalid versions as "V1"
     let version = SignTypedDataVersion.V1;
 
@@ -144,13 +164,19 @@ export default class SimpleKeyring implements Keyring<string[]> {
   }
 
   // get public key for nacl
-  async getEncryptionPublicKey(withAccount: Hex, opts?: KeyringOpt) {
+  async getEncryptionPublicKey(
+    withAccount: Hex,
+    opts?: KeyringOpt,
+  ): Promise<string> {
     const privKey = this.#getPrivateKeyFor(withAccount, opts);
     const publicKey = getEncryptionPublicKey(privKey.toString('hex'));
     return publicKey;
   }
 
-  #getPrivateKeyFor(address: Hex, opts: KeyringOpt = { withAppKeyOrigin: '' }) {
+  #getPrivateKeyFor(
+    address: Hex,
+    opts: KeyringOpt = { withAppKeyOrigin: '' },
+  ): Buffer {
     if (!address) {
       throw new Error('Must specify address.');
     }
@@ -159,7 +185,7 @@ export default class SimpleKeyring implements Keyring<string[]> {
   }
 
   // returns an address specific to an app
-  async getAppKeyAddress(address: Hex, origin: string) {
+  async getAppKeyAddress(address: Hex, origin: string): Promise<Hex> {
     if (!origin || typeof origin !== 'string') {
       throw new Error(`'origin' must be a non-empty string`);
     }
@@ -171,12 +197,15 @@ export default class SimpleKeyring implements Keyring<string[]> {
   }
 
   // exportAccount should return a hex-encoded private key:
-  async exportAccount(address: Hex, opts = { withAppKeyOrigin: '' }) {
+  async exportAccount(
+    address: Hex,
+    opts = { withAppKeyOrigin: '' },
+  ): Promise<string> {
     const wallet = this.#getWalletForAccount(address, opts);
     return wallet.privateKey.toString('hex');
   }
 
-  removeAccount(address: string) {
+  removeAccount(address: string): void {
     if (
       !this.#wallets
         .map(({ publicKey }) =>
@@ -194,7 +223,10 @@ export default class SimpleKeyring implements Keyring<string[]> {
     );
   }
 
-  #getWalletForAccount(account: string | number, opts: KeyringOpt = {}) {
+  #getWalletForAccount(
+    account: string | number,
+    opts: KeyringOpt = {},
+  ): Wallet {
     const address = normalize(account);
     let wallet = this.#wallets.find(
       ({ publicKey }) => bufferToHex(publicToAddress(publicKey)) === address,

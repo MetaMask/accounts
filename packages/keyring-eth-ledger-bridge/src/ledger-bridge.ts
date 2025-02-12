@@ -1,5 +1,6 @@
 import type LedgerHwAppEth from '@ledgerhq/hw-app-eth';
 import type Transport from '@ledgerhq/hw-transport';
+import type { EIP712Message } from '@ledgerhq/types-live';
 
 export type GetPublicKeyParams = { hdPath: string };
 export type GetPublicKeyResponse = Awaited<
@@ -18,8 +19,7 @@ export type LedgerSignMessageResponse = Awaited<
 
 export type LedgerSignTypedDataParams = {
   hdPath: string;
-  domainSeparatorHex: string;
-  hashStructMessageHex: string;
+  message: EIP712Message;
 };
 export type LedgerSignTypedDataResponse = Awaited<
   ReturnType<LedgerHwAppEth['signEIP712HashedMessage']>

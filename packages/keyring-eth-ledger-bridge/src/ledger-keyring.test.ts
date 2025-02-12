@@ -93,7 +93,7 @@ describe('LedgerKeyring', function () {
    * @param accountIndex - The index of the account to unlock.
    * @returns Returns a promise that resolves when the keyring is unlocked.
    */
-  async function basicSetupToUnlockOneAccount(accountIndex = 0) {
+  async function basicSetupToUnlockOneAccount(accountIndex = 0): Promise<void> {
     keyring.setAccountToUnlock(accountIndex);
     await keyring.addAccounts();
     jest
@@ -388,16 +388,26 @@ describe('LedgerKeyring', function () {
       describe('with a numeric argument', function () {
         it('returns that number of accounts', async function () {
           keyring.setAccountToUnlock(0);
-          const accounts = await keyring.addAccounts(5);
-          expect(accounts).toHaveLength(5);
+          const firstBatch = await keyring.addAccounts(3);
+          keyring.setAccountToUnlock(3);
+          const secondBatch = await keyring.addAccounts(2);
+
+          expect(firstBatch).toHaveLength(3);
+          expect(secondBatch).toHaveLength(2);
         });
 
         it('returns the expected accounts', async function () {
           keyring.setAccountToUnlock(0);
-          const accounts = await keyring.addAccounts(3);
-          expect(accounts[0]).toBe(fakeAccounts[0]);
-          expect(accounts[1]).toBe(fakeAccounts[1]);
-          expect(accounts[2]).toBe(fakeAccounts[2]);
+          const firstBatch = await keyring.addAccounts(3);
+          keyring.setAccountToUnlock(3);
+          const secondBatch = await keyring.addAccounts(2);
+
+          expect(firstBatch).toStrictEqual([
+            fakeAccounts[0],
+            fakeAccounts[1],
+            fakeAccounts[2],
+          ]);
+          expect(secondBatch).toStrictEqual([fakeAccounts[3], fakeAccounts[4]]);
         });
       });
 
@@ -425,13 +435,13 @@ describe('LedgerKeyring', function () {
       describe('when called multiple times', function () {
         it('does not remove existing accounts', async function () {
           keyring.setAccountToUnlock(0);
-          await keyring.addAccounts(1);
+          const firstBatch = await keyring.addAccounts(1);
           keyring.setAccountToUnlock(1);
-          const accounts = await keyring.addAccounts(1);
+          const secondBatch = await keyring.addAccounts(1);
 
-          expect(accounts).toHaveLength(2);
-          expect(accounts[0]).toBe(fakeAccounts[0]);
-          expect(accounts[1]).toBe(fakeAccounts[1]);
+          expect(await keyring.getAccounts()).toHaveLength(2);
+          expect(firstBatch).toStrictEqual([fakeAccounts[0]]);
+          expect(secondBatch).toStrictEqual([fakeAccounts[1]]);
         });
       });
     });
@@ -569,6 +579,17 @@ describe('LedgerKeyring', function () {
 
         expect(keyring.isUnlocked()).toBe(false);
         expect(accounts).toHaveLength(0);
+      });
+
+      it('deviceId should be cleared after forgetting the device', async function () {
+        // Add an account
+        keyring.setAccountToUnlock(0);
+        await keyring.addAccounts();
+        keyring.setDeviceId('device-id');
+
+        // Wipe the keyring
+        keyring.forgetDevice();
+        expect(keyring.getDeviceId()).toBe('');
       });
     });
 
@@ -907,6 +928,7 @@ describe('LedgerKeyring', function () {
           name: 'Ether Mail',
           verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
           version: '1',
+          salt: new TextEncoder().encode('hello'),
         },
         message: {
           contents: 'Hello, Bob!',
@@ -972,6 +994,33 @@ describe('LedgerKeyring', function () {
         const result = await keyring.signTypedData(
           fakeAccounts[15],
           fixtureData,
+          options,
+        );
+        expect(result).toBe(
+          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e321b',
+        );
+      });
+
+      it('resolves properly when message domain salt is undefined', async function () {
+        const fixtureDataWithoutSalt = {
+          ...fixtureData,
+          domain: {
+            ...fixtureData.domain,
+            salt: undefined,
+          },
+        };
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignTypedData')
+          .mockImplementation(async () => ({
+            v: 27,
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          }));
+
+        const result = await keyring.signTypedData(
+          fakeAccounts[15],
+          fixtureDataWithoutSalt,
           options,
         );
         expect(result).toBe(

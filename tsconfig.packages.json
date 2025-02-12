@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    // NOTE: For some reason, this flag has to be disabled for tsd. See:
+    // https://stackoverflow.com/a/70964056
+    // It is required to build the entire project though, so this flag will be disabled explicitly
+    // in every package.json that uses tsd for their typing tests.
     "composite": true,
     "esModuleInterop": true,
     "exactOptionalPropertyTypes": true,

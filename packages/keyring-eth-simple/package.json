@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-simple-keyring",
-  "version": "6.0.4",
+  "version": "8.1.0",
   "description": "A simple standard interface for a series of Ethereum private keys.",
   "keywords": [
     "ethereum",
@@ -14,36 +14,48 @@
     "type": "git",
     "url": "https://github.com/MetaMask/eth-simple-keyring.git"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
   "files": [
     "dist/"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
-    "build:clean": "rimraf dist && yarn build",
+    "build": "ts-bridge --project tsconfig.build.json --no-references",
+    "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "build:force": "tsc --build tsconfig.build.json --force",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-simple-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-simple-keyring",
     "publish:preview": "yarn npm publish --tag preview",
     "sample": "ts-node src/sample.ts",
     "test": "jest",
     "test:clean": "jest --clearCache",
-    "test:verbose": "jest --verbose",
     "test:watch": "jest --watch"
   },
   "dependencies": {
     "@ethereumjs/util": "^8.1.0",
-    "@metamask/eth-sig-util": "^7.0.3",
-    "@metamask/utils": "^9.2.1",
+    "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/utils": "^11.1.0",
     "ethereum-cryptography": "^2.1.2",
     "randombytes": "^2.1.0"
   },
   "devDependencies": {
     "@ethereumjs/tx": "^4.2.0",
     "@lavamoat/allow-scripts": "^3.2.1",
+    "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
+    "@ts-bridge/cli": "^0.6.1",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
@@ -55,7 +67,7 @@
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
-    "typescript": "~4.8.4"
+    "typescript": "~5.6.3"
   },
   "engines": {
     "node": "^18.18 || >=20"

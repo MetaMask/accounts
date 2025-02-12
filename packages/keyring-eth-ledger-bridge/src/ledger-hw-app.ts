@@ -1,15 +1,7 @@
 import LedgerHwAppEth from '@ledgerhq/hw-app-eth';
-// eslint-disable-next-line import/no-nodejs-modules
 import { Buffer } from 'buffer';
 
 import { GetAppNameAndVersionResponse } from './type';
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export interface MetaMaskLedgerHwAppEth extends LedgerHwAppEth {
-  openEthApp(): void;
-  closeApps(): void;
-  getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse>;
-}
 
 export class MetaMaskLedgerHwAppEth
   extends LedgerHwAppEth

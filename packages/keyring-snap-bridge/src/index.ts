@@ -1,3 +1,3 @@
 export * from './types';
 export * from './SnapKeyring';
-export * from './KeyringSnapControllerClient';
+export type * from './SnapKeyringMessenger';

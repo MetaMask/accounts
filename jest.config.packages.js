@@ -22,7 +22,13 @@ module.exports = {
   collectCoverage: true,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
-  collectCoverageFrom: ['./src/**/*.ts'],
+  collectCoverageFrom: [
+    './src/**/*.ts',
+    // Ignore typing test files
+    '!./src/**/*.test-d.ts',
+    // Ignore index of subdirectories
+    '!./src/**/*/index.ts',
+  ],
 
   // The directory where Jest should output its coverage files
   coverageDirectory: 'coverage',
@@ -80,14 +86,6 @@ module.exports = {
   // Here we ensure that Jest resolves `@metamask/*` imports to the uncompiled source code for packages that live in this repo.
   // NOTE: This must be synchronized with the `paths` option in `tsconfig.packages.json`.
   moduleNameMapper: {
-    // FIXME: For now we do require to build some packages (keyring-api) that is then used
-    // in the keyring-snap package. This might be fixed after splitting the keyring-api into
-    // smaller internal packages!
-    // TODO: Remove this after the split of the keyring-api
-    // {
-    '^@metamask/keyring-api/dist/(.*)$': ['<rootDir>/../keyring-api/dist/$1'],
-    // }
-    '^jest-environment-jsdom$': ['<rootDir>/../keyring-api/dist/$1'],
     '^@metamask/(.+)$': [
       '<rootDir>/../$1/src',
       // Some @metamask/* packages we are referencing aren't in this monorepo,
@@ -141,7 +139,7 @@ module.exports = {
   // runner: "jest-runner",
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
-  setupFiles: ['../../tests/setup.ts'],
+  // setupFiles: ['../../tests/setup.ts'],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   // setupFilesAfterEnv: ['../../tests/setupAfterEnv/index.ts'],

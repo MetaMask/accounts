@@ -1,9 +1,20 @@
+import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { string, array, enums, refine, literal } from '@metamask/superstruct';
+import {
+  string,
+  array,
+  enums,
+  refine,
+  literal,
+  size,
+} from '@metamask/superstruct';
 import { bech32 } from 'bech32';
 
-import { KeyringAccountStruct, BtcAccountType } from '../api';
-import { object } from '../superstruct';
+import {
+  BtcAccountType,
+  KeyringAccountStruct,
+  CaipChainIdStruct,
+} from '../api';
 
 export const BtcP2wpkhAddressStruct = refine(
   string(),
@@ -25,7 +36,7 @@ export const BtcP2wpkhAddressStruct = refine(
  */
 export enum BtcMethod {
   // General transaction methods
-  SendMany = 'btc_sendmany',
+  SendBitcoin = 'sendBitcoin',
 }
 
 export const BtcP2wpkhAccountStruct = object({
@@ -42,9 +53,16 @@ export const BtcP2wpkhAccountStruct = object({
   type: literal(`${BtcAccountType.P2wpkh}`),
 
   /**
+   * Account supported scope (CAIP-2 chain ID).
+   *
+   * NOTE: We consider a Bitcoin address to be valid on only 1 network at time.
+   */
+  scopes: size(array(CaipChainIdStruct), 1),
+
+  /**
    * Account supported methods.
    */
-  methods: array(enums([`${BtcMethod.SendMany}`])),
+  methods: array(enums([`${BtcMethod.SendBitcoin}`])),
 });
 
 export type BtcP2wpkhAccount = Infer<typeof BtcP2wpkhAccountStruct>;

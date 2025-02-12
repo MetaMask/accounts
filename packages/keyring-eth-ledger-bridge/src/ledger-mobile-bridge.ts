@@ -1,4 +1,3 @@
-import ledgerService from '@ledgerhq/hw-app-eth/lib/services/ledger';
 import type Transport from '@ledgerhq/hw-transport';
 
 import {
@@ -30,7 +29,7 @@ export type MobileBridge = LedgerBridge<LedgerMobileBridgeOptions> & {
  * LedgerMobileBridge is a bridge between the LedgerKeyring and the LedgerTransportMiddleware.
  */
 export class LedgerMobileBridge implements MobileBridge {
-  #transportMiddleware?: TransportMiddleware;
+  readonly #transportMiddleware?: TransportMiddleware;
 
   #opts: LedgerMobileBridgeOptions;
 
@@ -47,6 +46,8 @@ export class LedgerMobileBridge implements MobileBridge {
   /**
    * Method to initializes the keyring.
    * Mobile ledger doesnt not require init.
+   *
+   * @returns A promise that will resolve once the bridge is initialized.
    */
   async init(): Promise<void> {
     return Promise.resolve();
@@ -88,20 +89,14 @@ export class LedgerMobileBridge implements MobileBridge {
    *
    * @param params - An object contains hdPath, domainSeparatorHex and hashStructMessageHex.
    * @param params.hdPath - The BIP 32 path of the account.
-   * @param params.domainSeparatorHex - The domain separator.
-   * @param params.hashStructMessageHex - The hashed struct message.
+   * @param params.message - The EIP712 message to sign.
    * @returns Retrieve v, r, s from the signed message.
    */
   async deviceSignTypedData({
     hdPath,
-    domainSeparatorHex,
-    hashStructMessageHex,
+    message,
   }: LedgerSignTypedDataParams): Promise<LedgerSignTypedDataResponse> {
-    return this.#getEthApp().signEIP712HashedMessage(
-      hdPath,
-      domainSeparatorHex,
-      hashStructMessageHex,
-    );
+    return this.#getEthApp().signEIP712Message(hdPath, message);
   }
 
   /**
@@ -117,8 +112,11 @@ export class LedgerMobileBridge implements MobileBridge {
     tx,
     hdPath,
   }: LedgerSignTransactionParams): Promise<LedgerSignTransactionResponse> {
-    const resolution = await ledgerService.resolveTransaction(tx, {}, {});
-    return this.#getEthApp().signTransaction(hdPath, tx, resolution);
+    return this.#getEthApp().clearSignTransaction(hdPath, tx, {
+      externalPlugins: true,
+      erc20: true,
+      nft: true,
+    });
   }
 
   /**

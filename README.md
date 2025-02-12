@@ -15,9 +15,14 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/eth-hd-keyring`](packages/keyring-eth-hd)
 - [`@metamask/eth-ledger-bridge-keyring`](packages/keyring-eth-ledger-bridge)
 - [`@metamask/eth-simple-keyring`](packages/keyring-eth-simple)
-- [`@metamask/eth-snap-keyring`](packages/keyring-snap)
+- [`@metamask/eth-snap-keyring`](packages/keyring-snap-bridge)
 - [`@metamask/eth-trezor-keyring`](packages/keyring-eth-trezor)
 - [`@metamask/keyring-api`](packages/keyring-api)
+- [`@metamask/keyring-internal-api`](packages/keyring-internal-api)
+- [`@metamask/keyring-internal-snap-client`](packages/keyring-internal-snap-client)
+- [`@metamask/keyring-snap-client`](packages/keyring-snap-client)
+- [`@metamask/keyring-snap-sdk`](packages/keyring-snap-sdk)
+- [`@metamask/keyring-utils`](packages/keyring-utils)
 
 <!-- end package list -->
 
@@ -34,8 +39,26 @@ linkStyle default opacity:0.5
   eth_ledger_bridge_keyring(["@metamask/eth-ledger-bridge-keyring"]);
   eth_simple_keyring(["@metamask/eth-simple-keyring"]);
   eth_trezor_keyring(["@metamask/eth-trezor-keyring"]);
+  keyring_internal_api(["@metamask/keyring-internal-api"]);
+  keyring_internal_snap_client(["@metamask/keyring-internal-snap-client"]);
   eth_snap_keyring(["@metamask/eth-snap-keyring"]);
+  keyring_snap_client(["@metamask/keyring-snap-client"]);
+  keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
+  keyring_utils(["@metamask/keyring-utils"]);
+  keyring_api --> keyring_utils;
+  keyring_internal_api --> keyring_api;
+  keyring_internal_api --> keyring_utils;
+  keyring_internal_snap_client --> keyring_api;
+  keyring_internal_snap_client --> keyring_snap_client;
+  keyring_internal_snap_client --> keyring_utils;
   eth_snap_keyring --> keyring_api;
+  eth_snap_keyring --> keyring_internal_api;
+  eth_snap_keyring --> keyring_internal_snap_client;
+  eth_snap_keyring --> keyring_utils;
+  keyring_snap_client --> keyring_api;
+  keyring_snap_client --> keyring_utils;
+  keyring_snap_sdk --> keyring_utils;
+  keyring_snap_sdk --> keyring_api;
 ```
 
 <!-- end dependency graph -->

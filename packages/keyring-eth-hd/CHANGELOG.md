@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.0]
+
+### Added
+
+- Add `signEip7702Authorization` method ([#182](https://github.com/MetaMask/accounts/pull/182))
+
+### Changed
+
+- **BREAKING**: Added types to `HdKeyring` ([#166](https://github.com/MetaMask/accounts/pull/166))
+  - All methods on `HdKeyring` retain their existing signatures, but now have types.
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177)), ([#134](https://github.com/MetaMask/accounts/pull/134))
+- Bump `@metamask/utils` dependency from `^9.3.1` to `11.1.0` ([#134](https://github.com/MetaMask/accounts/pull/134)), ([#167](https://github.com/MetaMask/accounts/pull/167))
+
+## [9.0.1]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
+  - This new version fixes a bug with CJS re-exports.
+
+## [9.0.0]
+
+### Changed
+
+- **BREAKING**: Move seed generation to deserialization ([#100](https://github.com/MetaMask/accounts/pull/100))
+  - Using the constructor directly no longer generates the seed required for account derivation.
+  - Both `serialize` and `deserialize` are now proper `async` methods.
+- Allow passing native custom cryptographic functions ([#102](https://github.com/MetaMask/accounts/pull/102))
+  - The seed generation is now relying `@metamask/key-tree` package (instead of `@metamask/scure-bip39`).
+  - The `constructor` now allows a new option `cryptographicFunctions` which allows the use of custom cryptographic functions during seed generation.
+
+## [8.0.0]
+
+### Changed
+
+- **BREAKING**: Bump `@metamask/eth-sig-util` dependency from `^7.0.3` to `^8.0.0` ([#79](https://github.com/MetaMask/accounts/pull/79))
+  - `signTypedData` no longer support `number` for addresses, see [here](https://github.com/MetaMask/eth-sig-util/blob/main/CHANGELOG.md#800).
+
+## [7.0.4]
+
+### Changed
+
+- Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+
 ## [7.0.3]
 
 ### Changed
@@ -123,7 +168,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.3...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@10.0.0...HEAD
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@9.0.1...@metamask/eth-hd-keyring@10.0.0
+[9.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@9.0.0...@metamask/eth-hd-keyring@9.0.1
+[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@8.0.0...@metamask/eth-hd-keyring@9.0.0
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.4...@metamask/eth-hd-keyring@8.0.0
+[7.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.3...@metamask/eth-hd-keyring@7.0.4
 [7.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.2...@metamask/eth-hd-keyring@7.0.3
 [7.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.1...@metamask/eth-hd-keyring@7.0.2
 [7.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.0...@metamask/eth-hd-keyring@7.0.1

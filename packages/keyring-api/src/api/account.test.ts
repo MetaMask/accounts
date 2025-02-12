@@ -1,6 +1,6 @@
 import { assert } from '@metamask/superstruct';
 
-import { KeyringAccountStruct } from './account';
+import { EthAccountType, KeyringAccountStruct } from './account';
 
 const supportedKeyringAccountTypes = Object.keys(
   KeyringAccountStruct.schema.type.schema,
@@ -12,6 +12,7 @@ describe('api', () => {
   const baseAccount = {
     id: '606a7759-b0fb-48e4-9874-bab62ff8e7eb',
     address: '0x000',
+    scopes: [],
     options: {},
     methods: [],
   };
@@ -33,5 +34,26 @@ describe('api', () => {
         );
       },
     );
+
+    it.each([
+      // Namespace too short (< 3):
+      '',
+      'a',
+      'ei',
+      'bi',
+      'bi:p122something',
+      // Namespace too long (> 8):
+      'eip11155111',
+      'eip11155111:11155111',
+    ])('throws an error if account scopes is: %s', (scope: string) => {
+      const account = {
+        ...baseAccount,
+        type: EthAccountType.Eoa,
+        scopes: [scope],
+      };
+      expect(() => assert(account, KeyringAccountStruct)).toThrow(
+        `At path: scopes.0 -- Expected a value of type \`CaipChainId\`, but received: \`"${scope}"\``,
+      );
+    });
   });
 });

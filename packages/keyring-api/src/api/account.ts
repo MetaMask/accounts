@@ -1,9 +1,9 @@
+import { AccountIdStruct, object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { array, enums, record, string } from '@metamask/superstruct';
+import { nonempty, array, enums, record, string } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
-import { object } from '../superstruct';
-import { UuidStruct } from '../utils';
+import { CaipChainIdStruct } from './caip';
 
 /**
  * Supported Ethereum account types.
@@ -21,12 +21,20 @@ export enum BtcAccountType {
 }
 
 /**
+ * Supported Solana account types.
+ */
+export enum SolAccountType {
+  DataAccount = 'solana:data-account',
+}
+
+/**
  * Supported account types.
  */
 export type KeyringAccountType =
   | `${EthAccountType.Eoa}`
   | `${EthAccountType.Erc4337}`
-  | `${BtcAccountType.P2wpkh}`;
+  | `${BtcAccountType.P2wpkh}`
+  | `${SolAccountType.DataAccount}`;
 
 /**
  * A struct which represents a Keyring account object. It is abstract enough to
@@ -39,7 +47,7 @@ export const KeyringAccountStruct = object({
   /**
    * Account ID (UUIDv4).
    */
-  id: UuidStruct,
+  id: AccountIdStruct,
 
   /**
    * Account type.
@@ -48,12 +56,18 @@ export const KeyringAccountStruct = object({
     `${EthAccountType.Eoa}`,
     `${EthAccountType.Erc4337}`,
     `${BtcAccountType.P2wpkh}`,
+    `${SolAccountType.DataAccount}`,
   ]),
 
   /**
    * Account main address.
    */
   address: string(),
+
+  /**
+   * Account supported scopes (CAIP-2 chain IDs).
+   */
+  scopes: nonempty(array(CaipChainIdStruct)),
 
   /**
    * Account options.

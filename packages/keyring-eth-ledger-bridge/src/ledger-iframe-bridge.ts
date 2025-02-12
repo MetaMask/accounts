@@ -96,7 +96,7 @@ export class LedgerIframeBridge
 
   iframeLoaded = false;
 
-  #opts: LedgerIframeBridgeOptions;
+  readonly #opts: LedgerIframeBridgeOptions;
 
   eventListener?: (eventMessage: {
     origin: string;
@@ -121,7 +121,7 @@ export class LedgerIframeBridge
     };
   }
 
-  async init() {
+  async init(): Promise<void> {
     await this.#setupIframe(this.#opts.bridgeUrl);
 
     this.eventListener = this.#eventListener.bind(this, this.#opts.bridgeUrl);
@@ -129,7 +129,7 @@ export class LedgerIframeBridge
     window.addEventListener('message', this.eventListener);
   }
 
-  async destroy() {
+  async destroy(): Promise<void> {
     if (this.eventListener) {
       window.removeEventListener('message', this.eventListener);
     }
@@ -158,7 +158,8 @@ export class LedgerIframeBridge
           if ('success' in response && response.success) {
             resolve(true);
           } else if ('error' in response) {
-            reject(response.error);
+            // Assuming this is using an `Error` type:
+            reject(response.error as Error);
           } else {
             reject(new Error('Unknown error occurred'));
           }
@@ -249,7 +250,12 @@ export class LedgerIframeBridge
       | [IFrameMessageAction.LedgerSignTransaction, LedgerSignTransactionParams]
       | [IFrameMessageAction.LedgerSignPersonalMessage, LedgerSignMessageParams]
       | [IFrameMessageAction.LedgerSignTypedData, LedgerSignTypedDataParams]
-  ) {
+  ): Promise<
+    | GetPublicKeyResponse
+    | LedgerSignTransactionResponse
+    | LedgerSignMessageResponse
+    | LedgerSignTypedDataResponse
+  > {
     return new Promise((resolve, reject) => {
       this.#sendMessage(
         {
@@ -276,7 +282,7 @@ export class LedgerIframeBridge
       this.iframe = document.createElement('iframe');
       this.iframe.src = bridgeUrl;
       this.iframe.allow = `hid 'src'`;
-      this.iframe.onload = async () => {
+      this.iframe.onload = async (): Promise<void> => {
         this.iframeLoaded = true;
         resolve();
       };
@@ -284,7 +290,7 @@ export class LedgerIframeBridge
     });
   }
 
-  #getOrigin(bridgeUrl: string) {
+  #getOrigin(bridgeUrl: string): string {
     const tmp = bridgeUrl.split('/');
     tmp.splice(-1, 1);
     return tmp.join('/');
@@ -296,7 +302,7 @@ export class LedgerIframeBridge
       origin: string;
       data: IFrameMessageResponse;
     },
-  ) {
+  ): void {
     if (eventMessage.origin !== this.#getOrigin(bridgeUrl)) {
       return;
     }
@@ -317,7 +323,7 @@ export class LedgerIframeBridge
   #sendMessage<TAction extends IFrameMessageAction>(
     message: IFrameMessage<TAction>,
     callback: (response: IFrameMessageResponse) => void,
-  ) {
+  ): void {
     this.currentMessageId += 1;
 
     const postMsg: IFramePostMessage<TAction> = {
@@ -328,7 +334,7 @@ export class LedgerIframeBridge
 
     this.messageCallbacks[this.currentMessageId] = callback;
 
-    if (!this.iframeLoaded || !this.iframe || !this.iframe.contentWindow) {
+    if (!this.iframeLoaded || !this.iframe?.contentWindow) {
       throw new Error('The iframe is not loaded yet');
     }
 

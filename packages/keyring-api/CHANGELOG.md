@@ -7,6 +7,120 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [17.0.0]
+
+### Added
+
+- Re-export `CaipAccountId` type and struct ([#186](https://github.com/MetaMask/accounts/pull/186))
+
+### Changed
+
+- **BREAKING:** Use `CaipAccountId` for `ResolvedAccountAddress.address` ([#186](https://github.com/MetaMask/accounts/pull/186))
+  - This was missing from SIP-26, but we expect this address to be CAIP-10 compliant.
+
+## [16.1.0]
+
+### Added
+
+- Re-export `Caip*` types and structs ([#174](https://github.com/MetaMask/accounts/pull/174))
+
+## [16.0.0]
+
+### Added
+
+- Add `resolveAccountAddress` keyring method ([#157](https://github.com/MetaMask/accounts/pull/157))
+
+### Changed
+
+- **BREAKING:** Remove CAIP redefinitions ([#167](https://github.com/MetaMask/accounts/pull/167))
+  - We now rely on CAIP definitions coming `@metamask/utils`.
+- **BREAKING:** Enforce that `scopes` contains CAIP-2 chain IDs ([#165](https://github.com/MetaMask/accounts/pull/165))
+  - Initially `scopes` accepted CAIP-2 namespaces as well to address the EVM EOA accounts that supports all EVM chains. This has been dropped in favor of `eip155:0` scope.
+- **BREAKING:** Rename `*Scopes` enums to `*Scope` ([#165](https://github.com/MetaMask/accounts/pull/165))
+- Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
+
+## [15.0.0]
+
+### Added
+
+- Add `account{AssetList,Balances,Transactions}UpdatedEventStruct` keyring events ([#154](https://github.com/MetaMask/accounts/pull/154))
+
+### Changed
+
+- **BREAKING:** Make specific `*AccountStruct.scopes` more strict ([#159](https://github.com/MetaMask/accounts/pull/159))
+
+## [14.0.0]
+
+### Added
+
+- Add `listAccountAssets` keyring method ([#148](https://github.com/MetaMask/accounts/pull/148))
+
+### Changed
+
+- **BREAKING:** Make `CaipAssetType` type more restritive ([#150](https://github.com/MetaMask/accounts/pull/150))
+  - It used to be a `string` but it has been restricted with a template literal type that matches CAIP-19 asset type.
+
+## [13.0.0]
+
+### Added
+
+- New scope constant values added for Ethereum, Bitcoin, and Solana ([#101](https://github.com/MetaMask/accounts/pull/101))
+
+### Changed
+
+- **BREAKING:** Add `scopes` field to `KeyringAccount` ([#101](https://github.com/MetaMask/accounts/pull/101))
+
+## [12.0.0]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.1` ([#118](https://github.com/MetaMask/accounts/pull/118))
+  - This new version fixes a bug with CJS re-exports.
+- **BREAKING:** Split into several smaller packages ([#24](https://github.com/MetaMask/accounts/pull/24))
+  - This should improve dependencies management.
+  - Internal related types (internal to both clients) have been moved to `keyring-internal-*` packages.
+  - Keyring API clients (mainly used by dapps) have been moved to `keyring-snap-client` package.
+  - Common utils have been moevd to `keyring-utils` package.
+
+## [11.1.0]
+
+### Added
+
+- Add `listAccountTransactions` keyring method ([#41](https://github.com/MetaMask/accounts/pull/41))
+
+## [11.0.0]
+
+### Added
+
+- **BREAKING:** Add ESM build ([#40](https://github.com/MetaMask/accounts/pull/40))
+  - It's no longer possible to import files from `./dist` directly.
+
+## [10.1.0]
+
+### Added
+
+- Add `solana:data-account` account support ([#93](https://github.com/MetaMask/accounts/pull/93))
+
+## [10.0.0]
+
+### Changed
+
+- Add proprietary license ([#83](https://github.com/MetaMask/accounts/pull/83))
+- **BREAKING:** Bump peer dependency `@metamask/providers` from `^17.2.0` to `^18.1.0` ([#76](https://github.com/MetaMask/accounts/pull/76))
+
+## [9.0.0]
+
+### Changed
+
+- **BREAKING:** Rename `btc_sendmany` method to `sendBitcoin` ([#73](https://github.com/MetaMask/accounts/pull/73))
+
+## [8.1.3]
+
+### Changed
+
+- Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+
 ## [8.1.2]
 
 ### Changed
@@ -405,7 +519,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.1.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.0.0...HEAD
+[17.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@16.1.0...@metamask/keyring-api@17.0.0
+[16.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@16.0.0...@metamask/keyring-api@16.1.0
+[16.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@15.0.0...@metamask/keyring-api@16.0.0
+[15.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@14.0.0...@metamask/keyring-api@15.0.0
+[14.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@13.0.0...@metamask/keyring-api@14.0.0
+[13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@12.0.0...@metamask/keyring-api@13.0.0
+[12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@11.1.0...@metamask/keyring-api@12.0.0
+[11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@11.0.0...@metamask/keyring-api@11.1.0
+[11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@10.1.0...@metamask/keyring-api@11.0.0
+[10.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@10.0.0...@metamask/keyring-api@10.1.0
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@9.0.0...@metamask/keyring-api@10.0.0
+[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.1.3...@metamask/keyring-api@9.0.0
+[8.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.1.2...@metamask/keyring-api@8.1.3
 [8.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.1.1...@metamask/keyring-api@8.1.2
 [8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.1.0...@metamask/keyring-api@8.1.1
 [8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@8.0.2...@metamask/keyring-api@8.1.0

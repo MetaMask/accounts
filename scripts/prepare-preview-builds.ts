@@ -1,5 +1,4 @@
-#!yarn ts-node
-
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import PackageJson from '@npmcli/package-json';
 // import { spawn } from 'node:child_process/promises';
 import { spawn } from 'child_process';
@@ -23,6 +22,8 @@ type WorkspacePreviewPackage = WorkspacePackage & {
   previewVersion: string;
   version: string;
 };
+
+type DependenciesRecord = Record<string, string>;
 
 class UsageError extends Error {
   constructor(message: string) {
@@ -144,11 +145,35 @@ async function updateWorkspacePackagesWithPreviewInfo(
       version: pkg.previewVersion,
     });
 
+    // FIXME: Looks like peer dependencies do not play well with resolutions, so move the
+    // workspace packages as normal dependencies in this case
+    const peerDepKey = 'peerDependencies';
+    if (peerDepKey in pkgJson.content) {
+      const depKey = 'dependencies';
+      const deps = pkgJson.content[depKey] as DependenciesRecord;
+      const peerDeps = pkgJson.content[peerDepKey] as DependenciesRecord;
+
+      for (const { name, version } of previewPkgs) {
+        // Only consider dependenc that refers to a local workspace package
+        if (name in peerDeps && peerDeps[name] === 'workspace:^') {
+          // Move this dependency as a normal dependency with a "fixed" version
+          deps[name] = version;
+          delete peerDeps[name];
+        }
+      }
+
+      // Finally override both dependencies
+      pkgJson.update({
+        [depKey]: deps,
+        [peerDepKey]: peerDeps,
+      });
+    }
+
     // Update dependencies that refers to a workspace package. We pin the current version
     // of that package instead, and `yarn` will resolve this using the global resolutions
     // (see `updateWorkspaceResolutions`)
     for (const depKey of ['dependencies', 'devDependencies']) {
-      const deps = pkgJson.content[depKey];
+      const deps = pkgJson.content[depKey] as DependenciesRecord;
 
       for (const { name, version } of previewPkgs) {
         // Only consider dependenc that refers to a local workspace package
@@ -203,14 +228,14 @@ async function updateWorkspaceResolutions(
 /**
  * Yarn install.
  */
-function yarnInstall() {
+function yarnInstall(): void {
   spawn('yarn', ['install', '--no-immutable'], { stdio: 'inherit' });
 }
 
 /**
  * The entrypoint to this script.
  */
-async function main() {
+async function main(): Promise<void> {
   const { npmScope, commitId } = await parseAndVerifyArguments();
   const previewPkgs = await getWorkspacePreviewPackages(npmScope, commitId);
 

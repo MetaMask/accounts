@@ -38,7 +38,7 @@ export class InvalidSnapIdError extends Error {
  * item to the map can modify or delete it.
  */
 export class SnapIdMap<Value extends { snapId: SnapId }> {
-  #map: CaseInsensitiveMap<Value>;
+  readonly #map: CaseInsensitiveMap<Value>;
 
   /**
    * Creates a new `SnapIdMap` object.
@@ -155,6 +155,18 @@ export class SnapIdMap<Value extends { snapId: SnapId }> {
    */
   has(snapId: SnapId, key: string): boolean {
     return this.get(snapId, key) !== undefined;
+  }
+
+  /**
+   * Checks if a snap ID exists in the map.
+   *
+   * @param snapId - Snap ID present in the value to check.
+   * @returns `true` if the snap ID is present in the map, `false` otherwise.
+   */
+  hasSnapId(snapId: SnapId): boolean {
+    // We could use a reverse-mapping to map Snap ID to their actual key too, but
+    // for now, this will do the trick.
+    return [...this.#map.values()].some((value) => value.snapId === snapId);
   }
 
   /**

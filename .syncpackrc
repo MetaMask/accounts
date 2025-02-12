@@ -1,30 +1,39 @@
 {
+  "customTypes": {
+    "engines": {
+      "path": "engines",
+      "strategy": "versionsByName"
+    },
+    "packageManager": {
+      "path": "packageManager",
+      "strategy": "name@version"
+    }
+  },
   "semverGroups": [
     {
-      "label": "use tilde range for typescript",
-      "packages": ["**"],
-      "dependencies": ["typescript"],
+      "label": "use tilde range for some dependencies",
+      "dependencies": ["eslint-plugin-import", "typescript"],
       "range": "~"
     },
     {
-      "label": "use caret ranges everywhere",
-      "packages": ["**"],
+      "label": "use exact versions for some dependencies",
+      "dependencies": ["yarn"],
+      "range": ""
+    },
+    {
+      "label": "use caret ranges everywhere else",
       "dependencies": ["**"],
       "range": "^"
     }
   ],
   "versionGroups": [
     {
-      "label": "use pinned version of eth-hd-keyring in non-regression test",
-      "dependencyTypes": ["dev"],
-      "packages": ["@metamask/eth-hd-keyring"],
-      "dependencies": ["@metamask/eth-hd-keyring"],
-      "pinVersion": "4.0.1"
-    },
-    {
-      "label": "use workspace version of the keyring-api",
-      "dependencyTypes": ["dev", "peer"],
-      "dependencies": ["@metamask/keyring-api"],
+      "label": "use workspace version of packages in the monorepo",
+      "dependencyTypes": ["!local"],
+      "dependencies": [
+        "@metamask/keyring-**",
+        "@metamask/eth-**-keyring"
+      ],
       "pinVersion": "workspace:^"
     }
   ]

@@ -14,6 +14,9 @@ module.exports = merge(baseConfig, {
   // The display name when running multiple projects
   displayName,
 
+  // A preset that is used as a base for Jest's configuration
+  preset: 'ts-jest/presets/js-with-ts',
+
   // An array of regexp pattern strings used to skip coverage collection
   coveragePathIgnorePatterns: ['./test'],
 
