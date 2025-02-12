@@ -240,7 +240,7 @@ export type AccountAssetListUpdatedEventPayload =
 /**
  * Keyring events.
  */
-export type KeyringEvents =
+type KeyringEvents =
   | AccountCreatedEvent
   | AccountUpdatedEvent
   | AccountDeletedEvent
