@@ -12,10 +12,6 @@ Signs and sends a transaction to the Solana blockchain.
 - **Transaction intent (required)**
   - Type: `object`
   - Properties:
-    - `origin` (required)
-      - Description: The origin of the transaction.
-      - Type: `string`
-      - Example: `https://example.com`
     - `account` (required)
       - Description: The account to sign the transaction.
       - Type: `object`
@@ -55,7 +51,6 @@ Signs and sends a transaction to the Solana blockchain.
 {
   "method": "signAndSendTransaction",
   "params": {
-    "origin": "https://example.com",
     "account": {
       "address": "1234567890"
     },
@@ -87,10 +82,6 @@ Signs a transaction to the Solana blockchain.
 - **Transaction intent (required)**
   - Type: `object`
   - Properties:
-    - `origin` (required)
-      - Description: The origin of the transaction.
-      - Type: `string`
-      - Example: `https://example.com`
     - `account` (required)
       - Description: The account to sign the transaction.
       - Type: `object`
@@ -129,7 +120,6 @@ Signs a transaction to the Solana blockchain.
 {
   "method": "signTransaction",
   "params": {
-    "origin": "https://example.com",
     "account": {
       "address": "1234567890"
     },
@@ -160,10 +150,6 @@ Signs a message to the Solana blockchain.
 - **Message intent (required)**
   - Type: `object`
   - Properties:
-    - `origin` (required)
-      - Description: The origin of the message.
-      - Type: `string`
-      - Example: `https://example.com`
     - `account` (required)
       - Description: The account to sign the message.
       - Type: `object`
@@ -198,7 +184,6 @@ Signs a message to the Solana blockchain.
 {
   "method": "signMessage",
   "params": {
-    "origin": "https://example.com",
     "account": {
       "address": "1234567890"
     },
@@ -226,10 +211,6 @@ Signs and sends all transactions to the Solana blockchain.
 - **Transaction intents (required)**
   - Type: `object`
   - Properties:
-    - `origin` (required)
-      - Description: The origin of the transactions.
-      - Type: `string`
-      - Example: `https://example.com`
     - `transactions` (required)
       - Description: The transactions to sign and send.
       - Type: `array`
@@ -276,7 +257,6 @@ Signs and sends all transactions to the Solana blockchain.
 {
   "method": "signAndSendAllTransactions",
   "params": {
-    "origin": "https://example.com",
     "transactions": [
       {
         "transaction": "1234567890",
