@@ -1,0 +1,76 @@
+{
+  "name": "@metamask/eth-qr-keyring",
+  "version": "1.0.0",
+  "description": "A simple standard interface for a series of Ethereum private keys.",
+  "keywords": [
+    "ethereum",
+    "keyring",
+    "qr",
+    "metamask"
+  ],
+  "homepage": "https://github.com/MetaMask/accounts/packages/keyring-eth-qr#readme",
+  "bugs": {
+    "url": "https://github.com/MetaMask/accounts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/accounts.git"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "build:clean": "rimraf dist && yarn build",
+    "build:docs": "typedoc",
+    "build:force": "tsc --build tsconfig.build.json --force",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-simple-keyring",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-simple-keyring",
+    "publish:preview": "yarn npm publish --tag preview",
+    "sample": "ts-node src/sample.ts",
+    "test": "jest",
+    "test:clean": "jest --clearCache",
+    "test:verbose": "jest --verbose",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@ethereumjs/util": "^9.1.0",
+    "@keystonehq/bc-ur-registry-eth": "^0.21.0",
+    "@keystonehq/ur-decoder": "^0.12.2",
+    "@metamask/utils": "^9.2.1",
+    "@ngraveio/bc-ur": "^1.1.13",
+    "hdkey": "^2.1.0"
+  },
+  "devDependencies": {
+    "@lavamoat/allow-scripts": "^3.2.1",
+    "@metamask/auto-changelog": "^3.4.4",
+    "@types/hdkey": "^2.0.1",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.12",
+    "deepmerge": "^4.2.2",
+    "depcheck": "^1.4.7",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.2",
+    "typedoc": "^0.25.13",
+    "typescript": "~4.8.4"
+  },
+  "engines": {
+    "node": "^18.18 || >=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "keccak": true,
+      "secp256k1": true,
+      "@lavamoat/preinstall-always-fail": false,
+      "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>secp256k1": false
+    }
+  }
+}
