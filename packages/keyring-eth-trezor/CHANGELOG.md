@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add new dedicated `OneKeyKeyring` keyring ([#175](https://github.com/MetaMask/accounts/pull/175))
-  - This keyring is similar to the `TrezorKeyring` but will allow to distinguish both type of devices, the transport layer (bridge) remains the same.
+  - This keyring is similar to the `TrezorKeyring` but will allow to distinguish both types of devices, the transport layer (bridge) remains the same.
 
 ## [6.0.2]
 
