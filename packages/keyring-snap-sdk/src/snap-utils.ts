@@ -1,7 +1,4 @@
-import type {
-  KeyringEvent,
-  KeyringEventPayload,
-} from '@metamask/keyring-api';
+import type { KeyringEvent, KeyringEventPayload } from '@metamask/keyring-api';
 import type { SnapsProvider } from '@metamask/snaps-sdk';
 
 /**
