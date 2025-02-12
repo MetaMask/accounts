@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `Keyring` and `KeyringClass` types ([#201](https://github.com/MetaMask/accounts/pull/201)) ([#205](https://github.com/MetaMask/accounts/pull/205)) 
-  - The two types have been migrated from `@metamask/utils`
+- Add `Keyring` and `KeyringClass` types ([#201](https://github.com/MetaMask/accounts/pull/201)), ([#205](https://github.com/MetaMask/accounts/pull/205)) 
+  - The two types have been migrated from `@metamask/utils`.
 
 ## [2.0.0]
 
