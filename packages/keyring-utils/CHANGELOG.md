@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Export `Keyring` and `KeyringClass` types from package root ([#208](https://github.com/MetaMask/accounts/pull/208))
+
 ## [2.1.0]
 
 ### Added
