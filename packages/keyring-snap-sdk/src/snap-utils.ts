@@ -1,6 +1,5 @@
-import type { KeyringEvent } from '@metamask/keyring-api';
+import type { KeyringEvent, KeyringEventPayload } from '@metamask/keyring-api';
 import type { SnapsProvider } from '@metamask/snaps-sdk';
-import type { Json } from '@metamask/utils';
 
 /**
  * Emit a keyring event from a snap.
@@ -9,10 +8,10 @@ import type { Json } from '@metamask/utils';
  * @param event - The event name.
  * @param data - The event data.
  */
-export async function emitSnapKeyringEvent(
+export async function emitSnapKeyringEvent<Event extends KeyringEvent>(
   snap: SnapsProvider,
-  event: KeyringEvent,
-  data: Record<string, Json>,
+  event: Event,
+  data: KeyringEventPayload<Event>,
 ): Promise<void> {
   await snap.request({
     method: 'snap_manageAccounts',
