@@ -255,7 +255,7 @@ export class SnapKeyring extends EventEmitter {
           // calling `deleteAccount` on the Snap.
           // eslint-disable-next-line no-void
           void this.#callbacks.saveState().catch(async () => {
-            await this.#deleteAccount(snapId, account.id);
+            await this.#deleteAccount(snapId, account);
           });
         }
       },
@@ -1122,36 +1122,30 @@ export class SnapKeyring extends EventEmitter {
   async removeAccount(address: string): Promise<void> {
     const { account, snapId } = this.#resolveAddress(address);
 
-    await this.#deleteAccount(
-      snapId,
-      account.id,
-      `Account '${address}' may not have been removed from snap '${snapId}'`,
-    );
+    await this.#deleteAccount(snapId, account);
   }
 
   /**
    * Removes an account.
    *
    * @param snapId - Snap ID.
-   * @param accountId - Account ID of the account to remove.
-   * @param message - An error message that will be logged if the Snap failed to remove the account.
+   * @param account - Account to delete.
    */
-  async #deleteAccount(
-    snapId: SnapId,
-    accountId: string,
-    message = `Account '${accountId}' may not have been removed from snap '${snapId}'`,
-  ): Promise<void> {
+  async #deleteAccount(snapId: SnapId, account: KeyringAccount): Promise<void> {
     // Always remove the account from the maps, even if the Snap is going to
     // fail to delete it.
-    this.#accounts.delete(snapId, accountId);
+    this.#accounts.delete(snapId, account.id);
 
     try {
-      await this.#snapClient.withSnapId(snapId).deleteAccount(accountId);
+      await this.#snapClient.withSnapId(snapId).deleteAccount(account.id);
     } catch (error) {
       // If the Snap failed to delete the account, log the error and continue
       // with the account deletion, otherwise the account will be stuck in the
       // keyring.
-      console.error(`${message}:`, error);
+      console.error(
+        `Account '${account.address}' may not have been removed from snap '${snapId}':`,
+        error,
+      );
     }
   }
 
