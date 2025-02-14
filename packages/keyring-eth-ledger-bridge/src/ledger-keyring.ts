@@ -1,5 +1,10 @@
 import { RLP } from '@ethereumjs/rlp';
-import { TransactionFactory, TxData, TypedTransaction } from '@ethereumjs/tx';
+import {
+  TransactionFactory,
+  TxData,
+  TypedTransaction,
+  TypedTxData,
+} from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import {
@@ -15,6 +20,7 @@ import HDKey from 'hdkey';
 
 import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
 import { LedgerIframeBridgeOptions } from './ledger-iframe-bridge';
+import { bytesToHex, remove0x } from '@metamask/utils';
 
 const pathBase = 'm';
 const hdPathString = `${pathBase}/44'/60'/0'`;
@@ -330,7 +336,7 @@ export class LedgerKeyring extends EventEmitter {
       // value. In newer versions the chainId is communicated via the 'Common'
       // object.
       // @ts-expect-error tx.v should be a Buffer, but we are assigning a string
-      tx.v = ethUtil.bufferToHex(tx.getChainId());
+      tx.v = ethUtil.bytesToHex(tx.getChainId());
       // @ts-expect-error tx.r should be a Buffer, but we are assigning a string
       tx.r = '0x00';
       // @ts-expect-error tx.s should be a Buffer, but we are assigning a string
@@ -354,17 +360,17 @@ export class LedgerKeyring extends EventEmitter {
     // Note also that `getMessageToSign` will return valid RLP for all transaction types, whereas the
     // `serialize` method will not for any transaction type except legacy. This is because `serialize` includes
     // empty r, s and v values in the encoded rlp. This is why we use `getMessageToSign` here instead of `serialize`.
-    const messageToSign = tx.getMessageToSign(false);
+    const messageToSign = tx.getMessageToSign();
 
-    rawTxHex = Buffer.isBuffer(messageToSign)
-      ? messageToSign.toString('hex')
-      : Buffer.from(RLP.encode(messageToSign)).toString('hex');
+    rawTxHex = Array.isArray(messageToSign)
+      ? Buffer.from(RLP.encode(messageToSign)).toString('hex')
+      : bytesToHex(messageToSign);
 
     return this.#signTransaction(address, rawTxHex, (payload) => {
       // Because tx will be immutable, first get a plain javascript object that
       // represents the transaction. Using txData here as it aligns with the
       // nomenclature of ethereumjs/tx.
-      const txData: TxData = tx.toJSON();
+      const txData: TypedTxData = tx.toJSON();
       // The fromTxData utility expects a type to support transactions with a type other than 0
       txData.type = tx.type;
       // The fromTxData utility expects v,r and s to be hex prefixed
@@ -632,9 +638,9 @@ export class LedgerKeyring extends EventEmitter {
 
   #addressFromIndex(basePath: string, i: number): string {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = ethUtil
-      .publicToAddress(dkey.publicKey, true)
-      .toString('hex');
+    const address = remove0x(
+      bytesToHex(ethUtil.publicToAddress(dkey.publicKey, true)),
+    );
     return ethUtil.toChecksumAddress(`0x${address}`);
   }
 

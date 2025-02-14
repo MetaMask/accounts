@@ -9,6 +9,7 @@ import HDKey from 'hdkey';
 import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
 import { LedgerIframeBridge } from './ledger-iframe-bridge';
 import { AccountDetails, LedgerKeyring } from './ledger-keyring';
+import { bytesToHex } from '@metamask/utils';
 
 jest.mock('@metamask/eth-sig-util', () => {
   return {
@@ -48,7 +49,7 @@ const fakeTx = new EthereumTx({
   value: '0x00',
   data: '0x7f7465737432000000000000000000000000000000000000000000000000000000600057',
   // EIP 155 chainId - mainnet: 1, ropsten: 3
-  chainId: 1,
+  chainId: '0x1',
 });
 
 const common = new Common({ chain: Chain.Mainnet, hardfork: Hardfork.Berlin });
@@ -653,7 +654,7 @@ describe('LedgerKeyring', function () {
             v: '0x26',
             r: '0xf3a7718999d1b87beda810b25cc025153e74df0745279826b9b2f3d1d1b6318',
             s: '0x7e33bdfbf5272dc4f55649e9ba729849670171a68ef8c0fbeed3b879b90b8954',
-          };
+          } as const;
 
           await basicSetupToUnlockOneAccount();
 
@@ -679,7 +680,7 @@ describe('LedgerKeyring', function () {
               expect(params).toStrictEqual({
                 hdPath: "m/44'/60'/0'/0",
                 tx: Buffer.from(
-                  RLP.encode(newFakeTx.getMessageToSign(false)),
+                  RLP.encode(newFakeTx.getMessageToSign()),
                 ).toString('hex'),
               });
               return expectedRSV;
@@ -701,7 +702,7 @@ describe('LedgerKeyring', function () {
             v: '0x0',
             r: '0x5ffb3adeaec80e430e7a7b02d95c5108b6f09a0bdf3cf69869dc1b38d0fb8d3a',
             s: '0x28b234a5403d31564e18258df84c51a62683e3f54fa2b106fdc1a9058006a112',
-          };
+          } as const;
 
           await basicSetupToUnlockOneAccount();
 
@@ -726,7 +727,7 @@ describe('LedgerKeyring', function () {
             .mockImplementation(async (params) => {
               expect(params).toStrictEqual({
                 hdPath: "m/44'/60'/0'/0",
-                tx: fakeTypeTwoTx.getMessageToSign(false).toString('hex'),
+                tx: bytesToHex(fakeTypeTwoTx.getMessageToSign() as Uint8Array),
               });
               return expectedRSV;
             });
