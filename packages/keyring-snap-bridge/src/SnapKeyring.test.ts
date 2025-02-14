@@ -1,4 +1,4 @@
-import { TransactionFactory, TypedTxData } from '@ethereumjs/tx';
+import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
 import { Messenger } from '@metamask/base-controller';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
