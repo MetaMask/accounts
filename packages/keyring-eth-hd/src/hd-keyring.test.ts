@@ -28,8 +28,7 @@ import { keccak256 } from 'ethereum-cryptography/keccak';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import OldHdKeyring from 'old-hd-keyring';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-import HdKeyring from '../src';
+import { HdKeyring } from '.';
 
 // Sample account:
 const privKeyHex =
