@@ -30,7 +30,6 @@ export enum SolMethod {
   SendAndConfirmTransaction = 'sendAndConfirmTransaction',
 
   SignAndSendTransaction = 'signAndSendTransaction',
-  SignAndSendAllTransactions = 'signAndSendAllTransactions',
   SignTransaction = 'signTransaction',
   SignMessage = 'signMessage',
   SignIn = 'signIn',
