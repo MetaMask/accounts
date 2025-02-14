@@ -1,5 +1,5 @@
 import { TransactionFactory } from '@ethereumjs/tx';
-import type { TypedTransaction, TxData } from '@ethereumjs/tx';
+import type { TypedTransaction, TxData, TypedTxData } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import {
   TypedMessage,
@@ -318,7 +318,7 @@ export class TrezorKeyring extends EventEmitter {
         // Because tx will be immutable, first get a plain javascript object that
         // represents the transaction. Using txData here as it aligns with the
         // nomenclature of ethereumjs/tx.
-        const txData: TxData = tx.toJSON();
+        const txData: TypedTxData = tx.toJSON();
         // The fromTxData utility expects a type to support transactions with a type other than 0
         txData.type = tx.type;
         // The fromTxData utility expects v,r and s to be hex prefixed
@@ -370,7 +370,7 @@ export class TrezorKeyring extends EventEmitter {
       transaction = {
         ...tx.toJSON(),
         chainId,
-        to: this.#normalize(ethUtil.toBuffer(tx.to)),
+        to: this.#normalize(Buffer.from(tx.to?.bytes ?? [])),
       } as EthereumTransaction | EthereumTransactionEIP1559;
     }
 
@@ -549,15 +549,15 @@ export class TrezorKeyring extends EventEmitter {
   }
 
   #normalize(buf: Buffer): string {
-    return ethUtil.bufferToHex(buf).toString();
+    return `0x${buf.toString('hex')}`;
   }
 
   #addressFromIndex(basePath: string, i: number): string {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = ethUtil
-      .publicToAddress(dkey.publicKey, true)
-      .toString('hex');
-    return ethUtil.toChecksumAddress(`0x${address}`);
+    const address = ethUtil.bytesToHex(
+      ethUtil.publicToAddress(dkey.publicKey, true),
+    );
+    return ethUtil.toChecksumAddress(address);
   }
 
   #pathFromAddress(address: string): string {
