@@ -52,9 +52,9 @@ Signs and sends a transaction to the Solana blockchain.
   "method": "signAndSendTransaction",
   "params": {
     "account": {
-      "address": "1234567890"
+      "address": "GM4iccdbdSF1qN3Bqmdksfk7iuxYhWzC8T3XbizStAdE"
     },
-    "transaction": "1234567890",
+    "transaction": "MTIzNDU2Nzg5MDIzMzQzNDM1NDM=",
     "scope": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
     "options": {
       "commitment": "confirmed",
@@ -121,9 +121,9 @@ Signs a transaction to the Solana blockchain.
   "method": "signTransaction",
   "params": {
     "account": {
-      "address": "1234567890"
+      "address": "GM4iccdbdSF1qN3Bqmdksfk7iuxYhWzC8T3XbizStAdE"
     },
-    "transaction": "1234567890",
+    "transaction": "MTIzNDU2Nzg5MDIzMzQzNDM1NDM=",
     "scope": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
     "options": {
       "preflightCommitment": "confirmed",
@@ -137,7 +137,7 @@ Signs a transaction to the Solana blockchain.
 
 ```json
 {
-  "signedTransaction": "1234567890"
+  "signedTransaction": "MTIzNDU2Nzg5MDIzMzQzNDM1NDM2NDU2NTM0"
 }
 ```
 
@@ -185,7 +185,7 @@ Signs a message to the Solana blockchain.
   "method": "signMessage",
   "params": {
     "account": {
-      "address": "1234567890"
+      "address": "GM4iccdbdSF1qN3Bqmdksfk7iuxYhWzC8T3XbizStAdE"
     },
     "message": "1234567890"
   }
@@ -197,7 +197,7 @@ Signs a message to the Solana blockchain.
 ```json
 {
   "signature": "1234567890",
-  "signedMessage": "1234567890",
+  "signedMessage": "MTIzNDU2Nzg5MA==",
   "signatureType": "ed25519"
 }
 ```
@@ -289,9 +289,9 @@ Signs in to the Solana blockchain.
 ```json
 {
   "account": {
-    "address": "1234567890"
+    "address": "GM4iccdbdSF1qN3Bqmdksfk7iuxYhWzC8T3XbizStAdE"
   },
-  "signedMessage": "1234567890",
+  "signedMessage": "MTIzNDU2Nzg5MA==",
   "signature": "1234567890",
   "signatureType": "ed25519"
 }
