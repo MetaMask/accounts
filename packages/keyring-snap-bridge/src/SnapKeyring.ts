@@ -210,7 +210,7 @@ export class SnapKeyring extends EventEmitter {
     // READ THIS CAREFULLY:
     // ------------------------------------------------------------------------
     // The account creation flow is now asynchronous. We expect the Snap to
-    // first create its account data and then fire the "AccountCreated" event.
+    // first create the account data and then fire the "AccountCreated" event.
 
     // Potentially migrate the account.
     const account = transformAccount(newAccountFromEvent);
@@ -229,8 +229,8 @@ export class SnapKeyring extends EventEmitter {
       throw new Error(`Account '${account.id}' already exists`);
     }
 
-    // Add the account on the keyring, but wait for the MetaMask client to first
-    // approve this first.
+    // Add the account to the keyring, but wait for the MetaMask client to
+    // approve the account creation first.
     await this.#callbacks.addAccount(
       address,
       snapId,
@@ -238,7 +238,7 @@ export class SnapKeyring extends EventEmitter {
       // the end user will accept or not the account creation.
       async (accepted: boolean) => {
         if (accepted) {
-          // We only consider the account to be created on the Snap keyring only if
+          // We consider the account to be created on the Snap keyring only if
           // the user accepted it. Meaning that the Snap MIGHT HAVE created the
           // account on its own state, but the Snap keyring MIGHT NOT HAVE it yet.
           //
