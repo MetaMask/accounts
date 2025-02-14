@@ -1,11 +1,5 @@
 import type { TypedTransaction } from '@ethereumjs/tx';
-import {
-  privateToPublic,
-  publicToAddress,
-  ecsign,
-  arrToBufArr,
-  bufferToHex,
-} from '@ethereumjs/util';
+import { privateToPublic, publicToAddress, ecsign } from '@ethereumjs/util';
 import {
   concatSig,
   decrypt,
@@ -31,6 +25,8 @@ import {
   add0x,
   assert,
   assertIsHexString,
+  bigIntToBytes,
+  bigIntToHex,
   type Hex,
   remove0x,
 } from '@metamask/utils';
@@ -227,7 +223,7 @@ class HdKeyring {
     });
     assert(wallet.publicKey, 'Expected public key to be set');
     const appKeyAddress = this.#normalizeAddress(
-      publicToAddress(wallet.publicKey).toString('hex'),
+      bytesToHex(publicToAddress(wallet.publicKey)),
     );
     return appKeyAddress;
   }
@@ -293,10 +289,9 @@ class HdKeyring {
     const privKey = this.#getPrivateKeyFor(address, opts);
     const msgSig = ecsign(Buffer.from(message, 'hex'), Buffer.from(privKey));
     const rawMsgSig = concatSig(
-      // WARN: verify this cast to Buffer
-      msgSig.v as unknown as Buffer,
-      msgSig.r,
-      msgSig.s,
+      Buffer.from(bigIntToBytes(msgSig.v)),
+      Buffer.from(msgSig.r),
+      Buffer.from(msgSig.s),
     );
     return rawMsgSig;
   }
@@ -567,9 +562,12 @@ class HdKeyring {
       assert(privateKey, 'Expected private key to be set');
       const appKeyOriginBuffer = Buffer.from(withAppKeyOrigin, 'utf8');
       const appKeyBuffer = Buffer.concat([privateKey, appKeyOriginBuffer]);
-      const appKeyPrivateKey = arrToBufArr(keccak256(appKeyBuffer));
+      const appKeyPrivateKey = keccak256(appKeyBuffer);
       const appKeyPublicKey = privateToPublic(appKeyPrivateKey);
-      return { privateKey: appKeyPrivateKey, publicKey: appKeyPublicKey };
+      return {
+        privateKey: Buffer.from(appKeyPrivateKey),
+        publicKey: Buffer.from(appKeyPublicKey),
+      };
     }
 
     return wallet;
@@ -611,7 +609,7 @@ class HdKeyring {
    */
   #addressfromPublicKey(publicKey: Uint8Array): Hex {
     return add0x(
-      bufferToHex(publicToAddress(Buffer.from(publicKey), true)).toLowerCase(),
+      bytesToHex(publicToAddress(Buffer.from(publicKey), true)).toLowerCase(),
     );
   }
 

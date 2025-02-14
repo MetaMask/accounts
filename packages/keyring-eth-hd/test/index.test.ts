@@ -1,8 +1,6 @@
-import { TransactionFactory, Transaction as EthereumTx } from '@ethereumjs/tx';
+import { TransactionFactory, Transaction as EthereumTx, LegacyTransaction, TypedTxData } from '@ethereumjs/tx';
 import {
   isValidAddress,
-  bufferToHex,
-  toBuffer,
   ecrecover,
   pubToAddress,
 } from '@ethereumjs/util';
@@ -22,7 +20,7 @@ import {
   type EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
-import { assert, type Hex } from '@metamask/utils';
+import { assert, bytesToHex, hexToBytes, type Hex } from '@metamask/utils';
 import { webcrypto } from 'crypto';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -636,7 +634,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
       });
       const localMessage = 'hello there!';
-      const msgHashHex = bufferToHex(
+      const msgHashHex = bytesToHex(
         Buffer.from(keccak256(Buffer.from(localMessage))),
       );
       await keyring.addAccounts(9);
@@ -649,12 +647,12 @@ describe('hd-keyring', () => {
       signatures.forEach((sgn, index) => {
         const accountAddress = addresses[index];
 
-        const signatureR = toBuffer(sgn.slice(0, 66));
-        const signatureS = toBuffer(`0x${sgn.slice(66, 130)}`);
+        const signatureR = hexToBytes(sgn.slice(0, 66));
+        const signatureS = hexToBytes(`0x${sgn.slice(66, 130)}`);
         const signatureV = BigInt(`0x${sgn.slice(130, 132)}`);
-        const messageHash = toBuffer(msgHashHex);
+        const messageHash = hexToBytes(msgHashHex);
         const pub = ecrecover(messageHash, signatureV, signatureR, signatureS);
-        const adr = `0x${pubToAddress(pub).toString('hex')}`;
+        const adr = bytesToHex(pubToAddress(pub));
 
         expect(adr).toBe(accountAddress);
       });
@@ -1049,8 +1047,7 @@ describe('hd-keyring', () => {
       });
     });
 
-    const txParams = {
-      from: firstAcct,
+    const txParams: TypedTxData = {
       nonce: '0x00',
       gasPrice: '0x09184e72a000',
       gasLimit: '0x2710',
@@ -1059,7 +1056,7 @@ describe('hd-keyring', () => {
     };
 
     it('returns a signed legacy tx object', async function () {
-      const tx = new EthereumTx(txParams);
+      const tx = LegacyTransaction.fromTxData(txParams);
       expect(tx.isSigned()).toBe(false);
 
       const signed = await keyring.signTransaction(firstAcct, tx);
