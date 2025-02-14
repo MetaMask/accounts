@@ -36,7 +36,7 @@ import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
-import type { Json } from '@metamask/utils';
+import type { Hex, Json } from '@metamask/utils';
 import {
   bigIntToHex,
   KnownCaipNamespace,
@@ -907,9 +907,9 @@ export class SnapKeyring extends EventEmitter {
 
     return TransactionFactory.fromTxData({
       ...(tx as Record<string, Json>),
-      r: signature.r,
-      s: signature.s,
-      v: signature.v,
+      r: signature.r as Hex,
+      s: signature.s as Hex,
+      v: signature.v as Hex,
     });
   }
 
