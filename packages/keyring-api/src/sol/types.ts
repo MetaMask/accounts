@@ -24,7 +24,15 @@ export const SolAddressStruct = definePattern(
  */
 export enum SolMethod {
   // General transaction methods
+
+  // @deprecated
+  // TODO: Remove this once the new methods are fully adopted
   SendAndConfirmTransaction = 'sendAndConfirmTransaction',
+
+  SignAndSendTransaction = 'signAndSendTransaction',
+  SignTransaction = 'signTransaction',
+  SignMessage = 'signMessage',
+  SignIn = 'signIn',
 }
 
 export const SolDataAccountStruct = object({
@@ -48,7 +56,7 @@ export const SolDataAccountStruct = object({
   /**
    * Account supported methods.
    */
-  methods: array(enums([`${SolMethod.SendAndConfirmTransaction}`])),
+  methods: array(enums(Object.values(SolMethod))),
 });
 
 export type SolDataAccount = Infer<typeof SolDataAccountStruct>;
