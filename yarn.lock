@@ -1788,7 +1788,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@metamask/eth-snap-keyring@workspace:packages/keyring-snap-bridge"
   dependencies:
-    "@ethereumjs/tx": "npm:^4.2.0"
+    "@ethereumjs/tx": "npm:^5.4.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
