@@ -1,5 +1,5 @@
 import { TransactionFactory } from '@ethereumjs/tx';
-import type { TypedTransaction, TxData, TypedTxData } from '@ethereumjs/tx';
+import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import {
   TypedMessage,

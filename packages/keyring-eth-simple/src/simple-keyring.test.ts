@@ -590,7 +590,8 @@ describe('simple-keyring', function () {
 
   describe('#decryptMessage', function () {
     const address = '0xbe93f9bacbcffc8ee6663f2647917ed7a20a57bb';
-    const privKeyHex = '6969696969696969696969696969696969696969696969696969696969696969';
+    const privKeyHex =
+      '6969696969696969696969696969696969696969696969696969696969696969';
     const message = 'Hello world!';
     const encryptedMessage = encrypt({
       publicKey: getEncryptionPublicKey(privKeyHex),
@@ -626,7 +627,8 @@ describe('simple-keyring', function () {
 
   describe('#encryptionPublicKey', function () {
     const address = '0xbe93f9bacbcffc8ee6663f2647917ed7a20a57bb';
-    const privKeyHex = '0x6969696969696969696969696969696969696969696969696969696969696969';
+    const privKeyHex =
+      '0x6969696969696969696969696969696969696969696969696969696969696969';
     const publicKey = 'GxuMqoE2oHsZzcQtv/WMNB3gCH2P6uzynuwO1P0MM1U=';
 
     it('returns the expected value', async function () {

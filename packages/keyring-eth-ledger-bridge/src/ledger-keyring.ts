@@ -1,7 +1,6 @@
 import { RLP } from '@ethereumjs/rlp';
 import {
   TransactionFactory,
-  TxData,
   TypedTransaction,
   TypedTxData,
 } from '@ethereumjs/tx';
@@ -13,6 +12,7 @@ import {
   SignTypedDataVersion,
   TypedDataUtils,
 } from '@metamask/eth-sig-util';
+import { bytesToHex, remove0x } from '@metamask/utils';
 import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import { EventEmitter } from 'events';
@@ -20,7 +20,6 @@ import HDKey from 'hdkey';
 
 import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
 import { LedgerIframeBridgeOptions } from './ledger-iframe-bridge';
-import { bytesToHex, remove0x } from '@metamask/utils';
 
 const pathBase = 'm';
 const hdPathString = `${pathBase}/44'/60'/0'`;

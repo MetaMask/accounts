@@ -3,13 +3,13 @@ import { RLP } from '@ethereumjs/rlp';
 import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import * as sigUtil from '@metamask/eth-sig-util';
+import { bytesToHex } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
 import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
 import { LedgerIframeBridge } from './ledger-iframe-bridge';
 import { AccountDetails, LedgerKeyring } from './ledger-keyring';
-import { bytesToHex } from '@metamask/utils';
 
 jest.mock('@metamask/eth-sig-util', () => {
   return {

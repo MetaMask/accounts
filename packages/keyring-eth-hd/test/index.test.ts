@@ -1,9 +1,9 @@
-import { TransactionFactory, Transaction as EthereumTx, LegacyTransaction, TypedTxData } from '@ethereumjs/tx';
 import {
-  isValidAddress,
-  ecrecover,
-  pubToAddress,
-} from '@ethereumjs/util';
+  TransactionFactory,
+  LegacyTransaction,
+  type TypedTxData,
+} from '@ethereumjs/tx';
+import { isValidAddress, ecrecover, pubToAddress } from '@ethereumjs/util';
 import * as oldMMForkBIP39 from '@metamask/bip39';
 import {
   normalize,

@@ -26,7 +26,6 @@ import {
   assert,
   assertIsHexString,
   bigIntToBytes,
-  bigIntToHex,
   type Hex,
   remove0x,
 } from '@metamask/utils';

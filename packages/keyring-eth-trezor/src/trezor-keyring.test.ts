@@ -412,7 +412,9 @@ describe('TrezorKeyring', function () {
       sinon.stub(fakeTx, 'verifySignature').callsFake(() => true);
       sinon
         .stub(fakeTx, 'getSenderAddress')
-        .callsFake(() => Buffer.from(Address.fromString(fakeAccounts[0]).bytes));
+        .callsFake(() =>
+          Buffer.from(Address.fromString(fakeAccounts[0]).bytes),
+        );
 
       const returnedTx = await keyring.signTransaction(fakeAccounts[0], fakeTx);
       // assert that the v,r,s values got assigned to tx.
