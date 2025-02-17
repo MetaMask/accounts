@@ -31,7 +31,7 @@ import type {
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
-import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
@@ -101,6 +101,7 @@ export type SnapKeyringCallbacks = {
     address: string,
     snapId: SnapId,
     handleUserInput: (accepted: boolean) => Promise<void>,
+    onceSaved: Promise<AccountId>,
     accountNameSuggestion?: string,
     displayConfirmation?: boolean,
   ): Promise<void>;
@@ -229,6 +230,14 @@ export class SnapKeyring extends EventEmitter {
       throw new Error(`Account '${account.id}' already exists`);
     }
 
+    // A deferred promise that will be resolved once the Snap keyring has saved
+    // its internal state.
+    // This part of the flow is run asynchronously, so we have no other way of
+    // letting the MetaMask client that this "save" has been run.
+    // NOTE: Another way of fixing that could be to rely on events through the
+    // messenger maybe?
+    const onceSaved = new DeferredPromise<AccountId>();
+
     // Add the account to the keyring, but wait for the MetaMask client to
     // approve the account creation first.
     await this.#callbacks.addAccount(
@@ -254,11 +263,15 @@ export class SnapKeyring extends EventEmitter {
           // event, if anything goes wrong, we will delete the account by
           // calling `deleteAccount` on the Snap.
           // eslint-disable-next-line no-void
-          void this.#callbacks.saveState().catch(async () => {
-            await this.#deleteAccount(snapId, account);
-          });
+          void this.#callbacks
+            .saveState()
+            .then(() => onceSaved.resolve(account.id))
+            .catch(async () => {
+              await this.#deleteAccount(snapId, account);
+            });
         }
       },
+      onceSaved.promise,
       accountNameSuggestion,
       displayConfirmation,
     );

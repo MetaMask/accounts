@@ -12,6 +12,7 @@ export const UuidStruct = definePattern(
  * Account ID (UUIDv4).
  */
 export const AccountIdStruct = UuidStruct; // Alias for better naming purposes.
+export type AccountId = Infer<typeof AccountIdStruct>; // Alias for better naming purposes.
 
 /**
  * Validates if a given value is a valid URL.
