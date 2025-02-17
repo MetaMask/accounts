@@ -86,6 +86,7 @@ describe('SnapKeyring', () => {
         _address,
         _snapId,
         handleUserInput,
+        _onceSaved,
         _accountNameSuggestion,
         _displayConfirmation,
       ) => {
@@ -240,6 +241,7 @@ describe('SnapKeyring', () => {
         _address,
         _snapId,
         handleUserInput,
+        _onceSaved,
         _accountNameSuggestion,
         _displayConfirmation,
       ) => {
@@ -291,6 +293,7 @@ describe('SnapKeyring', () => {
           account.address.toLowerCase(),
           snapId,
           expect.any(Function),
+          expect.any(Promise),
           undefined,
           undefined,
         );
@@ -318,6 +321,7 @@ describe('SnapKeyring', () => {
           nonEvmAccount.address,
           snapId,
           expect.any(Function),
+          expect.any(Promise),
           undefined,
           undefined,
         );
@@ -418,6 +422,7 @@ describe('SnapKeyring', () => {
               account.address.toLowerCase(),
               snapId,
               expect.any(Function),
+              expect.any(Promise),
               accountNameSuggestion,
               displayConfirmation,
             );
@@ -649,6 +654,7 @@ describe('SnapKeyring', () => {
           account.address.toLowerCase(),
           snapId,
           expect.any(Function),
+          expect.any(Promise),
           undefined,
           undefined,
         );
