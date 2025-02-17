@@ -3,6 +3,7 @@ import { RLP } from '@ethereumjs/rlp';
 import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import * as sigUtil from '@metamask/eth-sig-util';
+import { Hex } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
@@ -95,10 +96,10 @@ describe('LedgerKeyring', function () {
    */
   async function basicSetupToUnlockOneAccount(accountIndex = 0): Promise<void> {
     keyring.setAccountToUnlock(accountIndex);
-    await keyring.addAccounts();
+    await keyring.addAccounts(1);
     jest
       .spyOn(keyring, 'unlock')
-      .mockResolvedValue(fakeAccounts[accountIndex] as string);
+      .mockResolvedValue(fakeAccounts[accountIndex] as Hex);
   }
 
   beforeEach(async function () {
@@ -380,7 +381,7 @@ describe('LedgerKeyring', function () {
       describe('with no arguments', function () {
         it('returns a single account', async function () {
           keyring.setAccountToUnlock(0);
-          const accounts = await keyring.addAccounts();
+          const accounts = await keyring.addAccounts(1);
           expect(accounts).toHaveLength(1);
         });
       });
@@ -450,7 +451,7 @@ describe('LedgerKeyring', function () {
       describe('if the account exists', function () {
         it('removes that account', async function () {
           keyring.setAccountToUnlock(0);
-          const accounts = await keyring.addAccounts();
+          const accounts = await keyring.addAccounts(1);
           expect(accounts).toHaveLength(1);
           keyring.removeAccount(fakeAccounts[0]);
           const accountsAfterRemoval = await keyring.getAccounts();
@@ -543,7 +544,7 @@ describe('LedgerKeyring', function () {
       let accounts: string[] = [];
       beforeEach(async function () {
         keyring.setAccountToUnlock(accountIndex);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
         accounts = await keyring.getAccounts();
       });
 
@@ -558,19 +559,11 @@ describe('LedgerKeyring', function () {
       });
     });
 
-    describe('exportAccount', function () {
-      it('throws an error because it is not supported', function () {
-        expect(() => {
-          keyring.exportAccount();
-        }).toThrow('Not supported on this device');
-      });
-    });
-
     describe('forgetDevice', function () {
       it('clears the content of the keyring', async function () {
         // Add an account
         keyring.setAccountToUnlock(0);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
 
         // Wipe the keyring
         keyring.forgetDevice();
@@ -584,7 +577,7 @@ describe('LedgerKeyring', function () {
       it('deviceId should be cleared after forgetting the device', async function () {
         // Add an account
         keyring.setAccountToUnlock(0);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
         keyring.setDeviceId('device-id');
 
         // Wipe the keyring
@@ -899,7 +892,7 @@ describe('LedgerKeyring', function () {
         const requestedAccount = fakeAccounts[0];
         const incorrectAccount = fakeAccounts[1];
         keyring.setAccountToUnlock(0);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
         jest.spyOn(keyring, 'unlock').mockResolvedValue(incorrectAccount);
 
         await expect(
