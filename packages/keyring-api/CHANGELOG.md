@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: document supported Solana methods ([#191](https://github.com/MetaMask/accounts/pull/191))
+
 ## [17.0.0]
 
 ### Added
