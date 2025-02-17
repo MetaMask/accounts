@@ -1,4 +1,4 @@
-import { TransactionFactory } from '@ethereumjs/tx';
+import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
 import { Messenger } from '@metamask/base-controller';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
@@ -786,7 +786,7 @@ describe('SnapKeyring', () => {
         expect(keyring.listAccounts()[0]?.methods).toStrictEqual(
           updatedMethods,
         );
-        const mockTx = {
+        const mockTx: TypedTxData = {
           data: '0x0',
           gasLimit: '0x26259fe',
           gasPrice: '0x1',
@@ -1291,7 +1291,7 @@ describe('SnapKeyring', () => {
 
   describe('signTransaction', () => {
     it('signs a ethereum transaction synchronously', async () => {
-      const mockTx = {
+      const mockTx: TypedTxData = {
         data: '0x00',
         gasLimit: '0x26259fe',
         gasPrice: '0x1',
@@ -1301,7 +1301,7 @@ describe('SnapKeyring', () => {
         chainId: '0x1',
         type: '0x0',
       };
-      const mockSignedTx = {
+      const mockSignedTx: TypedTxData = {
         ...mockTx,
         r: '0x0',
         s: '0x0',

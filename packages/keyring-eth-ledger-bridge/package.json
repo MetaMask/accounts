@@ -47,14 +47,14 @@
   },
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.2",
-    "@ethereumjs/tx": "^4.2.0",
-    "@ethereumjs/util": "^8.1.0",
+    "@ethereumjs/tx": "^5.4.0",
+    "@ethereumjs/util": "^9.1.0",
     "@ledgerhq/hw-app-eth": "^6.42.0",
     "@metamask/eth-sig-util": "^8.2.0",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
-    "@ethereumjs/common": "^3.2.0",
+    "@ethereumjs/common": "^4.4.0",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@ledgerhq/hw-transport": "^6.31.3",
