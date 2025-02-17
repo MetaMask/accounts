@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- chore: remove author from package.json ([#193](https://github.com/MetaMask/accounts/pull/193))
-
 ## [8.0.4]
 
 ### Changed
