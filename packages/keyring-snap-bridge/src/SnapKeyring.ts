@@ -207,6 +207,11 @@ export class SnapKeyring extends EventEmitter {
       displayConfirmation,
     } = message.params;
 
+    // READ THIS CAREFULLY:
+    // ------------------------------------------------------------------------
+    // The account creation flow is now asynchronous. We expect the Snap to
+    // first create the account data and then fire the "AccountCreated" event.
+
     // Potentially migrate the account.
     const account = transformAccount(newAccountFromEvent);
 
@@ -224,18 +229,40 @@ export class SnapKeyring extends EventEmitter {
       throw new Error(`Account '${account.id}' already exists`);
     }
 
+    // Add the account to the keyring, but wait for the MetaMask client to
+    // approve the account creation first.
     await this.#callbacks.addAccount(
       address,
       snapId,
+      // This callback is passed to the MetaMask client, it will be called whenever
+      // the end user will accept or not the account creation.
       async (accepted: boolean) => {
         if (accepted) {
+          // We consider the account to be created on the Snap keyring only if
+          // the user accepted it. Meaning that the Snap MIGHT HAVE created the
+          // account on its own state, but the Snap keyring MIGHT NOT HAVE it yet.
+          //
+          // e.g The account creation dialog crashed on MetaMask, this callback
+          // will never be called, but the Snap still has the account.
           this.#accounts.set(account.id, { account, snapId });
-          await this.#callbacks.saveState();
+
+          // This is the "true async part". We do not `await` for this call, mainly
+          // because this callback will persist the account on the client side
+          // (through the `AccountsController`).
+          //
+          // Since this will happen after the Snap account creation and Snap
+          // event, if anything goes wrong, we will delete the account by
+          // calling `deleteAccount` on the Snap.
+          // eslint-disable-next-line no-void
+          void this.#callbacks.saveState().catch(async () => {
+            await this.#deleteAccount(snapId, account);
+          });
         }
       },
       accountNameSuggestion,
       displayConfirmation,
     );
+
     return null;
   }
 
@@ -1095,6 +1122,16 @@ export class SnapKeyring extends EventEmitter {
   async removeAccount(address: string): Promise<void> {
     const { account, snapId } = this.#resolveAddress(address);
 
+    await this.#deleteAccount(snapId, account);
+  }
+
+  /**
+   * Removes an account.
+   *
+   * @param snapId - Snap ID.
+   * @param account - Account to delete.
+   */
+  async #deleteAccount(snapId: SnapId, account: KeyringAccount): Promise<void> {
     // Always remove the account from the maps, even if the Snap is going to
     // fail to delete it.
     this.#accounts.delete(snapId, account.id);
@@ -1106,7 +1143,7 @@ export class SnapKeyring extends EventEmitter {
       // with the account deletion, otherwise the account will be stuck in the
       // keyring.
       console.error(
-        `Account '${address}' may not have been removed from snap '${snapId}':`,
+        `Account '${account.address}' may not have been removed from snap '${snapId}':`,
         error,
       );
     }

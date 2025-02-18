@@ -22,14 +22,17 @@ import {
   KeyringEvent,
   BtcScope,
   SolScope,
+  KeyringRpcMethod,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import type { HandleSnapRequest } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
 
 import type { KeyringState } from '.';
 import { SnapKeyring } from '.';
 import type { KeyringAccountV1 } from './account';
+import { DeferredPromise } from './DeferredPromise';
 import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
 import type {
   SnapKeyringAllowedActions,
@@ -200,9 +203,38 @@ describe('SnapKeyring', () => {
       allowedActions: ['SnapController:get', 'SnapController:handleRequest'],
     });
 
+  // Allow to map a mocked value for a given keyring RPC method
+  const mockMessengerHandleRequest = (
+    // We're using `string` here instead of `KeyringRpcMethod` to avoid having to map
+    // every RPC methods
+    handlers: Record<string, () => unknown>,
+  ): void => {
+    mockMessenger.handleRequest.mockImplementation(
+      (request: Parameters<HandleSnapRequest['handler']>[0]) => {
+        // First layer of transport is a Snap RPC request for 'OnKeyringRequest'.
+        expect(request.handler).toBe('onKeyringRequest');
+
+        // Second one is for the actual keyring request.
+        const keyringRequest = request.request as JsonRpcRequest;
+        const requestHandler = handlers[keyringRequest.method];
+
+        if (!requestHandler) {
+          throw new Error(
+            `Missing handleRequest handler for: ${keyringRequest.method}`,
+          );
+        }
+        return requestHandler();
+      },
+    );
+  };
+
   beforeEach(async () => {
     keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
 
+    // We do need to return a promise for this method now:
+    mockCallbacks.saveState.mockImplementation(async () => {
+      return null;
+    });
     mockCallbacks.addAccount.mockImplementation(
       async (
         _address,
@@ -218,7 +250,9 @@ describe('SnapKeyring', () => {
     mockMessenger.get.mockReset();
     mockMessenger.handleRequest.mockReset();
     for (const account of accounts) {
-      mockMessenger.handleRequest.mockResolvedValue(accounts);
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.ListAccounts]: () => accounts,
+      });
       await keyring.handleKeyringSnapMessage(snapId, {
         method: KeyringEvent.AccountCreated,
         params: { account: account as unknown as KeyringAccount },
@@ -227,28 +261,34 @@ describe('SnapKeyring', () => {
   });
 
   describe('handleKeyringSnapMessage', () => {
+    const newEthEoaAccount = {
+      id: 'bd63063d-ed58-4b9b-b3da-4282ac2208a8',
+      options: {},
+      methods: ETH_EOA_METHODS,
+      scopes: [EthScope.Eoa],
+      type: EthAccountType.Eoa,
+      address: '0x6431726eee67570bf6f0cf892ae0a3988f03903f',
+    };
+
     describe('#handleAccountCreated', () => {
       it('creates the account with a lower-cased address for EVM', async () => {
-        const evmAccount = {
-          id: 'b05d918a-b37c-497a-bb28-3d15c0d56b7a',
-          options: {},
-          methods: ETH_EOA_METHODS,
-          scopes: [EthScope.Eoa],
-          type: EthAccountType.Eoa,
+        const account = {
+          ...newEthEoaAccount,
           // Even checksummed address will be lower-cased by the bridge.
           address: '0x6431726EEE67570BF6f0Cf892aE0a3988F03903F',
         };
+
         await keyring.handleKeyringSnapMessage(snapId, {
           method: KeyringEvent.AccountCreated,
           params: {
             account: {
-              ...(evmAccount as unknown as KeyringAccount),
+              ...(account as unknown as KeyringAccount),
               id: '56189183-9b89-4ae6-90d9-99d167b28520',
             },
           },
         });
         expect(mockCallbacks.addAccount).toHaveBeenLastCalledWith(
-          evmAccount.address.toLowerCase(),
+          account.address.toLowerCase(),
           snapId,
           expect.any(Function),
           undefined,
@@ -548,6 +588,83 @@ describe('SnapKeyring', () => {
           params: event,
         });
         expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
+      });
+
+      it('saves to the state asynchronously', async () => {
+        // We simulate a long running `saveState`
+        const deferred = new DeferredPromise<void>();
+        const saveStateContext = {
+          called: false,
+          returned: false,
+        };
+        mockCallbacks.saveState.mockImplementation(async () => {
+          saveStateContext.called = true;
+          await deferred.promise;
+          saveStateContext.returned = true;
+        });
+
+        const account = newEthEoaAccount;
+        const result = await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: {
+              ...(account as unknown as KeyringAccount),
+              id: account.id,
+            },
+          },
+        });
+        expect(result).toBeNull(); // Yes the result of `AccountCreated` is `null`.
+
+        // After reaching that point, the `AccountCreated` has resumed, so the Snap
+        // will be resuming its execution. However, the account is still not created
+        // on the Snap keyring state, since the `saveState` is still "pending".
+
+        // Now we can resolve, and finalize the `saveState` call.
+        expect(saveStateContext.called).toBe(true);
+        expect(saveStateContext.returned).toBe(false);
+        deferred.resolve();
+        await deferred.promise;
+        expect(saveStateContext.returned).toBe(true);
+      });
+
+      it('deletes the account if we cannot save it on the state', async () => {
+        mockCallbacks.saveState.mockImplementation(async () => {
+          return Promise.reject(new Error('Could not persist to the state'));
+        });
+        mockMessengerHandleRequest({
+          [KeyringRpcMethod.DeleteAccount]: () => null,
+        });
+
+        const account = newEthEoaAccount;
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: {
+              ...(account as unknown as KeyringAccount),
+              id: account.id,
+            },
+          },
+        });
+        expect(mockCallbacks.addAccount).toHaveBeenLastCalledWith(
+          account.address.toLowerCase(),
+          snapId,
+          expect.any(Function),
+          undefined,
+          undefined,
+        );
+        expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith({
+          handler: 'onKeyringRequest',
+          origin: 'metamask',
+          snapId,
+          request: {
+            id: expect.any(String),
+            jsonrpc: '2.0',
+            method: 'keyring_deleteAccount',
+            params: {
+              id: account.id,
+            },
+          },
+        });
       });
     });
 
