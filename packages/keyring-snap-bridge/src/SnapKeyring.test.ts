@@ -26,7 +26,7 @@ import {
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { HandleSnapRequest } from '@metamask/snaps-controllers';
-import type { SnapId } from '@metamask/snaps-sdk';
+import { type SnapId } from '@metamask/snaps-sdk';
 import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
 
 import type { KeyringState } from '.';
@@ -122,6 +122,14 @@ describe('SnapKeyring', () => {
   const ethEoaAccount3 = {
     id: 'c6697bcf-5710-4751-a1cb-340e4b50617a',
     address: '0xf7bDe8609231033c69E502C08f85153f8A1548F2'.toLowerCase(),
+    options: {},
+    methods: ETH_EOA_METHODS,
+    scopes: [EthScope.Eoa],
+    type: EthAccountType.Eoa,
+  };
+  const ethEoaAccount4 = {
+    id: '7e14f1fa-818c-4590-bab5-b19f947559a5',
+    address: '0xd7eb71598059D0856cd24DcbeF48a0DB5ffDa4D4'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
     scopes: [EthScope.Eoa],
@@ -293,6 +301,7 @@ describe('SnapKeyring', () => {
           expect.any(Function),
           undefined,
           undefined,
+          undefined,
         );
       });
 
@@ -318,6 +327,7 @@ describe('SnapKeyring', () => {
           nonEvmAccount.address,
           snapId,
           expect.any(Function),
+          undefined,
           undefined,
           undefined,
         );
@@ -375,17 +385,27 @@ describe('SnapKeyring', () => {
             { ...ethEoaAccount1 },
             'New Account',
             undefined,
+            undefined,
           ],
           [
             'handles account creation with displayConfirmation',
             { ...ethEoaAccount2 },
             undefined,
             false,
+            undefined,
           ],
           [
             'handles account creation with both accountNameSuggestion and displayConfirmation',
             { ...ethEoaAccount3 },
             'New Account',
+            false,
+            undefined,
+          ],
+          [
+            'handles account creation with both accountNameSuggestion and displayAccountNameDialog',
+            { ...ethEoaAccount4 },
+            'New Account',
+            false,
             false,
           ],
         ])(
@@ -395,6 +415,7 @@ describe('SnapKeyring', () => {
             account,
             accountNameSuggestion,
             displayConfirmation,
+            displayAccountNameDialog,
           ) => {
             // Reset mock
             mockCallbacks.addAccount.mockClear();
@@ -406,6 +427,9 @@ describe('SnapKeyring', () => {
               ...(displayConfirmation !== undefined && { displayConfirmation }),
               ...(accountNameSuggestion !== undefined && {
                 accountNameSuggestion,
+              }),
+              ...(displayAccountNameDialog !== undefined && {
+                displayAccountNameDialog,
               }),
             };
 
@@ -420,6 +444,7 @@ describe('SnapKeyring', () => {
               expect.any(Function),
               accountNameSuggestion,
               displayConfirmation,
+              displayAccountNameDialog,
             );
           },
         );
@@ -649,6 +674,7 @@ describe('SnapKeyring', () => {
           account.address.toLowerCase(),
           snapId,
           expect.any(Function),
+          undefined,
           undefined,
           undefined,
         );

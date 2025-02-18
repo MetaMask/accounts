@@ -59,6 +59,14 @@ export const AccountCreatedEventStruct = object({
      * **Note:** This is not guaranteed to be honored by the MetaMask client.
      */
     displayConfirmation: exactOptional(boolean()),
+
+    /**
+     * Instructs MetaMask to display the name confirmation dialog in the UI.
+     * Otherwise, the account will be added with the suggested name.
+     * **Note:** This is not guaranteed to be honored by the MetaMask client.
+     */
+
+    displayAccountNameDialog: exactOptional(boolean()),
   }),
 });
 
