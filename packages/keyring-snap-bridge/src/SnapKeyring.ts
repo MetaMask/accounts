@@ -265,9 +265,22 @@ export class SnapKeyring extends EventEmitter {
           // eslint-disable-next-line no-void
           void this.#callbacks
             .saveState()
-            .then(() => onceSaved.resolve(account.id))
-            .catch(async () => {
+            .then(() => {
+              // This allows the MetaMask client to be "notified" when then
+              // Snap keyring has truly persisted its state. From there, we should
+              // be able to use the account (e.g. to display account creation
+              // confirmation dialogs).
+              onceSaved.resolve(account.id);
+            })
+            .catch(async (error) => {
+              // FIXME: There's a potential race condition here, if the Snap did
+              // not persist the account yet (this should mostly be for older Snaps).
               await this.#deleteAccount(snapId, account);
+
+              // This allows the MetaMask client to be "notified" that something went
+              // wrong with the Snap keyring. (e.g. useful to display account creation
+              // error dialogs).
+              onceSaved.reject(error);
             });
         }
       },
