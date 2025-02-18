@@ -9,9 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [17.1.0]
 
-### Uncategorized
+### Added
 
-- feat: document supported Solana methods ([#191](https://github.com/MetaMask/accounts/pull/191))
+- Add new `SolMethod.Sign{AndSendTransaction,Transaction,Message,In}` methods ([#191](https://github.com/MetaMask/accounts/pull/191))
+
+### Changed
+
+- Deprecates `SolMethod.SendAndConfirmTransaction` method ([#191](https://github.com/MetaMask/accounts/pull/191))
 
 ## [17.0.0]
 
