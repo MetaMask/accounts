@@ -6,9 +6,7 @@
     "rootDir": "src",
     "exactOptionalPropertyTypes": false
   },
-  "references": [
-    { "path": "../keyring-utils/tsconfig.build.json" }
-  ],
+  "references": [{ "path": "../keyring-utils/tsconfig.build.json" }],
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/**/*.test.ts"]
 }
