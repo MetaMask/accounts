@@ -2061,6 +2061,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-utils@workspace:packages/keyring-utils"
   dependencies:
+    "@ethereumjs/tx": "npm:^4.2.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
