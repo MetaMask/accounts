@@ -8,7 +8,8 @@ import {
   SignTypedDataVersion,
   TypedDataUtils,
 } from '@metamask/eth-sig-util';
-import { add0x, getChecksumAddress, Hex, Keyring } from '@metamask/utils';
+import type { Keyring } from '@metamask/keyring-utils';
+import { add0x, getChecksumAddress, Hex } from '@metamask/utils';
 import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
@@ -78,7 +79,7 @@ function isOldStyleEthereumjsTx(
   return 'getChainId' in tx && typeof tx.getChainId === 'function';
 }
 
-export class LedgerKeyring implements Keyring<LedgerKeyringSerializedState> {
+export class LedgerKeyring implements Keyring {
   static type: string = keyringType;
 
   deviceId = '';
@@ -135,7 +136,7 @@ export class LedgerKeyring implements Keyring<LedgerKeyringSerializedState> {
     };
   }
 
-  async deserialize(opts: LedgerKeyringSerializedState = {}): Promise<void> {
+  async deserialize(opts: LedgerKeyringSerializedState): Promise<void> {
     this.hdPath = opts.hdPath ?? hdPathString;
     this.accounts = opts.accounts ?? [];
     this.deviceId = opts.deviceId ?? '';

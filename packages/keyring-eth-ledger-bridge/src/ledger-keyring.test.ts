@@ -106,7 +106,7 @@ describe('LedgerKeyring', function () {
     bridge = new LedgerIframeBridge();
     keyring = new LedgerKeyring({ bridge });
     keyring.hdk = fakeHdKey;
-    await keyring.deserialize();
+    await keyring.deserialize({});
   });
 
   afterEach(function () {
