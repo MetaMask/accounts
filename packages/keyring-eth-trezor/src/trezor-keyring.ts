@@ -6,14 +6,8 @@ import {
   SignTypedDataVersion,
   MessageTypes,
 } from '@metamask/eth-sig-util';
-import {
-  add0x,
-  getChecksumAddress,
-  Hex,
-  Json,
-  Keyring,
-  remove0x,
-} from '@metamask/utils';
+import type { Keyring } from '@metamask/keyring-utils';
+import { add0x, getChecksumAddress, Hex, remove0x } from '@metamask/utils';
 import { transformTypedData } from '@trezor/connect-plugin-ethereum';
 import type {
   EthereumTransactionEIP1559,
@@ -91,7 +85,7 @@ function isOldStyleEthereumjsTx(
   return typeof (tx as OldEthJsTransaction).getChainId === 'function';
 }
 
-export class TrezorKeyring implements Keyring<Json> {
+export class TrezorKeyring implements Keyring {
   static type: string = keyringType;
 
   readonly type: string = keyringType;
