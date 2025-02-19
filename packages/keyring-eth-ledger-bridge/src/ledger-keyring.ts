@@ -212,6 +212,9 @@ export class LedgerKeyring implements Keyring {
 
   async unlock(hdPath?: string, updateHdk = true): Promise<Hex> {
     if (this.isUnlocked() && !hdPath) {
+      // if the device is already unlocked and no path is provided,
+      // we return the checksummed address of the public key stored in
+      // `this.hdk`, which is the root address of the last unlocked path.
       return this.#getChecksumHexAddress(
         publicToAddress(this.hdk.publicKey, true).toString('hex'),
       );
