@@ -86,6 +86,7 @@ describe('SnapKeyring', () => {
         _address,
         _snapId,
         handleUserInput,
+        _onceSaved,
         _accountNameSuggestion,
         _displayConfirmation,
       ) => {
@@ -240,6 +241,7 @@ describe('SnapKeyring', () => {
         _address,
         _snapId,
         handleUserInput,
+        _onceSaved,
         _accountNameSuggestion,
         _displayConfirmation,
       ) => {
@@ -291,6 +293,7 @@ describe('SnapKeyring', () => {
           account.address.toLowerCase(),
           snapId,
           expect.any(Function),
+          expect.any(Promise),
           undefined,
           undefined,
         );
@@ -318,6 +321,7 @@ describe('SnapKeyring', () => {
           nonEvmAccount.address,
           snapId,
           expect.any(Function),
+          expect.any(Promise),
           undefined,
           undefined,
         );
@@ -418,6 +422,7 @@ describe('SnapKeyring', () => {
               account.address.toLowerCase(),
               snapId,
               expect.any(Function),
+              expect.any(Promise),
               accountNameSuggestion,
               displayConfirmation,
             );
@@ -628,10 +633,30 @@ describe('SnapKeyring', () => {
       });
 
       it('deletes the account if we cannot save it on the state', async () => {
+        const stateError = new Error('Could not persist to the state');
+
         mockCallbacks.saveState.mockImplementation(async () => {
-          return Promise.reject(new Error('Could not persist to the state'));
+          return Promise.reject(stateError);
         });
+        mockCallbacks.addAccount.mockImplementation(
+          async (
+            _address,
+            _snapId,
+            handleUserInput,
+            onceSaved,
+            _accountNameSuggestion,
+            _displayConfirmation,
+          ) => {
+            await handleUserInput(true);
+            // Make sure the error is being forwarded to the `onceSaved` promise.
+            // NOTE: We also have to use this rejected value, otherwise `jest` will ends up
+            // with an error (probably cause this goes to the unhandled error handler?).
+            await expect(onceSaved).rejects.toThrow(stateError);
+          },
+        );
+
         mockMessengerHandleRequest({
+          // Will be called, since the Snap keyring state cannot be persisted.
           [KeyringRpcMethod.DeleteAccount]: () => null,
         });
 
@@ -649,6 +674,7 @@ describe('SnapKeyring', () => {
           account.address.toLowerCase(),
           snapId,
           expect.any(Function),
+          expect.any(Promise),
           undefined,
           undefined,
         );

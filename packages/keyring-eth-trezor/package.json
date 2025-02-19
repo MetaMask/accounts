@@ -49,6 +49,7 @@
     "@ethereumjs/tx": "^4.2.0",
     "@ethereumjs/util": "^8.1.0",
     "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/utils": "^11.1.0",
     "@trezor/connect-plugin-ethereum": "^9.0.3",
     "@trezor/connect-web": "^9.1.11",
     "hdkey": "^2.1.0",
@@ -59,6 +60,7 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/keyring-utils": "workspace:^",
     "@ts-bridge/cli": "^0.6.3",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",
@@ -115,7 +117,9 @@
       "@trezor/connect-web>@trezor/connect>@trezor/blockchain-link>ws>bufferutil": false,
       "@trezor/connect-web>@trezor/connect>@trezor/blockchain-link>ws>utf-8-validate": false,
       "@trezor/connect-web>@trezor/connect>@trezor/protobuf>protobufjs": false,
-      "@trezor/connect-web>@trezor/connect>@trezor/transport>usb": false
+      "@trezor/connect-web>@trezor/connect>@trezor/transport>usb": false,
+      "jest-environment-jsdom>jsdom>ws>bufferutil": false,
+      "jest-environment-jsdom>jsdom>ws>utf-8-validate": false
     }
   }
 }
