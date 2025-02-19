@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.0.0]
+
+### Changed
+
+- **BREAKING:** Make account creation asynchronous ([#207](https://github.com/MetaMask/accounts/pull/207)), ([#211](https://github.com/MetaMask/accounts/pull/211))
+  - We no longer wait for `saveState` to finish before resuming the Snap account execution.
+  - Add `onceSaved` deferred promise to `addAccount` callback. This new promise is required so the callback can `await` the account creation.
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+- Bump `@metamask/keyring-api` from `^17.0.0` to `^17.1.0` ([#212](https://github.com/MetaMask/accounts/pull/212))
+
 ## [10.0.0]
 
 ### Changed
@@ -464,7 +475,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@10.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@11.0.0...HEAD
+[11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@10.0.0...@metamask/eth-snap-keyring@11.0.0
 [10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.1...@metamask/eth-snap-keyring@10.0.0
 [9.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.0...@metamask/eth-snap-keyring@9.1.1
 [9.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.0.0...@metamask/eth-snap-keyring@9.1.0
