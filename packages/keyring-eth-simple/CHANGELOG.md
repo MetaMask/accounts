@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** The `SimpleKeyring` class now implements `Keyring` from `@metamask/keyring-utils` ([#217](https://github.com/MetaMask/accounts/pull/217))
+  - The `deserialize` method now requires a `string[]` argument
+
 ## [8.1.1]
 
 ### Changed
