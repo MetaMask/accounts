@@ -1,6 +1,6 @@
 import { RLP } from '@ethereumjs/rlp';
 import { TransactionFactory, TxData, TypedTransaction } from '@ethereumjs/tx';
-import * as ethUtil from '@ethereumjs/util';
+import { bufferToHex, publicToAddress } from '@ethereumjs/util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import {
   recoverPersonalSignature,
@@ -9,7 +9,7 @@ import {
   TypedDataUtils,
 } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
-import { add0x, getChecksumAddress, Hex } from '@metamask/utils';
+import { add0x, getChecksumAddress, Hex, remove0x } from '@metamask/utils';
 import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
@@ -151,7 +151,7 @@ export class LedgerKeyring implements Keyring {
     const keys = new Set<string>(Object.keys(this.accountDetails));
     // Remove accounts that don't have corresponding account details
     this.accounts = this.accounts.filter((account) =>
-      keys.has(ethUtil.toChecksumAddress(account)),
+      keys.has(this.#getChecksumHexAddress(account)),
     );
 
     return Promise.resolve();
@@ -178,7 +178,7 @@ export class LedgerKeyring implements Keyring {
     // try to migrate non-LedgerLive accounts too
     if (!this.#isLedgerLiveHdPath()) {
       this.accounts.forEach((account) => {
-        const key = ethUtil.toChecksumAddress(account);
+        const key = this.#getChecksumHexAddress(account);
 
         if (!keys.has(key)) {
           this.accountDetails[key] = {
@@ -213,7 +213,7 @@ export class LedgerKeyring implements Keyring {
   async unlock(hdPath?: string, updateHdk = true): Promise<Hex> {
     if (this.isUnlocked() && !hdPath) {
       return this.#getChecksumHexAddress(
-        ethUtil.publicToAddress(this.hdk.publicKey, true).toString('hex'),
+        publicToAddress(this.hdk.publicKey, true).toString('hex'),
       );
     }
     const path = hdPath ? this.#toLedgerPath(hdPath) : this.hdPath;
@@ -253,7 +253,7 @@ export class LedgerKeyring implements Keyring {
               address = this.#addressFromIndex(pathBase, i);
             }
 
-            this.accountDetails[ethUtil.toChecksumAddress(address)] = {
+            this.accountDetails[this.#getChecksumHexAddress(address)] = {
               // TODO: consider renaming this property, as the current name is misleading
               // It's currently used to represent whether an account uses the Ledger Live path.
               bip44: this.#isLedgerLiveHdPath(),
@@ -303,7 +303,7 @@ export class LedgerKeyring implements Keyring {
     }
 
     this.accounts = filteredAccounts;
-    delete this.accountDetails[ethUtil.toChecksumAddress(address)];
+    delete this.accountDetails[this.#getChecksumHexAddress(address)];
   }
 
   async attemptMakeApp(): Promise<boolean> {
@@ -331,7 +331,7 @@ export class LedgerKeyring implements Keyring {
       // value. In newer versions the chainId is communicated via the 'Common'
       // object.
       // @ts-expect-error tx.v should be a Buffer, but we are assigning a string
-      tx.v = ethUtil.bufferToHex(tx.getChainId());
+      tx.v = bufferToHex(tx.getChainId());
       // @ts-expect-error tx.r should be a Buffer, but we are assigning a string
       tx.r = '0x00';
       // @ts-expect-error tx.s should be a Buffer, but we are assigning a string
@@ -369,9 +369,9 @@ export class LedgerKeyring implements Keyring {
       // The fromTxData utility expects a type to support transactions with a type other than 0
       txData.type = tx.type;
       // The fromTxData utility expects v,r and s to be hex prefixed
-      txData.v = ethUtil.addHexPrefix(payload.v);
-      txData.r = ethUtil.addHexPrefix(payload.r);
-      txData.s = ethUtil.addHexPrefix(payload.s);
+      txData.v = add0x(payload.v);
+      txData.r = add0x(payload.r);
+      txData.s = add0x(payload.s);
       // Adopt the 'common' option from the original transaction and set the
       // returned object to be frozen if the original is frozen.
       return TransactionFactory.fromTxData(txData, {
@@ -433,7 +433,7 @@ export class LedgerKeyring implements Keyring {
     try {
       payload = await this.bridge.deviceSignMessage({
         hdPath,
-        message: ethUtil.stripHexPrefix(message),
+        message: remove0x(message),
       });
     } catch (error) {
       throw error instanceof Error
@@ -452,8 +452,8 @@ export class LedgerKeyring implements Keyring {
       signature,
     });
     if (
-      ethUtil.toChecksumAddress(addressSignedWith) !==
-      ethUtil.toChecksumAddress(withAccount)
+      this.#getChecksumHexAddress(addressSignedWith) !==
+      this.#getChecksumHexAddress(withAccount)
     ) {
       throw new Error('Ledger: The signature doesnt match the right address');
     }
@@ -461,7 +461,7 @@ export class LedgerKeyring implements Keyring {
   }
 
   async unlockAccountByAddress(address: Hex): Promise<string | undefined> {
-    const checksummedAddress = ethUtil.toChecksumAddress(address);
+    const checksummedAddress = this.#getChecksumHexAddress(address);
     const accountDetails = this.accountDetails[checksummedAddress];
     if (!accountDetails) {
       throw new Error(
@@ -537,8 +537,8 @@ export class LedgerKeyring implements Keyring {
     });
 
     if (
-      ethUtil.toChecksumAddress(addressSignedWith) !==
-      ethUtil.toChecksumAddress(withAccount)
+      this.#getChecksumHexAddress(addressSignedWith) !==
+      this.#getChecksumHexAddress(withAccount)
     ) {
       throw new Error('Ledger: The signature doesnt match the right address');
     }
@@ -622,21 +622,19 @@ export class LedgerKeyring implements Keyring {
         balance: null,
         index: i,
       });
-      this.paths[ethUtil.toChecksumAddress(address)] = i;
+      this.paths[this.#getChecksumHexAddress(address)] = i;
     }
     return accounts;
   }
 
   #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = ethUtil
-      .publicToAddress(dkey.publicKey, true)
-      .toString('hex');
+    const address = publicToAddress(dkey.publicKey, true).toString('hex');
     return this.#getChecksumHexAddress(add0x(address));
   }
 
   #pathFromAddress(address: string): string {
-    const checksummedAddress = ethUtil.toChecksumAddress(address);
+    const checksummedAddress = this.#getChecksumHexAddress(address);
     let index = this.paths[checksummedAddress];
     if (typeof index === 'undefined') {
       for (let i = 0; i < MAX_INDEX; i++) {

@@ -846,7 +846,9 @@ describe('LedgerKeyring', function () {
           .spyOn(keyring.bridge, 'deviceSignMessage')
           .mockResolvedValue({ v: 1, r: '0x0', s: '0x0' });
 
-        jest.spyOn(sigUtil, 'recoverPersonalSignature').mockReturnValue('0x0');
+        jest
+          .spyOn(sigUtil, 'recoverPersonalSignature')
+          .mockReturnValue('0x0000000000000000000000000000000000000000');
 
         await expect(
           keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
