@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.1.1]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+
 ## [6.1.0]
 
 ### Added
@@ -161,7 +168,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.1...HEAD
+[6.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.0...@metamask/eth-trezor-keyring@6.1.1
 [6.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.2...@metamask/eth-trezor-keyring@6.1.0
 [6.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.1...@metamask/eth-trezor-keyring@6.0.2
 [6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.0...@metamask/eth-trezor-keyring@6.0.1

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.2]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+
+## [2.1.1]
+
+### Fixed
+
+- Export `Keyring` and `KeyringClass` types from package root ([#208](https://github.com/MetaMask/accounts/pull/208))
+
 ## [2.1.0]
 
 ### Added
@@ -59,7 +72,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.1.2...HEAD
+[2.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.1.1...@metamask/keyring-utils@2.1.2
+[2.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.1.0...@metamask/keyring-utils@2.1.1
 [2.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.0.0...@metamask/keyring-utils@2.1.0
 [2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@1.3.1...@metamask/keyring-utils@2.0.0
 [1.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@1.3.0...@metamask/keyring-utils@1.3.1
