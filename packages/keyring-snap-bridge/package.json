@@ -56,7 +56,7 @@
     "@metamask/snaps-controllers": "^9.18.0",
     "@metamask/snaps-sdk": "^6.16.0",
     "@metamask/snaps-utils": "^8.9.1",
-    "@ts-bridge/cli": "^0.6.1",
+    "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
     "deepmerge": "^4.2.2",
