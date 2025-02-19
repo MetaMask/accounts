@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** `TrezorKeyring` now implements the `Keyring<Json>` type ([#194](https://github.com/MetaMask/accounts/pull/194))
+- **BREAKING:** `TrezorKeyring` now implements the `Keyring` type ([#194](https://github.com/MetaMask/accounts/pull/194))
   - The class does not extend `EventEmitter` anymore.
   - The `TrezorKeyring.accounts` class variable is now a `readonly Hex[]` array.
   - The `addAccounts` method signature has been changed
