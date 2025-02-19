@@ -5,7 +5,7 @@
   },
   "references": [
     { "path": "../keyring-utils" }
-  ]
+  ],
   "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }
