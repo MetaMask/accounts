@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.2]
 
-### Uncategorized
+### Changed
 
-- build: bump `ts-bridge` to `0.6.3` (fix some un-exported types) ([#214](https://github.com/MetaMask/accounts/pull/214))
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
 
 ## [2.1.1]
 
