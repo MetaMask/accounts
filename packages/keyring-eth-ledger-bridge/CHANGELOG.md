@@ -12,21 +12,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** `LedgerKeyring` now implements the `Keyring` type ([#194](https://github.com/MetaMask/accounts/pull/194))
   - The class does not extend `EventEmitter` anymore.
   - The `LedgerKeyring.accounts` class variable is now a `readonly Hex[]` array.
-  - The `addAccounts` method signature has been changed
+  - The `addAccounts` method signature has been changed:
     - An `amount` number parameter is now required to specify the number of accounts to add.
     - The method now returns a promise resolving to an array of `Hex` addresses.
-  - The `unlock` method now returns `Promise<Hex>`
-  - The `getAccounts` method now returns `Promise<Hex[]>`
-  - The `deserialize` method now requires a `LedgerKeyringSerializedState` typed parameter
-  - The `signTransaction` method now accepts an `Hex` typed value as the `address` parameter
-  - The `signMessage` method now accepts an `Hex` typed value as the `withAccount` parameter
-  - The `signPersonalMessage` method now accepts an `Hex` typed value as the `withAccount` parameter
-  - The `signTypedData` method now accepts an `Hex` typed value as the `withAccount` parameter
-  - The `unlockAccountByAddress` method now accepts an `Hex` typed value as the `address` parameter
+  - The `unlock` method now returns `Promise<Hex>`.
+  - The `getAccounts` method now returns `Promise<Hex[]>`.
+  - The `deserialize` method now requires a `LedgerKeyringSerializedState` typed parameter.
+  - The `signTransaction` method now accepts an `Hex` typed value as the `address` parameter.
+  - The `signMessage` method now accepts an `Hex` typed value as the `withAccount` parameter.
+  - The `signPersonalMessage` method now accepts an `Hex` typed value as the `withAccount` parameter.
+  - The `signTypedData` method now accepts an `Hex` typed value as the `withAccount` parameter.
+  - The `unlockAccountByAddress` method now accepts an `Hex` typed value as the `address` parameter.
 
 ### Removed
 
-- **BREAKING:** The `exportAccount` method has been removed
+- **BREAKING:** The `exportAccount` method has been removed ([#194](https://github.com/MetaMask/accounts/pull/194))
 
 ## [8.0.5]
 
