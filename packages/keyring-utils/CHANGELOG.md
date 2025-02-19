@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.0]
 
-### Uncategorized
+### Added
 
-- feat(keyring-snap-bridge)!: add `onceSaved` deferred promise for `addAccount` callback ([#211](https://github.com/MetaMask/accounts/pull/211))
+- Add `AccountId` type ([#211](https://github.com/MetaMask/accounts/pull/211))
 
 ## [2.1.2]
 
