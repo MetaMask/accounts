@@ -276,5 +276,7 @@ type KeyringEvents =
  */
 export type KeyringEventPayload<Event extends KeyringEvent> = Extract<
   KeyringEvents,
-  { method: Event }
+  // We need to use a literal string here, since that is what `KeyringEvents`
+  // is using (probably because of `superstruct`.
+  { method: `${Event}` }
 >['params'];
