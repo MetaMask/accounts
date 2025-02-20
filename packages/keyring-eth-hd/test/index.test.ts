@@ -50,33 +50,40 @@ const getAddressAtIndex = (keyring: HdKeyring, index: number): Hex => {
 
 describe('hd-keyring', () => {
   describe('compare old bip39 implementation with new', () => {
-    it('should derive the same accounts from the same mnemonics', async () => {
-      const mnemonics: Buffer[] = [];
-      for (let i = 0; i < 99; i++) {
-        mnemonics.push(oldMMForkBIP39.generateMnemonic());
-      }
+    // NOTE: This test sometimes exceed the default 2s timeout on the CI, making this test
+    // a bit flaky. We just increase its timeout value to avoid the flakiness.
+    const timeout = 3000;
+    it(
+      'should derive the same accounts from the same mnemonics',
+      async () => {
+        const mnemonics: Buffer[] = [];
+        for (let i = 0; i < 99; i++) {
+          mnemonics.push(oldMMForkBIP39.generateMnemonic());
+        }
 
-      await Promise.all(
-        mnemonics.map(async (mnemonic) => {
-          const newHDKeyring = new HdKeyring();
-          await newHDKeyring.deserialize({
-            mnemonic,
-            numberOfAccounts: 3,
-          });
-          const oldHDKeyring = new OldHdKeyring({
-            mnemonic,
-            numberOfAccounts: 3,
-          });
-          const newAccounts = newHDKeyring.getAccounts();
-          const oldAccounts = await oldHDKeyring.getAccounts();
-          expect(newAccounts[0]).toStrictEqual(oldAccounts[0]);
+        await Promise.all(
+          mnemonics.map(async (mnemonic) => {
+            const newHDKeyring = new HdKeyring();
+            await newHDKeyring.deserialize({
+              mnemonic,
+              numberOfAccounts: 3,
+            });
+            const oldHDKeyring = new OldHdKeyring({
+              mnemonic,
+              numberOfAccounts: 3,
+            });
+            const newAccounts = newHDKeyring.getAccounts();
+            const oldAccounts = await oldHDKeyring.getAccounts();
+            expect(newAccounts[0]).toStrictEqual(oldAccounts[0]);
 
-          expect(newAccounts[1]).toStrictEqual(oldAccounts[1]);
+            expect(newAccounts[1]).toStrictEqual(oldAccounts[1]);
 
-          expect(newAccounts[2]).toStrictEqual(oldAccounts[2]);
-        }),
-      );
-    });
+            expect(newAccounts[2]).toStrictEqual(oldAccounts[2]);
+          }),
+        );
+      },
+      timeout,
+    );
   });
 
   describe('re-initialization protection', () => {
