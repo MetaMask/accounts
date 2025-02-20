@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(keyring-snap-bridge): add `displayAccountNameSuggestion` flag ([#213](https://github.com/MetaMask/accounts/pull/213))
+
 ## [11.0.0]
 
 ### Changed
