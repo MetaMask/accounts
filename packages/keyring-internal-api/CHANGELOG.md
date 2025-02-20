@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.3]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^17.0.0` to `^17.2.0` ([#212](https://github.com/MetaMask/accounts/pull/212)), ([#220](https://github.com/MetaMask/accounts/pull/220))
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+
 ## [4.0.2]
 
 ### Changed
@@ -62,7 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@4.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@4.0.3...HEAD
+[4.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@4.0.2...@metamask/keyring-internal-api@4.0.3
 [4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@4.0.1...@metamask/keyring-internal-api@4.0.2
 [4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@4.0.0...@metamask/keyring-internal-api@4.0.1
 [4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@3.0.0...@metamask/keyring-internal-api@4.0.0

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.1.0]
+
+### Added
+
+- Add `displayAccountNameSuggestion` option handling for `"notify:accountCreated"` ([#213](https://github.com/MetaMask/accounts/pull/213))
+
 ## [11.0.0]
 
 ### Changed
@@ -475,7 +481,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@11.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@11.1.0...HEAD
+[11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@11.0.0...@metamask/eth-snap-keyring@11.1.0
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@10.0.0...@metamask/eth-snap-keyring@11.0.0
 [10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.1...@metamask/eth-snap-keyring@10.0.0
 [9.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.0...@metamask/eth-snap-keyring@9.1.1
