@@ -9,7 +9,7 @@ export const ETH_SCOPE_EOA = `${KnownCaipNamespace.Eip155}:0`;
 const ETH_SCOPE_PREFIX = `${KnownCaipNamespace.Eip155}:`;
 
 /**
- * Check if scope is matching with another scopes. It also supports the special
+ * Check if scope matches another scope. It also supports the special
  * case of `eip155:0` for EVM EOA chain ID which is compatible with any EVM chain
  * ID (`eip155:*`).
  *
