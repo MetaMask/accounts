@@ -62,7 +62,10 @@ export const AccountCreatedEventStruct = object({
 
     /**
      * Instructs MetaMask to display the name confirmation dialog in the UI.
-     * Otherwise, the account will be added with the suggested name.
+     * Otherwise, the account will be added with the suggested name, if it's not
+     * already in use; if it is, a suffix will be appended to the name to make it
+     * unique.
+     *
      * **Note:** This is not guaranteed to be honored by the MetaMask client.
      */
 
