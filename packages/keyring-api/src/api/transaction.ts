@@ -134,6 +134,14 @@ export enum TransactionType {
    * another account.
    */
   Receive = 'receive',
+
+  /**
+   * The transaction is a swap. It decreases the balance of one asset and
+   * increases the balance of another asset in a single transaction.
+   *
+   * A swap transaction must be originated by the account.
+   */
+  Swap = 'swap',
 }
 
 /**
