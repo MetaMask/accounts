@@ -9,10 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.1]
 
-### Uncategorized
+### Changed
 
-- chore: fixup changelogs ([#221](https://github.com/MetaMask/accounts/pull/221))
-- build: bump `ts-bridge` to `0.6.3` (fix some un-exported types) ([#214](https://github.com/MetaMask/accounts/pull/214))
+- Bump `@metamask/keyring-snap-client` from `^4.0.0` to `^4.0.1` ([#220](https://github.com/MetaMask/accounts/pull/220))
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
 
 ## [4.0.0]
 

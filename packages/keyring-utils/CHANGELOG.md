@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.3.0]
 
-### Uncategorized
+### Added
 
-- feat(keyring-utils): add `isScopeEqual` + `isScopeEqualToAny` ([#222](https://github.com/MetaMask/accounts/pull/222))
+- Add `isScopeEqual` and `isScopeEqualToAny` helpers ([#222](https://github.com/MetaMask/accounts/pull/222))
 
 ## [2.2.0]
 

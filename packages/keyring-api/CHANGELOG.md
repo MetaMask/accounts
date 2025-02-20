@@ -9,10 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [17.2.0]
 
-### Uncategorized
+### Added
 
-- feat(keyring-api): add `swap` transaction type ([#218](https://github.com/MetaMask/accounts/pull/218))
-- build: bump `ts-bridge` to `0.6.3` (fix some un-exported types) ([#214](https://github.com/MetaMask/accounts/pull/214))
+- Add `swap` transaction type ([#218](https://github.com/MetaMask/accounts/pull/218))
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
 
 ## [17.1.0]
 
