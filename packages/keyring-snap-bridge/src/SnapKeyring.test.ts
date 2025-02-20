@@ -402,7 +402,7 @@ describe('SnapKeyring', () => {
             undefined,
           ],
           [
-            'handles account creation with both accountNameSuggestion and displayAccountNameDialog',
+            'handles account creation with both accountNameSuggestion and displayAccountNameSuggestion',
             { ...ethEoaAccount4 },
             'New Account',
             false,
@@ -415,7 +415,7 @@ describe('SnapKeyring', () => {
             account,
             accountNameSuggestion,
             displayConfirmation,
-            displayAccountNameDialog,
+            displayAccountNameSuggestion,
           ) => {
             // Reset mock
             mockCallbacks.addAccount.mockClear();
@@ -428,8 +428,8 @@ describe('SnapKeyring', () => {
               ...(accountNameSuggestion !== undefined && {
                 accountNameSuggestion,
               }),
-              ...(displayAccountNameDialog !== undefined && {
-                displayAccountNameDialog,
+              ...(displayAccountNameSuggestion !== undefined && {
+                displayAccountNameSuggestion,
               }),
             };
 
@@ -444,7 +444,7 @@ describe('SnapKeyring', () => {
               expect.any(Function),
               accountNameSuggestion,
               displayConfirmation,
-              displayAccountNameDialog,
+              displayAccountNameSuggestion,
             );
           },
         );

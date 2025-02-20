@@ -66,7 +66,7 @@ export const AccountCreatedEventStruct = object({
      * **Note:** This is not guaranteed to be honored by the MetaMask client.
      */
 
-    displayAccountNameDialog: exactOptional(boolean()),
+    displayAccountNameSuggestion: exactOptional(boolean()),
   }),
 });
 

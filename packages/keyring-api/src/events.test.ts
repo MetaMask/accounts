@@ -62,7 +62,7 @@ describe('events', () => {
             type: EthAccountType.Eoa,
           },
           displayConfirmation: true,
-          displayAccountNameDialog: true,
+          displayAccountNameSuggestion: true,
         },
       };
 
