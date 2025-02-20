@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.1.0]
 
-### Uncategorized
+### Added
 
-- feat(keyring-snap-bridge): add `displayAccountNameSuggestion` flag ([#213](https://github.com/MetaMask/accounts/pull/213))
+- Add `displayAccountNameSuggestion` option handling for `"notify:accountCreated"` ([#213](https://github.com/MetaMask/accounts/pull/213))
 
 ## [11.0.0]
 
