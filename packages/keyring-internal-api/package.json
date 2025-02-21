@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-internal-api",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "MetaMask Keyring Internal API",
   "keywords": [
     "metamask",
@@ -47,8 +47,7 @@
   "dependencies": {
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
-    "@metamask/superstruct": "^3.1.0",
-    "@metamask/utils": "^11.1.0"
+    "@metamask/superstruct": "^3.1.0"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
