@@ -349,16 +349,19 @@ class HdKeyring {
    * @param opts - The options for signing the message.
    * @returns The signature of the message.
    */
-  async signTypedData<Types extends MessageTypes>(
+  async signTypedData<
+    Version extends SignTypedDataVersion,
+    Types extends MessageTypes,
+    Options extends { version: Version },
+  >(
     withAccount: Hex,
-    typedData: TypedDataV1 | TypedMessage<Types>,
-    opts: HDKeyringAccountSelectionOptions & {
-      version: SignTypedDataVersion;
-    } = { version: SignTypedDataVersion.V1 },
+    typedData: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
+    opts?: HDKeyringAccountSelectionOptions & Options,
   ): Promise<string> {
+    const options = opts ?? { version: SignTypedDataVersion.V1 };
     // Treat invalid versions as "V1"
-    const version = Object.keys(SignTypedDataVersion).includes(opts.version)
-      ? opts.version
+    const version = Object.keys(SignTypedDataVersion).includes(options.version)
+      ? options.version
       : SignTypedDataVersion.V1;
 
     const privateKey = this.#getPrivateKeyFor(withAccount, opts);

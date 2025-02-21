@@ -156,9 +156,7 @@ export default class SimpleKeyring implements Keyring {
     Options extends { version: Version } & KeyringOpt,
   >(
     address: Hex,
-    typedData: Version extends SignTypedDataVersion.V1
-      ? TypedDataV1
-      : TypedMessage<Types>,
+    typedData: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
     opts?: Options,
   ): Promise<string> {
     const options = opts ?? { version: SignTypedDataVersion.V1 };
