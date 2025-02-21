@@ -5,9 +5,9 @@ import type {
   EthUserOperation,
   EthUserOperationPatch,
 } from '@metamask/keyring-api';
-import type { Json, Keyring } from '@metamask/utils';
+import type { Keyring } from '@metamask/keyring-utils';
 
-export type EthKeyring<State extends Json> = Keyring<State> & {
+export type EthKeyring = Keyring & {
   /**
    * Convert a base transaction to a base UserOperation.
    *
