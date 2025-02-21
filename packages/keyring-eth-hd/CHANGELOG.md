@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- **BREAKING:** The method signature for `signTypedData` has been changed ([#224](https://github.com/MetaMask/accounts/pull/224))
+  - The method now accepts a `TypedDataV1` object when `SigntypedDataVersion.V1` is passed in the options, and `TypedMessage<Types>` when other versions are requested
+
 ## [10.0.1]
 
 ### Changed

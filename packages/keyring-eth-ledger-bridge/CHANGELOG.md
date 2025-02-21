@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The `signPersonalMessage` method now accepts an `Hex` typed value as the `withAccount` parameter.
   - The `signTypedData` method now accepts an `Hex` typed value as the `withAccount` parameter.
   - The `unlockAccountByAddress` method now accepts an `Hex` typed value as the `address` parameter.
+- **BREAKING:** The `signTypedData` method now requires `SignTypedDataVersion` as version for the `options` argument ([#224](https://github.com/MetaMask/accounts/pull/224)).
 
 ### Removed
 
