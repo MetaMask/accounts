@@ -968,7 +968,7 @@ describe('LedgerKeyring', function () {
           ],
         },
       };
-      const options = { version: 'V4' };
+      const options = { version: sigUtil.SignTypedDataVersion.V4 };
 
       beforeEach(async function () {
         jest
@@ -1043,7 +1043,7 @@ describe('LedgerKeyring', function () {
       it('throws an error if the signTypedData version is not v4', async function () {
         await expect(
           keyring.signTypedData(fakeAccounts[0], fixtureData, {
-            version: 'V3',
+            version: sigUtil.SignTypedDataVersion.V3,
           }),
         ).rejects.toThrow(
           'Ledger: Only version 4 of typed data signing is supported',

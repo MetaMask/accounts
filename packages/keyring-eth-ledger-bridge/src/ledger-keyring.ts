@@ -485,15 +485,16 @@ export class LedgerKeyring implements Keyring {
   }
 
   async signTypedData<
-    Version extends SignTypedDataVersion.V4,
+    Version extends SignTypedDataVersion,
     Types extends MessageTypes,
     Options extends { version?: Version },
   >(
     withAccount: Hex,
     data: TypedMessage<Types>,
-    options: Options,
+    options?: Options,
   ): Promise<string> {
-    const isV4 = options?.version === 'V4';
+    const { version } = options ?? {};
+    const isV4 = version === 'V4';
     if (!isV4) {
       throw new Error(
         'Ledger: Only version 4 of typed data signing is supported',
