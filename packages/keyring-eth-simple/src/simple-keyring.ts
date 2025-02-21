@@ -153,7 +153,7 @@ export default class SimpleKeyring implements Keyring {
   async signTypedData<
     Version extends SignTypedDataVersion,
     Types extends MessageTypes,
-    Options extends { version: Version } & KeyringOpt,
+    Options extends { version?: Version } & KeyringOpt,
   >(
     address: Hex,
     typedData: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
