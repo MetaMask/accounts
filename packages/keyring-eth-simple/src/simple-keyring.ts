@@ -10,6 +10,9 @@ import {
   toBuffer,
 } from '@ethereumjs/util';
 import {
+  type TypedDataV1,
+  type MessageTypes,
+  type TypedMessage,
   concatSig,
   decrypt,
   EIP7702Authorization,
@@ -147,17 +150,23 @@ export default class SimpleKeyring implements Keyring {
     return decrypt({ privateKey, encryptedData });
   }
 
-  // personal_signTypedData, signs data along with the schema
-  async signTypedData(
+  async signTypedData<
+    Version extends SignTypedDataVersion,
+    Types extends MessageTypes,
+    Options extends { version: Version } & KeyringOpt,
+  >(
     address: Hex,
-    typedData: any,
-    opts: KeyringOpt = { version: SignTypedDataVersion.V1 },
+    typedData: Version extends SignTypedDataVersion.V1
+      ? TypedDataV1
+      : TypedMessage<Types>,
+    opts?: Options,
   ): Promise<string> {
+    const options = opts ?? { version: SignTypedDataVersion.V1 };
     // Treat invalid versions as "V1"
     let version = SignTypedDataVersion.V1;
 
-    if (opts.version && isSignTypedDataVersion(opts.version)) {
-      version = SignTypedDataVersion[opts.version];
+    if (options.version && isSignTypedDataVersion(options.version)) {
+      version = SignTypedDataVersion[options.version];
     }
 
     const privateKey = this.#getPrivateKeyFor(address, opts);

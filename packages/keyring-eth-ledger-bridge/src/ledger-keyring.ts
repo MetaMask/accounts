@@ -484,12 +484,16 @@ export class LedgerKeyring implements Keyring {
     return hdPath;
   }
 
-  async signTypedData<T extends MessageTypes>(
+  async signTypedData<
+    Version extends SignTypedDataVersion.V4,
+    Types extends MessageTypes,
+    Options extends { version?: Version },
+  >(
     withAccount: Hex,
-    data: TypedMessage<T>,
-    options: { version?: string } = {},
+    data: TypedMessage<Types>,
+    options: Options,
   ): Promise<string> {
-    const isV4 = options.version === 'V4';
+    const isV4 = options?.version === 'V4';
     if (!isV4) {
       throw new Error(
         'Ledger: Only version 4 of typed data signing is supported',
