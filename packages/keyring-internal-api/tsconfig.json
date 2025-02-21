@@ -8,7 +8,7 @@
       "path": "../keyring-api/tsconfig.build.json"
     },
     {
-      "path": "../keyring-utils"
+      "path": "../keyring-utils/tsconfig.build.json"
     }
   ],
   "include": ["./src"],
