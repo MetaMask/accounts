@@ -5,10 +5,10 @@
   },
   "references": [
     {
-      "path": "../keyring-api/tsconfig.build.json"
+      "path": "../keyring-api"
     },
     {
-      "path": "../keyring-utils/tsconfig.build.json"
+      "path": "../keyring-utils"
     }
   ],
   "include": ["./src"],
