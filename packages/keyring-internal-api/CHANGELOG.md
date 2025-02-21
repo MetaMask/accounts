@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** `EthKeyring` now extends the `Keyring` type from `@metamask/keyring-utils` instead of `Keyring<Json>` from `@metamask/utils` ([#226](https://github.com/MetaMask/accounts/pull/226))
+
 ## [4.0.3]
 
 ### Changed
