@@ -104,6 +104,7 @@ export type SnapKeyringCallbacks = {
     onceSaved: Promise<AccountId>,
     accountNameSuggestion?: string,
     displayConfirmation?: boolean,
+    displayAccountNameSuggestion?: boolean,
   ): Promise<void>;
 
   removeAccount(
@@ -206,6 +207,7 @@ export class SnapKeyring extends EventEmitter {
       account: newAccountFromEvent,
       accountNameSuggestion,
       displayConfirmation,
+      displayAccountNameSuggestion,
     } = message.params;
 
     // READ THIS CAREFULLY:
@@ -287,6 +289,7 @@ export class SnapKeyring extends EventEmitter {
       onceSaved.promise,
       accountNameSuggestion,
       displayConfirmation,
+      displayAccountNameSuggestion,
     );
 
     return null;
