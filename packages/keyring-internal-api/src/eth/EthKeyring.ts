@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+
 import type {
   KeyringExecutionContext,
   EthBaseTransaction,
