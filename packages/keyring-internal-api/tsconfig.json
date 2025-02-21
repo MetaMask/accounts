@@ -6,6 +6,9 @@
   "references": [
     {
       "path": "../keyring-api/tsconfig.build.json"
+    },
+    {
+      "path": "../keyring-utils"
     }
   ],
   "include": ["./src"],
