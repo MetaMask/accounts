@@ -729,10 +729,9 @@ describe('TrezorKeyring', function () {
       expect(keyring.paths).toStrictEqual(mockPaths);
     });
 
-    it('should update the hdPath and reset account and page properties if passed a new hdPath', async function () {
+    it('should update the hdPath if passed a new hdPath', async function () {
       const SLIP0044TestnetPath = `m/44'/1'/0'/0`;
       keyring.setHdPath(SLIP0044TestnetPath);
-
       expect(keyring.hdPath).toBe(SLIP0044TestnetPath);
       expect(keyring.hdk.publicKey).toBeNull();
     });
