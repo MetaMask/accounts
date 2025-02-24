@@ -1,4 +1,4 @@
-import { isScopeEqual, isScopeEqualToAny } from './scopes';
+import { isScopeEqual, isScopeEqualToAny } from '.';
 
 const ETH_EOA = 'eip155:0';
 const ETH_MAINNET = 'eip155:1';
