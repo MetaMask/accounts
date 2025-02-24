@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.3.1]
 
-### Uncategorized
+### Changed
 
-- fix(keyring-utils): fix missing export for `isScope{Equal,EqualToAny}` ([#227](https://github.com/MetaMask/accounts/pull/227))
+- Export `isScope{Equal,EqualToAny}` helpers ([#227](https://github.com/MetaMask/accounts/pull/227))
 
 ## [2.3.0]
 
