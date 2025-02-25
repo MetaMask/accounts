@@ -258,7 +258,11 @@ export const TransactionStruct = object({
    * Transaction type {@see TransactionType}. This will be used by MetaMask to enrich the transaction
    * details on the UI.
    */
-  type: enums([`${TransactionType.Send}`, `${TransactionType.Receive}`]),
+  type: enums([
+    `${TransactionType.Send}`,
+    `${TransactionType.Receive}`,
+    `${TransactionType.Swap}`,
+  ]),
 
   /**
    * Transaction sender addresses and amounts.
