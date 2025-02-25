@@ -22,6 +22,11 @@ const hdPathString = `m/44'/60'/0'/0`;
 const SLIP0044TestnetPath = `m/44'/1'/0'/0`;
 const legacyMewPath = `m/44'/60'/0'`;
 
+export type AccountDetails = {
+  index?: number;
+  hdPath?: string;
+};
+
 const ALLOWED_HD_PATHS = {
   [hdPathString]: true,
   [legacyMewPath]: true,
@@ -49,6 +54,8 @@ export interface TrezorControllerOptions {
   hdPath?: string;
   accounts?: string[];
   page?: number;
+  accountDetails?: Record<string, AccountDetails>;
+  accountIndexes?: Record<string, number>;
   perPage?: number;
 }
 
@@ -90,6 +97,10 @@ export class TrezorKeyring extends EventEmitter {
   readonly type: string = keyringType;
 
   accounts: readonly string[] = [];
+
+  accountDetails: Record<string, AccountDetails> = {};
+
+  accountIndexes: Record<string, number> = {};
 
   hdk: HDKey = new HDKey();
 
@@ -143,6 +154,7 @@ export class TrezorKeyring extends EventEmitter {
       page: this.page,
       paths: this.paths,
       perPage: this.perPage,
+      accountDetails: this.accountDetails,
       unlockedAccount: this.unlockedAccount,
     });
   }
@@ -152,6 +164,17 @@ export class TrezorKeyring extends EventEmitter {
     this.accounts = opts.accounts ?? [];
     this.page = opts.page ?? 0;
     this.perPage = opts.perPage ?? 5;
+    this.accountDetails = opts.accountDetails ?? {};
+    // TODO: uncomment when migration is ready
+    if (!opts.accountDetails) {
+      this.#migrateAccountDetails(opts);
+    }
+    // make accounts match accountDetails
+    const keys = new Set<string>(Object.keys(this.accountDetails));
+    this.accounts = this.accounts.filter((account) =>
+      keys.has(ethUtil.toChecksumAddress(account)),
+    );
+
     return Promise.resolve();
   }
 
@@ -159,14 +182,15 @@ export class TrezorKeyring extends EventEmitter {
     return Boolean(this.hdk?.publicKey);
   }
 
-  async unlock(): Promise<string> {
+  async unlock(hdPath: string): Promise<string> {
     if (this.isUnlocked()) {
       return Promise.resolve('already unlocked');
     }
+
     return new Promise((resolve, reject) => {
       this.bridge
         .getPublicKey({
-          path: this.hdPath,
+          path: hdPath,
           coin: 'ETH',
         })
         .then((response) => {
@@ -190,15 +214,21 @@ export class TrezorKeyring extends EventEmitter {
 
   async addAccounts(n = 1): Promise<readonly string[]> {
     return new Promise((resolve, reject) => {
-      this.unlock()
+      this.unlock(this.hdPath)
         .then((_) => {
           const from = this.unlockedAccount;
           const to = from + n;
           const newAccounts = [];
 
           for (let i = from; i < to; i++) {
+            const path = this.#getPathForIndex(i);
             const address = this.#addressFromIndex(pathBase, i);
             if (!this.accounts.includes(address)) {
+              this.accountDetails[ethUtil.toChecksumAddress(address)] = {
+                index: i,
+                hdPath: path,
+              };
+
               this.accounts = [...this.accounts, address];
               newAccounts.push(address);
             }
@@ -233,7 +263,7 @@ export class TrezorKeyring extends EventEmitter {
     }
 
     return new Promise((resolve, reject) => {
-      this.unlock()
+      this.unlock(this.hdPath)
         .then((_) => {
           const from = (this.page - 1) * this.perPage;
           const to = from + this.perPage;
@@ -271,6 +301,8 @@ export class TrezorKeyring extends EventEmitter {
     this.accounts = this.accounts.filter(
       (a) => a.toLowerCase() !== address.toLowerCase(),
     );
+
+    delete this.accountDetails[ethUtil.toChecksumAddress(address)];
   }
 
   /**
@@ -351,6 +383,8 @@ export class TrezorKeyring extends EventEmitter {
     tx: T,
     handleSigning: (tx: EthereumSignedTx) => T,
   ): Promise<T> {
+    const hdPath = await this.unlockAccountByAddress(address);
+
     let transaction: EthereumTransaction | EthereumTransactionEIP1559;
     if (isOldStyleEthereumjsTx(tx)) {
       // legacy transaction from ethereumjs-tx package has no .toJSON() function,
@@ -375,8 +409,6 @@ export class TrezorKeyring extends EventEmitter {
     }
 
     try {
-      const status = await this.unlock();
-      await wait(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0);
       const response = await this.bridge.ethereumSignTransaction({
         path: this.#pathFromAddress(address),
         transaction,
@@ -402,6 +434,27 @@ export class TrezorKeyring extends EventEmitter {
     }
   }
 
+  async unlockAccountByAddress(address: string): Promise<string | undefined> {
+    const checksummedAddress = ethUtil.toChecksumAddress(address);
+    const accountDetails = this.accountDetails[checksummedAddress];
+    if (!accountDetails) {
+      throw new Error(
+        `Ledger: Account for address '${checksummedAddress}' not found`,
+      );
+    }
+    const { hdPath } = accountDetails;
+    const unlockedAddress = await this.unlock(hdPath);
+
+    // unlock resolves to the address for the given hdPath as reported by the ledger device
+    // if that address is not the requested address, then this account belongs to a different device or seed
+    if (unlockedAddress.toLowerCase() !== address.toLowerCase()) {
+      throw new Error(
+        `Ledger: Account ${address} does not belong to the connected device`,
+      );
+    }
+    return hdPath;
+  }
+
   async signMessage(withAccount: string, data: string): Promise<string> {
     return this.signPersonalMessage(withAccount, data);
   }
@@ -412,7 +465,7 @@ export class TrezorKeyring extends EventEmitter {
     message: string,
   ): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.unlock()
+      this.unlock(this.hdPath)
         .then((status) => {
           setTimeout(
             () => {
@@ -480,7 +533,7 @@ export class TrezorKeyring extends EventEmitter {
 
     // This is necessary to avoid popup collision
     // between the unlock & sign trezor popups
-    const status = await this.unlock();
+    const status = await this.unlock(this.hdPath);
     await wait(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0);
 
     const response = await this.bridge.ethereumSignTypedData({
@@ -547,12 +600,27 @@ export class TrezorKeyring extends EventEmitter {
     return ethUtil.bufferToHex(buf).toString();
   }
 
+  #migrateAccountDetails(opts: TrezorControllerOptions): void {
+    if (opts.accountIndexes) {
+      for (const [address, index] of Object.entries(opts.accountIndexes)) {
+        this.accountDetails[ethUtil.toChecksumAddress(address)] = {
+          hdPath: this.#getPathForIndex(index),
+        };
+      }
+    }
+  }
+
   #addressFromIndex(basePath: string, i: number): string {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
     const address = ethUtil
       .publicToAddress(dkey.publicKey, true)
       .toString('hex');
     return ethUtil.toChecksumAddress(`0x${address}`);
+  }
+
+  #getPathForIndex(index: number): string {
+    // trezor path will add index to the end regardless of the HD path type.
+    return `${this.hdPath}/${index}`;
   }
 
   #pathFromAddress(address: string): string {
