@@ -25,6 +25,7 @@ import {
   type CryptographicFunctions,
   mnemonicToSeed,
 } from '@metamask/key-tree';
+import type { Keyring } from '@metamask/keyring-utils';
 import { generateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import {
@@ -53,10 +54,25 @@ export type HDKeyringOptions = {
  * @property numberOfAccounts - The number of accounts in the keyring.
  * @property hdPath - The HD path used to derive accounts.
  */
-export type HDKeyringState = {
-  mnemonic: number[] | Uint8Array | Buffer | string;
+export type SerializedHDKeyringState = {
+  mnemonic: number[];
   numberOfAccounts: number;
   hdPath: string;
+};
+
+/**
+ * An object that can be passed to the Keyring.deserialize method to initialize
+ * an `HDKeyring` instance.
+ *
+ * @property mnemonic - The mnemonic seed phrase as an array of numbers.
+ * @property numberOfAccounts - The number of accounts in the keyring.
+ * @property hdPath - The HD path used to derive accounts.
+ */
+export type DeserializableHDKeyringState = Omit<
+  SerializedHDKeyringState,
+  'mnemonic'
+> & {
+  mnemonic: number[] | SerializedBuffer | string;
 };
 
 /**
@@ -88,7 +104,7 @@ function isSerializedBuffer(value: unknown): value is SerializedBuffer {
   );
 }
 
-export class HdKeyring {
+export class HdKeyring implements Keyring {
   static type: string = type;
 
   type: string = type;
@@ -124,7 +140,7 @@ export class HdKeyring {
    *
    * @returns The serialized state of the keyring.
    */
-  async serialize(): Promise<HDKeyringState> {
+  async serialize(): Promise<SerializedHDKeyringState> {
     let mnemonic: number[] = [];
 
     if (this.mnemonic) {
@@ -145,7 +161,9 @@ export class HdKeyring {
    * @param opts - The serialized state of the keyring.
    * @returns An empty array.
    */
-  async deserialize(opts: Partial<HDKeyringState> = {}): Promise<string[]> {
+  async deserialize(
+    opts: Partial<DeserializableHDKeyringState>,
+  ): Promise<void> {
     if (opts.numberOfAccounts && !opts.mnemonic) {
       throw new Error(
         'Eth-Hd-Keyring: Deserialize method cannot be called with an opts value for numberOfAccounts and no menmonic',
@@ -167,10 +185,8 @@ export class HdKeyring {
     }
 
     if (opts.numberOfAccounts) {
-      return this.addAccounts(opts.numberOfAccounts);
+      await this.addAccounts(opts.numberOfAccounts);
     }
-
-    return [];
   }
 
   /**
@@ -204,7 +220,7 @@ export class HdKeyring {
    *
    * @returns The addresses of all accounts in the keyring.
    */
-  getAccounts(): Hex[] {
+  async getAccounts(): Promise<Hex[]> {
     return this.#wallets.map((wallet) => {
       assert(wallet.publicKey, 'Expected public key to be set');
       return this.#addressfromPublicKey(wallet.publicKey);
@@ -587,7 +603,7 @@ export class HdKeyring {
    * passed as type buffer or array of UTF-8 bytes must be NFKD normalized.
    */
   async #initFromMnemonic(
-    mnemonic: string | number[] | Buffer | Uint8Array,
+    mnemonic: string | number[] | SerializedBuffer | Buffer | Uint8Array,
   ): Promise<void> {
     if (this.root) {
       throw new Error(
