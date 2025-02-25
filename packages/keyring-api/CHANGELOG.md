@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix(keyring-api): fix missing `Transaction.status` for `'swap'` ([#229](https://github.com/MetaMask/accounts/pull/229))
+
 ## [17.2.0]
 
 ### Added
