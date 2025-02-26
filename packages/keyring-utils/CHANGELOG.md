@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.1]
+
+### Changed
+
+- Export `isScope{Equal,EqualToAny}` helpers ([#227](https://github.com/MetaMask/accounts/pull/227))
+
+## [2.3.0]
+
+### Added
+
+- Add `isScopeEqual` and `isScopeEqualToAny` helpers ([#222](https://github.com/MetaMask/accounts/pull/222))
+
+## [2.2.0]
+
+### Added
+
+- Add `AccountId` type ([#211](https://github.com/MetaMask/accounts/pull/211))
+
+## [2.1.2]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+
+## [2.1.1]
+
 ### Fixed
 
 - Export `Keyring` and `KeyringClass` types from package root ([#208](https://github.com/MetaMask/accounts/pull/208))
@@ -63,7 +90,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.3.1...HEAD
+[2.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.3.0...@metamask/keyring-utils@2.3.1
+[2.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.2.0...@metamask/keyring-utils@2.3.0
+[2.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.1.2...@metamask/keyring-utils@2.2.0
+[2.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.1.1...@metamask/keyring-utils@2.1.2
+[2.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.1.0...@metamask/keyring-utils@2.1.1
 [2.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.0.0...@metamask/keyring-utils@2.1.0
 [2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@1.3.1...@metamask/keyring-utils@2.0.0
 [1.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@1.3.0...@metamask/keyring-utils@1.3.1

@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** `LedgerKeyring` now implements the `Keyring` type ([#194](https://github.com/MetaMask/accounts/pull/194))
+  - The class does not extend `EventEmitter` anymore.
+  - The `LedgerKeyring.accounts` class variable is now a `readonly Hex[]` array.
+  - The `addAccounts` method signature has been changed:
+    - An `amount` number parameter is now required to specify the number of accounts to add.
+    - The method now returns a promise resolving to an array of `Hex` addresses.
+  - The `unlock` method now returns `Promise<Hex>`.
+  - The `getAccounts` method now returns `Promise<Hex[]>`.
+  - The `deserialize` method now requires a `LedgerKeyringSerializedState` typed parameter.
+  - The `signTransaction` method now accepts an `Hex` typed value as the `address` parameter.
+  - The `signMessage` method now accepts an `Hex` typed value as the `withAccount` parameter.
+  - The `signPersonalMessage` method now accepts an `Hex` typed value as the `withAccount` parameter.
+  - The `signTypedData` method now accepts an `Hex` typed value as the `withAccount` parameter.
+  - The `unlockAccountByAddress` method now accepts an `Hex` typed value as the `address` parameter.
+
+### Removed
+
+- **BREAKING:** The `exportAccount` method has been removed ([#194](https://github.com/MetaMask/accounts/pull/194))
+
+## [8.0.5]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+
 ## [8.0.4]
 
 ### Changed
@@ -254,7 +282,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.4...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.5...HEAD
+[8.0.5]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.4...@metamask/eth-ledger-bridge-keyring@8.0.5
 [8.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.3...@metamask/eth-ledger-bridge-keyring@8.0.4
 [8.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.2...@metamask/eth-ledger-bridge-keyring@8.0.3
 [8.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.1...@metamask/eth-ledger-bridge-keyring@8.0.2

@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-simple-keyring",
-  "version": "8.1.0",
+  "version": "8.1.1",
   "description": "A simple standard interface for a series of Ethereum private keys.",
   "keywords": [
     "ethereum",
@@ -55,7 +55,8 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@ts-bridge/cli": "^0.6.1",
+    "@metamask/keyring-utils": "workspace:^",
+    "@ts-bridge/cli": "^0.6.3",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",

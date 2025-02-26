@@ -17,13 +17,13 @@ import {
   signTypedData,
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
+import { Keyring } from '@metamask/keyring-utils';
 import {
   add0x,
   bigIntToBytes,
   bytesToHex,
   Eip1024EncryptedData,
   Hex,
-  Keyring,
 } from '@metamask/utils';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 import randombytes from 'randombytes';
@@ -41,7 +41,7 @@ type Wallet = {
 const TYPE = 'Simple Key Pair';
 
 // FIXME: This should not be exported as default.
-export default class SimpleKeyring implements Keyring<string[]> {
+export default class SimpleKeyring implements Keyring {
   #wallets: { privateKey: Buffer; publicKey: Buffer }[];
 
   readonly type: string = TYPE;
@@ -62,7 +62,7 @@ export default class SimpleKeyring implements Keyring<string[]> {
     return this.#wallets.map((a) => a.privateKey.toString('hex'));
   }
 
-  async deserialize(privateKeys: string[] = []): Promise<void> {
+  async deserialize(privateKeys: string[]): Promise<void> {
     this.#wallets = privateKeys.map((hexPrivateKey) => {
       const strippedHexPrivateKey = stripHexPrefix(hexPrivateKey);
       const privateKey = Buffer.from(strippedHexPrivateKey, 'hex');
@@ -91,7 +91,6 @@ export default class SimpleKeyring implements Keyring<string[]> {
     );
   }
 
-  // @ts-expect-error Update utils package
   async signTransaction(
     address: Hex,
     transaction: TypedTransaction,

@@ -80,12 +80,12 @@ describe('simple-keyring', function () {
     });
   });
 
-  describe('#deserialize an empty value', function () {
+  describe('#deserialize an empty array', function () {
     it('resets wallets', async function () {
       await keyring.deserialize([testAccount.key]);
       const serialized = await keyring.serialize();
       expect(serialized).toHaveLength(1);
-      await keyring.deserialize(undefined);
+      await keyring.deserialize([]);
       const serialized2 = await keyring.serialize();
       expect(serialized2).toHaveLength(0);
     });

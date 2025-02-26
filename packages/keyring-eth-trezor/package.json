@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-trezor-keyring",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "A MetaMask compatible keyring, for trezor hardware wallets",
   "keywords": [
     "ethereum",
@@ -49,6 +49,7 @@
     "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/utils": "^11.1.0",
     "@trezor/connect-plugin-ethereum": "^9.0.3",
     "@trezor/connect-web": "^9.1.11",
     "hdkey": "^2.1.0",
@@ -59,7 +60,8 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@ts-bridge/cli": "^0.6.1",
+    "@metamask/keyring-utils": "workspace:^",
+    "@ts-bridge/cli": "^0.6.3",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",
     "@types/jest": "^29.5.12",
@@ -115,7 +117,9 @@
       "@trezor/connect-web>@trezor/connect>@trezor/blockchain-link>ws>bufferutil": false,
       "@trezor/connect-web>@trezor/connect>@trezor/blockchain-link>ws>utf-8-validate": false,
       "@trezor/connect-web>@trezor/connect>@trezor/protobuf>protobufjs": false,
-      "@trezor/connect-web>@trezor/connect>@trezor/transport>usb": false
+      "@trezor/connect-web>@trezor/connect>@trezor/transport>usb": false,
+      "jest-environment-jsdom>jsdom>ws>bufferutil": false,
+      "jest-environment-jsdom>jsdom>ws>utf-8-validate": false
     }
   }
 }
