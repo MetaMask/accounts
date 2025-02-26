@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.0.0]
 
-### Uncategorized
-
-- test(keyring-eth-hd): use bigger timeout for flaky test ([#223](https://github.com/MetaMask/accounts/pull/223))
-
 ### Changed
 
 - **BREAKING:** The `HdKeyring` is not exported as default anymore ([#161](https://github.com/MetaMask/accounts/pull/161))
