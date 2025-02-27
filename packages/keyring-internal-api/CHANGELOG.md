@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0]
+
 ### Changed
 
 - **BREAKING:** `EthKeyring` now extends the `Keyring` type from `@metamask/keyring-utils` instead of `Keyring<Json>` from `@metamask/utils` ([#226](https://github.com/MetaMask/accounts/pull/226))
@@ -74,7 +76,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@4.0.3...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@5.0.0...HEAD
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@4.0.3...@metamask/keyring-internal-api@5.0.0
 [4.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@4.0.2...@metamask/keyring-internal-api@4.0.3
 [4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@4.0.1...@metamask/keyring-internal-api@4.0.2
 [4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@4.0.0...@metamask/keyring-internal-api@4.0.1
