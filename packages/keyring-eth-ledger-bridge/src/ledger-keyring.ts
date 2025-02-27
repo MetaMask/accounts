@@ -1,6 +1,10 @@
 import { RLP } from '@ethereumjs/rlp';
-import { TransactionFactory, TxData, TypedTransaction } from '@ethereumjs/tx';
-import { bufferToHex, publicToAddress } from '@ethereumjs/util';
+import {
+  TransactionFactory,
+  TypedTxData,
+  type TypedTransaction,
+} from '@ethereumjs/tx';
+import { publicToAddress } from '@ethereumjs/util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import {
   recoverPersonalSignature,
@@ -9,7 +13,13 @@ import {
   TypedDataUtils,
 } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
-import { add0x, getChecksumAddress, Hex, remove0x } from '@metamask/utils';
+import {
+  add0x,
+  bytesToHex,
+  getChecksumAddress,
+  Hex,
+  remove0x,
+} from '@metamask/utils';
 import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
@@ -216,7 +226,7 @@ export class LedgerKeyring implements Keyring {
       // we return the checksummed address of the public key stored in
       // `this.hdk`, which is the root address of the last unlocked path.
       return this.#getChecksumHexAddress(
-        publicToAddress(this.hdk.publicKey, true).toString('hex'),
+        bytesToHex(publicToAddress(this.hdk.publicKey, true)),
       );
     }
     const path = hdPath ? this.#toLedgerPath(hdPath) : this.hdPath;
@@ -333,8 +343,7 @@ export class LedgerKeyring implements Keyring {
       // transaction which is only communicated to ethereumjs-tx in this
       // value. In newer versions the chainId is communicated via the 'Common'
       // object.
-      // @ts-expect-error tx.v should be a Buffer, but we are assigning a string
-      tx.v = bufferToHex(tx.getChainId());
+      tx.v = tx.getChainId();
       // @ts-expect-error tx.r should be a Buffer, but we are assigning a string
       tx.r = '0x00';
       // @ts-expect-error tx.s should be a Buffer, but we are assigning a string
@@ -358,17 +367,17 @@ export class LedgerKeyring implements Keyring {
     // Note also that `getMessageToSign` will return valid RLP for all transaction types, whereas the
     // `serialize` method will not for any transaction type except legacy. This is because `serialize` includes
     // empty r, s and v values in the encoded rlp. This is why we use `getMessageToSign` here instead of `serialize`.
-    const messageToSign = tx.getMessageToSign(false);
+    const messageToSign = tx.getMessageToSign();
 
-    rawTxHex = Buffer.isBuffer(messageToSign)
-      ? messageToSign.toString('hex')
-      : Buffer.from(RLP.encode(messageToSign)).toString('hex');
+    rawTxHex = Array.isArray(messageToSign)
+      ? Buffer.from(RLP.encode(messageToSign)).toString('hex')
+      : bytesToHex(messageToSign);
 
     return this.#signTransaction(address, rawTxHex, (payload) => {
       // Because tx will be immutable, first get a plain javascript object that
       // represents the transaction. Using txData here as it aligns with the
       // nomenclature of ethereumjs/tx.
-      const txData: TxData = tx.toJSON();
+      const txData: TypedTxData = tx.toJSON();
       // The fromTxData utility expects a type to support transactions with a type other than 0
       txData.type = tx.type;
       // The fromTxData utility expects v,r and s to be hex prefixed
@@ -632,8 +641,8 @@ export class LedgerKeyring implements Keyring {
 
   #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = publicToAddress(dkey.publicKey, true).toString('hex');
-    return this.#getChecksumHexAddress(add0x(address));
+    const address = bytesToHex(publicToAddress(dkey.publicKey, true));
+    return this.#getChecksumHexAddress(address);
   }
 
   #pathFromAddress(address: string): string {

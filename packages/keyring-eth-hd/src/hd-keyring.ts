@@ -1,11 +1,5 @@
 import type { TypedTransaction } from '@ethereumjs/tx';
-import {
-  privateToPublic,
-  publicToAddress,
-  ecsign,
-  arrToBufArr,
-  bufferToHex,
-} from '@ethereumjs/util';
+import { privateToPublic, publicToAddress, ecsign } from '@ethereumjs/util';
 import {
   concatSig,
   decrypt,
@@ -31,12 +25,13 @@ import {
   add0x,
   assert,
   assertIsHexString,
+  bigIntToBytes,
+  bytesToHex,
   type Hex,
   remove0x,
 } from '@metamask/utils';
 import { HDKey } from 'ethereum-cryptography/hdkey';
 import { keccak256 } from 'ethereum-cryptography/keccak';
-import { bytesToHex } from 'ethereum-cryptography/utils';
 
 // Options:
 const hdPathString = `m/44'/60'/0'/0`;
@@ -227,7 +222,7 @@ export class HdKeyring {
     });
     assert(wallet.publicKey, 'Expected public key to be set');
     const appKeyAddress = this.#normalizeAddress(
-      publicToAddress(wallet.publicKey).toString('hex'),
+      bytesToHex(publicToAddress(wallet.publicKey)),
     );
     return appKeyAddress;
   }
@@ -253,7 +248,7 @@ export class HdKeyring {
       privateKey instanceof Uint8Array,
       'Expected private key to be of type Uint8Array',
     );
-    return bytesToHex(privateKey);
+    return remove0x(bytesToHex(privateKey));
   }
 
   /**
@@ -293,10 +288,9 @@ export class HdKeyring {
     const privKey = this.#getPrivateKeyFor(address, opts);
     const msgSig = ecsign(Buffer.from(message, 'hex'), Buffer.from(privKey));
     const rawMsgSig = concatSig(
-      // WARN: verify this cast to Buffer
-      msgSig.v as unknown as Buffer,
-      msgSig.r,
-      msgSig.s,
+      Buffer.from(bigIntToBytes(msgSig.v)),
+      Buffer.from(msgSig.r),
+      Buffer.from(msgSig.s),
     );
     return rawMsgSig;
   }
@@ -425,7 +419,7 @@ export class HdKeyring {
     opts: HDKeyringAccountSelectionOptions = {},
   ): Promise<string> {
     const privKey = this.#getPrivateKeyFor(withAccount, opts);
-    const publicKey = getEncryptionPublicKey(bytesToHex(privKey));
+    const publicKey = getEncryptionPublicKey(remove0x(bytesToHex(privKey)));
     return publicKey;
   }
 
@@ -567,8 +561,8 @@ export class HdKeyring {
       assert(privateKey, 'Expected private key to be set');
       const appKeyOriginBuffer = Buffer.from(withAppKeyOrigin, 'utf8');
       const appKeyBuffer = Buffer.concat([privateKey, appKeyOriginBuffer]);
-      const appKeyPrivateKey = arrToBufArr(keccak256(appKeyBuffer));
-      const appKeyPublicKey = privateToPublic(appKeyPrivateKey);
+      const appKeyPrivateKey = Buffer.from(keccak256(appKeyBuffer));
+      const appKeyPublicKey = Buffer.from(privateToPublic(appKeyPrivateKey));
       return { privateKey: appKeyPrivateKey, publicKey: appKeyPublicKey };
     }
 
@@ -611,7 +605,7 @@ export class HdKeyring {
    */
   #addressfromPublicKey(publicKey: Uint8Array): Hex {
     return add0x(
-      bufferToHex(publicToAddress(Buffer.from(publicKey), true)).toLowerCase(),
+      bytesToHex(publicToAddress(Buffer.from(publicKey), true)).toLowerCase(),
     );
   }
 
