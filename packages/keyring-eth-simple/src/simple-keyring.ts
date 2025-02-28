@@ -1,13 +1,10 @@
 import { TypedTransaction } from '@ethereumjs/tx';
 import {
-  arrToBufArr,
-  bufferToHex,
   ecsign,
   isValidPrivate,
   privateToPublic,
   publicToAddress,
   stripHexPrefix,
-  toBuffer,
 } from '@ethereumjs/util';
 import {
   concatSig,
@@ -21,7 +18,13 @@ import {
   SignTypedDataVersion,
 } from '@metamask/eth-sig-util';
 import { Keyring } from '@metamask/keyring-utils';
-import { add0x, Eip1024EncryptedData, Hex } from '@metamask/utils';
+import {
+  add0x,
+  bigIntToBytes,
+  bytesToHex,
+  Eip1024EncryptedData,
+  Hex,
+} from '@metamask/utils';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 import randombytes from 'randombytes';
 
@@ -63,7 +66,7 @@ export default class SimpleKeyring implements Keyring {
     this.#wallets = privateKeys.map((hexPrivateKey) => {
       const strippedHexPrivateKey = stripHexPrefix(hexPrivateKey);
       const privateKey = Buffer.from(strippedHexPrivateKey, 'hex');
-      const publicKey = privateToPublic(privateKey);
+      const publicKey = Buffer.from(privateToPublic(privateKey));
       return { privateKey, publicKey };
     });
   }
@@ -72,19 +75,19 @@ export default class SimpleKeyring implements Keyring {
     const newWallets = [];
     for (let i = 0; i < numAccounts; i++) {
       const privateKey = generateKey();
-      const publicKey = privateToPublic(privateKey);
+      const publicKey = Buffer.from(privateToPublic(privateKey));
       newWallets.push({ privateKey, publicKey });
     }
     this.#wallets = this.#wallets.concat(newWallets);
     const hexWallets = newWallets.map(({ publicKey }) =>
-      add0x(bufferToHex(publicToAddress(publicKey))),
+      add0x(bytesToHex(publicToAddress(publicKey))),
     );
     return hexWallets;
   }
 
   async getAccounts(): Promise<Hex[]> {
     return this.#wallets.map(({ publicKey }) =>
-      add0x(bufferToHex(publicToAddress(publicKey))),
+      add0x(bytesToHex(publicToAddress(publicKey))),
     );
   }
 
@@ -123,7 +126,11 @@ export default class SimpleKeyring implements Keyring {
     }
     const privKey = this.#getPrivateKeyFor(address, opts);
     const msgSig = ecsign(Buffer.from(message, 'hex'), privKey);
-    const rawMsgSig = concatSig(toBuffer(msgSig.v), msgSig.r, msgSig.s);
+    const rawMsgSig = concatSig(
+      Buffer.from(bigIntToBytes(msgSig.v)),
+      Buffer.from(msgSig.r),
+      Buffer.from(msgSig.s),
+    );
     return rawMsgSig;
   }
 
@@ -193,7 +200,7 @@ export default class SimpleKeyring implements Keyring {
     const wallet = this.#getWalletForAccount(address, {
       withAppKeyOrigin: origin,
     });
-    const appKeyAddress = add0x(bufferToHex(publicToAddress(wallet.publicKey)));
+    const appKeyAddress = add0x(bytesToHex(publicToAddress(wallet.publicKey)));
     return appKeyAddress;
   }
 
@@ -210,7 +217,7 @@ export default class SimpleKeyring implements Keyring {
     if (
       !this.#wallets
         .map(({ publicKey }) =>
-          bufferToHex(publicToAddress(publicKey)).toLowerCase(),
+          bytesToHex(publicToAddress(publicKey)).toLowerCase(),
         )
         .includes(address.toLowerCase())
     ) {
@@ -219,7 +226,7 @@ export default class SimpleKeyring implements Keyring {
 
     this.#wallets = this.#wallets.filter(
       ({ publicKey }) =>
-        bufferToHex(publicToAddress(publicKey)).toLowerCase() !==
+        bytesToHex(publicToAddress(publicKey)).toLowerCase() !==
         address.toLowerCase(),
     );
   }
@@ -230,7 +237,7 @@ export default class SimpleKeyring implements Keyring {
   ): Wallet {
     const address = normalize(account);
     let wallet = this.#wallets.find(
-      ({ publicKey }) => bufferToHex(publicToAddress(publicKey)) === address,
+      ({ publicKey }) => bytesToHex(publicToAddress(publicKey)) === address,
     );
     if (!wallet) {
       throw new Error('Simple Keyring - Unable to find matching address.');
@@ -240,9 +247,12 @@ export default class SimpleKeyring implements Keyring {
       const { privateKey } = wallet;
       const appKeyOriginBuffer = Buffer.from(opts.withAppKeyOrigin, 'utf8');
       const appKeyBuffer = Buffer.concat([privateKey, appKeyOriginBuffer]);
-      const appKeyPrivateKey = arrToBufArr(keccak256(appKeyBuffer));
+      const appKeyPrivateKey = keccak256(appKeyBuffer);
       const appKeyPublicKey = privateToPublic(appKeyPrivateKey);
-      wallet = { privateKey: appKeyPrivateKey, publicKey: appKeyPublicKey };
+      wallet = {
+        privateKey: Buffer.from(appKeyPrivateKey),
+        publicKey: Buffer.from(appKeyPublicKey),
+      };
     }
 
     return wallet;
