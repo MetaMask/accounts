@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.0.1]
+
 ### Uncategorized
 
 - chore: upgrade ethereumjs packages ([#209](https://github.com/MetaMask/accounts/pull/209))
@@ -136,7 +138,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@9.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@9.0.1...HEAD
+[9.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@9.0.0...@metamask/eth-simple-keyring@9.0.1
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.1.1...@metamask/eth-simple-keyring@9.0.0
 [8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.1.0...@metamask/eth-simple-keyring@8.1.1
 [8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.0.1...@metamask/eth-simple-keyring@8.1.0
