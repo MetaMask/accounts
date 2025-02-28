@@ -1,13 +1,19 @@
 import { TransactionFactory } from '@ethereumjs/tx';
-import type { TypedTransaction, TxData } from '@ethereumjs/tx';
-import { bufferToHex, publicToAddress, toBuffer } from '@ethereumjs/util';
+import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
+import { publicToAddress, toChecksumAddress } from '@ethereumjs/util';
 import {
   TypedMessage,
   SignTypedDataVersion,
   MessageTypes,
 } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
-import { add0x, getChecksumAddress, Hex, remove0x } from '@metamask/utils';
+import {
+  add0x,
+  bytesToHex,
+  getChecksumAddress,
+  Hex,
+  remove0x,
+} from '@metamask/utils';
 import { transformTypedData } from '@trezor/connect-plugin-ethereum';
 import type {
   EthereumTransactionEIP1559,
@@ -317,7 +323,7 @@ export class TrezorKeyring implements Keyring {
         // Because tx will be immutable, first get a plain javascript object that
         // represents the transaction. Using txData here as it aligns with the
         // nomenclature of ethereumjs/tx.
-        const txData: TxData = tx.toJSON();
+        const txData: TypedTxData = tx.toJSON();
         // The fromTxData utility expects a type to support transactions with a type other than 0
         txData.type = tx.type;
         // The fromTxData utility expects v,r and s to be hex prefixed
@@ -369,7 +375,7 @@ export class TrezorKeyring implements Keyring {
       transaction = {
         ...tx.toJSON(),
         chainId,
-        to: this.#normalize(toBuffer(tx.to)),
+        to: this.#normalize(Buffer.from(tx.to?.bytes ?? [])),
       } as EthereumTransaction | EthereumTransactionEIP1559;
     }
 
@@ -542,13 +548,13 @@ export class TrezorKeyring implements Keyring {
   }
 
   #normalize(buf: Buffer): string {
-    return bufferToHex(buf).toString();
+    return bytesToHex(buf);
   }
 
   #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = publicToAddress(dkey.publicKey, true).toString('hex');
-    return getChecksumAddress(add0x(address));
+    const address = bytesToHex(publicToAddress(dkey.publicKey, true));
+    return toChecksumAddress(address);
   }
 
   #pathFromAddress(address: Hex): string {
