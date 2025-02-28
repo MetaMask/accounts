@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.0.1]
 
-### Uncategorized
+### Changed
 
-- chore: upgrade ethereumjs packages ([#209](https://github.com/MetaMask/accounts/pull/209))
+- Bump `@ethereumjs/util` from `^8.1.0` to `^9.1.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
 
 ## [11.0.0]
 
