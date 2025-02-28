@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0]
+
+### Changed
+
+- **BREAKING:** The method `signTransaction` can now returns various type of transactions ([#209](https://github.com/MetaMask/accounts/pull/209))
+  - Initially was supporting: `Transaction | AccessListEIP2930Transaction | FeeMarketEIP1559Transaction` (types from `@ethereumjs/tx`).
+  - Now also supports `BlobEIP4844Transaction | EOACodeEIP7702Transaction` (types from `@ethereumjs/tx`).
+- **BREAKING:** Bump `@ethereumjs/tx` from `^4.2.0` to `^5.4.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
+
 ## [2.3.1]
 
 ### Changed
@@ -90,7 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.3.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.0.0...HEAD
+[3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.3.1...@metamask/keyring-utils@3.0.0
 [2.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.3.0...@metamask/keyring-utils@2.3.1
 [2.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.2.0...@metamask/keyring-utils@2.3.0
 [2.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.1.2...@metamask/keyring-utils@2.2.0

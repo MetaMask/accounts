@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.0.0]
+
+### Changed
+
+- **BREAKING:** The method `signTransaction` can now returns various type of transactions ([#209](https://github.com/MetaMask/accounts/pull/209))
+  - Initially was supporting: `Transaction | AccessListEIP2930Transaction | FeeMarketEIP1559Transaction` (types from `@ethereumjs/tx`).
+  - Now also supports `BlobEIP4844Transaction | EOACodeEIP7702Transaction` (types from `@ethereumjs/tx`).
+- **BREAKING:** Bump `@ethereumjs/tx` from `^4.2.0` to `^5.4.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
+- **BREAKING:** Bump `@ethereumjs/util` from `^8.1.0` to `^9.1.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
+
 ## [7.0.0]
 
 ### Changed
@@ -191,7 +201,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@7.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@8.0.0...HEAD
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@7.0.0...@metamask/eth-trezor-keyring@8.0.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.1...@metamask/eth-trezor-keyring@7.0.0
 [6.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.0...@metamask/eth-trezor-keyring@6.1.1
 [6.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.2...@metamask/eth-trezor-keyring@6.1.0
