@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.0.1]
 
+### Changed
+
+- Bump `@ethereumjs/tx` from `^4.2.0` to `^5.4.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
+- Bump `@ethereumjs/util` from `^8.1.0` to `^9.1.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
+
 ## [9.0.0]
 
 ### Changed
