@@ -548,7 +548,7 @@ export class TrezorKeyring implements Keyring {
   }
 
   #normalize(buf: Buffer): string {
-    return bytesToHex(buf).toString();
+    return bytesToHex(buf);
   }
 
   #addressFromIndex(basePath: string, i: number): Hex {
