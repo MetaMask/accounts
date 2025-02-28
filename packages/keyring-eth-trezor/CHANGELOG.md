@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [7.0.1]
+## [8.0.0]
 
 ### Changed
 
+- **BREAKING:** The method `signTransaction` can now returns various type of transactions ([#209](https://github.com/MetaMask/accounts/pull/209))
+  - Initially was supporting: `Transaction | AccessListEIP2930Transaction | FeeMarketEIP1559Transaction` (types from `@ethereumjs/tx`).
+  - Now also supports `BlobEIP4844Transaction | EOACodeEIP7702Transaction` (types from `@ethereumjs/tx`).
 - Bump `@ethereumjs/tx` from `^4.2.0` to `^5.4.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
 - Bump `@ethereumjs/util` from `^8.1.0` to `^9.1.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
 
@@ -115,7 +118,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Bump `@metamask/eth-sig-util` from `^7.0.0` to `^7.0.1` ([#195](https://github.com/MetaMask/eth-trezor-keyring/pull/195))
+- Bump `@metamask/eth-sig-util` from `^7.0.0` to `^8.0.0` ([#195](https://github.com/MetaMask/eth-trezor-keyring/pull/195))
 - Bump `@trezor/connect-plugin-ethereum` from `^9.0.1` to `^9.0.3` ([#195](https://github.com/MetaMask/eth-trezor-keyring/pull/195))
 - Should help fixing MM pop-up closing issue ([#10896](https://github.com/MetaMask/metamask-extension/issues/10896))
 
@@ -198,8 +201,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@7.0.1...HEAD
-[7.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@7.0.0...@metamask/eth-trezor-keyring@7.0.1
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@8.0.0...HEAD
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@7.0.0...@metamask/eth-trezor-keyring@8.0.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.1...@metamask/eth-trezor-keyring@7.0.0
 [6.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.0...@metamask/eth-trezor-keyring@6.1.1
 [6.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.2...@metamask/eth-trezor-keyring@6.1.0
