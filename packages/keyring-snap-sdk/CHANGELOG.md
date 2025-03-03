@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(keyring-snap-sdk): add UNIX timestamp helpers ([#236](https://github.com/MetaMask/accounts/pull/236))
+
 ## [3.0.1]
 
 ### Changed
