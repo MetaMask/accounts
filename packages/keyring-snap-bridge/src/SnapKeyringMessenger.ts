@@ -1,5 +1,8 @@
 import type { RestrictedMessenger } from '@metamask/base-controller';
 import type {
+  AccountCreatedEventPayload,
+  AccountUpdatedEventPayload,
+  AccountDeletedEventPayload,
   AccountAssetListUpdatedEventPayload,
   AccountBalancesUpdatedEventPayload,
   AccountTransactionsUpdatedEventPayload,
@@ -9,6 +12,21 @@ import type { HandleSnapRequest, GetSnap } from '@metamask/snaps-controllers';
 export type SnapKeyringGetAccountsAction = {
   type: `SnapKeyring:getAccounts`;
   handler: () => string[];
+};
+
+export type SnapKeyringAccountCreatedEvent = {
+  type: `SnapKeyring:accountCreated`;
+  payload: [AccountCreatedEventPayload];
+};
+
+export type SnapKeyringAccountUpdatedEvent = {
+  type: `SnapKeyring:accountUpdated`;
+  payload: [AccountUpdatedEventPayload];
+};
+
+export type SnapKeyringAccountDeletedEvent = {
+  type: `SnapKeyring:accountDeleted`;
+  payload: [AccountDeletedEventPayload];
 };
 
 export type SnapKeyringAccountBalancesUpdatedEvent = {
@@ -27,6 +45,9 @@ export type SnapKeyringAccountTransactionsUpdatedEvent = {
 };
 
 export type SnapKeyringEvents =
+  | SnapKeyringAccountCreatedEvent
+  | SnapKeyringAccountUpdatedEvent
+  | SnapKeyringAccountDeletedEvent
   | SnapKeyringAccountAssetListUpdatedEvent
   | SnapKeyringAccountBalancesUpdatedEvent
   | SnapKeyringAccountTransactionsUpdatedEvent;

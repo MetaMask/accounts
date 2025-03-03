@@ -71,6 +71,8 @@ export const AccountCreatedEventStruct = object({
     displayAccountNameSuggestion: exactOptional(boolean()),
   }),
 });
+export type AccountCreatedEvent = Infer<typeof AccountCreatedEventStruct>;
+export type AccountCreatedEventPayload = AccountCreatedEvent['params'];
 
 export const AccountUpdatedEventStruct = object({
   method: literal(`${KeyringEvent.AccountUpdated}`),
@@ -81,6 +83,8 @@ export const AccountUpdatedEventStruct = object({
     account: KeyringAccountStruct,
   }),
 });
+export type AccountUpdatedEvent = Infer<typeof AccountUpdatedEventStruct>;
+export type AccountUpdatedEventPayload = AccountUpdatedEvent['params'];
 
 export const AccountDeletedEventStruct = object({
   method: literal(`${KeyringEvent.AccountDeleted}`),
@@ -91,6 +95,8 @@ export const AccountDeletedEventStruct = object({
     id: UuidStruct,
   }),
 });
+export type AccountDeletedEvent = Infer<typeof AccountDeletedEventStruct>;
+export type AccountDeletedEventPayload = AccountDeletedEvent['params'];
 
 export const RequestApprovedEventStruct = object({
   method: literal(`${KeyringEvent.RequestApproved}`),

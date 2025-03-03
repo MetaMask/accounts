@@ -93,8 +93,6 @@ export type KeyringState = {
  * These callbacks are used to interact with other components.
  */
 export type SnapKeyringCallbacks = {
-  saveState: () => Promise<void>;
-
   addressExists(address: string): Promise<boolean>;
 
   addAccount(
@@ -265,8 +263,16 @@ export class SnapKeyring extends EventEmitter {
           // event, if anything goes wrong, we will delete the account by
           // calling `deleteAccount` on the Snap.
           // eslint-disable-next-line no-void
-          void this.#callbacks
-            .saveState()
+          void this.#rePublishAccountEvent(
+            'SnapKeyring:accountCreated',
+            // To keep the retro-compatibility, `message.params` might not have a
+            // valid `scopes`, so we just re-use `account` here instead of the
+            // one coming from `message.params`.
+            {
+              ...message.params,
+              account,
+            },
+          )
             .then(() => {
               // This allows the MetaMask client to be "notified" when then
               // Snap keyring has truly persisted its state. From there, we should
@@ -323,7 +329,16 @@ export class SnapKeyring extends EventEmitter {
     }
 
     this.#accounts.set(newAccount.id, { account: newAccount, snapId });
-    await this.#callbacks.saveState();
+    await this.#rePublishAccountEvent(
+      'SnapKeyring:accountUpdated',
+      // To keep the retro-compatibility, `message.params` might not have a
+      // valid `scopes`, so we just re-use `newAccount` here instead of the
+      // one coming from `message.params`.
+      {
+        ...message.params,
+        account: newAccount,
+      },
+    );
     return null;
   }
 
@@ -360,7 +375,10 @@ export class SnapKeyring extends EventEmitter {
       snapId,
       async (accepted) => {
         if (accepted) {
-          await this.#callbacks.saveState();
+          await this.#rePublishAccountEvent(
+            'SnapKeyring:accountDeleted',
+            message.params,
+          );
         }
       },
     );
