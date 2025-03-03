@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- chore: bump trezor/connect-web ([#234](https://github.com/MetaMask/accounts/pull/234))
-
 ## [8.0.0]
 
 ### Changed
