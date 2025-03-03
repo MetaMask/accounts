@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.0.0]
 
+### Changed
+
+- **BREAKING:** The method `EthKeyring.signTransaction` can now returns various type of transactions ([#209](https://github.com/MetaMask/accounts/pull/209)), ([#235](https://github.com/MetaMask/accounts/pull/235))
+  - Initially was supporting: `Transaction | AccessListEIP2930Transaction | FeeMarketEIP1559Transaction` (types from `@ethereumjs/tx`).
+  - Now also supports `BlobEIP4844Transaction | EOACodeEIP7702Transaction` (types from `@ethereumjs/tx`).
+  - This new method signature is inherited by `Keyring` which is provided `@metamask/keyring-utils`.
+- Bump `@metamask/keyring-utils` from `^2.3.1` to `^3.0.0` ([#235](https://github.com/MetaMask/accounts/pull/235))
+
 ## [5.0.0]
 
 ### Changed
