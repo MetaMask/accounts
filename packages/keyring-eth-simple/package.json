@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-simple-keyring",
-  "version": "8.1.1",
+  "version": "10.0.0",
   "description": "A simple standard interface for a series of Ethereum private keys.",
   "keywords": [
     "ethereum",
@@ -44,14 +44,14 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@ethereumjs/util": "^8.1.0",
+    "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/utils": "^11.1.0",
     "ethereum-cryptography": "^2.1.2",
     "randombytes": "^2.1.0"
   },
   "devDependencies": {
-    "@ethereumjs/tx": "^4.2.0",
+    "@ethereumjs/tx": "^5.4.0",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
