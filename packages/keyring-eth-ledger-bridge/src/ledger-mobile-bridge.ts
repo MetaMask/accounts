@@ -1,4 +1,5 @@
 import type Transport from '@ledgerhq/hw-transport';
+import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
 
 import {
   GetPublicKeyParams,
@@ -96,7 +97,35 @@ export class LedgerMobileBridge implements MobileBridge {
     hdPath,
     message,
   }: LedgerSignTypedDataParams): Promise<LedgerSignTypedDataResponse> {
-    return this.#getEthApp().signEIP712Message(hdPath, message);
+    const app = this.#getEthApp();
+    try {
+      // Try the primary signing method
+      return await app.signEIP712Message(hdPath, message);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_: unknown) {
+      // Fallback to signEIP712HashedMessage if signEIP712Message fails (e.g., for Nano S)
+      // Extract hashStructMessageHex and domainSeparatorHex from the message object
+      const domainSeparatorHex = TypedDataUtils.hashStruct(
+        'EIP712Domain',
+        message.domain,
+        message.types,
+        SignTypedDataVersion.V4,
+      ).toString('hex');
+
+      const hashStructMessageHex = TypedDataUtils.hashStruct(
+        message.primaryType,
+        message.message,
+        message.types,
+        SignTypedDataVersion.V4,
+      ).toString('hex');
+
+      // Try the fallback signing method
+      return await app.signEIP712HashedMessage(
+        hdPath,
+        domainSeparatorHex,
+        hashStructMessageHex,
+      );
+    }
   }
 
   /**
