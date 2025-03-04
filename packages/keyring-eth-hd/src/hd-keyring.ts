@@ -338,9 +338,9 @@ export class HdKeyring {
    * Sign a typed message using the private key of the specified account.
    * This method is compatible with the `eth_signTypedData` RPC method.
    *
-   * @param withAccount - The address of the account.
-   * @param typedData - The typed data to sign.
-   * @param opts - The options for signing the message.
+   * @param address - The address of the account.
+   * @param data - The typed data to sign.
+   * @param options - The options for signing the message.
    * @returns The signature of the message.
    */
   async signTypedData<
@@ -348,20 +348,21 @@ export class HdKeyring {
     Types extends MessageTypes,
     Options extends { version: Version },
   >(
-    withAccount: Hex,
-    typedData: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
-    opts?: HDKeyringAccountSelectionOptions & Options,
+    address: Hex,
+    data: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
+    options?: HDKeyringAccountSelectionOptions & Options,
   ): Promise<string> {
-    const options = opts ?? { version: SignTypedDataVersion.V1 };
+    let { version } = options ?? { version: SignTypedDataVersion.V1 };
+
     // Treat invalid versions as "V1"
-    const version = Object.keys(SignTypedDataVersion).includes(options.version)
-      ? options.version
+    version = Object.keys(SignTypedDataVersion).includes(version)
+      ? version
       : SignTypedDataVersion.V1;
 
-    const privateKey = this.#getPrivateKeyFor(withAccount, opts);
+    const privateKey = this.#getPrivateKeyFor(address, options);
     return signTypedData({
       privateKey: Buffer.from(privateKey),
-      data: typedData,
+      data,
       version,
     });
   }
