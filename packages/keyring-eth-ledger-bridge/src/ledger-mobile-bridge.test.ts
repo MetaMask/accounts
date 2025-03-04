@@ -1,5 +1,6 @@
 import Transport from '@ledgerhq/hw-transport';
 import { EIP712Message } from '@ledgerhq/types-live';
+import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
 
 import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
 import { LedgerMobileBridge } from './ledger-mobile-bridge';
@@ -20,6 +21,7 @@ describe('LedgerMobileBridge', function () {
 
   const mockEthApp = {
     signEIP712Message: jest.fn(),
+    signEIP712HashedMessage: jest.fn(),
     clearSignTransaction: jest.fn(),
     getAddress: jest.fn(),
     signPersonalMessage: jest.fn(),
@@ -212,6 +214,130 @@ describe('LedgerMobileBridge', function () {
         hdPath,
         message,
       );
+    });
+
+    it('falls back to signEIP712HashedMessage when signEIP712Message fails', async function () {
+      const hdPath = "m/44'/60'/0'/0/0";
+      const message: EIP712Message = {
+        domain: {
+          chainId: 1,
+          name: 'Test Domain',
+          version: '1',
+          verifyingContract: '0x1234567890123456789012345678901234567890',
+        },
+        primaryType: 'Person',
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          Person: [
+            { name: 'name', type: 'string' },
+            { name: 'wallet', type: 'address' },
+          ],
+        },
+        message: {
+          name: 'Bob',
+          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+        },
+      };
+
+      const signEIP712MessageError = new Error(
+        'Ledger device does not support this operation',
+      );
+      mockEthApp.signEIP712Message.mockRejectedValueOnce(
+        signEIP712MessageError,
+      );
+
+      mockEthApp.signEIP712HashedMessage.mockResolvedValue({
+        v: '0x1b',
+        r: '0x1234',
+        s: '0x5678',
+      });
+
+      const domainSeparatorHex = TypedDataUtils.hashStruct(
+        'EIP712Domain',
+        message.domain,
+        message.types,
+        SignTypedDataVersion.V4,
+      ).toString('hex');
+      const hashStructMessageHex = TypedDataUtils.hashStruct(
+        message.primaryType,
+        message.message,
+        message.types,
+        SignTypedDataVersion.V4,
+      ).toString('hex');
+
+      const result = await bridge.deviceSignTypedData({
+        hdPath,
+        message,
+      });
+
+      expect(mockEthApp.signEIP712Message).toHaveBeenCalledTimes(1);
+      expect(mockEthApp.signEIP712Message).toHaveBeenCalledWith(
+        hdPath,
+        message,
+      );
+
+      expect(mockEthApp.signEIP712HashedMessage).toHaveBeenCalledTimes(1);
+      expect(mockEthApp.signEIP712HashedMessage).toHaveBeenCalledWith(
+        hdPath,
+        domainSeparatorHex,
+        hashStructMessageHex,
+      );
+
+      expect(result).toStrictEqual({
+        v: '0x1b',
+        r: '0x1234',
+        s: '0x5678',
+      });
+    });
+
+    it('throws error when both signEIP712Message and fallback method fail', async function () {
+      const hdPath = "m/44'/60'/0'/0/0";
+      const message: EIP712Message = {
+        domain: {
+          chainId: 1,
+          name: 'Test Domain',
+          version: '1',
+          verifyingContract: '0x1234567890123456789012345678901234567890',
+        },
+        primaryType: 'Person',
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          Person: [
+            { name: 'name', type: 'string' },
+            { name: 'wallet', type: 'address' },
+          ],
+        },
+        message: {
+          name: 'Bob',
+          wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+        },
+      };
+
+      const primaryError = new Error('Primary signing method failed');
+      const fallbackError = new Error('Fallback signing method failed');
+
+      mockEthApp.signEIP712Message.mockRejectedValueOnce(primaryError);
+      mockEthApp.signEIP712HashedMessage.mockRejectedValueOnce(fallbackError);
+
+      await expect(
+        bridge.deviceSignTypedData({
+          hdPath,
+          message,
+        }),
+      ).rejects.toThrow(fallbackError);
+
+      expect(mockEthApp.signEIP712Message).toHaveBeenCalledTimes(1);
+      expect(mockEthApp.signEIP712HashedMessage).toHaveBeenCalledTimes(1);
     });
   });
 
