@@ -28,6 +28,9 @@ import type {
   EthUserOperationPatch,
   ResolvedAccountAddress,
   CaipChainId,
+  AccountBalancesUpdatedEvent,
+  AccountTransactionsUpdatedEvent,
+  AccountAssetListUpdatedEvent,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
@@ -427,44 +430,120 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Filter an event payload and check if referenced account ID belongs to this Snap. If not, they
+   * will be filtered out.
+   *
+   * @param snapId - ID of the Snap.
+   * @param eventName - The keyring event (used for logging).
+   * @param eventEntries - Event entries.
+   * @returns A filter event payload.
+   */
+  #filterAccountEventEntries<EventEntry>(
+    snapId: SnapId,
+    eventName: string,
+    eventEntries: Record<AccountId, EventEntry>,
+  ): Record<AccountId, EventEntry> {
+    const entries: Record<AccountId, EventEntry> = {};
+
+    for (const [accountId, entry] of Object.entries(eventEntries)) {
+      const account = this.#accounts.get(snapId, accountId);
+
+      if (account) {
+        entries[accountId] = entry;
+      } else {
+        console.warn(
+          `SnapKeyring - ${eventName} - Found an unknown account ID "${accountId}" for Snap ID "${snapId}". Skipping.`,
+        );
+      }
+    }
+
+    return entries;
+  }
+
+  /**
    * Handle a balances updated event from a Snap.
    *
+   * @param snapId - ID of the Snap.
    * @param message - Event message.
    * @returns `null`.
    */
-  async #handleAccountBalancesUpdated(message: SnapMessage): Promise<null> {
+  async #handleAccountBalancesUpdated(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<null> {
     assert(message, AccountBalancesUpdatedEventStruct);
+
+    const { method: eventName, params: eventData } = message;
+    const event: AccountBalancesUpdatedEvent['params'] = {
+      ...eventData,
+      balances: this.#filterAccountEventEntries(
+        snapId,
+        eventName,
+        eventData.balances,
+      ),
+    };
+
     return this.#rePublishAccountEvent(
       'SnapKeyring:accountBalancesUpdated',
-      message.params,
+      event,
     );
   }
 
   /**
    * Handle a asset list updated event from a Snap.
    *
+   * @param snapId - ID of the Snap.
    * @param message - Event message.
    * @returns `null`.
    */
-  async #handleAccountAssetListUpdated(message: SnapMessage): Promise<null> {
+  async #handleAccountAssetListUpdated(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<null> {
     assert(message, AccountAssetListUpdatedEventStruct);
+
+    const { method: eventName, params: eventData } = message;
+    const event: AccountAssetListUpdatedEvent['params'] = {
+      ...eventData,
+      assets: this.#filterAccountEventEntries(
+        snapId,
+        eventName,
+        eventData.assets,
+      ),
+    };
+
     return this.#rePublishAccountEvent(
       'SnapKeyring:accountAssetListUpdated',
-      message.params,
+      event,
     );
   }
 
   /**
    * Handle a transactions updated event from a Snap.
    *
+   * @param snapId - ID of the Snap.
    * @param message - Event message.
    * @returns `null`.
    */
-  async #handleAccountTransactionsUpdated(message: SnapMessage): Promise<null> {
+  async #handleAccountTransactionsUpdated(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<null> {
     assert(message, AccountTransactionsUpdatedEventStruct);
+
+    const { method: eventName, params: eventData } = message;
+    const event: AccountTransactionsUpdatedEvent['params'] = {
+      ...eventData,
+      transactions: this.#filterAccountEventEntries(
+        snapId,
+        eventName,
+        eventData.transactions,
+      ),
+    };
+
     return this.#rePublishAccountEvent(
       'SnapKeyring:accountTransactionsUpdated',
-      message.params,
+      event,
     );
   }
 
@@ -503,15 +582,15 @@ export class SnapKeyring extends EventEmitter {
 
       // Assets related events:
       case `${KeyringEvent.AccountBalancesUpdated}`: {
-        return this.#handleAccountBalancesUpdated(message);
+        return this.#handleAccountBalancesUpdated(snapId, message);
       }
 
       case `${KeyringEvent.AccountAssetListUpdated}`: {
-        return this.#handleAccountAssetListUpdated(message);
+        return this.#handleAccountAssetListUpdated(snapId, message);
       }
 
       case `${KeyringEvent.AccountTransactionsUpdated}`: {
-        return this.#handleAccountTransactionsUpdated(message);
+        return this.#handleAccountTransactionsUpdated(snapId, message);
       }
 
       default:
