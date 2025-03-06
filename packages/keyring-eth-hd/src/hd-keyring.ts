@@ -156,6 +156,7 @@ export class HdKeyring {
     }
     this.#wallets = [];
     this.mnemonic = null;
+    this.seed = null;
     this.root = null;
     this.hdPath = opts.hdPath ?? hdPathString;
 
