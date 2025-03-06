@@ -543,6 +543,46 @@ describe('SnapKeyring', () => {
         expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
       });
 
+      it('filters bad accounts from an account balances update event', async () => {
+        const mockPublishedEventCallback = jest.fn();
+        mockSnapKeyringMessenger.subscribe(
+          'SnapKeyring:accountBalancesUpdated',
+          mockPublishedEventCallback,
+        );
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        const account = ethEoaAccount1;
+        const update = {
+          'bip122:000000000019d6689c085ae165831e93/slip44:0': {
+            amount: '0.1',
+            unit: 'BTC',
+          },
+        };
+        const event: AccountBalancesUpdatedEventPayload = {
+          balances: {
+            [account.id]: update,
+          },
+        };
+        const badEvent: AccountBalancesUpdatedEventPayload = {
+          ...event,
+          balances: {
+            ...event.balances,
+            // This account is not part of the Snap keyring, and thus, does
+            // not belong to any Snap.
+            [unknownAccount.id]: update,
+          },
+        };
+
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountBalancesUpdated,
+          params: badEvent,
+        });
+        expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
+        expect(consoleSpy).toHaveBeenCalledWith(
+          `SnapKeyring - ${KeyringEvent.AccountBalancesUpdated} - Found an unknown account ID "${unknownAccount.id}" for Snap ID "${snapId}". Skipping.`,
+        );
+      });
+
       it('receives an transactions update event and re-publish it to the messenger', async () => {
         const mockPublishedEventCallback = jest.fn();
         mockSnapKeyringMessenger.subscribe(
@@ -596,6 +636,71 @@ describe('SnapKeyring', () => {
         expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
       });
 
+      it('filters bad accounts from a transactions update event', async () => {
+        const mockPublishedEventCallback = jest.fn();
+        mockSnapKeyringMessenger.subscribe(
+          'SnapKeyring:accountTransactionsUpdated',
+          mockPublishedEventCallback,
+        );
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        const account = ethEoaAccount1;
+        const update = [
+          {
+            id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+            timestamp: null,
+            chain: 'eip155:1',
+            status: 'submitted',
+            type: 'receive',
+            account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+            from: [],
+            to: [],
+            fees: [
+              {
+                type: 'base',
+                asset: {
+                  fungible: true,
+                  type: 'eip155:1/slip44:60',
+                  unit: 'ETH',
+                  amount: '0.0001',
+                },
+              },
+              {
+                type: 'priority',
+                asset: {
+                  fungible: true,
+                  type: 'eip155:1/slip44:60',
+                  unit: 'ETH',
+                  amount: '0.0001',
+                },
+              },
+            ],
+            events: [],
+          },
+        ];
+        const event = {
+          transactions: {
+            [account.id]: update,
+          },
+        };
+        const badEvent = {
+          ...event,
+          transactions: {
+            ...event.transactions,
+            [unknownAccount.id]: update,
+          },
+        };
+
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountTransactionsUpdated,
+          params: badEvent,
+        });
+        expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
+        expect(consoleSpy).toHaveBeenCalledWith(
+          `SnapKeyring - ${KeyringEvent.AccountTransactionsUpdated} - Found an unknown account ID "${unknownAccount.id}" for Snap ID "${snapId}". Skipping.`,
+        );
+      });
+
       it('receives an asset list update event and re-publish it to the messenger', async () => {
         const mockPublishedEventCallback = jest.fn();
         mockSnapKeyringMessenger.subscribe(
@@ -618,6 +723,42 @@ describe('SnapKeyring', () => {
           params: event,
         });
         expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
+      });
+
+      it('filters bad accounts from a asset list update event', async () => {
+        const mockPublishedEventCallback = jest.fn();
+        mockSnapKeyringMessenger.subscribe(
+          'SnapKeyring:accountAssetListUpdated',
+          mockPublishedEventCallback,
+        );
+        const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+        const account = ethEoaAccount1;
+        const update = {
+          added: ['bip122:000000000019d6689c085ae165831e93/slip44:0'],
+          removed: ['bip122:000000000933ea01ad0ee984209779ba/slip44:0'],
+        };
+        const event = {
+          assets: {
+            [account.id]: update,
+          },
+        };
+        const badEvent = {
+          ...event,
+          assets: {
+            ...event.assets,
+            [unknownAccount.id]: update,
+          },
+        };
+
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountAssetListUpdated,
+          params: badEvent,
+        });
+        expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
+        expect(consoleSpy).toHaveBeenCalledWith(
+          `SnapKeyring - ${KeyringEvent.AccountAssetListUpdated} - Found an unknown account ID "${unknownAccount.id}" for Snap ID "${snapId}". Skipping.`,
+        );
       });
 
       it('saves to the state asynchronously', async () => {
