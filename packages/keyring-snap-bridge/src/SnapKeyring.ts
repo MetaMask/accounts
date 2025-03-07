@@ -5,7 +5,11 @@
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { ExtractEventPayload } from '@metamask/base-controller';
-import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
+import type {
+  MessageTypes,
+  TypedDataV1,
+  TypedMessage,
+} from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
   EthBytesStruct,
@@ -974,14 +978,20 @@ export class SnapKeyring extends EventEmitter {
    *
    * @param address - Signer's address.
    * @param data - Data to sign.
-   * @param opts - Signing options.
+   * @param options - Signing options.
    * @returns The signature.
    */
-  async signTypedData(
+  async signTypedData<
+    Version extends SignTypedDataVersion,
+    Types extends MessageTypes,
+    Options extends { version: Version },
+  >(
     address: string,
-    data: Record<string, unknown>[] | TypedDataV1 | TypedMessage<any>,
-    opts = { version: SignTypedDataVersion.V1 },
+    data: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
+    options?: Options,
   ): Promise<string> {
+    const { version } = options ?? { version: SignTypedDataVersion.V1 };
+
     const methods = {
       [SignTypedDataVersion.V1]: EthMethod.SignTypedDataV1,
       [SignTypedDataVersion.V3]: EthMethod.SignTypedDataV3,
@@ -990,11 +1000,11 @@ export class SnapKeyring extends EventEmitter {
 
     // Use 'V1' by default to match other keyring implementations. V1 will be
     // used if the version is not specified or not supported.
-    const method = methods[opts.version] || EthMethod.SignTypedDataV1;
+    const method = methods[version] || EthMethod.SignTypedDataV1;
 
     // Extract chain ID as if it was a typed message (as defined by EIP-712), if
     // input is not a typed message, then chain ID will be undefined!
-    const chainId = (data as TypedMessage<any>).domain?.chainId;
+    const chainId = Array.isArray(data) ? undefined : data.domain?.chainId;
 
     return strictMask(
       await this.#submitRequest({
