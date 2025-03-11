@@ -306,7 +306,8 @@ export class LedgerIframeBridge
     if (this.#iframeInitPromise) {
       // if the iframe is already being initialized, we return the promise
       // to avoid multiple initialization attempts
-      return this.#iframeInitPromise.promise;
+      await this.#iframeInitPromise.promise;
+      return;
     }
 
     this.#iframeInitPromise = createDeferredPromise({
