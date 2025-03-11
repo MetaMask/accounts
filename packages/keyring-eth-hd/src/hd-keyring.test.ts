@@ -19,9 +19,12 @@ import {
   type MessageTypes,
   type EIP7702Authorization,
 } from '@metamask/eth-sig-util';
+import { mnemonicPhraseToBytes } from '@metamask/key-tree';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { assert, bytesToHex, hexToBytes, type Hex } from '@metamask/utils';
 import { webcrypto } from 'crypto';
+// eslint-disable-next-line n/no-sync
+import { mnemonicToSeedSync } from 'ethereum-cryptography/bip39';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import OldHdKeyring from 'old-hd-keyring';
@@ -36,6 +39,10 @@ const sampleMnemonic =
   'finish oppose decorate face calm tragic certain desk hour urge dinosaur mango';
 const firstAcct = '0x1c96099350f13d558464ec79b9be4445aa0ef579';
 const secondAcct = '0x1b00aed43a693f3a957f9feb5cc08afa031e37a0';
+
+const sampleMnemonicBytes = mnemonicPhraseToBytes(sampleMnemonic);
+// eslint-disable-next-line n/no-sync
+const sampleMnemonicSeed = mnemonicToSeedSync(sampleMnemonic);
 
 const notKeyringAddress = '0xbD20F6F5F1616947a39E11926E78ec94817B3931';
 
@@ -175,6 +182,8 @@ describe('hd-keyring', () => {
       const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
+      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
+      expect(keyring.seed).toStrictEqual(sampleMnemonicSeed);
     });
 
     it('deserializes with a typeof buffer mnemonic', async () => {
@@ -188,6 +197,8 @@ describe('hd-keyring', () => {
       const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
+      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
+      expect(keyring.seed).toStrictEqual(sampleMnemonicSeed);
     });
 
     it('deserializes with a typeof Uint8Array mnemonic', async () => {
@@ -207,6 +218,8 @@ describe('hd-keyring', () => {
       const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
+      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
+      expect(keyring.seed).toStrictEqual(sampleMnemonicSeed);
     });
 
     it('deserializes using custom cryptography', async () => {
@@ -251,6 +264,8 @@ describe('hd-keyring', () => {
       const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
+      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
+      expect(keyring.seed).toStrictEqual(sampleMnemonicSeed);
       expect(cryptographicFunctions.pbkdf2Sha512).toHaveBeenCalledTimes(1);
     });
 
