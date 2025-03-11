@@ -90,6 +90,8 @@ export class HdKeyring {
 
   mnemonic?: Uint8Array | null;
 
+  seed?: Uint8Array | null;
+
   root?: HDKey | null;
 
   hdWallet?: HDKey;
@@ -154,6 +156,7 @@ export class HdKeyring {
     }
     this.#wallets = [];
     this.mnemonic = null;
+    this.seed = null;
     this.root = null;
     this.hdPath = opts.hdPath ?? hdPathString;
 
@@ -588,12 +591,12 @@ export class HdKeyring {
 
     this.mnemonic = this.#mnemonicToUint8Array(mnemonic);
 
-    const seed = await mnemonicToSeed(
+    this.seed = await mnemonicToSeed(
       this.mnemonic,
       '', // No passphrase
       this.#cryptographicFunctions,
     );
-    this.hdWallet = HDKey.fromMasterSeed(seed);
+    this.hdWallet = HDKey.fromMasterSeed(this.seed);
     this.root = this.hdWallet.derive(this.hdPath);
   }
 
