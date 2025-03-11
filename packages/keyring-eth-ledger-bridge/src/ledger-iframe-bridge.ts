@@ -166,7 +166,7 @@ export class LedgerIframeBridge
 
   async attemptMakeApp(): Promise<boolean> {
     // If the iframe isn't loaded yet, the initialization is reattempted
-    if (!this.iframeLoaded) {
+    if (!this.#isInitialized()) {
       await this.#init();
     }
 
@@ -191,7 +191,7 @@ export class LedgerIframeBridge
 
   async updateTransportMethod(transportType: string): Promise<boolean> {
     // If the iframe isn't loaded yet, the initialization is reattempted
-    if (!this.iframeLoaded) {
+    if (!this.#isInitialized()) {
       await this.#init();
     }
 
@@ -277,7 +277,7 @@ export class LedgerIframeBridge
     | LedgerSignTypedDataResponse
   > {
     // If the iframe isn't loaded yet, the initialization is reattempted
-    if (!this.iframeLoaded) {
+    if (!this.#isInitialized()) {
       await this.#init();
     }
 
@@ -302,6 +302,19 @@ export class LedgerIframeBridge
     });
   }
 
+  /**
+   * Returns whether the iframe is initialized and ready
+   * to receive messages
+   *
+   * @returns Whether the iframe is initialized
+   */
+  #isInitialized(): boolean {
+    return this.iframeLoaded && this.iframe !== undefined;
+  }
+
+  /**
+   * Initializes the iframe that will be used to communicate with the Ledger device
+   */
   async #init(): Promise<void> {
     if (this.#iframeInitPromise) {
       // if the iframe is already being initialized, we return the promise
