@@ -1,3 +1,5 @@
+import { createDeferredPromise, DeferredPromise } from '@metamask/utils';
+
 import {
   GetPublicKeyParams,
   GetPublicKeyResponse,
@@ -13,7 +15,7 @@ import { projectLogger as log } from './logger';
 
 const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
 
-const IFRAME_INIT_TIMEOUT = 4000;
+export const IFRAME_INIT_TIMEOUT = 4000;
 
 export enum IFrameMessageAction {
   LedgerConnectionChange = 'ledger-connection-change',
@@ -112,6 +114,8 @@ export class LedgerIframeBridge
 
   messageCallbacks: Record<number, (response: IFrameMessageResponse) => void> =
     {};
+
+  #iframeInitPromise?: DeferredPromise;
 
   constructor(
     opts: LedgerIframeBridgeOptions = {
@@ -299,15 +303,33 @@ export class LedgerIframeBridge
   }
 
   async #init(): Promise<void> {
-    await this.#setupIframe(this.#opts.bridgeUrl);
-    this.eventListener = this.#eventListener.bind(this, this.#opts.bridgeUrl);
-    window.addEventListener('message', this.eventListener);
+    if (this.#iframeInitPromise) {
+      // if the iframe is already being initialized, we return the promise
+      // to avoid multiple initialization attempts
+      return this.#iframeInitPromise.promise;
+    }
+
+    this.#iframeInitPromise = createDeferredPromise({
+      suppressUnhandledRejection: true,
+    });
+
+    try {
+      await this.#setupIframe(this.#opts.bridgeUrl);
+      this.eventListener = this.#eventListener.bind(this, this.#opts.bridgeUrl);
+      window.addEventListener('message', this.eventListener);
+      this.#iframeInitPromise.resolve();
+    } catch (error) {
+      this.#iframeInitPromise.reject(error);
+      throw error;
+    } finally {
+      this.#iframeInitPromise = undefined;
+    }
   }
 
   async #setupIframe(bridgeUrl: string): Promise<void> {
     const timeout = new Promise((_, reject) => {
       setTimeout(() => {
-        reject(new Error('Ledger initialization timed out'));
+        reject(new Error('Bridge initialization timed out'));
       }, IFRAME_INIT_TIMEOUT);
     });
 
@@ -322,6 +344,7 @@ export class LedgerIframeBridge
       this.iframe.onerror = (): void => {
         if (this.iframe) {
           document.head.removeChild(this.iframe);
+          this.iframe = undefined;
         }
         this.iframeLoaded = false;
         reject(new Error('Failed to load iframe'));
