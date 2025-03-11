@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 // This rule seems to be triggering a false positive on the `KeyringAccount`.
 
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
 import type { KeyringAccount } from './account';
+import type { ResolvedAccountAddress } from './address';
 import type { Balance } from './balance';
-import type { CaipAssetType } from './caip';
+import type { CaipChainId, CaipAssetType, CaipAssetTypeOrId } from './caip';
 import type { KeyringAccountData } from './export';
 import type { Paginated, Pagination } from './pagination';
 import type { KeyringRequest } from './request';
@@ -50,6 +52,17 @@ export type Keyring = {
    * object without any private information.
    */
   createAccount(options?: Record<string, Json>): Promise<KeyringAccount>;
+
+  /**
+   * Lists the assets of an account (fungibles and non-fungibles) represented
+   * by their respective CAIP-19:
+   * - Asset types for fungibles assets.
+   * - Asset IDs for non-fungible ones.
+   *
+   * @param id - The ID of the account to list the assets for.
+   * @returns A promise that resolves to list of assets for that account.
+   */
+  listAccountAssets?(id: string): Promise<CaipAssetTypeOrId[]>;
 
   /**
    * Lists the transactions of an account, paginated and ordered by the most
@@ -98,6 +111,23 @@ export type Keyring = {
     id: string,
     assets: CaipAssetType[],
   ): Promise<Record<CaipAssetType, Balance>>;
+
+  /**
+   * Resolves the address of an account from a signing request.
+   *
+   * This is required by the routing system of MetaMask to dispatch
+   * incoming non-EVM dapp signing requests.
+   *
+   * @param scope - Request's scope (CAIP-2).
+   * @param request - Signing request object.
+   * @returns A Promise that resolves to the account address that must
+   * be used to process this signing request, or null if none candidates
+   * could be found.
+   */
+  resolveAccountAddress?(
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+  ): Promise<ResolvedAccountAddress | null>;
 
   /**
    * Filter supported chains for a given account.

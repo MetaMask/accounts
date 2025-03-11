@@ -1,7 +1,7 @@
 import { is } from '@metamask/superstruct';
 
 import { EthAccountType } from './api';
-import { EthScopes } from './eth/constants';
+import { EthScope } from './eth/constants';
 import {
   AccountCreatedEventStruct,
   AccountDeletedEventStruct,
@@ -22,7 +22,7 @@ describe('events', () => {
             address: '0x0123',
             methods: [],
             options: {},
-            scopes: [EthScopes.Namespace],
+            scopes: [EthScope.Eoa],
             type: EthAccountType.Eoa,
           },
         },
@@ -40,7 +40,7 @@ describe('events', () => {
             address: '0x0123',
             methods: [],
             options: {},
-            scopes: [EthScopes.Namespace],
+            scopes: [EthScope.Eoa],
             type: EthAccountType.Eoa,
           },
         },
@@ -58,10 +58,11 @@ describe('events', () => {
             address: '0x0123',
             methods: [],
             options: {},
-            scopes: [EthScopes.Namespace],
+            scopes: [EthScope.Eoa],
             type: EthAccountType.Eoa,
           },
           displayConfirmation: true,
+          displayAccountNameSuggestion: true,
         },
       };
 
@@ -79,7 +80,7 @@ describe('events', () => {
             address: '0x0123',
             methods: [],
             options: {},
-            scopes: [EthScopes.Namespace],
+            scopes: [EthScope.Eoa],
             type: EthAccountType.Eoa,
           },
         },
@@ -97,7 +98,7 @@ describe('events', () => {
             address: '0x0123',
             methods: [],
             options: {},
-            scopes: [EthScopes.Namespace],
+            scopes: [EthScope.Eoa],
             type: EthAccountType.Eoa,
           },
         },

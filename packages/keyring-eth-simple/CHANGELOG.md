@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.0]
+
+### Changed
+
+- **BREAKING:** The method `signTransaction` can now returns various type of transactions ([#209](https://github.com/MetaMask/accounts/pull/209))
+  - Initially was supporting: `Transaction | AccessListEIP2930Transaction | FeeMarketEIP1559Transaction` (types from `@ethereumjs/tx`).
+  - Now also supports `BlobEIP4844Transaction | EOACodeEIP7702Transaction` (types from `@ethereumjs/tx`).
+- **BREAKING:** Bump `@ethereumjs/tx` from `^4.2.0` to `^5.4.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
+- **BREAKING:** Bump `@ethereumjs/util` from `^8.1.0` to `^9.1.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
+
+## [9.0.0]
+
+### Changed
+
+- **BREAKING:** The `SimpleKeyring` class now implements `Keyring` from `@metamask/keyring-utils` ([#217](https://github.com/MetaMask/accounts/pull/217))
+  - The `deserialize` method now requires a `string[]` argument.
+
+## [8.1.1]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+
+## [8.1.0]
+
+### Added
+
+- Add `signEip7702Authorization` method ([#182](https://github.com/MetaMask/accounts/pull/182))
+
+### Changed
+
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177)), ([#134](https://github.com/MetaMask/accounts/pull/134))
+- Bump `@metamask/utils` dependency from `^9.3.1` to `11.1.0` ([#134](https://github.com/MetaMask/accounts/pull/134)), ([#167](https://github.com/MetaMask/accounts/pull/167))
+
 ## [8.0.1]
 
 ### Changed
@@ -107,7 +142,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@10.0.0...HEAD
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@9.0.0...@metamask/eth-simple-keyring@10.0.0
+[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.1.1...@metamask/eth-simple-keyring@9.0.0
+[8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.1.0...@metamask/eth-simple-keyring@8.1.1
+[8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.0.1...@metamask/eth-simple-keyring@8.1.0
 [8.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@8.0.0...@metamask/eth-simple-keyring@8.0.1
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@7.0.0...@metamask/eth-simple-keyring@8.0.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@6.0.5...@metamask/eth-simple-keyring@7.0.0

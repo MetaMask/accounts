@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-snap-client",
-  "version": "2.0.0",
+  "version": "4.0.1",
   "description": "MetaMask Keyring Snap clients",
   "keywords": [
     "metamask",
@@ -56,9 +56,9 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/providers": "^18.3.1",
-    "@metamask/utils": "^11.0.1",
-    "@ts-bridge/cli": "^0.6.1",
+    "@metamask/providers": "^19.0.0",
+    "@metamask/utils": "^11.1.0",
+    "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
     "deepmerge": "^4.2.2",
@@ -73,7 +73,7 @@
     "typescript": "~5.6.3"
   },
   "peerDependencies": {
-    "@metamask/providers": "^18.3.1"
+    "@metamask/providers": "^19.0.0"
   },
   "engines": {
     "node": "^18.18 || >=20"

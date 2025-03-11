@@ -2,9 +2,9 @@ import type { InferEquals } from '@metamask/keyring-utils';
 import { object, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, enums, nullable, number, string } from '@metamask/superstruct';
-import { CaipChainIdStruct } from '@metamask/utils';
 
 import { AssetStruct } from './asset';
+import { CaipChainIdStruct } from './caip';
 import type { Paginated } from './pagination';
 
 /**
@@ -134,6 +134,14 @@ export enum TransactionType {
    * another account.
    */
   Receive = 'receive',
+
+  /**
+   * The transaction is a swap. It decreases the balance of one asset and
+   * increases the balance of another asset in a single transaction.
+   *
+   * A swap transaction must be originated by the account.
+   */
+  Swap = 'swap',
 }
 
 /**
@@ -250,7 +258,11 @@ export const TransactionStruct = object({
    * Transaction type {@see TransactionType}. This will be used by MetaMask to enrich the transaction
    * details on the UI.
    */
-  type: enums([`${TransactionType.Send}`, `${TransactionType.Receive}`]),
+  type: enums([
+    `${TransactionType.Send}`,
+    `${TransactionType.Receive}`,
+    `${TransactionType.Swap}`,
+  ]),
 
   /**
    * Transaction sender addresses and amounts.

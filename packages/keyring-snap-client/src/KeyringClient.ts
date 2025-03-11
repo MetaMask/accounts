@@ -1,14 +1,3 @@
-import type {
-  Keyring,
-  KeyringAccount,
-  KeyringRequest,
-  KeyringAccountData,
-  KeyringResponse,
-  CaipAssetType,
-  Balance,
-  TransactionsPage,
-  Pagination,
-} from '@metamask/keyring-api';
 import {
   ApproveRequestResponseStruct,
   CreateAccountResponseStruct,
@@ -20,11 +9,27 @@ import {
   GetRequestResponseStruct,
   ListAccountsResponseStruct,
   ListAccountTransactionsResponseStruct,
+  ListAccountAssetsResponseStruct,
   ListRequestsResponseStruct,
   RejectRequestResponseStruct,
   SubmitRequestResponseStruct,
   UpdateAccountResponseStruct,
   KeyringRpcMethod,
+  ResolveAccountAddressResponseStruct,
+} from '@metamask/keyring-api';
+import type {
+  Keyring,
+  KeyringAccount,
+  KeyringRequest,
+  KeyringAccountData,
+  KeyringResponse,
+  Balance,
+  TransactionsPage,
+  Pagination,
+  ResolvedAccountAddress,
+  CaipChainId,
+  CaipAssetType,
+  CaipAssetTypeOrId,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
@@ -116,6 +121,31 @@ export class KeyringClient implements Keyring {
         params: { id, pagination },
       }),
       ListAccountTransactionsResponseStruct,
+    );
+  }
+
+  async listAccountAssets(id: string): Promise<CaipAssetTypeOrId[]> {
+    return strictMask(
+      await this.#send({
+        method: KeyringRpcMethod.ListAccountAssets,
+        params: { id },
+      }),
+      ListAccountAssetsResponseStruct,
+    );
+  }
+
+  async resolveAccountAddress(
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+    // FIXME: eslint is complaning about `ResolvedAccountAddress` being `any`, so disable this for now:
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  ): Promise<ResolvedAccountAddress | null> {
+    return strictMask(
+      await this.#send({
+        method: KeyringRpcMethod.ResolveAccountAddress,
+        params: { scope, request },
+      }),
+      ResolveAccountAddressResponseStruct,
     );
   }
 

@@ -1,4 +1,4 @@
-name: Check labels
+name: Validate labels
 
 on:
   pull_request:
@@ -10,8 +10,8 @@ on:
       - unlabeled
 
 jobs:
-  check-labels:
-    name: Check labels
+  validate-labels:
+    name: Validate labels
     runs-on: ubuntu-latest
     steps:
       - name: Fail action

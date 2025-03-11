@@ -3,6 +3,7 @@ import { RLP } from '@ethereumjs/rlp';
 import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import * as sigUtil from '@metamask/eth-sig-util';
+import { bytesToHex, Hex } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
@@ -48,7 +49,7 @@ const fakeTx = new EthereumTx({
   value: '0x00',
   data: '0x7f7465737432000000000000000000000000000000000000000000000000000000600057',
   // EIP 155 chainId - mainnet: 1, ropsten: 3
-  chainId: 1,
+  chainId: '0x1',
 });
 
 const common = new Common({ chain: Chain.Mainnet, hardfork: Hardfork.Berlin });
@@ -95,17 +96,17 @@ describe('LedgerKeyring', function () {
    */
   async function basicSetupToUnlockOneAccount(accountIndex = 0): Promise<void> {
     keyring.setAccountToUnlock(accountIndex);
-    await keyring.addAccounts();
+    await keyring.addAccounts(1);
     jest
       .spyOn(keyring, 'unlock')
-      .mockResolvedValue(fakeAccounts[accountIndex] as string);
+      .mockResolvedValue(fakeAccounts[accountIndex] as Hex);
   }
 
   beforeEach(async function () {
     bridge = new LedgerIframeBridge();
     keyring = new LedgerKeyring({ bridge });
     keyring.hdk = fakeHdKey;
-    await keyring.deserialize();
+    await keyring.deserialize({});
   });
 
   afterEach(function () {
@@ -380,7 +381,7 @@ describe('LedgerKeyring', function () {
       describe('with no arguments', function () {
         it('returns a single account', async function () {
           keyring.setAccountToUnlock(0);
-          const accounts = await keyring.addAccounts();
+          const accounts = await keyring.addAccounts(1);
           expect(accounts).toHaveLength(1);
         });
       });
@@ -450,7 +451,7 @@ describe('LedgerKeyring', function () {
       describe('if the account exists', function () {
         it('removes that account', async function () {
           keyring.setAccountToUnlock(0);
-          const accounts = await keyring.addAccounts();
+          const accounts = await keyring.addAccounts(1);
           expect(accounts).toHaveLength(1);
           keyring.removeAccount(fakeAccounts[0]);
           const accountsAfterRemoval = await keyring.getAccounts();
@@ -543,7 +544,7 @@ describe('LedgerKeyring', function () {
       let accounts: string[] = [];
       beforeEach(async function () {
         keyring.setAccountToUnlock(accountIndex);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
         accounts = await keyring.getAccounts();
       });
 
@@ -558,19 +559,11 @@ describe('LedgerKeyring', function () {
       });
     });
 
-    describe('exportAccount', function () {
-      it('throws an error because it is not supported', function () {
-        expect(() => {
-          keyring.exportAccount();
-        }).toThrow('Not supported on this device');
-      });
-    });
-
     describe('forgetDevice', function () {
       it('clears the content of the keyring', async function () {
         // Add an account
         keyring.setAccountToUnlock(0);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
 
         // Wipe the keyring
         keyring.forgetDevice();
@@ -584,7 +577,7 @@ describe('LedgerKeyring', function () {
       it('deviceId should be cleared after forgetting the device', async function () {
         // Add an account
         keyring.setAccountToUnlock(0);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
         keyring.setDeviceId('device-id');
 
         // Wipe the keyring
@@ -653,7 +646,7 @@ describe('LedgerKeyring', function () {
             v: '0x26',
             r: '0xf3a7718999d1b87beda810b25cc025153e74df0745279826b9b2f3d1d1b6318',
             s: '0x7e33bdfbf5272dc4f55649e9ba729849670171a68ef8c0fbeed3b879b90b8954',
-          };
+          } as const;
 
           await basicSetupToUnlockOneAccount();
 
@@ -679,7 +672,7 @@ describe('LedgerKeyring', function () {
               expect(params).toStrictEqual({
                 hdPath: "m/44'/60'/0'/0",
                 tx: Buffer.from(
-                  RLP.encode(newFakeTx.getMessageToSign(false)),
+                  RLP.encode(newFakeTx.getMessageToSign()),
                 ).toString('hex'),
               });
               return expectedRSV;
@@ -701,7 +694,7 @@ describe('LedgerKeyring', function () {
             v: '0x0',
             r: '0x5ffb3adeaec80e430e7a7b02d95c5108b6f09a0bdf3cf69869dc1b38d0fb8d3a',
             s: '0x28b234a5403d31564e18258df84c51a62683e3f54fa2b106fdc1a9058006a112',
-          };
+          } as const;
 
           await basicSetupToUnlockOneAccount();
 
@@ -726,7 +719,7 @@ describe('LedgerKeyring', function () {
             .mockImplementation(async (params) => {
               expect(params).toStrictEqual({
                 hdPath: "m/44'/60'/0'/0",
-                tx: fakeTypeTwoTx.getMessageToSign(false).toString('hex'),
+                tx: bytesToHex(fakeTypeTwoTx.getMessageToSign() as Uint8Array),
               });
               return expectedRSV;
             });
@@ -853,7 +846,9 @@ describe('LedgerKeyring', function () {
           .spyOn(keyring.bridge, 'deviceSignMessage')
           .mockResolvedValue({ v: 1, r: '0x0', s: '0x0' });
 
-        jest.spyOn(sigUtil, 'recoverPersonalSignature').mockReturnValue('0x0');
+        jest
+          .spyOn(sigUtil, 'recoverPersonalSignature')
+          .mockReturnValue('0x0000000000000000000000000000000000000000');
 
         await expect(
           keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
@@ -899,7 +894,7 @@ describe('LedgerKeyring', function () {
         const requestedAccount = fakeAccounts[0];
         const incorrectAccount = fakeAccounts[1];
         keyring.setAccountToUnlock(0);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
         jest.spyOn(keyring, 'unlock').mockResolvedValue(incorrectAccount);
 
         await expect(

@@ -1,4 +1,5 @@
-import { TransactionFactory } from '@ethereumjs/tx';
+import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
+import { Messenger } from '@metamask/base-controller';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
   KeyringAccount,
@@ -6,9 +7,12 @@ import type {
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
+  AccountBalancesUpdatedEventPayload,
+  AccountTransactionsUpdatedEventPayload,
+  AccountAssetListUpdatedEventPayload,
 } from '@metamask/keyring-api';
 import {
-  EthScopes,
+  EthScope,
   BtcAccountType,
   EthAccountType,
   SolAccountType,
@@ -16,20 +20,28 @@ import {
   EthMethod,
   SolMethod,
   KeyringEvent,
-  BtcScopes,
-  SolScopes,
+  BtcScope,
+  SolScope,
+  KeyringRpcMethod,
 } from '@metamask/keyring-api';
-import type { SnapController } from '@metamask/snaps-controllers';
-import type { SnapId } from '@metamask/snaps-sdk';
-import { toCaipChainId } from '@metamask/utils';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import type { HandleSnapRequest } from '@metamask/snaps-controllers';
+import { type SnapId } from '@metamask/snaps-sdk';
+import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
 
 import type { KeyringState } from '.';
 import { SnapKeyring } from '.';
 import type { KeyringAccountV1 } from './account';
+import { DeferredPromise } from './DeferredPromise';
 import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
+import type {
+  SnapKeyringAllowedActions,
+  SnapKeyringEvents,
+  SnapKeyringMessenger,
+} from './SnapKeyringMessenger';
 
 const regexForUUIDInRequiredSyncErrorMessage =
-  /Request '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}' to snap 'local:snap.mock' is pending and noPending is true/u;
+  /Request '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}' to Snap 'local:snap.mock' is pending and noPending is true/u;
 
 const ETH_4337_METHODS = [
   EthMethod.PatchUserOperation,
@@ -61,9 +73,9 @@ function noScopes(account: KeyringAccount): KeyringAccountV1 {
 describe('SnapKeyring', () => {
   let keyring: SnapKeyring;
 
-  const mockSnapController = {
-    handleRequest: jest.fn(),
+  const mockMessenger = {
     get: jest.fn(),
+    handleRequest: jest.fn(),
   };
 
   const mockCallbacks = {
@@ -74,6 +86,7 @@ describe('SnapKeyring', () => {
         _address,
         _snapId,
         handleUserInput,
+        _onceSaved,
         _accountNameSuggestion,
         _displayConfirmation,
       ) => {
@@ -96,7 +109,7 @@ describe('SnapKeyring', () => {
     address: '0xC728514Df8A7F9271f4B7a4dd2Aa6d2D723d3eE3'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
-    scopes: [EthScopes.Namespace],
+    scopes: [EthScope.Eoa],
     type: EthAccountType.Eoa,
   };
   const ethEoaAccount2 = {
@@ -104,15 +117,23 @@ describe('SnapKeyring', () => {
     address: '0x34b13912eAc00152bE0Cb409A301Ab8E55739e63'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
-    scopes: [EthScopes.Namespace],
+    scopes: [EthScope.Eoa],
     type: EthAccountType.Eoa,
   };
   const ethEoaAccount3 = {
     id: 'c6697bcf-5710-4751-a1cb-340e4b50617a',
-    address: '0xab1G3q98V7C67T9103g30C0417610237A137d763'.toLowerCase(),
+    address: '0xf7bDe8609231033c69E502C08f85153f8A1548F2'.toLowerCase(),
     options: {},
     methods: ETH_EOA_METHODS,
-    scopes: [EthScopes.Namespace],
+    scopes: [EthScope.Eoa],
+    type: EthAccountType.Eoa,
+  };
+  const ethEoaAccount4 = {
+    id: '7e14f1fa-818c-4590-bab5-b19f947559a5',
+    address: '0xd7eb71598059D0856cd24DcbeF48a0DB5ffDa4D4'.toLowerCase(),
+    options: {},
+    methods: ETH_EOA_METHODS,
+    scopes: [EthScope.Eoa],
     type: EthAccountType.Eoa,
   };
   const ethErc4337Account = {
@@ -120,7 +141,7 @@ describe('SnapKeyring', () => {
     address: '0x2f15b30952aebe0ed5fdbfe5bf16fb9ecdb31d9a'.toLowerCase(),
     options: {},
     methods: ETH_4337_METHODS,
-    scopes: [EthScopes.Namespace],
+    scopes: [EthScope.Testnet],
     type: EthAccountType.Erc4337,
   };
   const btcP2wpkhAccount = {
@@ -128,7 +149,7 @@ describe('SnapKeyring', () => {
     address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
     options: {},
     methods: [...Object.values(BtcMethod)],
-    scopes: [BtcScopes.Mainnet],
+    scopes: [BtcScope.Mainnet],
     type: BtcAccountType.P2wpkh,
   };
   const btcP2wpkhTestnetAccount = {
@@ -136,7 +157,7 @@ describe('SnapKeyring', () => {
     address: 'tb1q6rmsq3vlfdhjdhtkxlqtuhhlr6pmj09y6w43g8',
     options: {},
     methods: [...Object.values(BtcMethod)],
-    scopes: [BtcScopes.Testnet],
+    scopes: [BtcScope.Testnet],
     type: BtcAccountType.P2wpkh,
   };
   const solDataAccount = {
@@ -144,7 +165,7 @@ describe('SnapKeyring', () => {
     address: '3d4v35MRK57xM2Nte3E3rTQU1zyXGVrkXJ6FuEjVoKzM',
     options: {},
     methods: [...Object.values(SolMethod)],
-    scopes: [SolScopes.Mainnet, SolScopes.Testnet, SolScopes.Devnet],
+    scopes: [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet],
     type: SolAccountType.DataAccount,
   };
   const unknownAccount: KeyringAccount = {
@@ -154,8 +175,8 @@ describe('SnapKeyring', () => {
     methods: [],
     // For unknown accounts, we consider them as EVM EOA for now, so just re-use the
     // same scopes.
-    scopes: [EthScopes.Namespace],
-    // This should be really possible to create such account, but since we potentially
+    scopes: [EthScope.Eoa],
+    // This should not be really possible to create such account, but since we potentially
     // migrate data upon the Snap keyring initialization, we want to cover edge-cases
     // like this one to avoid crashing and blocking everything...
     type: 'unknown:type' as KeyringAccount['type'],
@@ -174,24 +195,74 @@ describe('SnapKeyring', () => {
     chainId: '1',
   };
 
-  beforeEach(async () => {
-    keyring = new SnapKeyring(
-      mockSnapController as unknown as SnapController,
-      mockCallbacks,
+  // Fake the Messenger and registers all mock actions here:
+  const messenger: Messenger<SnapKeyringAllowedActions, SnapKeyringEvents> =
+    new Messenger();
+  messenger.registerActionHandler('SnapController:get', mockMessenger.get);
+  messenger.registerActionHandler(
+    'SnapController:handleRequest',
+    mockMessenger.handleRequest,
+  );
+
+  // Now extracts a restricted messenger for the Snap keyring only.
+  const mockSnapKeyringMessenger: SnapKeyringMessenger =
+    messenger.getRestricted({
+      name: 'SnapKeyring',
+      allowedEvents: [],
+      allowedActions: ['SnapController:get', 'SnapController:handleRequest'],
+    });
+
+  // Allow to map a mocked value for a given keyring RPC method
+  const mockMessengerHandleRequest = (
+    // We're using `string` here instead of `KeyringRpcMethod` to avoid having to map
+    // every RPC methods
+    handlers: Record<string, () => unknown>,
+  ): void => {
+    mockMessenger.handleRequest.mockImplementation(
+      (request: Parameters<HandleSnapRequest['handler']>[0]) => {
+        // First layer of transport is a Snap RPC request for 'OnKeyringRequest'.
+        expect(request.handler).toBe('onKeyringRequest');
+
+        // Second one is for the actual keyring request.
+        const keyringRequest = request.request as JsonRpcRequest;
+        const requestHandler = handlers[keyringRequest.method];
+
+        if (!requestHandler) {
+          throw new Error(
+            `Missing handleRequest handler for: ${keyringRequest.method}`,
+          );
+        }
+        return requestHandler();
+      },
     );
+  };
+
+  beforeEach(async () => {
+    keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
+
+    // We do need to return a promise for this method now:
+    mockCallbacks.saveState.mockImplementation(async () => {
+      return null;
+    });
     mockCallbacks.addAccount.mockImplementation(
       async (
         _address,
         _snapId,
         handleUserInput,
+        _onceSaved,
         _accountNameSuggestion,
         _displayConfirmation,
       ) => {
         await handleUserInput(true);
       },
     );
+
+    mockMessenger.get.mockReset();
+    mockMessenger.handleRequest.mockReset();
     for (const account of accounts) {
-      mockSnapController.handleRequest.mockResolvedValue(accounts);
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.ListAccounts]: () => accounts,
+      });
       await keyring.handleKeyringSnapMessage(snapId, {
         method: KeyringEvent.AccountCreated,
         params: { account: account as unknown as KeyringAccount },
@@ -200,30 +271,38 @@ describe('SnapKeyring', () => {
   });
 
   describe('handleKeyringSnapMessage', () => {
+    const newEthEoaAccount = {
+      id: 'bd63063d-ed58-4b9b-b3da-4282ac2208a8',
+      options: {},
+      methods: ETH_EOA_METHODS,
+      scopes: [EthScope.Eoa],
+      type: EthAccountType.Eoa,
+      address: '0x6431726eee67570bf6f0cf892ae0a3988f03903f',
+    };
+
     describe('#handleAccountCreated', () => {
       it('creates the account with a lower-cased address for EVM', async () => {
-        const evmAccount = {
-          id: 'b05d918a-b37c-497a-bb28-3d15c0d56b7a',
-          options: {},
-          methods: ETH_EOA_METHODS,
-          scopes: [EthScopes.Namespace],
-          type: EthAccountType.Eoa,
+        const account = {
+          ...newEthEoaAccount,
           // Even checksummed address will be lower-cased by the bridge.
           address: '0x6431726EEE67570BF6f0Cf892aE0a3988F03903F',
         };
+
         await keyring.handleKeyringSnapMessage(snapId, {
           method: KeyringEvent.AccountCreated,
           params: {
             account: {
-              ...(evmAccount as unknown as KeyringAccount),
+              ...(account as unknown as KeyringAccount),
               id: '56189183-9b89-4ae6-90d9-99d167b28520',
             },
           },
         });
         expect(mockCallbacks.addAccount).toHaveBeenLastCalledWith(
-          evmAccount.address.toLowerCase(),
+          account.address.toLowerCase(),
           snapId,
           expect.any(Function),
+          expect.any(Promise),
+          undefined,
           undefined,
           undefined,
         );
@@ -251,6 +330,8 @@ describe('SnapKeyring', () => {
           nonEvmAccount.address,
           snapId,
           expect.any(Function),
+          expect.any(Promise),
+          undefined,
           undefined,
           undefined,
         );
@@ -281,7 +362,7 @@ describe('SnapKeyring', () => {
             params: {
               account: {
                 ...(ethEoaAccount1 as unknown as KeyringAccount),
-                address: '0x0',
+                address: ethEoaAccount2.address,
               },
             },
           }),
@@ -308,17 +389,27 @@ describe('SnapKeyring', () => {
             { ...ethEoaAccount1 },
             'New Account',
             undefined,
+            undefined,
           ],
           [
             'handles account creation with displayConfirmation',
             { ...ethEoaAccount2 },
             undefined,
             false,
+            undefined,
           ],
           [
             'handles account creation with both accountNameSuggestion and displayConfirmation',
             { ...ethEoaAccount3 },
             'New Account',
+            false,
+            undefined,
+          ],
+          [
+            'handles account creation with both accountNameSuggestion and displayAccountNameSuggestion',
+            { ...ethEoaAccount4 },
+            'New Account',
+            false,
             false,
           ],
         ])(
@@ -328,20 +419,21 @@ describe('SnapKeyring', () => {
             account,
             accountNameSuggestion,
             displayConfirmation,
+            displayAccountNameSuggestion,
           ) => {
             // Reset mock
             mockCallbacks.addAccount.mockClear();
             // Reset the keyring so it's empty.
-            keyring = new SnapKeyring(
-              mockSnapController as unknown as SnapController,
-              mockCallbacks,
-            );
+            keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
 
             const params = {
               account: account as unknown as KeyringAccount,
               ...(displayConfirmation !== undefined && { displayConfirmation }),
               ...(accountNameSuggestion !== undefined && {
                 accountNameSuggestion,
+              }),
+              ...(displayAccountNameSuggestion !== undefined && {
+                displayAccountNameSuggestion,
               }),
             };
 
@@ -354,8 +446,10 @@ describe('SnapKeyring', () => {
               account.address.toLowerCase(),
               snapId,
               expect.any(Function),
+              expect.any(Promise),
               accountNameSuggestion,
               displayConfirmation,
+              displayAccountNameSuggestion,
             );
           },
         );
@@ -363,10 +457,7 @@ describe('SnapKeyring', () => {
 
       it('creates an account and registers it properly', async () => {
         // Reset the keyring so it's empty.
-        keyring = new SnapKeyring(
-          mockSnapController as unknown as SnapController,
-          mockCallbacks,
-        );
+        keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
 
         const account = ethEoaAccount1;
         await keyring.handleKeyringSnapMessage(snapId, {
@@ -386,10 +477,7 @@ describe('SnapKeyring', () => {
 
       it('creates an EOA account and set a default scopes if not provided', async () => {
         // Reset the keyring so it's empty.
-        keyring = new SnapKeyring(
-          mockSnapController as unknown as SnapController,
-          mockCallbacks,
-        );
+        keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
 
         // Omit `scopes` from `account`.
         const account = noScopes(ethEoaAccount1);
@@ -407,16 +495,13 @@ describe('SnapKeyring', () => {
           metadata: expect.any(Object),
           // By default, new EVM accounts will have this scopes if it not provided
           // during the account creation flow.
-          scopes: [EthScopes.Namespace],
+          scopes: [EthScope.Eoa],
         });
       });
 
       it('creating a non-EVM account with the no scope will throw an error', async () => {
         // Reset the keyring so it's empty.
-        keyring = new SnapKeyring(
-          mockSnapController as unknown as SnapController,
-          mockCallbacks,
-        );
+        keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
 
         // Omit `scopes` from non-EVM `account`.
         const account = noScopes(btcP2wpkhAccount);
@@ -428,15 +513,217 @@ describe('SnapKeyring', () => {
             },
           }),
         ).rejects.toThrow(
-          'Account scopes is required for non-EVM and ERC4337 accounts',
+          'At path: scopes -- Expected an array value, but received: undefined',
         );
+      });
+
+      it('receives an account balances update event and re-publish it to the messenger', async () => {
+        const mockPublishedEventCallback = jest.fn();
+        mockSnapKeyringMessenger.subscribe(
+          'SnapKeyring:accountBalancesUpdated',
+          mockPublishedEventCallback,
+        );
+
+        const account = ethEoaAccount1;
+        const event: AccountBalancesUpdatedEventPayload = {
+          balances: {
+            [account.id]: {
+              'bip122:000000000019d6689c085ae165831e93/slip44:0': {
+                amount: '0.1',
+                unit: 'BTC',
+              },
+            },
+          },
+        };
+
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountBalancesUpdated,
+          params: event,
+        });
+        expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
+      });
+
+      it('receives an transactions update event and re-publish it to the messenger', async () => {
+        const mockPublishedEventCallback = jest.fn();
+        mockSnapKeyringMessenger.subscribe(
+          'SnapKeyring:accountTransactionsUpdated',
+          mockPublishedEventCallback,
+        );
+
+        const account = ethEoaAccount1;
+        const event: AccountTransactionsUpdatedEventPayload = {
+          transactions: {
+            [account.id]: [
+              {
+                id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+                timestamp: null,
+                chain: 'eip155:1',
+                status: 'submitted',
+                type: 'receive',
+                account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+                from: [],
+                to: [],
+                fees: [
+                  {
+                    type: 'base',
+                    asset: {
+                      fungible: true,
+                      type: 'eip155:1/slip44:60',
+                      unit: 'ETH',
+                      amount: '0.0001',
+                    },
+                  },
+                  {
+                    type: 'priority',
+                    asset: {
+                      fungible: true,
+                      type: 'eip155:1/slip44:60',
+                      unit: 'ETH',
+                      amount: '0.0001',
+                    },
+                  },
+                ],
+                events: [],
+              },
+            ],
+          },
+        };
+
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountTransactionsUpdated,
+          params: event,
+        });
+        expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
+      });
+
+      it('receives an asset list update event and re-publish it to the messenger', async () => {
+        const mockPublishedEventCallback = jest.fn();
+        mockSnapKeyringMessenger.subscribe(
+          'SnapKeyring:accountAssetListUpdated',
+          mockPublishedEventCallback,
+        );
+
+        const account = ethEoaAccount1;
+        const event: AccountAssetListUpdatedEventPayload = {
+          assets: {
+            [account.id]: {
+              added: ['bip122:000000000019d6689c085ae165831e93/slip44:0'],
+              removed: ['bip122:000000000933ea01ad0ee984209779ba/slip44:0'],
+            },
+          },
+        };
+
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountAssetListUpdated,
+          params: event,
+        });
+        expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
+      });
+
+      it('saves to the state asynchronously', async () => {
+        // We simulate a long running `saveState`
+        const deferred = new DeferredPromise<void>();
+        const saveStateContext = {
+          called: false,
+          returned: false,
+        };
+        mockCallbacks.saveState.mockImplementation(async () => {
+          saveStateContext.called = true;
+          await deferred.promise;
+          saveStateContext.returned = true;
+        });
+
+        const account = newEthEoaAccount;
+        const result = await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: {
+              ...(account as unknown as KeyringAccount),
+              id: account.id,
+            },
+          },
+        });
+        expect(result).toBeNull(); // Yes the result of `AccountCreated` is `null`.
+
+        // After reaching that point, the `AccountCreated` has resumed, so the Snap
+        // will be resuming its execution. However, the account is still not created
+        // on the Snap keyring state, since the `saveState` is still "pending".
+
+        // Now we can resolve, and finalize the `saveState` call.
+        expect(saveStateContext.called).toBe(true);
+        expect(saveStateContext.returned).toBe(false);
+        deferred.resolve();
+        await deferred.promise;
+        expect(saveStateContext.returned).toBe(true);
+      });
+
+      it('deletes the account if we cannot save it on the state', async () => {
+        const stateError = new Error('Could not persist to the state');
+
+        mockCallbacks.saveState.mockImplementation(async () => {
+          return Promise.reject(stateError);
+        });
+        mockCallbacks.addAccount.mockImplementation(
+          async (
+            _address,
+            _snapId,
+            handleUserInput,
+            onceSaved,
+            _accountNameSuggestion,
+            _displayConfirmation,
+          ) => {
+            await handleUserInput(true);
+            // Make sure the error is being forwarded to the `onceSaved` promise.
+            // NOTE: We also have to use this rejected value, otherwise `jest` will ends up
+            // with an error (probably cause this goes to the unhandled error handler?).
+            await expect(onceSaved).rejects.toThrow(stateError);
+          },
+        );
+
+        mockMessengerHandleRequest({
+          // Will be called, since the Snap keyring state cannot be persisted.
+          [KeyringRpcMethod.DeleteAccount]: () => null,
+        });
+
+        const account = newEthEoaAccount;
+        await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: {
+              ...(account as unknown as KeyringAccount),
+              id: account.id,
+            },
+          },
+        });
+        expect(mockCallbacks.addAccount).toHaveBeenLastCalledWith(
+          account.address.toLowerCase(),
+          snapId,
+          expect.any(Function),
+          expect.any(Promise),
+          undefined,
+          undefined,
+          undefined,
+        );
+        expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith({
+          handler: 'onKeyringRequest',
+          origin: 'metamask',
+          snapId,
+          request: {
+            id: expect.any(String),
+            jsonrpc: '2.0',
+            method: 'keyring_deleteAccount',
+            params: {
+              id: account.id,
+            },
+          },
+        });
       });
     });
 
     describe('#handleAccountUpdated', () => {
       it('updates the methods of an account', async () => {
         // Return the updated list of accounts when the keyring requests it.
-        mockSnapController.handleRequest.mockResolvedValue([
+        mockMessenger.handleRequest.mockResolvedValue([
           { ...ethEoaAccount1, methods: [] },
           { ...ethEoaAccount2 },
         ]);
@@ -511,7 +798,7 @@ describe('SnapKeyring', () => {
 
       it('fails when the EthMethod is not supported after update', async () => {
         // Update first account to remove `EthMethod.PersonalSign`
-        let updatedMethods: EthMethod[] = Object.values(EthMethod).filter(
+        let updatedMethods: EthMethod[] = Object.values(ETH_EOA_METHODS).filter(
           (method) => method !== EthMethod.PersonalSign,
         );
         expect(
@@ -534,7 +821,7 @@ describe('SnapKeyring', () => {
           `Method '${EthMethod.PersonalSign}' not supported for account ${ethEoaAccount1.address}`,
         );
         // Restore `EthMethod.PersonalSign` and remove `EthMethod.SignTransaction`
-        updatedMethods = Object.values(EthMethod).filter(
+        updatedMethods = Object.values(ETH_EOA_METHODS).filter(
           (method) => method !== EthMethod.SignTransaction,
         );
         expect(
@@ -551,7 +838,7 @@ describe('SnapKeyring', () => {
         expect(keyring.listAccounts()[0]?.methods).toStrictEqual(
           updatedMethods,
         );
-        const mockTx = {
+        const mockTx: TypedTxData = {
           data: '0x0',
           gasLimit: '0x26259fe',
           gasPrice: '0x1',
@@ -574,7 +861,7 @@ describe('SnapKeyring', () => {
         const account = noScopes(ethEoaAccount1);
 
         // Return the updated list of accounts when the keyring requests it.
-        mockSnapController.handleRequest.mockResolvedValue([{ ...account }]);
+        mockMessenger.handleRequest.mockResolvedValue([{ ...account }]);
 
         expect(
           await keyring.handleKeyringSnapMessage(snapId, {
@@ -585,7 +872,7 @@ describe('SnapKeyring', () => {
 
         const keyringAccounts = keyring.listAccounts();
         expect(keyringAccounts.length).toBeGreaterThan(0);
-        expect(keyringAccounts[0]?.scopes).toStrictEqual([EthScopes.Namespace]);
+        expect(keyringAccounts[0]?.scopes).toStrictEqual([EthScope.Eoa]);
       });
 
       it('updates a ERC4337 account with the no scope will throw an error', async () => {
@@ -593,7 +880,7 @@ describe('SnapKeyring', () => {
         const account = noScopes(ethErc4337Account);
 
         // Return the updated list of accounts when the keyring requests it.
-        mockSnapController.handleRequest.mockResolvedValue([{ ...account }]);
+        mockMessenger.handleRequest.mockResolvedValue([{ ...account }]);
 
         await expect(
           keyring.handleKeyringSnapMessage(snapId, {
@@ -601,7 +888,7 @@ describe('SnapKeyring', () => {
             params: { account },
           }),
         ).rejects.toThrow(
-          'Account scopes is required for non-EVM and ERC4337 accounts',
+          'At path: scopes -- Expected an array value, but received: undefined',
         );
       });
 
@@ -610,7 +897,7 @@ describe('SnapKeyring', () => {
         const account = noScopes(btcP2wpkhAccount);
 
         // Return the updated list of accounts when the keyring requests it.
-        mockSnapController.handleRequest.mockResolvedValue([{ ...account }]);
+        mockMessenger.handleRequest.mockResolvedValue([{ ...account }]);
 
         await expect(
           keyring.handleKeyringSnapMessage(snapId, {
@@ -618,14 +905,14 @@ describe('SnapKeyring', () => {
             params: { account },
           }),
         ).rejects.toThrow(
-          'Account scopes is required for non-EVM and ERC4337 accounts',
+          'At path: scopes -- Expected an array value, but received: undefined',
         );
       });
     });
 
     describe('#handleAccountDeleted', () => {
       it('removes an account', async () => {
-        mockSnapController.handleRequest.mockResolvedValue(null);
+        mockMessenger.handleRequest.mockResolvedValue(null);
         mockCallbacks.removeAccount.mockImplementation(
           async (address, _snapId, handleUserInput) => {
             await keyring.removeAccount(address);
@@ -692,7 +979,7 @@ describe('SnapKeyring', () => {
 
     describe('#handleRequestApproved', () => {
       it('approves an async request', async () => {
-        mockSnapController.handleRequest.mockResolvedValue({
+        mockMessenger.handleRequest.mockResolvedValue({
           pending: true,
         });
         const requestPromise = keyring.signPersonalMessage(
@@ -700,7 +987,7 @@ describe('SnapKeyring', () => {
           'hello',
         );
 
-        const { calls } = mockSnapController.handleRequest.mock;
+        const { calls } = mockMessenger.handleRequest.mock;
         const requestId = calls[calls.length - 1][0].request.params.id;
         await keyring.handleKeyringSnapMessage(snapId, {
           method: KeyringEvent.RequestApproved,
@@ -726,13 +1013,13 @@ describe('SnapKeyring', () => {
       });
 
       it("cannot approve another Snap's request", async () => {
-        mockSnapController.handleRequest.mockResolvedValue({
+        mockMessenger.handleRequest.mockResolvedValue({
           pending: true,
         });
         // eslint-disable-next-line no-void
         void keyring.signPersonalMessage(ethEoaAccount1.address, 'hello');
 
-        const { calls } = mockSnapController.handleRequest.mock;
+        const { calls } = mockMessenger.handleRequest.mock;
         const requestId: string = calls[calls.length - 1][0].request.params.id;
         await expect(
           keyring.handleKeyringSnapMessage('another-snap-id' as SnapId, {
@@ -743,13 +1030,13 @@ describe('SnapKeyring', () => {
       });
 
       it('fails to approve a request that failed when submitted', async () => {
-        mockSnapController.handleRequest.mockRejectedValue(new Error('error'));
+        mockMessenger.handleRequest.mockRejectedValue(new Error('error'));
         const mockMessage = 'Hello World!';
         await expect(
           keyring.signPersonalMessage(ethEoaAccount1.address, mockMessage),
         ).rejects.toThrow('error');
 
-        const { calls } = mockSnapController.handleRequest.mock;
+        const { calls } = mockMessenger.handleRequest.mock;
         const requestId = calls[calls.length - 1][0].request.params.id;
         const responsePromise = keyring.handleKeyringSnapMessage(snapId, {
           method: KeyringEvent.RequestApproved,
@@ -766,7 +1053,7 @@ describe('SnapKeyring', () => {
 
     describe('#handleRequestRejected', () => {
       it('rejects an async request', async () => {
-        mockSnapController.handleRequest.mockResolvedValue({
+        mockMessenger.handleRequest.mockResolvedValue({
           pending: true,
         });
         const requestPromise = keyring.signPersonalMessage(
@@ -774,7 +1061,7 @@ describe('SnapKeyring', () => {
           'hello',
         );
 
-        const { calls } = mockSnapController.handleRequest.mock;
+        const { calls } = mockMessenger.handleRequest.mock;
         const requestId = calls[calls.length - 1][0].request.params.id;
         await keyring.handleKeyringSnapMessage(snapId, {
           method: KeyringEvent.RequestRejected,
@@ -798,13 +1085,13 @@ describe('SnapKeyring', () => {
       });
 
       it("cannot reject another Snap's request", async () => {
-        mockSnapController.handleRequest.mockResolvedValue({
+        mockMessenger.handleRequest.mockResolvedValue({
           pending: true,
         });
         // eslint-disable-next-line no-void
         void keyring.signPersonalMessage(ethEoaAccount1.address, 'hello');
 
-        const { calls } = mockSnapController.handleRequest.mock;
+        const { calls } = mockMessenger.handleRequest.mock;
         const requestId: string = calls[calls.length - 1][0].request.params.id;
         await expect(
           keyring.handleKeyringSnapMessage('another-snap-id' as SnapId, {
@@ -871,20 +1158,14 @@ describe('SnapKeyring', () => {
 
     it('fails to restore an undefined state', async () => {
       // Reset the keyring so it's empty.
-      keyring = new SnapKeyring(
-        mockSnapController as unknown as SnapController,
-        mockCallbacks,
-      );
+      keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
       await keyring.deserialize(undefined as unknown as KeyringState);
       expect(await keyring.getAccounts()).toStrictEqual([]);
     });
 
     it('fails to restore an empty state', async () => {
       // Reset the keyring so it's empty.
-      keyring = new SnapKeyring(
-        mockSnapController as unknown as SnapController,
-        mockCallbacks,
-      );
+      keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
       await expect(
         keyring.deserialize({} as unknown as KeyringState),
       ).rejects.toThrow('Cannot convert undefined or null to object');
@@ -928,7 +1209,7 @@ describe('SnapKeyring', () => {
 
     it('unknown v1 accounts scopes defaults to EOA scopes', () => {
       expect(getScopesForAccountV1(unknownAccount)).toStrictEqual([
-        EthScopes.Namespace,
+        EthScope.Eoa,
       ]);
     });
   });
@@ -949,8 +1230,8 @@ describe('SnapKeyring', () => {
         },
         enabled: true,
       };
-      mockSnapController.get.mockReturnValue(snapObject);
-      mockSnapController.handleRequest.mockResolvedValue({
+      mockMessenger.get.mockReturnValue(snapObject);
+      mockMessenger.handleRequest.mockResolvedValue({
         pending: true,
         redirect: {
           message: 'Go to dapp to continue.',
@@ -985,9 +1266,9 @@ describe('SnapKeyring', () => {
         },
         enabled: true,
       };
-      mockSnapController.get.mockReturnValue(snapObject);
+      mockMessenger.get.mockReturnValue(snapObject);
 
-      mockSnapController.handleRequest.mockResolvedValue({
+      mockMessenger.handleRequest.mockResolvedValue({
         pending: true,
         redirect,
       });
@@ -996,7 +1277,7 @@ describe('SnapKeyring', () => {
         'hello',
       );
 
-      const { calls } = mockSnapController.handleRequest.mock;
+      const { calls } = mockMessenger.handleRequest.mock;
       const requestId = calls[calls.length - 1][0].request.params.id;
       await keyring.handleKeyringSnapMessage(snapId, {
         method: KeyringEvent.RequestRejected,
@@ -1043,9 +1324,9 @@ describe('SnapKeyring', () => {
         url: 'https://example.com/sign?tx=1234',
       };
 
-      mockSnapController.get.mockReturnValue(undefined);
+      mockMessenger.get.mockReturnValue(undefined);
 
-      mockSnapController.handleRequest.mockResolvedValue({
+      mockMessenger.handleRequest.mockResolvedValue({
         pending: true,
         redirect,
       });
@@ -1062,7 +1343,7 @@ describe('SnapKeyring', () => {
 
   describe('signTransaction', () => {
     it('signs a ethereum transaction synchronously', async () => {
-      const mockTx = {
+      const mockTx: TypedTxData = {
         data: '0x00',
         gasLimit: '0x26259fe',
         gasPrice: '0x1',
@@ -1072,7 +1353,7 @@ describe('SnapKeyring', () => {
         chainId: '0x1',
         type: '0x0',
       };
-      const mockSignedTx = {
+      const mockSignedTx: TypedTxData = {
         ...mockTx,
         r: '0x0',
         s: '0x0',
@@ -1080,9 +1361,9 @@ describe('SnapKeyring', () => {
       };
       const tx = TransactionFactory.fromTxData(mockTx);
       const expectedSignedTx = TransactionFactory.fromTxData(mockSignedTx);
-      const expectedScope = EthScopes.Mainnet;
+      const expectedScope = EthScope.Mainnet;
 
-      mockSnapController.handleRequest.mockResolvedValue({
+      mockMessenger.handleRequest.mockResolvedValue({
         pending: false,
         result: mockSignedTx,
       });
@@ -1091,7 +1372,7 @@ describe('SnapKeyring', () => {
         ethEoaAccount1.address,
         tx,
       );
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         snapId,
         handler: 'onKeyringRequest',
         origin: 'metamask',
@@ -1158,12 +1439,12 @@ describe('SnapKeyring', () => {
       },
     };
 
-    const expectedScope = EthScopes.Mainnet;
+    const expectedScope = EthScope.Mainnet;
     const expectedSignature =
       '0x4355c47d63924e8a72e509b65029052eb6c299d53a04e167c5775fd466751c9d07299936d304c153f6443dfa05f40ff007d72911b6f72307f996231605b915621c';
 
     it('signs typed data without options', async () => {
-      mockSnapController.handleRequest.mockResolvedValue({
+      mockMessenger.handleRequest.mockResolvedValue({
         pending: false,
         result: expectedSignature,
       });
@@ -1172,7 +1453,7 @@ describe('SnapKeyring', () => {
         ethEoaAccount1.address,
         dataToSign,
       );
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         snapId,
         handler: 'onKeyringRequest',
         origin: 'metamask',
@@ -1195,7 +1476,7 @@ describe('SnapKeyring', () => {
     });
 
     it('signs typed data options (v4)', async () => {
-      mockSnapController.handleRequest.mockResolvedValue({
+      mockMessenger.handleRequest.mockResolvedValue({
         pending: false,
         result: expectedSignature,
       });
@@ -1205,7 +1486,7 @@ describe('SnapKeyring', () => {
         dataToSign,
         { version: SignTypedDataVersion.V4 },
       );
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         snapId,
         handler: 'onKeyringRequest',
         origin: 'metamask',
@@ -1228,7 +1509,7 @@ describe('SnapKeyring', () => {
     });
 
     it('signs typed data invalid options (v2)', async () => {
-      mockSnapController.handleRequest.mockResolvedValue({
+      mockMessenger.handleRequest.mockResolvedValue({
         pending: false,
         result: expectedSignature,
       });
@@ -1238,7 +1519,7 @@ describe('SnapKeyring', () => {
         dataToSign,
         { version: 'V2' as any },
       );
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         snapId,
         handler: 'onKeyringRequest',
         origin: 'metamask',
@@ -1261,7 +1542,7 @@ describe('SnapKeyring', () => {
     });
 
     it('signs typed data without domain chainId has no scope', async () => {
-      mockSnapController.handleRequest.mockResolvedValue({
+      mockMessenger.handleRequest.mockResolvedValue({
         pending: false,
         result: expectedSignature,
       });
@@ -1283,7 +1564,7 @@ describe('SnapKeyring', () => {
         dataToSignWithoutDomainChainId,
         { version: SignTypedDataVersion.V4 },
       );
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         snapId,
         handler: 'onKeyringRequest',
         origin: 'metamask',
@@ -1335,7 +1616,7 @@ describe('SnapKeyring', () => {
         bundlerUrl: 'https://bundler.example.com/rpc',
       };
 
-      mockSnapController.handleRequest.mockReturnValueOnce({
+      mockMessenger.handleRequest.mockReturnValueOnce({
         pending: false,
         result: expectedBaseUserOp,
       });
@@ -1346,7 +1627,7 @@ describe('SnapKeyring', () => {
         executionContext,
       );
 
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         snapId,
         handler: 'onKeyringRequest',
         origin: 'metamask',
@@ -1356,7 +1637,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScopes.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_prepareUserOperation',
@@ -1388,7 +1672,7 @@ describe('SnapKeyring', () => {
         paymasterAndData: '0x1234',
       };
 
-      mockSnapController.handleRequest.mockReturnValueOnce({
+      mockMessenger.handleRequest.mockReturnValueOnce({
         pending: false,
         result: expectedPatch,
       });
@@ -1399,7 +1683,7 @@ describe('SnapKeyring', () => {
         executionContext,
       );
 
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         snapId,
         handler: 'onKeyringRequest',
         origin: 'metamask',
@@ -1409,7 +1693,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScopes.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_patchUserOperation',
@@ -1437,7 +1724,7 @@ describe('SnapKeyring', () => {
         signature: '0x',
       };
 
-      mockSnapController.handleRequest.mockReturnValueOnce({
+      mockMessenger.handleRequest.mockReturnValueOnce({
         pending: false,
         result: expectedSignature,
       });
@@ -1448,7 +1735,7 @@ describe('SnapKeyring', () => {
         executionContext,
       );
 
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         snapId,
         handler: 'onKeyringRequest',
         origin: 'metamask',
@@ -1458,7 +1745,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScopes.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_signUserOperation',
@@ -1476,7 +1766,7 @@ describe('SnapKeyring', () => {
     it('signs a personal message', async () => {
       const mockMessage = 'Hello World!';
       const expectedSignature = '0x0';
-      mockSnapController.handleRequest.mockResolvedValue({
+      mockMessenger.handleRequest.mockResolvedValue({
         pending: false,
         result: expectedSignature,
       });
@@ -1500,7 +1790,7 @@ describe('SnapKeyring', () => {
       const mockMessage =
         '0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8';
       const expectedSignature = '0x0';
-      mockSnapController.handleRequest.mockResolvedValue({
+      mockMessenger.handleRequest.mockResolvedValue({
         pending: false,
         result: expectedSignature,
       });
@@ -1509,7 +1799,7 @@ describe('SnapKeyring', () => {
         mockMessage,
       );
       expect(signature).toStrictEqual(expectedSignature);
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         handler: 'onKeyringRequest',
         origin: 'metamask',
         request: {
@@ -1547,7 +1837,7 @@ describe('SnapKeyring', () => {
     });
 
     it('removes an account', async () => {
-      mockSnapController.handleRequest.mockResolvedValue(null);
+      mockMessenger.handleRequest.mockResolvedValue(null);
       await keyring.removeAccount(ethEoaAccount1.address);
       expect(await keyring.getAccounts()).toStrictEqual([
         accounts[1].address,
@@ -1560,7 +1850,7 @@ describe('SnapKeyring', () => {
 
     it('removes the account and warn if Snap fails', async () => {
       const spy = jest.spyOn(console, 'error').mockImplementation();
-      mockSnapController.handleRequest.mockRejectedValue('some error');
+      mockMessenger.handleRequest.mockRejectedValue('some error');
       await keyring.removeAccount(ethEoaAccount1.address);
       expect(await keyring.getAccounts()).toStrictEqual([
         accounts[1].address,
@@ -1591,7 +1881,7 @@ describe('SnapKeyring', () => {
         },
         enabled: true,
       };
-      mockSnapController.get.mockReturnValue(snapObject);
+      mockMessenger.get.mockReturnValue(snapObject);
       const result = keyring.listAccounts();
       const expected = accounts.map((a) => ({
         ...a,
@@ -1624,7 +1914,7 @@ describe('SnapKeyring', () => {
         id: snapId,
         enabled: true,
       };
-      mockSnapController.get.mockReturnValue(snapMetadata);
+      mockMessenger.get.mockReturnValue(snapMetadata);
       expect(keyring.getAccountByAddress(ethEoaAccount1.address)).toStrictEqual(
         {
           ...ethEoaAccount1,
@@ -1635,6 +1925,163 @@ describe('SnapKeyring', () => {
             keyring: { type: 'Snap Keyring' },
           },
         },
+      );
+    });
+  });
+
+  describe('resolveAccountAddress', () => {
+    const scope = toCaipChainId(
+      KnownCaipNamespace.Eip155,
+      executionContext.chainId,
+    );
+    const address = '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb';
+    const request: JsonRpcRequest = {
+      id: '3d8a0bda-285c-4551-abe8-f52af39d3095',
+      jsonrpc: '2.0',
+      method: EthMethod.SignTransaction,
+      params: {
+        from: address,
+        to: 'someone-else',
+      },
+    };
+
+    it('returns a resolved address', async () => {
+      const mockResponse = {
+        address: `${scope}:${address}`,
+      };
+      mockMessenger.handleRequest.mockReturnValueOnce(mockResponse);
+
+      const resolved = await keyring.resolveAccountAddress(
+        snapId,
+        scope,
+        request,
+      );
+
+      expect(resolved).toStrictEqual(mockResponse);
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_resolveAccountAddress',
+          params: {
+            scope,
+            request,
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('returns `null` if no address has been resolved', async () => {
+      mockMessenger.handleRequest.mockReturnValueOnce(null);
+
+      const resolved = await keyring.resolveAccountAddress(
+        snapId,
+        scope,
+        request,
+      );
+
+      expect(resolved).toBeNull();
+    });
+
+    it('throws an error if the Snap ID is not know from the keyring', async () => {
+      const badSnapId = 'local:bad-snap-id' as SnapId;
+
+      await expect(
+        keyring.resolveAccountAddress(badSnapId, scope, request),
+      ).rejects.toThrow(
+        `Unable to resolve account address: unknown Snap ID: ${badSnapId}`,
+      );
+    });
+  });
+
+  describe('submitRequest', () => {
+    const account = ethEoaAccount1;
+    const scope = EthScope.Testnet;
+    const method = EthMethod.SignTransaction;
+    const params = {
+      from: 'me',
+      to: 'you',
+    };
+
+    it('submits a request', async () => {
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: false,
+        result: null,
+      });
+
+      await keyring.submitRequest({
+        account: account.id,
+        method,
+        params,
+        scope,
+      });
+
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_submitRequest',
+          params: {
+            id: expect.any(String),
+            scope,
+            account: account.id,
+            request: {
+              method,
+              params,
+            },
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('throws an error for asynchronous request', async () => {
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: true,
+      });
+
+      await expect(
+        keyring.submitRequest({
+          account: account.id,
+          method,
+          params,
+          scope,
+        }),
+      ).rejects.toThrow(regexForUUIDInRequiredSyncErrorMessage);
+    });
+
+    it('throws an error when using an unknown account id', async () => {
+      const unknownAccountId = 'unknown-account-id';
+
+      await expect(
+        keyring.submitRequest({
+          account: unknownAccountId,
+          method,
+          params,
+          scope,
+        }),
+      ).rejects.toThrow(
+        `Unable to get account: unknown account ID: '${unknownAccountId}'`,
+      );
+    });
+
+    it('throws an error when the method is not supported by the account', async () => {
+      const unknownAccountMethod = EthMethod.PrepareUserOperation; // Not available for EOAs.
+
+      await expect(
+        keyring.submitRequest({
+          account: account.id,
+          method: unknownAccountMethod,
+          params,
+          scope,
+        }),
+      ).rejects.toThrow(
+        `Method '${unknownAccountMethod}' not supported for account ${account.address}`,
       );
     });
   });
@@ -1663,7 +2110,7 @@ describe('SnapKeyring', () => {
     };
 
     it('calls eth_prepareUserOperation', async () => {
-      mockSnapController.handleRequest.mockReturnValueOnce({
+      mockMessenger.handleRequest.mockReturnValueOnce({
         pending: false,
         result: mockExpectedUserOp,
       });
@@ -1674,7 +2121,7 @@ describe('SnapKeyring', () => {
         executionContext,
       );
 
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         handler: 'onKeyringRequest',
         origin: 'metamask',
         request: {
@@ -1683,7 +2130,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScopes.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_prepareUserOperation',
@@ -1696,7 +2146,7 @@ describe('SnapKeyring', () => {
     });
 
     it('throws error if an pending response is returned from the Snap', async () => {
-      mockSnapController.handleRequest.mockReturnValueOnce({
+      mockMessenger.handleRequest.mockReturnValueOnce({
         pending: true,
       });
 
@@ -1730,7 +2180,7 @@ describe('SnapKeyring', () => {
     };
 
     it('calls eth_patchUserOperation', async () => {
-      mockSnapController.handleRequest.mockReturnValueOnce({
+      mockMessenger.handleRequest.mockReturnValueOnce({
         pending: false,
         result: mockExpectedPatch,
       });
@@ -1741,7 +2191,7 @@ describe('SnapKeyring', () => {
         executionContext,
       );
 
-      expect(mockSnapController.handleRequest).toHaveBeenCalledWith({
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
         handler: 'onKeyringRequest',
         origin: 'metamask',
         request: {
@@ -1750,7 +2200,10 @@ describe('SnapKeyring', () => {
           method: 'keyring_submitRequest',
           params: {
             id: expect.any(String),
-            scope: toCaipChainId(EthScopes.Namespace, executionContext.chainId),
+            scope: toCaipChainId(
+              KnownCaipNamespace.Eip155,
+              executionContext.chainId,
+            ),
             account: ethErc4337Account.id,
             request: {
               method: 'eth_patchUserOperation',
@@ -1763,7 +2216,7 @@ describe('SnapKeyring', () => {
     });
 
     it('throws error if an pending response is returned from the Snap', async () => {
-      mockSnapController.handleRequest.mockReturnValueOnce({
+      mockMessenger.handleRequest.mockReturnValueOnce({
         pending: true,
       });
 

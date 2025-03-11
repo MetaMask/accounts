@@ -1,24 +1,29 @@
-import { Transaction as EthereumTx, TransactionFactory } from '@ethereumjs/tx';
 import {
-  bufferToHex,
+  LegacyTransaction,
+  TransactionFactory,
+  TypedTxData,
+} from '@ethereumjs/tx';
+import {
   ecrecover,
   isValidAddress,
+  privateToAddress,
   pubToAddress,
   stripHexPrefix,
-  toBuffer,
 } from '@ethereumjs/util';
 import {
+  EIP7702Authorization,
   encrypt,
   getEncryptionPublicKey,
   MessageTypes,
   personalSign,
+  recoverEIP7702Authorization,
   recoverPersonalSignature,
   recoverTypedSignature,
   signTypedData,
   SignTypedDataVersion,
   TypedMessage,
 } from '@metamask/eth-sig-util';
-import { add0x, Hex } from '@metamask/utils';
+import { add0x, bytesToHex, Hex, hexToBytes } from '@metamask/utils';
 import assert from 'assert';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -75,12 +80,12 @@ describe('simple-keyring', function () {
     });
   });
 
-  describe('#deserialize an empty value', function () {
+  describe('#deserialize an empty array', function () {
     it('resets wallets', async function () {
       await keyring.deserialize([testAccount.key]);
       const serialized = await keyring.serialize();
       expect(serialized).toHaveLength(1);
-      await keyring.deserialize(undefined);
+      await keyring.deserialize([]);
       const serialized2 = await keyring.serialize();
       expect(serialized2).toHaveLength(0);
     });
@@ -98,8 +103,7 @@ describe('simple-keyring', function () {
     const address = '0x9858e7d8b79fc3e6d989636721584498926da38a';
     const privateKey =
       '0x7dd98753d7b4394095de7d176c58128e2ed6ee600abe97c9f6d9fd65015d9b18';
-    const txParams = {
-      from: address,
+    const txParams: TypedTxData = {
       nonce: '0x00',
       gasPrice: '0x09184e72a000',
       gasLimit: '0x2710',
@@ -109,7 +113,7 @@ describe('simple-keyring', function () {
 
     it('returns a signed legacy tx object (using @ethereumjs/tx)', async function () {
       await keyring.deserialize([privateKey]);
-      const tx = new EthereumTx(txParams);
+      const tx = LegacyTransaction.fromTxData(txParams);
       expect(tx.isSigned()).toBe(false);
 
       const signed = await keyring.signTransaction(address, tx);
@@ -174,9 +178,7 @@ describe('simple-keyring', function () {
     it('reliably can decode messages it signs', async function () {
       await keyring.deserialize([privateKey]);
       const localMessage = 'hello there!';
-      const msgHashHex = bufferToHex(
-        Buffer.from(keccak256(Buffer.from(localMessage))),
-      );
+      const msgHashHex = bytesToHex(keccak256(Buffer.from(localMessage)));
 
       await keyring.addAccounts(9);
       const addresses = await keyring.getAccounts();
@@ -189,14 +191,14 @@ describe('simple-keyring', function () {
         const accountAddress = addresses[index];
 
         /* eslint-disable id-length */
-        const r = toBuffer(sgn.slice(0, 66));
-        const s = toBuffer(`0x${sgn.slice(66, 130)}`);
+        const r = hexToBytes(sgn.slice(0, 66));
+        const s = hexToBytes(`0x${sgn.slice(66, 130)}`);
         const v = BigInt(`0x${sgn.slice(130, 132)}`);
-        const m = toBuffer(msgHashHex);
+        const m = hexToBytes(msgHashHex);
         /* eslint-enable id-length */
 
         const pub = ecrecover(m, v, r, s);
-        const adr = `0x${pubToAddress(pub).toString('hex')}`;
+        const adr = bytesToHex(pubToAddress(pub));
 
         expect(adr).toBe(accountAddress);
       });
@@ -293,7 +295,7 @@ describe('simple-keyring', function () {
       '6969696969696969696969696969696969696969696969696969696969696969',
       'hex',
     );
-    const privKeyHex = bufferToHex(privateKey);
+    const privKeyHex = bytesToHex(privateKey);
     const message = '0x68656c6c6f20776f726c64';
     const expectedSignature =
       '0xce909e8ea6851bc36c007a0072d0524b07a3ff8d4e623aca4c71ca8e57250c4d0a3fc38fa8fbaaa81ead4b9f6bd03356b6f8bf18bccad167d78891636e1d69561b';
@@ -543,16 +545,56 @@ describe('simple-keyring', function () {
     });
   });
 
+  describe('#signEip7702Authorization', function () {
+    const address = '0x29c76e6ad8f28bb1004902578fb108c507be341b';
+    const privKeyHex =
+      '0x4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0';
+    const signerAddress = bytesToHex(privateToAddress(hexToBytes(privKeyHex)));
+
+    const chainId = 1;
+    const nonce = 1;
+    const contractAddress = '0x1234567890abcdef1234567890abcdef12345678';
+
+    const authorization: EIP7702Authorization = [
+      chainId,
+      contractAddress,
+      nonce,
+    ];
+
+    it('returns the expected value', async function () {
+      await keyring.deserialize([privKeyHex]);
+      const signature = await keyring.signEip7702Authorization(
+        address,
+        authorization,
+      );
+
+      expect(typeof signature).toBe('string');
+
+      const recovered = recoverEIP7702Authorization({
+        signature,
+        authorization,
+      });
+
+      expect(recovered.toLowerCase()).toStrictEqual(
+        signerAddress.toLowerCase(),
+      );
+    });
+
+    it('throws an error if the address is not in the keyring', async function () {
+      await keyring.deserialize([privKeyHex]);
+      await expect(
+        keyring.signEip7702Authorization(notKeyringAddress, authorization),
+      ).rejects.toThrow('Simple Keyring - Unable to find matching address.');
+    });
+  });
+
   describe('#decryptMessage', function () {
     const address = '0xbe93f9bacbcffc8ee6663f2647917ed7a20a57bb';
-    const privateKey = Buffer.from(
-      '6969696969696969696969696969696969696969696969696969696969696969',
-      'hex',
-    );
-    const privKeyHex = bufferToHex(privateKey);
+    const privKeyHex =
+      '6969696969696969696969696969696969696969696969696969696969696969';
     const message = 'Hello world!';
     const encryptedMessage = encrypt({
-      publicKey: getEncryptionPublicKey(privateKey.toString('hex')),
+      publicKey: getEncryptionPublicKey(privKeyHex),
       data: message,
       version: 'x25519-xsalsa20-poly1305',
     });
@@ -585,12 +627,9 @@ describe('simple-keyring', function () {
 
   describe('#encryptionPublicKey', function () {
     const address = '0xbe93f9bacbcffc8ee6663f2647917ed7a20a57bb';
-    const privateKey = Buffer.from(
-      '6969696969696969696969696969696969696969696969696969696969696969',
-      'hex',
-    );
+    const privKeyHex =
+      '0x6969696969696969696969696969696969696969696969696969696969696969';
     const publicKey = 'GxuMqoE2oHsZzcQtv/WMNB3gCH2P6uzynuwO1P0MM1U=';
-    const privKeyHex = bufferToHex(privateKey);
 
     it('returns the expected value', async function () {
       await keyring.deserialize([privKeyHex]);

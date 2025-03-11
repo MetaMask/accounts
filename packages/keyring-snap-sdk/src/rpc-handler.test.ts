@@ -1,4 +1,8 @@
-import { KeyringRpcMethod, isKeyringRpcMethod } from '@metamask/keyring-api';
+import {
+  BtcMethod,
+  KeyringRpcMethod,
+  isKeyringRpcMethod,
+} from '@metamask/keyring-api';
 import type { Keyring, GetAccountBalancesRequest } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
@@ -10,7 +14,9 @@ describe('handleKeyringRequest', () => {
     getAccount: jest.fn(),
     createAccount: jest.fn(),
     listAccountTransactions: jest.fn(),
+    listAccountAssets: jest.fn(),
     getAccountBalances: jest.fn(),
+    resolveAccountAddress: jest.fn(),
     filterAccountChains: jest.fn(),
     updateAccount: jest.fn(),
     deleteAccount: jest.fn(),
@@ -154,6 +160,109 @@ describe('handleKeyringRequest', () => {
     );
   });
 
+  it('calls keyring_listAccountAssets', async () => {
+    const accountId = '5767f284-5273-44c1-9556-31959b2afd10';
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '9f014e5b-262b-4fb9-99b7-642d5afa21ee',
+      method: KeyringRpcMethod.ListAccountAssets,
+      params: {
+        id: accountId,
+      },
+    };
+
+    const dummyResponse = 'ListAccountAssets result';
+    keyring.listAccountAssets.mockResolvedValue(dummyResponse);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.listAccountAssets).toHaveBeenCalledWith(accountId);
+    expect(result).toBe(dummyResponse);
+  });
+
+  it('throws an error if `keyring_listAccountAssets` is not implemented', async () => {
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '57854955-7c1f-4603-92a8-69de8e6c678a',
+      method: KeyringRpcMethod.ListAccountAssets,
+      params: {
+        id: '46e59db9-8e05-46a9-a73e-f514c55e7894',
+      },
+    };
+
+    const partialKeyring: Keyring = { ...keyring };
+    delete partialKeyring.listAccountAssets;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      'Method not supported: keyring_listAccountAssets',
+    );
+  });
+
+  it('calls `keyring_resolveAccountAddress`', async () => {
+    const scope = 'bip122:000000000019d6689c085ae165831e93';
+    const signingRequest = {
+      id: '71621d8d-62a4-4bf4-97cc-fb8f243679b0',
+      jsonrpc: '2.0',
+      method: BtcMethod.SendBitcoin,
+      params: {
+        recipients: {
+          address: '0.1',
+        },
+        replaceable: true,
+      },
+    };
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: 'keyring_resolveAccountAddress',
+      params: {
+        scope,
+        request: signingRequest,
+      },
+    };
+
+    keyring.resolveAccountAddress.mockResolvedValue(
+      'ResolveAccountAddress result',
+    );
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.resolveAccountAddress).toHaveBeenCalledWith(
+      scope,
+      signingRequest,
+    );
+    expect(result).toBe('ResolveAccountAddress result');
+  });
+
+  it('throws an error if `keyring_resolveAccountAddress` is not implemented', async () => {
+    const scope = 'bip122:000000000019d6689c085ae165831e93';
+    const signingRequest = {
+      id: '71621d8d-62a4-4bf4-97cc-fb8f243679b0',
+      jsonrpc: '2.0',
+      method: BtcMethod.SendBitcoin,
+      params: {
+        recipients: {
+          address: '0.1',
+        },
+        replaceable: true,
+      },
+    };
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: 'keyring_resolveAccountAddress',
+      params: {
+        scope,
+        request: signingRequest,
+      },
+    };
+
+    const partialKeyring: Keyring = { ...keyring };
+    delete partialKeyring.resolveAccountAddress;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      'Method not supported: keyring_resolveAccountAddress',
+    );
+  });
+
   it('calls `keyring_filterAccountChains`', async () => {
     const request: JsonRpcRequest = {
       jsonrpc: '2.0',
@@ -188,7 +297,7 @@ describe('handleKeyringRequest', () => {
           address: '0x0',
           options: {},
           methods: [],
-          scopes: ['eip155'],
+          scopes: ['eip155:0'],
           type: 'eip155:eoa',
         },
       },
@@ -202,7 +311,7 @@ describe('handleKeyringRequest', () => {
       address: '0x0',
       options: {},
       methods: [],
-      scopes: ['eip155'],
+      scopes: ['eip155:0'],
       type: 'eip155:eoa',
     });
     expect(result).toBe('UpdateAccount result');

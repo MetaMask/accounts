@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.0.0]
+
+### Changed
+
+- **BREAKING:** The method `signTransaction` can now returns various type of transactions ([#209](https://github.com/MetaMask/accounts/pull/209))
+  - Initially was supporting: `Transaction | AccessListEIP2930Transaction | FeeMarketEIP1559Transaction` (types from `@ethereumjs/tx`).
+  - Now also supports `BlobEIP4844Transaction | EOACodeEIP7702Transaction` (types from `@ethereumjs/tx`).
+- **BREAKING:** Bump `@ethereumjs/tx` from `^4.2.0` to `^5.4.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
+- **BREAKING:** Bump `@ethereumjs/util` from `^8.1.0` to `^9.1.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
+
+## [7.0.0]
+
+### Changed
+
+- **BREAKING:** `TrezorKeyring` now implements the `Keyring` type ([#194](https://github.com/MetaMask/accounts/pull/194))
+  - The class does not extend `EventEmitter` anymore.
+  - The `TrezorKeyring.accounts` class variable is now a `readonly Hex[]` array.
+  - The `addAccounts` method signature has been changed:
+    - An `amount` number parameter is now required to specify the number of accounts to add.
+    - The method now returns a promise resolving to an array of `Hex` addresses.
+  - The `deserialize` method now requires a `TrezorControllerOptions` object as a parameter.
+  - The `unlock` method now returns `Promise<Hex>`.
+  - The `getAccounts` method now returns `Promise<Hex[]>`.
+  - The `signTransaction` method now accepts an `Hex` typed value as the `address` parameter.
+  - The `signMessage` method now accepts an `Hex` typed value as the `withAccount` parameter.
+  - The `signPersonalMessage` method now accepts an `Hex` typed value as the `withAccount` parameter.
+  - The `signTypedData` method now accepts an `Hex` typed value as the `withAccount` parameter.
+  - The `unlockAccountByAddress` method now accepts an `Hex` typed value as the `address` parameter.
+
+### Removed
+
+- **BREAKING:** The `exportAccount` method has been removed ([#194](https://github.com/MetaMask/accounts/pull/194))
+
+## [6.1.1]
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+
+## [6.1.0]
+
+### Added
+
+- Add new dedicated `OneKeyKeyring` keyring ([#175](https://github.com/MetaMask/accounts/pull/175))
+  - This keyring is similar to the `TrezorKeyring` but will allow to distinguish both types of devices, the transport layer (bridge) remains the same.
+
+## [6.0.2]
+
+### Changed
+
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177)), ([#134](https://github.com/MetaMask/accounts/pull/134))
+
 ## [6.0.1]
 
 ### Changed
@@ -148,7 +201,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@8.0.0...HEAD
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@7.0.0...@metamask/eth-trezor-keyring@8.0.0
+[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.1...@metamask/eth-trezor-keyring@7.0.0
+[6.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.0...@metamask/eth-trezor-keyring@6.1.1
+[6.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.2...@metamask/eth-trezor-keyring@6.1.0
+[6.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.1...@metamask/eth-trezor-keyring@6.0.2
 [6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.0.0...@metamask/eth-trezor-keyring@6.0.1
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@5.0.0...@metamask/eth-trezor-keyring@6.0.0
 [5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@4.0.0...@metamask/eth-trezor-keyring@5.0.0

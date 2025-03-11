@@ -1,8 +1,13 @@
-import { object, UuidStruct } from '@metamask/keyring-utils';
+import {
+  object,
+  UuidStruct,
+  JsonRpcRequestStruct,
+} from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   array,
   literal,
+  nullable,
   number,
   record,
   string,
@@ -11,14 +16,17 @@ import {
 import { JsonStruct } from '@metamask/utils';
 
 import {
-  BalanceStruct,
   CaipAssetTypeStruct,
+  CaipAssetTypeOrIdStruct,
+  CaipChainIdStruct,
+  BalanceStruct,
   KeyringAccountDataStruct,
   KeyringAccountStruct,
   KeyringRequestStruct,
   KeyringResponseStruct,
   TransactionsPageStruct,
   PaginationStruct,
+  CaipAccountIdStruct,
 } from './api';
 
 /**
@@ -28,8 +36,10 @@ export enum KeyringRpcMethod {
   ListAccounts = 'keyring_listAccounts',
   GetAccount = 'keyring_getAccount',
   CreateAccount = 'keyring_createAccount',
+  ListAccountAssets = 'keyring_listAccountAssets',
   ListAccountTransactions = 'keyring_listAccountTransactions',
   GetAccountBalances = 'keyring_getAccountBalances',
+  ResolveAccountAddress = 'keyring_resolveAccountAddress',
   FilterAccountChains = 'keyring_filterAccountChains',
   UpdateAccount = 'keyring_updateAccount',
   DeleteAccount = 'keyring_deleteAccount',
@@ -129,6 +139,27 @@ export type ListAccountTransactionsResponse = Infer<
 >;
 
 // ----------------------------------------------------------------------------
+// List account assets
+
+export const ListAccountAssetsRequestStruct = object({
+  ...CommonHeader,
+  method: literal('keyring_listAccountAssets'),
+  params: object({
+    id: UuidStruct,
+  }),
+});
+
+export type ListAccountAssetsRequest = Infer<
+  typeof ListAccountAssetsRequestStruct
+>;
+
+export const ListAccountAssetsResponseStruct = array(CaipAssetTypeOrIdStruct);
+
+export type ListAccountAssetsResponse = Infer<
+  typeof ListAccountAssetsResponseStruct
+>;
+
+// ----------------------------------------------------------------------------
 // Get account balances
 
 export const GetAccountBalancesRequestStruct = object({
@@ -151,6 +182,32 @@ export const GetAccountBalancesResponseStruct = record(
 
 export type GetAccountBalancesResponse = Infer<
   typeof GetAccountBalancesResponseStruct
+>;
+
+// ----------------------------------------------------------------------------
+// Resolve account address
+
+export const ResolveAccountAddressRequestStruct = object({
+  ...CommonHeader,
+  method: literal('keyring_resolveAccountAddress'),
+  params: object({
+    scope: CaipChainIdStruct,
+    request: JsonRpcRequestStruct,
+  }),
+});
+
+export type ResolveAccountAddressRequest = Infer<
+  typeof ResolveAccountAddressRequestStruct
+>;
+
+export const ResolveAccountAddressResponseStruct = nullable(
+  object({
+    address: CaipAccountIdStruct,
+  }),
+);
+
+export type ResolveAccountAddressResponse = Infer<
+  typeof ResolveAccountAddressResponseStruct
 >;
 
 // ----------------------------------------------------------------------------

@@ -12,6 +12,21 @@ import {
 } from '@metamask/utils';
 
 /**
+ * Fungible asset amount struct.
+ */
+export const FungibleAssetAmountStruct = object({
+  /**
+   * Asset unit.
+   */
+  unit: string(),
+
+  /**
+   * Asset amount.
+   */
+  amount: StringNumberStruct,
+});
+
+/**
  * Fungible asset struct.
  */
 export const FungibleAssetStruct = object({
@@ -25,15 +40,7 @@ export const FungibleAssetStruct = object({
    */
   type: CaipAssetTypeStruct,
 
-  /**
-   * Asset unit.
-   */
-  unit: string(),
-
-  /**
-   * Asset amount.
-   */
-  amount: StringNumberStruct,
+  ...FungibleAssetAmountStruct.schema,
 });
 
 /**

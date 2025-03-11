@@ -1,10 +1,13 @@
+import { BtcMethod, KeyringRpcMethod } from '@metamask/keyring-api';
 import type {
-  CaipAssetType,
   KeyringAccount,
   KeyringRequest,
   KeyringResponse,
+  CaipChainId,
+  CaipAssetType,
+  CaipAssetTypeOrId,
 } from '@metamask/keyring-api';
-import { KeyringRpcMethod } from '@metamask/keyring-api';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
 import { KeyringClient } from '.'; // Import from `index.ts` to test the public API
 
@@ -27,7 +30,7 @@ describe('KeyringClient', () => {
           address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
           options: {},
           methods: [],
-          scopes: ['eip155'],
+          scopes: ['eip155:0'],
           type: 'eip155:eoa',
         },
       ];
@@ -51,7 +54,7 @@ describe('KeyringClient', () => {
         address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
         options: {},
         methods: [],
-        scopes: ['eip155'],
+        scopes: ['eip155:0'],
         type: 'eip155:eoa',
       };
 
@@ -74,7 +77,7 @@ describe('KeyringClient', () => {
         address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
         options: {},
         methods: [],
-        scopes: ['eip155'],
+        scopes: ['eip155:0'],
         type: 'eip155:eoa',
       };
 
@@ -294,6 +297,59 @@ describe('KeyringClient', () => {
     });
   });
 
+  describe('listAccountAssets', () => {
+    it('returns an empty list of assets', async () => {
+      const id = '4eda78cd-aed8-42c1-a2a0-4c9b36e8282f';
+      const expectedResponse: CaipAssetTypeOrId[] = [];
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const assets = await keyring.listAccountAssets(id);
+
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_listAccountAssets',
+        params: { id },
+      });
+
+      expect(assets).toStrictEqual(expectedResponse);
+    });
+
+    it('returns a non-empty assets list', async () => {
+      const id = '4eda78cd-aed8-42c1-a2a0-4c9b36e8282f';
+      const expectedResponse: CaipAssetTypeOrId[] = [
+        // DAI Token
+        'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
+        // CryptoKitties Collection
+        'eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d',
+        // CryptoKitties Collectible #771769
+        'eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d/771769',
+      ];
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const assets = await keyring.listAccountAssets(id);
+
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_listAccountAssets',
+        params: { id },
+      });
+
+      expect(assets).toStrictEqual(expectedResponse);
+    });
+
+    it('throws an error if one asset is not CAIP-19 compliant', async () => {
+      const id = '4eda78cd-aed8-42c1-a2a0-4c9b36e8282f';
+      const expectedResponse = ['not:compliant'];
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      await expect(keyring.listAccountAssets(id)).rejects.toThrow(
+        'At path: 0 -- Expected a value of type `CaipAssetTypeOrId`, but received: `"not:compliant"`',
+      );
+    });
+  });
+
   describe('getAccountBalances', () => {
     it('returns a valid response', async () => {
       const assets: CaipAssetType[] = [
@@ -357,6 +413,70 @@ describe('KeyringClient', () => {
     });
   });
 
+  describe('resolveAccountAddress', () => {
+    const scope: CaipChainId = 'bip122:000000000019d6689c085ae165831e93';
+    const request: JsonRpcRequest = {
+      id: '71621d8d-62a4-4bf4-97cc-fb8f243679b0',
+      jsonrpc: '2.0',
+      method: BtcMethod.SendBitcoin,
+      params: {
+        recipients: {
+          address: '0.1',
+        },
+        replaceable: true,
+      },
+    };
+
+    it('should send a request to resolve an account address from a signing request and return the response', async () => {
+      const expectedResponse = {
+        address: `${scope}:tb1qspc3kwj3zfnltjpucn7ugahr8lhrgg86wzpvs3`,
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const account = await keyring.resolveAccountAddress(scope, request);
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_resolveAccountAddress',
+        params: {
+          scope,
+          request,
+        },
+      });
+      expect(account).toStrictEqual(expectedResponse);
+    });
+
+    it('should send a request to resolve an account address from a signing request and return null if the address cannot be resolved', async () => {
+      const expectedResponse = null;
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const account = await keyring.resolveAccountAddress(scope, request);
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_resolveAccountAddress',
+        params: {
+          scope,
+          request,
+        },
+      });
+      expect(account).toStrictEqual(expectedResponse);
+    });
+
+    it('should throw an exception if the response is malformed', async () => {
+      const expectedResponse = {
+        not: 'good',
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      await expect(
+        keyring.resolveAccountAddress(scope, request),
+      ).rejects.toThrow(
+        'At path: address -- Expected a value of type `CaipAccountId`, but received: `undefined`',
+      );
+    });
+  });
+
   describe('filterAccountChains', () => {
     it('should send a request to filter the chains supported by an account and return the response', async () => {
       const id = '49116980-0712-4fa5-b045-e4294f1d440e';
@@ -384,7 +504,7 @@ describe('KeyringClient', () => {
         address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
         options: {},
         methods: [],
-        scopes: ['eip155'],
+        scopes: ['eip155:0'],
         type: 'eip155:eoa',
       };
 

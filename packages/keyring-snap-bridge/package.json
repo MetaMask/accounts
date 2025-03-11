@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-snap-keyring",
-  "version": "8.1.0",
+  "version": "12.0.0",
   "description": "Snaps keyring bridge.",
   "repository": {
     "type": "git",
@@ -37,27 +37,26 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@ethereumjs/tx": "^4.2.0",
-    "@metamask/eth-sig-util": "^8.1.2",
+    "@ethereumjs/tx": "^5.4.0",
+    "@metamask/base-controller": "^7.1.1",
+    "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-internal-api": "workspace:^",
     "@metamask/keyring-internal-snap-client": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
-    "@metamask/snaps-controllers": "^9.10.0",
-    "@metamask/snaps-sdk": "^6.7.0",
-    "@metamask/snaps-utils": "^8.3.0",
     "@metamask/superstruct": "^3.1.0",
-    "@metamask/utils": "^11.0.1",
+    "@metamask/utils": "^11.1.0",
     "@types/uuid": "^9.0.8",
-    "uuid": "^9.0.1",
-    "webextension-polyfill": "^0.12.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/providers": "^18.3.1",
-    "@ts-bridge/cli": "^0.6.1",
+    "@metamask/snaps-controllers": "^9.18.0",
+    "@metamask/snaps-sdk": "^6.16.0",
+    "@metamask/snaps-utils": "^8.9.1",
+    "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
     "deepmerge": "^4.2.2",
@@ -71,8 +70,7 @@
     "typescript": "~5.6.3"
   },
   "peerDependencies": {
-    "@metamask/keyring-api": "workspace:^",
-    "@metamask/providers": "^18.3.1"
+    "@metamask/keyring-api": "workspace:^"
   },
   "engines": {
     "node": "^18.18 || >=20"

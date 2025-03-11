@@ -7,6 +7,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [12.0.0]
+
+### Changed
+
+- **BREAKING:** The method `signTransaction` can now returns various type of transactions ([#209](https://github.com/MetaMask/accounts/pull/209))
+  - Initially was supporting: `Transaction | AccessListEIP2930Transaction | FeeMarketEIP1559Transaction` (types from `@ethereumjs/tx`).
+  - Now also supports `BlobEIP4844Transaction | EOACodeEIP7702Transaction` (types from `@ethereumjs/tx`).
+- **BREAKING:** Bump `@ethereumjs/tx` from `^4.2.0` to `^5.4.0` ([#209](https://github.com/MetaMask/accounts/pull/209))
+
+## [11.1.0]
+
+### Added
+
+- Add `displayAccountNameSuggestion` option handling for `"notify:accountCreated"` ([#213](https://github.com/MetaMask/accounts/pull/213))
+
+## [11.0.0]
+
+### Changed
+
+- **BREAKING:** Make account creation asynchronous ([#207](https://github.com/MetaMask/accounts/pull/207)), ([#211](https://github.com/MetaMask/accounts/pull/211))
+  - We no longer wait for `saveState` to finish before resuming the Snap account execution.
+  - Add `onceSaved` deferred promise to `addAccount` callback. This new promise is required so the callback can `await` the account creation.
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+- Bump `@metamask/keyring-api` from `^17.0.0` to `^17.1.0` ([#212](https://github.com/MetaMask/accounts/pull/212))
+
+## [10.0.0]
+
+### Changed
+
+- **BREAKING:** Use `CaipAccountId` for `ResolvedAccountAddress.address` ([#186](https://github.com/MetaMask/accounts/pull/186))
+  - This was missing from SIP-26, but we expect this address to be CAIP-10 compliant.
+- Bump `@metamask/keyring-api` from `^16.1.0` to `^17.0.0` ([#192](https://github.com/MetaMask/accounts/pull/192))
+- Rename `ControllerMessenger` to `Messenger` ([#185](https://github.com/MetaMask/accounts/pull/185))
+- Bump `@metamask/snaps-controllers` dependency from `^9.10.0` to `^9.18.0` ([#177](https://github.com/MetaMask/accounts/pull/177))
+- Bump `@metamask/snaps-sdk` dependency from `^6.7.0` to `^6.16.0` ([#177](https://github.com/MetaMask/accounts/pull/177))
+- Bump `@metamask/snaps-utils` dependency from `^8.3.0` to `^8.9.1` ([#177](https://github.com/MetaMask/accounts/pull/177))
+
+## [9.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^16.0.0` to `^16.1.0` ([#176](https://github.com/MetaMask/accounts/pull/176))
+
+## [9.1.0]
+
+### Added
+
+- Add `submitRequest` and `resolveAccountAddress` methods ([#157](https://github.com/MetaMask/accounts/pull/157))
+  - Those new methods are required by the new signing request routing system (see SIP-26).
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^15.0.0` to `^16.0.0` ([#172](https://github.com/MetaMask/accounts/pull/172))
+- Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
+
+### Fixed
+
+- Fix async Snap request leak ([#171](https://github.com/MetaMask/accounts/pull/171))
+  - There was a leak with the deferred promises when an asynchronous request was not allowed.
+
+## [9.0.0]
+
+### Added
+
+- Add `account{AssetList,Balances,Transactions}Updated` keyring events and re-publish them through the new `Messenger` ([#154](https://github.com/MetaMask/accounts/pull/154))
+
+### Changed
+
+- **BREAKING:** Use `Messenger` instead of `SnapsController` ([#152](https://github.com/MetaMask/accounts/pull/152))
+  - This allows to break the runtime dependency we had with some `snaps-*` pacakges.
+- **BREAKING:** Make `scopes` more strict ([#159](https://github.com/MetaMask/accounts/pull/159))
+  - We now use specific `*AccountStucts` when checking created/updated accounts to make the `scopes` sent by the Snap are valid regarding their account type definition.
+
+## [8.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^13.0.0` to `^14.0.0` ([#155](https://github.com/MetaMask/accounts/pull/155))
+
 ## [8.1.0]
 
 ### Added
@@ -410,7 +490,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.0.0...HEAD
+[12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@11.1.0...@metamask/eth-snap-keyring@12.0.0
+[11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@11.0.0...@metamask/eth-snap-keyring@11.1.0
+[11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@10.0.0...@metamask/eth-snap-keyring@11.0.0
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.1...@metamask/eth-snap-keyring@10.0.0
+[9.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.1.0...@metamask/eth-snap-keyring@9.1.1
+[9.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@9.0.0...@metamask/eth-snap-keyring@9.1.0
+[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.1.1...@metamask/eth-snap-keyring@9.0.0
+[8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.1.0...@metamask/eth-snap-keyring@8.1.1
 [8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@8.0.0...@metamask/eth-snap-keyring@8.1.0
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.1.0...@metamask/eth-snap-keyring@8.0.0
 [7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@7.0.0...@metamask/eth-snap-keyring@7.1.0

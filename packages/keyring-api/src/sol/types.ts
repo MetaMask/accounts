@@ -1,8 +1,13 @@
-import { object, definePattern } from '@metamask/keyring-utils';
+import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { array, enums, literal } from '@metamask/superstruct';
+import { array, enums, literal, nonempty } from '@metamask/superstruct';
+import { definePattern } from '@metamask/utils';
 
-import { KeyringAccountStruct, SolAccountType } from '../api';
+import {
+  CaipChainIdStruct,
+  KeyringAccountStruct,
+  SolAccountType,
+} from '../api';
 
 /**
  * Solana addresses are represented in the format of a 256-bit ed25519 public key and
@@ -19,7 +24,15 @@ export const SolAddressStruct = definePattern(
  */
 export enum SolMethod {
   // General transaction methods
+
+  // @deprecated
+  // TODO: Remove this once the new methods are fully adopted
   SendAndConfirmTransaction = 'sendAndConfirmTransaction',
+
+  SignAndSendTransaction = 'signAndSendTransaction',
+  SignTransaction = 'signTransaction',
+  SignMessage = 'signMessage',
+  SignIn = 'signIn',
 }
 
 export const SolDataAccountStruct = object({
@@ -36,9 +49,14 @@ export const SolDataAccountStruct = object({
   type: literal(`${SolAccountType.DataAccount}`),
 
   /**
+   * Account supported scopes (CAIP-2 chain IDs).
+   */
+  scopes: nonempty(array(CaipChainIdStruct)),
+
+  /**
    * Account supported methods.
    */
-  methods: array(enums([`${SolMethod.SendAndConfirmTransaction}`])),
+  methods: array(enums(Object.values(SolMethod))),
 });
 
 export type SolDataAccount = Infer<typeof SolDataAccountStruct>;

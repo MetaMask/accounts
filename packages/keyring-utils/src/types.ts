@@ -1,6 +1,5 @@
 import { define, type Infer } from '@metamask/superstruct';
-
-import { definePattern } from './superstruct';
+import { definePattern } from '@metamask/utils';
 
 /**
  * UUIDv4 struct.
@@ -9,6 +8,11 @@ export const UuidStruct = definePattern(
   'UuidV4',
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu,
 );
+/**
+ * Account ID (UUIDv4).
+ */
+export const AccountIdStruct = UuidStruct; // Alias for better naming purposes.
+export type AccountId = Infer<typeof AccountIdStruct>; // Alias for better naming purposes.
 
 /**
  * Validates if a given value is a valid URL.

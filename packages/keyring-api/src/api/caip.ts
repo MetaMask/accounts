@@ -1,27 +1,31 @@
-import { definePattern } from '@metamask/keyring-utils';
-import type { CaipAssetId, CaipAssetType } from '@metamask/utils';
+// istanbul ignore file
+
 import {
-  isCaipAssetType,
-  isCaipAssetId,
-  CAIP_ASSET_ID_REGEX,
-  CAIP_ASSET_TYPE_REGEX,
+  CaipAccountIdStruct,
+  CaipAssetIdStruct,
+  CaipAssetTypeStruct,
+  CaipAssetTypeOrIdStruct,
+  CaipChainIdStruct,
+} from '@metamask/utils';
+import type {
+  CaipAccountId,
+  CaipAssetId,
+  CaipAssetType,
+  CaipAssetTypeOrId,
+  CaipChainId,
 } from '@metamask/utils';
 
-/**
- * A CAIP-19 asset type identifier, i.e., a human-readable type of asset identifier.
- */
-export const CaipAssetTypeStruct = definePattern<CaipAssetType>(
-  'CaipAssetType',
-  CAIP_ASSET_TYPE_REGEX,
-);
-
-/**
- * A CAIP-19 asset ID identifier, i.e., a human-readable type of asset ID.
- */
-export const CaipAssetIdStruct = definePattern<CaipAssetId>(
-  'CaipAssetId',
-  CAIP_ASSET_ID_REGEX,
-);
-
-export type { CaipAssetId, CaipAssetType };
-export { isCaipAssetId, isCaipAssetType };
+export {
+  CaipAccountIdStruct,
+  CaipAssetIdStruct,
+  CaipAssetTypeStruct,
+  CaipAssetTypeOrIdStruct,
+  CaipChainIdStruct,
+};
+export type {
+  CaipAccountId,
+  CaipAssetId,
+  CaipAssetType,
+  CaipAssetTypeOrId,
+  CaipChainId,
+};
