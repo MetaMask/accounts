@@ -2,6 +2,7 @@ import { hasProperty } from '@metamask/utils';
 
 import {
   type IFrameMessageResponse,
+  IFRAME_INIT_TIMEOUT,
   IFrameMessageAction,
   LedgerIframeBridge,
 } from './ledger-iframe-bridge';
@@ -62,6 +63,7 @@ describe('LedgerIframeBridge', function () {
   }
 
   beforeEach(async function () {
+    jest.useFakeTimers();
     bridge = new LedgerIframeBridge({
       bridgeUrl: BRIDGE_URL,
     });
@@ -125,6 +127,53 @@ describe('LedgerIframeBridge', function () {
       await bridge.init();
 
       expect(bridge.iframeLoaded).toBe(false);
+    });
+
+    it('fails silently when the iframe initialization times out', async function () {
+      bridge = new LedgerIframeBridge();
+      const appendChildSpy = jest
+        .spyOn(document.head, 'appendChild')
+        .mockImplementation(() => {
+          jest.advanceTimersByTime(IFRAME_INIT_TIMEOUT + 1);
+          // noop, onload is never called
+          return {} as Node;
+        });
+
+      await bridge.init();
+
+      expect(bridge.iframeLoaded).toBe(false);
+      expect(appendChildSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns the same promise when called multiple times', async function () {
+      bridge = new LedgerIframeBridge();
+      const appendChildSpy = jest
+        .spyOn(document.head, 'appendChild')
+        .mockImplementation(() => {
+          // noop, onload is never called
+          return {} as Node;
+        });
+
+      const promise1 = bridge.init();
+      const promise2 = bridge.init();
+
+      expect(promise1).toStrictEqual(promise2);
+      expect(appendChildSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('removes the uninitialized iframe from the page in case of error', async function () {
+      bridge = new LedgerIframeBridge();
+      const appendChildSpy = jest
+        .spyOn(document.head, 'appendChild')
+        .mockImplementation((child) => {
+          (child as HTMLIFrameElement).onerror?.(new Event('error'));
+          return {} as Node;
+        });
+
+      await bridge.init();
+
+      expect(bridge.iframe).toBeUndefined();
+      expect(appendChildSpy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -210,6 +259,36 @@ describe('LedgerIframeBridge', function () {
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
+    });
+
+    it('reattempts the iframe initialization if it is not loaded', async function () {
+      bridge = new LedgerIframeBridge({ bridgeUrl: BRIDGE_URL });
+      const appendChildSpy = jest
+        .spyOn(document.head, 'appendChild')
+        .mockImplementation((child) => {
+          stubKeyringIFramePostMessage(bridge, (message) => {
+            expect(message).toStrictEqual({
+              action: IFrameMessageAction.LedgerMakeApp,
+              messageId: 1,
+              target: LEDGER_IFRAME_ID,
+            });
+
+            bridge.messageCallbacks[message.messageId]?.({
+              action: IFrameMessageAction.LedgerMakeApp,
+              messageId: 1,
+              success: true,
+            });
+          });
+          (child as HTMLIFrameElement).onload?.(new Event('load'));
+          return {} as Node;
+        });
+
+      const result = await bridge.attemptMakeApp();
+
+      expect(result).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
+      expect(appendChildSpy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -429,6 +508,40 @@ describe('LedgerIframeBridge', function () {
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
+    });
+
+    it('reattempts the iframe initialization if it is not loaded', async function () {
+      bridge = new LedgerIframeBridge({ bridgeUrl: BRIDGE_URL });
+      const payload = {
+        v: '',
+        r: '',
+        s: '',
+      };
+      const params = { hdPath: "m/44'/60'/0'/0", tx: '' };
+      const appendChildSpy = jest
+        .spyOn(document.head, 'appendChild')
+        .mockImplementation((child) => {
+          stubKeyringIFramePostMessage(bridge, (message) => {
+            expect(message).toStrictEqual({
+              action: IFrameMessageAction.LedgerSignTransaction,
+              messageId: 1,
+              target: LEDGER_IFRAME_ID,
+              params,
+            });
+            bridge.messageCallbacks[message.messageId]?.({
+              action: IFrameMessageAction.LedgerSignTransaction,
+              messageId: 1,
+              success: true,
+              payload,
+            });
+          });
+          (child as HTMLIFrameElement).onload?.(new Event('load'));
+          return {} as Node;
+        });
+
+      await bridge.deviceSignTransaction(params);
+
+      expect(appendChildSpy).toHaveBeenCalledTimes(1);
     });
   });
 
