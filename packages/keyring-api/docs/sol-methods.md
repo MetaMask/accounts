@@ -189,7 +189,7 @@ It signs the base64 encoded message, **NOT** the original message, meaning that 
     "account": {
       "address": "GM4iccdbdSF1qN3Bqmdksfk7iuxYhWzC8T3XbizStAdE"
     },
-    "message": "SGVsbG8sIHdvcmxkIQ==", // "Hello, world!" in base64
+    "message": "SGVsbG8sIHdvcmxkIQ==" // "Hello, world!" in base64
   }
 }
 ```
@@ -198,8 +198,7 @@ It signs the base64 encoded message, **NOT** the original message, meaning that 
 
 ```json
 {
-   "signature":
-    "2n1rfebBmxvRd6MMdDdV5V9Hyy34FRBgVc6EFGjH78fNUW2Fz6RgkMwpHwLGFVQS2BBDkHV38FuKdavSF2GTo5gq",
+  "signature": "2n1rfebBmxvRd6MMdDdV5V9Hyy34FRBgVc6EFGjH78fNUW2Fz6RgkMwpHwLGFVQS2BBDkHV38FuKdavSF2GTo5gq",
   "signedMessage": "SGVsbG8sIHdvcmxkIQ==", // "Hello, world!" in base64
   "signatureType": "ed25519"
 }
@@ -290,7 +289,7 @@ Signature verification must be done against the JSON.
     "uri": "https://example.com",
     "version": "1",
     "chainId": "solana:101",
-    "nonce": "123",
+    "nonce": "123"
   }
 }
 ```
@@ -302,10 +301,8 @@ Signature verification must be done against the JSON.
   "account": {
     "address": "27h6cm6S9ag5y4ASi1a1vbTSKEsQMjEdfvZ6atPjmbuD"
   },
-  "signedMessage":
-    "eyJhZGRyZXNzIjoiMjdoNmNtNlM5YWc1eTRBU2kxYTF2YlRTS0VzUU1qRWRmdlo2YXRQam1idUQiLCJkb21haW4iOiJleGFtcGxlLmNvbSIsInN0YXRlbWVudCI6IkkgYWNjZXB0IHRoZSB0ZXJtcyBvZiBzZXJ2aWNlIiwidXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbSIsInZlcnNpb24iOiIxIiwiY2hhaW5JZCI6InNvbGFuYToxMDEiLCJub25jZSI6IjEyMyJ9",
-  "signature":
-    "3WiRaNnVAbrYWd4MT7rkq8oBC52HrbLZDst1K2ErAUiXswJu9aBZUMgKZpm581VV8Df6BDmgYGLRP7GcWE8mxMD9",
+  "signedMessage": "eyJhZGRyZXNzIjoiMjdoNmNtNlM5YWc1eTRBU2kxYTF2YlRTS0VzUU1qRWRmdlo2YXRQam1idUQiLCJkb21haW4iOiJleGFtcGxlLmNvbSIsInN0YXRlbWVudCI6IkkgYWNjZXB0IHRoZSB0ZXJtcyBvZiBzZXJ2aWNlIiwidXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbSIsInZlcnNpb24iOiIxIiwiY2hhaW5JZCI6InNvbGFuYToxMDEiLCJub25jZSI6IjEyMyJ9",
+  "signature": "3WiRaNnVAbrYWd4MT7rkq8oBC52HrbLZDst1K2ErAUiXswJu9aBZUMgKZpm581VV8Df6BDmgYGLRP7GcWE8mxMD9",
   "signatureType": "ed25519"
 }
 ```
