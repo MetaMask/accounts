@@ -121,9 +121,9 @@ Signs a transaction to the Solana blockchain.
   "method": "signTransaction",
   "params": {
     "account": {
-      "address": "GM4iccdbdSF1qN3Bqmdksfk7iuxYhWzC8T3XbizStAdE"
+      "address": "FDUGdV6bjhvw5gbirXCvqbTSWK9999kcrZcrHoCQzXJK"
     },
-    "transaction": "MTIzNDU2Nzg5MDIzMzQzNDM1NDM=",
+    "transaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQACBJmwAo+dnq8yhuKR7QpXgj+5yPFMzVwViEudWE9Z+N903bOu6UdCGJS9VyhRo8wvswWSAO709XY+51AU1MALO6wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAdazMubIOjxUiTY/+xWYNSffhgTb7vd9LWQ0sI2iMMSoCAwAFAiwBAAACAgABDAIAAABAQg8AAAAAAAA=",
     "scope": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
     "options": {
       "preflightCommitment": "confirmed",
@@ -137,7 +137,7 @@ Signs a transaction to the Solana blockchain.
 
 ```json
 {
-  "signedTransaction": "MTIzNDU2Nzg5MDIzMzQzNDM1NDM2NDU2NTM0"
+  "signedTransaction": "AchmhyZwTxtSzYoT9A89g0ttVuYx9yDzk8Ykw35yM2XuGwzv/8qwg8My2yAWI1Ai3PGMN1VioGZFl4LDIEtDKw6AAQACBJmwAo+dnq8yhuKR7QpXgj+5yPFMzVwViEudWE9Z+N903bOu6UdCGJS9VyhRo8wvswWSAO709XY+51AU1MALO6wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAdazMubIOjxUiTY/+xWYNSffhgTb7vd9LWQ0sI2iMMSoCAwAFAiwBAAACAgABDAIAAABAQg8AAAAAAAA="
 }
 ```
 
