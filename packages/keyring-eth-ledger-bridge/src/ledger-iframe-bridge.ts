@@ -341,32 +341,23 @@ export class LedgerIframeBridge
   }
 
   async #setupIframe(bridgeUrl: string): Promise<void> {
-    const timeout = new Promise((_, reject) => {
-      setTimeout(() => {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
         reject(new Error('Bridge initialization timed out'));
       }, IFRAME_INIT_TIMEOUT);
-    });
 
-    const initIframe = new Promise<void>((resolve, reject) => {
       this.iframe = document.createElement('iframe');
       this.iframe.src = bridgeUrl;
       this.iframe.allow = `hid 'src'`;
+
       this.iframe.onload = async (): Promise<void> => {
+        clearTimeout(timeout);
         this.iframeLoaded = true;
         resolve();
       };
-      this.iframe.onerror = (): void => {
-        if (this.iframe) {
-          document.head.removeChild(this.iframe);
-          this.iframe = undefined;
-        }
-        this.iframeLoaded = false;
-        reject(new Error('Failed to load iframe'));
-      };
+
       document.head.appendChild(this.iframe);
     });
-
-    await Promise.race([initIframe, timeout]);
   }
 
   #getOrigin(bridgeUrl: string): string {

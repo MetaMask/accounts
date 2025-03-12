@@ -160,21 +160,6 @@ describe('LedgerIframeBridge', function () {
       expect(promise1).toStrictEqual(promise2);
       expect(appendChildSpy).toHaveBeenCalledTimes(1);
     });
-
-    it('removes the uninitialized iframe from the page in case of error', async function () {
-      bridge = new LedgerIframeBridge();
-      const appendChildSpy = jest
-        .spyOn(document.head, 'appendChild')
-        .mockImplementation((child) => {
-          (child as HTMLIFrameElement).onerror?.(new Event('error'));
-          return {} as Node;
-        });
-
-      await bridge.init();
-
-      expect(bridge.iframe).toBeUndefined();
-      expect(appendChildSpy).toHaveBeenCalledTimes(1);
-    });
   });
 
   describe('destroy', function () {

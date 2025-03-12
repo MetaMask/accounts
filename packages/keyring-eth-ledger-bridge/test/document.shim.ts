@@ -13,7 +13,6 @@ const shim = {
     appendChild: (child: { onload?: () => void }): void => {
       child.onload?.();
     },
-    removeChild: (): boolean => false,
   },
   createElement: (): Element => ({
     src: false,
