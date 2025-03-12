@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(keyring-eth-hd): store mnemonic seed in `HdKeyring` class ([#244](https://github.com/MetaMask/accounts/pull/244))
+
 ## [12.0.0]
 
 ### Changed
