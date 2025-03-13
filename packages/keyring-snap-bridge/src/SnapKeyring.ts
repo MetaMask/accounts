@@ -28,9 +28,6 @@ import type {
   EthUserOperationPatch,
   ResolvedAccountAddress,
   CaipChainId,
-  AccountBalancesUpdatedEvent,
-  AccountTransactionsUpdatedEvent,
-  AccountAssetListUpdatedEvent,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
@@ -118,6 +115,13 @@ export type SnapKeyringCallbacks = {
 
   redirectUser(snapId: SnapId, url: string, message: string): Promise<void>;
 };
+
+/**
+ * Callback type to filter unknown account ID from a mapping account ID mapping.
+ */
+type FilterAccountIdFunction = <Entry>(
+  accountMapping: Record<AccountId, Entry>,
+) => Record<AccountId, Entry>;
 
 /**
  * Normalize account's address.
@@ -415,49 +419,45 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Re-publish an account event.
    *
+   * @param snapId - Snap ID.
    * @param event - The event type. This is a unique identifier for this event.
-   * @param payload - The event payload. The type of the parameters for each event handler must
-   * match the type of this payload.
+   * @param filteredEventCallback - A callback that returns the event to re-publish. This callback takes a filtering
+   * function as parameter that can be used to filter out account ID that do not belong to this Snap ID.
    * @template EventType - A Snap keyring event type.
    * @returns `null`.
    */
   async #rePublishAccountEvent<EventType extends SnapKeyringEvents['type']>(
-    event: EventType,
-    ...payload: ExtractEventPayload<SnapKeyringEvents, EventType>
-  ): Promise<null> {
-    this.#messenger.publish(event, ...payload);
-    return null;
-  }
-
-  /**
-   * Filter an event payload and check if referenced account ID belongs to this Snap. If not, they
-   * will be filtered out.
-   *
-   * @param snapId - ID of the Snap.
-   * @param eventName - The keyring event (used for logging).
-   * @param eventEntries - Event entries.
-   * @returns A filter event payload.
-   */
-  #filterAccountEventEntries<EventEntry>(
     snapId: SnapId,
-    eventName: string,
-    eventEntries: Record<AccountId, EventEntry>,
-  ): Record<AccountId, EventEntry> {
-    const entries: Record<AccountId, EventEntry> = {};
+    event: EventType,
+    filteredEventCallback: (
+      filter: FilterAccountIdFunction,
+    ) => ExtractEventPayload<SnapKeyringEvents, EventType>,
+  ): Promise<null> {
+    // This callback can be used to filter out the accounts that no longer exists on the Snap (fail-safe) or to
+    // prevent other Snaps from updating accounts they do not own.
+    const filter: FilterAccountIdFunction = <Entry>(
+      accountMapping: Record<AccountId, Entry>,
+    ): Record<AccountId, Entry> => {
+      return Object.entries(accountMapping).reduce<Record<AccountId, Entry>>(
+        (filtered, [accountId, entry]) => {
+          if (this.#accounts.has(snapId, accountId)) {
+            // If the Snap owns this account, we can use it.
+            filtered[accountId] = entry;
+          } else {
+            // Otherwise, we just filter it out and log it (for debugging/tracking purposes).
+            console.warn(
+              `SnapKeyring - ${event} - Found an unknown account ID "${accountId}" for Snap ID "${snapId}". Skipping.`,
+            );
+          }
 
-    for (const [accountId, entry] of Object.entries(eventEntries)) {
-      const account = this.#accounts.get(snapId, accountId);
+          return filtered;
+        },
+        {},
+      );
+    };
 
-      if (account) {
-        entries[accountId] = entry;
-      } else {
-        console.warn(
-          `SnapKeyring - ${eventName} - Found an unknown account ID "${accountId}" for Snap ID "${snapId}". Skipping.`,
-        );
-      }
-    }
-
-    return entries;
+    this.#messenger.publish(event, ...filteredEventCallback(filter));
+    return null;
   }
 
   /**
@@ -473,19 +473,14 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<null> {
     assert(message, AccountBalancesUpdatedEventStruct);
 
-    const { method: eventName, params: eventData } = message;
-    const event: AccountBalancesUpdatedEvent['params'] = {
-      ...eventData,
-      balances: this.#filterAccountEventEntries(
-        snapId,
-        eventName,
-        eventData.balances,
-      ),
-    };
-
+    const event = message.params;
     return this.#rePublishAccountEvent(
+      snapId,
       'SnapKeyring:accountBalancesUpdated',
-      event,
+      (filter) => {
+        event.balances = filter(event.balances);
+        return [event];
+      },
     );
   }
 
@@ -502,19 +497,14 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<null> {
     assert(message, AccountAssetListUpdatedEventStruct);
 
-    const { method: eventName, params: eventData } = message;
-    const event: AccountAssetListUpdatedEvent['params'] = {
-      ...eventData,
-      assets: this.#filterAccountEventEntries(
-        snapId,
-        eventName,
-        eventData.assets,
-      ),
-    };
-
+    const event = message.params;
     return this.#rePublishAccountEvent(
+      snapId,
       'SnapKeyring:accountAssetListUpdated',
-      event,
+      (filter) => {
+        event.assets = filter(event.assets);
+        return [event];
+      },
     );
   }
 
@@ -531,19 +521,14 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<null> {
     assert(message, AccountTransactionsUpdatedEventStruct);
 
-    const { method: eventName, params: eventData } = message;
-    const event: AccountTransactionsUpdatedEvent['params'] = {
-      ...eventData,
-      transactions: this.#filterAccountEventEntries(
-        snapId,
-        eventName,
-        eventData.transactions,
-      ),
-    };
-
+    const event = message.params;
     return this.#rePublishAccountEvent(
+      snapId,
       'SnapKeyring:accountTransactionsUpdated',
-      event,
+      (filter) => {
+        event.transactions = filter(event.transactions);
+        return [event];
+      },
     );
   }
 

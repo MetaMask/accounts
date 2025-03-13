@@ -579,7 +579,7 @@ describe('SnapKeyring', () => {
         });
         expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
         expect(consoleSpy).toHaveBeenCalledWith(
-          `SnapKeyring - ${KeyringEvent.AccountBalancesUpdated} - Found an unknown account ID "${unknownAccount.id}" for Snap ID "${snapId}". Skipping.`,
+          `SnapKeyring - SnapKeyring:accountBalancesUpdated - Found an unknown account ID "${unknownAccount.id}" for Snap ID "${snapId}". Skipping.`,
         );
       });
 
@@ -697,7 +697,7 @@ describe('SnapKeyring', () => {
         });
         expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
         expect(consoleSpy).toHaveBeenCalledWith(
-          `SnapKeyring - ${KeyringEvent.AccountTransactionsUpdated} - Found an unknown account ID "${unknownAccount.id}" for Snap ID "${snapId}". Skipping.`,
+          `SnapKeyring - SnapKeyring:accountTransactionsUpdated - Found an unknown account ID "${unknownAccount.id}" for Snap ID "${snapId}". Skipping.`,
         );
       });
 
@@ -757,7 +757,7 @@ describe('SnapKeyring', () => {
         });
         expect(mockPublishedEventCallback).toHaveBeenCalledWith(event);
         expect(consoleSpy).toHaveBeenCalledWith(
-          `SnapKeyring - ${KeyringEvent.AccountAssetListUpdated} - Found an unknown account ID "${unknownAccount.id}" for Snap ID "${snapId}". Skipping.`,
+          `SnapKeyring - SnapKeyring:accountAssetListUpdated - Found an unknown account ID "${unknownAccount.id}" for Snap ID "${snapId}". Skipping.`,
         );
       });
 
