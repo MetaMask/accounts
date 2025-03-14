@@ -1,3 +1,5 @@
+import { createDeferredPromise, DeferredPromise } from '@metamask/utils';
+
 import {
   GetPublicKeyParams,
   GetPublicKeyResponse,
@@ -9,8 +11,11 @@ import {
   LedgerSignTypedDataParams,
   LedgerSignTypedDataResponse,
 } from './ledger-bridge';
+import { projectLogger as log } from './logger';
 
 const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
+
+export const IFRAME_INIT_TIMEOUT = 4000;
 
 export enum IFrameMessageAction {
   LedgerConnectionChange = 'ledger-connection-change',
@@ -110,6 +115,8 @@ export class LedgerIframeBridge
   messageCallbacks: Record<number, (response: IFrameMessageResponse) => void> =
     {};
 
+  #iframeInitPromise?: DeferredPromise;
+
   constructor(
     opts: LedgerIframeBridgeOptions = {
       bridgeUrl: 'https://metamask.github.io/eth-ledger-bridge-keyring',
@@ -121,12 +128,21 @@ export class LedgerIframeBridge
     };
   }
 
+  /**
+   * Attempts the initialization of the LedgerIframeBridge instance.
+   *
+   * If the iframe fails to load within the timeout, the initialization
+   * will fail gracefully and will be reattempted later on when the iframe
+   * is needed for communication with the device.
+   *
+   * @returns A promise that resolves when the initialization attempt is complete.
+   */
   async init(): Promise<void> {
-    await this.#setupIframe(this.#opts.bridgeUrl);
-
-    this.eventListener = this.#eventListener.bind(this, this.#opts.bridgeUrl);
-
-    window.addEventListener('message', this.eventListener);
+    try {
+      await this.#init();
+    } catch (error) {
+      log('Failed to initialize LedgerIframeBridge', error);
+    }
   }
 
   async destroy(): Promise<void> {
@@ -149,6 +165,11 @@ export class LedgerIframeBridge
   }
 
   async attemptMakeApp(): Promise<boolean> {
+    // If the iframe isn't loaded yet, the initialization is reattempted
+    if (!this.#isInitialized()) {
+      await this.#init();
+    }
+
     return new Promise((resolve, reject) => {
       this.#sendMessage(
         {
@@ -169,13 +190,12 @@ export class LedgerIframeBridge
   }
 
   async updateTransportMethod(transportType: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      // If the iframe isn't loaded yet, let's store the desired transportType value and
-      // optimistically return a successful promise
-      if (!this.iframeLoaded) {
-        throw new Error('The iframe is not loaded yet');
-      }
+    // If the iframe isn't loaded yet, the initialization is reattempted
+    if (!this.#isInitialized()) {
+      await this.#init();
+    }
 
+    return new Promise((resolve, reject) => {
       this.#sendMessage(
         {
           action: IFrameMessageAction.LedgerUpdateTransport,
@@ -256,6 +276,11 @@ export class LedgerIframeBridge
     | LedgerSignMessageResponse
     | LedgerSignTypedDataResponse
   > {
+    // If the iframe isn't loaded yet, the initialization is reattempted
+    if (!this.#isInitialized()) {
+      await this.#init();
+    }
+
     return new Promise((resolve, reject) => {
       this.#sendMessage(
         {
@@ -277,15 +302,60 @@ export class LedgerIframeBridge
     });
   }
 
+  /**
+   * Returns whether the iframe is initialized and ready
+   * to receive messages
+   *
+   * @returns Whether the iframe is initialized
+   */
+  #isInitialized(): boolean {
+    return this.iframeLoaded && this.iframe !== undefined;
+  }
+
+  /**
+   * Initializes the iframe that will be used to communicate with the Ledger device
+   */
+  async #init(): Promise<void> {
+    if (this.#iframeInitPromise) {
+      // if the iframe is already being initialized, we return the promise
+      // to avoid multiple initialization attempts
+      await this.#iframeInitPromise.promise;
+      return;
+    }
+
+    this.#iframeInitPromise = createDeferredPromise({
+      suppressUnhandledRejection: true,
+    });
+
+    try {
+      await this.#setupIframe(this.#opts.bridgeUrl);
+      this.eventListener = this.#eventListener.bind(this, this.#opts.bridgeUrl);
+      window.addEventListener('message', this.eventListener);
+      this.#iframeInitPromise.resolve();
+    } catch (error) {
+      this.#iframeInitPromise.reject(error);
+      throw error;
+    } finally {
+      this.#iframeInitPromise = undefined;
+    }
+  }
+
   async #setupIframe(bridgeUrl: string): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Bridge initialization timed out'));
+      }, IFRAME_INIT_TIMEOUT);
+
       this.iframe = document.createElement('iframe');
       this.iframe.src = bridgeUrl;
       this.iframe.allow = `hid 'src'`;
+
       this.iframe.onload = async (): Promise<void> => {
+        clearTimeout(timeout);
         this.iframeLoaded = true;
         resolve();
       };
+
       document.head.appendChild(this.iframe);
     });
   }
