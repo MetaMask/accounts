@@ -206,7 +206,7 @@ It signs the base64 encoded message, **NOT** the original message, meaning that 
 
 ## [signIn](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signIn.ts#L4)
 
-Signs in to the Solana blockchain. Receives a sign in intent object that contains data like domain, or uri, then converts it into a message using `JSON.stringify()`, then signs the message.
+Receives a sign in intent object that contains data like domain, or URI, then converts it into a message using `JSON.stringify()`, then signs the message.
 
 Signature verification must be done against the JSON.
 
