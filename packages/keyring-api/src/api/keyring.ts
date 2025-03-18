@@ -9,6 +9,7 @@ import type { ResolvedAccountAddress } from './address';
 import type { Balance } from './balance';
 import type { CaipChainId, CaipAssetType, CaipAssetTypeOrId } from './caip';
 import type { KeyringAccountData } from './export';
+import type { InternalOptions } from './options';
 import type { Paginated, Pagination } from './pagination';
 import type { KeyringRequest } from './request';
 import type { KeyringResponse } from './response';
@@ -47,11 +48,14 @@ export type Keyring = {
    *
    * Creates a new account with optional, keyring-defined, account options.
    *
-   * @param options - Keyring-defined options for the account (optional).
+   * @param options - Keyring-defined options for the account (optional). The
+   * 'metamask' internal options needs to be re-emitted during `notify:*` events.
    * @returns A promise that resolves to the newly created KeyringAccount
    * object without any private information.
    */
-  createAccount(options?: Record<string, Json>): Promise<KeyringAccount>;
+  createAccount(
+    options?: Record<string, Json> & InternalOptions,
+  ): Promise<KeyringAccount>;
 
   /**
    * Lists the assets of an account (fungibles and non-fungibles) represented
