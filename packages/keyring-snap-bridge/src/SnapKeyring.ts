@@ -184,6 +184,7 @@ export class SnapKeyring extends EventEmitter {
   readonly #options: SnapIdMap<{
     options: SnapKeyringInternalOptions;
     snapId: SnapId;
+    // TODO: Add TTL to avoid having too many "leaking" internal options.
   }>;
 
   /**
