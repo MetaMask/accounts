@@ -3,6 +3,9 @@
 
 *                                       @MetaMask/accounts-engineers
 
+# Included for release purposes
+/package.json                           @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
+
 /packages/keyring-eth-hd                @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
 /packages/keyring-eth-ledger-bridge     @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
 /packages/keyring-eth-simple            @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
