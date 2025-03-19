@@ -5,6 +5,7 @@
 
 # Included for release purposes
 /package.json                           @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
+/yarn.lock                              @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
 /README.md                              @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
 
 /packages/keyring-eth-hd                @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
