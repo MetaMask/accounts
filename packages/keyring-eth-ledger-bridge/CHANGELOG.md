@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** The `signTypedData` method now requires `SignTypedDataVersion.V4` as version for the `options` argument ([#224](https://github.com/MetaMask/accounts/pull/224)).
+- **BREAKING:** The `signTypedData` method now requires `SignTypedDataVersion.V4` as version for the `options` argument ([#224](https://github.com/MetaMask/accounts/pull/224))
 
 ## [10.0.0]
 
