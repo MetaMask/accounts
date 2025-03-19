@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [17.2.1]
+
+### Changed
+
+- Add missing `Transaction.status` for `'swap'` ([#229](https://github.com/MetaMask/accounts/pull/229))
+
+## [17.2.0]
+
+### Added
+
+- Add `swap` transaction type ([#218](https://github.com/MetaMask/accounts/pull/218))
+
+### Changed
+
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+
+## [17.1.0]
+
+### Added
+
+- Add new `SolMethod.Sign{AndSendTransaction,Transaction,Message,In}` methods ([#191](https://github.com/MetaMask/accounts/pull/191))
+
+### Changed
+
+- Deprecates `SolMethod.SendAndConfirmTransaction` method ([#191](https://github.com/MetaMask/accounts/pull/191))
+
 ## [17.0.0]
 
 ### Added
@@ -519,7 +546,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.1...HEAD
+[17.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.0...@metamask/keyring-api@17.2.1
+[17.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.1.0...@metamask/keyring-api@17.2.0
+[17.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.0.0...@metamask/keyring-api@17.1.0
 [17.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@16.1.0...@metamask/keyring-api@17.0.0
 [16.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@16.0.0...@metamask/keyring-api@16.1.0
 [16.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@15.0.0...@metamask/keyring-api@16.0.0

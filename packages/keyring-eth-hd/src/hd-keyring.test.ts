@@ -1,11 +1,9 @@
-import { TransactionFactory, Transaction as EthereumTx } from '@ethereumjs/tx';
 import {
-  isValidAddress,
-  bufferToHex,
-  toBuffer,
-  ecrecover,
-  pubToAddress,
-} from '@ethereumjs/util';
+  TransactionFactory,
+  LegacyTransaction,
+  type TypedTxData,
+} from '@ethereumjs/tx';
+import { isValidAddress, ecrecover, pubToAddress } from '@ethereumjs/util';
 import * as oldMMForkBIP39 from '@metamask/bip39';
 import {
   normalize,
@@ -21,15 +19,17 @@ import {
   type MessageTypes,
   type EIP7702Authorization,
 } from '@metamask/eth-sig-util';
+import { mnemonicPhraseToBytes } from '@metamask/key-tree';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
-import { assert, type Hex } from '@metamask/utils';
+import { assert, bytesToHex, hexToBytes, type Hex } from '@metamask/utils';
 import { webcrypto } from 'crypto';
+// eslint-disable-next-line n/no-sync
+import { mnemonicToSeedSync } from 'ethereum-cryptography/bip39';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import OldHdKeyring from 'old-hd-keyring';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-import HdKeyring from '../src';
+import { HdKeyring } from '.';
 
 // Sample account:
 const privKeyHex =
@@ -39,6 +39,10 @@ const sampleMnemonic =
   'finish oppose decorate face calm tragic certain desk hour urge dinosaur mango';
 const firstAcct = '0x1c96099350f13d558464ec79b9be4445aa0ef579';
 const secondAcct = '0x1b00aed43a693f3a957f9feb5cc08afa031e37a0';
+
+const sampleMnemonicBytes = mnemonicPhraseToBytes(sampleMnemonic);
+// eslint-disable-next-line n/no-sync
+const sampleMnemonicSeed = mnemonicToSeedSync(sampleMnemonic);
 
 const notKeyringAddress = '0xbD20F6F5F1616947a39E11926E78ec94817B3931';
 
@@ -50,33 +54,40 @@ const getAddressAtIndex = (keyring: HdKeyring, index: number): Hex => {
 
 describe('hd-keyring', () => {
   describe('compare old bip39 implementation with new', () => {
-    it('should derive the same accounts from the same mnemonics', async () => {
-      const mnemonics: Buffer[] = [];
-      for (let i = 0; i < 99; i++) {
-        mnemonics.push(oldMMForkBIP39.generateMnemonic());
-      }
+    // NOTE: This test sometimes exceed the default 2s timeout on the CI, making this test
+    // a bit flaky. We just increase its timeout value to avoid the flakiness.
+    const timeout = 3000;
+    it(
+      'should derive the same accounts from the same mnemonics',
+      async () => {
+        const mnemonics: Buffer[] = [];
+        for (let i = 0; i < 99; i++) {
+          mnemonics.push(oldMMForkBIP39.generateMnemonic());
+        }
 
-      await Promise.all(
-        mnemonics.map(async (mnemonic) => {
-          const newHDKeyring = new HdKeyring();
-          await newHDKeyring.deserialize({
-            mnemonic,
-            numberOfAccounts: 3,
-          });
-          const oldHDKeyring = new OldHdKeyring({
-            mnemonic,
-            numberOfAccounts: 3,
-          });
-          const newAccounts = newHDKeyring.getAccounts();
-          const oldAccounts = await oldHDKeyring.getAccounts();
-          expect(newAccounts[0]).toStrictEqual(oldAccounts[0]);
+        await Promise.all(
+          mnemonics.map(async (mnemonic) => {
+            const newHDKeyring = new HdKeyring();
+            await newHDKeyring.deserialize({
+              mnemonic,
+              numberOfAccounts: 3,
+            });
+            const oldHDKeyring = new OldHdKeyring({
+              mnemonic,
+              numberOfAccounts: 3,
+            });
+            const newAccounts = newHDKeyring.getAccounts();
+            const oldAccounts = await oldHDKeyring.getAccounts();
+            expect(newAccounts[0]).toStrictEqual(oldAccounts[0]);
 
-          expect(newAccounts[1]).toStrictEqual(oldAccounts[1]);
+            expect(newAccounts[1]).toStrictEqual(oldAccounts[1]);
 
-          expect(newAccounts[2]).toStrictEqual(oldAccounts[2]);
-        }),
-      );
-    });
+            expect(newAccounts[2]).toStrictEqual(oldAccounts[2]);
+          }),
+        );
+      },
+      timeout,
+    );
   });
 
   describe('re-initialization protection', () => {
@@ -171,6 +182,8 @@ describe('hd-keyring', () => {
       const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
+      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
+      expect(keyring.seed).toStrictEqual(sampleMnemonicSeed);
     });
 
     it('deserializes with a typeof buffer mnemonic', async () => {
@@ -184,6 +197,8 @@ describe('hd-keyring', () => {
       const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
+      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
+      expect(keyring.seed).toStrictEqual(sampleMnemonicSeed);
     });
 
     it('deserializes with a typeof Uint8Array mnemonic', async () => {
@@ -203,6 +218,8 @@ describe('hd-keyring', () => {
       const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
+      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
+      expect(keyring.seed).toStrictEqual(sampleMnemonicSeed);
     });
 
     it('deserializes using custom cryptography', async () => {
@@ -247,6 +264,8 @@ describe('hd-keyring', () => {
       const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
+      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
+      expect(keyring.seed).toStrictEqual(sampleMnemonicSeed);
       expect(cryptographicFunctions.pbkdf2Sha512).toHaveBeenCalledTimes(1);
     });
 
@@ -636,7 +655,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
       });
       const localMessage = 'hello there!';
-      const msgHashHex = bufferToHex(
+      const msgHashHex = bytesToHex(
         Buffer.from(keccak256(Buffer.from(localMessage))),
       );
       await keyring.addAccounts(9);
@@ -649,12 +668,12 @@ describe('hd-keyring', () => {
       signatures.forEach((sgn, index) => {
         const accountAddress = addresses[index];
 
-        const signatureR = toBuffer(sgn.slice(0, 66));
-        const signatureS = toBuffer(`0x${sgn.slice(66, 130)}`);
+        const signatureR = hexToBytes(sgn.slice(0, 66));
+        const signatureS = hexToBytes(`0x${sgn.slice(66, 130)}`);
         const signatureV = BigInt(`0x${sgn.slice(130, 132)}`);
-        const messageHash = toBuffer(msgHashHex);
+        const messageHash = hexToBytes(msgHashHex);
         const pub = ecrecover(messageHash, signatureV, signatureR, signatureS);
-        const adr = `0x${pubToAddress(pub).toString('hex')}`;
+        const adr = bytesToHex(pubToAddress(pub));
 
         expect(adr).toBe(accountAddress);
       });
@@ -1049,8 +1068,7 @@ describe('hd-keyring', () => {
       });
     });
 
-    const txParams = {
-      from: firstAcct,
+    const txParams: TypedTxData = {
       nonce: '0x00',
       gasPrice: '0x09184e72a000',
       gasLimit: '0x2710',
@@ -1059,7 +1077,7 @@ describe('hd-keyring', () => {
     };
 
     it('returns a signed legacy tx object', async function () {
-      const tx = new EthereumTx(txParams);
+      const tx = LegacyTransaction.fromTxData(txParams);
       expect(tx.isSigned()).toBe(false);
 
       const signed = await keyring.signTransaction(firstAcct, tx);

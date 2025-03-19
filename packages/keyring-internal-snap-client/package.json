@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-internal-snap-client",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "MetaMask Keyring Snap internal clients",
   "keywords": [
     "metamask",
@@ -58,7 +58,7 @@
     "@metamask/snaps-sdk": "^6.16.0",
     "@metamask/snaps-utils": "^8.9.1",
     "@metamask/utils": "^11.1.0",
-    "@ts-bridge/cli": "^0.6.1",
+    "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
     "deepmerge": "^4.2.2",

@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-snap-sdk",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "MetaMask Keyring Snap SDK",
   "keywords": [
     "metamask",
@@ -57,7 +57,7 @@
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/providers": "^19.0.0",
-    "@ts-bridge/cli": "^0.6.1",
+    "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
     "deepmerge": "^4.2.2",

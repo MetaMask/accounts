@@ -31,12 +31,12 @@ import type {
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
-import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
-import type { Json } from '@metamask/utils';
+import type { Hex, Json } from '@metamask/utils';
 import {
   bigIntToHex,
   KnownCaipNamespace,
@@ -101,8 +101,10 @@ export type SnapKeyringCallbacks = {
     address: string,
     snapId: SnapId,
     handleUserInput: (accepted: boolean) => Promise<void>,
+    onceSaved: Promise<AccountId>,
     accountNameSuggestion?: string,
     displayConfirmation?: boolean,
+    displayAccountNameSuggestion?: boolean,
   ): Promise<void>;
 
   removeAccount(
@@ -113,6 +115,13 @@ export type SnapKeyringCallbacks = {
 
   redirectUser(snapId: SnapId, url: string, message: string): Promise<void>;
 };
+
+/**
+ * Callback type to filter unknown account ID from a mapping account ID mapping.
+ */
+type FilterAccountIdFunction = <Entry>(
+  accountMapping: Record<AccountId, Entry>,
+) => Record<AccountId, Entry>;
 
 /**
  * Normalize account's address.
@@ -205,7 +214,13 @@ export class SnapKeyring extends EventEmitter {
       account: newAccountFromEvent,
       accountNameSuggestion,
       displayConfirmation,
+      displayAccountNameSuggestion,
     } = message.params;
+
+    // READ THIS CAREFULLY:
+    // ------------------------------------------------------------------------
+    // The account creation flow is now asynchronous. We expect the Snap to
+    // first create the account data and then fire the "AccountCreated" event.
 
     // Potentially migrate the account.
     const account = transformAccount(newAccountFromEvent);
@@ -224,18 +239,66 @@ export class SnapKeyring extends EventEmitter {
       throw new Error(`Account '${account.id}' already exists`);
     }
 
+    // A deferred promise that will be resolved once the Snap keyring has saved
+    // its internal state.
+    // This part of the flow is run asynchronously, so we have no other way of
+    // letting the MetaMask client that this "save" has been run.
+    // NOTE: Another way of fixing that could be to rely on events through the
+    // messenger maybe?
+    const onceSaved = new DeferredPromise<AccountId>();
+
+    // Add the account to the keyring, but wait for the MetaMask client to
+    // approve the account creation first.
     await this.#callbacks.addAccount(
       address,
       snapId,
+      // This callback is passed to the MetaMask client, it will be called whenever
+      // the end user will accept or not the account creation.
       async (accepted: boolean) => {
         if (accepted) {
+          // We consider the account to be created on the Snap keyring only if
+          // the user accepted it. Meaning that the Snap MIGHT HAVE created the
+          // account on its own state, but the Snap keyring MIGHT NOT HAVE it yet.
+          //
+          // e.g The account creation dialog crashed on MetaMask, this callback
+          // will never be called, but the Snap still has the account.
           this.#accounts.set(account.id, { account, snapId });
-          await this.#callbacks.saveState();
+
+          // This is the "true async part". We do not `await` for this call, mainly
+          // because this callback will persist the account on the client side
+          // (through the `AccountsController`).
+          //
+          // Since this will happen after the Snap account creation and Snap
+          // event, if anything goes wrong, we will delete the account by
+          // calling `deleteAccount` on the Snap.
+          // eslint-disable-next-line no-void
+          void this.#callbacks
+            .saveState()
+            .then(() => {
+              // This allows the MetaMask client to be "notified" when then
+              // Snap keyring has truly persisted its state. From there, we should
+              // be able to use the account (e.g. to display account creation
+              // confirmation dialogs).
+              onceSaved.resolve(account.id);
+            })
+            .catch(async (error) => {
+              // FIXME: There's a potential race condition here, if the Snap did
+              // not persist the account yet (this should mostly be for older Snaps).
+              await this.#deleteAccount(snapId, account);
+
+              // This allows the MetaMask client to be "notified" that something went
+              // wrong with the Snap keyring. (e.g. useful to display account creation
+              // error dialogs).
+              onceSaved.reject(error);
+            });
         }
       },
+      onceSaved.promise,
       accountNameSuggestion,
       displayConfirmation,
+      displayAccountNameSuggestion,
     );
+
     return null;
   }
 
@@ -356,59 +419,116 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Re-publish an account event.
    *
+   * @param snapId - Snap ID.
    * @param event - The event type. This is a unique identifier for this event.
-   * @param payload - The event payload. The type of the parameters for each event handler must
-   * match the type of this payload.
+   * @param filteredEventCallback - A callback that returns the event to re-publish. This callback takes a filtering
+   * function as parameter that can be used to filter out account ID that do not belong to this Snap ID.
    * @template EventType - A Snap keyring event type.
    * @returns `null`.
    */
   async #rePublishAccountEvent<EventType extends SnapKeyringEvents['type']>(
+    snapId: SnapId,
     event: EventType,
-    ...payload: ExtractEventPayload<SnapKeyringEvents, EventType>
+    filteredEventCallback: (
+      filter: FilterAccountIdFunction,
+    ) => ExtractEventPayload<SnapKeyringEvents, EventType>,
   ): Promise<null> {
-    this.#messenger.publish(event, ...payload);
+    // This callback can be used to filter out the accounts that no longer exists on the Snap (fail-safe) or to
+    // prevent other Snaps from updating accounts they do not own.
+    const filter: FilterAccountIdFunction = <Entry>(
+      accountMapping: Record<AccountId, Entry>,
+    ): Record<AccountId, Entry> => {
+      return Object.entries(accountMapping).reduce<Record<AccountId, Entry>>(
+        (filtered, [accountId, entry]) => {
+          if (this.#accounts.has(snapId, accountId)) {
+            // If the Snap owns this account, we can use it.
+            filtered[accountId] = entry;
+          } else {
+            // Otherwise, we just filter it out and log it (for debugging/tracking purposes).
+            console.warn(
+              `SnapKeyring - ${event} - Found an unknown account ID "${accountId}" for Snap ID "${snapId}". Skipping.`,
+            );
+          }
+
+          return filtered;
+        },
+        {},
+      );
+    };
+
+    this.#messenger.publish(event, ...filteredEventCallback(filter));
     return null;
   }
 
   /**
    * Handle a balances updated event from a Snap.
    *
+   * @param snapId - ID of the Snap.
    * @param message - Event message.
    * @returns `null`.
    */
-  async #handleAccountBalancesUpdated(message: SnapMessage): Promise<null> {
+  async #handleAccountBalancesUpdated(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<null> {
     assert(message, AccountBalancesUpdatedEventStruct);
+
+    const event = message.params;
     return this.#rePublishAccountEvent(
+      snapId,
       'SnapKeyring:accountBalancesUpdated',
-      message.params,
+      (filter) => {
+        event.balances = filter(event.balances);
+        return [event];
+      },
     );
   }
 
   /**
    * Handle a asset list updated event from a Snap.
    *
+   * @param snapId - ID of the Snap.
    * @param message - Event message.
    * @returns `null`.
    */
-  async #handleAccountAssetListUpdated(message: SnapMessage): Promise<null> {
+  async #handleAccountAssetListUpdated(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<null> {
     assert(message, AccountAssetListUpdatedEventStruct);
+
+    const event = message.params;
     return this.#rePublishAccountEvent(
+      snapId,
       'SnapKeyring:accountAssetListUpdated',
-      message.params,
+      (filter) => {
+        event.assets = filter(event.assets);
+        return [event];
+      },
     );
   }
 
   /**
    * Handle a transactions updated event from a Snap.
    *
+   * @param snapId - ID of the Snap.
    * @param message - Event message.
    * @returns `null`.
    */
-  async #handleAccountTransactionsUpdated(message: SnapMessage): Promise<null> {
+  async #handleAccountTransactionsUpdated(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<null> {
     assert(message, AccountTransactionsUpdatedEventStruct);
+
+    const event = message.params;
     return this.#rePublishAccountEvent(
+      snapId,
       'SnapKeyring:accountTransactionsUpdated',
-      message.params,
+      (filter) => {
+        event.transactions = filter(event.transactions);
+        return [event];
+      },
     );
   }
 
@@ -447,15 +567,15 @@ export class SnapKeyring extends EventEmitter {
 
       // Assets related events:
       case `${KeyringEvent.AccountBalancesUpdated}`: {
-        return this.#handleAccountBalancesUpdated(message);
+        return this.#handleAccountBalancesUpdated(snapId, message);
       }
 
       case `${KeyringEvent.AccountAssetListUpdated}`: {
-        return this.#handleAccountAssetListUpdated(message);
+        return this.#handleAccountAssetListUpdated(snapId, message);
       }
 
       case `${KeyringEvent.AccountTransactionsUpdated}`: {
-        return this.#handleAccountTransactionsUpdated(message);
+        return this.#handleAccountTransactionsUpdated(snapId, message);
       }
 
       default:
@@ -907,9 +1027,9 @@ export class SnapKeyring extends EventEmitter {
 
     return TransactionFactory.fromTxData({
       ...(tx as Record<string, Json>),
-      r: signature.r,
-      s: signature.s,
-      v: signature.v,
+      r: signature.r as Hex,
+      s: signature.s as Hex,
+      v: signature.v as Hex,
     });
   }
 
@@ -1095,6 +1215,16 @@ export class SnapKeyring extends EventEmitter {
   async removeAccount(address: string): Promise<void> {
     const { account, snapId } = this.#resolveAddress(address);
 
+    await this.#deleteAccount(snapId, account);
+  }
+
+  /**
+   * Removes an account.
+   *
+   * @param snapId - Snap ID.
+   * @param account - Account to delete.
+   */
+  async #deleteAccount(snapId: SnapId, account: KeyringAccount): Promise<void> {
     // Always remove the account from the maps, even if the Snap is going to
     // fail to delete it.
     this.#accounts.delete(snapId, account.id);
@@ -1106,7 +1236,7 @@ export class SnapKeyring extends EventEmitter {
       // with the account deletion, otherwise the account will be stuck in the
       // keyring.
       console.error(
-        `Account '${address}' may not have been removed from snap '${snapId}':`,
+        `Account '${account.address}' may not have been removed from snap '${snapId}':`,
         error,
       );
     }

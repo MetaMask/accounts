@@ -229,15 +229,15 @@ describe('TrezorKeyring', function () {
     describe('with no arguments', function () {
       it('returns a single account', async function () {
         keyring.setAccountToUnlock(0);
-        const accounts = await keyring.addAccounts();
+        const accounts = await keyring.addAccounts(1);
         expect(accounts).toHaveLength(1);
       });
 
       it('returns the custom accounts desired', async function () {
         keyring.setAccountToUnlock(0);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
         keyring.setAccountToUnlock(2);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
 
         const accounts = await keyring.getAccounts();
         expect(accounts[0]).toBe(fakeAccounts[0]);
@@ -276,7 +276,7 @@ describe('TrezorKeyring', function () {
     describe('if the account exists', function () {
       it('should remove that account', async function () {
         keyring.setAccountToUnlock(0);
-        const accounts = await keyring.addAccounts();
+        const accounts = await keyring.addAccounts(1);
         expect(accounts).toHaveLength(1);
         keyring.removeAccount(fakeAccounts[0]);
         const accountsAfterRemoval = await keyring.getAccounts();
@@ -285,9 +285,9 @@ describe('TrezorKeyring', function () {
 
       it('should remove only the account requested', async function () {
         keyring.setAccountToUnlock(0);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
         keyring.setAccountToUnlock(1);
-        await keyring.addAccounts();
+        await keyring.addAccounts(1);
 
         let accounts = await keyring.getAccounts();
         expect(accounts).toHaveLength(2);
@@ -386,7 +386,7 @@ describe('TrezorKeyring', function () {
     let accounts: string[] = [];
     beforeEach(async function () {
       keyring.setAccountToUnlock(accountIndex);
-      await keyring.addAccounts();
+      await keyring.addAccounts(1);
       accounts = await keyring.getAccounts();
     });
 
@@ -412,7 +412,9 @@ describe('TrezorKeyring', function () {
       sinon.stub(fakeTx, 'verifySignature').callsFake(() => true);
       sinon
         .stub(fakeTx, 'getSenderAddress')
-        .callsFake(() => Address.fromString(fakeAccounts[0]).toBuffer());
+        .callsFake(() =>
+          Buffer.from(Address.fromString(fakeAccounts[0]).bytes),
+        );
 
       const returnedTx = await keyring.signTransaction(fakeAccounts[0], fakeTx);
       // assert that the v,r,s values got assigned to tx.
@@ -533,6 +535,7 @@ describe('TrezorKeyring', function () {
       sinon.assert.calledWithExactly(ethereumSignTransactionStub, {
         path: "m/44'/60'/0'/0/0",
         transaction: {
+          type: '0x2',
           chainId: 1,
           nonce: '0x0',
           maxPriorityFeePerGas: '0x9184e72a000',
@@ -592,7 +595,7 @@ describe('TrezorKeyring', function () {
       let error: unknown = null;
       try {
         await keyring.signTypedData(
-          String(null),
+          fakeAccounts[0],
           {
             types: { EIP712Domain: [], EmptyMessage: [] },
             primaryType: 'EmptyMessage',
@@ -658,27 +661,11 @@ describe('TrezorKeyring', function () {
     });
   });
 
-  describe('exportAccount', function () {
-    it('should throw an error because it is not supported', async function () {
-      let error: unknown = null;
-      try {
-        await keyring.exportAccount();
-      } catch (e) {
-        error = e;
-      }
-
-      expect(error instanceof Error).toBe(true);
-      expect((error as Error).toString()).toBe(
-        'Error: Not supported on this device',
-      );
-    });
-  });
-
   describe('forgetDevice', function () {
     it('should clear the content of the keyring', async function () {
       // Add an account
       keyring.setAccountToUnlock(0);
-      await keyring.addAccounts();
+      await keyring.addAccounts(1);
 
       // Wipe the keyring
       keyring.forgetDevice();
@@ -693,7 +680,7 @@ describe('TrezorKeyring', function () {
   describe('setHdPath', function () {
     const initialProperties = {
       hdPath: `m/44'/60'/0'/0` as const,
-      accounts: ['Account 1'],
+      accounts: [fakeAccounts[0]],
       page: 2,
       perPage: 10,
     };

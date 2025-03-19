@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0]
+
+### Added
+
+- Add UNIX timestamp helpers `getCurrentUnixTimestamp` and `toUnixTimestamp` ([#236](https://github.com/MetaMask/accounts/pull/236))
+
+## [3.0.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^17.0.0` to `^17.2.0` ([#212](https://github.com/MetaMask/accounts/pull/212)), ([#220](https://github.com/MetaMask/accounts/pull/220))
+- Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
+  - This new version fixes a bug regarding some missing exports.
+
 ## [3.0.0]
 
 ### Changed
@@ -56,7 +70,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.1.0...HEAD
+[3.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.0.1...@metamask/keyring-snap-sdk@3.1.0
+[3.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.0.0...@metamask/keyring-snap-sdk@3.0.1
 [3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.1.2...@metamask/keyring-snap-sdk@3.0.0
 [2.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.1.1...@metamask/keyring-snap-sdk@2.1.2
 [2.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.1.0...@metamask/keyring-snap-sdk@2.1.1

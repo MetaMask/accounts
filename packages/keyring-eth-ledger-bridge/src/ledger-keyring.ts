@@ -1,6 +1,10 @@
 import { RLP } from '@ethereumjs/rlp';
-import { TransactionFactory, TxData, TypedTransaction } from '@ethereumjs/tx';
-import * as ethUtil from '@ethereumjs/util';
+import {
+  TransactionFactory,
+  TypedTxData,
+  type TypedTransaction,
+} from '@ethereumjs/tx';
+import { publicToAddress } from '@ethereumjs/util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import {
   recoverPersonalSignature,
@@ -8,9 +12,16 @@ import {
   SignTypedDataVersion,
   TypedDataUtils,
 } from '@metamask/eth-sig-util';
+import type { Keyring } from '@metamask/keyring-utils';
+import {
+  add0x,
+  bytesToHex,
+  getChecksumAddress,
+  Hex,
+  remove0x,
+} from '@metamask/utils';
 import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
-import { EventEmitter } from 'events';
 import HDKey from 'hdkey';
 
 import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
@@ -50,12 +61,14 @@ export type AccountDetails = {
 
 export type LedgerBridgeKeyringOptions = {
   hdPath: string;
-  accounts: readonly string[];
+  accounts: Hex[];
   deviceId: string;
-  accountDetails: Readonly<Record<string, AccountDetails>>;
-  accountIndexes: Readonly<Record<string, number>>;
+  accountDetails: Readonly<Record<Hex, AccountDetails>>;
+  accountIndexes: Readonly<Record<Hex, number>>;
   implementFullBIP44: boolean;
 };
+
+export type LedgerKeyringSerializedState = Partial<LedgerBridgeKeyringOptions>;
 
 /**
  * Check if the given transaction is made with ethereumjs-tx or @ethereumjs/tx
@@ -76,7 +89,7 @@ function isOldStyleEthereumjsTx(
   return 'getChainId' in tx && typeof tx.getChainId === 'function';
 }
 
-export class LedgerKeyring extends EventEmitter {
+export class LedgerKeyring implements Keyring {
   static type: string = keyringType;
 
   deviceId = '';
@@ -89,7 +102,7 @@ export class LedgerKeyring extends EventEmitter {
 
   unlockedAccount = 0;
 
-  accounts: readonly string[] = [];
+  accounts: readonly Hex[] = [];
 
   accountDetails: Record<string, AccountDetails> = {};
 
@@ -106,8 +119,6 @@ export class LedgerKeyring extends EventEmitter {
   bridge: LedgerBridge<LedgerBridgeOptions>;
 
   constructor({ bridge }: { bridge: LedgerBridge<LedgerBridgeOptions> }) {
-    super();
-
     if (!bridge) {
       throw new Error('Bridge is a required dependency for the keyring');
     }
@@ -124,20 +135,18 @@ export class LedgerKeyring extends EventEmitter {
   }
 
   async serialize(): Promise<
-    Partial<LedgerBridgeKeyringOptions> // Maybe we should have a proper "state" type here instead of using this "options" type.
+    Omit<LedgerKeyringSerializedState, 'accountIndexes'>
   > {
     return {
       hdPath: this.hdPath,
-      accounts: this.accounts,
+      accounts: this.accounts.slice(),
       deviceId: this.deviceId,
       accountDetails: this.accountDetails,
       implementFullBIP44: false,
     };
   }
 
-  async deserialize(
-    opts: Partial<LedgerBridgeKeyringOptions> = {}, // Same question here?
-  ): Promise<void> {
+  async deserialize(opts: LedgerKeyringSerializedState): Promise<void> {
     this.hdPath = opts.hdPath ?? hdPathString;
     this.accounts = opts.accounts ?? [];
     this.deviceId = opts.deviceId ?? '';
@@ -152,7 +161,7 @@ export class LedgerKeyring extends EventEmitter {
     const keys = new Set<string>(Object.keys(this.accountDetails));
     // Remove accounts that don't have corresponding account details
     this.accounts = this.accounts.filter((account) =>
-      keys.has(ethUtil.toChecksumAddress(account)),
+      keys.has(this.#getChecksumHexAddress(account)),
     );
 
     return Promise.resolve();
@@ -179,7 +188,7 @@ export class LedgerKeyring extends EventEmitter {
     // try to migrate non-LedgerLive accounts too
     if (!this.#isLedgerLiveHdPath()) {
       this.accounts.forEach((account) => {
-        const key = ethUtil.toChecksumAddress(account);
+        const key = this.#getChecksumHexAddress(account);
 
         if (!keys.has(key)) {
           this.accountDetails[key] = {
@@ -211,9 +220,14 @@ export class LedgerKeyring extends EventEmitter {
     this.hdPath = hdPath;
   }
 
-  async unlock(hdPath?: string, updateHdk = true): Promise<string> {
+  async unlock(hdPath?: string, updateHdk = true): Promise<Hex> {
     if (this.isUnlocked() && !hdPath) {
-      return 'already unlocked';
+      // if the device is already unlocked and no path is provided,
+      // we return the checksummed address of the public key stored in
+      // `this.hdk`, which is the root address of the last unlocked path.
+      return this.#getChecksumHexAddress(
+        bytesToHex(publicToAddress(this.hdk.publicKey, true)),
+      );
     }
     const path = hdPath ? this.#toLedgerPath(hdPath) : this.hdPath;
 
@@ -233,26 +247,26 @@ export class LedgerKeyring extends EventEmitter {
       this.hdk.chainCode = Buffer.from(payload.chainCode, 'hex');
     }
 
-    return payload.address;
+    return add0x(payload.address);
   }
 
-  async addAccounts(amount = 1): Promise<string[]> {
+  async addAccounts(amount: number): Promise<Hex[]> {
     return new Promise((resolve, reject) => {
       this.unlock()
         .then(async (_) => {
           const from = this.unlockedAccount;
           const to = from + amount;
-          const newAccounts: string[] = [];
+          const newAccounts: Hex[] = [];
           for (let i = from; i < to; i++) {
             const path = this.#getPathForIndex(i);
-            let address;
+            let address: Hex;
             if (this.#isLedgerLiveHdPath()) {
               address = await this.unlock(path);
             } else {
               address = this.#addressFromIndex(pathBase, i);
             }
 
-            this.accountDetails[ethUtil.toChecksumAddress(address)] = {
+            this.accountDetails[this.#getChecksumHexAddress(address)] = {
               // TODO: consider renaming this property, as the current name is misleading
               // It's currently used to represent whether an account uses the Ledger Live path.
               bip44: this.#isLedgerLiveHdPath(),
@@ -288,7 +302,7 @@ export class LedgerKeyring extends EventEmitter {
     return this.#getPage(-1);
   }
 
-  async getAccounts(): Promise<string[]> {
+  async getAccounts(): Promise<Hex[]> {
     return Promise.resolve(this.accounts.slice());
   }
 
@@ -302,7 +316,7 @@ export class LedgerKeyring extends EventEmitter {
     }
 
     this.accounts = filteredAccounts;
-    delete this.accountDetails[ethUtil.toChecksumAddress(address)];
+    delete this.accountDetails[this.#getChecksumHexAddress(address)];
   }
 
   async attemptMakeApp(): Promise<boolean> {
@@ -315,7 +329,7 @@ export class LedgerKeyring extends EventEmitter {
 
   // tx is an instance of the ethereumjs-transaction class.
   async signTransaction(
-    address: string,
+    address: Hex,
     tx: TypedTransaction | OldEthJsTransaction,
   ): Promise<TypedTransaction | OldEthJsTransaction> {
     let rawTxHex;
@@ -329,8 +343,7 @@ export class LedgerKeyring extends EventEmitter {
       // transaction which is only communicated to ethereumjs-tx in this
       // value. In newer versions the chainId is communicated via the 'Common'
       // object.
-      // @ts-expect-error tx.v should be a Buffer, but we are assigning a string
-      tx.v = ethUtil.bufferToHex(tx.getChainId());
+      tx.v = tx.getChainId();
       // @ts-expect-error tx.r should be a Buffer, but we are assigning a string
       tx.r = '0x00';
       // @ts-expect-error tx.s should be a Buffer, but we are assigning a string
@@ -354,23 +367,23 @@ export class LedgerKeyring extends EventEmitter {
     // Note also that `getMessageToSign` will return valid RLP for all transaction types, whereas the
     // `serialize` method will not for any transaction type except legacy. This is because `serialize` includes
     // empty r, s and v values in the encoded rlp. This is why we use `getMessageToSign` here instead of `serialize`.
-    const messageToSign = tx.getMessageToSign(false);
+    const messageToSign = tx.getMessageToSign();
 
-    rawTxHex = Buffer.isBuffer(messageToSign)
-      ? messageToSign.toString('hex')
-      : Buffer.from(RLP.encode(messageToSign)).toString('hex');
+    rawTxHex = Array.isArray(messageToSign)
+      ? Buffer.from(RLP.encode(messageToSign)).toString('hex')
+      : bytesToHex(messageToSign);
 
     return this.#signTransaction(address, rawTxHex, (payload) => {
       // Because tx will be immutable, first get a plain javascript object that
       // represents the transaction. Using txData here as it aligns with the
       // nomenclature of ethereumjs/tx.
-      const txData: TxData = tx.toJSON();
+      const txData: TypedTxData = tx.toJSON();
       // The fromTxData utility expects a type to support transactions with a type other than 0
       txData.type = tx.type;
       // The fromTxData utility expects v,r and s to be hex prefixed
-      txData.v = ethUtil.addHexPrefix(payload.v);
-      txData.r = ethUtil.addHexPrefix(payload.r);
-      txData.s = ethUtil.addHexPrefix(payload.s);
+      txData.v = add0x(payload.v);
+      txData.r = add0x(payload.r);
+      txData.s = add0x(payload.s);
       // Adopt the 'common' option from the original transaction and set the
       // returned object to be frozen if the original is frozen.
       return TransactionFactory.fromTxData(txData, {
@@ -381,7 +394,7 @@ export class LedgerKeyring extends EventEmitter {
   }
 
   async #signTransaction(
-    address: string,
+    address: Hex,
     rawTxHex: string,
     handleSigning: (
       payload: SignTransactionPayload,
@@ -413,13 +426,13 @@ export class LedgerKeyring extends EventEmitter {
     throw new Error('Ledger: The transaction signature is not valid');
   }
 
-  async signMessage(withAccount: string, data: string): Promise<string> {
+  async signMessage(withAccount: Hex, data: string): Promise<string> {
     return this.signPersonalMessage(withAccount, data);
   }
 
   // For personal_sign, we need to prefix the message:
   async signPersonalMessage(
-    withAccount: string,
+    withAccount: Hex,
     message: string,
   ): Promise<string> {
     const hdPath = await this.unlockAccountByAddress(withAccount);
@@ -432,7 +445,7 @@ export class LedgerKeyring extends EventEmitter {
     try {
       payload = await this.bridge.deviceSignMessage({
         hdPath,
-        message: ethUtil.stripHexPrefix(message),
+        message: remove0x(message),
       });
     } catch (error) {
       throw error instanceof Error
@@ -451,16 +464,16 @@ export class LedgerKeyring extends EventEmitter {
       signature,
     });
     if (
-      ethUtil.toChecksumAddress(addressSignedWith) !==
-      ethUtil.toChecksumAddress(withAccount)
+      this.#getChecksumHexAddress(addressSignedWith) !==
+      this.#getChecksumHexAddress(withAccount)
     ) {
       throw new Error('Ledger: The signature doesnt match the right address');
     }
     return signature;
   }
 
-  async unlockAccountByAddress(address: string): Promise<string | undefined> {
-    const checksummedAddress = ethUtil.toChecksumAddress(address);
+  async unlockAccountByAddress(address: Hex): Promise<string | undefined> {
+    const checksummedAddress = this.#getChecksumHexAddress(address);
     const accountDetails = this.accountDetails[checksummedAddress];
     if (!accountDetails) {
       throw new Error(
@@ -481,7 +494,7 @@ export class LedgerKeyring extends EventEmitter {
   }
 
   async signTypedData<T extends MessageTypes>(
-    withAccount: string,
+    withAccount: Hex,
     data: TypedMessage<T>,
     options: { version?: string } = {},
   ): Promise<string> {
@@ -536,16 +549,12 @@ export class LedgerKeyring extends EventEmitter {
     });
 
     if (
-      ethUtil.toChecksumAddress(addressSignedWith) !==
-      ethUtil.toChecksumAddress(withAccount)
+      this.#getChecksumHexAddress(addressSignedWith) !==
+      this.#getChecksumHexAddress(withAccount)
     ) {
       throw new Error('Ledger: The signature doesnt match the right address');
     }
     return signature;
-  }
-
-  exportAccount(): void {
-    throw new Error('Not supported on this device');
   }
 
   forgetDevice(): void {
@@ -625,21 +634,19 @@ export class LedgerKeyring extends EventEmitter {
         balance: null,
         index: i,
       });
-      this.paths[ethUtil.toChecksumAddress(address)] = i;
+      this.paths[this.#getChecksumHexAddress(address)] = i;
     }
     return accounts;
   }
 
-  #addressFromIndex(basePath: string, i: number): string {
+  #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = ethUtil
-      .publicToAddress(dkey.publicKey, true)
-      .toString('hex');
-    return ethUtil.toChecksumAddress(`0x${address}`);
+    const address = bytesToHex(publicToAddress(dkey.publicKey, true));
+    return this.#getChecksumHexAddress(address);
   }
 
   #pathFromAddress(address: string): string {
-    const checksummedAddress = ethUtil.toChecksumAddress(address);
+    const checksummedAddress = this.#getChecksumHexAddress(address);
     let index = this.paths[checksummedAddress];
     if (typeof index === 'undefined') {
       for (let i = 0; i < MAX_INDEX; i++) {
@@ -682,5 +689,9 @@ export class LedgerKeyring extends EventEmitter {
 
   #getApiUrl(): NetworkApiUrls {
     return this.network;
+  }
+
+  #getChecksumHexAddress(address: string): Hex {
+    return getChecksumAddress(add0x(address));
   }
 }

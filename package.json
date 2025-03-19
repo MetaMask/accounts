@@ -1,6 +1,6 @@
 {
   "name": "@metamask/accounts-monorepo",
-  "version": "27.0.0",
+  "version": "40.0.0",
   "private": true,
   "description": "Monorepo for MetaMask accounts related packages",
   "repository": {
@@ -48,7 +48,7 @@
     "@metamask/eslint-config-nodejs": "^13.0.0",
     "@metamask/eslint-config-typescript": "^13.0.0",
     "@npmcli/package-json": "^5.0.0",
-    "@ts-bridge/cli": "^0.6.1",
+    "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
