@@ -160,22 +160,21 @@ export default class SimpleKeyring implements Keyring {
   async signTypedData<
     Version extends SignTypedDataVersion,
     Types extends MessageTypes,
-    Options extends { version?: Version } & KeyringOpt,
+    Options extends { version: Version } & KeyringOpt,
   >(
     address: Hex,
-    typedData: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
-    opts?: Options,
+    data: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
+    options?: Options,
   ): Promise<string> {
-    const options = opts ?? { version: SignTypedDataVersion.V1 };
-    // Treat invalid versions as "V1"
-    let version = SignTypedDataVersion.V1;
+    let { version } = options ?? { version: SignTypedDataVersion.V1 };
 
-    if (options.version && isSignTypedDataVersion(options.version)) {
-      version = SignTypedDataVersion[options.version];
+    // Treat invalid versions as "V1"
+    if (!isSignTypedDataVersion(version)) {
+      version = SignTypedDataVersion.V1;
     }
 
-    const privateKey = this.#getPrivateKeyFor(address, opts);
-    return signTypedData({ privateKey, data: typedData, version });
+    const privateKey = this.#getPrivateKeyFor(address, options);
+    return signTypedData({ privateKey, data, version });
   }
 
   // get public key for nacl
