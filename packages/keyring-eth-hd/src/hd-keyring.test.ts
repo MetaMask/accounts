@@ -20,7 +20,6 @@ import {
   type EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { mnemonicPhraseToBytes } from '@metamask/key-tree';
-import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { assert, bytesToHex, hexToBytes, type Hex } from '@metamask/utils';
 import { webcrypto } from 'crypto';
 // eslint-disable-next-line n/no-sync
