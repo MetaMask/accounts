@@ -37,9 +37,10 @@
   },
   "dependencies": {
     "@ethereumjs/util": "^9.1.0",
-    "@keystonehq/bc-ur-registry-eth": "^0.21.0",
+    "@keystonehq/bc-ur-registry-eth": "^0.19.1",
     "@keystonehq/ur-decoder": "^0.12.2",
-    "@metamask/utils": "^9.2.1",
+    "@metamask/keyring-utils": "workspace:^",
+    "@metamask/utils": "^11.3.0",
     "@ngraveio/bc-ur": "^1.1.13",
     "hdkey": "^2.1.0"
   },

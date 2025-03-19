@@ -1,15 +1,12 @@
-import { CryptoAccount, CryptoHDKey } from '@keystonehq/bc-ur-registry-eth';
-import { URRegistryDecoder } from '@keystonehq/ur-decoder';
-import type { Hex, Keyring } from '@metamask/utils';
-import { UR } from '@ngraveio/bc-ur';
+import type { Keyring } from '@metamask/keyring-utils';
+import type { Hex } from '@metamask/utils';
+
 import { AccountDeriver } from './account-deriver';
 
-export const QR_KEYRING_TYPE = 'QrKeyring' as const;
+export const QR_KEYRING_TYPE = 'QrKeyring';
 
-export const SUPPORTED_UR_TYPE = {
-  CRYPTO_HDKEY: 'crypto-hdkey',
-  CRYPTO_ACCOUNT: 'crypto-account',
-  ETH_SIGNATURE: 'eth-signature',
+export type QrKeyringOptions = {
+  cbor: Hex;
 };
 
 /**
@@ -19,58 +16,103 @@ export const SUPPORTED_UR_TYPE = {
  */
 export type QrKeyringState = {
   accounts: Record<number, Hex>;
-  cbor?: Hex;
+  cbor?: Hex | null;
 };
 
+/**
+ * A keyring that derives accounts from a CBOR encoded UR
+ */
 export class QrKeyring implements Keyring<QrKeyringState> {
   type = QR_KEYRING_TYPE;
 
-  #accounts: Record<number, Hex> = {};
+  #accounts: Map<number, Hex> = new Map();
 
-  #deriver: AccountDeriver = new AccountDeriver();
+  #accountToUnlock?: number | undefined;
 
+  readonly #deriver: AccountDeriver = new AccountDeriver();
+
+  constructor({ cbor }: QrKeyringOptions) {
+    if (cbor) {
+      this.submitCBOR(cbor);
+    }
+  }
+
+  /**
+   * Serializes the QrKeyring state
+   *
+   * @returns The serialized state
+   */
   async serialize(): Promise<QrKeyringState> {
     return {
       accounts: Object.values(this.#accounts),
-      cbor: '', // TODO: Serialize deriver
+      cbor: this.#deriver.getCBOR(),
     };
   }
 
+  /**
+   * Deserializes the QrKeyring state
+   *
+   * @param state - The state to deserialize
+   */
   async deserialize(state: QrKeyringState): Promise<void> {
-    this.#accounts = state.accounts;
+    this.#accounts = new Map(
+      Object.entries(state.accounts).map(([index, address]) => [
+        Number(index),
+        address,
+      ]),
+    );
     if (state.cbor) {
       this.submitCBOR(state.cbor);
     }
   }
 
-  async addAccounts(_accountsToAdd: number): Promise<Hex[]> {
-    // TODO: Implement
+  /**
+   * Adds accounts to the QrKeyring
+   *
+   * @param accountsToAdd - The number of accounts to add
+   * @returns The accounts added
+   */
+  async addAccounts(accountsToAdd: number): Promise<Hex[]> {
+    const lastIndex = this.#accountToUnlock ?? this.#accounts.size;
+    const newAccounts: Hex[] = [];
+
+    for (let i = 0; i < accountsToAdd; i++) {
+      const index = lastIndex + i + 1;
+      const account = this.#deriver.deriveIndex(index);
+      this.#accounts.set(index, account);
+      newAccounts.push(account);
+    }
+
+    this.#accountToUnlock = undefined;
+
+    return newAccounts;
   }
 
+  /**
+   * Gets the accounts in the QrKeyring
+   *
+   * @returns The accounts in the QrKeyring
+   */
   async getAccounts(): Promise<Hex[]> {
     return Object.values(this.#accounts);
   }
 
-  submitCBOR(cbor: Hex) {
-    const ur = URRegistryDecoder.decode(cbor);
-    const bufferedCbor = Buffer.from(cbor, 'hex');
-    let derivationSource: CryptoHDKey | CryptoAccount;
-
-    switch (ur.type) {
-      case SUPPORTED_UR_TYPE.CRYPTO_HDKEY:
-        derivationSource = CryptoHDKey.fromCBOR(bufferedCbor);
-        break;
-      case SUPPORTED_UR_TYPE.CRYPTO_ACCOUNT:
-        derivationSource = CryptoAccount.fromCBOR(bufferedCbor);
-        break;
-      default:
-        throw new Error('Unsupported UR type');
-    }
-
-    this.#deriver.init(derivationSource);
+  /**
+   * Submits a CBOR encoded UR to the QrKeyring
+   *
+   * @param cbor - The CBOR encoded UR
+   * @throws An error if the UR type is not supported
+   */
+  submitCBOR(cbor: Hex): void {
+    this.#deriver.init(cbor);
   }
 
-  async setAccountToUnlock(index: number): Promise<void> {
-    // TODO: Implement
+  /**
+   * Sets the next account index to unlock
+   *
+   * @param index - The index of the account to unlock
+   */
+  setAccountToUnlock(index: number): void {
+    this.#accountToUnlock = index;
   }
 }

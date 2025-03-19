@@ -1,13 +1,20 @@
 import { pubToAddress } from '@ethereumjs/util';
 import {
   CryptoAccount,
-  type CryptoHDKey,
+  CryptoHDKey,
+  URRegistryDecoder,
   type CryptoOutput,
 } from '@keystonehq/bc-ur-registry-eth';
 import { add0x, getChecksumAddress, type Hex } from '@metamask/utils';
 import HDKey from 'hdkey';
 
-export type RootAccount = { fingerprint: Hex } & (
+export const SUPPORTED_UR_TYPE = {
+  CRYPTO_HDKEY: 'crypto-hdkey',
+  CRYPTO_ACCOUNT: 'crypto-account',
+  ETH_SIGNATURE: 'eth-signature',
+};
+
+export type RootAccount = { fingerprint: string } & (
   | {
       type: 'hd';
       hdPath: string;
@@ -23,7 +30,16 @@ export type RootAccount = { fingerprint: Hex } & (
 export class AccountDeriver {
   #root?: RootAccount;
 
-  init(source: CryptoAccount | CryptoHDKey) {
+  #cbor: Buffer | null = null;
+
+  /**
+   * Initializes the AccountDeriver with a UR
+   *
+   * @param ur - The UR to initialize the AccountDeriver with
+   * @throws Will throw an error if the UR is not supported
+   */
+  init(ur: string): void {
+    const source = this.#decodeUR(ur);
     const fingerprint = this.#getFingerprintFromSource(source);
     if (source instanceof CryptoAccount) {
       this.#root = {
@@ -65,12 +81,38 @@ export class AccountDeriver {
     }
   }
 
-  #getFingerprintFromSource(source: CryptoAccount | CryptoHDKey): Hex {
-    return source instanceof CryptoAccount
-      ? add0x(source.getMasterFingerprint().toString('hex'))
-      : add0x(source.getOrigin().getSourceFingerprint().toString('hex'));
+  /**
+   * Gets the CBOR encoded UR, if available
+   *
+   * @returns The CBOR encoded UR
+   */
+  getCBOR(): Hex | null {
+    if (!this.#cbor) {
+      return null;
+    }
+    return add0x(this.#cbor.toString('hex'));
   }
 
+  /**
+   * Gets the fingerprint of the source CryptoAccount or CryptoHDKey
+   *
+   * @param source - The source CryptoAccount or CryptoHDKey
+   * @returns The fingerprint of the source
+   */
+  #getFingerprintFromSource(source: CryptoAccount | CryptoHDKey): Hex {
+    return add0x(
+      source instanceof CryptoAccount
+        ? source.getMasterFingerprint()?.toString('hex')
+        : source.getParentFingerprint()?.toString('hex'),
+    );
+  }
+
+  /**
+   * Gets the paths from the CryptoOutputDescriptors
+   *
+   * @param descriptors - The CryptoOutputDescriptors
+   * @returns The paths
+   */
   #getPathsFromCryptoOutputDescriptors(
     descriptors: CryptoOutput[],
   ): Record<Hex, string> {
@@ -87,5 +129,26 @@ export class AccountDeriver {
       }
       return paths;
     }, {});
+  }
+
+  /**
+   * Decodes a UR
+   *
+   * @param ur - The UR to decode
+   * @returns The decoded CryptoAccount or CryptoHDKey
+   * @throws Will throw an error if the UR type is not supported
+   */
+  #decodeUR(ur: string): CryptoAccount | CryptoHDKey {
+    const decodedUR = URRegistryDecoder.decode(ur);
+    this.#cbor = decodedUR.cbor;
+
+    switch (decodedUR.type) {
+      case SUPPORTED_UR_TYPE.CRYPTO_HDKEY:
+        return CryptoHDKey.fromCBOR(this.#cbor);
+      case SUPPORTED_UR_TYPE.CRYPTO_ACCOUNT:
+        return CryptoAccount.fromCBOR(this.#cbor);
+      default:
+        throw new Error('Unsupported UR type');
+    }
   }
 }
