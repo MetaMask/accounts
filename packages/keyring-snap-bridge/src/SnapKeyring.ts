@@ -226,10 +226,10 @@ export class SnapKeyring extends EventEmitter {
     if (correlationId) {
       // We still need to check if the correlation ID is valid and associated to
       // some internal options.
-      const maybe = this.#options.get(snapId, correlationId);
+      const found = this.#options.get(snapId, correlationId);
 
-      if (maybe) {
-        return maybe.options;
+      if (found) {
+        return found.options;
       }
 
       console.warn(
