@@ -232,7 +232,9 @@ export class SnapKeyring extends EventEmitter {
         return maybe.options;
       }
 
-      console.warn(`Received unmapped correlation ID: "${correlationId}"`);
+      console.warn(
+        `SnapKeyring - Received unmapped correlation ID: "${correlationId}"`,
+      );
     }
 
     return getDefaultInternalOptions();
