@@ -349,7 +349,7 @@ export class HdKeyring {
   async signTypedData<
     Version extends SignTypedDataVersion,
     Types extends MessageTypes,
-    Options extends { version: Version },
+    Options extends { version?: Version },
   >(
     address: Hex,
     data: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
@@ -358,9 +358,9 @@ export class HdKeyring {
     let { version } = options ?? { version: SignTypedDataVersion.V1 };
 
     // Treat invalid versions as "V1"
-    version = Object.keys(SignTypedDataVersion).includes(version)
-      ? version
-      : SignTypedDataVersion.V1;
+    if (!version || !Object.keys(SignTypedDataVersion).includes(version)) {
+      version = SignTypedDataVersion.V1;
+    }
 
     const privateKey = this.#getPrivateKeyFor(address, options);
     return signTypedData({

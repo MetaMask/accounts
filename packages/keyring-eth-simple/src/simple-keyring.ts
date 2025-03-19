@@ -160,7 +160,7 @@ export default class SimpleKeyring implements Keyring {
   async signTypedData<
     Version extends SignTypedDataVersion,
     Types extends MessageTypes,
-    Options extends { version: Version } & KeyringOpt,
+    Options extends { version?: Version } & KeyringOpt,
   >(
     address: Hex,
     data: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
@@ -169,7 +169,7 @@ export default class SimpleKeyring implements Keyring {
     let { version } = options ?? { version: SignTypedDataVersion.V1 };
 
     // Treat invalid versions as "V1"
-    if (!isSignTypedDataVersion(version)) {
+    if (!version || !isSignTypedDataVersion(version)) {
       version = SignTypedDataVersion.V1;
     }
 

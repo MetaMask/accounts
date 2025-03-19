@@ -462,7 +462,7 @@ export class TrezorKeyring implements Keyring {
   async signTypedData<
     Version extends SignTypedDataVersion.V3 | SignTypedDataVersion.V4,
     Types extends MessageTypes,
-    Options extends { version: Version },
+    Options extends { version?: Version },
   >(
     address: Hex,
     data: TypedMessage<Types>,

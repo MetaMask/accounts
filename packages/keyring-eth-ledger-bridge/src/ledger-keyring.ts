@@ -496,7 +496,7 @@ export class LedgerKeyring implements Keyring {
   async signTypedData<
     Version extends SignTypedDataVersion.V4,
     Types extends MessageTypes,
-    Options extends { version: Version },
+    Options extends { version?: Version },
   >(
     withAccount: Hex,
     data: TypedMessage<Types>,
