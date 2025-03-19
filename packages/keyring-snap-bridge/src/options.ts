@@ -23,7 +23,7 @@ export type SnapKeyringInternalOptions = {
  *
  * @returns The default internal options.
  */
-export function getDefaultInternalOptions(): SnapKeyringInternalOptions {
+export function getDefaultInternalOptions(): Required<SnapKeyringInternalOptions> {
   return {
     displayAccountNameSuggestion: true,
     displayConfirmation: true,
