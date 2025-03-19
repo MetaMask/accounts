@@ -14,7 +14,7 @@ export const SUPPORTED_UR_TYPE = {
   ETH_SIGNATURE: 'eth-signature',
 };
 
-export type RootAccount = { fingerprint: string } & (
+export type RootAccount = { fingerprint: Hex } & (
   | {
       type: 'hd';
       hdPath: string;
@@ -29,6 +29,8 @@ export type RootAccount = { fingerprint: string } & (
 
 export class AccountDeriver {
   #root?: RootAccount;
+
+  #ur: string | null = null;
 
   #cbor: Buffer | null = null;
 
@@ -73,9 +75,11 @@ export class AccountDeriver {
       return add0x(address);
     } else {
       const hdKey = HDKey.fromExtendedKey(this.#root.bip32xPub);
-      hdKey.derive(`m/${index}`);
+      const derived = hdKey.derive(`m/${index}`);
       const address = getChecksumAddress(
-        add0x(Buffer.from(pubToAddress(hdKey.publicKey, true)).toString('hex')),
+        add0x(
+          Buffer.from(pubToAddress(derived.publicKey, true)).toString('hex'),
+        ),
       );
       return add0x(address);
     }
@@ -86,11 +90,8 @@ export class AccountDeriver {
    *
    * @returns The CBOR encoded UR
    */
-  getCBOR(): Hex | null {
-    if (!this.#cbor) {
-      return null;
-    }
-    return add0x(this.#cbor.toString('hex'));
+  getUR(): string | null {
+    return this.#ur;
   }
 
   /**
@@ -140,6 +141,7 @@ export class AccountDeriver {
    */
   #decodeUR(ur: string): CryptoAccount | CryptoHDKey {
     const decodedUR = URRegistryDecoder.decode(ur);
+    this.#ur = ur;
     this.#cbor = decodedUR.cbor;
 
     switch (decodedUR.type) {

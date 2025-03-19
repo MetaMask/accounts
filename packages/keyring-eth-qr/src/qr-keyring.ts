@@ -3,10 +3,10 @@ import type { Hex } from '@metamask/utils';
 
 import { AccountDeriver } from './account-deriver';
 
-export const QR_KEYRING_TYPE = 'QrKeyring';
+export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
 
 export type QrKeyringOptions = {
-  cbor: Hex;
+  ur?: string;
 };
 
 /**
@@ -16,13 +16,15 @@ export type QrKeyringOptions = {
  */
 export type QrKeyringState = {
   accounts: Record<number, Hex>;
-  cbor?: Hex | null;
+  ur?: string | null;
 };
 
 /**
  * A keyring that derives accounts from a CBOR encoded UR
  */
-export class QrKeyring implements Keyring<QrKeyringState> {
+export class QrKeyring implements Keyring {
+  static type = QR_KEYRING_TYPE;
+
   type = QR_KEYRING_TYPE;
 
   #accounts: Map<number, Hex> = new Map();
@@ -31,10 +33,19 @@ export class QrKeyring implements Keyring<QrKeyringState> {
 
   readonly #deriver: AccountDeriver = new AccountDeriver();
 
-  constructor({ cbor }: QrKeyringOptions) {
-    if (cbor) {
-      this.submitCBOR(cbor);
+  constructor(options?: QrKeyringOptions) {
+    if (options?.ur) {
+      this.submitUR(options.ur);
     }
+  }
+
+  /**
+   * Gets the UR of the QrKeyring
+   *
+   * @returns The UR of the QrKeyring
+   */
+  get ur(): string | null {
+    return this.#deriver.getUR();
   }
 
   /**
@@ -45,7 +56,7 @@ export class QrKeyring implements Keyring<QrKeyringState> {
   async serialize(): Promise<QrKeyringState> {
     return {
       accounts: Object.values(this.#accounts),
-      cbor: this.#deriver.getCBOR(),
+      ur: this.#deriver.getUR(),
     };
   }
 
@@ -55,14 +66,17 @@ export class QrKeyring implements Keyring<QrKeyringState> {
    * @param state - The state to deserialize
    */
   async deserialize(state: QrKeyringState): Promise<void> {
+    const { accounts, ur } = state;
+
     this.#accounts = new Map(
-      Object.entries(state.accounts).map(([index, address]) => [
+      Object.entries(accounts).map(([index, address]) => [
         Number(index),
         address,
       ]),
     );
-    if (state.cbor) {
-      this.submitCBOR(state.cbor);
+
+    if (ur) {
+      this.submitUR(ur);
     }
   }
 
@@ -79,12 +93,16 @@ export class QrKeyring implements Keyring<QrKeyringState> {
     for (let i = 0; i < accountsToAdd; i++) {
       const index = lastIndex + i + 1;
       const account = this.#deriver.deriveIndex(index);
+
+      if (this.#accounts.has(index)) {
+        throw new Error(`Account at index ${index} already exists`);
+      }
+
       this.#accounts.set(index, account);
       newAccounts.push(account);
     }
 
     this.#accountToUnlock = undefined;
-
     return newAccounts;
   }
 
@@ -100,11 +118,10 @@ export class QrKeyring implements Keyring<QrKeyringState> {
   /**
    * Submits a CBOR encoded UR to the QrKeyring
    *
-   * @param cbor - The CBOR encoded UR
-   * @throws An error if the UR type is not supported
+   * @param ur - The CBOR encoded UR
    */
-  submitCBOR(cbor: Hex): void {
-    this.#deriver.init(cbor);
+  submitUR(ur: string): void {
+    this.#deriver.init(ur);
   }
 
   /**
