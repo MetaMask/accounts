@@ -229,6 +229,7 @@ export class SnapKeyring extends EventEmitter {
     if (correlationId) {
       // We still need to check if the correlation ID is valid and associated to
       // some internal options.
+      //
       // NOTE: `found` will be `undefined` if a Snap tried to use a correlation ID that
       // belongs to another Snap ID. However, if a Snap starts 2 parallel flow (which
       // will results in 2 different correlation IDs), we won't be able to prevent
