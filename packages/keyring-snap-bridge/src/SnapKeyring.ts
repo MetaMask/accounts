@@ -216,6 +216,8 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Get internal options given a correlation ID.
    *
+   * NOTE: The associated options will be deleted automatically.
+   *
    * @param snapId - Snap ID
    * @param correlationId - Correlation ID associated with the internal options.
    * @returns Internal options if found, or defaults internal options values otherwise.
@@ -227,7 +229,7 @@ export class SnapKeyring extends EventEmitter {
     if (correlationId) {
       // We still need to check if the correlation ID is valid and associated to
       // some internal options.
-      const found = this.#options.get(snapId, correlationId);
+      const found = this.#options.pop(snapId, correlationId);
 
       if (found) {
         return found.options;

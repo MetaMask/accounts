@@ -133,6 +133,35 @@ export class SnapIdMap<Value extends { snapId: SnapId }> {
   }
 
   /**
+   * Gets and delete a value from the map.
+   *
+   * If the given key is not present in the map or the Snap ID of the value is
+   * different from the given Snap ID, returns `undefined`.
+   *
+   * Example:
+   *
+   * ```ts
+   * const map = new SnapIdMap();
+   * map.set('foo', { snapId: '1', name: 'foo' });
+   * map.pop('1', 'foo'); // Returns { snapId: '1', name: 'foo' }
+   * map.pop('1', 'foo'); // Returns `undefined` (already returned and deleted)
+   * map.pop('1', 'bar'); // Returns `undefined`
+   * ```
+   *
+   * @param snapId - Snap ID present in the value to get.
+   * @param key - Key of the element to get.
+   * @returns The value associated with the given key and Snap ID.
+   */
+  pop(snapId: SnapId, key: string): Value | undefined {
+    const value = this.get(snapId, key);
+
+    if (value !== undefined) {
+      this.delete(snapId, key);
+    }
+    return value;
+  }
+
+  /**
    * Checks if a key is present in the map.
    *
    * If the given key is not present in the map or the Snap ID of the value is
