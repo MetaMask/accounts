@@ -154,10 +154,7 @@ export class SnapIdMap<Value extends { snapId: SnapId }> {
    */
   pop(snapId: SnapId, key: string): Value | undefined {
     const value = this.get(snapId, key);
-
-    if (value !== undefined) {
-      this.delete(snapId, key);
-    }
+    this.delete(snapId, key);
     return value;
   }
 
