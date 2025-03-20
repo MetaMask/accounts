@@ -28,7 +28,7 @@ import type {
   EthUserOperationPatch,
   ResolvedAccountAddress,
   CaipChainId,
-  InternalOptions,
+  MetaMaskOptions,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
@@ -768,7 +768,7 @@ export class SnapKeyring extends EventEmitter {
         metamask: {
           correlationId,
         },
-      } as InternalOptions),
+      } as MetaMaskOptions),
     });
   }
 

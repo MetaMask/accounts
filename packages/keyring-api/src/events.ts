@@ -16,7 +16,7 @@ import {
   FungibleAssetAmountStruct,
   KeyringAccountStruct,
   TransactionStruct,
-  InternalOptionsStruct,
+  MetaMaskOptionsStruct,
 } from './api';
 
 /**
@@ -78,7 +78,7 @@ export const AccountCreatedEventStruct = object({
     /**
      * Metamask internal options.
      */
-    ...InternalOptionsStruct.schema,
+    ...MetaMaskOptionsStruct.schema,
   }),
 });
 

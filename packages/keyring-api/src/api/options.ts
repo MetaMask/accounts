@@ -1,7 +1,7 @@
 import { exactOptional, object, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 
-export const InternalOptionsStruct = object({
+export const MetaMaskOptionsStruct = object({
   /**
    * MetaMask internal options. The 'metamask' field will only be set when
    * the keyring API is being used by a MetaMask client.
@@ -16,4 +16,4 @@ export const InternalOptionsStruct = object({
   ),
 });
 
-export type InternalOptions = Infer<typeof InternalOptionsStruct>;
+export type MetaMaskOptions = Infer<typeof MetaMaskOptionsStruct>;

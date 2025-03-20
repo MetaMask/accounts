@@ -10,7 +10,7 @@ import type {
   AccountBalancesUpdatedEventPayload,
   AccountTransactionsUpdatedEventPayload,
   AccountAssetListUpdatedEventPayload,
-  InternalOptions,
+  MetaMaskOptions,
 } from '@metamask/keyring-api';
 import {
   EthScope,
@@ -2150,7 +2150,7 @@ describe('SnapKeyring', () => {
           // When using `createAccount` through the Snap keyring, some internal options context
           // will be injected into the params (with the `metamask` key), so we expect to have
           // them to be defined.
-          const params = request.params.options as InternalOptions;
+          const params = request.params.options as MetaMaskOptions;
           expect(params.metamask).toBeDefined();
           expect(params.metamask?.correlationId).toBeDefined();
 
@@ -2165,7 +2165,7 @@ describe('SnapKeyring', () => {
               // to be able to map the internal options.
               // NOTE: It's safe to use type cast, since we have already checked that
               // params.metamask is defined!
-              metamask: params.metamask as InternalOptions,
+              metamask: params.metamask as MetaMaskOptions,
             },
           });
 
@@ -2190,7 +2190,7 @@ describe('SnapKeyring', () => {
               metamask: {
                 correlationId,
               },
-            } as InternalOptions),
+            } as MetaMaskOptions),
           },
         }),
       );
@@ -2221,7 +2221,7 @@ describe('SnapKeyring', () => {
               // default internal options values.
               metamask: {
                 correlationId: unknownCorrelationId,
-              } as InternalOptions,
+              } as MetaMaskOptions,
             },
           });
 
@@ -2246,7 +2246,7 @@ describe('SnapKeyring', () => {
               metamask: {
                 correlationId: expect.any(String),
               },
-            } as InternalOptions),
+            } as MetaMaskOptions),
           },
         }),
       );
