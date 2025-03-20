@@ -11,11 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Export types `SerializedHDKeyringState` and `DeserializableHDKeyringState` ([#255](https://github.com/MetaMask/accounts/pull/255))
 
-### Removed
-
-- **BREAKING:** `HDKeyringState` type is no longer exported ([#255](https://github.com/MetaMask/accounts/pull/255))
-  - This has effectively been replaced with `SerializedHDKeyringState` and `DeserializableHDKeyringState`
-
 ### Changed
 
 - **BREAKING:** The method signature for `signTypedData` has been changed ([#224](https://github.com/MetaMask/accounts/pull/224))
@@ -24,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The `deserialize` method does not accept `Buffer` mnemonic anymore
   - The options argument to `deserialize` is no longer optional
   - `getAccounts` is now `async`
+
+### Removed
+
+- **BREAKING:** `HDKeyringState` type is no longer exported ([#255](https://github.com/MetaMask/accounts/pull/255))
+  - This has effectively been replaced with `SerializedHDKeyringState` and `DeserializableHDKeyringState`
 
 ## [12.1.0]
 
