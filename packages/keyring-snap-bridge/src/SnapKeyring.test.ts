@@ -455,8 +455,8 @@ describe('SnapKeyring', () => {
               ...(accountNameSuggestion !== undefined && {
                 accountNameSuggestion,
               }),
-              // Those flags have now been deprecated, but some older Snaps might still use them, so we
-              // must be able to use them in the `AccountCreated` without throwing any error.
+              // Those flags have now been deprecated, but some older Snaps might emit them, so we
+              // must accept/parse them `AccountCreated` without throwing any `superstruct` error.
               ...(displayConfirmation !== undefined && { displayConfirmation }),
               ...(displayAccountNameSuggestion !== undefined && {
                 displayAccountNameSuggestion,
