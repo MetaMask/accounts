@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** The method signature for `signTypedData` has been changed ([#224](https://github.com/MetaMask/accounts/pull/224))
   - The method now accepts a `TypedDataV1` object when `SignTypedDataVersion.V1` is passed in the options, and `TypedMessage<Types>` when other versions are requested.
-- **BREAKING:** The `HdKeyring` class now extends `Keyring` from `@metamask/keyring-utils`
+- **BREAKING:** The `HdKeyring` class now extends `Keyring` from `@metamask/keyring-utils` ([#255](https://github.com/MetaMask/accounts/pull/255))
   - The `deserialize` method does not accept `Buffer` mnemonic anymore
+  - The options argument to `deserialize` is no longer optional
+  - `getAccounts` is now `async`
 
 ## [12.1.0]
 
