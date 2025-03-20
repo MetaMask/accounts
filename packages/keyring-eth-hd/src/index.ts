@@ -1,6 +1,7 @@
 export { HdKeyring } from './hd-keyring';
 export type {
-  HDKeyringState,
+  SerializedHDKeyringState,
+  DeserializableHDKeyringState,
   HDKeyringOptions,
   HDKeyringAccountSelectionOptions,
 } from './hd-keyring';

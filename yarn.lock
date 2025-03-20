@@ -1669,6 +1669,7 @@ __metadata:
     "@metamask/bip39": "npm:^4.0.0"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/key-tree": "npm:^10.0.2"
+    "@metamask/keyring-utils": "workspace:^"
     "@metamask/scure-bip39": "npm:^2.1.1"
     "@metamask/utils": "npm:^11.1.0"
     "@ts-bridge/cli": "npm:^0.6.3"
