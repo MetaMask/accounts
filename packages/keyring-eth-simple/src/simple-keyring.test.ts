@@ -359,6 +359,7 @@ describe('simple-keyring', function () {
     it('returns the expected value if invalid version is given', async function () {
       await keyring.deserialize([privKeyHex]);
       const signature = await keyring.signTypedData(address, typedData, {
+        // @ts-expect-error: intentionally passing invalid version
         version: 'FOO',
       });
       expect(signature).toBe(expectedSignature);
@@ -389,7 +390,7 @@ describe('simple-keyring', function () {
     it('works via `V1` string', async function () {
       await keyring.deserialize([privKeyHex]);
       const signature = await keyring.signTypedData(address, typedData, {
-        version: 'V1',
+        version: SignTypedDataVersion.V1,
       });
       expect(signature).toBe(expectedSignature);
       const restored = recoverTypedSignature({
@@ -445,7 +446,7 @@ describe('simple-keyring', function () {
 
       await keyring.deserialize([privKeyHex]);
       const signature = await keyring.signTypedData(address, typedData, {
-        version: 'V3',
+        version: SignTypedDataVersion.V3,
       });
       const restored = recoverTypedSignature({
         data: typedData,
@@ -505,7 +506,7 @@ describe('simple-keyring', function () {
       const address = (await keyring.getAccounts())[0];
       assert(address, 'address is undefined');
       const signature = await keyring.signTypedData(address, typedData, {
-        version: 'V3',
+        version: SignTypedDataVersion.V3,
       });
       expect(signature).toBe(expectedSignature);
       const restored = recoverTypedSignature({
@@ -534,7 +535,7 @@ describe('simple-keyring', function () {
 
       await keyring.deserialize([privKeyHex]);
       const signature = await keyring.signTypedData(address, typedData, {
-        version: 'V4',
+        version: SignTypedDataVersion.V4,
       });
       const restored = recoverTypedSignature({
         data: typedData,
@@ -725,7 +726,7 @@ describe('simple-keyring', function () {
       const address = (await keyring.getAccounts())[0];
       assert(address, 'address is undefined');
       const signature = await keyring.signTypedData(address, typedData, {
-        version: 'V4',
+        version: SignTypedDataVersion.V4,
       });
       expect(signature).toBe(expectedSignature);
       const restored = recoverTypedSignature({
