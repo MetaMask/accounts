@@ -5,7 +5,7 @@ import {
   AccountIdStruct,
 } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { array, boolean, literal, record, string } from '@metamask/superstruct';
+import { array, literal, record, string } from '@metamask/superstruct';
 import {
   CaipAssetTypeStruct,
   CaipAssetTypeOrIdStruct,
@@ -16,6 +16,7 @@ import {
   FungibleAssetAmountStruct,
   KeyringAccountStruct,
   TransactionStruct,
+  MetaMaskOptionsStruct,
 } from './api';
 
 /**
@@ -55,20 +56,9 @@ export const AccountCreatedEventStruct = object({
     accountNameSuggestion: exactOptional(string()),
 
     /**
-     * Instructs MetaMask to display the add account confirmation dialog in the UI.
-     * **Note:** This is not guaranteed to be honored by the MetaMask client.
+     * Metamask internal options.
      */
-    displayConfirmation: exactOptional(boolean()),
-
-    /**
-     * Instructs MetaMask to display the name confirmation dialog in the UI.
-     * Otherwise, the account will be added with the suggested name, if it's not
-     * already in use; if it is, a suffix will be appended to the name to make it
-     * unique.
-     *
-     * **Note:** This is not guaranteed to be honored by the MetaMask client.
-     */
-    displayAccountNameSuggestion: exactOptional(boolean()),
+    ...MetaMaskOptionsStruct.schema,
   }),
 });
 
