@@ -276,6 +276,30 @@ export class SnapIdMap<Value extends { snapId: SnapId }> {
   }
 
   /**
+   * Returns an iterable of the entries in the map.
+   *
+   * Example:
+   *
+   * ```ts
+   * const map = new SnapIdMap([
+   *   ['foo', { snapId: '1', name: 'foo' }],
+   *   ['bar', { snapId: '1', name: 'bar' }],
+   * ]);
+   * const entries = [...map.entries()];
+   * // Returns
+   * // [
+   * //   ['foo', { snapId: '1', name: 'foo' }],
+   * //   ['bar', { snapId: '1', name: 'bar' }],
+   * // ]
+   * ```
+   *
+   * @returns An iterable of the entries in the map.
+   */
+  entries(): MapIterator<[string, Value]> {
+    return this.#map.entries();
+  }
+
+  /**
    * Returns the number of key-value pairs in the map.
    *
    * @returns The number of key-value pairs in the map.

@@ -1,4 +1,10 @@
 /**
+ * Default TTL for internal options. Past that time, the internal options will
+ * be considered outdated and will be removed automatically.
+ */
+export const DEFAULT_INTERNAL_OPTIONS_TTL_SECS = 60 * 60; // 1 hour
+
+/**
  * Internal options that can be used alongside some Snap keyring flow.
  *
  * They can be used to omit/skip some steps during flows.
