@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [10.1.0]
 
-### Uncategorized
+### Fixed
 
-- fix(keyring-eth-ledger-bridge): trim `0x` prefix for `signTransaction` (due to latest `@ethereumjs` upgrade) ([#253](https://github.com/MetaMask/accounts.git/pull/253))
+- Trim `0x` prefix for `signTransaction` ([#253](https://github.com/MetaMask/accounts.git/pull/253))
+  - This regression was due to latest `@ethereumjs` upgrade. 
 
 ### Changed
 
