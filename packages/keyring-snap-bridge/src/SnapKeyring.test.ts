@@ -35,7 +35,11 @@ import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
 import type { KeyringState, SnapKeyringInternalOptions } from '.';
-import { getDefaultInternalOptions, SnapKeyring } from '.';
+import {
+  DEFAULT_INTERNAL_OPTIONS_TTL_SECS,
+  getDefaultInternalOptions,
+  SnapKeyring,
+} from '.';
 import type { KeyringAccountV1 } from './account';
 import { DeferredPromise } from './DeferredPromise';
 import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
@@ -2104,23 +2108,83 @@ describe('SnapKeyring', () => {
       valid: true,
     };
 
-    it('creates an account', async () => {
+    const internalOptions: SnapKeyringInternalOptions = {
+      displayConfirmation: false,
+      displayAccountNameSuggestion: false,
+    };
+
+    const afterTtl = (DEFAULT_INTERNAL_OPTIONS_TTL_SECS + 1) * 1000;
+
+    const createAccountAndGetCorrelationId = async (
+      {
+        emit,
+        forceCorrelationId,
+      }: {
+        emit: boolean;
+        forceCorrelationId?: string;
+      },
+      snapKeyringInternalOptions?: SnapKeyringInternalOptions,
+    ): Promise<string> => {
+      // We will extract it from the internal options when calling `keyring_createAccount`.
+      let correlationId: string = '';
+
       mockMessengerHandleRequest({
-        [KeyringRpcMethod.CreateAccount]: async () => {
-          // When calling `keyring_createAccount`, we expect the Snap to
-          // emit a `notify:accountCreated`.
-          await keyring.handleKeyringSnapMessage(snapId, {
-            method: KeyringEvent.AccountCreated,
-            params: {
-              account: account as unknown as KeyringAccount,
-            },
-          });
+        [KeyringRpcMethod.CreateAccount]: async (request) => {
+          assert(request, CreateAccountRequestStruct);
+
+          // When using `createAccount` through the Snap keyring, some internal options context
+          // will be injected into the params (with the `metamask` key), so we expect to have
+          // them to be defined.
+          if (snapKeyringInternalOptions) {
+            const params = request.params.options as MetaMaskOptions;
+            expect(params.metamask).toBeDefined();
+            expect(params.metamask?.correlationId).toBeDefined();
+
+            // We know it's well-defined from here.
+            correlationId = params.metamask?.correlationId as string;
+          }
+
+          // We can use the `forceCorrelationId`, to force bad correlation ID.
+          if (forceCorrelationId) {
+            correlationId = forceCorrelationId;
+          }
+
+          // IMPORTANT:
+          // If we don't emit the `AccountCreated`, its internal options will be "leaking".
+          if (emit) {
+            // When calling `keyring_createAccount`, we expect the Snap to emit
+            // a `notify:accountCreated`.
+            await keyring.handleKeyringSnapMessage(snapId, {
+              method: KeyringEvent.AccountCreated,
+              params: {
+                account: account as unknown as KeyringAccount,
+                // We need to forward this correlation ID back to the Snap keyring
+                // to be able to map the internal options.
+                ...(correlationId
+                  ? {
+                      metamask: {
+                        correlationId,
+                      },
+                    }
+                  : {}),
+              },
+            });
+          }
 
           return account;
         },
       });
 
-      await keyring.createAccount(snapId, options);
+      // Now trigger a create account, so we can extract the correlation ID.
+      // NOTE: This internal option will leak if the Snap (the `keyring_createAccount` mock in
+      // this case) do not forward its correlation ID!
+      await keyring.createAccount(snapId, options, snapKeyringInternalOptions);
+
+      return correlationId;
+    };
+
+    it('creates an account', async () => {
+      await createAccountAndGetCorrelationId({ emit: true });
 
       expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
         mockKeyringRpcRequest(KeyringRpcMethod.CreateAccount, {
@@ -2140,46 +2204,12 @@ describe('SnapKeyring', () => {
     });
 
     it('creates an account with some internal options', async () => {
-      // We will extract it from the internal options when calling `keyring_createAccount`.
-      let correlationId: string = '';
-
-      mockMessengerHandleRequest({
-        [KeyringRpcMethod.CreateAccount]: async (request) => {
-          assert(request, CreateAccountRequestStruct);
-
-          // When using `createAccount` through the Snap keyring, some internal options context
-          // will be injected into the params (with the `metamask` key), so we expect to have
-          // them to be defined.
-          const params = request.params.options as MetaMaskOptions;
-          expect(params.metamask).toBeDefined();
-          expect(params.metamask?.correlationId).toBeDefined();
-
-          // We know it's well-defined from here.
-          correlationId = params.metamask?.correlationId as string;
-
-          await keyring.handleKeyringSnapMessage(snapId, {
-            method: KeyringEvent.AccountCreated,
-            params: {
-              account: account as unknown as KeyringAccount,
-              // We need to forward this internal context back to the Snap keyring
-              // to be able to map the internal options.
-              // NOTE: It's safe to use type cast, since we have already checked that
-              // params.metamask is defined!
-              metamask: params.metamask as MetaMaskOptions,
-            },
-          });
-
-          return account;
+      const correlationId = await createAccountAndGetCorrelationId(
+        {
+          emit: true,
         },
-      });
-
-      // Skip everything!
-      const internalOptions: SnapKeyringInternalOptions = {
-        displayConfirmation: false,
-        displayAccountNameSuggestion: false,
-      };
-
-      await keyring.createAccount(snapId, options, internalOptions);
+        internalOptions,
+      );
 
       expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
         mockKeyringRpcRequest(KeyringRpcMethod.CreateAccount, {
@@ -2207,35 +2237,14 @@ describe('SnapKeyring', () => {
 
     it('fallbacks to the default internal options if the correlationId is incorrect', async () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-      const unknownCorrelationId = uuid();
 
-      mockMessengerHandleRequest({
-        [KeyringRpcMethod.CreateAccount]: async (request) => {
-          assert(request, CreateAccountRequestStruct);
-
-          await keyring.handleKeyringSnapMessage(snapId, {
-            method: KeyringEvent.AccountCreated,
-            params: {
-              account: account as unknown as KeyringAccount,
-              // If we don't forward the correct correlation ID, then we'll fallback to the
-              // default internal options values.
-              metamask: {
-                correlationId: unknownCorrelationId,
-              } as MetaMaskOptions,
-            },
-          });
-
-          return account;
+      const unknownCorrelationId = await createAccountAndGetCorrelationId(
+        {
+          emit: true,
+          forceCorrelationId: uuid(),
         },
-      });
-
-      // Skip everything!
-      const internalOptions: SnapKeyringInternalOptions = {
-        displayConfirmation: false,
-        displayAccountNameSuggestion: false,
-      };
-
-      await keyring.createAccount(snapId, options, internalOptions);
+        internalOptions,
+      );
 
       expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
         mockKeyringRpcRequest(KeyringRpcMethod.CreateAccount, {
@@ -2278,6 +2287,90 @@ describe('SnapKeyring', () => {
         }),
       ).rejects.toThrow(
         `The '${reserved}' property is reserved for internal use`,
+      );
+    });
+
+    it('cleanup outdated internal options to avoid leaks', async () => {
+      jest.useFakeTimers();
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+      // IMPORTANT:
+      // Now, we don't emit the `AccountCreated`, so its internal options will be "leaking".
+      const correlationId = await createAccountAndGetCorrelationId(
+        {
+          emit: false,
+        },
+        internalOptions,
+      );
+
+      // We advance time to make the "leaking" internal option outdated.
+      jest.advanceTimersByTime(afterTtl);
+
+      expect(await keyring.cleanupInternalOptions()).toBe(1);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        `SnapKeyring - Found outdated internal option entry: ${correlationId} (${snapId})`,
+      );
+    });
+
+    it('only cleanup outdated internal options', async () => {
+      jest.useFakeTimers();
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+      // Create an account and make its internal options "outdated".
+      const outdatedCorrelationId = await createAccountAndGetCorrelationId(
+        {
+          emit: false,
+        },
+        internalOptions,
+      );
+      jest.advanceTimersByTime(afterTtl);
+
+      // Now we re-create another account, which is not yet "outdated".
+      const notYetOudatedCorrelationId = await createAccountAndGetCorrelationId(
+        {
+          emit: false,
+        },
+        internalOptions,
+      );
+
+      // Cleanup will only cleanup 1 entry.
+      expect(await keyring.cleanupInternalOptions()).toBe(1);
+      expect(consoleSpy).toHaveBeenCalledTimes(1);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        `SnapKeyring - Found outdated internal option entry: ${outdatedCorrelationId} (${snapId})`,
+      );
+
+      // Now we can make the 2nd entry outdated.
+      const nowOutdatedCorrelationId = notYetOudatedCorrelationId;
+      jest.advanceTimersByTime(afterTtl);
+      expect(await keyring.cleanupInternalOptions()).toBe(1);
+      expect(consoleSpy).toHaveBeenCalledTimes(2);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        `SnapKeyring - Found outdated internal option entry: ${nowOutdatedCorrelationId} (${snapId})`,
+      );
+    });
+
+    it('auto-cleanup outdated internal options', async () => {
+      jest.useFakeTimers();
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+      // Create an account and make its internal options "outdated".
+      const outdatedCorrelationId = await createAccountAndGetCorrelationId(
+        {
+          emit: false,
+        },
+        internalOptions,
+      );
+      jest.advanceTimersByTime(afterTtl);
+
+      // Now we re-create another account, but this time we emit the `AccountCreated` (which will
+      // automatically trigger the cleanup of outdated internal options).
+      await createAccountAndGetCorrelationId({ emit: true }, internalOptions);
+
+      // Automatic cleanup of 1 entry.
+      expect(consoleSpy).toHaveBeenCalledTimes(1);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        `SnapKeyring - Found outdated internal option entry: ${outdatedCorrelationId} (${snapId})`,
       );
     });
   });

@@ -59,6 +59,7 @@ import {
 import { projectLogger as log } from './logger';
 import { isAccountV1, migrateAccountV1 } from './migrations';
 import {
+  DEFAULT_INTERNAL_OPTIONS_TTL_SECS,
   getDefaultInternalOptions,
   type SnapKeyringInternalOptions,
 } from './options';
@@ -144,6 +145,15 @@ function normalizeAccountAddress(account: KeyringAccount): string {
 }
 
 /**
+ * Get current time in seconds.
+ *
+ * @returns The current time in seconds.
+ */
+function nowInSecs(): number {
+  return Date.now() / 1000;
+}
+
+/**
  * Keyring bridge implementation to support Snaps.
  */
 export class SnapKeyring extends EventEmitter {
@@ -184,7 +194,7 @@ export class SnapKeyring extends EventEmitter {
   readonly #options: SnapIdMap<{
     options: SnapKeyringInternalOptions;
     snapId: SnapId;
-    // TODO: Add TTL to avoid having too many "leaking" internal options.
+    ttl: number; // In seconds.
   }>;
 
   /**
@@ -246,6 +256,31 @@ export class SnapKeyring extends EventEmitter {
     }
 
     return getDefaultInternalOptions();
+  }
+
+  /**
+   * Cleanup outdated internal options.
+   *
+   * @returns The number of entries that have been deleted.
+   */
+  async cleanupInternalOptions(): Promise<number> {
+    const now = nowInSecs();
+
+    const outdated = [...this.#options.entries()].filter(([_, entry]) => {
+      // If we went past the TTL, it means it's outdated.
+      return entry.ttl < now;
+    });
+
+    let deleted = 0;
+    for (const [correlationId, entry] of outdated) {
+      console.warn(
+        `SnapKeyring - Found outdated internal option entry: ${correlationId} (${entry.snapId})`,
+      );
+      this.#options.delete(entry.snapId, correlationId);
+      deleted += 1;
+    }
+
+    return deleted;
   }
 
   /**
@@ -346,6 +381,10 @@ export class SnapKeyring extends EventEmitter {
       accountNameSuggestion,
       this.#getInternalOptionsOrDefaults(snapId, metamask?.correlationId),
     );
+
+    // To avoid having a `setInterval` to do the cleanup, we run it explicitly from
+    // time to time.
+    await this.cleanupInternalOptions();
 
     return null;
   }
@@ -728,12 +767,14 @@ export class SnapKeyring extends EventEmitter {
    * @param snapId - Snap ID to create the account for.
    * @param options - Account creation options. Differs between keyrings.
    * @param internalOptions - Internal Snap keyring options.
+   * @param internalOptionsTtl - Internal Snap keyring options TTL.
    * @returns The account object.
    */
   async createAccount(
     snapId: SnapId,
     options: Record<string, Json>,
     internalOptions?: SnapKeyringInternalOptions,
+    internalOptionsTtl: number = DEFAULT_INTERNAL_OPTIONS_TTL_SECS,
   ): Promise<KeyringAccount> {
     const client = new KeyringInternalSnapClient({
       messenger: this.#messenger,
@@ -765,6 +806,7 @@ export class SnapKeyring extends EventEmitter {
     this.#options.set(correlationId, {
       snapId,
       options: internalOptions,
+      ttl: nowInSecs() + internalOptionsTtl,
     });
 
     return await client.createAccount({
