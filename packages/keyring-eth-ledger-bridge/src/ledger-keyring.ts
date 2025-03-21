@@ -403,13 +403,14 @@ export class LedgerKeyring implements Keyring {
     const hdPath = await this.unlockAccountByAddress(address);
 
     if (!hdPath) {
-      throw new Error('Ledger: Unknown error while signing transaction');
+      throw new Error('Ledger: hdPath is empty while signing transaction');
     }
 
     let payload;
+
     try {
       payload = await this.bridge.deviceSignTransaction({
-        tx: rawTxHex,
+        tx: remove0x(rawTxHex),
         hdPath,
       });
     } catch (error) {

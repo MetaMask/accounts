@@ -3,7 +3,7 @@ import { RLP } from '@ethereumjs/rlp';
 import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import * as sigUtil from '@metamask/eth-sig-util';
-import { bytesToHex, Hex } from '@metamask/utils';
+import { bytesToHex, Hex, remove0x } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
@@ -719,7 +719,9 @@ describe('LedgerKeyring', function () {
             .mockImplementation(async (params) => {
               expect(params).toStrictEqual({
                 hdPath: "m/44'/60'/0'/0",
-                tx: bytesToHex(fakeTypeTwoTx.getMessageToSign() as Uint8Array),
+                tx: remove0x(
+                  bytesToHex(fakeTypeTwoTx.getMessageToSign() as Uint8Array),
+                ),
               });
               return expectedRSV;
             });
@@ -745,7 +747,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow('Ledger: Unknown error while signing transaction');
+        ).rejects.toThrow('Ledger: hdPath is empty while signing transaction');
       });
 
       it('throws different error to the default one if the bridge error is an instance of the Error object', async function () {
