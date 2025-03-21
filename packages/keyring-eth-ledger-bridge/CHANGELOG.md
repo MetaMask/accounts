@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Trim `0x` prefix for `signTransaction` ([#253](https://github.com/MetaMask/accounts.git/pull/253))
-  - This regression was due to latest `@ethereumjs` upgrade. 
+- Trim `0x` prefix for `signTransaction` ([#253](https://github.com/MetaMask/accounts/pull/253))
+  - This regression was due to latest `@ethereumjs` upgrade.
 
 ### Changed
 
@@ -305,38 +305,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@10.1.0...HEAD
-[10.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@10.0.0...@metamask/eth-ledger-bridge-keyring@10.1.0
-[10.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@9.0.0...@metamask/eth-ledger-bridge-keyring@10.0.0
-[9.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@8.0.5...@metamask/eth-ledger-bridge-keyring@9.0.0
-[8.0.5]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@8.0.4...@metamask/eth-ledger-bridge-keyring@8.0.5
-[8.0.4]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@8.0.3...@metamask/eth-ledger-bridge-keyring@8.0.4
-[8.0.3]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@8.0.2...@metamask/eth-ledger-bridge-keyring@8.0.3
-[8.0.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@8.0.1...@metamask/eth-ledger-bridge-keyring@8.0.2
-[8.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@8.0.0...@metamask/eth-ledger-bridge-keyring@8.0.1
-[8.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@7.0.0...@metamask/eth-ledger-bridge-keyring@8.0.0
-[7.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@6.0.0...@metamask/eth-ledger-bridge-keyring@7.0.0
-[6.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@5.0.1...@metamask/eth-ledger-bridge-keyring@6.0.0
-[5.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@5.0.0...@metamask/eth-ledger-bridge-keyring@5.0.1
-[5.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@4.1.4...@metamask/eth-ledger-bridge-keyring@5.0.0
-[4.1.4]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@4.1.3...@metamask/eth-ledger-bridge-keyring@4.1.4
-[4.1.3]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@4.1.2...@metamask/eth-ledger-bridge-keyring@4.1.3
-[4.1.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@4.1.1...@metamask/eth-ledger-bridge-keyring@4.1.2
-[4.1.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@4.1.0...@metamask/eth-ledger-bridge-keyring@4.1.1
-[4.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@4.0.0...@metamask/eth-ledger-bridge-keyring@4.1.0
-[4.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@3.0.0...@metamask/eth-ledger-bridge-keyring@4.0.0
-[3.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@2.0.1...@metamask/eth-ledger-bridge-keyring@3.0.0
-[2.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@2.0.0...@metamask/eth-ledger-bridge-keyring@2.0.1
-[2.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@1.0.1...@metamask/eth-ledger-bridge-keyring@2.0.0
-[1.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@1.0.0...@metamask/eth-ledger-bridge-keyring@1.0.1
-[1.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@0.15.0...@metamask/eth-ledger-bridge-keyring@1.0.0
-[0.15.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@0.14.0...@metamask/eth-ledger-bridge-keyring@0.15.0
-[0.14.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@0.13.0...@metamask/eth-ledger-bridge-keyring@0.14.0
-[0.13.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@0.12.0...@metamask/eth-ledger-bridge-keyring@0.13.0
-[0.12.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@0.11.0...@metamask/eth-ledger-bridge-keyring@0.12.0
-[0.11.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@0.10.0...@metamask/eth-ledger-bridge-keyring@0.11.0
-[0.10.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@0.9.0...@metamask/eth-ledger-bridge-keyring@0.10.0
-[0.9.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@0.8.0...@metamask/eth-ledger-bridge-keyring@0.9.0
-[0.8.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@0.7.0...@metamask/eth-ledger-bridge-keyring@0.8.0
-[0.7.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@0.6.0...@metamask/eth-ledger-bridge-keyring@0.7.0
-[0.6.0]: https://github.com/MetaMask/accounts.git/releases/tag/@metamask/eth-ledger-bridge-keyring@0.6.0
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@10.1.0...HEAD
+[10.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@10.0.0...@metamask/eth-ledger-bridge-keyring@10.1.0
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@9.0.0...@metamask/eth-ledger-bridge-keyring@10.0.0
+[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.5...@metamask/eth-ledger-bridge-keyring@9.0.0
+[8.0.5]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.4...@metamask/eth-ledger-bridge-keyring@8.0.5
+[8.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.3...@metamask/eth-ledger-bridge-keyring@8.0.4
+[8.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.2...@metamask/eth-ledger-bridge-keyring@8.0.3
+[8.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.1...@metamask/eth-ledger-bridge-keyring@8.0.2
+[8.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.0...@metamask/eth-ledger-bridge-keyring@8.0.1
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@7.0.0...@metamask/eth-ledger-bridge-keyring@8.0.0
+[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@6.0.0...@metamask/eth-ledger-bridge-keyring@7.0.0
+[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@5.0.1...@metamask/eth-ledger-bridge-keyring@6.0.0
+[5.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@5.0.0...@metamask/eth-ledger-bridge-keyring@5.0.1
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.4...@metamask/eth-ledger-bridge-keyring@5.0.0
+[4.1.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.3...@metamask/eth-ledger-bridge-keyring@4.1.4
+[4.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.2...@metamask/eth-ledger-bridge-keyring@4.1.3
+[4.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.1...@metamask/eth-ledger-bridge-keyring@4.1.2
+[4.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.1.0...@metamask/eth-ledger-bridge-keyring@4.1.1
+[4.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@4.0.0...@metamask/eth-ledger-bridge-keyring@4.1.0
+[4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@3.0.0...@metamask/eth-ledger-bridge-keyring@4.0.0
+[3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@2.0.1...@metamask/eth-ledger-bridge-keyring@3.0.0
+[2.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@2.0.0...@metamask/eth-ledger-bridge-keyring@2.0.1
+[2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@1.0.1...@metamask/eth-ledger-bridge-keyring@2.0.0
+[1.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@1.0.0...@metamask/eth-ledger-bridge-keyring@1.0.1
+[1.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@0.15.0...@metamask/eth-ledger-bridge-keyring@1.0.0
+[0.15.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@0.14.0...@metamask/eth-ledger-bridge-keyring@0.15.0
+[0.14.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@0.13.0...@metamask/eth-ledger-bridge-keyring@0.14.0
+[0.13.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@0.12.0...@metamask/eth-ledger-bridge-keyring@0.13.0
+[0.12.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@0.11.0...@metamask/eth-ledger-bridge-keyring@0.12.0
+[0.11.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@0.10.0...@metamask/eth-ledger-bridge-keyring@0.11.0
+[0.10.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@0.9.0...@metamask/eth-ledger-bridge-keyring@0.10.0
+[0.9.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@0.8.0...@metamask/eth-ledger-bridge-keyring@0.9.0
+[0.8.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@0.7.0...@metamask/eth-ledger-bridge-keyring@0.8.0
+[0.7.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@0.6.0...@metamask/eth-ledger-bridge-keyring@0.7.0
+[0.6.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-ledger-bridge-keyring@0.6.0
