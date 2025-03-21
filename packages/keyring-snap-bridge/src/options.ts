@@ -16,6 +16,12 @@ export type SnapKeyringInternalOptions = {
    * unique.
    */
   displayAccountNameSuggestion?: boolean;
+
+  /**
+   * Instructs MetaMask to not select the account at the end of a create account
+   * flow.
+   */
+  setSelectedAccount?: boolean;
 };
 
 /**
@@ -27,5 +33,6 @@ export function getDefaultInternalOptions(): Required<SnapKeyringInternalOptions
   return {
     displayAccountNameSuggestion: true,
     displayConfirmation: true,
+    setSelectedAccount: true,
   };
 }
