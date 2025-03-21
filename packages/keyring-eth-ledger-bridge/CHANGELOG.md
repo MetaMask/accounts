@@ -9,14 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.0.0]
 
+### Changed
+
+- **BREAKING:** The `signTypedData` method now requires `SignTypedDataVersion.V4` as version for the `options` argument ([#224](https://github.com/MetaMask/accounts/pull/224))
+
 ### Fixed
 
 - Trim `0x` prefix for `signTransaction` ([#253](https://github.com/MetaMask/accounts/pull/253))
   - This regression was due to latest `@ethereumjs` upgrade.
-
-### Changed
-
-- **BREAKING:** The `signTypedData` method now requires `SignTypedDataVersion.V4` as version for the `options` argument ([#224](https://github.com/MetaMask/accounts/pull/224))
 
 ## [10.0.0]
 
