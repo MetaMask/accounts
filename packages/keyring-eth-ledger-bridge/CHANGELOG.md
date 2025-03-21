@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.1.0]
+
 ### Uncategorized
 
 - fix(keyring-eth-ledger-bridge): trim `0x` prefix for `signTransaction` (due to latest `@ethereumjs` upgrade) ([#253](https://github.com/MetaMask/accounts.git/pull/253))
@@ -302,7 +304,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@10.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@10.1.0...HEAD
+[10.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@10.0.0...@metamask/eth-ledger-bridge-keyring@10.1.0
 [10.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@9.0.0...@metamask/eth-ledger-bridge-keyring@10.0.0
 [9.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@8.0.5...@metamask/eth-ledger-bridge-keyring@9.0.0
 [8.0.5]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@8.0.4...@metamask/eth-ledger-bridge-keyring@8.0.5
