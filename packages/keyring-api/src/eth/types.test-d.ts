@@ -2,11 +2,11 @@ import type { Extends } from '@metamask/keyring-utils';
 import { expectTrue } from '@metamask/keyring-utils';
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
+import { EthScope } from './constants';
 import type { EthEoaAccount, EthErc4337Account } from './types';
 import { EthMethod } from './types';
 import { EthAccountType } from '../api';
 import type { KeyringAccount } from '../api';
-import { EthScope } from './constants';
 
 const id = '606a7759-b0fb-48e4-9874-bab62ff8e7eb';
 const address = '0x000';
