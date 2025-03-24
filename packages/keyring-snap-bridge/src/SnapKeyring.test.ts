@@ -416,21 +416,21 @@ describe('SnapKeyring', () => {
             undefined,
           ],
           [
-            'handles account creation with displayConfirmation (retro-compatibility)',
+            'handles account creation with displayConfirmation',
             { ...ethEoaAccount2 },
             undefined,
             false,
             undefined,
           ],
           [
-            'handles account creation with both accountNameSuggestion and displayConfirmation (retro-compatibility)',
+            'handles account creation with both accountNameSuggestion and displayConfirmation',
             { ...ethEoaAccount3 },
             'New Account',
             false,
             undefined,
           ],
           [
-            'handles account creation with both accountNameSuggestion and displayAccountNameSuggestion (retro-compatibility)',
+            'handles account creation with both accountNameSuggestion and displayAccountNameSuggestion',
             { ...ethEoaAccount4 },
             'New Account',
             false,
@@ -468,15 +468,22 @@ describe('SnapKeyring', () => {
               params,
             });
 
+            const defaultOptions = getDefaultInternalOptions();
             expect(mockCallbacks.addAccount).toHaveBeenCalledWith(
               account.address.toLowerCase(),
               snapId,
               expect.any(Function),
               expect.any(Promise),
               accountNameSuggestion,
-              // `display*` flags have now been deprecated on the `AccountCreated` event, meaning we expect
-              // to use the default value instead (at least, in this test).
-              getDefaultInternalOptions(),
+              {
+                displayConfirmation:
+                  displayConfirmation ?? defaultOptions.displayConfirmation,
+                displayAccountNameSuggestion:
+                  displayAccountNameSuggestion ??
+                  defaultOptions.displayAccountNameSuggestion,
+                // This one is not overloaded, so use the defaults here.
+                setSelectedAccount: defaultOptions.setSelectedAccount,
+              },
             );
           },
         );
@@ -2177,6 +2184,7 @@ describe('SnapKeyring', () => {
       const internalOptions: SnapKeyringInternalOptions = {
         displayConfirmation: false,
         displayAccountNameSuggestion: false,
+        setSelectedAccount: false,
       };
 
       await keyring.createAccount(snapId, options, internalOptions);

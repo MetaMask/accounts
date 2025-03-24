@@ -59,7 +59,7 @@ import {
 import { projectLogger as log } from './logger';
 import { isAccountV1, migrateAccountV1 } from './migrations';
 import {
-  getDefaultInternalOptions,
+  getInternalOptionsOf,
   type SnapKeyringInternalOptions,
 } from './options';
 import { SnapIdMap } from './SnapIdMap';
@@ -220,12 +220,12 @@ export class SnapKeyring extends EventEmitter {
    *
    * @param snapId - Snap ID
    * @param correlationId - Correlation ID associated with the internal options.
-   * @returns Internal options if found, or defaults internal options values otherwise.
+   * @returns Internal options if found, `undefined` otherwise.
    */
-  #getInternalOptionsOrDefaults(
+  #getInternalOptions(
     snapId: SnapId,
     correlationId: string | undefined,
-  ): SnapKeyringInternalOptions {
+  ): SnapKeyringInternalOptions | undefined {
     if (correlationId) {
       // We still need to check if the correlation ID is valid and associated to
       // some internal options.
@@ -245,7 +245,7 @@ export class SnapKeyring extends EventEmitter {
       );
     }
 
-    return getDefaultInternalOptions();
+    return undefined;
   }
 
   /**
@@ -264,6 +264,8 @@ export class SnapKeyring extends EventEmitter {
       metamask, // Used for internal options.
       account: newAccountFromEvent,
       accountNameSuggestion,
+      displayAccountNameSuggestion,
+      displayConfirmation,
     } = message.params;
 
     // READ THIS CAREFULLY:
@@ -344,7 +346,15 @@ export class SnapKeyring extends EventEmitter {
       },
       onceSaved.promise,
       accountNameSuggestion,
-      this.#getInternalOptionsOrDefaults(snapId, metamask?.correlationId),
+      getInternalOptionsOf([
+        // 1. We use the internal options from the Snap keyring.
+        this.#getInternalOptions(snapId, metamask?.correlationId) ?? {},
+        // 2. We use the ones coming from the Snap.
+        {
+          displayConfirmation,
+          displayAccountNameSuggestion,
+        },
+      ]),
     );
 
     return null;
