@@ -64,32 +64,5 @@ describe('options', () => {
         displayAccountNameSuggestion: defaults.displayAccountNameSuggestion,
       });
     });
-
-    /*
-    it.each([
-      {
-        input: [
-          {
-            displayConfirmation: false,
-          },
-        ],
-        expected: {
-          ...defaults,
-          displayConfirmation: false,
-        },
-      },
-    ])(
-      'supports undefined option object fields',
-      ({
-        input,
-        expected,
-      }: {
-        input: SnapKeyringInternalOptions[];
-        expected: Required<SnapKeyringInternalOptions>;
-      }) => {
-        expect(getInternalOptionsOf(input)).toStrictEqual(expected);
-      },
-    );
-    */
   });
 });
