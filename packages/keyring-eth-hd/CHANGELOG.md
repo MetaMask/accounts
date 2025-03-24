@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Export types `SerializedHDKeyringState` and `DeserializableHDKeyringState` ([#255](https://github.com/MetaMask/accounts/pull/255))
+
+### Changed
+
+- **BREAKING:** The method signature for `signTypedData` has been changed ([#224](https://github.com/MetaMask/accounts/pull/224))
+  - The method now accepts a `TypedDataV1` object when `SignTypedDataVersion.V1` is passed in the options, and `TypedMessage<Types>` when other versions are requested.
+- **BREAKING:** The `HdKeyring` class now extends `Keyring` from `@metamask/keyring-utils` ([#255](https://github.com/MetaMask/accounts/pull/255))
+  - The `deserialize` method does not accept `Buffer` mnemonic anymore
+  - The options argument to `deserialize` is no longer optional
+  - `getAccounts` is now `async`
+
+### Removed
+
+- **BREAKING:** `HDKeyringState` type is no longer exported ([#255](https://github.com/MetaMask/accounts/pull/255))
+  - This has effectively been replaced with `SerializedHDKeyringState` and `DeserializableHDKeyringState`
+
+## [12.1.0]
+
+### Added
+
+- Store mnemonic seed in `HdKeyring.seed` ([#244](https://github.com/MetaMask/accounts/pull/244))
+
 ## [12.0.0]
 
 ### Changed
@@ -191,7 +215,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.1.0...HEAD
+[12.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.0.0...@metamask/eth-hd-keyring@12.1.0
 [12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@11.0.0...@metamask/eth-hd-keyring@12.0.0
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@10.0.1...@metamask/eth-hd-keyring@11.0.0
 [10.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@10.0.0...@metamask/eth-hd-keyring@10.0.1

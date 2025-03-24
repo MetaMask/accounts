@@ -46,6 +46,7 @@ linkStyle default opacity:0.5
   keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
   keyring_utils(["@metamask/keyring-utils"]);
   keyring_api --> keyring_utils;
+  eth_hd_keyring --> keyring_utils;
   eth_ledger_bridge_keyring --> keyring_utils;
   eth_simple_keyring --> keyring_utils;
   eth_trezor_keyring --> keyring_utils;

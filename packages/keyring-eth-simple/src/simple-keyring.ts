@@ -7,6 +7,9 @@ import {
   stripHexPrefix,
 } from '@ethereumjs/util';
 import {
+  type TypedDataV1,
+  type MessageTypes,
+  type TypedMessage,
   concatSig,
   decrypt,
   EIP7702Authorization,
@@ -154,21 +157,24 @@ export default class SimpleKeyring implements Keyring {
     return decrypt({ privateKey, encryptedData });
   }
 
-  // personal_signTypedData, signs data along with the schema
-  async signTypedData(
+  async signTypedData<
+    Version extends SignTypedDataVersion,
+    Types extends MessageTypes,
+    Options extends { version?: Version } & KeyringOpt,
+  >(
     address: Hex,
-    typedData: any,
-    opts: KeyringOpt = { version: SignTypedDataVersion.V1 },
+    data: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
+    options?: Options,
   ): Promise<string> {
-    // Treat invalid versions as "V1"
-    let version = SignTypedDataVersion.V1;
+    let { version } = options ?? { version: SignTypedDataVersion.V1 };
 
-    if (opts.version && isSignTypedDataVersion(opts.version)) {
-      version = SignTypedDataVersion[opts.version];
+    // Treat invalid versions as "V1"
+    if (!version || !isSignTypedDataVersion(version)) {
+      version = SignTypedDataVersion.V1;
     }
 
-    const privateKey = this.#getPrivateKeyFor(address, opts);
-    return signTypedData({ privateKey, data: typedData, version });
+    const privateKey = this.#getPrivateKeyFor(address, options);
+    return signTypedData({ privateKey, data, version });
   }
 
   // get public key for nacl

@@ -97,6 +97,30 @@ describe('SnapIdMap', () => {
     });
   });
 
+  describe('pop', () => {
+    it('returns undefined when the key is not in the map', () => {
+      const map = new SnapIdMap<{ snapId: SnapId; value: number }>();
+      const value = map.pop(SNAP_1_ID, 'foo');
+      expect(value).toBeUndefined();
+    });
+
+    it('returns undefined when the snapId does not match', () => {
+      const map = new SnapIdMap<{ snapId: SnapId; value: number }>();
+      map.set('foo', { snapId: SNAP_1_ID, value: 1 });
+      const value = map.pop(SNAP_2_ID, 'foo');
+      expect(value).toBeUndefined();
+    });
+
+    it('returns the value when the snapId matches', () => {
+      const map = new SnapIdMap<{ snapId: SnapId; value: number }>();
+      map.set('foo', { snapId: SNAP_1_ID, value: 1 });
+      expect(map.has(SNAP_1_ID, 'foo')).toBe(true);
+      const value = map.pop(SNAP_1_ID, 'foo');
+      expect(value).toStrictEqual({ snapId: SNAP_1_ID, value: 1 });
+      expect(map.has(SNAP_1_ID, 'foo')).toBe(false);
+    });
+  });
+
   describe('hasSnapId', () => {
     it('returns false when the snapId is not in the map', () => {
       const map = new SnapIdMap<{ snapId: SnapId; value: number }>();

@@ -403,13 +403,14 @@ export class LedgerKeyring implements Keyring {
     const hdPath = await this.unlockAccountByAddress(address);
 
     if (!hdPath) {
-      throw new Error('Ledger: Unknown error while signing transaction');
+      throw new Error('Ledger: hdPath is empty while signing transaction');
     }
 
     let payload;
+
     try {
       payload = await this.bridge.deviceSignTransaction({
-        tx: rawTxHex,
+        tx: remove0x(rawTxHex),
         hdPath,
       });
     } catch (error) {
@@ -493,12 +494,17 @@ export class LedgerKeyring implements Keyring {
     return hdPath;
   }
 
-  async signTypedData<T extends MessageTypes>(
+  async signTypedData<
+    Version extends SignTypedDataVersion.V4,
+    Types extends MessageTypes,
+    Options extends { version?: Version },
+  >(
     withAccount: Hex,
-    data: TypedMessage<T>,
-    options: { version?: string } = {},
+    data: TypedMessage<Types>,
+    options?: Options,
   ): Promise<string> {
-    const isV4 = options.version === 'V4';
+    const { version } = options ?? {};
+    const isV4 = version === 'V4';
     if (!isV4) {
       throw new Error(
         'Ledger: Only version 4 of typed data signing is supported',

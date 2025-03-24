@@ -28,6 +28,7 @@ import type {
   EthUserOperationPatch,
   ResolvedAccountAddress,
   CaipChainId,
+  MetaMaskOptions,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
@@ -39,6 +40,7 @@ import { assert, mask, object, string } from '@metamask/superstruct';
 import type { Hex, Json } from '@metamask/utils';
 import {
   bigIntToHex,
+  hasProperty,
   KnownCaipNamespace,
   toCaipChainId,
 } from '@metamask/utils';
@@ -56,6 +58,10 @@ import {
 } from './events';
 import { projectLogger as log } from './logger';
 import { isAccountV1, migrateAccountV1 } from './migrations';
+import {
+  getDefaultInternalOptions,
+  type SnapKeyringInternalOptions,
+} from './options';
 import { SnapIdMap } from './SnapIdMap';
 import type {
   SnapKeyringEvents,
@@ -103,8 +109,7 @@ export type SnapKeyringCallbacks = {
     handleUserInput: (accepted: boolean) => Promise<void>,
     onceSaved: Promise<AccountId>,
     accountNameSuggestion?: string,
-    displayConfirmation?: boolean,
-    displayAccountNameSuggestion?: boolean,
+    internalOptions?: SnapKeyringInternalOptions,
   ): Promise<void>;
 
   removeAccount(
@@ -115,6 +120,13 @@ export type SnapKeyringCallbacks = {
 
   redirectUser(snapId: SnapId, url: string, message: string): Promise<void>;
 };
+
+/**
+ * Callback type to filter unknown account ID from a mapping account ID mapping.
+ */
+type FilterAccountIdFunction = <Entry>(
+  accountMapping: Record<AccountId, Entry>,
+) => Record<AccountId, Entry>;
 
 /**
  * Normalize account's address.
@@ -167,6 +179,15 @@ export class SnapKeyring extends EventEmitter {
   }>;
 
   /**
+   * Mapping between internal options, a correlation ID and a Snap ID.
+   */
+  readonly #options: SnapIdMap<{
+    options: SnapKeyringInternalOptions;
+    snapId: SnapId;
+    // TODO: Add TTL to avoid having too many "leaking" internal options.
+  }>;
+
+  /**
    * Callbacks used to interact with other components.
    */
   readonly #callbacks: SnapKeyringCallbacks;
@@ -188,7 +209,43 @@ export class SnapKeyring extends EventEmitter {
     this.#snapClient = new KeyringInternalSnapClient({ messenger });
     this.#requests = new SnapIdMap();
     this.#accounts = new SnapIdMap();
+    this.#options = new SnapIdMap();
     this.#callbacks = callbacks;
+  }
+
+  /**
+   * Get internal options given a correlation ID.
+   *
+   * NOTE: The associated options will be deleted automatically.
+   *
+   * @param snapId - Snap ID
+   * @param correlationId - Correlation ID associated with the internal options.
+   * @returns Internal options if found, or defaults internal options values otherwise.
+   */
+  #getInternalOptionsOrDefaults(
+    snapId: SnapId,
+    correlationId: string | undefined,
+  ): SnapKeyringInternalOptions {
+    if (correlationId) {
+      // We still need to check if the correlation ID is valid and associated to
+      // some internal options.
+      //
+      // NOTE: `found` will be `undefined` if a Snap tried to use a correlation ID that
+      // belongs to another Snap ID. However, if a Snap starts 2 parallel flow (which
+      // will results in 2 different correlation IDs), we won't be able to prevent
+      // the Snap from swapping/mixing up those correlation IDs he owns.
+      const found = this.#options.pop(snapId, correlationId);
+
+      if (found) {
+        return found.options;
+      }
+
+      console.warn(
+        `SnapKeyring - Received unmapped correlation ID: "${correlationId}"`,
+      );
+    }
+
+    return getDefaultInternalOptions();
   }
 
   /**
@@ -204,10 +261,9 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<null> {
     assert(message, AccountCreatedEventStruct);
     const {
+      metamask, // Used for internal options.
       account: newAccountFromEvent,
       accountNameSuggestion,
-      displayConfirmation,
-      displayAccountNameSuggestion,
     } = message.params;
 
     // READ THIS CAREFULLY:
@@ -288,8 +344,7 @@ export class SnapKeyring extends EventEmitter {
       },
       onceSaved.promise,
       accountNameSuggestion,
-      displayConfirmation,
-      displayAccountNameSuggestion,
+      this.#getInternalOptionsOrDefaults(snapId, metamask?.correlationId),
     );
 
     return null;
@@ -412,59 +467,116 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Re-publish an account event.
    *
+   * @param snapId - Snap ID.
    * @param event - The event type. This is a unique identifier for this event.
-   * @param payload - The event payload. The type of the parameters for each event handler must
-   * match the type of this payload.
+   * @param filteredEventCallback - A callback that returns the event to re-publish. This callback takes a filtering
+   * function as parameter that can be used to filter out account ID that do not belong to this Snap ID.
    * @template EventType - A Snap keyring event type.
    * @returns `null`.
    */
   async #rePublishAccountEvent<EventType extends SnapKeyringEvents['type']>(
+    snapId: SnapId,
     event: EventType,
-    ...payload: ExtractEventPayload<SnapKeyringEvents, EventType>
+    filteredEventCallback: (
+      filter: FilterAccountIdFunction,
+    ) => ExtractEventPayload<SnapKeyringEvents, EventType>,
   ): Promise<null> {
-    this.#messenger.publish(event, ...payload);
+    // This callback can be used to filter out the accounts that no longer exists on the Snap (fail-safe) or to
+    // prevent other Snaps from updating accounts they do not own.
+    const filter: FilterAccountIdFunction = <Entry>(
+      accountMapping: Record<AccountId, Entry>,
+    ): Record<AccountId, Entry> => {
+      return Object.entries(accountMapping).reduce<Record<AccountId, Entry>>(
+        (filtered, [accountId, entry]) => {
+          if (this.#accounts.has(snapId, accountId)) {
+            // If the Snap owns this account, we can use it.
+            filtered[accountId] = entry;
+          } else {
+            // Otherwise, we just filter it out and log it (for debugging/tracking purposes).
+            console.warn(
+              `SnapKeyring - ${event} - Found an unknown account ID "${accountId}" for Snap ID "${snapId}". Skipping.`,
+            );
+          }
+
+          return filtered;
+        },
+        {},
+      );
+    };
+
+    this.#messenger.publish(event, ...filteredEventCallback(filter));
     return null;
   }
 
   /**
    * Handle a balances updated event from a Snap.
    *
+   * @param snapId - ID of the Snap.
    * @param message - Event message.
    * @returns `null`.
    */
-  async #handleAccountBalancesUpdated(message: SnapMessage): Promise<null> {
+  async #handleAccountBalancesUpdated(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<null> {
     assert(message, AccountBalancesUpdatedEventStruct);
+
+    const event = message.params;
     return this.#rePublishAccountEvent(
+      snapId,
       'SnapKeyring:accountBalancesUpdated',
-      message.params,
+      (filter) => {
+        event.balances = filter(event.balances);
+        return [event];
+      },
     );
   }
 
   /**
    * Handle a asset list updated event from a Snap.
    *
+   * @param snapId - ID of the Snap.
    * @param message - Event message.
    * @returns `null`.
    */
-  async #handleAccountAssetListUpdated(message: SnapMessage): Promise<null> {
+  async #handleAccountAssetListUpdated(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<null> {
     assert(message, AccountAssetListUpdatedEventStruct);
+
+    const event = message.params;
     return this.#rePublishAccountEvent(
+      snapId,
       'SnapKeyring:accountAssetListUpdated',
-      message.params,
+      (filter) => {
+        event.assets = filter(event.assets);
+        return [event];
+      },
     );
   }
 
   /**
    * Handle a transactions updated event from a Snap.
    *
+   * @param snapId - ID of the Snap.
    * @param message - Event message.
    * @returns `null`.
    */
-  async #handleAccountTransactionsUpdated(message: SnapMessage): Promise<null> {
+  async #handleAccountTransactionsUpdated(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<null> {
     assert(message, AccountTransactionsUpdatedEventStruct);
+
+    const event = message.params;
     return this.#rePublishAccountEvent(
+      snapId,
       'SnapKeyring:accountTransactionsUpdated',
-      message.params,
+      (filter) => {
+        event.transactions = filter(event.transactions);
+        return [event];
+      },
     );
   }
 
@@ -503,15 +615,15 @@ export class SnapKeyring extends EventEmitter {
 
       // Assets related events:
       case `${KeyringEvent.AccountBalancesUpdated}`: {
-        return this.#handleAccountBalancesUpdated(message);
+        return this.#handleAccountBalancesUpdated(snapId, message);
       }
 
       case `${KeyringEvent.AccountAssetListUpdated}`: {
-        return this.#handleAccountAssetListUpdated(message);
+        return this.#handleAccountAssetListUpdated(snapId, message);
       }
 
       case `${KeyringEvent.AccountTransactionsUpdated}`: {
-        return this.#handleAccountTransactionsUpdated(message);
+        return this.#handleAccountTransactionsUpdated(snapId, message);
       }
 
       default:
@@ -608,6 +720,63 @@ export class SnapKeyring extends EventEmitter {
         .filter(({ snapId: accountSnapId }) => accountSnapId === snapId)
         .map(({ account }) => normalizeAccountAddress(account)),
     );
+  }
+
+  /**
+   * Create an account.
+   *
+   * @param snapId - Snap ID to create the account for.
+   * @param options - Account creation options. Differs between keyrings.
+   * @param internalOptions - Internal Snap keyring options.
+   * @returns The account object.
+   */
+  async createAccount(
+    snapId: SnapId,
+    options: Record<string, Json>,
+    internalOptions?: SnapKeyringInternalOptions,
+  ): Promise<KeyringAccount> {
+    const client = new KeyringInternalSnapClient({
+      messenger: this.#messenger,
+      snapId,
+    });
+
+    // The 'metamask' field is reserved, so we have to prevent use of it on
+    // the "normal options".
+    const reserved = 'metamask';
+    if (hasProperty(options, reserved)) {
+      throw new Error(
+        `The '${reserved}' property is reserved for internal use`,
+      );
+    }
+
+    // Those internal options are optional. If not set, we avoid registering anything
+    // to internal map (to avoid holding resources for nothing). In this case, it's
+    // just a normal `keyring_createAccount`.
+    if (!internalOptions) {
+      return await client.createAccount(options);
+    }
+
+    // A unique ID to identify this execution flow which allows to associate the
+    // internal options and the current `keyring_createAccount` flow for that Snap.
+    const correlationId = uuid();
+
+    // Register those internal options to use them during the `keyring_createAccount`
+    // flow.
+    this.#options.set(correlationId, {
+      snapId,
+      options: internalOptions,
+    });
+
+    return await client.createAccount({
+      ...options,
+      // Create internal options context.
+      // NOTE: Those options HAVE TO be re-emitted during the `notify:accountCreated` event.
+      ...({
+        metamask: {
+          correlationId,
+        },
+      } as MetaMaskOptions),
+    });
   }
 
   /**

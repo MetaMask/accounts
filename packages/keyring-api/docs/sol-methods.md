@@ -40,7 +40,7 @@ Signs and sends a transaction to the Solana blockchain.
   - Type: `object`
   - Properties:
     - `signature`
-      - Description: The transaction signature.
+      - Description: The base58 encoded transaction signature.
       - Type: `string`
 
 ### Examples
@@ -121,9 +121,9 @@ Signs a transaction to the Solana blockchain.
   "method": "signTransaction",
   "params": {
     "account": {
-      "address": "GM4iccdbdSF1qN3Bqmdksfk7iuxYhWzC8T3XbizStAdE"
+      "address": "FDUGdV6bjhvw5gbirXCvqbTSWK9999kcrZcrHoCQzXJK"
     },
-    "transaction": "MTIzNDU2Nzg5MDIzMzQzNDM1NDM=",
+    "transaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAQACBJmwAo+dnq8yhuKR7QpXgj+5yPFMzVwViEudWE9Z+N903bOu6UdCGJS9VyhRo8wvswWSAO709XY+51AU1MALO6wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAdazMubIOjxUiTY/+xWYNSffhgTb7vd9LWQ0sI2iMMSoCAwAFAiwBAAACAgABDAIAAABAQg8AAAAAAAA=",
     "scope": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
     "options": {
       "preflightCommitment": "confirmed",
@@ -137,13 +137,15 @@ Signs a transaction to the Solana blockchain.
 
 ```json
 {
-  "signedTransaction": "MTIzNDU2Nzg5MDIzMzQzNDM1NDM2NDU2NTM0"
+  "signedTransaction": "AchmhyZwTxtSzYoT9A89g0ttVuYx9yDzk8Ykw35yM2XuGwzv/8qwg8My2yAWI1Ai3PGMN1VioGZFl4LDIEtDKw6AAQACBJmwAo+dnq8yhuKR7QpXgj+5yPFMzVwViEudWE9Z+N903bOu6UdCGJS9VyhRo8wvswWSAO709XY+51AU1MALO6wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMGRm/lIRcy/+ytunLDm+e8jOW7xfcSayxDmzpAAAAAdazMubIOjxUiTY/+xWYNSffhgTb7vd9LWQ0sI2iMMSoCAwAFAiwBAAACAgABDAIAAABAQg8AAAAAAAA="
 }
 ```
 
 ## [signMessage](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signMessage.ts#L4)
 
-Signs a message to the Solana blockchain.
+Signs the provided base64 encoded message using the provided account's private key.
+
+It signs the base64 encoded message, **NOT** the original message, meaning that the signature must be verified using the base64 encoded message as well.
 
 ### [Parameters](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signMessage.ts#L27)
 
@@ -167,7 +169,7 @@ Signs a message to the Solana blockchain.
   - Type: `object`
   - Properties:
     - `signature` (required)
-      - Description: The base64 encoded message signature.
+      - Description: The base58 encoded message signature.
       - Type: `string`
     - `signedMessage` (required)
       - Description: The base64 encoded signed message.
@@ -187,7 +189,7 @@ Signs a message to the Solana blockchain.
     "account": {
       "address": "GM4iccdbdSF1qN3Bqmdksfk7iuxYhWzC8T3XbizStAdE"
     },
-    "message": "1234567890"
+    "message": "SGVsbG8sIHdvcmxkIQ==" // "Hello, world!" in base64
   }
 }
 ```
@@ -196,15 +198,17 @@ Signs a message to the Solana blockchain.
 
 ```json
 {
-  "signature": "1234567890",
-  "signedMessage": "MTIzNDU2Nzg5MA==",
+  "signature": "2n1rfebBmxvRd6MMdDdV5V9Hyy34FRBgVc6EFGjH78fNUW2Fz6RgkMwpHwLGFVQS2BBDkHV38FuKdavSF2GTo5gq",
+  "signedMessage": "SGVsbG8sIHdvcmxkIQ==", // "Hello, world!" in base64
   "signatureType": "ed25519"
 }
 ```
 
 ## [signIn](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signIn.ts#L4)
 
-Signs in to the Solana blockchain.
+Receives a sign in intent object that contains data like domain, or URI, then converts it into a message using `JSON.stringify()`, then signs the message.
+
+Signature verification must be done against the JSON.
 
 ### [Parameters](https://github.com/anza-xyz/wallet-standard/blob/master/packages/core/features/src/signIn.ts#L27)
 
@@ -262,10 +266,10 @@ Signs in to the Solana blockchain.
           - Description: The address of the account.
           - Type: `string`
     - `signedMessage` (required)
-      - Description: Message bytes that were signed. The wallet may prefix or otherwise modify the message before signing it.
+      - Description: The provided intent object that was JSON.stringified and base64 encoded. Perform signature verifications against this string.
       - Type: `string`
     - `signature` (required)
-      - Description: The base64 encoded message signature. If the signature type is provided, the signature must be Ed25519.
+      - Description: The base58 encoded message signature. If the signature type is provided, the signature must be Ed25519.
       - Type: `string`
     - `signatureType` (optional)
       - Description: The type of signature. If not provided, the signature must be Ed25519.
@@ -279,7 +283,13 @@ Signs in to the Solana blockchain.
 {
   "method": "signIn",
   "params": {
-    "domain": "example.com"
+    "address": "27h6cm6S9ag5y4ASi1a1vbTSKEsQMjEdfvZ6atPjmbuD",
+    "domain": "example.com",
+    "statement": "I accept the terms of service",
+    "uri": "https://example.com",
+    "version": "1",
+    "chainId": "solana:101",
+    "nonce": "123"
   }
 }
 ```
@@ -289,10 +299,10 @@ Signs in to the Solana blockchain.
 ```json
 {
   "account": {
-    "address": "GM4iccdbdSF1qN3Bqmdksfk7iuxYhWzC8T3XbizStAdE"
+    "address": "27h6cm6S9ag5y4ASi1a1vbTSKEsQMjEdfvZ6atPjmbuD"
   },
-  "signedMessage": "MTIzNDU2Nzg5MA==",
-  "signature": "1234567890",
+  "signedMessage": "eyJhZGRyZXNzIjoiMjdoNmNtNlM5YWc1eTRBU2kxYTF2YlRTS0VzUU1qRWRmdlo2YXRQam1idUQiLCJkb21haW4iOiJleGFtcGxlLmNvbSIsInN0YXRlbWVudCI6IkkgYWNjZXB0IHRoZSB0ZXJtcyBvZiBzZXJ2aWNlIiwidXJpIjoiaHR0cHM6Ly9leGFtcGxlLmNvbSIsInZlcnNpb24iOiIxIiwiY2hhaW5JZCI6InNvbGFuYToxMDEiLCJub25jZSI6IjEyMyJ9",
+  "signature": "3WiRaNnVAbrYWd4MT7rkq8oBC52HrbLZDst1K2ErAUiXswJu9aBZUMgKZpm581VV8Df6BDmgYGLRP7GcWE8mxMD9",
   "signatureType": "ed25519"
 }
 ```
