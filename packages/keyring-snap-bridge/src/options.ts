@@ -46,7 +46,8 @@ export type PotentiallyUndefined<Type> = {
 
 /**
  * Combine multiple internal options together. The internal options
- * in the list will be merged in the order they are provided. If some options
+ * in the list will be merged in the order they are provided. The first
+ * appearance of a key is used, and the following are ignored. If some options
  * are still not defined, it will fallback to the default ones.
  *
  * @param internalOptions - List of internal options to combine.
@@ -62,8 +63,8 @@ export function getInternalOptionsOf(
 
   const keys = Object.keys(defaults) as (keyof SnapKeyringInternalOptions)[];
   for (const key of keys) {
-    // We start of with `undefined` and check every options of the list, if
-    // we find any that is defined, we used it. In the end, we will fallback
+    // We start off with `undefined` and check every option in the list. If
+    // we find any that is defined, we use it. In the end, we will fallback
     // to the default ones that are guaranteed to be defined (thanks to the
     // use of `Required`).
     combined[key] = undefined;
