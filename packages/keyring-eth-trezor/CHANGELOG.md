@@ -7,12 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- chore: update `@trezor/connect-web` ([#241](https://github.com/MetaMask/accounts/pull/241))
-- revert: chore: bump trezor/connect-web (#234) ([#234](https://github.com/MetaMask/accounts/pull/234))
-- chore: bump trezor/connect-web ([#234](https://github.com/MetaMask/accounts/pull/234))
-
 ### Changed
 
 - **BREAKING:** The method signature for `signTypedData` has been changed ([#224](https://github.com/MetaMask/accounts/pull/224))
