@@ -220,7 +220,7 @@ export class SnapKeyring extends EventEmitter {
    *
    * @param snapId - Snap ID
    * @param correlationId - Correlation ID associated with the internal options.
-   * @returns Internal options if found, or defaults internal options values otherwise.
+   * @returns Internal options if found, `undefined` otherwise.
    */
   #getInternalOptions(
     snapId: SnapId,
@@ -354,8 +354,6 @@ export class SnapKeyring extends EventEmitter {
           displayConfirmation,
           displayAccountNameSuggestion,
         },
-        // 3. Lastly, the default options will be automatically used
-        // by `getInternalOptionsOf`.
       ]),
     );
 
