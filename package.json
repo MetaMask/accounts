@@ -30,6 +30,7 @@
     "release": "./scripts/release.sh",
     "setup": "yarn install",
     "test": "yarn foreach test",
+    "test:types": "yarn foreach test:types",
     "test:clean": "yarn foreach test:clean"
   },
   "resolutions": {
