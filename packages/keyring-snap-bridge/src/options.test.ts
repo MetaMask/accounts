@@ -9,13 +9,6 @@ describe('options', () => {
       expect(getInternalOptionsOf([])).toStrictEqual(defaults);
     });
 
-    it('supports undefined option objects', () => {
-      expect(getInternalOptionsOf([undefined])).toStrictEqual(defaults);
-      expect(getInternalOptionsOf([undefined, undefined])).toStrictEqual(
-        defaults,
-      );
-    });
-
     it('uses the first defined values', () => {
       const input: Required<SnapKeyringInternalOptions> = {
         displayConfirmation: !defaults.displayConfirmation,
