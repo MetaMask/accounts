@@ -45,8 +45,9 @@ export type PotentiallyUndefined<Type> = {
 };
 
 /**
- * Compute internal options based on a list. If some options are still not defined, it
- * will fallback to the default ones.
+ * Combine multiple internal options together. The internal options
+ * in the list will be merged in the order they are provided. If some options
+ * are still not defined, it will fallback to the default ones.
  *
  * @param internalOptions - List of internal options to combine.
  * @returns Computed internal options.
