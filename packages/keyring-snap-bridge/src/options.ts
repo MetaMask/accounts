@@ -52,10 +52,7 @@ export type PotentiallyUndefined<Type> = {
  * @returns Computed internal options.
  */
 export function getInternalOptionsOf(
-  internalOptions: (
-    | PotentiallyUndefined<SnapKeyringInternalOptions>
-    | undefined
-  )[],
+  internalOptions: PotentiallyUndefined<SnapKeyringInternalOptions>[],
 ): Required<SnapKeyringInternalOptions> {
   const combined: PotentiallyUndefined<SnapKeyringInternalOptions> = {};
 
@@ -73,10 +70,6 @@ export function getInternalOptionsOf(
     // We use `defaults` as the last element, so we are guaranteed to have
     // a defined value.
     for (const options of [...internalOptions, defaults]) {
-      if (options === undefined) {
-        continue;
-      }
-
       if (options[key] !== undefined && combined[key] === undefined) {
         combined[key] = options[key];
       }

@@ -348,7 +348,7 @@ export class SnapKeyring extends EventEmitter {
       accountNameSuggestion,
       getInternalOptionsOf([
         // 1. We use the internal options from the Snap keyring.
-        this.#getInternalOptions(snapId, metamask?.correlationId),
+        this.#getInternalOptions(snapId, metamask?.correlationId) ?? {},
         // 2. We use the ones coming from the Snap.
         {
           displayConfirmation,
