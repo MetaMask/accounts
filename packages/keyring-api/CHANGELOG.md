@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [17.3.0]
 
-### Uncategorized
+### Added
 
-- feat!: add `SnapKeyring.createAccount` + internal options ([#252](https://github.com/MetaMask/accounts/pull/252))
-- feat: update sol methods ([#248](https://github.com/MetaMask/accounts/pull/248))
+- Add new `MetaMaskOptions` in `createAccount` ([#252](https://github.com/MetaMask/accounts/pull/252))
+  - This options object might contain a new `correlationId` that MUST BE forwarded during the `notify:accountCreated` event.
 
 ## [17.2.1]
 
