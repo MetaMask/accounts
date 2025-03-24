@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- refactor(keyring-snap-bridge): re-allow Snap to send some internal options ([#261](https://github.com/MetaMask/accounts/pull/261))
+- feat(keyring-snap-bridge): add `setSelectedAccount` internal option ([#257](https://github.com/MetaMask/accounts/pull/257))
+- feat!: add `SnapKeyring.createAccount` + internal options ([#252](https://github.com/MetaMask/accounts/pull/252))
+
 ## [12.0.0]
 
 ### Changed
