@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [12.1.0]
+
+### Added
+
+- Add new concept of "internal options" and add a new `SnapKeyring.createAccount` method ([#252](https://github.com/MetaMask/accounts/pull/252)), ([#261](https://github.com/MetaMask/accounts/pull/261))
+  - Those internal options can be used by the caller of that method to customize the account creation flow.
+- Add `setSelectedAccount` internal option ([#257](https://github.com/MetaMask/accounts/pull/257))
+
 ## [12.0.0]
 
 ### Changed
@@ -490,7 +498,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.1.0...HEAD
+[12.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.0.0...@metamask/eth-snap-keyring@12.1.0
 [12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@11.1.0...@metamask/eth-snap-keyring@12.0.0
 [11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@11.0.0...@metamask/eth-snap-keyring@11.1.0
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@10.0.0...@metamask/eth-snap-keyring@11.0.0

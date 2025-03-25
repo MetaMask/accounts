@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [17.3.0]
+
+### Added
+
+- Add new `MetaMaskOptions` in `createAccount` ([#252](https://github.com/MetaMask/accounts/pull/252))
+  - This options object might contain a new `correlationId` that MUST BE forwarded during the `notify:accountCreated` event.
+
 ## [17.2.1]
 
 ### Changed
@@ -546,7 +553,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.3.0...HEAD
+[17.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.1...@metamask/keyring-api@17.3.0
 [17.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.0...@metamask/keyring-api@17.2.1
 [17.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.1.0...@metamask/keyring-api@17.2.0
 [17.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.0.0...@metamask/keyring-api@17.1.0
