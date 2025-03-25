@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+// FIXME: This rule seems to be triggering a false positive on the `KeyringEvents`.
+
 import {
   exactOptional,
   object,
@@ -78,6 +81,8 @@ export const AccountCreatedEventStruct = object({
     ...MetaMaskOptionsStruct.schema,
   }),
 });
+export type AccountCreatedEvent = Infer<typeof AccountCreatedEventStruct>;
+export type AccountCreatedEventPayload = AccountCreatedEvent['params'];
 
 export const AccountUpdatedEventStruct = object({
   method: literal(`${KeyringEvent.AccountUpdated}`),
@@ -88,6 +93,8 @@ export const AccountUpdatedEventStruct = object({
     account: KeyringAccountStruct,
   }),
 });
+export type AccountUpdatedEvent = Infer<typeof AccountUpdatedEventStruct>;
+export type AccountUpdatedEventPayload = AccountUpdatedEvent['params'];
 
 export const AccountDeletedEventStruct = object({
   method: literal(`${KeyringEvent.AccountDeleted}`),
@@ -98,6 +105,8 @@ export const AccountDeletedEventStruct = object({
     id: UuidStruct,
   }),
 });
+export type AccountDeletedEvent = Infer<typeof AccountDeletedEventStruct>;
+export type AccountDeletedEventPayload = AccountDeletedEvent['params'];
 
 export const RequestApprovedEventStruct = object({
   method: literal(`${KeyringEvent.RequestApproved}`),
@@ -113,6 +122,8 @@ export const RequestApprovedEventStruct = object({
     result: JsonStruct,
   }),
 });
+export type RequestApprovedEvent = Infer<typeof RequestApprovedEventStruct>;
+export type RequestApprovedEventPayload = RequestApprovedEvent['params'];
 
 export const RequestRejectedEventStruct = object({
   method: literal(`${KeyringEvent.RequestRejected}`),
@@ -123,10 +134,19 @@ export const RequestRejectedEventStruct = object({
     id: UuidStruct,
   }),
 });
+export type RequestRejectedEvent = Infer<typeof RequestRejectedEventStruct>;
+export type RequestRejectedEventPayload = RequestRejectedEvent['params'];
 
 // Assets related events:
 // -----------------------------------------------------------------------------------------------
 
+/**
+ * Event emitted when the balances of an account are updated.
+ *
+ * Only changes are reported.
+ *
+ * The Snap can choose to emit this event for multiple accounts at once.
+ */
 export const AccountBalancesUpdatedEventStruct = object({
   method: literal(`${KeyringEvent.AccountBalancesUpdated}`),
   params: object({
@@ -156,20 +176,20 @@ export const AccountBalancesUpdatedEventStruct = object({
     ),
   }),
 });
-
-/**
- * Event emitted when the balances of an account are updated.
- *
- * Only changes are reported.
- *
- * The Snap can choose to emit this event for multiple accounts at once.
- */
 export type AccountBalancesUpdatedEvent = Infer<
   typeof AccountBalancesUpdatedEventStruct
 >;
 export type AccountBalancesUpdatedEventPayload =
   AccountBalancesUpdatedEvent['params'];
 
+/**
+ * Event emitted when the transactions of an account are updated (added or
+ * changed).
+ *
+ * Only changes are reported.
+ *
+ * The Snap can choose to emit this event for multiple accounts at once.
+ */
 export const AccountTransactionsUpdatedEventStruct = object({
   method: literal(`${KeyringEvent.AccountTransactionsUpdated}`),
   params: object({
@@ -189,21 +209,19 @@ export const AccountTransactionsUpdatedEventStruct = object({
     ),
   }),
 });
-
-/**
- * Event emitted when the transactions of an account are updated (added or
- * changed).
- *
- * Only changes are reported.
- *
- * The Snap can choose to emit this event for multiple accounts at once.
- */
 export type AccountTransactionsUpdatedEvent = Infer<
   typeof AccountTransactionsUpdatedEventStruct
 >;
 export type AccountTransactionsUpdatedEventPayload =
   AccountTransactionsUpdatedEvent['params'];
 
+/**
+ * Event emitted when the assets of an account are updated.
+ *
+ * Only changes are reported.
+ *
+ * The Snap can choose to emit this event for multiple accounts at once.
+ */
 export const AccountAssetListUpdatedEventStruct = object({
   method: literal(`${KeyringEvent.AccountAssetListUpdated}`),
   params: object({
@@ -233,16 +251,32 @@ export const AccountAssetListUpdatedEventStruct = object({
     ),
   }),
 });
-
-/**
- * Event emitted when the assets of an account are updated.
- *
- * Only changes are reported.
- *
- * The Snap can choose to emit this event for multiple accounts at once.
- */
 export type AccountAssetListUpdatedEvent = Infer<
   typeof AccountAssetListUpdatedEventStruct
 >;
 export type AccountAssetListUpdatedEventPayload =
   AccountAssetListUpdatedEvent['params'];
+
+/**
+ * Keyring events.
+ */
+// For some reason, eslint sometimes infer one of those members as `any`...
+type KeyringEvents =
+  | AccountCreatedEvent
+  | AccountUpdatedEvent
+  | AccountDeletedEvent
+  | AccountAssetListUpdatedEvent
+  | AccountBalancesUpdatedEvent
+  | AccountTransactionsUpdatedEvent
+  | RequestApprovedEvent
+  | RequestRejectedEvent;
+
+/**
+ * Extract the payload for a given `KeyringEvent` event.
+ */
+export type KeyringEventPayload<Event extends KeyringEvent> = Extract<
+  KeyringEvents,
+  // We need to use a literal string here, since that is what `KeyringEvents`
+  // is using (probably because of `superstruct`.
+  { method: `${Event}` }
+>['params'];
