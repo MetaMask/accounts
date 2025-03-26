@@ -1100,7 +1100,7 @@ describe('LedgerKeyring', function () {
         const result = await keyring.signTypedData(
           fakeAccounts[15],
           fixtureDataWithArrayBufferSalt,
-          options,
+          { version: sigUtil.SignTypedDataVersion.V4 },
         );
 
         // Verify the method was called
