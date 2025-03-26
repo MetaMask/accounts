@@ -2,6 +2,7 @@ import type { Extends } from '@metamask/keyring-utils';
 import { expectTrue } from '@metamask/keyring-utils';
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
+import { EthScope } from './constants';
 import type { EthEoaAccount, EthErc4337Account } from './types';
 import { EthMethod } from './types';
 import { EthAccountType } from '../api';
@@ -13,6 +14,7 @@ const address = '0x000';
 // EOA account with no methods
 expectAssignable<EthEoaAccount>({
   type: EthAccountType.Eoa,
+  scopes: [EthScope.Eoa],
   id,
   address,
   options: {},
@@ -22,6 +24,7 @@ expectAssignable<EthEoaAccount>({
 // EOA account with all methods
 expectAssignable<EthEoaAccount>({
   type: EthAccountType.Eoa,
+  scopes: [EthScope.Eoa],
   id,
   address,
   options: {},
@@ -38,6 +41,7 @@ expectAssignable<EthEoaAccount>({
 // EOA account with ERC-4337 methods is an error
 expectNotAssignable<EthEoaAccount>({
   type: EthAccountType.Eoa,
+  scopes: [EthScope.Eoa],
   id,
   address,
   options: {},
@@ -51,6 +55,7 @@ expectNotAssignable<EthEoaAccount>({
 // EOA account with ERC-4337 type is an error
 expectNotAssignable<EthEoaAccount>({
   type: EthAccountType.Erc4337,
+  scopes: [EthScope.Testnet],
   id,
   address,
   options: {},
@@ -64,6 +69,7 @@ expectNotAssignable<EthEoaAccount>({
 // ERC-4337 account with no methods
 expectAssignable<EthErc4337Account>({
   type: EthAccountType.Erc4337,
+  scopes: [EthScope.Testnet],
   id,
   address,
   options: {},
@@ -73,6 +79,7 @@ expectAssignable<EthErc4337Account>({
 // ERC-4337 account with all methods
 expectAssignable<EthErc4337Account>({
   type: EthAccountType.Erc4337,
+  scopes: [EthScope.Testnet],
   id,
   address,
   options: {},
@@ -91,6 +98,7 @@ expectAssignable<EthErc4337Account>({
 // ERC-4337 account with only user-ops methods
 expectNotAssignable<EthErc4337Account>({
   type: EthAccountType.Eoa,
+  scopes: [EthScope.Eoa],
   id,
   address,
   options: {},
@@ -104,6 +112,7 @@ expectNotAssignable<EthErc4337Account>({
 // ERC-4337 account with EOA type is an error
 expectNotAssignable<EthErc4337Account>({
   type: EthAccountType.Eoa,
+  scopes: [EthScope.Eoa],
   id,
   address,
   options: {},

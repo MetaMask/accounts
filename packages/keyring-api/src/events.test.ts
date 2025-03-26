@@ -48,26 +48,6 @@ describe('events', () => {
 
       expect(is(event, AccountCreatedEventStruct)).toBe(false);
     });
-
-    it('should be a valid accountCreated event with displayConfirmation', () => {
-      const event = {
-        method: KeyringEvent.AccountCreated,
-        params: {
-          account: {
-            id: '11027d05-12f8-4ec0-b03f-151d86a8089e',
-            address: '0x0123',
-            methods: [],
-            options: {},
-            scopes: [EthScope.Eoa],
-            type: EthAccountType.Eoa,
-          },
-          displayConfirmation: true,
-          displayAccountNameSuggestion: true,
-        },
-      };
-
-      expect(is(event, AccountCreatedEventStruct)).toBe(true);
-    });
   });
 
   describe('AccountUpdatedEventStruct', () => {

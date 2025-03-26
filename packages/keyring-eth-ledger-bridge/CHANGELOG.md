@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.0.0]
+
+### Changed
+
+- **BREAKING:** The `signTypedData` method now requires `SignTypedDataVersion.V4` as version for the `options` argument ([#224](https://github.com/MetaMask/accounts/pull/224))
+
+### Fixed
+
+- Trim `0x` prefix for `signTransaction` ([#253](https://github.com/MetaMask/accounts/pull/253))
+  - This regression was due to latest `@ethereumjs` upgrade.
+
 ## [10.0.0]
 
 ### Changed
@@ -294,7 +305,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@10.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.0.0...HEAD
+[11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@10.0.0...@metamask/eth-ledger-bridge-keyring@11.0.0
 [10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@9.0.0...@metamask/eth-ledger-bridge-keyring@10.0.0
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.5...@metamask/eth-ledger-bridge-keyring@9.0.0
 [8.0.5]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.4...@metamask/eth-ledger-bridge-keyring@8.0.5

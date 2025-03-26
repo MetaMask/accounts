@@ -459,11 +459,17 @@ export class TrezorKeyring implements Keyring {
   }
 
   // EIP-712 Sign Typed Data
-  async signTypedData<T extends MessageTypes>(
+  async signTypedData<
+    Version extends SignTypedDataVersion.V3 | SignTypedDataVersion.V4,
+    Types extends MessageTypes,
+    Options extends { version?: Version },
+  >(
     address: Hex,
-    data: TypedMessage<T>,
-    { version }: { version: SignTypedDataVersion },
+    data: TypedMessage<Types>,
+    options?: Options,
   ): Promise<string> {
+    const { version } = options ?? { version: SignTypedDataVersion.V4 };
+
     const dataWithHashes = transformTypedData(
       data,
       version === SignTypedDataVersion.V4,
