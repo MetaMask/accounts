@@ -1,4 +1,4 @@
-name: MetaMask Security Code Scanner
+name: metamask security code scanner
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - name: MetaMask Security Code Scanner
+      - name: metamask security code scanner
         uses: MetaMask/action-security-code-scanner@v1
         with:
           repo: ${{ github.repository }}
@@ -42,5 +42,5 @@ jobs:
             storybook/
             test*/
           rules_excluded: example
-          project_metrics_token: ${{ secrets.SECURITY_SCAN_METRICS_TOKEN }}
-          slack_webhook: ${{ secrets.APPSEC_BOT_SLACK_WEBHOOK }}
+          project_metrics_token: ${{ secrets.security_scan_metrics_token }}
+          slack_webhook: ${{ secrets.appsec_bot_slack_webhook }}
