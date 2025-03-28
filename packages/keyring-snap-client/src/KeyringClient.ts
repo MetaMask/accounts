@@ -16,6 +16,7 @@ import {
   UpdateAccountResponseStruct,
   KeyringRpcMethod,
   ResolveAccountAddressResponseStruct,
+  DiscoverAccountsResponseStruct,
 } from '@metamask/keyring-api';
 import type {
   Keyring,
@@ -30,6 +31,8 @@ import type {
   CaipChainId,
   CaipAssetType,
   CaipAssetTypeOrId,
+  EntropySourceId,
+  DiscoveredAccount,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
@@ -108,6 +111,20 @@ export class KeyringClient implements Keyring {
         params: { options },
       }),
       CreateAccountResponseStruct,
+    );
+  }
+
+  async discoverAccounts(
+    scopes: CaipChainId[],
+    entropySource: EntropySourceId,
+    groupIndex: number,
+  ): Promise<DiscoveredAccount[]> {
+    return strictMask(
+      await this.#send({
+        method: KeyringRpcMethod.DiscoverAccounts,
+        params: { scopes, entropySource, groupIndex },
+      }),
+      DiscoverAccountsResponseStruct,
     );
   }
 

@@ -8,6 +8,8 @@ import type { KeyringAccount } from './account';
 import type { ResolvedAccountAddress } from './address';
 import type { Balance } from './balance';
 import type { CaipChainId, CaipAssetType, CaipAssetTypeOrId } from './caip';
+import type { DiscoveredAccount } from './discovery';
+import type { EntropySourceId } from './entropy';
 import type { KeyringAccountData } from './export';
 import type { MetaMaskOptions } from './options';
 import type { Paginated, Pagination } from './pagination';
@@ -83,6 +85,20 @@ export type Keyring = {
     id: string,
     pagination: Pagination,
   ): Promise<Paginated<Transaction>>;
+
+  /**
+   * Discover accounts.
+   *
+   * @param scopes - List of scopes to discover.
+   * @param entropySource - The entropy source being used to derive accounts.
+   * @param groupeIndex - The group index for this account (could be used as the `account_index` in BIP-44).
+   * @returns A promise that resolves to a list of discovered accounts.
+   */
+  discoverAccounts?(
+    scopes: CaipChainId[],
+    entropySource: EntropySourceId,
+    groupIndex: number,
+  ): Promise<DiscoveredAccount[]>;
 
   /**
    * Retrieve the balances of a given account.

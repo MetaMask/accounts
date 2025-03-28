@@ -1,4 +1,4 @@
-import { BtcMethod, KeyringRpcMethod } from '@metamask/keyring-api';
+import { BtcMethod, BtcScope, KeyringRpcMethod } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
   KeyringRequest,
@@ -6,6 +6,7 @@ import type {
   CaipChainId,
   CaipAssetType,
   CaipAssetTypeOrId,
+  DiscoveredAccount,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
@@ -90,6 +91,32 @@ describe('KeyringClient', () => {
         params: { options: {} },
       });
       expect(account).toStrictEqual(expectedResponse);
+    });
+  });
+
+  describe('discoverAccounts', () => {
+    const scopes = [BtcScope.Mainnet, BtcScope.Testnet];
+    const entropySource = '01JQCAKR17JARQXZ0NDP760N1K';
+
+    it('returns an empty list of discovered accounts', async () => {
+      const groupIndex = 0;
+      const expectedResponse: DiscoveredAccount[] = [];
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const accounts = await keyring.discoverAccounts(
+        scopes,
+        entropySource,
+        groupIndex,
+      );
+
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_discoverAccounts',
+        params: { scopes, entropySource, groupIndex },
+      });
+
+      expect(accounts).toStrictEqual(expectedResponse);
     });
   });
 

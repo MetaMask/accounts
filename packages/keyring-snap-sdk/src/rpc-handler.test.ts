@@ -1,5 +1,6 @@
 import {
   BtcMethod,
+  BtcScope,
   KeyringRpcMethod,
   isKeyringRpcMethod,
 } from '@metamask/keyring-api';
@@ -13,6 +14,7 @@ describe('handleKeyringRequest', () => {
     listAccounts: jest.fn(),
     getAccount: jest.fn(),
     createAccount: jest.fn(),
+    discoverAccounts: jest.fn(),
     listAccountTransactions: jest.fn(),
     listAccountAssets: jest.fn(),
     getAccountBalances: jest.fn(),
@@ -115,6 +117,57 @@ describe('handleKeyringRequest', () => {
 
     expect(keyring.createAccount).toHaveBeenCalledWith({});
     expect(result).toBe('CreateAccount result');
+  });
+
+  it('calls `keyring_discoverAccounts`', async () => {
+    const scopes = [BtcScope.Mainnet, BtcScope.Testnet];
+    const entropySource = '01JQCAKR17JARQXZ0NDP760N1K';
+    const groupIndex = 0;
+
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: 'keyring_discoverAccounts',
+      params: {
+        scopes,
+        entropySource,
+        groupIndex,
+      },
+    };
+
+    keyring.discoverAccounts.mockResolvedValue('DiscoverAccounts result');
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.discoverAccounts).toHaveBeenCalledWith(
+      scopes,
+      entropySource,
+      groupIndex,
+    );
+    expect(result).toBe('DiscoverAccounts result');
+  });
+
+  it('throws an error if `keyring_discoverAccounts` is not implemented', async () => {
+    const scopes = [BtcScope.Mainnet, BtcScope.Testnet];
+    const entropySource = '01JQCAKR17JARQXZ0NDP760N1K';
+    const groupIndex = 0;
+
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: 'keyring_discoverAccounts',
+      params: {
+        scopes,
+        entropySource,
+        groupIndex,
+      },
+    };
+
+    const partialKeyring: Keyring = { ...keyring };
+    delete partialKeyring.discoverAccounts;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      'Method not supported: keyring_discoverAccounts',
+    );
   });
 
   it('calls keyring_listAccountTransactions', async () => {
