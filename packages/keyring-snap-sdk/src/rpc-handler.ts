@@ -17,6 +17,7 @@ import {
   GetAccountBalancesRequestStruct,
   ListAccountAssetsRequestStruct,
   ResolveAccountAddressRequestStruct,
+  DiscoverAccountsRequestStruct,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
@@ -62,6 +63,18 @@ async function dispatchRequest(
     case `${KeyringRpcMethod.CreateAccount}`: {
       assert(request, CreateAccountRequestStruct);
       return keyring.createAccount(request.params.options);
+    }
+
+    case `${KeyringRpcMethod.DiscoverAccounts}`: {
+      if (keyring.discoverAccounts === undefined) {
+        throw new MethodNotSupportedError(request.method);
+      }
+      assert(request, DiscoverAccountsRequestStruct);
+      return keyring.discoverAccounts(
+        request.params.scopes,
+        request.params.entropySource,
+        request.params.groupIndex,
+      );
     }
 
     case `${KeyringRpcMethod.ListAccountTransactions}`: {

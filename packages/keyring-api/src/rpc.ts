@@ -27,6 +27,7 @@ import {
   TransactionsPageStruct,
   PaginationStruct,
   CaipAccountIdStruct,
+  DiscoveredAccountStruct,
 } from './api';
 
 /**
@@ -36,6 +37,7 @@ export enum KeyringRpcMethod {
   ListAccounts = 'keyring_listAccounts',
   GetAccount = 'keyring_getAccount',
   CreateAccount = 'keyring_createAccount',
+  DiscoverAccounts = 'keyring_discoverAccounts',
   ListAccountAssets = 'keyring_listAccountAssets',
   ListAccountTransactions = 'keyring_listAccountTransactions',
   GetAccountBalances = 'keyring_getAccountBalances',
@@ -115,6 +117,29 @@ export type CreateAccountRequest = Infer<typeof CreateAccountRequestStruct>;
 export const CreateAccountResponseStruct = KeyringAccountStruct;
 
 export type CreateAccountResponse = Infer<typeof CreateAccountResponseStruct>;
+
+// ----------------------------------------------------------------------------
+// Discover accounts
+
+export const DiscoverAccountsRequestStruct = object({
+  ...CommonHeader,
+  method: literal('keyring_discoverAccounts'),
+  params: object({
+    scopes: array(CaipChainIdStruct),
+    entropySource: string(),
+    groupIndex: number(),
+  }),
+});
+
+export type DiscoverAccountsRequest = Infer<
+  typeof DiscoverAccountsRequestStruct
+>;
+
+export const DiscoverAccountsResponseStruct = array(DiscoveredAccountStruct);
+
+export type DiscoverAccountsResponse = Infer<
+  typeof DiscoverAccountsResponseStruct
+>;
 
 // ----------------------------------------------------------------------------
 // List account transactions

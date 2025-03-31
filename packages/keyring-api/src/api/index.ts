@@ -3,6 +3,8 @@ export * from './address';
 export * from './asset';
 export * from './balance';
 export * from './caip';
+export * from './discovery';
+export type * from './entropy';
 export * from './export';
 export * from './request';
 export * from './response';
