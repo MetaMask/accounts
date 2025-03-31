@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: add `discoverAccounts` keyring method ([#266](https://github.com/MetaMask/accounts/pull/266))
+- feat: use event payload type for `emitSnapKeyringEvent` ([#203](https://github.com/MetaMask/accounts/pull/203))
+
 ## [3.1.0]
 
 ### Added

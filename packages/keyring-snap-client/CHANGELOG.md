@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: add `discoverAccounts` keyring method ([#266](https://github.com/MetaMask/accounts/pull/266))
+
 ## [4.0.1]
 
 ### Changed
