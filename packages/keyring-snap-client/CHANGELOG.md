@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.2]
+
 ### Uncategorized
 
 - feat: add `discoverAccounts` keyring method ([#266](https://github.com/MetaMask/accounts/pull/266))
@@ -80,7 +82,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.0.2...HEAD
+[4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.0.1...@metamask/keyring-snap-client@4.0.2
 [4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.0.0...@metamask/keyring-snap-client@4.0.1
 [4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@3.0.3...@metamask/keyring-snap-client@4.0.0
 [3.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@3.0.2...@metamask/keyring-snap-client@3.0.3

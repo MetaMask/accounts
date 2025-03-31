@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [17.4.0]
+
 ### Uncategorized
 
 - feat: use event payload type for `emitSnapKeyringEvent` ([#203](https://github.com/MetaMask/accounts/pull/203))
@@ -557,7 +559,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.3.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.4.0...HEAD
+[17.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.3.0...@metamask/keyring-api@17.4.0
 [17.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.1...@metamask/keyring-api@17.3.0
 [17.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.0...@metamask/keyring-api@17.2.1
 [17.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.1.0...@metamask/keyring-api@17.2.0
