@@ -87,18 +87,23 @@ export type Keyring = {
   ): Promise<Paginated<Transaction>>;
 
   /**
-   * Discovers accounts.  
-   *  
-   * The `groupIndex` is used to group accounts with the same value.  
-   * In strictly BIP-44 wallets, it matches `account_index`, but in wallets  
-   * that deviate from BIP-44 recommendations, it may align with a different  
-   * path level for compatibility.  
-   *  
-   * @param scopes - The list of scopes for account discovery.  
-   * @param entropySource - The entropy source used for deriving accounts.  
-   * @param groupIndex - The group index for this account.  
-   * @returns A promise resolving to a list of discovered accounts.  
-   */ 
+   * Discover accounts.
+   *
+   * This method is called by the client to allow the keyring to discover
+   * existing accounts based on the provided scopes and entropy source ID. Are
+   * considered existing accounts, accounts that have at least one transaction,
+   * as per BIP-44.
+   *
+   * The `groupIndex` is used to group accounts with the same value. In
+   * strictly BIP-44 wallets, it matches `account_index`, but in wallets that
+   * deviate from BIP-44 recommendations, it may align with a different path
+   * level for compatibility.
+   *
+   * @param scopes - The list of scopes for account discovery.
+   * @param entropySource - The ID of the entropy source used to derive the accounts.
+   * @param groupIndex - The group index that should be used to derive the accounts.
+   * @returns A promise resolving to a list of discovered accounts.
+   */
   discoverAccounts?(
     scopes: CaipChainId[],
     entropySource: EntropySourceId,
