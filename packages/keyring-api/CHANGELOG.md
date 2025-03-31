@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [17.4.0]
 
-### Uncategorized
+### Added
 
-- feat: use event payload type for `emitSnapKeyringEvent` ([#203](https://github.com/MetaMask/accounts/pull/203))
+- Add `discoverAccounts` keyring method ([#266](https://github.com/MetaMask/accounts/pull/266))
+- Add `KeyringEventPayload` utility type to extract payload `KeyringEvent` enum ([#203](https://github.com/MetaMask/accounts/pull/203))
+- Add event payload types ([#203](https://github.com/MetaMask/accounts/pull/203))
 
 ## [17.3.0]
 
