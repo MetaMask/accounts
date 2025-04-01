@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0]
+
+### Added
+
+- Add support of `discoverAccounts` keyring method ([#266](https://github.com/MetaMask/accounts/pull/266))
+
+### Changed
+
+- Use event payload type for `emitSnapKeyringEvent` ([#203](https://github.com/MetaMask/accounts/pull/203))
+- Bump `@metamask/keyring-api` from `^17.2.0` to `^17.4.0` ([#263](https://github.com/MetaMask/accounts/pull/263)), ([#269](https://github.com/MetaMask/accounts/pull/269))
+
 ## [3.1.0]
 
 ### Added
@@ -70,7 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.2.0...HEAD
+[3.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.1.0...@metamask/keyring-snap-sdk@3.2.0
 [3.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.0.1...@metamask/keyring-snap-sdk@3.1.0
 [3.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.0.0...@metamask/keyring-snap-sdk@3.0.1
 [3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@2.1.2...@metamask/keyring-snap-sdk@3.0.0
