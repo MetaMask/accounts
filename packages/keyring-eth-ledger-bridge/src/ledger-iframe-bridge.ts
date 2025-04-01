@@ -1,4 +1,5 @@
 import { createDeferredPromise, DeferredPromise } from '@metamask/utils';
+
 import {
   GetPublicKeyParams,
   GetPublicKeyResponse,
