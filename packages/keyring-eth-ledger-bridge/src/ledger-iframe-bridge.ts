@@ -13,6 +13,8 @@ import {
 
 const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
 
+const IFRAME_MESSAGE_TIMEOUT = 4000;
+
 export enum IFrameMessageAction {
   LedgerIsIframeReady = 'ledger-is-iframe-ready',
   LedgerConnectionChange = 'ledger-connection-change',
@@ -332,6 +334,15 @@ export class LedgerIframeBridge
     if (!this.iframeLoaded || !this.iframe?.contentWindow) {
       throw new Error('The iframe is not loaded yet');
     }
+
+    setTimeout(() => {
+      if (this.#messageResponseHandles.has(postMsg.messageId)) {
+        this.#messageResponseHandles.delete(postMsg.messageId);
+        messageResponseHandle.reject(
+          new Error('Ledger iframe message timeout'),
+        );
+      }
+    }, IFRAME_MESSAGE_TIMEOUT);
 
     this.iframe.contentWindow.postMessage(postMsg, '*');
 
