@@ -530,7 +530,10 @@ export class LedgerKeyring implements Keyring {
             chainId: domain.chainId,
             version: domain.version,
             verifyingContract: domain.verifyingContract,
-            salt: this.#convertSaltIfAny(domain.salt),
+            salt:
+              domain.salt instanceof ArrayBuffer
+                ? Buffer.from(domain.salt).toString('hex')
+                : domain.salt,
           },
           types,
           primaryType: primaryType.toString(),
@@ -571,17 +574,6 @@ export class LedgerKeyring implements Keyring {
     this.paths = {};
     this.accountDetails = {};
     this.hdk = new HDKey();
-  }
-
-  #convertSaltIfAny(salt: ArrayBuffer | undefined): string | undefined {
-    if (!salt) {
-      return undefined;
-    }
-
-    // We convert this to a plain string to avoid encoding issue on the
-    // mobile side (to avoid using `TextDecoder`).
-    const saltBytes = new Uint8Array(salt);
-    return String.fromCharCode(...saltBytes);
   }
 
   /* PRIVATE METHODS */

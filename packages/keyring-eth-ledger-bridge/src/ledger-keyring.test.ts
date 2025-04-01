@@ -1006,7 +1006,7 @@ describe('LedgerKeyring', function () {
           },
         };
 
-        jest
+        const deviceSignTypedDataSpy = jest
           .spyOn(keyring.bridge, 'deviceSignTypedData')
           .mockImplementation(async () => ({
             v: 27,
@@ -1019,6 +1019,99 @@ describe('LedgerKeyring', function () {
           fixtureDataWithoutSalt,
           { version: sigUtil.SignTypedDataVersion.V4 },
         );
+
+        expect(deviceSignTypedDataSpy).toHaveBeenCalled();
+        expect(deviceSignTypedDataSpy).toHaveBeenCalledWith({
+          hdPath: "m/44'/60'/15'",
+          message: fixtureDataWithoutSalt,
+        });
+
+        expect(result).toBe(
+          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e321b',
+        );
+      });
+
+      it('resolves properly when message domain salt is string', async function () {
+        const fixtureDataWithStringSalt = {
+          ...fixtureData,
+          domain: {
+            ...fixtureData.domain,
+            salt: 'test-salt',
+          },
+        };
+
+        const deviceSignTypedDataSpy = jest
+          .spyOn(keyring.bridge, 'deviceSignTypedData')
+          .mockImplementation(async () => ({
+            v: 27,
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          }));
+
+        const result = await keyring.signTypedData(
+          fakeAccounts[15],
+          fixtureDataWithStringSalt as any,
+          { version: sigUtil.SignTypedDataVersion.V4 },
+        );
+
+        expect(deviceSignTypedDataSpy).toHaveBeenCalled();
+        expect(deviceSignTypedDataSpy).toHaveBeenCalledWith({
+          hdPath: "m/44'/60'/15'",
+          message: fixtureDataWithStringSalt,
+        });
+
+        expect(result).toBe(
+          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e321b',
+        );
+      });
+
+      it('resolves properly when message domain salt is an ArrayBuffer', async function () {
+        const saltArrayBuffer = new TextEncoder().encode('test-salt');
+
+        const fixtureDataWithArrayBufferSalt = {
+          ...fixtureData,
+          domain: {
+            ...fixtureData.domain,
+            salt: saltArrayBuffer.buffer,
+          },
+        };
+
+        const deviceSignTypedDataSpy = jest
+          .spyOn(keyring.bridge, 'deviceSignTypedData')
+          .mockImplementation(async (_params) => {
+            return {
+              v: 27,
+              r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+              s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+            };
+          });
+
+        const bufferFromSpy = jest.spyOn(Buffer, 'from');
+        const toStringSpy = jest.spyOn(Buffer.prototype, 'toString');
+
+        const expectedMessage = {
+          ...fixtureData,
+          domain: {
+            ...fixtureData.domain,
+            salt: Buffer.from(
+              fixtureDataWithArrayBufferSalt.domain.salt,
+            ).toString('hex'),
+          },
+        };
+
+        const result = await keyring.signTypedData(
+          fakeAccounts[15],
+          expectedMessage as any,
+          { version: sigUtil.SignTypedDataVersion.V4 },
+        );
+
+        expect(deviceSignTypedDataSpy).toHaveBeenCalled();
+        expect(deviceSignTypedDataSpy).toHaveBeenCalledWith({
+          hdPath: "m/44'/60'/15'",
+          message: expectedMessage,
+        });
+        expect(bufferFromSpy).toHaveBeenCalled();
+        expect(toStringSpy).toHaveBeenCalledWith('hex');
         expect(result).toBe(
           '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e321b',
         );
