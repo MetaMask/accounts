@@ -171,8 +171,6 @@ export class LedgerIframeBridge
   }
 
   async updateTransportMethod(transportType: string): Promise<boolean> {
-    // If the iframe isn't loaded yet, let's store the desired transportType value and
-    // optimistically return a successful promise
     if (!this.iframeLoaded) {
       throw new Error('The iframe is not loaded yet');
     }
