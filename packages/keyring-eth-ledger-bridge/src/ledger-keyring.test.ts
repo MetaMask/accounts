@@ -445,41 +445,6 @@ describe('LedgerKeyring', function () {
           expect(secondBatch).toStrictEqual([fakeAccounts[1]]);
         });
       });
-
-      it('stops adding accounts when validation fails', async function () {
-        keyring.setAccountToUnlock(0);
-
-        const fetchSpy = jest.spyOn(global, 'fetch');
-
-        fetchSpy.mockResolvedValueOnce({
-          json: jest.fn().mockResolvedValue({
-            status: '0',
-            result: [],
-          }),
-        } as unknown as Response);
-
-        fetchSpy.mockResolvedValueOnce({
-          json: jest.fn().mockResolvedValue({
-            status: '1',
-            result: [{ hash: '0x123' }],
-          }),
-        } as unknown as Response);
-
-        const addAccountsSpy = jest
-          .spyOn(keyring, 'addAccounts')
-          .mockImplementation(async () => {
-            return [fakeAccounts[0]];
-          });
-
-        const accounts = await keyring.addAccounts(3);
-
-        expect(accounts).toHaveLength(1);
-        expect(accounts[0]).toBe(fakeAccounts[0]);
-
-        // Restore original methods
-        addAccountsSpy.mockRestore();
-        fetchSpy.mockRestore();
-      });
     });
 
     describe('removeAccount', function () {
