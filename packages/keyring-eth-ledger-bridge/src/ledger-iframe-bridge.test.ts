@@ -613,28 +613,20 @@ describe('LedgerIframeBridge', function () {
     beforeEach(async function () {
       bridgeUrl = BRIDGE_URL;
 
-      // Spy on addEventListener to capture the event listener function
       addEventListenerSpy = jest.spyOn(global.window, 'addEventListener');
 
-      // Create a new bridge instance
       bridge = new LedgerIframeBridge({
         bridgeUrl,
       });
-
-      // Initialize the bridge to register the event listener
       await bridge.init();
 
-      // Extract the message event callback that was registered
       const messageEventCallArgs = addEventListenerSpy.mock.calls.find(
         (call) => call[0] === 'message',
       );
-
-      // Verify that we found the message event listener
       if (!messageEventCallArgs) {
         throw new Error('Message event listener not found');
       }
 
-      // Store the callback for later use
       messageEventCallback = messageEventCallArgs[1] as (
         event: MessageEvent,
       ) => void;
@@ -656,11 +648,9 @@ describe('LedgerIframeBridge', function () {
     }
 
     it('should ignore messages from different origins', function () {
-      // Create a spy on the messageCallbacks
       const callbackSpy = jest.fn();
       bridge.messageCallbacks[1] = callbackSpy;
 
-      // Create a message with a different origin
       const differentOriginEvent = createMessageEvent(
         'https://different-origin.com',
         {
@@ -675,15 +665,12 @@ describe('LedgerIframeBridge', function () {
         },
       );
 
-      // Call the event listener directly
       messageEventCallback(differentOriginEvent);
 
-      // Verify the callback was not called
       expect(callbackSpy).not.toHaveBeenCalled();
     });
 
     it('should process messages with registered callbacks', function () {
-      // Create a spy on the messageCallbacks
       const callbackSpy = jest.fn();
       bridge.messageCallbacks[1] = callbackSpy;
 
@@ -698,24 +685,19 @@ describe('LedgerIframeBridge', function () {
         },
       };
 
-      // Create a message with the correct origin
       const correctOriginEvent = createMessageEvent(
         'https://metamask.github.io',
         messageData,
       );
 
-      // Call the event listener directly
       messageEventCallback(correctOriginEvent);
 
-      // Verify the callback was called with the correct data
       expect(callbackSpy).toHaveBeenCalledWith(messageData);
     });
 
     it('should update isDeviceConnected for LedgerConnectionChange action', function () {
-      // Initial state should be false
       expect(bridge.isDeviceConnected).toBe(false);
 
-      // Create a connection change message
       const connectionChangeEvent = createMessageEvent(
         'https://metamask.github.io',
         {
@@ -725,46 +707,36 @@ describe('LedgerIframeBridge', function () {
         },
       );
 
-      // Call the event listener directly
       messageEventCallback(connectionChangeEvent);
 
-      // Verify isDeviceConnected was updated
       expect(bridge.isDeviceConnected).toBe(true);
     });
 
     it('should do nothing for messages without callbacks or special actions', function () {
-      // Initial state
       const initialConnectedState = bridge.isDeviceConnected;
 
-      // Create a message with an action that doesn't have special handling
       const noCallbackEvent = createMessageEvent('https://metamask.github.io', {
         messageId: 999, // Using a messageId that doesn't have a registered callback
         action: IFrameMessageAction.LedgerMakeApp,
         success: true,
       });
 
-      // Call the event listener directly
       messageEventCallback(noCallbackEvent);
 
-      // Connected state should remain unchanged
       expect(bridge.isDeviceConnected).toBe(initialConnectedState);
     });
 
     it('should do nothing when eventMessage.data is undefined', function () {
-      // Create a spy on the messageCallbacks
       const callbackSpy = jest.fn();
       bridge.messageCallbacks[1] = callbackSpy;
 
-      // Create a message without data
       const noDataEvent = createMessageEvent(
         'https://metamask.github.io',
         undefined,
       );
 
-      // Call the event listener directly
       messageEventCallback(noDataEvent);
 
-      // Callback should not have been called
       expect(callbackSpy).not.toHaveBeenCalled();
     });
   });
