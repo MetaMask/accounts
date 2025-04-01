@@ -9,9 +9,6 @@ try {
     removeEventListener: (): false => {
       return false;
     },
-    dispatchEvent: (): false => {
-      return false;
-    },
   };
 } catch {
   windowShim = {
@@ -19,9 +16,6 @@ try {
       return false;
     },
     removeEventListener: (): false => {
-      return false;
-    },
-    dispatchEvent: (): false => {
       return false;
     },
   };
