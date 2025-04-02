@@ -61,7 +61,7 @@
     "@ledgerhq/types-cryptoassets": "^7.15.1",
     "@ledgerhq/types-devices": "^6.25.3",
     "@ledgerhq/types-live": "^6.52.0",
-    "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/auto-changelog": "^5.0.1",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/utils": "^11.1.0",
     "@ts-bridge/cli": "^0.6.3",
