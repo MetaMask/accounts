@@ -588,6 +588,7 @@ describe('KeyringClient', () => {
         {
           id: '71621d8d-62a4-4bf4-97cc-fb8f243679b0',
           scope: 'eip155:1',
+          origin: 'test',
           account: '46b5ccd3-4786-427c-89d2-cef626dffe9b',
           request: {
             method: 'personal_sign',
@@ -613,6 +614,7 @@ describe('KeyringClient', () => {
       const expectedResponse: KeyringRequest = {
         id,
         scope: 'eip155:1',
+        origin: 'test',
         account: '46b5ccd3-4786-427c-89d2-cef626dffe9b',
         request: {
           method: 'personal_sign',
@@ -637,6 +639,7 @@ describe('KeyringClient', () => {
       const request: KeyringRequest = {
         id: '71621d8d-62a4-4bf4-97cc-fb8f243679b0',
         scope: 'eip155:1',
+        origin: 'test',
         account: '46b5ccd3-4786-427c-89d2-cef626dffe9b',
         request: {
           method: 'personal_sign',
