@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.0.1]
 
-### Uncategorized
+### Fixed
 
-- fix(keyring-eth-ledger-bridge): fix use of `salt` value as a `string` for `signTypedData<V4>` ([#249](https://github.com/MetaMask/accounts/pull/249))
-- fix: ledger iframe messages timeout ([#271](https://github.com/MetaMask/accounts/pull/271))
+- Fix use of `salt` value as a `string` for `signTypedData<V4>` ([#249](https://github.com/MetaMask/accounts/pull/249))
+- Use timeouts for Ledger iframe messages ([#271](https://github.com/MetaMask/accounts/pull/271))
 
 ## [11.0.0]
 
