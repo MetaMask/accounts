@@ -1,9 +1,15 @@
+import type {
+  KeyringAccount,
+  KeyringAccountData,
+  KeyringRequest,
+} from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { MetaMaskInpageProvider } from '@metamask/providers';
 import type { Json } from '@metamask/utils';
 
 import type { Sender } from './KeyringClient';
 import { KeyringClient } from './KeyringClient';
+import type { RestrictedKeyringClient } from './RestrictedKeyringClient';
 
 /**
  * Implementation of the `Sender` interface that can be used to send requests
@@ -43,10 +49,12 @@ export class SnapRpcSender implements Sender {
 }
 
 /**
- * A `KeyringClient` that allows the communication with a snap through the snap
- * JSON-RPC API.
+ * A client that allows the communication with a snap through the snap
+ * JSON-RPC API to call keyring methods.
  */
-export class KeyringSnapRpcClient extends KeyringClient {
+export class KeyringSnapRpcClient implements RestrictedKeyringClient {
+  readonly #client: KeyringClient;
+
   /**
    * Create a new instance of `KeyringSnapRpcClient`.
    *
@@ -54,6 +62,50 @@ export class KeyringSnapRpcClient extends KeyringClient {
    * @param provider - The `MetaMaskInpageProvider` instance to use.
    */
   constructor(origin: string, provider: MetaMaskInpageProvider) {
-    super(new SnapRpcSender(origin, provider));
+    this.#client = new KeyringClient(new SnapRpcSender(origin, provider));
+  }
+
+  async createAccount(options?: Record<string, Json>): Promise<KeyringAccount> {
+    return this.#client.createAccount(options);
+  }
+
+  async deleteAccount(id: string): Promise<void> {
+    return this.#client.deleteAccount(id);
+  }
+
+  async listAccounts(): Promise<KeyringAccount[]> {
+    return this.#client.listAccounts();
+  }
+
+  async getAccount(id: string): Promise<KeyringAccount> {
+    return this.#client.getAccount(id);
+  }
+
+  async getRequest(id: string): Promise<KeyringRequest> {
+    return this.#client.getRequest(id);
+  }
+
+  async listRequests(): Promise<KeyringRequest[]> {
+    return this.#client.listRequests();
+  }
+
+  async updateAccount(account: KeyringAccount): Promise<void> {
+    return this.#client.updateAccount(account);
+  }
+
+  async approveRequest(id: string, data?: Record<string, Json>): Promise<void> {
+    return this.#client.approveRequest(id, data);
+  }
+
+  async rejectRequest(id: string): Promise<void> {
+    return this.#client.rejectRequest(id);
+  }
+
+  async filterAccountChains(id: string, chains: string[]): Promise<string[]> {
+    return this.#client.filterAccountChains(id, chains);
+  }
+
+  async exportAccount(id: string): Promise<KeyringAccountData> {
+    return this.#client.exportAccount(id);
   }
 }
