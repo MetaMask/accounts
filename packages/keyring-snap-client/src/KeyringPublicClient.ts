@@ -14,9 +14,9 @@ type KeyringRpcMethodToMethodName<RpcMethod extends string> =
   RpcMethod extends `keyring_${infer Method}` ? Method : never;
 
 /**
- * Restricted methods list.
+ * Public methods list.
  */
-export const RestrictedKeyringRpcMethod = [
+export const KeyringPublicRpcMethod = [
   KeyringRpcMethod.CreateAccount,
   KeyringRpcMethod.GetAccount,
   KeyringRpcMethod.UpdateAccount,
@@ -31,17 +31,14 @@ export const RestrictedKeyringRpcMethod = [
 ] as const;
 
 /**
- * Union of all restricted methods.
+ * Union of all public methods.
  */
-type RestrictedKeyringMethod = KeyringRpcMethodToMethodName<
-  TupleToUnion<typeof RestrictedKeyringRpcMethod>
+type KeyringPublicMethod = KeyringRpcMethodToMethodName<
+  TupleToUnion<typeof KeyringPublicRpcMethod>
 >;
 
 /**
- * A restricted client that can be used by companion dapp (some keyring methods are not
- * available in this context).
+ * A client that can be used by companion dapp. Only some keyring methods are
+ * available with this client.
  */
-export type RestrictedKeyringClient = Pick<
-  KeyringClient,
-  RestrictedKeyringMethod
->;
+export type KeyringPublicClient = Pick<KeyringClient, KeyringPublicMethod>;

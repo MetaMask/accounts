@@ -1,3 +1,3 @@
 export * from './KeyringClient';
 export * from './KeyringSnapRpcClient';
-export * from './RestrictedKeyringClient';
+export * from './KeyringPublicClient';
