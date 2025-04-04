@@ -10,89 +10,265 @@ import type {
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
-import { KeyringClient } from '.'; // Import from `index.ts` to test the public API
+import { KeyringClient, KeyringPublicClient } from '.'; // Import from `index.ts` to test the public API
 
 describe('KeyringClient', () => {
   const mockSender = {
     send: jest.fn(),
   };
 
-  const keyring = new KeyringClient(mockSender);
+  const keyringClient = new KeyringClient(mockSender);
+  const publicClient = new KeyringPublicClient(mockSender);
 
   beforeEach(() => {
     mockSender.send.mockClear();
   });
 
-  describe('listAccounts', () => {
-    it('should send a request to list accounts and return the response', async () => {
-      const expectedResponse: KeyringAccount[] = [
-        {
-          id: '49116980-0712-4fa5-b045-e4294f1d440e',
-          address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
-          options: {},
-          methods: [],
-          scopes: ['eip155:0'],
-          type: 'eip155:eoa',
-        },
-      ];
+  // -----------------------------------------------------------------------------------------------
+  // Public methods (can be used by a companion dapp and MetaMask)
 
-      mockSender.send.mockResolvedValue(expectedResponse);
-      const accounts = await keyring.listAccounts();
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_listAccounts',
+  describe.each([keyringClient, publicClient])(
+    'Public methods',
+    (client: KeyringClient | KeyringPublicClient) => {
+      describe('listAccounts', () => {
+        it('should send a request to list accounts and return the response', async () => {
+          const expectedResponse: KeyringAccount[] = [
+            {
+              id: '49116980-0712-4fa5-b045-e4294f1d440e',
+              address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
+              options: {},
+              methods: [],
+              scopes: ['eip155:0'],
+              type: 'eip155:eoa',
+            },
+          ];
+
+          mockSender.send.mockResolvedValue(expectedResponse);
+          const accounts = await client.listAccounts();
+          expect(mockSender.send).toHaveBeenCalledWith({
+            jsonrpc: '2.0',
+            id: expect.any(String),
+            method: 'keyring_listAccounts',
+          });
+          expect(accounts).toStrictEqual(expectedResponse);
+        });
       });
-      expect(accounts).toStrictEqual(expectedResponse);
-    });
-  });
 
-  describe('getAccount', () => {
-    it('should send a request to get an account by ID and return the response', async () => {
-      const id = '49116980-0712-4fa5-b045-e4294f1d440e';
-      const expectedResponse: KeyringAccount = {
-        id: '49116980-0712-4fa5-b045-e4294f1d440e',
-        address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
-        options: {},
-        methods: [],
-        scopes: ['eip155:0'],
-        type: 'eip155:eoa',
-      };
+      describe('getAccount', () => {
+        it('should send a request to get an account by ID and return the response', async () => {
+          const id = '49116980-0712-4fa5-b045-e4294f1d440e';
+          const expectedResponse: KeyringAccount = {
+            id: '49116980-0712-4fa5-b045-e4294f1d440e',
+            address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
+            options: {},
+            methods: [],
+            scopes: ['eip155:0'],
+            type: 'eip155:eoa',
+          };
 
-      mockSender.send.mockResolvedValue(expectedResponse);
-      const account = await keyring.getAccount(id);
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_getAccount',
-        params: { id },
+          mockSender.send.mockResolvedValue(expectedResponse);
+          const account = await client.getAccount(id);
+          expect(mockSender.send).toHaveBeenCalledWith({
+            jsonrpc: '2.0',
+            id: expect.any(String),
+            method: 'keyring_getAccount',
+            params: { id },
+          });
+          expect(account).toStrictEqual(expectedResponse);
+        });
       });
-      expect(account).toStrictEqual(expectedResponse);
-    });
-  });
 
-  describe('createAccount', () => {
-    it('should send a request to create an account and return the response', async () => {
-      const expectedResponse: KeyringAccount = {
-        id: '49116980-0712-4fa5-b045-e4294f1d440e',
-        address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
-        options: {},
-        methods: [],
-        scopes: ['eip155:0'],
-        type: 'eip155:eoa',
-      };
+      describe('createAccount', () => {
+        it('should send a request to create an account and return the response', async () => {
+          const expectedResponse: KeyringAccount = {
+            id: '49116980-0712-4fa5-b045-e4294f1d440e',
+            address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
+            options: {},
+            methods: [],
+            scopes: ['eip155:0'],
+            type: 'eip155:eoa',
+          };
 
-      mockSender.send.mockResolvedValue(expectedResponse);
-      const account = await keyring.createAccount();
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_createAccount',
-        params: { options: {} },
+          mockSender.send.mockResolvedValue(expectedResponse);
+          const account = await client.createAccount();
+          expect(mockSender.send).toHaveBeenCalledWith({
+            jsonrpc: '2.0',
+            id: expect.any(String),
+            method: 'keyring_createAccount',
+            params: { options: {} },
+          });
+          expect(account).toStrictEqual(expectedResponse);
+        });
+
+        describe('filterAccountChains', () => {
+          it('should send a request to filter the chains supported by an account and return the response', async () => {
+            const id = '49116980-0712-4fa5-b045-e4294f1d440e';
+            const expectedResponse = ['eip155:1', 'eip155:137'];
+
+            mockSender.send.mockResolvedValue(expectedResponse);
+            const account = await client.filterAccountChains(
+              '49116980-0712-4fa5-b045-e4294f1d440e',
+              ['eip155:1', 'eip155:137', 'other:chain'],
+            );
+            expect(mockSender.send).toHaveBeenCalledWith({
+              jsonrpc: '2.0',
+              id: expect.any(String),
+              method: 'keyring_filterAccountChains',
+              params: { id, chains: ['eip155:1', 'eip155:137', 'other:chain'] },
+            });
+            expect(account).toStrictEqual(expectedResponse);
+          });
+        });
+
+        describe('updateAccount', () => {
+          it('should send a request to update an account', async () => {
+            const account: KeyringAccount = {
+              id: '49116980-0712-4fa5-b045-e4294f1d440e',
+              address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
+              options: {},
+              methods: [],
+              scopes: ['eip155:0'],
+              type: 'eip155:eoa',
+            };
+
+            mockSender.send.mockResolvedValue(null);
+            const response = await client.updateAccount(account);
+            expect(mockSender.send).toHaveBeenCalledWith({
+              jsonrpc: '2.0',
+              id: expect.any(String),
+              method: 'keyring_updateAccount',
+              params: { account },
+            });
+            expect(response).toBeUndefined();
+          });
+        });
+
+        describe('deleteAccount', () => {
+          it('should send a request to delete an account', async () => {
+            const id = '49116980-0712-4fa5-b045-e4294f1d440e';
+
+            mockSender.send.mockResolvedValue(null);
+            const response = await client.deleteAccount(id);
+            expect(mockSender.send).toHaveBeenCalledWith({
+              jsonrpc: '2.0',
+              id: expect.any(String),
+              method: 'keyring_deleteAccount',
+              params: { id },
+            });
+            expect(response).toBeUndefined();
+          });
+        });
+
+        describe('exportAccount', () => {
+          it('should send a request to export an account', async () => {
+            const id = '49116980-0712-4fa5-b045-e4294f1d440e';
+            const expectedResponse = {
+              privateKey: '0x000000000',
+            };
+
+            mockSender.send.mockResolvedValue(expectedResponse);
+            const response = await client.exportAccount(id);
+            expect(mockSender.send).toHaveBeenCalledWith({
+              jsonrpc: '2.0',
+              id: expect.any(String),
+              method: 'keyring_exportAccount',
+              params: { id },
+            });
+            expect(response).toStrictEqual(expectedResponse);
+          });
+        });
+
+        describe('listRequests', () => {
+          it('should send a request to list requests and return the response', async () => {
+            const expectedResponse: KeyringRequest[] = [
+              {
+                id: '71621d8d-62a4-4bf4-97cc-fb8f243679b0',
+                scope: 'eip155:1',
+                origin: 'test',
+                account: '46b5ccd3-4786-427c-89d2-cef626dffe9b',
+                request: {
+                  method: 'personal_sign',
+                  params: ['0xe9a74aacd7df8112911ca93260fc5a046f8a64ae', '0x0'],
+                },
+              },
+            ];
+
+            mockSender.send.mockResolvedValue(expectedResponse);
+            const response = await client.listRequests();
+            expect(mockSender.send).toHaveBeenCalledWith({
+              jsonrpc: '2.0',
+              id: expect.any(String),
+              method: 'keyring_listRequests',
+            });
+            expect(response).toStrictEqual(expectedResponse);
+          });
+        });
+
+        describe('getRequest', () => {
+          it('should send a request to get a request and return the response', async () => {
+            const id = '71621d8d-62a4-4bf4-97cc-fb8f243679b0';
+            const expectedResponse: KeyringRequest = {
+              id,
+              scope: 'eip155:1',
+              origin: 'test',
+              account: '46b5ccd3-4786-427c-89d2-cef626dffe9b',
+              request: {
+                method: 'personal_sign',
+                params: ['0xe9a74aacd7df8112911ca93260fc5a046f8a64ae', '0x0'],
+              },
+            };
+
+            mockSender.send.mockResolvedValue(expectedResponse);
+            const response = await client.getRequest(id);
+            expect(mockSender.send).toHaveBeenCalledWith({
+              jsonrpc: '2.0',
+              id: expect.any(String),
+              method: 'keyring_getRequest',
+              params: { id },
+            });
+            expect(response).toStrictEqual(expectedResponse);
+          });
+        });
+
+        describe('approveRequest', () => {
+          it('should send a request to approve a request', async () => {
+            const id = '71621d8d-62a4-4bf4-97cc-fb8f243679b0';
+
+            mockSender.send.mockResolvedValue(null);
+            const response = await client.approveRequest(id);
+            expect(mockSender.send).toHaveBeenCalledWith({
+              jsonrpc: '2.0',
+              id: expect.any(String),
+              method: 'keyring_approveRequest',
+              params: { id, data: {} },
+            });
+            expect(response).toBeUndefined();
+          });
+        });
+
+        describe('rejectRequest', () => {
+          it('should send a request to approve a request', async () => {
+            const id = '71621d8d-62a4-4bf4-97cc-fb8f243679b0';
+
+            mockSender.send.mockResolvedValue(null);
+            const response = await client.rejectRequest(id);
+            expect(mockSender.send).toHaveBeenCalledWith({
+              jsonrpc: '2.0',
+              id: expect.any(String),
+              method: 'keyring_rejectRequest',
+              params: { id },
+            });
+            expect(response).toBeUndefined();
+          });
+        });
       });
-      expect(account).toStrictEqual(expectedResponse);
-    });
-  });
+    },
+  );
+
+  // -----------------------------------------------------------------------------------------------
+  // Private/Internal methods (meant to be used by MetaMask)
+
+  const client = keyringClient;
 
   describe('discoverAccounts', () => {
     const scopes = [BtcScope.Mainnet, BtcScope.Testnet];
@@ -103,7 +279,7 @@ describe('KeyringClient', () => {
       const expectedResponse: DiscoveredAccount[] = [];
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const accounts = await keyring.discoverAccounts(
+      const accounts = await client.discoverAccounts(
         scopes,
         entropySource,
         groupIndex,
@@ -130,10 +306,7 @@ describe('KeyringClient', () => {
 
       mockSender.send.mockResolvedValue(expectedResponse);
       const pagination = { limit: 10 };
-      const transactions = await keyring.listAccountTransactions(
-        id,
-        pagination,
-      );
+      const transactions = await client.listAccountTransactions(id, pagination);
 
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
@@ -179,10 +352,7 @@ describe('KeyringClient', () => {
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const transactions = await keyring.listAccountTransactions(
-        id,
-        pagination,
-      );
+      const transactions = await client.listAccountTransactions(id, pagination);
 
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
@@ -228,10 +398,7 @@ describe('KeyringClient', () => {
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const transactions = await keyring.listAccountTransactions(
-        id,
-        pagination,
-      );
+      const transactions = await client.listAccountTransactions(id, pagination);
 
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
@@ -275,7 +442,7 @@ describe('KeyringClient', () => {
 
       mockSender.send.mockResolvedValue(expectedResponse);
       await expect(
-        keyring.listAccountTransactions(id, {
+        client.listAccountTransactions(id, {
           limit: 2,
         }),
       ).rejects.toThrow(
@@ -315,7 +482,7 @@ describe('KeyringClient', () => {
 
       mockSender.send.mockResolvedValue(expectedResponse);
       await expect(
-        keyring.listAccountTransactions(id, {
+        client.listAccountTransactions(id, {
           limit: 2,
         }),
       ).rejects.toThrow(
@@ -330,7 +497,7 @@ describe('KeyringClient', () => {
       const expectedResponse: CaipAssetTypeOrId[] = [];
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const assets = await keyring.listAccountAssets(id);
+      const assets = await client.listAccountAssets(id);
 
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
@@ -354,7 +521,7 @@ describe('KeyringClient', () => {
       ];
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const assets = await keyring.listAccountAssets(id);
+      const assets = await client.listAccountAssets(id);
 
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
@@ -371,7 +538,7 @@ describe('KeyringClient', () => {
       const expectedResponse = ['not:compliant'];
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      await expect(keyring.listAccountAssets(id)).rejects.toThrow(
+      await expect(client.listAccountAssets(id)).rejects.toThrow(
         'At path: 0 -- Expected a value of type `CaipAssetTypeOrId`, but received: `"not:compliant"`',
       );
     });
@@ -391,7 +558,7 @@ describe('KeyringClient', () => {
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const balances = await keyring.getAccountBalances(id, assets);
+      const balances = await client.getAccountBalances(id, assets);
 
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
@@ -416,7 +583,7 @@ describe('KeyringClient', () => {
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      await expect(keyring.getAccountBalances(id, assets)).rejects.toThrow(
+      await expect(client.getAccountBalances(id, assets)).rejects.toThrow(
         'At path: bip122:000000000019d6689c085ae165831e93/slip44:0.amount -- Expected a value of type `StringNumber`, but received: `1234`',
       );
     });
@@ -434,7 +601,7 @@ describe('KeyringClient', () => {
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      await expect(keyring.getAccountBalances(id, assets)).rejects.toThrow(
+      await expect(client.getAccountBalances(id, assets)).rejects.toThrow(
         'At path: bip122:000000000019d6689c085ae165831e93/slip44:0.amount -- Expected a value of type `StringNumber`, but received: `"not-a-string-number"`',
       );
     });
@@ -460,7 +627,7 @@ describe('KeyringClient', () => {
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const account = await keyring.resolveAccountAddress(scope, request);
+      const account = await client.resolveAccountAddress(scope, request);
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         id: expect.any(String),
@@ -477,7 +644,7 @@ describe('KeyringClient', () => {
       const expectedResponse = null;
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const account = await keyring.resolveAccountAddress(scope, request);
+      const account = await client.resolveAccountAddress(scope, request);
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         id: expect.any(String),
@@ -497,140 +664,10 @@ describe('KeyringClient', () => {
 
       mockSender.send.mockResolvedValue(expectedResponse);
       await expect(
-        keyring.resolveAccountAddress(scope, request),
+        client.resolveAccountAddress(scope, request),
       ).rejects.toThrow(
         'At path: address -- Expected a value of type `CaipAccountId`, but received: `undefined`',
       );
-    });
-  });
-
-  describe('filterAccountChains', () => {
-    it('should send a request to filter the chains supported by an account and return the response', async () => {
-      const id = '49116980-0712-4fa5-b045-e4294f1d440e';
-      const expectedResponse = ['eip155:1', 'eip155:137'];
-
-      mockSender.send.mockResolvedValue(expectedResponse);
-      const account = await keyring.filterAccountChains(
-        '49116980-0712-4fa5-b045-e4294f1d440e',
-        ['eip155:1', 'eip155:137', 'other:chain'],
-      );
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_filterAccountChains',
-        params: { id, chains: ['eip155:1', 'eip155:137', 'other:chain'] },
-      });
-      expect(account).toStrictEqual(expectedResponse);
-    });
-  });
-
-  describe('updateAccount', () => {
-    it('should send a request to update an account', async () => {
-      const account: KeyringAccount = {
-        id: '49116980-0712-4fa5-b045-e4294f1d440e',
-        address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
-        options: {},
-        methods: [],
-        scopes: ['eip155:0'],
-        type: 'eip155:eoa',
-      };
-
-      mockSender.send.mockResolvedValue(null);
-      const response = await keyring.updateAccount(account);
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_updateAccount',
-        params: { account },
-      });
-      expect(response).toBeUndefined();
-    });
-  });
-
-  describe('deleteAccount', () => {
-    it('should send a request to delete an account', async () => {
-      const id = '49116980-0712-4fa5-b045-e4294f1d440e';
-
-      mockSender.send.mockResolvedValue(null);
-      const response = await keyring.deleteAccount(id);
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_deleteAccount',
-        params: { id },
-      });
-      expect(response).toBeUndefined();
-    });
-  });
-
-  describe('exportAccounts', () => {
-    it('should send a request to export an account', async () => {
-      const id = '49116980-0712-4fa5-b045-e4294f1d440e';
-      const expectedResponse = {
-        privateKey: '0x000000000',
-      };
-
-      mockSender.send.mockResolvedValue(expectedResponse);
-      const response = await keyring.exportAccount(id);
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_exportAccount',
-        params: { id },
-      });
-      expect(response).toStrictEqual(expectedResponse);
-    });
-  });
-
-  describe('listRequests', () => {
-    it('should send a request to list requests and return the response', async () => {
-      const expectedResponse: KeyringRequest[] = [
-        {
-          id: '71621d8d-62a4-4bf4-97cc-fb8f243679b0',
-          scope: 'eip155:1',
-          origin: 'test',
-          account: '46b5ccd3-4786-427c-89d2-cef626dffe9b',
-          request: {
-            method: 'personal_sign',
-            params: ['0xe9a74aacd7df8112911ca93260fc5a046f8a64ae', '0x0'],
-          },
-        },
-      ];
-
-      mockSender.send.mockResolvedValue(expectedResponse);
-      const response = await keyring.listRequests();
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_listRequests',
-      });
-      expect(response).toStrictEqual(expectedResponse);
-    });
-  });
-
-  describe('getRequest', () => {
-    it('should send a request to get a request and return the response', async () => {
-      const id = '71621d8d-62a4-4bf4-97cc-fb8f243679b0';
-      const expectedResponse: KeyringRequest = {
-        id,
-        scope: 'eip155:1',
-        origin: 'test',
-        account: '46b5ccd3-4786-427c-89d2-cef626dffe9b',
-        request: {
-          method: 'personal_sign',
-          params: ['0xe9a74aacd7df8112911ca93260fc5a046f8a64ae', '0x0'],
-        },
-      };
-
-      mockSender.send.mockResolvedValue(expectedResponse);
-      const response = await keyring.getRequest(id);
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_getRequest',
-        params: { id },
-      });
-      expect(response).toStrictEqual(expectedResponse);
     });
   });
 
@@ -655,7 +692,7 @@ describe('KeyringClient', () => {
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
-      const response = await keyring.submitRequest(request);
+      const response = await client.submitRequest(request);
       expect(mockSender.send).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         id: expect.any(String),
@@ -663,38 +700,6 @@ describe('KeyringClient', () => {
         params: request,
       });
       expect(response).toStrictEqual(expectedResponse);
-    });
-  });
-
-  describe('approveRequest', () => {
-    it('should send a request to approve a request', async () => {
-      const id = '71621d8d-62a4-4bf4-97cc-fb8f243679b0';
-
-      mockSender.send.mockResolvedValue(null);
-      const response = await keyring.approveRequest(id);
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_approveRequest',
-        params: { id, data: {} },
-      });
-      expect(response).toBeUndefined();
-    });
-  });
-
-  describe('rejectRequest', () => {
-    it('should send a request to approve a request', async () => {
-      const id = '71621d8d-62a4-4bf4-97cc-fb8f243679b0';
-
-      mockSender.send.mockResolvedValue(null);
-      const response = await keyring.rejectRequest(id);
-      expect(mockSender.send).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(String),
-        method: 'keyring_rejectRequest',
-        params: { id },
-      });
-      expect(response).toBeUndefined();
     });
   });
 });
