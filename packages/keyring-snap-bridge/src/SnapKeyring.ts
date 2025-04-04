@@ -831,6 +831,7 @@ export class SnapKeyring extends EventEmitter {
    * This request cannot be an asynchronous keyring request.
    *
    * @param opts - Request options.
+   * @param opts.origin - Send origin.
    * @param opts.account - Account ID.
    * @param opts.method - Method to call.
    * @param opts.params - Method parameters.
@@ -838,11 +839,13 @@ export class SnapKeyring extends EventEmitter {
    * @returns Promise that resolves to the result of the method call.
    */
   async submitRequest({
+    origin,
     account: accountId,
     method,
     params,
     scope,
   }: {
+    origin: string;
     // NOTE: We use `account` here rather than `id` to avoid ambiguity with a "request ID".
     // We already use this same field name for `KeyringAccount`s.
     account: string;
@@ -853,6 +856,7 @@ export class SnapKeyring extends EventEmitter {
     const { account, snapId } = this.#getAccount(accountId);
 
     return await this.#submitSnapRequest({
+      origin,
       snapId,
       account,
       method: method as AccountMethod,
@@ -868,6 +872,7 @@ export class SnapKeyring extends EventEmitter {
    * Submit a request to a Snap from an account address.
    *
    * @param opts - Request options.
+   * @param opts.origin - Sender origin.
    * @param opts.address - Account address.
    * @param opts.method - Method to call.
    * @param opts.params - Method parameters.
@@ -876,12 +881,14 @@ export class SnapKeyring extends EventEmitter {
    * @returns Promise that resolves to the result of the method call.
    */
   async #submitRequest<Response extends Json>({
+    origin,
     address,
     method,
     params,
     scope = '',
     noPending = false,
   }: {
+    origin: string;
     address: string;
     method: string;
     params?: Json[] | Record<string, Json>;
@@ -891,6 +898,7 @@ export class SnapKeyring extends EventEmitter {
     const { account, snapId } = this.#resolveAddress(address);
 
     return await this.#submitSnapRequest<Response>({
+      origin,
       snapId,
       account,
       method: method as AccountMethod,
@@ -904,6 +912,7 @@ export class SnapKeyring extends EventEmitter {
    * Submits a request to a Snap.
    *
    * @param options - The options for the Snap request.
+   * @param options.origin - The sender origin.
    * @param options.snapId - The Snap ID to submit the request to.
    * @param options.account - The account to use for the request.
    * @param options.method - The Ethereum method to call.
@@ -914,6 +923,7 @@ export class SnapKeyring extends EventEmitter {
    * @throws An error if the Snap fails to respond or if there's an issue with the request submission.
    */
   async #submitSnapRequest<Response extends Json>({
+    origin,
     snapId,
     account,
     method,
@@ -921,6 +931,7 @@ export class SnapKeyring extends EventEmitter {
     scope,
     noPending,
   }: {
+    origin: string;
     snapId: SnapId;
     account: KeyringAccount;
     method: AccountMethod;
@@ -947,6 +958,7 @@ export class SnapKeyring extends EventEmitter {
     try {
       const request = {
         id: requestId,
+        origin,
         scope,
         account: account.id,
         request: {
@@ -1123,6 +1135,7 @@ export class SnapKeyring extends EventEmitter {
     });
 
     const signedTx = await this.#submitRequest({
+      origin: 'metamask',
       address,
       method: EthMethod.SignTransaction,
       params: [tx],
@@ -1177,6 +1190,7 @@ export class SnapKeyring extends EventEmitter {
 
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method,
         params: toJson<Json[]>([address, data]),
@@ -1200,6 +1214,7 @@ export class SnapKeyring extends EventEmitter {
   async signMessage(address: string, hash: any): Promise<string> {
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method: EthMethod.Sign,
         params: toJson<Json[]>([address, hash]),
@@ -1221,6 +1236,7 @@ export class SnapKeyring extends EventEmitter {
   async signPersonalMessage(address: string, data: any): Promise<string> {
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method: EthMethod.PersonalSign,
         params: toJson<Json[]>([data, address]),
@@ -1244,6 +1260,7 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<EthBaseUserOperation> {
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method: EthMethod.PrepareUserOperation,
         params: toJson<Json[]>(transactions),
@@ -1271,6 +1288,7 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<EthUserOperationPatch> {
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method: EthMethod.PatchUserOperation,
         params: toJson<Json[]>([userOp]),
@@ -1297,6 +1315,7 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<string> {
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method: EthMethod.SignUserOperation,
         params: toJson<Json[]>([userOp]),

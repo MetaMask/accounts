@@ -10,6 +10,7 @@ describe('KeyringRequest', () => {
         id: '47d782ac-15c8-4c81-8bfe-759ae1be4a3e',
         scope: 'eip155:1',
         account: 'd6311e3c-a4ec-43fa-b341-592ffefd9797',
+        origin: 'metamask',
         request: {
           method: 'eth_personalSign',
           params: {
@@ -24,6 +25,7 @@ describe('KeyringRequest', () => {
         id: '47d782ac-15c8-4c81-8bfe-759ae1be4a3e',
         scope: 'eip155:1',
         account: 'd6311e3c-a4ec-43fa-b341-592ffefd9797',
+        origin: 'metamask',
         request: {
           method: 'eth_somethingElseWithNoParameters',
         },
@@ -36,6 +38,7 @@ describe('KeyringRequest', () => {
       request: {
         scope: 'eip155:1',
         account: 'd6311e3c-a4ec-43fa-b341-592ffefd9797',
+        origin: 'metamask',
         request: {
           method: 'eth_personalSign',
           params: {
@@ -50,6 +53,7 @@ describe('KeyringRequest', () => {
       request: {
         id: '47d782ac-15c8-4c81-8bfe-759ae1be4a3e',
         account: 'd6311e3c-a4ec-43fa-b341-592ffefd9797',
+        origin: 'metamask',
         request: {
           method: 'eth_personalSign',
           params: {
@@ -64,6 +68,22 @@ describe('KeyringRequest', () => {
       request: {
         id: '47d782ac-15c8-4c81-8bfe-759ae1be4a3e',
         scope: 'eip155:1',
+        origin: 'metamask',
+        request: {
+          method: 'eth_personalSign',
+          params: {
+            data: '0x00...',
+          },
+        },
+      },
+      expected: false,
+    },
+    // Missing origin
+    {
+      request: {
+        id: '47d782ac-15c8-4c81-8bfe-759ae1be4a3e',
+        scope: 'eip155:1',
+        account: 'd6311e3c-a4ec-43fa-b341-592ffefd9797',
         request: {
           method: 'eth_personalSign',
           params: {
@@ -79,6 +99,7 @@ describe('KeyringRequest', () => {
         id: '47d782ac-15c8-4c81-8bfe-759ae1be4a3e',
         scope: 'eip155:1',
         account: 'd6311e3c-a4ec-43fa-b341-592ffefd9797',
+        origin: 'metamask',
       },
       expected: false,
     },
