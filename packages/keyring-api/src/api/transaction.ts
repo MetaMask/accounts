@@ -144,12 +144,22 @@ export enum TransactionType {
   Swap = 'swap',
 
   /**
-   * The transaction is a bridge. It moves assets between chains.
-   *
-   * A bridge transaction must be originated by the account and it's a
-   * `receive` transaction on the destination chain.
+   * The transaction is a bridge-send. It moves assets from the account to a
+   * destination chain.
    */
-  Bridge = 'bridge',
+  BridgeSend = 'bridge-send',
+
+  /**
+   * The transaction is a bridge-receive. It moves assets from a destination
+   * chain to the account.
+   */
+  BridgeReceive = 'bridge-receive',
+
+  /**
+   * The transaction is an interaction. It is a transaction that interacts with
+   * contracts and it's not any of the other types.
+   */
+  Interaction = 'interaction',
 }
 
 /**
@@ -270,7 +280,9 @@ export const TransactionStruct = object({
     `${TransactionType.Send}`,
     `${TransactionType.Receive}`,
     `${TransactionType.Swap}`,
-    `${TransactionType.Bridge}`,
+    `${TransactionType.BridgeSend}`,
+    `${TransactionType.BridgeReceive}`,
+    `${TransactionType.Interaction}`,
   ]),
 
   /**
