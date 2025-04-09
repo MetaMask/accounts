@@ -144,16 +144,16 @@ export enum TransactionType {
   Swap = 'swap',
 
   /**
-   * The transaction is a bridge-send. It moves assets from the account to a
+   * The transaction is a bridge:send. It moves assets from the account to a
    * destination chain.
    */
-  BridgeSend = 'bridge-send',
+  BridgeSend = 'bridge:send',
 
   /**
-   * The transaction is a bridge-receive. It moves assets from a destination
+   * The transaction is a bridge:receive. It moves assets from a destination
    * chain to the account.
    */
-  BridgeReceive = 'bridge-receive',
+  BridgeReceive = 'bridge:receive',
 
   /**
    * The transaction is an interaction. It is a transaction that interacts with
