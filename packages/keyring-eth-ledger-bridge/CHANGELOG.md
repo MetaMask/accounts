@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix: increase ledger timeout for user action requests ([#275](https://github.com/MetaMask/accounts/pull/275))
+
 ## [11.0.1]
 
 ### Fixed
