@@ -282,7 +282,7 @@ export const TransactionStruct = object({
     `${TransactionType.Swap}`,
     `${TransactionType.BridgeSend}`,
     `${TransactionType.BridgeReceive}`,
-    `${TransactionType.Interaction}`,
+    `${TransactionType.Unknown}`,
   ]),
 
   /**
