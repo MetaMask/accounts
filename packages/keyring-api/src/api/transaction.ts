@@ -150,8 +150,8 @@ export enum TransactionType {
   BridgeSend = 'bridge:send',
 
   /**
-   * The transaction is a bridge:receive. It moves assets from a destination
-   * chain to the account.
+   * Represents an incoming bridge transaction, transferring assets from
+   * another blockchain to the account.
    */
   BridgeReceive = 'bridge:receive',
 
