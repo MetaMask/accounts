@@ -144,8 +144,8 @@ export enum TransactionType {
   Swap = 'swap',
 
   /**
-   * The transaction is a bridge:send. It moves assets from the account to a
-   * destination chain.
+   * Represents an outgoing bridge transaction, transferring assets from
+   * the account to another blockchain.
    */
   BridgeSend = 'bridge:send',
 
