@@ -16,6 +16,8 @@ const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
 
 const IFRAME_MESSAGE_TIMEOUT = 4000;
 
+const USER_ACTION_REQUEST_TIMEOUT = 20_000;
+
 export enum IFrameMessageAction {
   LedgerIsIframeReady = 'ledger-is-iframe-ready',
   LedgerConnectionChange = 'ledger-connection-change',
@@ -190,7 +192,11 @@ export class LedgerIframeBridge
   async getPublicKey(
     params: GetPublicKeyParams,
   ): Promise<GetPublicKeyResponse> {
-    return this.#deviceActionMessage(IFrameMessageAction.LedgerUnlock, params);
+    return this.#deviceActionMessage(
+      IFrameMessageAction.LedgerUnlock,
+      params,
+      USER_ACTION_REQUEST_TIMEOUT,
+    );
   }
 
   async deviceSignTransaction(
@@ -199,6 +205,7 @@ export class LedgerIframeBridge
     return this.#deviceActionMessage(
       IFrameMessageAction.LedgerSignTransaction,
       params,
+      USER_ACTION_REQUEST_TIMEOUT,
     );
   }
 
@@ -208,6 +215,7 @@ export class LedgerIframeBridge
     return this.#deviceActionMessage(
       IFrameMessageAction.LedgerSignPersonalMessage,
       params,
+      USER_ACTION_REQUEST_TIMEOUT,
     );
   }
 
@@ -217,42 +225,59 @@ export class LedgerIframeBridge
     return this.#deviceActionMessage(
       IFrameMessageAction.LedgerSignTypedData,
       params,
+      USER_ACTION_REQUEST_TIMEOUT,
     );
   }
 
   async #deviceActionMessage(
     action: IFrameMessageAction.LedgerUnlock,
     params: GetPublicKeyParams,
+    timeout: number,
   ): Promise<GetPublicKeyResponse>;
 
   async #deviceActionMessage(
     action: IFrameMessageAction.LedgerSignTransaction,
     params: LedgerSignTransactionParams,
+    timeout: number,
   ): Promise<LedgerSignTransactionResponse>;
 
   async #deviceActionMessage(
     action: IFrameMessageAction.LedgerSignPersonalMessage,
     params: LedgerSignMessageParams,
+    timeout: number,
   ): Promise<LedgerSignMessageResponse>;
 
   async #deviceActionMessage(
     action: IFrameMessageAction.LedgerSignTypedData,
     params: LedgerSignTypedDataParams,
+    timeout: number,
   ): Promise<LedgerSignTypedDataResponse>;
 
   async #deviceActionMessage(
-    ...[action, params]:
-      | [IFrameMessageAction.LedgerUnlock, GetPublicKeyParams]
-      | [IFrameMessageAction.LedgerSignTransaction, LedgerSignTransactionParams]
-      | [IFrameMessageAction.LedgerSignPersonalMessage, LedgerSignMessageParams]
-      | [IFrameMessageAction.LedgerSignTypedData, LedgerSignTypedDataParams]
+    ...[action, params, timeout]:
+      | [IFrameMessageAction.LedgerUnlock, GetPublicKeyParams, number]
+      | [
+          IFrameMessageAction.LedgerSignTransaction,
+          LedgerSignTransactionParams,
+          number,
+        ]
+      | [
+          IFrameMessageAction.LedgerSignPersonalMessage,
+          LedgerSignMessageParams,
+          number,
+        ]
+      | [
+          IFrameMessageAction.LedgerSignTypedData,
+          LedgerSignTypedDataParams,
+          number,
+        ]
   ): Promise<
     | GetPublicKeyResponse
     | LedgerSignTransactionResponse
     | LedgerSignMessageResponse
     | LedgerSignTypedDataResponse
   > {
-    const response = await this.#sendMessage({ action, params });
+    const response = await this.#sendMessage({ action, params }, timeout);
 
     if ('payload' in response && response.payload) {
       if ('success' in response && response.success) {
@@ -313,6 +338,7 @@ export class LedgerIframeBridge
 
   async #sendMessage<TAction extends IFrameMessageAction>(
     message: IFrameMessage<TAction>,
+    timeout = IFRAME_MESSAGE_TIMEOUT,
   ): Promise<IFrameMessageResponse> {
     this.currentMessageId += 1;
 
@@ -341,7 +367,7 @@ export class LedgerIframeBridge
           new Error('Ledger iframe message timeout'),
         );
       }
-    }, IFRAME_MESSAGE_TIMEOUT);
+    }, timeout);
 
     this.iframe.contentWindow.postMessage(postMsg, '*');
 

@@ -198,7 +198,7 @@ describe('LedgerIframeBridge', function () {
 
     it('throws a timeout error when the message does not receive a response', async function () {
       stubKeyringIFramePostMessage(bridge, () => {
-        jest.advanceTimersByTime(5000);
+        jest.advanceTimersByTime(20_000);
       });
 
       await expect(bridge.attemptMakeApp()).rejects.toThrow(
@@ -269,7 +269,7 @@ describe('LedgerIframeBridge', function () {
       bridge.iframeLoaded = true;
       const transportType = 'u2f';
       stubKeyringIFramePostMessage(bridge, () => {
-        jest.advanceTimersByTime(5000);
+        jest.advanceTimersByTime(20_000);
       });
 
       await expect(bridge.updateTransportMethod(transportType)).rejects.toThrow(
@@ -438,7 +438,7 @@ describe('LedgerIframeBridge', function () {
       const params = { hdPath: "m/44'/60'/0'/0", tx: '' };
 
       stubKeyringIFramePostMessage(bridge, () => {
-        jest.advanceTimersByTime(5000);
+        jest.advanceTimersByTime(20_000);
       });
 
       await expect(bridge.deviceSignTransaction(params)).rejects.toThrow(
@@ -512,7 +512,7 @@ describe('LedgerIframeBridge', function () {
       const params = { hdPath: "m/44'/60'/0'/0", message: '' };
 
       stubKeyringIFramePostMessage(bridge, () => {
-        jest.advanceTimersByTime(5000);
+        jest.advanceTimersByTime(20_000);
       });
 
       await expect(bridge.deviceSignMessage(params)).rejects.toThrow(
@@ -598,7 +598,7 @@ describe('LedgerIframeBridge', function () {
 
     it('throws a timeout error when the message does not receive a response', async function () {
       stubKeyringIFramePostMessage(bridge, () => {
-        jest.advanceTimersByTime(5000);
+        jest.advanceTimersByTime(20_000);
       });
 
       await expect(bridge.deviceSignTypedData(params)).rejects.toThrow(
