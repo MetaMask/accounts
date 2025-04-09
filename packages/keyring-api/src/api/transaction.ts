@@ -156,10 +156,10 @@ export enum TransactionType {
   BridgeReceive = 'bridge:receive',
 
   /**
-   * The transaction is an interaction. It is a transaction that interacts with
-   * contracts and it's not any of the other types.
+   * The transaction status is an unknown. The Snap couldn't determined which kind of
+   * transaction is dealing with, but still want to report it.
    */
-  Interaction = 'interaction',
+  Unknown = 'unknown',
 }
 
 /**
