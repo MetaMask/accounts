@@ -156,8 +156,8 @@ export enum TransactionType {
   BridgeReceive = 'bridge:receive',
 
   /**
-   * The transaction status is an unknown. The Snap couldn't determined which kind of
-   * transaction is dealing with, but still want to report it.
+   * The transaction type is unknown. It's not possible to determine the
+   * transaction type based on the information available.
    */
   Unknown = 'unknown',
 }
