@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- fix!: `Keyring.signTypedData` accepts types for V1 ([#224](https://github.com/MetaMask/accounts/pull/224))
-
 ## [3.0.0]
 
 ### Changed
