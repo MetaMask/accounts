@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [17.5.0]
 
-### Uncategorized
+### Added
 
-- feat(keyring-api): add bridge types + interaction transaction type ([#251](https://github.com/MetaMask/accounts/pull/251))
+- Add `bridge:{send,receive}` transaction type ([#251](https://github.com/MetaMask/accounts/pull/251))
+- Add `unknown` transaction type ([#251](https://github.com/MetaMask/accounts/pull/251))
+  - This type can be used when a transaction type cannot be determined.
 
 ## [17.4.0]
 
