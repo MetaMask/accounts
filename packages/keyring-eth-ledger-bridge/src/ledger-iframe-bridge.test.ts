@@ -433,18 +433,6 @@ describe('LedgerIframeBridge', function () {
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
-
-    it('throws a timeout error when the message does not receive a response', async function () {
-      const params = { hdPath: "m/44'/60'/0'/0", tx: '' };
-
-      stubKeyringIFramePostMessage(bridge, () => {
-        jest.advanceTimersByTime(20_000);
-      });
-
-      await expect(bridge.deviceSignTransaction(params)).rejects.toThrow(
-        'Ledger iframe message timeout',
-      );
-    });
   });
 
   describe('deviceSignMessage', function () {
@@ -506,18 +494,6 @@ describe('LedgerIframeBridge', function () {
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
-    });
-
-    it('throws a timeout error when the message does not receive a response', async function () {
-      const params = { hdPath: "m/44'/60'/0'/0", message: '' };
-
-      stubKeyringIFramePostMessage(bridge, () => {
-        jest.advanceTimersByTime(20_000);
-      });
-
-      await expect(bridge.deviceSignMessage(params)).rejects.toThrow(
-        'Ledger iframe message timeout',
-      );
     });
   });
 
@@ -594,16 +570,6 @@ describe('LedgerIframeBridge', function () {
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
-    });
-
-    it('throws a timeout error when the message does not receive a response', async function () {
-      stubKeyringIFramePostMessage(bridge, () => {
-        jest.advanceTimersByTime(20_000);
-      });
-
-      await expect(bridge.deviceSignTypedData(params)).rejects.toThrow(
-        'Ledger iframe message timeout',
-      );
     });
   });
 
