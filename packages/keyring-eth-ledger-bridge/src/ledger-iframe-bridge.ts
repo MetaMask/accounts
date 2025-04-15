@@ -16,8 +16,6 @@ const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
 
 const IFRAME_MESSAGE_TIMEOUT = 4000;
 
-const USER_ACTION_REQUEST_TIMEOUT = 20_000;
-
 export enum IFrameMessageAction {
   LedgerIsIframeReady = 'ledger-is-iframe-ready',
   LedgerConnectionChange = 'ledger-connection-change',
