@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- refactor: remove timeout for messages requiring user actions ([#279](https://github.com/MetaMask/accounts/pull/279))
+
 ## [11.0.2]
 
 ### Fixed
