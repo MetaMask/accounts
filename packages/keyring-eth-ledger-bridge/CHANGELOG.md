@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.0.3]
 
+### Fixed
+
 - Removed timeout for messages requiring user actions ([#279](https://github.com/MetaMask/accounts/pull/279))
 
 ## [11.0.2]
