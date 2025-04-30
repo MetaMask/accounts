@@ -39,6 +39,9 @@ export enum KeyringEvent {
   AccountBalancesUpdated = 'notify:accountBalancesUpdated',
   AccountAssetListUpdated = 'notify:accountAssetListUpdated',
   AccountTransactionsUpdated = 'notify:accountTransactionsUpdated',
+  //
+  // Logs
+  Log = 'notify:log',
 }
 
 export const AccountCreatedEventStruct = object({
@@ -136,6 +139,15 @@ export const RequestRejectedEventStruct = object({
 });
 export type RequestRejectedEvent = Infer<typeof RequestRejectedEventStruct>;
 export type RequestRejectedEventPayload = RequestRejectedEvent['params'];
+
+export const LogEventStruct = object({
+  method: literal(`${KeyringEvent.Log}`),
+  params: object({
+    log: string(),
+  }),
+});
+export type LogEvent = Infer<typeof LogEventStruct>;
+export type LogEventPayload = LogEvent['params'];
 
 // Assets related events:
 // -----------------------------------------------------------------------------------------------
@@ -269,7 +281,8 @@ type KeyringEvents =
   | AccountBalancesUpdatedEvent
   | AccountTransactionsUpdatedEvent
   | RequestApprovedEvent
-  | RequestRejectedEvent;
+  | RequestRejectedEvent
+  | LogEvent;
 
 /**
  * Extract the payload for a given `KeyringEvent` event.

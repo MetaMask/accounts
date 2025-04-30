@@ -17,6 +17,7 @@ import {
   AccountAssetListUpdatedEventStruct,
   AccountBalancesUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
+  LogEventStruct,
 } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
@@ -591,6 +592,21 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Handle a log event from a Snap.
+   *
+   * @param snapId - ID of the Snap.
+   * @param message - Event message.
+   * @returns `null`.
+   */
+  async #handleLog(snapId: SnapId, message: SnapMessage): Promise<null> {
+    assert(message, LogEventStruct);
+
+    const event = message.params;
+    console.log(snapId, event.log);
+    return null;
+  }
+
+  /**
    * Handle a message from a Snap.
    *
    * @param snapId - ID of the Snap.
@@ -634,6 +650,10 @@ export class SnapKeyring extends EventEmitter {
 
       case `${KeyringEvent.AccountTransactionsUpdated}`: {
         return this.#handleAccountTransactionsUpdated(snapId, message);
+      }
+
+      case `${KeyringEvent.Log}`: {
+        return this.#handleLog(snapId, message);
       }
 
       default:
