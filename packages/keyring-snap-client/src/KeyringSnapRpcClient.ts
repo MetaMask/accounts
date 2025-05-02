@@ -3,7 +3,7 @@ import type { MetaMaskInpageProvider } from '@metamask/providers';
 import type { Json } from '@metamask/utils';
 
 import type { Sender } from './KeyringClient';
-import { KeyringClient } from './KeyringClient';
+import { KeyringPublicClient } from './KeyringPublicClient';
 
 /**
  * Implementation of the `Sender` interface that can be used to send requests
@@ -43,10 +43,10 @@ export class SnapRpcSender implements Sender {
 }
 
 /**
- * A `KeyringClient` that allows the communication with a snap through the snap
- * JSON-RPC API.
+ * A client that allows the communication with a snap through the snap
+ * JSON-RPC API to call keyring methods.
  */
-export class KeyringSnapRpcClient extends KeyringClient {
+export class KeyringSnapRpcClient extends KeyringPublicClient {
   /**
    * Create a new instance of `KeyringSnapRpcClient`.
    *
