@@ -34,10 +34,10 @@ export function assertKeyringAccount<
   // the `KeyringAccount`. This would also required to have a "generic `KeyringAccount`"
   // definition.
   switch (account.type) {
-    case BtcAccountType.P2pkh ||
-      BtcAccountType.P2sh ||
-      BtcAccountType.P2wpkh ||
-      BtcAccountType.P2tr: {
+    case BtcAccountType.P2pkh:
+    case BtcAccountType.P2sh:
+    case BtcAccountType.P2wpkh:
+    case BtcAccountType.P2tr: {
       assert(account, BtcAccountStruct);
       return account;
     }
