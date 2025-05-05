@@ -54,7 +54,10 @@ export function getScopesForAccountV1(
       // in production.
       return [EthScope.Testnet];
     }
-    case BtcAccountType.P2wpkh: {
+    case BtcAccountType.P2pkh ||
+      BtcAccountType.P2sh ||
+      BtcAccountType.P2wpkh ||
+      BtcAccountType.P2tr: {
       // Bitcoin uses different accounts for testnet and mainnet
       return [
         isBtcMainnetAddress(accountV1.address)

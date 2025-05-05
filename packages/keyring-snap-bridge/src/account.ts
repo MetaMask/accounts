@@ -1,7 +1,7 @@
 import type { KeyringAccount, KeyringAccountType } from '@metamask/keyring-api';
 import {
   BtcAccountType,
-  BtcP2wpkhAccountStruct,
+  BtcAccountStruct,
   EthAccountType,
   EthEoaAccountStruct,
   EthErc4337AccountStruct,
@@ -34,8 +34,11 @@ export function assertKeyringAccount<
   // the `KeyringAccount`. This would also required to have a "generic `KeyringAccount`"
   // definition.
   switch (account.type) {
-    case BtcAccountType.P2wpkh: {
-      assert(account, BtcP2wpkhAccountStruct);
+    case BtcAccountType.P2pkh ||
+      BtcAccountType.P2sh ||
+      BtcAccountType.P2wpkh ||
+      BtcAccountType.P2tr: {
+      assert(account, BtcAccountStruct);
       return account;
     }
     case SolAccountType.DataAccount: {

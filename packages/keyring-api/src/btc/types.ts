@@ -1,35 +1,12 @@
 import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import {
-  string,
-  array,
-  enums,
-  refine,
-  literal,
-  size,
-} from '@metamask/superstruct';
-import { bech32 } from 'bech32';
+import { string, array, enums, size } from '@metamask/superstruct';
 
 import {
   BtcAccountType,
   KeyringAccountStruct,
   CaipChainIdStruct,
 } from '../api';
-
-export const BtcP2wpkhAddressStruct = refine(
-  string(),
-  'BtcP2wpkhAddressStruct',
-  (address: string) => {
-    try {
-      bech32.decode(address);
-    } catch (error) {
-      return new Error(
-        `Could not decode P2WPKH address: ${(error as Error).message}`,
-      );
-    }
-    return true;
-  },
-);
 
 /**
  * Supported Bitcoin methods.
@@ -39,18 +16,18 @@ export enum BtcMethod {
   SendBitcoin = 'sendBitcoin',
 }
 
-export const BtcP2wpkhAccountStruct = object({
+export const BtcAccountStruct = object({
   ...KeyringAccountStruct.schema,
 
   /**
    * Account address.
    */
-  address: BtcP2wpkhAddressStruct,
+  address: string(),
 
   /**
    * Account type.
    */
-  type: literal(`${BtcAccountType.P2wpkh}`),
+  type: enums(Object.values(BtcAccountType)),
 
   /**
    * Account supported scope (CAIP-2 chain ID).
@@ -65,4 +42,4 @@ export const BtcP2wpkhAccountStruct = object({
   methods: array(enums([`${BtcMethod.SendBitcoin}`])),
 });
 
-export type BtcP2wpkhAccount = Infer<typeof BtcP2wpkhAccountStruct>;
+export type BtcP2wpkhAccount = Infer<typeof BtcAccountStruct>;
