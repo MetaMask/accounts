@@ -1893,7 +1893,6 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
     "@types/webextension-polyfill": "npm:^0.12.1"
-    bech32: "npm:^2.0.0"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
