@@ -151,17 +151,35 @@ describe('SnapKeyring', () => {
     scopes: [EthScope.Testnet],
     type: EthAccountType.Erc4337,
   };
-  const btcP2wpkhAccount = {
+  const btcAccount = {
     id: '11cffca0-12cc-4779-8f82-23273c062e29',
-    address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+    address: 'bc1q4degm5k044n9xv3ds7d8l6hfavydte6wn6sesw',
     options: {},
     methods: [...Object.values(BtcMethod)],
     scopes: [BtcScope.Mainnet],
     type: BtcAccountType.P2wpkh,
   };
-  const btcP2wpkhTestnetAccount = {
+  const btcAccountP2pkh = {
+    ...btcAccount,
+    id: '12cffca0-12cc-4779-8f82-23273c062e29',
+    address: '1AXaVdPBb6zqrTMb6ebrBb9g3JmeAPGeCF',
+    type: BtcAccountType.P2pkh,
+  };
+  const btcAccountP2sh = {
+    ...btcAccount,
+    id: '13cffca0-12cc-4779-8f82-23273c062e29',
+    address: '3KQPirCGGbVyWJLGuWN6VPC7uLeiarYB7x',
+    type: BtcAccountType.P2sh,
+  };
+  const btcAccountP2tr = {
+    ...btcAccount,
+    id: '14cffca0-12cc-4779-8f82-23273c062e29',
+    address: 'bc1pxfxst7zrkw39vzh0pchq5ey0q7z6u739cudhz5vmg89wa4kyyp9qzrf5sp',
+    type: BtcAccountType.P2tr,
+  };
+  const btcTestnetAccount = {
     id: 'cac9ecb8-94de-442f-8e19-6b2439b2deb1',
-    address: 'tb1q6rmsq3vlfdhjdhtkxlqtuhhlr6pmj09y6w43g8',
+    address: 'tb1qqecaw32rvyjgez706t5chpr8gan49wfuk94t3g',
     options: {},
     methods: [...Object.values(BtcMethod)],
     scopes: [BtcScope.Testnet],
@@ -206,7 +224,10 @@ describe('SnapKeyring', () => {
     ethEoaAccount2,
     ethEoaAccount3,
     ethErc4337Account,
-    btcP2wpkhAccount,
+    btcAccount,
+    btcAccountP2pkh,
+    btcAccountP2sh,
+    btcAccountP2tr,
     solDataAccount,
   ] as const;
 
@@ -538,7 +559,7 @@ describe('SnapKeyring', () => {
         keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
 
         // Omit `scopes` from non-EVM `account`.
-        const account = noScopes(btcP2wpkhAccount);
+        const account = noScopes(btcAccount);
         await expect(
           keyring.handleKeyringSnapMessage(snapId, {
             method: KeyringEvent.AccountCreated,
@@ -1068,7 +1089,7 @@ describe('SnapKeyring', () => {
 
       it('updates a non-EVM account with the no scope will throw an error', async () => {
         // Omit `scopes` from non-EVM `account`.
-        const account = noScopes(btcP2wpkhAccount);
+        const account = noScopes(btcAccount);
 
         // Return the updated list of accounts when the keyring requests it.
         mockMessenger.handleRequest.mockResolvedValue([{ ...account }]);
@@ -1102,7 +1123,10 @@ describe('SnapKeyring', () => {
           ethEoaAccount2.address.toLowerCase(),
           ethEoaAccount3.address.toLowerCase(),
           ethErc4337Account.address.toLowerCase(),
-          btcP2wpkhAccount.address,
+          btcAccount.address,
+          btcAccountP2pkh.address,
+          btcAccountP2sh.address,
+          btcAccountP2tr.address,
           solDataAccount.address,
         ]);
       });
@@ -1117,7 +1141,10 @@ describe('SnapKeyring', () => {
           ethEoaAccount2.address.toLowerCase(),
           ethEoaAccount3.address.toLowerCase(),
           ethErc4337Account.address.toLowerCase(),
-          btcP2wpkhAccount.address,
+          btcAccount.address,
+          btcAccountP2pkh.address,
+          btcAccountP2sh.address,
+          btcAccountP2tr.address,
           solDataAccount.address,
         ]);
       });
@@ -1293,7 +1320,10 @@ describe('SnapKeyring', () => {
         ethEoaAccount2.address.toLowerCase(),
         ethEoaAccount3.address.toLowerCase(),
         ethErc4337Account.address.toLowerCase(),
-        btcP2wpkhAccount.address,
+        btcAccount.address,
+        btcAccountP2pkh.address,
+        btcAccountP2sh.address,
+        btcAccountP2tr.address,
         solDataAccount.address,
       ]);
     });
@@ -1307,7 +1337,10 @@ describe('SnapKeyring', () => {
           [ethEoaAccount2.id]: { account: ethEoaAccount2, snapId },
           [ethEoaAccount3.id]: { account: ethEoaAccount3, snapId },
           [ethErc4337Account.id]: { account: ethErc4337Account, snapId },
-          [btcP2wpkhAccount.id]: { account: btcP2wpkhAccount, snapId },
+          [btcAccount.id]: { account: btcAccount, snapId },
+          [btcAccountP2pkh.id]: { account: btcAccountP2pkh, snapId },
+          [btcAccountP2sh.id]: { account: btcAccountP2sh, snapId },
+          [btcAccountP2tr.id]: { account: btcAccountP2tr, snapId },
           [solDataAccount.id]: { account: solDataAccount, snapId },
         },
       };
@@ -1349,8 +1382,11 @@ describe('SnapKeyring', () => {
     it.each([
       ethEoaAccount1,
       ethErc4337Account,
-      btcP2wpkhAccount,
-      btcP2wpkhTestnetAccount,
+      btcAccount,
+      btcAccountP2pkh,
+      btcAccountP2sh,
+      btcAccountP2tr,
+      btcTestnetAccount,
       solDataAccount,
     ])('migrates accounts v1: %s', async (expectedAccount: KeyringAccount) => {
       // A v1 account has no scopes, so remove it.
@@ -1371,8 +1407,8 @@ describe('SnapKeyring', () => {
     it.each([
       ethEoaAccount1,
       ethErc4337Account,
-      btcP2wpkhAccount,
-      btcP2wpkhTestnetAccount,
+      btcAccount,
+      btcTestnetAccount,
       solDataAccount,
     ])(
       'migrates v2 accounts to v1 accounts is noop: %s',
@@ -2019,6 +2055,9 @@ describe('SnapKeyring', () => {
         accounts[3].address,
         accounts[4].address,
         accounts[5].address,
+        accounts[6].address,
+        accounts[7].address,
+        accounts[8].address,
       ]);
     });
 
@@ -2032,6 +2071,9 @@ describe('SnapKeyring', () => {
         accounts[3].address,
         accounts[4].address,
         accounts[5].address,
+        accounts[6].address,
+        accounts[7].address,
+        accounts[8].address,
       ]);
       expect(console.error).toHaveBeenCalledWith(
         "Account '0xc728514df8a7f9271f4b7a4dd2aa6d2d723d3ee3' may not have been removed from snap 'local:snap.mock':",

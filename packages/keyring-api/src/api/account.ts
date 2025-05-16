@@ -17,7 +17,10 @@ export enum EthAccountType {
  * Supported Bitcoin account types.
  */
 export enum BtcAccountType {
+  P2pkh = 'bip122:p2pkh',
+  P2sh = 'bip122:p2sh',
   P2wpkh = 'bip122:p2wpkh',
+  P2tr = 'bip122:p2tr',
 }
 
 /**
@@ -33,7 +36,10 @@ export enum SolAccountType {
 export type KeyringAccountType =
   | `${EthAccountType.Eoa}`
   | `${EthAccountType.Erc4337}`
+  | `${BtcAccountType.P2pkh}`
+  | `${BtcAccountType.P2sh}`
   | `${BtcAccountType.P2wpkh}`
+  | `${BtcAccountType.P2tr}`
   | `${SolAccountType.DataAccount}`;
 
 /**
@@ -55,7 +61,10 @@ export const KeyringAccountStruct = object({
   type: enums([
     `${EthAccountType.Eoa}`,
     `${EthAccountType.Erc4337}`,
+    `${BtcAccountType.P2pkh}`,
+    `${BtcAccountType.P2sh}`,
     `${BtcAccountType.P2wpkh}`,
+    `${BtcAccountType.P2tr}`,
     `${SolAccountType.DataAccount}`,
   ]),
 
