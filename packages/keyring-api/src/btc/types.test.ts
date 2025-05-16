@@ -13,7 +13,7 @@ const MOCK_ACCOUNT = {
 };
 
 describe('types', () => {
-  describe('BtcP2wpkhAccountStruct', () => {
+  describe('BtcAccountStruct', () => {
     it('throws an error if there are multiple scopes', () => {
       const account: BtcP2wpkhAccount = {
         ...MOCK_ACCOUNT,
