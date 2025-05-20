@@ -18,9 +18,14 @@ const validateAddress = (
   type: AddressType,
 ): boolean | Error => {
   try {
-    return isBtcAddress(address, type);
+    if (isBtcAddress(address, type)) {
+      return true;
+    }
+    return new Error(`Invalid ${type} address`);
   } catch (error) {
-    return new Error(`Invalid ${type} address: ${(error as Error).message}`);
+    return new Error(
+      `Failed to decode ${type} address: ${(error as Error).message}`,
+    );
   }
 };
 

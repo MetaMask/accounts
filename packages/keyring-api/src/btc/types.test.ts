@@ -14,6 +14,18 @@ import {
 } from './types';
 import { BtcAccountType } from '../api';
 
+const BTC_P2PKH_MAINNET_ADDRESS = '1AXaVdPBb6zqrTMb6ebrBb9g3JmeAPGeCF';
+const BTC_P2SH_MAINNET_ADDRESS = '3KQPirCGGbVyWJLGuWN6VPC7uLeiarYB7x';
+const BTC_P2WPKH_MAINNET_ADDRESS = 'bc1q4degm5k044n9xv3ds7d8l6hfavydte6wn6sesw';
+const BTC_P2TR_MAINNET_ADDRESS =
+  'bc1pxfxst7zrkw39vzh0pchq5ey0q7z6u739cudhz5vmg89wa4kyyp9qzrf5sp';
+
+const BTC_P2PKH_TESTNET_ADDRESS = 'mrDHfcAPosFsabxBKe2U3EdxX5Kph8Zd4f';
+const BTC_P2SH_TESTNET_ADDRESS = '2N7AeKCw7p8uRRQjXPeHW7UPGhR8LYHEzBT';
+const BTC_P2WPKH_TESTNET_ADDRESS = 'tb1qqecaw32rvyjgez706t5chpr8gan49wfuk94t3g';
+const BTC_P2TR_TESTNET_ADDRESS =
+  'tb1p6epn3ctassfp54lnztshnpfjekn7khyarrnm6f0yv738lgc53xxsgevs8k';
+
 describe('types', () => {
   const mockAccount = {
     id: '55583f38-d81b-48f8-8494-fc543c2b5c95',
@@ -26,25 +38,36 @@ describe('types', () => {
     const p2pkhAccount: BtcP2pkhAccount = {
       ...mockAccount,
       type: BtcAccountType.P2pkh,
-      address: '15feVv7kK3z7jxA4RZZzY7Fwdu3yqFwzcT',
+      address: BTC_P2PKH_MAINNET_ADDRESS,
     };
 
-    it.each([
-      '15feVv7kK3z7jxA4RZZzY7Fwdu3yqFwzcT',
-      'mjPQaLkhZN3MxsYN8Nebzwevuz8vdTaRCq',
-    ])('is valid; %s', (address) => {
-      expect(() =>
-        BtcP2pkhAccountStruct.assert({ ...p2pkhAccount, address }),
-      ).not.toThrow();
-    });
+    it.each([BTC_P2PKH_MAINNET_ADDRESS, BTC_P2PKH_TESTNET_ADDRESS])(
+      'is valid; %s',
+      (address) => {
+        expect(() =>
+          BtcP2pkhAccountStruct.assert({ ...p2pkhAccount, address }),
+        ).not.toThrow();
+      },
+    );
 
-    it('throws an error if the address is invalid', () => {
+    it('throws an error if the address fails to be decoded', () => {
       expect(() =>
         BtcP2pkhAccountStruct.assert({
           ...p2pkhAccount,
           address: 'invalidAddress',
         }),
-      ).toThrow('At path: address -- Invalid p2pkh address: Invalid address');
+      ).toThrow(
+        'At path: address -- Failed to decode p2pkh address: Invalid address',
+      );
+    });
+
+    it('throws an error if the address type is invalid', () => {
+      expect(() =>
+        BtcP2pkhAccountStruct.assert({
+          ...p2pkhAccount,
+          address: BTC_P2WPKH_MAINNET_ADDRESS,
+        }),
+      ).toThrow('At path: address -- Invalid p2pkh address');
     });
 
     it('throws an error if there is no scope', () => {
@@ -60,25 +83,36 @@ describe('types', () => {
     const p2shAccount: BtcP2shAccount = {
       ...mockAccount,
       type: BtcAccountType.P2sh,
-      address: '3QVSaDYjxEh4L3K24eorrQjfVxPAKJMys2',
+      address: BTC_P2SH_MAINNET_ADDRESS,
     };
 
-    it.each([
-      '3QVSaDYjxEh4L3K24eorrQjfVxPAKJMys2',
-      '2NBG623WvXp1zxKB6gK2mnMe2mSDCur5qRU',
-    ])('is valid; %s', (address) => {
-      expect(() =>
-        BtcP2shAccountStruct.assert({ ...p2shAccount, address }),
-      ).not.toThrow();
-    });
+    it.each([BTC_P2SH_MAINNET_ADDRESS, BTC_P2SH_TESTNET_ADDRESS])(
+      'is valid; %s',
+      (address) => {
+        expect(() =>
+          BtcP2shAccountStruct.assert({ ...p2shAccount, address }),
+        ).not.toThrow();
+      },
+    );
 
-    it('throws an error if the address is invalid', () => {
+    it('throws an error if the address fails to be decoded', () => {
       expect(() =>
         BtcP2shAccountStruct.assert({
           ...p2shAccount,
           address: 'invalidAddress',
         }),
-      ).toThrow('At path: address -- Invalid p2sh address: Invalid address');
+      ).toThrow(
+        'At path: address -- Failed to decode p2sh address: Invalid address',
+      );
+    });
+
+    it('throws an error if the address type is invalid', () => {
+      expect(() =>
+        BtcP2shAccountStruct.assert({
+          ...p2shAccount,
+          address: BTC_P2PKH_MAINNET_ADDRESS,
+        }),
+      ).toThrow('At path: address -- Invalid p2sh address');
     });
 
     it('throws an error if there is no scope', () => {
@@ -94,25 +128,36 @@ describe('types', () => {
     const p2wpkhAccount: BtcP2wpkhAccount = {
       ...mockAccount,
       type: BtcAccountType.P2wpkh,
-      address: 'bc1qe2e3tdkqwytw7furyl2nlfy3sqs23acynn50d9',
+      address: BTC_P2WPKH_MAINNET_ADDRESS,
     };
 
-    it.each([
-      'bc1qe2e3tdkqwytw7furyl2nlfy3sqs23acynn50d9',
-      'tb1qmh8qny6ezjlg4phl68lj82drr76zume6txt032',
-    ])('is valid; %s', (address) => {
-      expect(() =>
-        BtcP2wpkhAccountStruct.assert({ ...p2wpkhAccount, address }),
-      ).not.toThrow();
-    });
+    it.each([BTC_P2WPKH_MAINNET_ADDRESS, BTC_P2WPKH_TESTNET_ADDRESS])(
+      'is valid; %s',
+      (address) => {
+        expect(() =>
+          BtcP2wpkhAccountStruct.assert({ ...p2wpkhAccount, address }),
+        ).not.toThrow();
+      },
+    );
 
-    it('throws an error if the address is invalid', () => {
+    it('throws an error if the address fails to be decoded', () => {
       expect(() =>
         BtcP2wpkhAccountStruct.assert({
           ...p2wpkhAccount,
           address: 'invalidAddress',
         }),
-      ).toThrow('At path: address -- Invalid p2wpkh address: Invalid address');
+      ).toThrow(
+        'At path: address -- Failed to decode p2wpkh address: Invalid address',
+      );
+    });
+
+    it('throws an error if the address type is invalid', () => {
+      expect(() =>
+        BtcP2wpkhAccountStruct.assert({
+          ...p2wpkhAccount,
+          address: BTC_P2PKH_MAINNET_ADDRESS,
+        }),
+      ).toThrow('At path: address -- Invalid p2wpkh address');
     });
 
     it('throws an error if there is no scope', () => {
@@ -128,25 +173,36 @@ describe('types', () => {
     const p2trAccount: BtcP2trAccount = {
       ...mockAccount,
       type: BtcAccountType.P2tr,
-      address: 'bc1p4rue37y0v9snd4z3fvw43d29u97qxf9j3fva72xy2t7hekg24dzsaz40mz',
+      address: BTC_P2TR_MAINNET_ADDRESS,
     };
 
-    it.each([
-      'bc1p4rue37y0v9snd4z3fvw43d29u97qxf9j3fva72xy2t7hekg24dzsaz40mz',
-      'tb1pwwjax3vpq6h69965hcr22vkpm4qdvyu2pz67wyj8eagp9vxkcz0q0ya20h',
-    ])('is valid address; %s', (address) => {
-      expect(() =>
-        BtcP2trAccountStruct.assert({ ...p2trAccount, address }),
-      ).not.toThrow();
-    });
+    it.each([BTC_P2TR_MAINNET_ADDRESS, BTC_P2TR_TESTNET_ADDRESS])(
+      'is valid address; %s',
+      (address) => {
+        expect(() =>
+          BtcP2trAccountStruct.assert({ ...p2trAccount, address }),
+        ).not.toThrow();
+      },
+    );
 
-    it('throws an error if the address is invalid', () => {
+    it('throws an error if the address fails to be decoded', () => {
       expect(() =>
         BtcP2trAccountStruct.assert({
           ...p2trAccount,
           address: 'invalidAddress',
         }),
-      ).toThrow('At path: address -- Invalid p2tr address: Invalid address');
+      ).toThrow(
+        'At path: address -- Failed to decode p2tr address: Invalid address',
+      );
+    });
+
+    it('throws an error if the address type is invalid', () => {
+      expect(() =>
+        BtcP2trAccountStruct.assert({
+          ...p2trAccount,
+          address: BTC_P2PKH_MAINNET_ADDRESS,
+        }),
+      ).toThrow('At path: address -- Invalid p2tr address');
     });
 
     it('throws an error if there is no scope', () => {
