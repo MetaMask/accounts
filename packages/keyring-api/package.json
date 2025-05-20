@@ -48,7 +48,8 @@
   "dependencies": {
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/superstruct": "^3.1.0",
-    "@metamask/utils": "^11.1.0"
+    "@metamask/utils": "^11.1.0",
+    "bitcoin-address-validation": "^2.2.3"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",

@@ -1,25 +1,35 @@
-import { isBtcMainnetAddress, isBtcTestnetAddress } from './address';
+import { AddressType } from 'bitcoin-address-validation';
+
+import {
+  isBtcAddress,
+  isBtcMainnetAddress,
+  isBtcTestnetAddress,
+} from './address';
+
+const BTC_P2PKH_MAINNET_ADDRESS = '1AXaVdPBb6zqrTMb6ebrBb9g3JmeAPGeCF';
+const BTC_P2SH_MAINNET_ADDRESS = '3KQPirCGGbVyWJLGuWN6VPC7uLeiarYB7x';
+const BTC_P2WPKH_MAINNET_ADDRESS = 'bc1q4degm5k044n9xv3ds7d8l6hfavydte6wn6sesw';
+const BTC_P2TR_MAINNET_ADDRESS =
+  'bc1pxfxst7zrkw39vzh0pchq5ey0q7z6u739cudhz5vmg89wa4kyyp9qzrf5sp';
+
+const BTC_P2PKH_TESTNET_ADDRESS = 'mrDHfcAPosFsabxBKe2U3EdxX5Kph8Zd4f';
+const BTC_P2SH_TESTNET_ADDRESS = '2N7AeKCw7p8uRRQjXPeHW7UPGhR8LYHEzBT';
+const BTC_P2WPKH_TESTNET_ADDRESS = 'tb1qqecaw32rvyjgez706t5chpr8gan49wfuk94t3g';
+const BTC_P2TR_TESTNET_ADDRESS =
+  'tb1p6epn3ctassfp54lnztshnpfjekn7khyarrnm6f0yv738lgc53xxsgevs8k';
 
 const BTC_MAINNET_ADDRESSES = [
-  // P2PKH
-  '1AXaVdPBb6zqrTMb6ebrBb9g3JmeAPGeCF',
-  // P2WPKH-P2SH
-  '3KQPirCGGbVyWJLGuWN6VPC7uLeiarYB7x',
-  // P2WPKH
-  'bc1q4degm5k044n9xv3ds7d8l6hfavydte6wn6sesw',
-  // P2TR
-  'bc1pxfxst7zrkw39vzh0pchq5ey0q7z6u739cudhz5vmg89wa4kyyp9qzrf5sp',
+  BTC_P2PKH_MAINNET_ADDRESS,
+  BTC_P2SH_MAINNET_ADDRESS,
+  BTC_P2WPKH_MAINNET_ADDRESS,
+  BTC_P2TR_MAINNET_ADDRESS,
 ];
 
 const BTC_TESTNET_ADDRESSES = [
-  // P2PKH
-  'mrDHfcAPosFsabxBKe2U3EdxX5Kph8Zd4f',
-  // P2WPKH-P2SH
-  '2N7AeKCw7p8uRRQjXPeHW7UPGhR8LYHEzBT',
-  // P2WPKH
-  'tb1qqecaw32rvyjgez706t5chpr8gan49wfuk94t3g',
-  // P2TR
-  'tb1p6epn3ctassfp54lnztshnpfjekn7khyarrnm6f0yv738lgc53xxsgevs8k',
+  BTC_P2PKH_TESTNET_ADDRESS,
+  BTC_P2SH_TESTNET_ADDRESS,
+  BTC_P2WPKH_TESTNET_ADDRESS,
+  BTC_P2TR_TESTNET_ADDRESS,
 ];
 
 const ETH_ADDRESSES = ['0x6431726EEE67570BF6f0Cf892aE0a3988F03903F'];
@@ -30,6 +40,47 @@ const SOL_ADDRESSES = [
 ];
 
 describe('address', () => {
+  describe('isBtcAddress', () => {
+    it.each([BTC_P2PKH_MAINNET_ADDRESS, BTC_P2PKH_TESTNET_ADDRESS])(
+      'returns false if address is valid p2pkh: %s',
+      (address: string) => {
+        expect(isBtcAddress(address, AddressType.p2pkh)).toBe(true);
+      },
+    );
+
+    it.each([BTC_P2SH_MAINNET_ADDRESS, BTC_P2SH_TESTNET_ADDRESS])(
+      'returns true if address is valid p2sh: %s',
+      (address: string) => {
+        expect(isBtcAddress(address, AddressType.p2sh)).toBe(true);
+      },
+    );
+
+    it.each([BTC_P2WPKH_MAINNET_ADDRESS, BTC_P2WPKH_TESTNET_ADDRESS])(
+      'returns true if address is valid p2wpkh: %s',
+      (address: string) => {
+        expect(isBtcAddress(address, AddressType.p2wpkh)).toBe(true);
+      },
+    );
+
+    it.each([BTC_P2TR_MAINNET_ADDRESS, BTC_P2TR_TESTNET_ADDRESS])(
+      'returns true if address is valid p2tr: %s',
+      (address: string) => {
+        expect(isBtcAddress(address, AddressType.p2tr)).toBe(true);
+      },
+    );
+
+    it.each([
+      BTC_P2PKH_MAINNET_ADDRESS,
+      BTC_P2PKH_TESTNET_ADDRESS,
+      BTC_P2SH_MAINNET_ADDRESS,
+      BTC_P2SH_TESTNET_ADDRESS,
+      BTC_P2WPKH_MAINNET_ADDRESS,
+      BTC_P2WPKH_TESTNET_ADDRESS,
+    ])('returns false if address is invalid: %s', (address: string) => {
+      expect(isBtcAddress(address, AddressType.p2tr)).toBe(false);
+    });
+  });
+
   describe('isBtcMainnetAddress', () => {
     it.each(BTC_MAINNET_ADDRESSES)(
       'returns true if address is compatible with BTC mainnet: %s',

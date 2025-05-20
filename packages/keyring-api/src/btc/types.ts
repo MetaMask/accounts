@@ -1,12 +1,60 @@
-import { object } from '@metamask/keyring-utils';
+import { isBtcAddress, object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { string, array, enums, size } from '@metamask/superstruct';
-
 import {
-  BtcAccountType,
-  KeyringAccountStruct,
-  CaipChainIdStruct,
-} from '../api';
+  string,
+  array,
+  enums,
+  refine,
+  literal,
+  nonempty,
+} from '@metamask/superstruct';
+import { AddressType } from 'bitcoin-address-validation';
+
+import { BtcScope } from './constants';
+import { BtcAccountType, KeyringAccountStruct } from '../api';
+
+const validateAddress = (
+  address: string,
+  type: AddressType,
+): boolean | Error => {
+  try {
+    return isBtcAddress(address, type);
+  } catch (error) {
+    return new Error(`Invalid ${type} address: ${(error as Error).message}`);
+  }
+};
+
+export const BtcP2pkhAddressStruct = refine(
+  string(),
+  'BtcP2pkhAddressStruct',
+  (address: string) => {
+    return validateAddress(address, AddressType.p2pkh);
+  },
+);
+
+export const BtcP2shAddressStruct = refine(
+  string(),
+  'BtcP2shAddressStruct',
+  (address: string) => {
+    return validateAddress(address, AddressType.p2sh);
+  },
+);
+
+export const BtcP2wpkhAddressStruct = refine(
+  string(),
+  'BtcP2wpkhAddressStruct',
+  (address: string) => {
+    return validateAddress(address, AddressType.p2wpkh);
+  },
+);
+
+export const BtcP2trAddressStruct = refine(
+  string(),
+  'BtcP2trAddressStruct',
+  (address: string) => {
+    return validateAddress(address, AddressType.p2tr);
+  },
+);
 
 /**
  * Supported Bitcoin methods.
@@ -16,25 +64,13 @@ export enum BtcMethod {
   SendBitcoin = 'sendBitcoin',
 }
 
-export const BtcAccountStruct = object({
+const BtcAccountStruct = object({
   ...KeyringAccountStruct.schema,
 
   /**
-   * Account address.
+   * Account supported scopes (CAIP-2 chain ID).
    */
-  address: string(),
-
-  /**
-   * Account type.
-   */
-  type: enums(Object.values(BtcAccountType)),
-
-  /**
-   * Account supported scope (CAIP-2 chain ID).
-   *
-   * NOTE: We consider a Bitcoin address to be valid on only 1 network at time.
-   */
-  scopes: size(array(CaipChainIdStruct), 1),
+  scopes: nonempty(array(enums(Object.values(BtcScope)))),
 
   /**
    * Account supported methods.
@@ -42,4 +78,63 @@ export const BtcAccountStruct = object({
   methods: array(enums([`${BtcMethod.SendBitcoin}`])),
 });
 
-export type BtcP2wpkhAccount = Infer<typeof BtcAccountStruct>;
+export const BtcP2pkhAccountStruct = object({
+  ...BtcAccountStruct.schema,
+
+  /**
+   * Account P2PKH address.
+   */
+  address: BtcP2pkhAddressStruct,
+
+  /**
+   * Account type.
+   */
+  type: literal(`${BtcAccountType.P2pkh}`),
+});
+
+export const BtcP2shAccountStruct = object({
+  ...BtcAccountStruct.schema,
+
+  /**
+   * Account P2PSH address.
+   */
+  address: BtcP2shAddressStruct,
+
+  /**
+   * Account type.
+   */
+  type: literal(`${BtcAccountType.P2sh}`),
+});
+
+export const BtcP2wpkhAccountStruct = object({
+  ...BtcAccountStruct.schema,
+
+  /**
+   * Account P2WPKH address.
+   */
+  address: BtcP2wpkhAddressStruct,
+
+  /**
+   * Account type.
+   */
+  type: literal(`${BtcAccountType.P2wpkh}`),
+});
+
+export const BtcP2trAccountStruct = object({
+  ...BtcAccountStruct.schema,
+
+  /**
+   * Account P2TR address.
+   */
+  address: BtcP2trAddressStruct,
+
+  /**
+   * Account type.
+   */
+  type: literal(`${BtcAccountType.P2tr}`),
+});
+
+export type BtcP2pkhAccount = Infer<typeof BtcP2pkhAccountStruct>;
+export type BtcP2shAccount = Infer<typeof BtcP2shAccountStruct>;
+export type BtcP2wpkhAccount = Infer<typeof BtcP2wpkhAccountStruct>;
+export type BtcP2trAccount = Infer<typeof BtcP2trAccountStruct>;
