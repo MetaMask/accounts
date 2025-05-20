@@ -25,6 +25,7 @@ import {
   SolScope,
   KeyringRpcMethod,
   CreateAccountRequestStruct,
+  KeyringVersion,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { HandleSnapRequest } from '@metamask/snaps-controllers';
@@ -83,6 +84,7 @@ describe('SnapKeyring', () => {
   const mockMessenger = {
     get: jest.fn(),
     handleRequest: jest.fn(),
+    isMinimumPlatformVersion: jest.fn(),
   };
 
   const mockCallbacks = {
@@ -222,13 +224,21 @@ describe('SnapKeyring', () => {
     'SnapController:handleRequest',
     mockMessenger.handleRequest,
   );
+  messenger.registerActionHandler(
+    'SnapController:isMinimumPlatformVersion',
+    mockMessenger.isMinimumPlatformVersion,
+  );
 
   // Now extracts a restricted messenger for the Snap keyring only.
   const mockSnapKeyringMessenger: SnapKeyringMessenger =
     messenger.getRestricted({
       name: 'SnapKeyring',
       allowedEvents: [],
-      allowedActions: ['SnapController:get', 'SnapController:handleRequest'],
+      allowedActions: [
+        'SnapController:get',
+        'SnapController:handleRequest',
+        'SnapController:isMinimumPlatformVersion',
+      ],
     });
 
   // Allow to map a mocked value for a given keyring RPC method
@@ -294,6 +304,8 @@ describe('SnapKeyring', () => {
 
     mockMessenger.get.mockReset();
     mockMessenger.handleRequest.mockReset();
+    mockMessenger.isMinimumPlatformVersion.mockReset();
+    mockMessenger.isMinimumPlatformVersion.mockReturnValue('999.999.999'); // Assuming the platform is always up-to-date.
     for (const account of accounts) {
       mockMessengerHandleRequest({
         [KeyringRpcMethod.ListAccounts]: () => accounts,
@@ -2367,6 +2379,20 @@ describe('SnapKeyring', () => {
     });
   });
 
+  describe('getKeyringVersion', () => {
+    const mockSnapId = 'local:mock-snap-id' as SnapId;
+
+    it('returns keyring version v2, if Snap platform is >= 7.0.0', () => {
+      mockMessenger.isMinimumPlatformVersion.mockReturnValue(true);
+      expect(keyring.getKeyringVersion(mockSnapId)).toBe(KeyringVersion.V2);
+    });
+
+    it('returns keyring version v1, if Snap platform is < 7.0.0', () => {
+      mockMessenger.isMinimumPlatformVersion.mockReturnValue(false);
+      expect(keyring.getKeyringVersion(mockSnapId)).toBe(KeyringVersion.V1);
+    });
+  });
+
   describe('submitRequest', () => {
     const account = ethEoaAccount1;
     const scope = EthScope.Testnet;
@@ -2403,6 +2429,46 @@ describe('SnapKeyring', () => {
             id: expect.any(String),
             scope,
             origin,
+            account: account.id,
+            request: {
+              method,
+              params,
+            },
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('submits a request (v1)', async () => {
+      const origin = 'test';
+
+      // <7.0.0, when `KeyringRequest.origin` got introduced.
+      mockMessenger.isMinimumPlatformVersion.mockReturnValue(false);
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: false,
+        result: null,
+      });
+
+      await keyring.submitRequest({
+        origin,
+        account: account.id,
+        method,
+        params,
+        scope,
+      });
+
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_submitRequest',
+          params: {
+            id: expect.any(String),
+            scope,
+            // No origin.
             account: account.id,
             request: {
               method,

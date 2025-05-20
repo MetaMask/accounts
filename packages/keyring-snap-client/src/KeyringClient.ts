@@ -57,6 +57,15 @@ export class KeyringClient implements Keyring {
   }
 
   /**
+   * Getter for the underlying sender.
+   *
+   * @returns The underlying sender instance.
+   */
+  protected get sender(): Sender {
+    return this.#sender;
+  }
+
+  /**
    * Send a request to the snap and return the response.
    *
    * @param partial - A partial JSON-RPC request (method and params).

@@ -7,17 +7,6 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import type { ExtractEventPayload } from '@metamask/base-controller';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
-import {
-  EthBytesStruct,
-  EthMethod,
-  EthBaseUserOperationStruct,
-  EthUserOperationPatchStruct,
-  isEvmAccountType,
-  KeyringEvent,
-  AccountAssetListUpdatedEventStruct,
-  AccountBalancesUpdatedEventStruct,
-  AccountTransactionsUpdatedEventStruct,
-} from '@metamask/keyring-api';
 import type {
   KeyringAccount,
   KeyringExecutionContext,
@@ -29,9 +18,22 @@ import type {
   ResolvedAccountAddress,
   CaipChainId,
   MetaMaskOptions,
+  KeyringRequest,
+  KeyringResponse,
+} from '@metamask/keyring-api';
+import {
+  EthBytesStruct,
+  EthMethod,
+  EthBaseUserOperationStruct,
+  EthUserOperationPatchStruct,
+  isEvmAccountType,
+  KeyringEvent,
+  AccountAssetListUpdatedEventStruct,
+  AccountBalancesUpdatedEventStruct,
+  AccountTransactionsUpdatedEventStruct,
+  KeyringVersion,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
-import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -48,6 +50,7 @@ import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
 import { transformAccount } from './account';
+import { KeyringInternalSnapClient, KeyringInternalSnapClientV1 } from './client';
 import { DeferredPromise } from './DeferredPromise';
 import {
   AccountCreatedEventStruct,
@@ -78,6 +81,16 @@ import {
 } from './util';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
+
+/**
+ * Mapping of the Snap platform version to its `KeyringVersion` equivalent.
+ *
+ * NOTE: This versions needs to be sorted in a descending order (highest platform version first).
+ */
+const PLATFORM_VERSION_TO_KEYRING_VERSION = {
+  // Introduction of `KeyringRequest.origin`.
+  '7.0.0': KeyringVersion.V2,
+} as const;
 
 // TODO: to be removed when this is added to the keyring-api
 
@@ -211,6 +224,32 @@ export class SnapKeyring extends EventEmitter {
     this.#accounts = new SnapIdMap();
     this.#options = new SnapIdMap();
     this.#callbacks = callbacks;
+  }
+
+  /**
+   * Gets keyring's version for a given Snap.
+   *
+   * @param snapId - The Snap ID.
+   * @returns The Snap's keyring version.
+   */
+  getKeyringVersion(snapId: SnapId): KeyringVersion {
+    const versions = Object.keys(
+      PLATFORM_VERSION_TO_KEYRING_VERSION,
+    ) as (keyof typeof PLATFORM_VERSION_TO_KEYRING_VERSION)[];
+
+    // TODO: Cache this
+    for (const version of versions) {
+      const isVersionSupported = this.#messenger.call(
+        'SnapController:isMinimumPlatformVersion',
+        snapId,
+        version,
+      );
+
+      if (isVersionSupported) {
+        return PLATFORM_VERSION_TO_KEYRING_VERSION[version];
+      }
+    }
+    return KeyringVersion.V1;
   }
 
   /**
@@ -909,6 +948,39 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Submits a request to a Snap and fix-up the payload depending on the version currently supported.
+   *
+   * @param options - The options for the Snap request.
+   * @param options.version - The supported keyring version for the Snap.
+   * @param options.snapId - The Snap ID to submit the request to.
+   * @param options.request - The Snap request.
+   * @returns A promise that resolves to the keyring response from the Snap.
+   */
+  async #submitSnapRequestForVersion({
+    snapId,
+    version,
+    request,
+  }: {
+    snapId: SnapId;
+    version: KeyringVersion;
+    request: KeyringRequest;
+  }): Promise<KeyringResponse> {
+    // Get specific client for that Snap.
+    const client = this.#snapClient.withSnapId(snapId);
+
+    if (version === KeyringVersion.V1) {
+      // Omit `origin` for V1 `KeyringRequest`.
+      const { origin, ...requestV1 } = request;
+
+      return await KeyringInternalSnapClientV1.from(client).submitRequest(
+        requestV1,
+      );
+    }
+
+    return await client.submitRequest(request);
+  }
+
+  /**
    * Submits a request to a Snap.
    *
    * @param options - The options for the Snap request.
@@ -956,6 +1028,8 @@ export class SnapKeyring extends EventEmitter {
     );
 
     try {
+      const version = this.getKeyringVersion(snapId);
+
       const request = {
         id: requestId,
         origin,
@@ -969,9 +1043,11 @@ export class SnapKeyring extends EventEmitter {
 
       log('Submit Snap request: ', request);
 
-      const response = await this.#snapClient
-        .withSnapId(snapId)
-        .submitRequest(request);
+      const response = await this.#submitSnapRequestForVersion({
+        version,
+        snapId,
+        request,
+      });
 
       // Some methods, like the ones used to prepare and patch user operations,
       // require the Snap to answer synchronously in order to work with the

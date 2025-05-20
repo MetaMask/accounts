@@ -4,7 +4,17 @@ import type {
   AccountBalancesUpdatedEventPayload,
   AccountTransactionsUpdatedEventPayload,
 } from '@metamask/keyring-api';
-import type { HandleSnapRequest, GetSnap } from '@metamask/snaps-controllers';
+import type {
+  HandleSnapRequest as SnapControllerHandleSnapRequest,
+  GetSnap as SnapControllerGetSnap,
+} from '@metamask/snaps-controllers';
+import type { SnapId } from '@metamask/snaps-sdk';
+
+// TODO: Use event from `@metamask/snaps-controllers` once available.
+export type SnapControllerIsMinimumPlatformVersion = {
+  type: `SnapController:isMinimumPlatformVersion`;
+  handler: (snapId: SnapId, version: string) => boolean;
+};
 
 export type SnapKeyringGetAccountsAction = {
   type: `SnapKeyring:getAccounts`;
@@ -31,7 +41,10 @@ export type SnapKeyringEvents =
   | SnapKeyringAccountBalancesUpdatedEvent
   | SnapKeyringAccountTransactionsUpdatedEvent;
 
-export type SnapKeyringAllowedActions = HandleSnapRequest | GetSnap;
+export type SnapKeyringAllowedActions =
+  | SnapControllerHandleSnapRequest
+  | SnapControllerGetSnap
+  | SnapControllerIsMinimumPlatformVersion;
 
 export type SnapKeyringMessenger = RestrictedMessenger<
   'SnapKeyring',
