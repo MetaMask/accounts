@@ -702,17 +702,4 @@ describe('KeyringClient', () => {
       expect(response).toStrictEqual(expectedResponse);
     });
   });
-
-  describe('get sender', () => {
-    it('can get the underlying protected sender', () => {
-      class InternalKeyringClient extends KeyringClient {
-        test(): void {
-          expect(this.sender).toBeDefined();
-        }
-      }
-
-      const mockClient = new InternalKeyringClient(mockSender);
-      mockClient.test();
-    });
-  });
 });

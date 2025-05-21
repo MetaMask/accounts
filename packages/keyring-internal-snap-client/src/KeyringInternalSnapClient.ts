@@ -5,7 +5,6 @@ import type { HandleSnapRequest } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 import type { Json } from '@metamask/utils';
-import { v4 as uuid } from 'uuid';
 
 // We only need to dispatch Snap request to the Snaps controller for now.
 type AllowedActions = HandleSnapRequest;
@@ -124,17 +123,16 @@ export class KeyringInternalSnapClient extends KeyringClient {
   }
 
   /**
-   * Send a "raw" request to the Snap and return the response.
+   * Send a request to the snap and return the response.
    *
    * @param partial - A partial JSON-RPC request (method and params).
    * @returns A promise that resolves to the response to the request.
    */
-  async send(partial: Omit<JsonRpcRequest, 'jsonrpc' | 'id'>): Promise<Json> {
-    // We expose a `send` method for internal use only and ease with transport-level breaking changes.
-    return this.sender.send({
-      jsonrpc: '2.0',
-      id: uuid(),
-      ...partial,
-    });
+  public async send(
+    partial: Omit<JsonRpcRequest, 'jsonrpc' | 'id'>,
+  ): Promise<Json> {
+    // We mainly make this method public only for internal use, the "public KeyringClient" won't expose
+    // it, unless your extending it explicitly.
+    return super.send(partial);
   }
 }

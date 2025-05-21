@@ -48,9 +48,7 @@
     "@metamask/base-controller": "^7.1.1",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-snap-client": "workspace:^",
-    "@metamask/keyring-utils": "workspace:^",
-    "@types/uuid": "^9.0.8",
-    "uuid": "^9.0.1"
+    "@metamask/keyring-utils": "workspace:^"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
