@@ -1,17 +1,4 @@
-import type { AddressType } from 'bitcoin-address-validation';
-import { validate, Network, getAddressInfo } from 'bitcoin-address-validation';
-
-/**
- * Returns whether an address is on the Bitcoin mainnet.
- *
- * @param address - The address to check.
- * @param type - The address type to check.
- * @returns `true` if the address is valid, `false` otherwise.
- */
-export function isBtcAddress(address: string, type: AddressType): boolean {
-  const addressInfo = getAddressInfo(address);
-  return addressInfo.type === type;
-}
+import { validate, Network } from 'bitcoin-address-validation';
 
 /**
  * Returns whether an address is on the Bitcoin mainnet.

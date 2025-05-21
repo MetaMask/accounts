@@ -1,4 +1,4 @@
-import { isBtcAddress, object } from '@metamask/keyring-utils';
+import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   string,
@@ -8,17 +8,21 @@ import {
   literal,
   nonempty,
 } from '@metamask/superstruct';
-import { AddressType } from 'bitcoin-address-validation';
+import { AddressType, getAddressInfo } from 'bitcoin-address-validation';
 
-import { BtcScope } from './constants';
-import { BtcAccountType, KeyringAccountStruct } from '../api';
+import {
+  BtcAccountType,
+  CaipChainIdStruct,
+  KeyringAccountStruct,
+} from '../api';
 
 const validateAddress = (
   address: string,
   type: AddressType,
 ): boolean | Error => {
   try {
-    if (isBtcAddress(address, type)) {
+    const addressInfo = getAddressInfo(address);
+    if (addressInfo.type === type) {
       return true;
     }
     return new Error(`Invalid ${type} address`);
@@ -75,7 +79,7 @@ const BtcAccountStruct = object({
   /**
    * Account supported scopes (CAIP-2 chain ID).
    */
-  scopes: nonempty(array(enums(Object.values(BtcScope)))),
+  scopes: nonempty(array(CaipChainIdStruct)),
 
   /**
    * Account supported methods.
