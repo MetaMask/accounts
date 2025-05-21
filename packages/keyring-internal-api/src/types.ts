@@ -8,7 +8,10 @@ import {
   EthAccountType,
   KeyringAccountStruct,
   SolAccountType,
+  BtcP2pkhAccountStruct,
+  BtcP2shAccountStruct,
   BtcP2wpkhAccountStruct,
+  BtcP2trAccountStruct,
   EthEoaAccountStruct,
   EthErc4337AccountStruct,
   SolDataAccountStruct,
@@ -51,8 +54,23 @@ export const InternalEthErc4337AccountStruct = object({
   ...InternalAccountMetadataStruct.schema,
 });
 
+export const InternalBtcP2pkhAccountStruct = object({
+  ...BtcP2pkhAccountStruct.schema,
+  ...InternalAccountMetadataStruct.schema,
+});
+
+export const InternalBtcP2shAccountStruct = object({
+  ...BtcP2shAccountStruct.schema,
+  ...InternalAccountMetadataStruct.schema,
+});
+
 export const InternalBtcP2wpkhAccountStruct = object({
   ...BtcP2wpkhAccountStruct.schema,
+  ...InternalAccountMetadataStruct.schema,
+});
+
+export const InternalBtcP2trAccountStruct = object({
+  ...BtcP2trAccountStruct.schema,
   ...InternalAccountMetadataStruct.schema,
 });
 
@@ -67,9 +85,17 @@ export type InternalEthErc4337Account = Infer<
   typeof InternalEthErc4337AccountStruct
 >;
 
+export type InternalBtcP2pkhAccount = Infer<
+  typeof InternalBtcP2pkhAccountStruct
+>;
+
+export type InternalBtcP2shAccount = Infer<typeof InternalBtcP2shAccountStruct>;
+
 export type InternalBtcP2wpkhAccount = Infer<
   typeof InternalBtcP2wpkhAccountStruct
 >;
+
+export type InternalBtcP2trAccount = Infer<typeof InternalBtcP2trAccountStruct>;
 
 export type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;
 
@@ -77,19 +103,28 @@ export const InternalAccountStructs: Record<
   string,
   | Struct<InternalEthEoaAccount>
   | Struct<InternalEthErc4337Account>
+  | Struct<InternalBtcP2pkhAccount>
+  | Struct<InternalBtcP2shAccount>
   | Struct<InternalBtcP2wpkhAccount>
+  | Struct<InternalBtcP2trAccount>
   | Struct<InternalSolDataAccount>
 > = {
   [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,
   [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,
+  [`${BtcAccountType.P2pkh}`]: InternalBtcP2pkhAccountStruct,
+  [`${BtcAccountType.P2sh}`]: InternalBtcP2shAccountStruct,
   [`${BtcAccountType.P2wpkh}`]: InternalBtcP2wpkhAccountStruct,
+  [`${BtcAccountType.P2tr}`]: InternalBtcP2trAccountStruct,
   [`${SolAccountType.DataAccount}`]: InternalSolDataAccountStruct,
 };
 
 export type InternalAccountTypes =
   | InternalEthEoaAccount
   | InternalEthErc4337Account
+  | InternalBtcP2pkhAccount
+  | InternalBtcP2shAccount
   | InternalBtcP2wpkhAccount
+  | InternalBtcP2trAccount
   | InternalSolDataAccount;
 
 export const InternalAccountStruct = object({

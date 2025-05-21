@@ -5,7 +5,10 @@ describe('isEvmAccountType', () => {
   it.each([
     [EthAccountType.Eoa, true],
     [EthAccountType.Erc4337, true],
+    [BtcAccountType.P2pkh, false],
+    [BtcAccountType.P2sh, false],
     [BtcAccountType.P2wpkh, false],
+    [BtcAccountType.P2tr, false],
     [SolAccountType.DataAccount, false],
     [{}, false],
     [null, false],
