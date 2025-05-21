@@ -105,7 +105,7 @@ export const BtcP2shAccountStruct = object({
   ...BtcAccountStruct.schema,
 
   /**
-   * Account P2PSH address.
+   * Account P2SH address.
    */
   address: BtcP2shAddressStruct,
 
