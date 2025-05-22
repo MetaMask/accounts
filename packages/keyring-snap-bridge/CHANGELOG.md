@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [12.2.0]
 
-### Uncategorized
+### Added
 
-- feat: bitcoin account types ([#284](https://github.com/MetaMask/accounts/pull/284))
+- Add support for Bitcoin account type: p2pkh, p2sh, p2tr ([#284](https://github.com/MetaMask/accounts/pull/284))
 
 ## [12.1.1]
 
