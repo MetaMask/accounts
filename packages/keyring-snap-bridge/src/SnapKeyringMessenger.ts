@@ -7,14 +7,8 @@ import type {
 import type {
   HandleSnapRequest as SnapControllerHandleSnapRequest,
   GetSnap as SnapControllerGetSnap,
+  IsMinimumPlatformVersion as SnapControllerIsMinimumPlatformVersion,
 } from '@metamask/snaps-controllers';
-import type { SnapId } from '@metamask/snaps-sdk';
-
-// TODO: Use event from `@metamask/snaps-controllers` once available.
-export type SnapControllerIsMinimumPlatformVersion = {
-  type: `SnapController:isMinimumPlatformVersion`;
-  handler: (snapId: SnapId, version: string) => boolean;
-};
 
 export type SnapKeyringGetAccountsAction = {
   type: `SnapKeyring:getAccounts`;

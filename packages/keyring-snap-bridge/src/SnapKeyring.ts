@@ -38,7 +38,7 @@ import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
-import type { Hex, Json } from '@metamask/utils';
+import type { Hex, Json, SemVerVersion } from '@metamask/utils';
 import {
   bigIntToHex,
   hasProperty,
@@ -226,7 +226,7 @@ export class SnapKeyring extends EventEmitter {
    * @returns The Snap's keyring version.
    */
   #getKeyringVersion(snapId: SnapId): KeyringVersion {
-    return getKeyringVersionFromPlatform((version: string) => {
+    return getKeyringVersionFromPlatform((version: SemVerVersion) => {
       return this.#messenger.call(
         'SnapController:isMinimumPlatformVersion',
         snapId,

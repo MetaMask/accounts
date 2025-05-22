@@ -1,4 +1,10 @@
-import { getKeyringVersionFromPlatform, KeyringVersion } from './versions';
+import { isValidSemVerVersion, type SemVerVersion } from '@metamask/utils';
+
+import {
+  getKeyringVersionFromPlatform,
+  KeyringVersion,
+  PLATFORM_VERSIONS,
+} from './versions';
 
 describe('getKeyringVersionFromPlatform', () => {
   it('gets the keyring version v1 as default', () => {
@@ -10,7 +16,7 @@ describe('getKeyringVersionFromPlatform', () => {
   });
 
   it('gets the keyring version v2 if the platform version is 7.0.0', () => {
-    const isSupportedVersion = (version: string): boolean => {
+    const isSupportedVersion = (version: SemVerVersion): boolean => {
       return version === '7.0.0';
     };
 
@@ -18,4 +24,13 @@ describe('getKeyringVersionFromPlatform', () => {
       KeyringVersion.V2,
     );
   });
+});
+
+describe('PLATFORM_VERSIONS', () => {
+  it.each(PLATFORM_VERSIONS)(
+    'is a valid semver version: %s',
+    (version: string) => {
+      expect(isValidSemVerVersion(version)).toBe(true);
+    },
+  );
 });

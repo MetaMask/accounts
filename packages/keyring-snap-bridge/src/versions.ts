@@ -1,3 +1,5 @@
+import type { SemVerVersion } from '@metamask/utils';
+
 export enum KeyringVersion {
   /** Default. */
   V1 = 'v1',
@@ -24,7 +26,7 @@ const PLATFORM_VERSION_TO_KEYRING_VERSION = {
 /**
  * List of platform version that are mapped to a `KeyringVersion` equivalent.
  */
-const PLATFORM_VERSIONS = Object.keys(
+export const PLATFORM_VERSIONS = Object.keys(
   PLATFORM_VERSION_TO_KEYRING_VERSION,
 ) as (keyof typeof PLATFORM_VERSION_TO_KEYRING_VERSION)[];
 
@@ -35,11 +37,12 @@ const PLATFORM_VERSIONS = Object.keys(
  * @returns The Snap's keyring version.
  */
 export function getKeyringVersionFromPlatform(
-  isSupportedVersion: (version: string) => boolean,
+  isSupportedVersion: (version: SemVerVersion) => boolean,
 ): KeyringVersion {
-  // TODO: Maybe cache this?
   for (const version of PLATFORM_VERSIONS) {
-    if (isSupportedVersion(version)) {
+    // NOTE: We are type-casting, but we have a unit tests that make sure all
+    // versions are following the semver spec.
+    if (isSupportedVersion(version as SemVerVersion)) {
       return PLATFORM_VERSION_TO_KEYRING_VERSION[version];
     }
   }
