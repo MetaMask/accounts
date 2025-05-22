@@ -1398,17 +1398,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/types-live@npm:^6.52.0":
-  version: 6.56.0
-  resolution: "@ledgerhq/types-live@npm:6.56.0"
-  dependencies:
-    bignumber.js: "npm:^9.1.2"
-    rxjs: "npm:^7.8.1"
-  checksum: 10/a3cdf2acc6b4fa41aa34993f8790d44aa4fa937378b0bce29a69889b43e5229662803530b948206fe9fe02498d25058e71db2b14f22dc53445df7f53e547c308
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/types-live@npm:^6.70.0":
+"@ledgerhq/types-live@npm:^6.52.0, @ledgerhq/types-live@npm:^6.70.0":
   version: 6.70.0
   resolution: "@ledgerhq/types-live@npm:6.70.0"
   dependencies:
