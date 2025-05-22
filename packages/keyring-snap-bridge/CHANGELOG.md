@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: bitcoin account types ([#284](https://github.com/MetaMask/accounts/pull/284))
+
 ## [12.1.1]
 
 ### Changed
