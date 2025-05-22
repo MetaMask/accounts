@@ -1000,6 +1000,11 @@ export class SnapKeyring extends EventEmitter {
       );
     }
 
+    // Will both catch `undefined` and "empty" origins.
+    if (!origin?.trim()) {
+      throw new Error('An `origin` is required');
+    }
+
     // Generate a new random request ID to keep track of the request execution flow.
     const requestId = uuid();
 

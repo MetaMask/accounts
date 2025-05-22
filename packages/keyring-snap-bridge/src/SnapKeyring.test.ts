@@ -2514,35 +2514,27 @@ describe('SnapKeyring', () => {
     });
 
     it('throws an error if origin is not being passed', async () => {
-      const unknownAccountMethod = EthMethod.PrepareUserOperation; // Not available for EOAs.
-
       await expect(
         keyring.submitRequest({
           // No origin
           account: account.id,
-          method: unknownAccountMethod,
+          method: EthMethod.PersonalSign,
           params,
           scope,
         } as unknown as Parameters<SnapKeyring['submitRequest']>[0]),
-      ).rejects.toThrow(
-        `Method '${unknownAccountMethod}' not supported for account ${account.address}`,
-      );
+      ).rejects.toThrow('An `origin` is required');
     });
 
     it('throws an error if origin is empty', async () => {
-      const unknownAccountMethod = EthMethod.PrepareUserOperation; // Not available for EOAs.
-
       await expect(
         keyring.submitRequest({
           origin: '',
           account: account.id,
-          method: unknownAccountMethod,
+          method: EthMethod.PersonalSign,
           params,
           scope,
         }),
-      ).rejects.toThrow(
-        `Method '${unknownAccountMethod}' not supported for account ${account.address}`,
-      );
+      ).rejects.toThrow('An `origin` is required');
     });
   });
 
