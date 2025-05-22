@@ -50,7 +50,10 @@ import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
 import { transformAccount } from './account';
-import { KeyringInternalSnapClient, KeyringInternalSnapClientV1 } from './client';
+import {
+  KeyringInternalSnapClient,
+  KeyringInternalSnapClientV1,
+} from './client';
 import { DeferredPromise } from './DeferredPromise';
 import {
   AccountCreatedEventStruct,
