@@ -25,7 +25,6 @@ import {
   SolScope,
   KeyringRpcMethod,
   CreateAccountRequestStruct,
-  KeyringVersion,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { HandleSnapRequest } from '@metamask/snaps-controllers';
@@ -2376,20 +2375,6 @@ describe('SnapKeyring', () => {
       ).rejects.toThrow(
         `Unable to resolve account address: unknown Snap ID: ${badSnapId}`,
       );
-    });
-  });
-
-  describe('getKeyringVersion', () => {
-    const mockSnapId = 'local:mock-snap-id' as SnapId;
-
-    it('returns keyring version v2, if Snap platform is >= 7.0.0', () => {
-      mockMessenger.isMinimumPlatformVersion.mockReturnValue(true);
-      expect(keyring.getKeyringVersion(mockSnapId)).toBe(KeyringVersion.V2);
-    });
-
-    it('returns keyring version v1, if Snap platform is < 7.0.0', () => {
-      mockMessenger.isMinimumPlatformVersion.mockReturnValue(false);
-      expect(keyring.getKeyringVersion(mockSnapId)).toBe(KeyringVersion.V1);
     });
   });
 

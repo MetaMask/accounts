@@ -31,7 +31,6 @@ import {
   AccountAssetListUpdatedEventStruct,
   AccountBalancesUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
-  KeyringVersion,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
@@ -82,18 +81,9 @@ import {
   toJson,
   unique,
 } from './util';
+import { getKeyringVersionFromPlatform, KeyringVersion } from './versions';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
-
-/**
- * Mapping of the Snap platform version to its `KeyringVersion` equivalent.
- *
- * NOTE: This versions needs to be sorted in a descending order (highest platform version first).
- */
-const PLATFORM_VERSION_TO_KEYRING_VERSION = {
-  // Introduction of `KeyringRequest.origin`.
-  '7.0.0': KeyringVersion.V2,
-} as const;
 
 // TODO: to be removed when this is added to the keyring-api
 
@@ -235,24 +225,14 @@ export class SnapKeyring extends EventEmitter {
    * @param snapId - The Snap ID.
    * @returns The Snap's keyring version.
    */
-  getKeyringVersion(snapId: SnapId): KeyringVersion {
-    const versions = Object.keys(
-      PLATFORM_VERSION_TO_KEYRING_VERSION,
-    ) as (keyof typeof PLATFORM_VERSION_TO_KEYRING_VERSION)[];
-
-    // TODO: Cache this
-    for (const version of versions) {
-      const isVersionSupported = this.#messenger.call(
+  #getKeyringVersion(snapId: SnapId): KeyringVersion {
+    return getKeyringVersionFromPlatform((version: string) => {
+      return this.#messenger.call(
         'SnapController:isMinimumPlatformVersion',
         snapId,
         version,
       );
-
-      if (isVersionSupported) {
-        return PLATFORM_VERSION_TO_KEYRING_VERSION[version];
-      }
-    }
-    return KeyringVersion.V1;
+    });
   }
 
   /**
@@ -1031,7 +1011,7 @@ export class SnapKeyring extends EventEmitter {
     );
 
     try {
-      const version = this.getKeyringVersion(snapId);
+      const version = this.#getKeyringVersion(snapId);
 
       const request = {
         id: requestId,
