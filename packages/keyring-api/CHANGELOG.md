@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [17.6.0]
+
+### Added
+
+- Add support for Bitcoin account type: p2pkh, p2sh, p2tr ([#284](https://github.com/MetaMask/accounts/pull/284))
+
 ## [17.5.0]
 
 ### Added
@@ -569,7 +575,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.5.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.6.0...HEAD
+[17.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.5.0...@metamask/keyring-api@17.6.0
 [17.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.4.0...@metamask/keyring-api@17.5.0
 [17.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.3.0...@metamask/keyring-api@17.4.0
 [17.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.1...@metamask/keyring-api@17.3.0
