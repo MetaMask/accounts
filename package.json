@@ -34,12 +34,12 @@
     "test:types": "yarn foreach test:types"
   },
   "resolutions": {
+    "@metamask/snaps-sdk@^6.24.0": "npm:@metamask/snaps-sdk@^7.0.0",
     "@types/node": "^20.12.12",
     "@types/web": "^0.0.69",
     "@typescript/lib-dom": "npm:@types/web@^0.0.69",
     "axios@1.7.3": "^1.7.7",
-    "ws@7.4.6": "^7.5.10",
-    "@metamask/snaps-sdk@^6.24.0": "npm:@metamask/snaps-sdk@^7.0.0"
+    "ws@7.4.6": "^7.5.10"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
