@@ -1,6 +1,12 @@
 import type { RestrictedMessenger } from '@metamask/base-controller';
+import { KeyringRpcMethod } from '@metamask/keyring-api';
+import type {
+  KeyringRequestV1,
+  KeyringResponseV1,
+} from '@metamask/keyring-internal-api';
+import { SubmitRequestResponseV1Struct } from '@metamask/keyring-internal-api';
 import { KeyringClient, type Sender } from '@metamask/keyring-snap-client';
-import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import { strictMask, type JsonRpcRequest } from '@metamask/keyring-utils';
 import type { HandleSnapRequest } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
@@ -123,16 +129,18 @@ export class KeyringInternalSnapClient extends KeyringClient {
   }
 
   /**
-   * Send a request to the snap and return the response.
+   * Submit a keyring request v1 (with no `origin`).
    *
-   * @param partial - A partial JSON-RPC request (method and params).
-   * @returns A promise that resolves to the response to the request.
+   * @param request - Keyring request.
+   * @returns Keyring request's response.
    */
-  public async send(
-    partial: Omit<JsonRpcRequest, 'jsonrpc' | 'id'>,
-  ): Promise<Json> {
-    // We mainly make this method public only for internal use, the "public KeyringClient" won't expose
-    // it, unless your extending it explicitly.
-    return super.send(partial);
+  async submitRequestV1(request: KeyringRequestV1): Promise<KeyringResponseV1> {
+    return strictMask(
+      await this.send({
+        method: KeyringRpcMethod.SubmitRequest,
+        params: request,
+      }),
+      SubmitRequestResponseV1Struct,
+    );
   }
 }

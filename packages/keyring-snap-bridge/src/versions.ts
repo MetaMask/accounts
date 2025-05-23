@@ -1,17 +1,5 @@
+import { KeyringVersion } from '@metamask/keyring-internal-api';
 import type { SemVerVersion } from '@metamask/utils';
-
-export enum KeyringVersion {
-  /** Default. */
-  V1 = 'v1',
-
-  /**
-   * Introduction of `KeyringRequest.origin`.
-   *
-   * Snap will now receive the `origin` as part of a `KeyringRquest` when `submitRequest` is invoked.
-   * We also expect Snaps to display this `origin` in their confirmation screens (if any).
-   */
-  V2 = 'v2',
-}
 
 /**
  * Mapping of the Snap platform version to its `KeyringVersion` equivalent.

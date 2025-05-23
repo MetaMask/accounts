@@ -13,6 +13,9 @@
       "path": "../keyring-api/tsconfig.build.json"
     },
     {
+      "path": "../keyring-internal-api/tsconfig.build.json"
+    },
+    {
       "path": "../keyring-snap-client/tsconfig.build.json"
     }
   ],

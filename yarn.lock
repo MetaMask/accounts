@@ -1952,6 +1952,7 @@ __metadata:
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/base-controller": "npm:^7.1.1"
     "@metamask/keyring-api": "workspace:^"
+    "@metamask/keyring-internal-api": "workspace:^"
     "@metamask/keyring-snap-client": "workspace:^"
     "@metamask/keyring-utils": "workspace:^"
     "@metamask/snaps-controllers": "npm:^12.2.0"

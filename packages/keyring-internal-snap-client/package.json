@@ -47,6 +47,7 @@
   "dependencies": {
     "@metamask/base-controller": "^7.1.1",
     "@metamask/keyring-api": "workspace:^",
+    "@metamask/keyring-internal-api": "workspace:^",
     "@metamask/keyring-snap-client": "workspace:^",
     "@metamask/keyring-utils": "workspace:^"
   },

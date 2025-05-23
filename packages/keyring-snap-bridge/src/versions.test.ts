@@ -1,10 +1,7 @@
+import { KeyringVersion } from '@metamask/keyring-internal-api';
 import { isValidSemVerVersion, type SemVerVersion } from '@metamask/utils';
 
-import {
-  getKeyringVersionFromPlatform,
-  KeyringVersion,
-  PLATFORM_VERSIONS,
-} from './versions';
+import { getKeyringVersionFromPlatform, PLATFORM_VERSIONS } from './versions';
 
 describe('getKeyringVersionFromPlatform', () => {
   it('gets the keyring version v1 as default', () => {

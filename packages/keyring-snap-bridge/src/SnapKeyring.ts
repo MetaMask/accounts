@@ -32,7 +32,12 @@ import {
   AccountBalancesUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
 } from '@metamask/keyring-api';
-import type { InternalAccount } from '@metamask/keyring-internal-api';
+import {
+  KeyringVersion,
+  toKeyringRequestV1,
+  type InternalAccount,
+} from '@metamask/keyring-internal-api';
+import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -49,10 +54,6 @@ import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
 import { transformAccount } from './account';
-import {
-  KeyringInternalSnapClient,
-  KeyringInternalSnapClientV1,
-} from './client';
 import { DeferredPromise } from './DeferredPromise';
 import {
   AccountCreatedEventStruct,
@@ -81,7 +82,7 @@ import {
   toJson,
   unique,
 } from './util';
-import { getKeyringVersionFromPlatform, KeyringVersion } from './versions';
+import { getKeyringVersionFromPlatform } from './versions';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 
@@ -952,12 +953,7 @@ export class SnapKeyring extends EventEmitter {
     const client = this.#snapClient.withSnapId(snapId);
 
     if (version === KeyringVersion.V1) {
-      // Omit `origin` for V1 `KeyringRequest`.
-      const { origin, ...requestV1 } = request;
-
-      return await KeyringInternalSnapClientV1.from(client).submitRequest(
-        requestV1,
-      );
+      return await client.submitRequestV1(toKeyringRequestV1(request));
     }
 
     return await client.submitRequest(request);
