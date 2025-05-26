@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [6.1.1]
+## [6.2.0]
 
-### Uncategorized
+### Added
 
-- feat!: add `KeyringRequest.origin` ([#273](https://github.com/MetaMask/accounts/pull/273))
+- Add `KeyringVersion` enum ([#273](https://github.com/MetaMask/accounts/pull/273))
+- Add `KeyringRequestV1*` types ([#273](https://github.com/MetaMask/accounts/pull/273))
+  - Those types can be used with Snaps that are still using older implementations of `submitRequest` (without `origin` support).
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^17.6.0` to `^18.0.0` ([#291](https://github.com/MetaMask/accounts/pull/291))
 
 ## [6.1.0]
 
@@ -105,8 +111,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.1.1...HEAD
-[6.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.1.0...@metamask/keyring-internal-api@6.1.1
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.2.0...HEAD
+[6.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.1.0...@metamask/keyring-internal-api@6.2.0
 [6.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.0.1...@metamask/keyring-internal-api@6.1.0
 [6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.0.0...@metamask/keyring-internal-api@6.0.1
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@5.0.0...@metamask/keyring-internal-api@6.0.0
