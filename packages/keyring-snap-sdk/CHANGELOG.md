@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat!: add `KeyringRequest.origin` ([#273](https://github.com/MetaMask/accounts/pull/273))
+- fix(keyring-snap-sdk)!: make `@metamask/keyring-api` a peer dependency ([#290](https://github.com/MetaMask/accounts/pull/290))
+
 ## [3.2.0]
 
 ### Added
