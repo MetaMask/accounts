@@ -83,6 +83,7 @@ describe('SnapKeyring', () => {
   const mockMessenger = {
     get: jest.fn(),
     handleRequest: jest.fn(),
+    isMinimumPlatformVersion: jest.fn(),
   };
 
   const mockCallbacks = {
@@ -243,13 +244,21 @@ describe('SnapKeyring', () => {
     'SnapController:handleRequest',
     mockMessenger.handleRequest,
   );
+  messenger.registerActionHandler(
+    'SnapController:isMinimumPlatformVersion',
+    mockMessenger.isMinimumPlatformVersion,
+  );
 
   // Now extracts a restricted messenger for the Snap keyring only.
   const mockSnapKeyringMessenger: SnapKeyringMessenger =
     messenger.getRestricted({
       name: 'SnapKeyring',
       allowedEvents: [],
-      allowedActions: ['SnapController:get', 'SnapController:handleRequest'],
+      allowedActions: [
+        'SnapController:get',
+        'SnapController:handleRequest',
+        'SnapController:isMinimumPlatformVersion',
+      ],
     });
 
   // Allow to map a mocked value for a given keyring RPC method
@@ -315,6 +324,8 @@ describe('SnapKeyring', () => {
 
     mockMessenger.get.mockReset();
     mockMessenger.handleRequest.mockReset();
+    mockMessenger.isMinimumPlatformVersion.mockReset();
+    mockMessenger.isMinimumPlatformVersion.mockReturnValue('999.999.999'); // Assuming the platform is always up-to-date.
     for (const account of accounts) {
       mockMessengerHandleRequest({
         [KeyringRpcMethod.ListAccounts]: () => accounts,
@@ -1593,6 +1604,7 @@ describe('SnapKeyring', () => {
           params: {
             id: expect.any(String),
             scope: expectedScope,
+            origin: 'metamask',
             account: ethEoaAccount1.id,
             request: {
               method: 'eth_signTransaction',
@@ -1674,6 +1686,7 @@ describe('SnapKeyring', () => {
           params: {
             id: expect.any(String),
             scope: expectedScope,
+            origin: 'metamask',
             account: ethEoaAccount1.id,
             request: {
               method: 'eth_signTypedData_v1',
@@ -1707,6 +1720,7 @@ describe('SnapKeyring', () => {
           params: {
             id: expect.any(String),
             scope: expectedScope,
+            origin: 'metamask',
             account: ethEoaAccount1.id,
             request: {
               method: 'eth_signTypedData_v4',
@@ -1740,6 +1754,7 @@ describe('SnapKeyring', () => {
           params: {
             id: expect.any(String),
             scope: expectedScope,
+            origin: 'metamask',
             account: ethEoaAccount1.id,
             request: {
               method: 'eth_signTypedData_v1',
@@ -1787,6 +1802,7 @@ describe('SnapKeyring', () => {
             // Without chainId alongside the typed message, we cannot
             // compute the scope for this request!
             scope: '', // Default value for `signTypedTransaction`
+            origin: 'metamask',
             account: ethEoaAccount1.id,
             request: {
               method: 'eth_signTypedData_v4',
@@ -1851,6 +1867,7 @@ describe('SnapKeyring', () => {
               KnownCaipNamespace.Eip155,
               executionContext.chainId,
             ),
+            origin: 'metamask',
             account: ethErc4337Account.id,
             request: {
               method: 'eth_prepareUserOperation',
@@ -1907,6 +1924,7 @@ describe('SnapKeyring', () => {
               KnownCaipNamespace.Eip155,
               executionContext.chainId,
             ),
+            origin: 'metamask',
             account: ethErc4337Account.id,
             request: {
               method: 'eth_patchUserOperation',
@@ -1959,6 +1977,7 @@ describe('SnapKeyring', () => {
               KnownCaipNamespace.Eip155,
               executionContext.chainId,
             ),
+            origin: 'metamask',
             account: ethErc4337Account.id,
             request: {
               method: 'eth_signUserOperation',
@@ -2019,6 +2038,7 @@ describe('SnapKeyring', () => {
           params: {
             id: expect.any(String),
             scope: expect.any(String),
+            origin: 'metamask',
             account: ethEoaAccount1.id,
             request: {
               method: 'eth_sign',
@@ -2410,12 +2430,15 @@ describe('SnapKeyring', () => {
     };
 
     it('submits a request', async () => {
+      const origin = 'test';
+
       mockMessenger.handleRequest.mockResolvedValue({
         pending: false,
         result: null,
       });
 
       await keyring.submitRequest({
+        origin,
         account: account.id,
         method,
         params,
@@ -2432,6 +2455,47 @@ describe('SnapKeyring', () => {
           params: {
             id: expect.any(String),
             scope,
+            origin,
+            account: account.id,
+            request: {
+              method,
+              params,
+            },
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('submits a request (v1)', async () => {
+      const origin = 'test';
+
+      // <7.0.0, when `KeyringRequest.origin` got introduced.
+      mockMessenger.isMinimumPlatformVersion.mockReturnValue(false);
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: false,
+        result: null,
+      });
+
+      await keyring.submitRequest({
+        origin,
+        account: account.id,
+        method,
+        params,
+        scope,
+      });
+
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_submitRequest',
+          params: {
+            id: expect.any(String),
+            scope,
+            // No origin.
             account: account.id,
             request: {
               method,
@@ -2450,6 +2514,7 @@ describe('SnapKeyring', () => {
 
       await expect(
         keyring.submitRequest({
+          origin: 'test',
           account: account.id,
           method,
           params,
@@ -2463,6 +2528,7 @@ describe('SnapKeyring', () => {
 
       await expect(
         keyring.submitRequest({
+          origin: 'test',
           account: unknownAccountId,
           method,
           params,
@@ -2478,6 +2544,7 @@ describe('SnapKeyring', () => {
 
       await expect(
         keyring.submitRequest({
+          origin: 'test',
           account: account.id,
           method: unknownAccountMethod,
           params,
@@ -2486,6 +2553,30 @@ describe('SnapKeyring', () => {
       ).rejects.toThrow(
         `Method '${unknownAccountMethod}' not supported for account ${account.address}`,
       );
+    });
+
+    it('throws an error if origin is not being passed', async () => {
+      await expect(
+        keyring.submitRequest({
+          // No origin
+          account: account.id,
+          method: EthMethod.PersonalSign,
+          params,
+          scope,
+        } as unknown as Parameters<SnapKeyring['submitRequest']>[0]),
+      ).rejects.toThrow('An `origin` is required');
+    });
+
+    it('throws an error if origin is empty', async () => {
+      await expect(
+        keyring.submitRequest({
+          origin: '',
+          account: account.id,
+          method: EthMethod.PersonalSign,
+          params,
+          scope,
+        }),
+      ).rejects.toThrow('An `origin` is required');
     });
   });
 
@@ -2537,6 +2628,7 @@ describe('SnapKeyring', () => {
               KnownCaipNamespace.Eip155,
               executionContext.chainId,
             ),
+            origin: 'metamask',
             account: ethErc4337Account.id,
             request: {
               method: 'eth_prepareUserOperation',
@@ -2607,6 +2699,7 @@ describe('SnapKeyring', () => {
               KnownCaipNamespace.Eip155,
               executionContext.chainId,
             ),
+            origin: 'metamask',
             account: ethErc4337Account.id,
             request: {
               method: 'eth_patchUserOperation',
