@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.0.0]
+
 ### Uncategorized
 
 - feat!: add `KeyringRequest.origin` ([#273](https://github.com/MetaMask/accounts/pull/273))
@@ -518,7 +520,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@13.0.0...HEAD
+[13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.2.0...@metamask/eth-snap-keyring@13.0.0
 [12.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.1.1...@metamask/eth-snap-keyring@12.2.0
 [12.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.1.0...@metamask/eth-snap-keyring@12.1.1
 [12.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.0.0...@metamask/eth-snap-keyring@12.1.0
