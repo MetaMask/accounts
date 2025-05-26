@@ -1,15 +1,25 @@
 import { isBtcMainnetAddress, isBtcTestnetAddress } from './address';
 
 const BTC_MAINNET_ADDRESSES = [
-  // P2WPKH
-  'bc1qwl8399fz829uqvqly9tcatgrgtwp3udnhxfq4k',
   // P2PKH
-  '1P5ZEDWTKTFGxQjZphgWPQUpe554WKDfHQ',
+  '1AXaVdPBb6zqrTMb6ebrBb9g3JmeAPGeCF',
+  // P2WPKH-P2SH
+  '3KQPirCGGbVyWJLGuWN6VPC7uLeiarYB7x',
+  // P2WPKH
+  'bc1q4degm5k044n9xv3ds7d8l6hfavydte6wn6sesw',
+  // P2TR
+  'bc1pxfxst7zrkw39vzh0pchq5ey0q7z6u739cudhz5vmg89wa4kyyp9qzrf5sp',
 ];
 
 const BTC_TESTNET_ADDRESSES = [
+  // P2PKH
+  'mrDHfcAPosFsabxBKe2U3EdxX5Kph8Zd4f',
+  // P2WPKH-P2SH
+  '2N7AeKCw7p8uRRQjXPeHW7UPGhR8LYHEzBT',
   // P2WPKH
-  'tb1q6rmsq3vlfdhjdhtkxlqtuhhlr6pmj09y6w43g8',
+  'tb1qqecaw32rvyjgez706t5chpr8gan49wfuk94t3g',
+  // P2TR
+  'tb1p6epn3ctassfp54lnztshnpfjekn7khyarrnm6f0yv738lgc53xxsgevs8k',
 ];
 
 const ETH_ADDRESSES = ['0x6431726EEE67570BF6f0Cf892aE0a3988F03903F'];

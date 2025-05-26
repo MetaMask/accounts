@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-api",
-  "version": "17.5.0",
+  "version": "17.6.0",
   "description": "MetaMask Keyring API",
   "keywords": [
     "metamask",
@@ -49,7 +49,7 @@
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^11.1.0",
-    "bech32": "^2.0.0"
+    "bitcoin-address-validation": "^2.2.3"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
