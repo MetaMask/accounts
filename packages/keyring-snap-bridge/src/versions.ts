@@ -7,7 +7,7 @@ import type { SemVerVersion } from '@metamask/utils';
  * NOTE: We use an array here to preserve ordering of each versions.
  */
 export const PLATFORM_VERSION_TO_KEYRING_VERSION = [
-  // NOTE: ! This versions needs to be sorted in a descending order (highest platform version first).
+  // ! NOTE: This versions needs to be sorted in a descending order (highest platform version first).
 
   // Introduction of `KeyringRequest.origin`.
   ['7.0.0', KeyringVersion.V2],
