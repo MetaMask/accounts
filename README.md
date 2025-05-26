@@ -61,8 +61,8 @@ linkStyle default opacity:0.5
   eth_snap_keyring --> keyring_utils;
   keyring_snap_client --> keyring_api;
   keyring_snap_client --> keyring_utils;
-  keyring_snap_sdk --> keyring_utils;
   keyring_snap_sdk --> keyring_api;
+  keyring_snap_sdk --> keyring_utils;
 ```
 
 <!-- end dependency graph -->
