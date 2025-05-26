@@ -1,7 +1,10 @@
 import { KeyringVersion } from '@metamask/keyring-internal-api';
 import { isValidSemVerVersion, type SemVerVersion } from '@metamask/utils';
 
-import { getKeyringVersionFromPlatform, PLATFORM_VERSIONS } from './versions';
+import {
+  getKeyringVersionFromPlatform,
+  PLATFORM_VERSION_TO_KEYRING_VERSION,
+} from './versions';
 
 describe('getKeyringVersionFromPlatform', () => {
   it('gets the keyring version v1 as default', () => {
@@ -23,10 +26,12 @@ describe('getKeyringVersionFromPlatform', () => {
   });
 });
 
-describe('PLATFORM_VERSIONS', () => {
-  it.each(PLATFORM_VERSIONS)(
+describe('PLATFORM_VERSION_TO_KEYRING_VERSION', () => {
+  it.each(PLATFORM_VERSION_TO_KEYRING_VERSION)(
     'is a valid semver version: %s',
-    (version: string) => {
+    // `PLATFORM_VERSION_TO_KEYRING_VERSION` items are flattened by `it.each`, no need
+    // to destructure the tuple here.
+    (version) => {
       expect(isValidSemVerVersion(version)).toBe(true);
     },
   );

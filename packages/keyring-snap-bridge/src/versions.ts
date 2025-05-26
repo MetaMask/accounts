@@ -4,19 +4,14 @@ import type { SemVerVersion } from '@metamask/utils';
 /**
  * Mapping of the Snap platform version to its `KeyringVersion` equivalent.
  *
- * NOTE: This versions needs to be sorted in a descending order (highest platform version first).
+ * NOTE: We use an array here to preserve ordering of each versions.
  */
-const PLATFORM_VERSION_TO_KEYRING_VERSION = {
-  // Introduction of `KeyringRequest.origin`.
-  '7.0.0': KeyringVersion.V2,
-} as const;
+export const PLATFORM_VERSION_TO_KEYRING_VERSION = [
+  // NOTE: ! This versions needs to be sorted in a descending order (highest platform version first).
 
-/**
- * List of platform version that are mapped to a `KeyringVersion` equivalent.
- */
-export const PLATFORM_VERSIONS = Object.keys(
-  PLATFORM_VERSION_TO_KEYRING_VERSION,
-) as (keyof typeof PLATFORM_VERSION_TO_KEYRING_VERSION)[];
+  // Introduction of `KeyringRequest.origin`.
+  ['7.0.0', KeyringVersion.V2],
+] as const;
 
 /**
  * Gets keyring's version for a given Snap.
@@ -27,11 +22,14 @@ export const PLATFORM_VERSIONS = Object.keys(
 export function getKeyringVersionFromPlatform(
   isSupportedVersion: (version: SemVerVersion) => boolean,
 ): KeyringVersion {
-  for (const version of PLATFORM_VERSIONS) {
+  for (const [
+    platformVersion,
+    keyringVersion,
+  ] of PLATFORM_VERSION_TO_KEYRING_VERSION) {
     // NOTE: We are type-casting, but we have a unit tests that make sure all
     // versions are following the semver spec.
-    if (isSupportedVersion(version as SemVerVersion)) {
-      return PLATFORM_VERSION_TO_KEYRING_VERSION[version];
+    if (isSupportedVersion(platformVersion as SemVerVersion)) {
+      return keyringVersion;
     }
   }
   return KeyringVersion.V1;
