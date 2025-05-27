@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0]
+
+### Added
+
+- Add `KeyringPublicClient` ([#273](https://github.com/MetaMask/accounts/pull/273))
+  - This is the new public version of a `KeyringClient` that can be used by companion dapp.
+  - The `submitRequest` method is not available for this client.
+
+### Changed
+
+- **BREAKING:** `KeyringSnapRpcClient` now extends `KeyringPublicClient` instead of `KeyringClient`
+  - The `submitRequest` method is not available for this client.
+- Bump `@metamask/keyring-api` from `^17.4.0` to `^18.0.0` ([#277](https://github.com/MetaMask/accounts/pull/277)), ([#288](https://github.com/MetaMask/accounts/pull/288)), ([#291](https://github.com/MetaMask/accounts/pull/291))
+
 ## [4.1.0]
 
 ### Added
@@ -86,7 +100,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@5.0.0...HEAD
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.1.0...@metamask/keyring-snap-client@5.0.0
 [4.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.0.1...@metamask/keyring-snap-client@4.1.0
 [4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.0.0...@metamask/keyring-snap-client@4.0.1
 [4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@3.0.3...@metamask/keyring-snap-client@4.0.0

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0]
+
+### Changed
+
+- **BREAKING:** Make `@metamask/keyring-api@^18.0.0` a peer dependency ([#290](https://github.com/MetaMask/accounts/pull/290)), ([#291](https://github.com/MetaMask/accounts/pull/291))
+
 ## [3.2.0]
 
 ### Added
@@ -81,7 +87,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@4.0.0...HEAD
+[4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.2.0...@metamask/keyring-snap-sdk@4.0.0
 [3.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.1.0...@metamask/keyring-snap-sdk@3.2.0
 [3.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.0.1...@metamask/keyring-snap-sdk@3.1.0
 [3.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.0.0...@metamask/keyring-snap-sdk@3.0.1

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.0.0]
+
+### Changed
+
+- **BREAKING:** Now requires `origin` to be passed to `SnapKeyring.submitRequest` ([#273](https://github.com/MetaMask/accounts/pull/273))
+  - Starting from `KeyringVersion.V2` (platform version: `7.0.0`), Snaps will now have to use `@metamask/keyring-api@18.0.0` and use the `origin` when processing keyring requests (`submitRequest`).
+- Bump `@metamask/keyring-api` from `^17.6.0` to `^18.0.0` ([#291](https://github.com/MetaMask/accounts/pull/291))
+
 ## [12.2.0]
 
 ### Added
@@ -514,7 +522,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@13.0.0...HEAD
+[13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.2.0...@metamask/eth-snap-keyring@13.0.0
 [12.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.1.1...@metamask/eth-snap-keyring@12.2.0
 [12.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.1.0...@metamask/eth-snap-keyring@12.1.1
 [12.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.0.0...@metamask/eth-snap-keyring@12.1.0
