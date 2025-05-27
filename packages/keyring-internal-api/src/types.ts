@@ -18,7 +18,7 @@ import {
 } from '@metamask/keyring-api';
 import { exactOptional, object } from '@metamask/keyring-utils';
 import type { Infer, Struct } from '@metamask/superstruct';
-import { boolean, string, number } from '@metamask/superstruct';
+import { string, number } from '@metamask/superstruct';
 
 export type InternalAccountType =
   | EthAccountType
@@ -32,8 +32,6 @@ export const InternalAccountMetadataStruct = object({
     snap: exactOptional(
       object({
         id: string(),
-        enabled: boolean(),
-        name: string(),
       }),
     ),
     lastSelected: exactOptional(number()),

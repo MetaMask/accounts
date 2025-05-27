@@ -122,7 +122,7 @@ describe('InternalAccount', () => {
     );
   });
 
-  it('should contain snap name, id and enabled if the snap metadata exists', () => {
+  it('should contain snap id if the snap metadata exists', () => {
     const account: InternalAccount = {
       id: '606a7759-b0fb-48e4-9874-bab62ff8e7eb',
       address: '0x000',
@@ -138,45 +138,10 @@ describe('InternalAccount', () => {
         importTime: 1713153716,
         snap: {
           id: 'test-snap',
-          enabled: true,
-          name: 'Test Snap',
         },
       },
     };
 
     expect(() => assert(account, InternalAccountStruct)).not.toThrow();
   });
-
-  it.each([['name', 'enabled', 'id']])(
-    'should throw if snap.%s is not set',
-    (key: string) => {
-      const account: InternalAccount = {
-        id: '606a7759-b0fb-48e4-9874-bab62ff8e7eb',
-        address: '0x000',
-        options: {},
-        methods: [],
-        scopes: ['eip155:0'],
-        type: 'eip155:eoa',
-        metadata: {
-          keyring: {
-            type: 'Test Keyring',
-          },
-          name: 'Account 1',
-          importTime: 1713153716,
-          snap: {
-            id: 'test-snap',
-            enabled: true,
-            name: 'Test Snap',
-          },
-        },
-      };
-
-      // On `InternalAccount` the `metadata.snap` is optional, hence the `?.` here.
-      delete account.metadata.snap?.[key as keyof typeof account.metadata.snap];
-
-      const regex = new RegExp(`At path: metadata.snap.${key}`, 'u');
-
-      expect(() => assert(account, InternalAccountStruct)).toThrow(regex);
-    },
-  );
 });
