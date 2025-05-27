@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING:** Add `KeyringRequest.origin` ([#273](https://github.com/MetaMask/accounts/pull/273))
+  - **This requires a `platformVersion` version `7.0.0` or newer.**
   - This field will allow Snap to display the real `origin` of the caller (e.g dapp) when processing/confirming a keyring request (`submitRequest`).
 
 ## [17.6.0]
