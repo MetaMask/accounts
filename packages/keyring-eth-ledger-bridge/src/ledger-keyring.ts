@@ -437,14 +437,11 @@ export class LedgerKeyring implements Keyring {
           throw new Error('Ledger: User rejected the transaction');
         }
 
-        /**
-         * for user rejected the transaction error
-         */
         if (
-          transportError.statusCode === 27013 &&
-          transportError.message.includes('(denied by the user?) (0x6985)')
+          transportError.statusCode === 27264 &&
+          transportError.message.includes('Invalid data received (0x6a80)')
         ) {
-          throw new Error('Ledger: User rejected the transaction');
+          throw new Error('Ledger: Blind signing must be enabled');
         }
       }
 
@@ -494,16 +491,6 @@ export class LedgerKeyring implements Keyring {
         ) {
           throw new Error('Ledger: User rejected the transaction');
         }
-      }
-      /**
-       * for user rejected the transaction error
-       */
-      if (
-        LedgerKeyring.#isLedgerError(error) &&
-        error.errorCode === '6985' &&
-        error.message === 'Condition not satisfied'
-      ) {
-        throw new Error('Ledger: User rejected the transaction');
       }
 
       throw error instanceof Error
@@ -608,14 +595,11 @@ export class LedgerKeyring implements Keyring {
           throw new Error('Ledger: User rejected the transaction');
         }
 
-        /**
-         * for user rejected the transaction error
-         */
         if (
-          transportError.statusCode === 27013 &&
-          transportError.message.includes('(denied by the user?) (0x6985)')
+          transportError.statusCode === 27264 &&
+          transportError.message.includes('Invalid data received (0x6a80)')
         ) {
-          throw new Error('Ledger: User rejected the transaction');
+          throw new Error('Ledger: Blind signing must be enabled');
         }
       }
       throw error instanceof Error
