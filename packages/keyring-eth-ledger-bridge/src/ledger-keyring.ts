@@ -94,6 +94,17 @@ export class LedgerKeyring implements Keyring {
 
   deviceId = '';
 
+  static #isLedgerError(
+    error: unknown,
+  ): error is { errorCode: string; message: string } {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'errorCode' in error &&
+      'message' in error
+    );
+  }
+
   readonly type: string = keyringType;
 
   page = 0;
@@ -414,6 +425,26 @@ export class LedgerKeyring implements Keyring {
         hdPath,
       });
     } catch (error) {
+      /**
+       * for user rejected the transaction error
+       */
+      if (
+        LedgerKeyring.#isLedgerError(error) &&
+        error.errorCode === '6985' &&
+        error.message === 'Condition not satisfied'
+      ) {
+        throw new Error('Ledger: User rejected the transaction');
+      }
+      /**
+       * for blind signing disabled error
+       */
+      if (
+        LedgerKeyring.#isLedgerError(error) &&
+        error.errorCode === '6a80' &&
+        error.message === 'Invalid data'
+      ) {
+        throw new Error('Ledger: Blind signing must be enabled');
+      }
       throw error instanceof Error
         ? error
         : new Error('Ledger: Unknown error while signing transaction');
@@ -449,6 +480,17 @@ export class LedgerKeyring implements Keyring {
         message: remove0x(message),
       });
     } catch (error) {
+      /**
+       * for user rejected the transaction error
+       */
+      if (
+        LedgerKeyring.#isLedgerError(error) &&
+        error.errorCode === '6985' &&
+        error.message === 'Condition not satisfied'
+      ) {
+        throw new Error('Ledger: User rejected the transaction');
+      }
+
       throw error instanceof Error
         ? error
         : new Error('Ledger: Unknown error while signing message');
@@ -541,6 +583,26 @@ export class LedgerKeyring implements Keyring {
         },
       });
     } catch (error) {
+      /**
+       * for user rejected the transaction error
+       */
+      if (
+        LedgerKeyring.#isLedgerError(error) &&
+        error.errorCode === '6985' &&
+        error.message === 'Condition not satisfied'
+      ) {
+        throw new Error('Ledger: User rejected the transaction');
+      }
+      /**
+       * for blind signing disabled error
+       */
+      if (
+        LedgerKeyring.#isLedgerError(error) &&
+        error.errorCode === '6a80' &&
+        error.message === 'Invalid data'
+      ) {
+        throw new Error('Ledger: Blind signing must be enabled');
+      }
       throw error instanceof Error
         ? error
         : new Error('Ledger: Unknown error while signing message');
