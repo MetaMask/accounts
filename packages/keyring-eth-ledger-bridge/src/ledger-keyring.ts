@@ -95,17 +95,6 @@ export class LedgerKeyring implements Keyring {
 
   deviceId = '';
 
-  static #isLedgerError(
-    error: unknown,
-  ): error is { errorCode: string; message: string } {
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      'errorCode' in error &&
-      'message' in error
-    );
-  }
-
   readonly type: string = keyringType;
 
   page = 0;
