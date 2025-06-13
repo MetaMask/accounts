@@ -2,6 +2,7 @@ import { Common, Chain, Hardfork } from '@ethereumjs/common';
 import { RLP } from '@ethereumjs/rlp';
 import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
+import { TransportStatusError } from '@ledgerhq/hw-transport';
 import * as sigUtil from '@metamask/eth-sig-util';
 import { bytesToHex, Hex, remove0x } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
@@ -784,6 +785,60 @@ describe('LedgerKeyring', function () {
           keyring.signTransaction(fakeAccounts[0], fakeTx),
         ).rejects.toThrow('Ledger: The transaction signature is not valid');
       });
+
+      it('throws user rejection error when TransportStatusError with code 27013 is thrown', async function () {
+        await basicSetupToUnlockOneAccount();
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'deviceSignTransaction')
+          .mockRejectedValue(transportError);
+
+        await expect(
+          keyring.signTransaction(fakeAccounts[0], fakeTx),
+        ).rejects.toThrow('Ledger: User rejected the transaction');
+      });
+
+      it('throws blind signing error when TransportStatusError with code 27264 is thrown', async function () {
+        await basicSetupToUnlockOneAccount();
+        const transportError = {
+          statusCode: 27264,
+          message: 'Ledger device: Invalid data received (0x6a80)',
+          name: 'TransportStatusError',
+        };
+
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'deviceSignTransaction')
+          .mockRejectedValue(transportError);
+
+        await expect(
+          keyring.signTransaction(fakeAccounts[0], fakeTx),
+        ).rejects.toThrow('Ledger: Blind signing must be enabled');
+      });
+
+      it('re-throws TransportStatusError with unknown status code', async function () {
+        await basicSetupToUnlockOneAccount();
+        const transportError = {
+          statusCode: 12345,
+          message: 'Some other transport error',
+          name: 'TransportStatusError',
+        };
+
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'deviceSignTransaction')
+          .mockRejectedValue(transportError);
+
+        await expect(
+          keyring.signTransaction(fakeAccounts[0], fakeTx),
+        ).rejects.toThrow(transportError);
+      });
     });
 
     describe('signPersonalMessage', function () {
@@ -857,6 +912,40 @@ describe('LedgerKeyring', function () {
         ).rejects.toThrow(
           'Ledger: The signature doesnt match the right address',
         );
+      });
+
+      it('throws user rejection error when TransportStatusError with code 27013 is thrown in signPersonalMessage', async function () {
+        await basicSetupToUnlockOneAccount();
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'deviceSignMessage')
+          .mockRejectedValue(transportError);
+
+        await expect(
+          keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
+        ).rejects.toThrow('Ledger: User rejected the transaction');
+      });
+
+      it('re-throws TransportStatusError with unknown status code in signPersonalMessage', async function () {
+        await basicSetupToUnlockOneAccount();
+        const transportError = {
+          statusCode: 12345,
+          message: 'Some other transport error',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'deviceSignMessage')
+          .mockRejectedValue(transportError);
+
+        await expect(
+          keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
+        ).rejects.toThrow(transportError);
       });
     });
 
@@ -1206,6 +1295,60 @@ describe('LedgerKeyring', function () {
         expect(result).toBe(
           '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e3200',
         );
+      });
+
+      it('throws user rejection error when TransportStatusError with code 27013 is thrown in signTypedData', async function () {
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'deviceSignTypedData')
+          .mockRejectedValue(transportError);
+
+        await expect(
+          keyring.signTypedData(fakeAccounts[15], fixtureData, {
+            version: sigUtil.SignTypedDataVersion.V4,
+          }),
+        ).rejects.toThrow('Ledger: User rejected the transaction');
+      });
+
+      it('throws blind signing error when TransportStatusError with code 27264 is thrown in signTypedData', async function () {
+        const transportError = {
+          statusCode: 27264,
+          message: 'Ledger device: Invalid data received (0x6a80)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'deviceSignTypedData')
+          .mockRejectedValue(transportError);
+
+        await expect(
+          keyring.signTypedData(fakeAccounts[15], fixtureData, {
+            version: sigUtil.SignTypedDataVersion.V4,
+          }),
+        ).rejects.toThrow('Ledger: Blind signing must be enabled');
+      });
+
+      it('re-throws TransportStatusError with unknown status code in signTypedData', async function () {
+        const transportError = {
+          statusCode: 12345,
+          message: 'Some other transport error',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'deviceSignTypedData')
+          .mockRejectedValue(transportError);
+
+        await expect(
+          keyring.signTypedData(fakeAccounts[15], fixtureData, {
+            version: sigUtil.SignTypedDataVersion.V4,
+          }),
+        ).rejects.toThrow(transportError);
       });
     });
 
