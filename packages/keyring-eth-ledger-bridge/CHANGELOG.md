@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.0.4]
+
 ### Uncategorized
 
 - feat(keyring-eth-ledger-bridge): enhance error handling for Ledger signing operations ([#294](https://github.com/MetaMask/accounts.git/pull/294))
@@ -328,7 +330,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.0.3...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.0.4...HEAD
+[11.0.4]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.0.3...@metamask/eth-ledger-bridge-keyring@11.0.4
 [11.0.3]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.0.2...@metamask/eth-ledger-bridge-keyring@11.0.3
 [11.0.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.0.1...@metamask/eth-ledger-bridge-keyring@11.0.2
 [11.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.0.0...@metamask/eth-ledger-bridge-keyring@11.0.1
