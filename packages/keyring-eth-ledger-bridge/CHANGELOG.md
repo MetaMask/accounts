@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.0.4]
 
-### Uncategorized
+### Changed
 
-- feat(keyring-eth-ledger-bridge): enhance error handling for Ledger signing operations ([#294](https://github.com/MetaMask/accounts.git/pull/294))
+- Better error handling for Ledger signing operations ([#294](https://github.com/MetaMask/accounts.git/pull/294))
 
 ## [11.0.3]
 
