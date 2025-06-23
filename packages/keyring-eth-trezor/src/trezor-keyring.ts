@@ -40,6 +40,7 @@ const pathBase = 'm';
 const MAX_INDEX = 1000;
 const DELAY_BETWEEN_POPUPS = 1000;
 export const TREZOR_CONNECT_MANIFEST = {
+  appName: 'MetaMask',
   email: 'support@metamask.io',
   appUrl: 'https://metamask.io',
 };
