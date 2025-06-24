@@ -1,4 +1,4 @@
-import { pubToAddress } from '@ethereumjs/util';
+import { publicToAddress } from '@ethereumjs/util';
 import {
   CryptoAccount,
   CryptoHDKey,
@@ -6,6 +6,7 @@ import {
   type CryptoOutput,
 } from '@keystonehq/bc-ur-registry-eth';
 import { add0x, getChecksumAddress, type Hex } from '@metamask/utils';
+import { UR } from '@ngraveio/bc-ur';
 import HDKey from 'hdkey';
 
 export const SUPPORTED_UR_TYPE = {
@@ -14,10 +15,13 @@ export const SUPPORTED_UR_TYPE = {
   ETH_SIGNATURE: 'eth-signature',
 };
 
+const DEFAULT_CHILDREN_PATH = '0/*';
+
 export type RootAccount = { fingerprint: Hex } & (
   | {
       type: 'hd';
       hdPath: string;
+      hdKey: HDKey;
       childrenPath: string;
       bip32xPub: string;
     }
@@ -52,19 +56,26 @@ export class AccountDeriver {
         ),
       };
     } else {
+      const bip32xPub = source.getBip32Key();
+      const hdPath = `m/${source.getOrigin().getPath()}`;
+      const hdKey = HDKey.fromExtendedKey(bip32xPub);
+      const childrenPath =
+        source.getChildren()?.getPath() || DEFAULT_CHILDREN_PATH;
+
       this.#root = {
         fingerprint,
         type: 'hd',
-        hdPath: `m/${source.getOrigin().getPath()}`,
-        childrenPath: source.getChildren().getPath(),
-        bip32xPub: source.getBip32Key(),
+        hdPath,
+        hdKey,
+        childrenPath,
+        bip32xPub,
       };
     }
   }
 
   deriveIndex(index: number): Hex {
     if (!this.#root) {
-      throw new Error('AccountDeriver not initialized');
+      throw new Error('UR not initialized');
     }
 
     if (this.#root.type === 'account') {
@@ -74,14 +85,22 @@ export class AccountDeriver {
       }
       return add0x(address);
     } else {
-      const hdKey = HDKey.fromExtendedKey(this.#root.bip32xPub);
-      const derived = hdKey.derive(`m/${index}`);
-      const address = getChecksumAddress(
-        add0x(
-          Buffer.from(pubToAddress(derived.publicKey, true)).toString('hex'),
-        ),
+      const resolvedPath = this.#root.childrenPath.replace(
+        '*',
+        index.toString(),
       );
-      return add0x(address);
+
+      const childPath = resolvedPath.startsWith('m/')
+        ? resolvedPath
+        : `m/${resolvedPath}`;
+
+      const hdKey = HDKey.fromExtendedKey(this.#root.bip32xPub);
+      const childKey = hdKey.derive(childPath);
+
+      const address = add0x(
+        Buffer.from(publicToAddress(childKey.publicKey, true)).toString('hex'),
+      );
+      return getChecksumAddress(address);
     }
   }
 
@@ -123,7 +142,7 @@ export class AccountDeriver {
         const path = `M/${hdKey.getOrigin().getPath()}`;
         const address = getChecksumAddress(
           add0x(
-            Buffer.from(pubToAddress(hdKey.getKey(), true)).toString('hex'),
+            Buffer.from(publicToAddress(hdKey.getKey(), true)).toString('hex'),
           ),
         );
         paths[address] = path;
@@ -140,7 +159,13 @@ export class AccountDeriver {
    * @throws Will throw an error if the UR type is not supported
    */
   #decodeUR(ur: string): CryptoAccount | CryptoHDKey {
-    const decodedUR = URRegistryDecoder.decode(ur);
+    let decodedUR: UR;
+    try {
+      decodedUR = URRegistryDecoder.decode(ur);
+    } catch (error) {
+      throw new Error(`Invalid UR format`);
+    }
+
     this.#ur = ur;
     this.#cbor = decodedUR.cbor;
 

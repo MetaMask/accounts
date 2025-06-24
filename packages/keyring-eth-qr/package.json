@@ -71,7 +71,10 @@
       "secp256k1": true,
       "@lavamoat/preinstall-always-fail": false,
       "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>keccak": false,
-      "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>secp256k1": false
+      "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>secp256k1": false,
+      "@keystonehq/ur-decoder>@keystonehq/bc-ur-registry-eth>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "@lavamoat/allow-scripts>@lavamoat/preinstall-always-fail": false,
+      "hdkey>secp256k1": false
     }
   }
 }

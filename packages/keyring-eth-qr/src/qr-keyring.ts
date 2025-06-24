@@ -1,5 +1,5 @@
 import type { Keyring } from '@metamask/keyring-utils';
-import type { Hex } from '@metamask/utils';
+import { Hex, isObject } from '@metamask/utils';
 
 import { AccountDeriver } from './account-deriver';
 
@@ -14,10 +14,15 @@ export type QrKeyringOptions = {
  *
  * @property accounts - The accounts in the QrKeyring
  */
-export type QrKeyringState = {
-  accounts: Record<number, Hex>;
-  ur?: string | null;
-};
+export type QrKeyringState =
+  | {
+      ur: string;
+      accounts: Record<string, Hex>;
+    }
+  | {
+      ur?: string | null;
+      accounts: {};
+    };
 
 /**
  * A keyring that derives accounts from a CBOR encoded UR
@@ -25,13 +30,13 @@ export type QrKeyringState = {
 export class QrKeyring implements Keyring {
   static type = QR_KEYRING_TYPE;
 
-  type = QR_KEYRING_TYPE;
+  readonly type = QR_KEYRING_TYPE;
+
+  readonly #deriver: AccountDeriver = new AccountDeriver();
 
   #accounts: Map<number, Hex> = new Map();
 
   #accountToUnlock?: number | undefined;
-
-  readonly #deriver: AccountDeriver = new AccountDeriver();
 
   constructor(options?: QrKeyringOptions) {
     if (options?.ur) {
@@ -55,7 +60,7 @@ export class QrKeyring implements Keyring {
    */
   async serialize(): Promise<QrKeyringState> {
     return {
-      accounts: Object.values(this.#accounts),
+      accounts: Object.fromEntries(this.#accounts),
       ur: this.#deriver.getUR(),
     };
   }
@@ -67,6 +72,12 @@ export class QrKeyring implements Keyring {
    */
   async deserialize(state: QrKeyringState): Promise<void> {
     const { accounts, ur } = state;
+
+    if (Object.values(accounts).length && !ur) {
+      throw new Error(
+        'QrKeyring state must include a UR when accounts are present',
+      );
+    }
 
     this.#accounts = new Map(
       Object.entries(accounts).map(([index, address]) => [
@@ -91,14 +102,15 @@ export class QrKeyring implements Keyring {
     const newAccounts: Hex[] = [];
 
     for (let i = 0; i < accountsToAdd; i++) {
-      const index = lastIndex + i + 1;
-      const account = this.#deriver.deriveIndex(index);
-
+      const index = lastIndex + i;
       if (this.#accounts.has(index)) {
-        throw new Error(`Account at index ${index} already exists`);
+        // If the account already exists, skip it
+        continue;
       }
 
+      const account = this.#deriver.deriveIndex(index);
       this.#accounts.set(index, account);
+
       newAccounts.push(account);
     }
 
@@ -112,7 +124,7 @@ export class QrKeyring implements Keyring {
    * @returns The accounts in the QrKeyring
    */
   async getAccounts(): Promise<Hex[]> {
-    return Object.values(this.#accounts);
+    return Array.from(this.#accounts.values());
   }
 
   /**
