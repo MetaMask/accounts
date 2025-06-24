@@ -52,9 +52,6 @@ function normalizeAddress(address: string): Hex {
   return getChecksumAddress(add0x(address));
 }
 
-/**
- * A keyring that derives accounts from a CBOR encoded UR
- */
 export class QrKeyring implements Keyring {
   static type = QR_KEYRING_TYPE;
 
@@ -138,7 +135,6 @@ export class QrKeyring implements Keyring {
 
     // Recover accounts from the serialized state
     const { accounts = [], indexes = {} } = state;
-    console.log(accounts, indexes);
     if (accounts.length !== Object.keys(indexes).length) {
       throw new Error(
         'The number of accounts does not match the number of indexes',
@@ -189,6 +185,20 @@ export class QrKeyring implements Keyring {
    */
   async getAccounts(): Promise<Hex[]> {
     return Array.from(this.#accounts.values());
+  }
+
+  /**
+   * Remove an account from the keyring
+   *
+   * @param address - The address of the account to remove
+   */
+  removeAccount(address: Hex): void {
+    const normalizedAddress = normalizeAddress(address);
+    this.#accounts.forEach((storedAddress, storedIndex) => {
+      if (storedAddress === normalizedAddress) {
+        this.#accounts.delete(storedIndex);
+      }
+    });
   }
 
   /**

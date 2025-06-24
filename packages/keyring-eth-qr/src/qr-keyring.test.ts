@@ -256,6 +256,32 @@ describe('QrKeyring', () => {
     });
   });
 
+  describe('removeAccount', () => {
+    it('removes an account from the keyring', async () => {
+      const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+      await keyring.addAccounts(3);
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      keyring.removeAccount(EXPECTED_ACCOUNTS[1]!);
+
+      expect(await keyring.getAccounts()).toStrictEqual([
+        EXPECTED_ACCOUNTS[0],
+        EXPECTED_ACCOUNTS[2],
+      ]);
+    });
+
+    it('does not throw if the account does not exist', async () => {
+      const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+      await keyring.addAccounts(1);
+      const initialAccounts = await keyring.getAccounts();
+
+      expect(() =>
+        keyring.removeAccount('0x0000000000000000000000000000000000000000'),
+      ).not.toThrow();
+      expect(await keyring.getAccounts()).toStrictEqual(initialAccounts);
+    });
+  });
+
   describe('setAccountToUnlock', () => {
     it('sets an arbitrary account index to unlock', async () => {
       const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
