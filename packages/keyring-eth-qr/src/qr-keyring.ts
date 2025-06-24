@@ -1,5 +1,5 @@
 import type { Keyring } from '@metamask/keyring-utils';
-import { Hex, isObject } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
 
 import { AccountDeriver } from './account-deriver';
 
@@ -104,17 +104,15 @@ export class QrKeyring implements Keyring {
     for (let i = 0; i < accountsToAdd; i++) {
       const index = lastIndex + i;
       if (this.#accounts.has(index)) {
-        // If the account already exists, skip it
         continue;
       }
 
       const account = this.#deriver.deriveIndex(index);
       this.#accounts.set(index, account);
-
       newAccounts.push(account);
     }
 
-    this.#accountToUnlock = undefined;
+    this.#accountToUnlock = lastIndex + accountsToAdd;
     return newAccounts;
   }
 
