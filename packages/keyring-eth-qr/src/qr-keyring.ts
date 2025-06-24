@@ -1,12 +1,9 @@
-import { TypedTxData } from '@ethereumjs/tx';
 import type { Keyring } from '@metamask/keyring-utils';
-import { add0x, assert, getChecksumAddress, Hex } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
+import { add0x, assert, getChecksumAddress } from '@metamask/utils';
 
-import {
-  AccountDeriver,
-  AirgappedSourceDetails,
-  KeyringMode,
-} from './account-deriver';
+import type { AirgappedSourceDetails } from './account-deriver';
+import { AccountDeriver, KeyringMode } from './account-deriver';
 
 export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
 
@@ -33,6 +30,11 @@ export type SerializedQrKeyringState = {
     } & AirgappedSourceDetails)
 );
 
+/**
+ * Returns the default serialized state of the QrKeyring.
+ *
+ * @returns The default serialized state.
+ */
 export const getDefaultSerializedQrKeyringState =
   (): SerializedQrKeyringState => ({
     initialized: false,
@@ -40,6 +42,12 @@ export const getDefaultSerializedQrKeyringState =
     indexes: {},
   });
 
+/**
+ * Normalizes an address to a 0x-prefixed checksum address.
+ *
+ * @param address - The address to normalize.
+ * @returns The normalized address as a Hex string.
+ */
 function normalizeAddress(address: string): Hex {
   return getChecksumAddress(add0x(address));
 }
@@ -102,19 +110,18 @@ export class QrKeyring implements Keyring {
         accounts,
         indexes,
       };
-    } else {
-      // These properties are only relevant for Account Keys
-      return {
-        initialized: true,
-        name: source.name,
-        keyringMode: KeyringMode.ACCOUNT,
-        keyringAccount: source.keyringAccount,
-        xfp: source.xfp,
-        paths: source.paths,
-        accounts,
-        indexes,
-      };
     }
+    // These properties are only relevant for Account Keys
+    return {
+      initialized: true,
+      name: source.name,
+      keyringMode: KeyringMode.ACCOUNT,
+      keyringAccount: source.keyringAccount,
+      xfp: source.xfp,
+      paths: source.paths,
+      accounts,
+      indexes,
+    };
   }
 
   /**

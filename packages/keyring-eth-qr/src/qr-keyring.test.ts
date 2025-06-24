@@ -1,8 +1,10 @@
-import { StoredKeyring } from '@keystonehq/base-eth-keyring';
+import type { StoredKeyring } from '@keystonehq/base-eth-keyring';
 import { CryptoHDKey } from '@keystonehq/bc-ur-registry-eth';
 import { MetaMaskKeyring as KeystoneKeyring } from '@keystonehq/metamask-airgapped-keyring';
 import type { Hex } from '@metamask/utils';
-import { QrKeyring, SerializedQrKeyringState } from '.';
+
+import type { SerializedQrKeyringState } from '.';
+import { QrKeyring } from '.';
 import { KeyringMode } from './account-deriver';
 
 const KNOWN_HDKEY_UR =
@@ -63,6 +65,12 @@ const SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS: SerializedQrKeyringState = {
   childrenPath: '0/*',
 };
 
+/**
+ * Get the xpub from a keyring.
+ *
+ * @param keyring - The keyring to get the xpub from.
+ * @returns The xpub of the keyring.
+ */
 async function getXPUBFromKeyring(
   keyring: QrKeyring | KeystoneKeyring,
 ): Promise<string> {
@@ -73,7 +81,12 @@ async function getXPUBFromKeyring(
   return serialized.xpub;
 }
 
-async function getLegacyKeystoneKeyring() {
+/**
+ * Get a Keystone keyring instance using `@keystonehq/metamask-airgapped-keyring`.
+ *
+ * @returns A Keystone keyring instance with the serialized state.
+ */
+async function getLegacyKeystoneKeyring(): Promise<KeystoneKeyring> {
   const keystoneKeyring = new KeystoneKeyring();
   keystoneKeyring.deserialize(SERIALIZED_KEYSTONE_KEYRING);
   return keystoneKeyring;
@@ -119,7 +132,9 @@ describe('QrKeyring', () => {
           ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
           accounts: [EXPECTED_ACCOUNTS[0], EXPECTED_ACCOUNTS[1]],
           indexes: {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             [EXPECTED_ACCOUNTS[0]!]: 0,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             [EXPECTED_ACCOUNTS[1]!]: 1,
           },
         });
@@ -249,7 +264,7 @@ describe('QrKeyring', () => {
 
     it('throws an error if the UR is invalid', () => {
       const keyring = new QrKeyring();
-      expect(() => keyring.submitUR('invalid-ur')).toThrow('Invalid UR format');
+      expect(() => keyring.submitUR('invalid-ur')).toThrow('Invalid Scheme');
     });
   });
 });

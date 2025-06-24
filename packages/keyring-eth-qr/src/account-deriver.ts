@@ -5,8 +5,8 @@ import {
   URRegistryDecoder,
 } from '@keystonehq/bc-ur-registry-eth';
 import { add0x, getChecksumAddress, type Hex } from '@metamask/utils';
-import { UR } from '@ngraveio/bc-ur';
-import HDKey from 'hdkey';
+// eslint-disable-next-line @typescript-eslint/naming-convention
+import HdKey from 'hdkey';
 
 export const SUPPORTED_UR_TYPE = {
   CRYPTO_HDKEY: 'crypto-hdkey',
@@ -111,23 +111,26 @@ function readCryptoAccountOutputDescriptors(source: CryptoAccount): {
     throw new Error('No output descriptors found in CryptoAccount');
   }
 
-  let name = '',
-    keyringAccount = '';
-  const paths = descriptors.reduce((paths: Record<Hex, string>, current) => {
-    const hdKey = current.getHDKey();
-    if (hdKey) {
-      const path = `M/${hdKey.getOrigin().getPath()}`;
-      const address = getChecksumAddress(
-        add0x(
-          Buffer.from(publicToAddress(hdKey.getKey(), true)).toString('hex'),
-        ),
-      );
-      paths[address] = path;
-      name = hdKey.getName();
-      keyringAccount = hdKey.getNote();
-    }
-    return paths;
-  }, {});
+  let name = '';
+  let keyringAccount = '';
+  const paths = descriptors.reduce(
+    (descriptorsPaths: Record<Hex, string>, current) => {
+      const hdKey = current.getHDKey();
+      if (hdKey) {
+        const path = `M/${hdKey.getOrigin().getPath()}`;
+        const address = getChecksumAddress(
+          add0x(
+            Buffer.from(publicToAddress(hdKey.getKey(), true)).toString('hex'),
+          ),
+        );
+        descriptorsPaths[address] = path;
+        name = hdKey.getName();
+        keyringAccount = hdKey.getNote();
+      }
+      return descriptorsPaths;
+    },
+    {},
+  );
 
   return {
     paths,
@@ -165,24 +168,23 @@ export class AccountDeriver {
         throw new Error(`Address not found for index ${index}`);
       }
       return add0x(address);
-    } else {
-      const resolvedPath = this.#source.childrenPath.replace(
-        '*',
-        index.toString(),
-      );
-
-      const childPath = resolvedPath.startsWith('m/')
-        ? resolvedPath
-        : `m/${resolvedPath}`;
-
-      const hdKey = HDKey.fromExtendedKey(this.#source.xpub);
-      const childKey = hdKey.derive(childPath);
-
-      const address = add0x(
-        Buffer.from(publicToAddress(childKey.publicKey, true)).toString('hex'),
-      );
-      return getChecksumAddress(address);
     }
+    const resolvedPath = this.#source.childrenPath.replace(
+      '*',
+      index.toString(),
+    );
+
+    const childPath = resolvedPath.startsWith('m/')
+      ? resolvedPath
+      : `m/${resolvedPath}`;
+
+    const hdKey = HdKey.fromExtendedKey(this.#source.xpub);
+    const childKey = hdKey.derive(childPath);
+
+    const address = add0x(
+      Buffer.from(publicToAddress(childKey.publicKey, true)).toString('hex'),
+    );
+    return getChecksumAddress(address);
   }
 
   getSourceDetails(): AirgappedSourceDetails | undefined {
@@ -234,14 +236,9 @@ export class AccountDeriver {
    * @throws Will throw an error if the UR type is not supported
    */
   #decodeUR(ur: string): CryptoAccount | CryptoHDKey {
-    let decodedUR: UR;
-    try {
-      decodedUR = URRegistryDecoder.decode(ur);
-    } catch (error) {
-      throw new Error(`Invalid UR format`);
-    }
+    const decodedUR = URRegistryDecoder.decode(ur);
 
-    const cbor = decodedUR.cbor;
+    const { cbor } = decodedUR;
 
     switch (decodedUR.type) {
       case SUPPORTED_UR_TYPE.CRYPTO_HDKEY:
