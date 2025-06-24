@@ -143,12 +143,29 @@ describe('QrKeyring', () => {
   });
 
   describe('deserialize', () => {
-    describe('when the state includes accounts but not indexes', () => {
-      it('throws an error', async () => {
+    describe('when deserializing a state with accounts', () => {
+      it('deserializes the state with accounts', async () => {
+        const keyring = new QrKeyring();
+
+        await keyring.deserialize(SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS);
+
+        expect(await keyring.getAccounts()).toStrictEqual([]);
+        expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
+          SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS.xpub,
+        );
+      });
+
+      it('throws an error if accounts and indexes are not of the same number', async () => {
         const keyring = new QrKeyring();
 
         await expect(
-          keyring.deserialize({ accounts: EXPECTED_ACCOUNTS, indexes: {} }),
+          keyring.deserialize({
+            ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+            accounts: EXPECTED_ACCOUNTS,
+            indexes: {
+              // there should be 3 indexes mapped here
+            },
+          }),
         ).rejects.toThrow(
           'The number of accounts does not match the number of indexes',
         );

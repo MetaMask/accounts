@@ -138,6 +138,7 @@ export class QrKeyring implements Keyring {
 
     // Recover accounts from the serialized state
     const { accounts = [], indexes = {} } = state;
+    console.log(accounts, indexes);
     if (accounts.length !== Object.keys(indexes).length) {
       throw new Error(
         'The number of accounts does not match the number of indexes',
