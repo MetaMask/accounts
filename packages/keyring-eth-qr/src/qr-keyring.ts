@@ -1,7 +1,12 @@
+import { TypedTxData } from '@ethereumjs/tx';
 import type { Keyring } from '@metamask/keyring-utils';
-import type { Hex } from '@metamask/utils';
+import { add0x, assert, getChecksumAddress, Hex } from '@metamask/utils';
 
-import { AccountDeriver } from './account-deriver';
+import {
+  AccountDeriver,
+  AirgappedSourceDetails,
+  KeyringMode,
+} from './account-deriver';
 
 export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
 
@@ -14,15 +19,30 @@ export type QrKeyringOptions = {
  *
  * @property accounts - The accounts in the QrKeyring
  */
-export type QrKeyringState =
+export type SerializedQrKeyringState = {
+  version?: number;
+  accounts: string[];
+  indexes: Record<string, number>;
+  currentAccount?: number;
+} & (
   | {
-      ur: string;
-      accounts: Record<string, Hex>;
+      initialized?: false;
     }
-  | {
-      ur?: string | null;
-      accounts: {};
-    };
+  | ({
+      initialized: true;
+    } & AirgappedSourceDetails)
+);
+
+export const getDefaultSerializedQrKeyringState =
+  (): SerializedQrKeyringState => ({
+    initialized: false,
+    accounts: [],
+    indexes: {},
+  });
+
+function normalizeAddress(address: string): Hex {
+  return getChecksumAddress(add0x(address));
+}
 
 /**
  * A keyring that derives accounts from a CBOR encoded UR
@@ -45,50 +65,88 @@ export class QrKeyring implements Keyring {
   }
 
   /**
-   * Gets the UR of the QrKeyring
-   *
-   * @returns The UR of the QrKeyring
-   */
-  get ur(): string | null {
-    return this.#deriver.getUR();
-  }
-
-  /**
    * Serializes the QrKeyring state
    *
    * @returns The serialized state
    */
-  async serialize(): Promise<QrKeyringState> {
-    return {
-      accounts: Object.fromEntries(this.#accounts),
-      ur: this.#deriver.getUR(),
-    };
+  async serialize(): Promise<SerializedQrKeyringState> {
+    const source = this.#deriver.getSourceDetails();
+
+    if (
+      !source ||
+      ![KeyringMode.HD, KeyringMode.ACCOUNT].includes(source.keyringMode)
+    ) {
+      // the keyring has not initialized with a device source yet
+      return getDefaultSerializedQrKeyringState();
+    }
+
+    const accounts = Array.from(this.#accounts.values());
+    const indexes = Object.fromEntries(
+      Array.from(this.#accounts.entries()).map(([index, address]) => [
+        address,
+        index,
+      ]),
+    );
+
+    if (source.keyringMode === KeyringMode.HD) {
+      // These properties are only relevant for HD Keys
+      return {
+        initialized: true,
+        name: source.name,
+        keyringMode: KeyringMode.HD,
+        keyringAccount: source.keyringAccount,
+        xfp: source.xfp,
+        xpub: source.xpub,
+        hdPath: source.hdPath,
+        childrenPath: source.childrenPath,
+        accounts,
+        indexes,
+      };
+    } else {
+      // These properties are only relevant for Account Keys
+      return {
+        initialized: true,
+        name: source.name,
+        keyringMode: KeyringMode.ACCOUNT,
+        keyringAccount: source.keyringAccount,
+        xfp: source.xfp,
+        paths: source.paths,
+        accounts,
+        indexes,
+      };
+    }
   }
 
   /**
    * Deserializes the QrKeyring state
    *
-   * @param state - The state to deserialize
+   * @param state - The serialized state to deserialize
    */
-  async deserialize(state: QrKeyringState): Promise<void> {
-    const { accounts, ur } = state;
+  async deserialize(state: SerializedQrKeyringState): Promise<void> {
+    if (!state.initialized) {
+      this.#accounts.clear();
+      this.#deriver.clear();
+      return;
+    }
 
-    if (Object.values(accounts).length && !ur) {
+    // Recover accounts from the serialized state
+    const { accounts = [], indexes = {} } = state;
+    if (accounts.length !== Object.keys(indexes).length) {
       throw new Error(
-        'QrKeyring state must include a UR when accounts are present',
+        'The number of accounts does not match the number of indexes',
       );
     }
-
     this.#accounts = new Map(
-      Object.entries(accounts).map(([index, address]) => [
-        Number(index),
-        address,
-      ]),
+      accounts.map((address) => {
+        const normalizedAddress = normalizeAddress(address);
+        const index = indexes[normalizedAddress];
+        assert(index !== undefined, 'Address not found in indexes map');
+        return [index, normalizedAddress];
+      }),
     );
 
-    if (ur) {
-      this.submitUR(ur);
-    }
+    // Initialize the deriver with the source details
+    this.#deriver.init(state);
   }
 
   /**

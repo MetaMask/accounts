@@ -1,13 +1,83 @@
-import { QrKeyring } from './qr-keyring';
+import { StoredKeyring } from '@keystonehq/base-eth-keyring';
+import { CryptoHDKey } from '@keystonehq/bc-ur-registry-eth';
+import { MetaMaskKeyring as KeystoneKeyring } from '@keystonehq/metamask-airgapped-keyring';
+import type { Hex } from '@metamask/utils';
+import { QrKeyring, SerializedQrKeyringState } from '.';
+import { KeyringMode } from './account-deriver';
 
 const KNOWN_HDKEY_UR =
   'UR:CRYPTO-HDKEY/ONAXHDCLAXPYSTPELBTLSNGWTTWPGSBSIOWKRFOXHSWSRHURSAHGMYMNTEFLTEBGADAHAXKTNBAAHDCXIODLDNDNZCONGOGMYKJLGHCLTDRYBEJTGOWZWLGLJKEOKIHEFHCLNLAMQDNDZSGEAMTAADDYOEADLNCSDWYKCSFNYKAEYKAOCYIHCHGSOYAYCYIHIAECEYASJNFPINJPFLHSJOCXDPCXJYIHJKJYINDAAAEC';
 
-const EXPECTED_ACCOUNTS = [
+const KNOWN_CBOR =
+  'a503582103abc7af7fd5cd4fd1ec4c0f67f4bca461efb9dfc2578f8ed347d31201050377a0045820672f2b2bfda55552f56f5421d2bd106e55f2e94e73337d5f3f219906b39bfa4a06d90130a20186182cf5183cf500f5021a65174ca1081a65633532096d416972476170202d2074657374';
+
+const KNOWN_HDKEY: CryptoHDKey = CryptoHDKey.fromCBOR(
+  Buffer.from(KNOWN_CBOR, 'hex'),
+);
+
+const EXPECTED_ACCOUNTS: Hex[] = [
   '0x8DC309e828CE024b1ae7a9AA7882D37AD18181d5',
   '0x98396D8bF756F419eF6CDba819e9DF00E6F2B51B',
   '0xC64D05CD3582531f19dcB16e5FA9652B281fA018',
 ];
+
+// Coming from an extension installation using `@keystonehq/metamask-airgapped-keyring`
+// and with a paired QR-based Device configured with the above known SRP
+const SERIALIZED_KEYSTONE_KEYRING: StoredKeyring = {
+  initialized: true,
+  accounts: [
+    '0x8DC309e828CE024b1ae7a9AA7882D37AD18181d5',
+    '0x98396D8bF756F419eF6CDba819e9DF00E6F2B51B',
+    '0xC64D05CD3582531f19dcB16e5FA9652B281fA018',
+  ],
+  keyringAccount: 'account.standard',
+  keyringMode: KeyringMode.HD,
+  name: 'AirGap - test',
+  version: 1,
+  xfp: '65174ca1',
+  xpub: 'xpub6CPzTSQVcBw9QiZT3wcB6bUVW53m1ica5uByu5ktss4aHSqdj85GitSLT9uarxQgoyfaedxkWZKAeSjSSMNSursAd7eiFpc5ywjnkS1Aur4',
+  hdPath: "m/44'/60'/0'",
+  childrenPath: '0/*',
+  indexes: {
+    '0x8DC309e828CE024b1ae7a9AA7882D37AD18181d5': 0,
+    '0x98396D8bF756F419eF6CDba819e9DF00E6F2B51B': 1,
+    '0xC64D05CD3582531f19dcB16e5FA9652B281fA018': 2,
+  },
+  paths: {},
+  // These last properties are not used by `@metamask/eth-qr-keyring`
+  currentAccount: 0,
+  page: 0,
+  perPage: 5,
+};
+
+const SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS: SerializedQrKeyringState = {
+  initialized: true,
+  name: 'AirGap - test',
+  keyringMode: KeyringMode.HD,
+  keyringAccount: KNOWN_HDKEY.getNote(),
+  xfp: KNOWN_HDKEY.getParentFingerprint()?.toString('hex'),
+  xpub: KNOWN_HDKEY.getBip32Key(),
+  accounts: [],
+  indexes: {},
+  hdPath: "m/44'/60'/0'",
+  childrenPath: '0/*',
+};
+
+async function getXPUBFromKeyring(
+  keyring: QrKeyring | KeystoneKeyring,
+): Promise<string> {
+  const serialized = await keyring.serialize();
+  if (!serialized.initialized || serialized.keyringMode !== KeyringMode.HD) {
+    throw new Error('Keyring is not initialized');
+  }
+  return serialized.xpub;
+}
+
+async function getLegacyKeystoneKeyring() {
+  const keystoneKeyring = new KeystoneKeyring();
+  keystoneKeyring.deserialize(SERIALIZED_KEYSTONE_KEYRING);
+  return keystoneKeyring;
+}
 
 describe('QrKeyring', () => {
   describe('constructor', () => {
@@ -16,10 +86,12 @@ describe('QrKeyring', () => {
       expect(keyring).toBeInstanceOf(QrKeyring);
     });
 
-    it('can be constructed with a UR', () => {
+    it('can be constructed with a UR', async () => {
       const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
-      expect(keyring).toBeInstanceOf(QrKeyring);
-      expect(keyring.ur).toBe(KNOWN_HDKEY_UR);
+
+      expect(await keyring.serialize()).toStrictEqual(
+        SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+      );
     });
   });
 
@@ -30,74 +102,57 @@ describe('QrKeyring', () => {
 
         const serialized = await keyring.serialize();
 
-        expect(serialized).toStrictEqual({
-          accounts: {},
-          ur: KNOWN_HDKEY_UR,
-        });
+        expect(serialized).toStrictEqual(
+          SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+        );
       });
     });
 
     describe('when the QrKeyring has accounts', () => {
-      it('returns the serialized state', async () => {
+      it('returns the serialized state including added accounts', async () => {
         const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
-        await keyring.addAccounts(1);
+        await keyring.addAccounts(2);
 
         const serialized = await keyring.serialize();
 
         expect(serialized).toStrictEqual({
-          accounts: {
-            '0': EXPECTED_ACCOUNTS[0],
+          ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+          accounts: [EXPECTED_ACCOUNTS[0], EXPECTED_ACCOUNTS[1]],
+          indexes: {
+            [EXPECTED_ACCOUNTS[0]!]: 0,
+            [EXPECTED_ACCOUNTS[1]!]: 1,
           },
-          ur: KNOWN_HDKEY_UR,
         });
       });
     });
   });
 
   describe('deserialize', () => {
-    describe('when the state does not include a UR', () => {
-      it('deserializes the state', async () => {
-        const keyring = new QrKeyring();
-
-        await keyring.deserialize({ accounts: {} });
-
-        expect(await keyring.getAccounts()).toStrictEqual([]);
-      });
-    });
-
-    describe('when the state includes accounts but no UR', () => {
+    describe('when the state includes accounts but not indexes', () => {
       it('throws an error', async () => {
         const keyring = new QrKeyring();
 
         await expect(
-          keyring.deserialize({ accounts: { '0': EXPECTED_ACCOUNTS[0] } }),
+          keyring.deserialize({ accounts: EXPECTED_ACCOUNTS, indexes: {} }),
         ).rejects.toThrow(
-          'QrKeyring state must include a UR when accounts are present',
+          'The number of accounts does not match the number of indexes',
         );
       });
     });
 
-    describe('when the state includes a UR', () => {
-      it('deserializes the state', async () => {
-        const keyring = new QrKeyring();
-
-        await keyring.deserialize({ accounts: {}, ur: KNOWN_HDKEY_UR });
-
-        expect(keyring.ur).toStrictEqual(KNOWN_HDKEY_UR);
-      });
-    });
-
-    describe('when the state includes a UR and accounts', () => {
+    describe('when using a serialized state coming from `@keystonehq/metamask-airgapped-keyring`', () => {
       it('deserializes the state with accounts', async () => {
+        const keystoneKeyring = await getLegacyKeystoneKeyring();
         const keyring = new QrKeyring();
 
-        await keyring.deserialize({
-          accounts: { '0': EXPECTED_ACCOUNTS[0] },
-          ur: KNOWN_HDKEY_UR,
-        });
+        // @ts-expect-error QrKeyring types are stricter than Keystone ones
+        await keyring.deserialize(await keystoneKeyring.serialize());
 
-        expect(await keyring.getAccounts()).toStrictEqual(
-          EXPECTED_ACCOUNTS.slice(0, 1),
+        expect(await keystoneKeyring.getAccounts()).toStrictEqual(
+          await keystoneKeyring.getAccounts(),
+        );
+        expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
+          await getXPUBFromKeyring(keystoneKeyring),
         );
       });
     });
@@ -182,22 +237,14 @@ describe('QrKeyring', () => {
   });
 
   describe('submitUR', () => {
-    it('initializes the QrKeyring with a UR', () => {
+    it('initializes the QrKeyring with a UR', async () => {
       const keyring = new QrKeyring();
 
       keyring.submitUR(KNOWN_HDKEY_UR);
 
-      expect(keyring.ur).toBe(KNOWN_HDKEY_UR);
-    });
-
-    it('reinitializes the QrKeyring with a new UR', () => {
-      const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
-
-      const newUr =
-        'ur:crypto-hdkey/oxaxhdclaowdverokopdinhseeroisyalksaykctjshedprnuyjyfgrovawewftyghceglrpkgaahdcxtplfjsluknfwlaisaxwypalbjylswzamcxhscyuyloztmwfnldlgskpyptgsdecfamtaaddyoeadlncsdwykcsfnykaeykaocywlcscewfaycytedmfeayghlptnin';
-      keyring.submitUR(newUr);
-
-      expect(keyring.ur).toBe(newUr);
+      expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
+        SERIALIZED_KEYSTONE_KEYRING.xpub,
+      );
     });
 
     it('throws an error if the UR is invalid', () => {
