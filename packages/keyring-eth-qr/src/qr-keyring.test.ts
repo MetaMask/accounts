@@ -59,7 +59,6 @@ const SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS: SerializedQrKeyringState = {
   keyringAccount: KNOWN_HDKEY.getNote(),
   xfp: KNOWN_HDKEY.getParentFingerprint()?.toString('hex'),
   xpub: KNOWN_HDKEY.getBip32Key(),
-  accounts: [],
   indexes: {},
   hdPath: "m/44'/60'/0'",
   childrenPath: '0/*',
@@ -73,10 +72,10 @@ const SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS: SerializedQrKeyringState = {
  */
 async function getXPUBFromKeyring(
   keyring: QrKeyring | KeystoneKeyring,
-): Promise<string> {
+): Promise<string | undefined> {
   const serialized = await keyring.serialize();
-  if (!serialized.initialized || serialized.keyringMode !== KeyringMode.HD) {
-    throw new Error('Keyring is not initialized');
+  if (!('xpub' in serialized)) {
+    return undefined;
   }
   return serialized.xpub;
 }
@@ -102,9 +101,10 @@ describe('QrKeyring', () => {
     it('can be constructed with a UR', async () => {
       const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
 
-      expect(await keyring.serialize()).toStrictEqual(
-        SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
-      );
+      expect(await keyring.serialize()).toStrictEqual({
+        ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+        accounts: [],
+      });
     });
   });
 
@@ -115,9 +115,11 @@ describe('QrKeyring', () => {
 
         const serialized = await keyring.serialize();
 
-        expect(serialized).toStrictEqual(
-          SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
-        );
+        expect(serialized).toStrictEqual({
+          ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+          accounts: [],
+          indexes: {},
+        });
       });
     });
 
@@ -143,6 +145,17 @@ describe('QrKeyring', () => {
   });
 
   describe('deserialize', () => {
+    describe('when deserializing an empty state', () => {
+      it('deserializes the state with no accounts', async () => {
+        const keyring = new QrKeyring();
+
+        await keyring.deserialize({});
+
+        expect(await keyring.getAccounts()).toStrictEqual([]);
+        expect(await getXPUBFromKeyring(keyring)).toBeUndefined();
+      });
+    });
+
     describe('when deserializing a state with accounts', () => {
       it('deserializes the state with accounts', async () => {
         const keyring = new QrKeyring();
@@ -152,22 +165,6 @@ describe('QrKeyring', () => {
         expect(await keyring.getAccounts()).toStrictEqual([]);
         expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
           SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS.xpub,
-        );
-      });
-
-      it('throws an error if accounts and indexes are not of the same number', async () => {
-        const keyring = new QrKeyring();
-
-        await expect(
-          keyring.deserialize({
-            ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
-            accounts: EXPECTED_ACCOUNTS,
-            indexes: {
-              // there should be 3 indexes mapped here
-            },
-          }),
-        ).rejects.toThrow(
-          'The number of accounts does not match the number of indexes',
         );
       });
     });
@@ -208,6 +205,30 @@ describe('QrKeyring', () => {
 
         expect(accounts).toHaveLength(3);
         expect(accounts).toStrictEqual(EXPECTED_ACCOUNTS);
+      });
+
+      it('recovers indexes if they are not present in the serialized state', async () => {
+        const keyring = new QrKeyring();
+        await keyring.deserialize({
+          ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+          accounts: EXPECTED_ACCOUNTS.slice(0, 3),
+        });
+
+        // This function call will create the third account starting
+        // from the last account's index.
+        // This will require the keyring to recover indexes for the first two accounts
+        await keyring.addAccounts(1);
+
+        const serialized = await keyring.serialize();
+        expect(await keyring.getAccounts()).toHaveLength(3);
+        expect('indexes' in serialized && serialized.indexes).toStrictEqual({
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          [EXPECTED_ACCOUNTS[0]!]: 0,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          [EXPECTED_ACCOUNTS[1]!]: 1,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          [EXPECTED_ACCOUNTS[2]!]: 2,
+        });
       });
 
       it('does not add accounts that already exist', async () => {

@@ -1,6 +1,6 @@
 import type { Keyring } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
-import { add0x, assert, getChecksumAddress } from '@metamask/utils';
+import { add0x, getChecksumAddress } from '@metamask/utils';
 
 import type { AirgappedSourceDetails } from './account-deriver';
 import { AccountDeriver, KeyringMode } from './account-deriver';
@@ -18,8 +18,7 @@ export type QrKeyringOptions = {
  */
 export type SerializedQrKeyringState = {
   version?: number;
-  accounts: string[];
-  indexes: Record<string, number>;
+  accounts?: string[];
   currentAccount?: number;
 } & (
   | {
@@ -39,7 +38,6 @@ export const getDefaultSerializedQrKeyringState =
   (): SerializedQrKeyringState => ({
     initialized: false,
     accounts: [],
-    indexes: {},
   });
 
 /**
@@ -59,7 +57,7 @@ export class QrKeyring implements Keyring {
 
   readonly #deriver: AccountDeriver = new AccountDeriver();
 
-  #accounts: Map<number, Hex> = new Map();
+  #accounts: Hex[] = [];
 
   #accountToUnlock?: number | undefined;
 
@@ -85,13 +83,7 @@ export class QrKeyring implements Keyring {
       return getDefaultSerializedQrKeyringState();
     }
 
-    const accounts = Array.from(this.#accounts.values());
-    const indexes = Object.fromEntries(
-      Array.from(this.#accounts.entries()).map(([index, address]) => [
-        address,
-        index,
-      ]),
-    );
+    const accounts = this.#accounts.slice();
 
     if (source.keyringMode === KeyringMode.HD) {
       // These properties are only relevant for HD Keys
@@ -105,7 +97,7 @@ export class QrKeyring implements Keyring {
         hdPath: source.hdPath,
         childrenPath: source.childrenPath,
         accounts,
-        indexes,
+        indexes: source.indexes,
       };
     }
     // These properties are only relevant for Account Keys
@@ -117,7 +109,7 @@ export class QrKeyring implements Keyring {
       xfp: source.xfp,
       paths: source.paths,
       accounts,
-      indexes,
+      indexes: source.indexes,
     };
   }
 
@@ -128,29 +120,13 @@ export class QrKeyring implements Keyring {
    */
   async deserialize(state: SerializedQrKeyringState): Promise<void> {
     if (!state.initialized) {
-      this.#accounts.clear();
+      this.#accounts = [];
       this.#deriver.clear();
       return;
     }
 
-    // Recover accounts from the serialized state
-    const { accounts = [], indexes = {} } = state;
-    if (accounts.length !== Object.keys(indexes).length) {
-      throw new Error(
-        'The number of accounts does not match the number of indexes',
-      );
-    }
-    this.#accounts = new Map(
-      accounts.map((address) => {
-        const normalizedAddress = normalizeAddress(address);
-        const index = indexes[normalizedAddress];
-        assert(index !== undefined, 'Address not found in indexes map');
-        return [index, normalizedAddress];
-      }),
-    );
-
-    // Initialize the deriver with the source details
     this.#deriver.init(state);
+    this.#accounts = (state.accounts ?? []).map(normalizeAddress);
   }
 
   /**
@@ -160,21 +136,25 @@ export class QrKeyring implements Keyring {
    * @returns The accounts added
    */
   async addAccounts(accountsToAdd: number): Promise<Hex[]> {
-    const lastIndex = this.#accountToUnlock ?? this.#accounts.size;
+    const lastAccount = this.#accounts[this.#accounts.length - 1];
+    const startIndex =
+      this.#accountToUnlock ??
+      (lastAccount ? this.#deriver.indexFromAddress(lastAccount) : 0);
     const newAccounts: Hex[] = [];
 
     for (let i = 0; i < accountsToAdd; i++) {
-      const index = lastIndex + i;
-      if (this.#accounts.has(index)) {
+      const index = startIndex + i;
+      const address = this.#deriver.addressFromIndex(index);
+
+      if (this.#accounts.includes(address)) {
         continue;
       }
 
-      const account = this.#deriver.deriveIndex(index);
-      this.#accounts.set(index, account);
-      newAccounts.push(account);
+      this.#accounts.push(address);
+      newAccounts.push(address);
     }
 
-    this.#accountToUnlock = lastIndex + accountsToAdd;
+    this.#accountToUnlock = startIndex + accountsToAdd;
     return newAccounts;
   }
 
@@ -194,11 +174,9 @@ export class QrKeyring implements Keyring {
    */
   removeAccount(address: Hex): void {
     const normalizedAddress = normalizeAddress(address);
-    this.#accounts.forEach((storedAddress, storedIndex) => {
-      if (storedAddress === normalizedAddress) {
-        this.#accounts.delete(storedIndex);
-      }
-    });
+    this.#accounts = this.#accounts.filter(
+      (account) => account !== normalizedAddress,
+    );
   }
 
   /**

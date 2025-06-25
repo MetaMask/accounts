@@ -21,6 +21,8 @@ export enum KeyringMode {
 
 const DEFAULT_CHILDREN_PATH = '0/*';
 
+const MAX_INDEX = 1_000;
+
 export type CommonSourceDetails = {
   /**
    * Value take out from the device note field, if available.
@@ -34,6 +36,11 @@ export type CommonSourceDetails = {
    * The device fingerprint, hex-encoded
    */
   xfp: string;
+  /**
+   * Indexes of the accounts derived from the device
+   * in the form of a map from address to index
+   */
+  indexes: Record<Hex, number>;
 };
 
 export type HDModeSourceDetails = {
@@ -157,7 +164,14 @@ export class AccountDeriver {
     }
   }
 
-  deriveIndex(index: number): Hex {
+  /**
+   * Derive an address from the source at a given index
+   *
+   * @param index - The index to derive the address from
+   * @returns The derived address in hex format
+   * @throws Will throw an error if the source is not initialized
+   */
+  addressFromIndex(index: number): Hex {
     if (!this.#source) {
       throw new Error('UR not initialized');
     }
@@ -169,34 +183,83 @@ export class AccountDeriver {
       }
       return add0x(address);
     }
-    const resolvedPath = this.#source.childrenPath.replace(
+    const childPath = `m/${this.#source.childrenPath.replace(
       '*',
       index.toString(),
-    );
-
-    const childPath = resolvedPath.startsWith('m/')
-      ? resolvedPath
-      : `m/${resolvedPath}`;
+    )}`;
 
     const hdKey = HdKey.fromExtendedKey(this.#source.xpub);
     const childKey = hdKey.derive(childPath);
 
-    const address = add0x(
-      Buffer.from(publicToAddress(childKey.publicKey, true)).toString('hex'),
-    );
-    return getChecksumAddress(address);
+    const address = Buffer.from(
+      publicToAddress(childKey.publicKey, true),
+    ).toString('hex');
+
+    const normalizedAddress = getChecksumAddress(add0x(address));
+
+    this.#source.indexes[normalizedAddress] = index;
+
+    return normalizedAddress;
   }
 
+  /**
+   * Retrieve the index of an address from the source
+   *
+   * @param address - The normalized address to retrieve the index for
+   * @returns The index of the address
+   */
+  indexFromAddress(address: Hex): number {
+    if (!this.#source) {
+      throw new Error('UR not initialized');
+    }
+
+    const cachedIndex = this.#source.indexes[address];
+    if (cachedIndex !== undefined) {
+      return Number(cachedIndex);
+    }
+
+    if (this.#source.keyringMode === KeyringMode.ACCOUNT) {
+      const path = this.#source.paths[address];
+      if (path === undefined) {
+        throw new Error(`Unknown address`);
+      }
+
+      const index = path.split('/').pop();
+      if (index === undefined) {
+        throw new Error(`Invalid path for address ${address}`);
+      }
+
+      return Number(index);
+    }
+
+    for (let i = 0; i < MAX_INDEX; i++) {
+      const derivedAddress = this.addressFromIndex(i);
+      if (derivedAddress === address) {
+        return i;
+      }
+    }
+
+    throw new Error(`Address ${address} not found`);
+  }
+
+  /**
+   * Gets the source details of the AccountDeriver
+   *
+   * @returns The source details, or undefined if not initialized
+   */
   getSourceDetails(): AirgappedSourceDetails | undefined {
     return this.#source;
   }
 
+  /**
+   * Clear the source details.
+   */
   clear(): void {
     this.#source = undefined;
   }
 
   /**
-   * Sets the root account from a UR string
+   * Set the root account from a UR string
    *
    * @param ur - The UR string to set the root account from
    */
@@ -213,6 +276,7 @@ export class AccountDeriver {
         name,
         xfp,
         paths,
+        indexes: {},
       };
     } else {
       const { getBip32Key, getOrigin, getChildren, getName, getNote } = source;
@@ -224,6 +288,7 @@ export class AccountDeriver {
         hdPath: `m/${getOrigin().getPath()}`,
         childrenPath: getChildren()?.getPath() || DEFAULT_CHILDREN_PATH,
         xpub: getBip32Key(),
+        indexes: {},
       };
     }
   }
