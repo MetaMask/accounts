@@ -50,10 +50,8 @@
   "dependencies": {
     "@ethereumjs/util": "^9.1.0",
     "@keystonehq/bc-ur-registry-eth": "^0.19.1",
-    "@keystonehq/ur-decoder": "^0.12.2",
     "@metamask/keyring-utils": "workspace:^",
-    "@metamask/utils": "^11.3.0",
-    "@ngraveio/bc-ur": "^1.1.13",
+    "@metamask/utils": "^11.1.0",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
@@ -70,7 +68,7 @@
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
-    "typescript": "~4.8.4"
+    "typescript": "~5.6.3"
   },
   "engines": {
     "node": "^18.18 || >=20"
