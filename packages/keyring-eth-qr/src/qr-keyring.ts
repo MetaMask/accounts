@@ -11,8 +11,13 @@ import {
 
 export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
 
+export type QrScanResponse = {
+  type: string;
+  cbor: Hex;
+};
+
 export type QrKeyringBridge = {
-  requestScan: () => Promise<string>;
+  requestScan: () => Promise<QrScanResponse>;
 };
 
 export type QrKeyringOptions = {
@@ -199,7 +204,7 @@ export class QrKeyring implements Keyring {
    *
    * @param ur - The CBOR encoded UR
    */
-  submitUR(ur: string): void {
+  submitUR(ur: string | QrScanResponse): void {
     this.#signer.init(ur);
   }
 

@@ -8,6 +8,8 @@ import { add0x, getChecksumAddress, type Hex } from '@metamask/utils';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import HdKey from 'hdkey';
 
+import type { QrScanResponse } from './qr-keyring';
+
 export const SUPPORTED_UR_TYPE = {
   CRYPTO_HDKEY: 'crypto-hdkey',
   CRYPTO_ACCOUNT: 'crypto-account',
@@ -174,8 +176,8 @@ export class AirgappedSigner {
    *
    * @param source - The signer source, in the form of details object, or a UR string
    */
-  init(source: AirgappedSignerDetails | string): void {
-    if (typeof source === 'string') {
+  init(source: AirgappedSignerDetails | string | QrScanResponse): void {
+    if (typeof source === 'string' || 'cbor' in source) {
       this.#initFromUR(source);
     } else {
       this.#source = source;
@@ -311,7 +313,7 @@ export class AirgappedSigner {
    *
    * @param ur - The UR string to set the root account from
    */
-  #initFromUR(ur: string): void {
+  #initFromUR(ur: string | QrScanResponse): void {
     const source = this.#decodeUR(ur);
     const fingerprint = getFingerprintFromSource(source);
 
@@ -348,12 +350,18 @@ export class AirgappedSigner {
    * @returns The decoded CryptoAccount or CryptoHDKey
    * @throws Will throw an error if the UR type is not supported
    */
-  #decodeUR(ur: string): CryptoAccount | CryptoHDKey {
-    const decodedUR = URRegistryDecoder.decode(ur);
+  #decodeUR(ur: string | QrScanResponse): CryptoAccount | CryptoHDKey {
+    const decodedUR =
+      typeof ur === 'string'
+        ? URRegistryDecoder.decode(ur)
+        : {
+            type: ur.type,
+            cbor: Buffer.from(ur.cbor, 'hex'),
+          };
 
-    const { cbor } = decodedUR;
+    const { type, cbor } = decodedUR;
 
-    switch (decodedUR.type) {
+    switch (type) {
       case SUPPORTED_UR_TYPE.CRYPTO_HDKEY:
         return CryptoHDKey.fromCBOR(cbor);
       case SUPPORTED_UR_TYPE.CRYPTO_ACCOUNT:

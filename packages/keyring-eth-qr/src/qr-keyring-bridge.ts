@@ -1,4 +1,4 @@
-import type { QrKeyringBridge } from './qr-keyring';
+import type { QrKeyringBridge, QrScanResponse } from './qr-keyring';
 
 /**
  * Options for the QrKeyringScannerBridge.
@@ -7,7 +7,7 @@ export type QrKeyringScannerBridgeOptions = {
   /**
    * An injected function that the bridge uses to request a QR code scan.
    */
-  requestScan: () => Promise<string>;
+  requestScan: () => Promise<QrScanResponse>;
 };
 
 /**
@@ -15,7 +15,7 @@ export type QrKeyringScannerBridgeOptions = {
  * while keeping the implementation defined by the QrKeyring consumer.
  */
 export class QrKeyringScannerBridge implements QrKeyringBridge {
-  readonly #requestScan: () => Promise<string>;
+  readonly #requestScan: () => Promise<QrScanResponse>;
 
   constructor({ requestScan }: QrKeyringScannerBridgeOptions) {
     this.#requestScan = requestScan;
@@ -26,7 +26,7 @@ export class QrKeyringScannerBridge implements QrKeyringBridge {
    *
    * @returns The scanned data as a string.
    */
-  async requestScan(): Promise<string> {
+  async requestScan(): Promise<QrScanResponse> {
     return this.#requestScan();
   }
 }
