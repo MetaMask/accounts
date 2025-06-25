@@ -3,7 +3,7 @@ import { CryptoHDKey } from '@keystonehq/bc-ur-registry-eth';
 import { MetaMaskKeyring as KeystoneKeyring } from '@keystonehq/metamask-airgapped-keyring';
 import type { Hex } from '@metamask/utils';
 
-import type { SerializedQrKeyringState } from '.';
+import type { QrKeyringBridge, SerializedQrKeyringState } from '.';
 import { QrKeyring } from '.';
 import { KeyringMode } from './airgapped-signer';
 
@@ -91,15 +91,29 @@ async function getLegacyKeystoneKeyring(): Promise<KeystoneKeyring> {
   return keystoneKeyring;
 }
 
+/**
+ * Get a mock bridge for the QrKeyring.
+ *
+ * @returns A mock bridge with a requestScan method.
+ */
+function getMockBridge(): QrKeyringBridge {
+  return {
+    requestScan: jest.fn(),
+  };
+}
+
 describe('QrKeyring', () => {
   describe('constructor', () => {
-    it('can be constructed with no arguments', () => {
-      const keyring = new QrKeyring({});
+    it('can be constructed with the bridge only', () => {
+      const keyring = new QrKeyring({ bridge: getMockBridge() });
       expect(keyring).toBeInstanceOf(QrKeyring);
     });
 
-    it('can be constructed with a UR', async () => {
-      const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+    it('can be constructed with a bridge and a UR string', async () => {
+      const keyring = new QrKeyring({
+        bridge: getMockBridge(),
+        ur: KNOWN_HDKEY_UR,
+      });
 
       expect(await keyring.serialize()).toStrictEqual({
         ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
@@ -111,7 +125,10 @@ describe('QrKeyring', () => {
   describe('serialize', () => {
     describe('when the QrKeyring has no accounts', () => {
       it('returns the serialized state', async () => {
-        const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_HDKEY_UR,
+        });
 
         const serialized = await keyring.serialize();
 
@@ -125,7 +142,10 @@ describe('QrKeyring', () => {
 
     describe('when the QrKeyring has accounts', () => {
       it('returns the serialized state including added accounts', async () => {
-        const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_HDKEY_UR,
+        });
         await keyring.addAccounts(2);
 
         const serialized = await keyring.serialize();
@@ -147,7 +167,9 @@ describe('QrKeyring', () => {
   describe('deserialize', () => {
     describe('when deserializing an empty state', () => {
       it('deserializes the state with no accounts', async () => {
-        const keyring = new QrKeyring();
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+        });
 
         await keyring.deserialize({});
 
@@ -158,7 +180,9 @@ describe('QrKeyring', () => {
 
     describe('when deserializing a state with accounts', () => {
       it('deserializes the state with accounts', async () => {
-        const keyring = new QrKeyring();
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+        });
 
         await keyring.deserialize(SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS);
 
@@ -172,7 +196,9 @@ describe('QrKeyring', () => {
     describe('when using a serialized state coming from `@keystonehq/metamask-airgapped-keyring`', () => {
       it('deserializes the state with accounts', async () => {
         const keystoneKeyring = await getLegacyKeystoneKeyring();
-        const keyring = new QrKeyring();
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+        });
 
         // @ts-expect-error QrKeyring types are stricter than Keystone ones
         await keyring.deserialize(await keystoneKeyring.serialize());
@@ -190,7 +216,10 @@ describe('QrKeyring', () => {
   describe('addAccounts', () => {
     describe('when the keyring is initialized with a UR', () => {
       it('returns new accounts added', async () => {
-        const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_HDKEY_UR,
+        });
 
         const accounts = await keyring.addAccounts(1);
 
@@ -199,7 +228,10 @@ describe('QrKeyring', () => {
       });
 
       it('adds multiple accounts', async () => {
-        const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_HDKEY_UR,
+        });
 
         const accounts = await keyring.addAccounts(3);
 
@@ -208,7 +240,9 @@ describe('QrKeyring', () => {
       });
 
       it('recovers indexes if they are not present in the serialized state', async () => {
-        const keyring = new QrKeyring();
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+        });
         await keyring.deserialize({
           ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
           accounts: EXPECTED_ACCOUNTS.slice(0, 3),
@@ -232,7 +266,10 @@ describe('QrKeyring', () => {
       });
 
       it('does not add accounts that already exist', async () => {
-        const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_HDKEY_UR,
+        });
         const firstAddition = await keyring.addAccounts(1);
         keyring.setAccountToUnlock(0);
 
@@ -248,7 +285,9 @@ describe('QrKeyring', () => {
 
     describe('when the keyring is not initialized with a UR', () => {
       it('throws an error', async () => {
-        const keyring = new QrKeyring();
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+        });
 
         await expect(keyring.addAccounts(1)).rejects.toThrow(
           'UR not initialized',
@@ -260,14 +299,20 @@ describe('QrKeyring', () => {
   describe('getAccounts', () => {
     describe('when no accounts have been added', () => {
       it('returns an empty array', async () => {
-        const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_HDKEY_UR,
+        });
         expect(await keyring.getAccounts()).toStrictEqual([]);
       });
     });
 
     describe('when accounts have been added', () => {
       it('returns all the accounts added', async () => {
-        const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_HDKEY_UR,
+        });
 
         const accounts = await keyring.addAccounts(3);
 
@@ -279,7 +324,10 @@ describe('QrKeyring', () => {
 
   describe('removeAccount', () => {
     it('removes an account from the keyring', async () => {
-      const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+      const keyring = new QrKeyring({
+        bridge: getMockBridge(),
+        ur: KNOWN_HDKEY_UR,
+      });
       await keyring.addAccounts(3);
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -292,7 +340,10 @@ describe('QrKeyring', () => {
     });
 
     it('does not throw if the account does not exist', async () => {
-      const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+      const keyring = new QrKeyring({
+        bridge: getMockBridge(),
+        ur: KNOWN_HDKEY_UR,
+      });
       await keyring.addAccounts(1);
       const initialAccounts = await keyring.getAccounts();
 
@@ -305,7 +356,10 @@ describe('QrKeyring', () => {
 
   describe('setAccountToUnlock', () => {
     it('sets an arbitrary account index to unlock', async () => {
-      const keyring = new QrKeyring({ ur: KNOWN_HDKEY_UR });
+      const keyring = new QrKeyring({
+        bridge: getMockBridge(),
+        ur: KNOWN_HDKEY_UR,
+      });
 
       keyring.setAccountToUnlock(2);
 
@@ -317,7 +371,9 @@ describe('QrKeyring', () => {
 
   describe('submitUR', () => {
     it('initializes the QrKeyring with a UR', async () => {
-      const keyring = new QrKeyring();
+      const keyring = new QrKeyring({
+        bridge: getMockBridge(),
+      });
 
       keyring.submitUR(KNOWN_HDKEY_UR);
 
@@ -327,7 +383,9 @@ describe('QrKeyring', () => {
     });
 
     it('throws an error if the UR is invalid', () => {
-      const keyring = new QrKeyring();
+      const keyring = new QrKeyring({
+        bridge: getMockBridge(),
+      });
       expect(() => keyring.submitUR('invalid-ur')).toThrow('Invalid Scheme');
     });
   });
