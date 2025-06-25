@@ -8,7 +8,10 @@ import type { KeyringAccount } from './account';
 import type { ResolvedAccountAddress } from './address';
 import type { Balance } from './balance';
 import type { CaipChainId, CaipAssetType, CaipAssetTypeOrId } from './caip';
+import type { DiscoveredAccount } from './discovery';
+import type { EntropySourceId } from './entropy';
 import type { KeyringAccountData } from './export';
+import type { MetaMaskOptions } from './options';
 import type { Paginated, Pagination } from './pagination';
 import type { KeyringRequest } from './request';
 import type { KeyringResponse } from './response';
@@ -47,11 +50,14 @@ export type Keyring = {
    *
    * Creates a new account with optional, keyring-defined, account options.
    *
-   * @param options - Keyring-defined options for the account (optional).
+   * @param options - Keyring-defined options for the account (optional). The
+   * 'metamask' internal options needs to be re-emitted during `notify:*` events.
    * @returns A promise that resolves to the newly created KeyringAccount
    * object without any private information.
    */
-  createAccount(options?: Record<string, Json>): Promise<KeyringAccount>;
+  createAccount(
+    options?: Record<string, Json> & MetaMaskOptions,
+  ): Promise<KeyringAccount>;
 
   /**
    * Lists the assets of an account (fungibles and non-fungibles) represented
@@ -79,6 +85,30 @@ export type Keyring = {
     id: string,
     pagination: Pagination,
   ): Promise<Paginated<Transaction>>;
+
+  /**
+   * Discover accounts.
+   *
+   * This method is called by the client to allow the keyring to discover
+   * existing accounts based on the provided scopes and entropy source ID. Are
+   * considered existing accounts, accounts that have at least one transaction,
+   * as per BIP-44.
+   *
+   * The `groupIndex` is used to group accounts with the same value. In
+   * strictly BIP-44 wallets, it matches `account_index`, but in wallets that
+   * deviate from BIP-44 recommendations, it may align with a different path
+   * level for compatibility.
+   *
+   * @param scopes - The list of scopes for account discovery.
+   * @param entropySource - The ID of the entropy source used to derive the accounts.
+   * @param groupIndex - The group index that should be used to derive the accounts.
+   * @returns A promise resolving to a list of discovered accounts.
+   */
+  discoverAccounts?(
+    scopes: CaipChainId[],
+    entropySource: EntropySourceId,
+    groupIndex: number,
+  ): Promise<DiscoveredAccount[]>;
 
   /**
    * Retrieve the balances of a given account.

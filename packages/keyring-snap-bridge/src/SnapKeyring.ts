@@ -7,6 +7,20 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import type { ExtractEventPayload } from '@metamask/base-controller';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
+import type {
+  KeyringAccount,
+  KeyringExecutionContext,
+  BtcMethod,
+  EthBaseTransaction,
+  EthBaseUserOperation,
+  EthUserOperation,
+  EthUserOperationPatch,
+  ResolvedAccountAddress,
+  CaipChainId,
+  MetaMaskOptions,
+  KeyringRequest,
+  KeyringResponse,
+} from '@metamask/keyring-api';
 import {
   EthBytesStruct,
   EthMethod,
@@ -18,27 +32,21 @@ import {
   AccountBalancesUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
 } from '@metamask/keyring-api';
-import type {
-  KeyringAccount,
-  KeyringExecutionContext,
-  BtcMethod,
-  EthBaseTransaction,
-  EthBaseUserOperation,
-  EthUserOperation,
-  EthUserOperationPatch,
-  ResolvedAccountAddress,
-  CaipChainId,
-} from '@metamask/keyring-api';
-import type { InternalAccount } from '@metamask/keyring-internal-api';
+import {
+  KeyringVersion,
+  toKeyringRequestV1,
+  type InternalAccount,
+} from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
-import type { Hex, Json } from '@metamask/utils';
+import type { Hex, Json, SemVerVersion } from '@metamask/utils';
 import {
   bigIntToHex,
+  hasProperty,
   KnownCaipNamespace,
   toCaipChainId,
 } from '@metamask/utils';
@@ -56,6 +64,10 @@ import {
 } from './events';
 import { projectLogger as log } from './logger';
 import { isAccountV1, migrateAccountV1 } from './migrations';
+import {
+  getInternalOptionsOf,
+  type SnapKeyringInternalOptions,
+} from './options';
 import { SnapIdMap } from './SnapIdMap';
 import type {
   SnapKeyringEvents,
@@ -70,6 +82,7 @@ import {
   toJson,
   unique,
 } from './util';
+import { getKeyringVersionFromPlatform } from './versions';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 
@@ -103,8 +116,7 @@ export type SnapKeyringCallbacks = {
     handleUserInput: (accepted: boolean) => Promise<void>,
     onceSaved: Promise<AccountId>,
     accountNameSuggestion?: string,
-    displayConfirmation?: boolean,
-    displayAccountNameSuggestion?: boolean,
+    internalOptions?: SnapKeyringInternalOptions,
   ): Promise<void>;
 
   removeAccount(
@@ -174,6 +186,15 @@ export class SnapKeyring extends EventEmitter {
   }>;
 
   /**
+   * Mapping between internal options, a correlation ID and a Snap ID.
+   */
+  readonly #options: SnapIdMap<{
+    options: SnapKeyringInternalOptions;
+    snapId: SnapId;
+    // TODO: Add TTL to avoid having too many "leaking" internal options.
+  }>;
+
+  /**
    * Callbacks used to interact with other components.
    */
   readonly #callbacks: SnapKeyringCallbacks;
@@ -195,7 +216,59 @@ export class SnapKeyring extends EventEmitter {
     this.#snapClient = new KeyringInternalSnapClient({ messenger });
     this.#requests = new SnapIdMap();
     this.#accounts = new SnapIdMap();
+    this.#options = new SnapIdMap();
     this.#callbacks = callbacks;
+  }
+
+  /**
+   * Gets keyring's version for a given Snap.
+   *
+   * @param snapId - The Snap ID.
+   * @returns The Snap's keyring version.
+   */
+  #getKeyringVersion(snapId: SnapId): KeyringVersion {
+    return getKeyringVersionFromPlatform((version: SemVerVersion) => {
+      return this.#messenger.call(
+        'SnapController:isMinimumPlatformVersion',
+        snapId,
+        version,
+      );
+    });
+  }
+
+  /**
+   * Get internal options given a correlation ID.
+   *
+   * NOTE: The associated options will be deleted automatically.
+   *
+   * @param snapId - Snap ID
+   * @param correlationId - Correlation ID associated with the internal options.
+   * @returns Internal options if found, `undefined` otherwise.
+   */
+  #getInternalOptions(
+    snapId: SnapId,
+    correlationId: string | undefined,
+  ): SnapKeyringInternalOptions | undefined {
+    if (correlationId) {
+      // We still need to check if the correlation ID is valid and associated to
+      // some internal options.
+      //
+      // NOTE: `found` will be `undefined` if a Snap tried to use a correlation ID that
+      // belongs to another Snap ID. However, if a Snap starts 2 parallel flow (which
+      // will results in 2 different correlation IDs), we won't be able to prevent
+      // the Snap from swapping/mixing up those correlation IDs he owns.
+      const found = this.#options.pop(snapId, correlationId);
+
+      if (found) {
+        return found.options;
+      }
+
+      console.warn(
+        `SnapKeyring - Received unmapped correlation ID: "${correlationId}"`,
+      );
+    }
+
+    return undefined;
   }
 
   /**
@@ -211,10 +284,11 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<null> {
     assert(message, AccountCreatedEventStruct);
     const {
+      metamask, // Used for internal options.
       account: newAccountFromEvent,
       accountNameSuggestion,
-      displayConfirmation,
       displayAccountNameSuggestion,
+      displayConfirmation,
     } = message.params;
 
     // READ THIS CAREFULLY:
@@ -295,8 +369,15 @@ export class SnapKeyring extends EventEmitter {
       },
       onceSaved.promise,
       accountNameSuggestion,
-      displayConfirmation,
-      displayAccountNameSuggestion,
+      getInternalOptionsOf([
+        // 1. We use the internal options from the Snap keyring.
+        this.#getInternalOptions(snapId, metamask?.correlationId) ?? {},
+        // 2. We use the ones coming from the Snap.
+        {
+          displayConfirmation,
+          displayAccountNameSuggestion,
+        },
+      ]),
     );
 
     return null;
@@ -675,6 +756,63 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Create an account.
+   *
+   * @param snapId - Snap ID to create the account for.
+   * @param options - Account creation options. Differs between keyrings.
+   * @param internalOptions - Internal Snap keyring options.
+   * @returns The account object.
+   */
+  async createAccount(
+    snapId: SnapId,
+    options: Record<string, Json>,
+    internalOptions?: SnapKeyringInternalOptions,
+  ): Promise<KeyringAccount> {
+    const client = new KeyringInternalSnapClient({
+      messenger: this.#messenger,
+      snapId,
+    });
+
+    // The 'metamask' field is reserved, so we have to prevent use of it on
+    // the "normal options".
+    const reserved = 'metamask';
+    if (hasProperty(options, reserved)) {
+      throw new Error(
+        `The '${reserved}' property is reserved for internal use`,
+      );
+    }
+
+    // Those internal options are optional. If not set, we avoid registering anything
+    // to internal map (to avoid holding resources for nothing). In this case, it's
+    // just a normal `keyring_createAccount`.
+    if (!internalOptions) {
+      return await client.createAccount(options);
+    }
+
+    // A unique ID to identify this execution flow which allows to associate the
+    // internal options and the current `keyring_createAccount` flow for that Snap.
+    const correlationId = uuid();
+
+    // Register those internal options to use them during the `keyring_createAccount`
+    // flow.
+    this.#options.set(correlationId, {
+      snapId,
+      options: internalOptions,
+    });
+
+    return await client.createAccount({
+      ...options,
+      // Create internal options context.
+      // NOTE: Those options HAVE TO be re-emitted during the `notify:accountCreated` event.
+      ...({
+        metamask: {
+          correlationId,
+        },
+      } as MetaMaskOptions),
+    });
+  }
+
+  /**
    * Checks if a Snap ID is known from the keyring.
    *
    * @param snapId - Snap ID.
@@ -716,6 +854,7 @@ export class SnapKeyring extends EventEmitter {
    * This request cannot be an asynchronous keyring request.
    *
    * @param opts - Request options.
+   * @param opts.origin - Send origin.
    * @param opts.account - Account ID.
    * @param opts.method - Method to call.
    * @param opts.params - Method parameters.
@@ -723,11 +862,13 @@ export class SnapKeyring extends EventEmitter {
    * @returns Promise that resolves to the result of the method call.
    */
   async submitRequest({
+    origin,
     account: accountId,
     method,
     params,
     scope,
   }: {
+    origin: string;
     // NOTE: We use `account` here rather than `id` to avoid ambiguity with a "request ID".
     // We already use this same field name for `KeyringAccount`s.
     account: string;
@@ -738,6 +879,7 @@ export class SnapKeyring extends EventEmitter {
     const { account, snapId } = this.#getAccount(accountId);
 
     return await this.#submitSnapRequest({
+      origin,
       snapId,
       account,
       method: method as AccountMethod,
@@ -753,6 +895,7 @@ export class SnapKeyring extends EventEmitter {
    * Submit a request to a Snap from an account address.
    *
    * @param opts - Request options.
+   * @param opts.origin - Sender origin.
    * @param opts.address - Account address.
    * @param opts.method - Method to call.
    * @param opts.params - Method parameters.
@@ -761,12 +904,14 @@ export class SnapKeyring extends EventEmitter {
    * @returns Promise that resolves to the result of the method call.
    */
   async #submitRequest<Response extends Json>({
+    origin,
     address,
     method,
     params,
     scope = '',
     noPending = false,
   }: {
+    origin: string;
     address: string;
     method: string;
     params?: Json[] | Record<string, Json>;
@@ -776,6 +921,7 @@ export class SnapKeyring extends EventEmitter {
     const { account, snapId } = this.#resolveAddress(address);
 
     return await this.#submitSnapRequest<Response>({
+      origin,
       snapId,
       account,
       method: method as AccountMethod,
@@ -786,9 +932,38 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Submits a request to a Snap and fix-up the payload depending on the version currently supported.
+   *
+   * @param options - The options for the Snap request.
+   * @param options.version - The supported keyring version for the Snap.
+   * @param options.snapId - The Snap ID to submit the request to.
+   * @param options.request - The Snap request.
+   * @returns A promise that resolves to the keyring response from the Snap.
+   */
+  async #submitSnapRequestForVersion({
+    snapId,
+    version,
+    request,
+  }: {
+    snapId: SnapId;
+    version: KeyringVersion;
+    request: KeyringRequest;
+  }): Promise<KeyringResponse> {
+    // Get specific client for that Snap.
+    const client = this.#snapClient.withSnapId(snapId);
+
+    if (version === KeyringVersion.V1) {
+      return await client.submitRequestV1(toKeyringRequestV1(request));
+    }
+
+    return await client.submitRequest(request);
+  }
+
+  /**
    * Submits a request to a Snap.
    *
    * @param options - The options for the Snap request.
+   * @param options.origin - The sender origin.
    * @param options.snapId - The Snap ID to submit the request to.
    * @param options.account - The account to use for the request.
    * @param options.method - The Ethereum method to call.
@@ -799,6 +974,7 @@ export class SnapKeyring extends EventEmitter {
    * @throws An error if the Snap fails to respond or if there's an issue with the request submission.
    */
   async #submitSnapRequest<Response extends Json>({
+    origin,
     snapId,
     account,
     method,
@@ -806,6 +982,7 @@ export class SnapKeyring extends EventEmitter {
     scope,
     noPending,
   }: {
+    origin: string;
     snapId: SnapId;
     account: KeyringAccount;
     method: AccountMethod;
@@ -819,6 +996,11 @@ export class SnapKeyring extends EventEmitter {
       );
     }
 
+    // Will both catch `undefined` and "empty" origins.
+    if (!origin?.trim()) {
+      throw new Error('An `origin` is required');
+    }
+
     // Generate a new random request ID to keep track of the request execution flow.
     const requestId = uuid();
 
@@ -830,8 +1012,11 @@ export class SnapKeyring extends EventEmitter {
     );
 
     try {
+      const version = this.#getKeyringVersion(snapId);
+
       const request = {
         id: requestId,
+        origin,
         scope,
         account: account.id,
         request: {
@@ -842,9 +1027,11 @@ export class SnapKeyring extends EventEmitter {
 
       log('Submit Snap request: ', request);
 
-      const response = await this.#snapClient
-        .withSnapId(snapId)
-        .submitRequest(request);
+      const response = await this.#submitSnapRequestForVersion({
+        version,
+        snapId,
+        request,
+      });
 
       // Some methods, like the ones used to prepare and patch user operations,
       // require the Snap to answer synchronously in order to work with the
@@ -1008,6 +1195,7 @@ export class SnapKeyring extends EventEmitter {
     });
 
     const signedTx = await this.#submitRequest({
+      origin: 'metamask',
       address,
       method: EthMethod.SignTransaction,
       params: [tx],
@@ -1062,6 +1250,7 @@ export class SnapKeyring extends EventEmitter {
 
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method,
         params: toJson<Json[]>([address, data]),
@@ -1085,6 +1274,7 @@ export class SnapKeyring extends EventEmitter {
   async signMessage(address: string, hash: any): Promise<string> {
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method: EthMethod.Sign,
         params: toJson<Json[]>([address, hash]),
@@ -1106,6 +1296,7 @@ export class SnapKeyring extends EventEmitter {
   async signPersonalMessage(address: string, data: any): Promise<string> {
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method: EthMethod.PersonalSign,
         params: toJson<Json[]>([data, address]),
@@ -1129,6 +1320,7 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<EthBaseUserOperation> {
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method: EthMethod.PrepareUserOperation,
         params: toJson<Json[]>(transactions),
@@ -1156,6 +1348,7 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<EthUserOperationPatch> {
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method: EthMethod.PatchUserOperation,
         params: toJson<Json[]>([userOp]),
@@ -1182,6 +1375,7 @@ export class SnapKeyring extends EventEmitter {
   ): Promise<string> {
     return strictMask(
       await this.#submitRequest({
+        origin: 'metamask',
         address,
         method: EthMethod.SignUserOperation,
         params: toJson<Json[]>([userOp]),

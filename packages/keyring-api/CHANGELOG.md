@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [18.0.0]
+
+### Changed
+
+- **BREAKING:** Add `KeyringRequest.origin` ([#273](https://github.com/MetaMask/accounts/pull/273))
+  - **This requires a `platformVersion` version `7.0.0` or newer.**
+  - This field will allow Snap to display the real `origin` of the caller (e.g dapp) when processing/confirming a keyring request (`submitRequest`).
+
+## [17.6.0]
+
+### Added
+
+- Add support for Bitcoin account type: p2pkh, p2sh, p2tr ([#284](https://github.com/MetaMask/accounts/pull/284))
+
+## [17.5.0]
+
+### Added
+
+- Add `bridge:{send,receive}` transaction type ([#251](https://github.com/MetaMask/accounts/pull/251))
+- Add `unknown` transaction type ([#251](https://github.com/MetaMask/accounts/pull/251))
+  - This type can be used when a transaction type cannot be identified.
+
+## [17.4.0]
+
+### Added
+
+- Add `discoverAccounts` keyring method ([#266](https://github.com/MetaMask/accounts/pull/266))
+- Add `KeyringEventPayload` utility type to extract payload `KeyringEvent` enum ([#203](https://github.com/MetaMask/accounts/pull/203))
+- Add event payload types ([#203](https://github.com/MetaMask/accounts/pull/203))
+
+## [17.3.0]
+
+### Added
+
+- Add new `MetaMaskOptions` in `createAccount` ([#252](https://github.com/MetaMask/accounts/pull/252))
+  - This options object might contain a new `correlationId` that MUST BE forwarded during the `notify:accountCreated` event.
+
 ## [17.2.1]
 
 ### Changed
@@ -546,7 +583,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@18.0.0...HEAD
+[18.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.6.0...@metamask/keyring-api@18.0.0
+[17.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.5.0...@metamask/keyring-api@17.6.0
+[17.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.4.0...@metamask/keyring-api@17.5.0
+[17.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.3.0...@metamask/keyring-api@17.4.0
+[17.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.1...@metamask/keyring-api@17.3.0
 [17.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.2.0...@metamask/keyring-api@17.2.1
 [17.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.1.0...@metamask/keyring-api@17.2.0
 [17.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.0.0...@metamask/keyring-api@17.1.0

@@ -1,3 +1,5 @@
+import { createDeferredPromise, DeferredPromise } from '@metamask/utils';
+
 import {
   GetPublicKeyParams,
   GetPublicKeyResponse,
@@ -12,7 +14,10 @@ import {
 
 const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
 
+const IFRAME_MESSAGE_TIMEOUT = 4000;
+
 export enum IFrameMessageAction {
+  LedgerIsIframeReady = 'ledger-is-iframe-ready',
   LedgerConnectionChange = 'ledger-connection-change',
   LedgerUnlock = 'ledger-unlock',
   LedgerMakeApp = 'ledger-make-app',
@@ -107,8 +112,10 @@ export class LedgerIframeBridge
 
   currentMessageId = 0;
 
-  messageCallbacks: Record<number, (response: IFrameMessageResponse) => void> =
-    {};
+  readonly #messageResponseHandles: Map<
+    number,
+    DeferredPromise<IFrameMessageResponse>
+  > = new Map();
 
   constructor(
     opts: LedgerIframeBridgeOptions = {
@@ -149,46 +156,41 @@ export class LedgerIframeBridge
   }
 
   async attemptMakeApp(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      this.#sendMessage(
-        {
-          action: IFrameMessageAction.LedgerMakeApp,
-        },
-        (response) => {
-          if ('success' in response && response.success) {
-            resolve(true);
-          } else if ('error' in response) {
-            // Assuming this is using an `Error` type:
-            reject(response.error as Error);
-          } else {
-            reject(new Error('Unknown error occurred'));
-          }
-        },
-      );
-    });
+    const response = await this.#sendMessage(
+      {
+        action: IFrameMessageAction.LedgerMakeApp,
+      },
+      { timeout: IFRAME_MESSAGE_TIMEOUT },
+    );
+
+    if ('success' in response && response.success) {
+      return true;
+    } else if ('error' in response) {
+      // Assuming this is using an `Error` type:
+      throw response.error;
+    } else {
+      throw new Error('Unknown error occurred');
+    }
   }
 
   async updateTransportMethod(transportType: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      // If the iframe isn't loaded yet, let's store the desired transportType value and
-      // optimistically return a successful promise
-      if (!this.iframeLoaded) {
-        throw new Error('The iframe is not loaded yet');
-      }
+    if (!this.iframeLoaded) {
+      throw new Error('The iframe is not loaded yet');
+    }
 
-      this.#sendMessage(
-        {
-          action: IFrameMessageAction.LedgerUpdateTransport,
-          params: { transportType },
-        },
-        (response) => {
-          if ('success' in response && response.success) {
-            return resolve(true);
-          }
-          return reject(new Error('Ledger transport could not be updated'));
-        },
-      );
-    });
+    const response = await this.#sendMessage(
+      {
+        action: IFrameMessageAction.LedgerUpdateTransport,
+        params: { transportType },
+      },
+      { timeout: IFRAME_MESSAGE_TIMEOUT },
+    );
+
+    if ('success' in response && response.success) {
+      return true;
+    }
+
+    throw new Error('Ledger transport could not be updated');
   }
 
   async getPublicKey(
@@ -256,25 +258,18 @@ export class LedgerIframeBridge
     | LedgerSignMessageResponse
     | LedgerSignTypedDataResponse
   > {
-    return new Promise((resolve, reject) => {
-      this.#sendMessage(
-        {
-          action,
-          params,
-        },
-        (response) => {
-          if ('payload' in response && response.payload) {
-            if ('success' in response && response.success) {
-              return resolve(response.payload);
-            }
-            if ('error' in response.payload) {
-              return reject(response.payload.error);
-            }
-          }
-          return reject(new Error('Unknown error occurred'));
-        },
-      );
-    });
+    const response = await this.#sendMessage({ action, params });
+
+    if ('payload' in response && response.payload) {
+      if ('success' in response && response.success) {
+        return response.payload;
+      }
+      if ('error' in response.payload) {
+        throw response.payload.error;
+      }
+    }
+
+    throw new Error('Unknown error occurred');
   }
 
   async #setupIframe(bridgeUrl: string): Promise<void> {
@@ -303,27 +298,29 @@ export class LedgerIframeBridge
       data: IFrameMessageResponse;
     },
   ): void {
-    if (eventMessage.origin !== this.#getOrigin(bridgeUrl)) {
+    const { origin, data } = eventMessage;
+
+    if (origin !== this.#getOrigin(bridgeUrl)) {
       return;
     }
 
-    if (eventMessage.data) {
-      const messageCallback =
-        this.messageCallbacks[eventMessage.data.messageId];
-      if (messageCallback) {
-        messageCallback(eventMessage.data);
-      } else if (
-        eventMessage.data.action === IFrameMessageAction.LedgerConnectionChange
-      ) {
-        this.isDeviceConnected = eventMessage.data.payload.connected;
+    if (data) {
+      const messageResponseHandle = this.#messageResponseHandles.get(
+        data.messageId,
+      );
+      if (messageResponseHandle) {
+        messageResponseHandle.resolve(data);
+        this.#messageResponseHandles.delete(data.messageId);
+      } else if (data.action === IFrameMessageAction.LedgerConnectionChange) {
+        this.isDeviceConnected = data.payload.connected;
       }
     }
   }
 
-  #sendMessage<TAction extends IFrameMessageAction>(
+  async #sendMessage<TAction extends IFrameMessageAction>(
     message: IFrameMessage<TAction>,
-    callback: (response: IFrameMessageResponse) => void,
-  ): void {
+    { timeout }: { timeout?: number } = {},
+  ): Promise<IFrameMessageResponse> {
     this.currentMessageId += 1;
 
     const postMsg: IFramePostMessage<TAction> = {
@@ -332,13 +329,32 @@ export class LedgerIframeBridge
       target: LEDGER_IFRAME_ID,
     };
 
-    this.messageCallbacks[this.currentMessageId] = callback;
+    const messageResponseHandle =
+      createDeferredPromise<IFrameMessageResponse>();
+
+    this.#messageResponseHandles.set(
+      this.currentMessageId,
+      messageResponseHandle,
+    );
 
     if (!this.iframeLoaded || !this.iframe?.contentWindow) {
       throw new Error('The iframe is not loaded yet');
     }
 
+    if (timeout) {
+      setTimeout(() => {
+        if (this.#messageResponseHandles.has(postMsg.messageId)) {
+          this.#messageResponseHandles.delete(postMsg.messageId);
+          messageResponseHandle.reject(
+            new Error('Ledger iframe message timeout'),
+          );
+        }
+      }, timeout);
+    }
+
     this.iframe.contentWindow.postMessage(postMsg, '*');
+
+    return messageResponseHandle.promise;
   }
 
   #validateConfiguration(opts: LedgerIframeBridgeOptions): void {

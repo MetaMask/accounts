@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.1.0]
+
+### Changed
+
+- Better error handling for Ledger signing operations ([#294](https://github.com/MetaMask/accounts.git/pull/294))
+
+## [11.0.3]
+
+### Fixed
+
+- Removed timeout for messages requiring user actions ([#279](https://github.com/MetaMask/accounts/pull/279))
+
+## [11.0.2]
+
+### Fixed
+
+- Increase timeout for user action requests ([#275](https://github.com/MetaMask/accounts/pull/275))
+
+## [11.0.1]
+
+### Fixed
+
+- Fix use of `salt` value as a `string` for `signTypedData<V4>` ([#249](https://github.com/MetaMask/accounts/pull/249))
+- Use timeouts for Ledger iframe messages ([#271](https://github.com/MetaMask/accounts/pull/271))
+
+## [11.0.0]
+
+### Changed
+
+- **BREAKING:** The `signTypedData` method now requires `SignTypedDataVersion.V4` as version for the `options` argument ([#224](https://github.com/MetaMask/accounts/pull/224))
+
+### Fixed
+
+- Trim `0x` prefix for `signTransaction` ([#253](https://github.com/MetaMask/accounts/pull/253))
+  - This regression was due to latest `@ethereumjs` upgrade.
+
 ## [10.0.0]
 
 ### Changed
@@ -294,7 +330,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@10.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.1.0...HEAD
+[11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.0.3...@metamask/eth-ledger-bridge-keyring@11.1.0
+[11.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.0.2...@metamask/eth-ledger-bridge-keyring@11.0.3
+[11.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.0.1...@metamask/eth-ledger-bridge-keyring@11.0.2
+[11.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.0.0...@metamask/eth-ledger-bridge-keyring@11.0.1
+[11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@10.0.0...@metamask/eth-ledger-bridge-keyring@11.0.0
 [10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@9.0.0...@metamask/eth-ledger-bridge-keyring@10.0.0
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.5...@metamask/eth-ledger-bridge-keyring@9.0.0
 [8.0.5]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@8.0.4...@metamask/eth-ledger-bridge-keyring@8.0.5

@@ -142,6 +142,24 @@ export enum TransactionType {
    * A swap transaction must be originated by the account.
    */
   Swap = 'swap',
+
+  /**
+   * Represents an outgoing bridge transaction, transferring assets from
+   * the account to another blockchain.
+   */
+  BridgeSend = 'bridge:send',
+
+  /**
+   * Represents an incoming bridge transaction, transferring assets from
+   * another blockchain to the account.
+   */
+  BridgeReceive = 'bridge:receive',
+
+  /**
+   * The transaction type is unknown. It's not possible to determine the
+   * transaction type based on the information available.
+   */
+  Unknown = 'unknown',
 }
 
 /**
@@ -262,6 +280,9 @@ export const TransactionStruct = object({
     `${TransactionType.Send}`,
     `${TransactionType.Receive}`,
     `${TransactionType.Swap}`,
+    `${TransactionType.BridgeSend}`,
+    `${TransactionType.BridgeReceive}`,
+    `${TransactionType.Unknown}`,
   ]),
 
   /**

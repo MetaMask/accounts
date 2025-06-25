@@ -20,6 +20,11 @@ export const KeyringRequestStruct = object({
   account: UuidStruct,
 
   /**
+   * Origin of the sender.
+   */
+  origin: string(),
+
+  /**
    * Inner request sent by the client application.
    */
   request: object({

@@ -229,7 +229,7 @@ export type Keyring = {
    */
   signTypedData?(
     address: Hex,
-    typedData: Record<string, unknown>,
+    typedData: unknown[] | Record<string, unknown>,
     options?: Record<string, unknown>,
   ): Promise<string>;
 

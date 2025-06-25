@@ -5,6 +5,7 @@ import {
   type TypedTransaction,
 } from '@ethereumjs/tx';
 import { publicToAddress } from '@ethereumjs/util';
+import { TransportStatusError } from '@ledgerhq/hw-transport';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import {
   recoverPersonalSignature,
@@ -403,16 +404,36 @@ export class LedgerKeyring implements Keyring {
     const hdPath = await this.unlockAccountByAddress(address);
 
     if (!hdPath) {
-      throw new Error('Ledger: Unknown error while signing transaction');
+      throw new Error('Ledger: hdPath is empty while signing transaction');
     }
 
     let payload;
+
     try {
       payload = await this.bridge.deviceSignTransaction({
-        tx: rawTxHex,
+        tx: remove0x(rawTxHex),
         hdPath,
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      // check whether error is TransportError
+      if (error instanceof TransportStatusError) {
+        // cast error to TransportError
+        const transportError: TransportStatusError = error;
+        if (
+          transportError.statusCode === 27013 &&
+          transportError.message.includes('(denied by the user?) (0x6985)')
+        ) {
+          throw new Error('Ledger: User rejected the transaction');
+        }
+
+        if (
+          transportError.statusCode === 27264 &&
+          transportError.message.includes('Invalid data received (0x6a80)')
+        ) {
+          throw new Error('Ledger: Blind signing must be enabled');
+        }
+      }
+
       throw error instanceof Error
         ? error
         : new Error('Ledger: Unknown error while signing transaction');
@@ -447,7 +468,20 @@ export class LedgerKeyring implements Keyring {
         hdPath,
         message: remove0x(message),
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof TransportStatusError) {
+        const transportError: TransportStatusError = error;
+        /**
+         * for user rejected the transaction error
+         */
+        if (
+          transportError.statusCode === 27013 &&
+          transportError.message.includes('(denied by the user?) (0x6985)')
+        ) {
+          throw new Error('Ledger: User rejected the transaction');
+        }
+      }
+
       throw error instanceof Error
         ? error
         : new Error('Ledger: Unknown error while signing message');
@@ -493,12 +527,17 @@ export class LedgerKeyring implements Keyring {
     return hdPath;
   }
 
-  async signTypedData<T extends MessageTypes>(
+  async signTypedData<
+    Version extends SignTypedDataVersion.V4,
+    Types extends MessageTypes,
+    Options extends { version?: Version },
+  >(
     withAccount: Hex,
-    data: TypedMessage<T>,
-    options: { version?: string } = {},
+    data: TypedMessage<Types>,
+    options?: Options,
   ): Promise<string> {
-    const isV4 = options.version === 'V4';
+    const { version } = options ?? {};
+    const isV4 = version === 'V4';
     if (!isV4) {
       throw new Error(
         'Ledger: Only version 4 of typed data signing is supported',
@@ -524,14 +563,34 @@ export class LedgerKeyring implements Keyring {
             chainId: domain.chainId,
             version: domain.version,
             verifyingContract: domain.verifyingContract,
-            salt: this.#convertSaltIfAny(domain.salt),
+            salt:
+              domain.salt instanceof ArrayBuffer
+                ? Buffer.from(domain.salt).toString('hex')
+                : domain.salt,
           },
           types,
           primaryType: primaryType.toString(),
           message,
         },
       });
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof TransportStatusError) {
+        // cast error to TransportError
+        const transportError: TransportStatusError = error;
+        if (
+          transportError.statusCode === 27013 &&
+          transportError.message.includes('(denied by the user?) (0x6985)')
+        ) {
+          throw new Error('Ledger: User rejected the transaction');
+        }
+
+        if (
+          transportError.statusCode === 27264 &&
+          transportError.message.includes('Invalid data received (0x6a80)')
+        ) {
+          throw new Error('Ledger: Blind signing must be enabled');
+        }
+      }
       throw error instanceof Error
         ? error
         : new Error('Ledger: Unknown error while signing message');
@@ -565,17 +624,6 @@ export class LedgerKeyring implements Keyring {
     this.paths = {};
     this.accountDetails = {};
     this.hdk = new HDKey();
-  }
-
-  #convertSaltIfAny(salt: ArrayBuffer | undefined): string | undefined {
-    if (!salt) {
-      return undefined;
-    }
-
-    // We convert this to a plain string to avoid encoding issue on the
-    // mobile side (to avoid using `TextDecoder`).
-    const saltBytes = new Uint8Array(salt);
-    return String.fromCharCode(...saltBytes);
   }
 
   /* PRIVATE METHODS */

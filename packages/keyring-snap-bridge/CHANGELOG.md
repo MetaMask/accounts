@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.0.0]
+
+### Changed
+
+- **BREAKING:** Now requires `origin` to be passed to `SnapKeyring.submitRequest` ([#273](https://github.com/MetaMask/accounts/pull/273))
+  - Starting from `KeyringVersion.V2` (platform version: `7.0.0`), Snaps will now have to use `@metamask/keyring-api@18.0.0` and use the `origin` when processing keyring requests (`submitRequest`).
+- Bump `@metamask/keyring-api` from `^17.6.0` to `^18.0.0` ([#291](https://github.com/MetaMask/accounts/pull/291))
+
+## [12.2.0]
+
+### Added
+
+- Add support for Bitcoin account type: p2pkh, p2sh, p2tr ([#284](https://github.com/MetaMask/accounts/pull/284))
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^17.4.0` to `^17.6.0` ([#277](https://github.com/MetaMask/accounts/pull/277)), ([#288](https://github.com/MetaMask/accounts/pull/288))
+
+## [12.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^17.1.0` to `^17.4.0` ([#212](https://github.com/MetaMask/accounts/pull/212)), ([#220](https://github.com/MetaMask/accounts/pull/220)), ([#263](https://github.com/MetaMask/accounts/pull/263)), ([#269](https://github.com/MetaMask/accounts/pull/269))
+
+## [12.1.0]
+
+### Added
+
+- Add new concept of "internal options" and add a new `SnapKeyring.createAccount` method ([#252](https://github.com/MetaMask/accounts/pull/252)), ([#261](https://github.com/MetaMask/accounts/pull/261))
+  - Those internal options can be used by the caller of that method to customize the account creation flow.
+- Add `setSelectedAccount` internal option ([#257](https://github.com/MetaMask/accounts/pull/257))
+
 ## [12.0.0]
 
 ### Changed
@@ -490,7 +522,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@13.0.0...HEAD
+[13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.2.0...@metamask/eth-snap-keyring@13.0.0
+[12.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.1.1...@metamask/eth-snap-keyring@12.2.0
+[12.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.1.0...@metamask/eth-snap-keyring@12.1.1
+[12.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.0.0...@metamask/eth-snap-keyring@12.1.0
 [12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@11.1.0...@metamask/eth-snap-keyring@12.0.0
 [11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@11.0.0...@metamask/eth-snap-keyring@11.1.0
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@10.0.0...@metamask/eth-snap-keyring@11.0.0

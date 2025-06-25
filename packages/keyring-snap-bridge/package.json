@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-snap-keyring",
-  "version": "12.0.0",
+  "version": "13.0.0",
   "description": "Snaps keyring bridge.",
   "repository": {
     "type": "git",
@@ -53,9 +53,9 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/snaps-controllers": "^9.18.0",
-    "@metamask/snaps-sdk": "^6.16.0",
-    "@metamask/snaps-utils": "^8.9.1",
+    "@metamask/snaps-controllers": "^12.2.0",
+    "@metamask/snaps-sdk": "^7.0.0",
+    "@metamask/snaps-utils": "^9.3.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",

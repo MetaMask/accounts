@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.0]
+
+### Added
+
+- Add `KeyringInternalSnapClient.submitRequestV1` method ([#291](https://github.com/MetaMask/accounts/pull/291))
+- Add `@metamask/keyring-internal-api@^6.2.0` dependency ([#291](https://github.com/MetaMask/accounts/pull/291))
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^17.4.0` to `^18.0.0` ([#277](https://github.com/MetaMask/accounts/pull/277)), ([#288](https://github.com/MetaMask/accounts/pull/288)), ([#291](https://github.com/MetaMask/accounts/pull/291))
+- Bump `@metamask/keyring-snap-client` from `^4.1.0` to `^5.0.0` ([#291](https://github.com/MetaMask/accounts/pull/291))
+- Bump `@metamask/snaps-sdk` dependency from `^6.16.0` to `^7.0.0` ([#291](https://github.com/MetaMask/accounts/pull/291))
+
+## [4.0.2]
+
+### Changed
+
+- Bump `@metamask/keyring-snap-client` from `^4.0.1` to `^4.1.0` ([#269](https://github.com/MetaMask/accounts/pull/269))
+
 ## [4.0.1]
 
 ### Changed
@@ -85,7 +104,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.1.0...HEAD
+[4.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.0.2...@metamask/keyring-internal-snap-client@4.1.0
+[4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.0.1...@metamask/keyring-internal-snap-client@4.0.2
 [4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.0.0...@metamask/keyring-internal-snap-client@4.0.1
 [4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@3.0.3...@metamask/keyring-internal-snap-client@4.0.0
 [3.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@3.0.2...@metamask/keyring-internal-snap-client@3.0.3

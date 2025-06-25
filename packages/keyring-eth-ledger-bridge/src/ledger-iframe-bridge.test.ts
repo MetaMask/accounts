@@ -16,6 +16,10 @@ type HTMLIFrameElementShim = HTMLIFrameElement;
 // eslint-disable-next-line no-restricted-globals
 type WindowShim = Window;
 
+const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
+const BRIDGE_URL = 'https://metamask.github.io/eth-ledger-bridge-keyring';
+const INVALID_URL_ERROR = 'bridgeURL is not a valid URL';
+
 /**
  * Checks if the iframe provided has a valid contentWindow
  * and onload function.
@@ -36,9 +40,22 @@ function isIFrameValid(
   );
 }
 
-const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
-const BRIDGE_URL = 'https://metamask.github.io/eth-ledger-bridge-keyring';
-const INVALID_URL_ERROR = 'bridgeURL is not a valid URL';
+/**
+ * Sends a message to the bridge as it would be sent from the iframe.
+ *
+ * @param bridge - The bridge to send the message to.
+ * @param message - The message to send.
+ */
+function sendMessageToBridge(
+  bridge: LedgerIframeBridge,
+  message: IFrameMessageResponse,
+): void {
+  bridge.eventListener?.({
+    origin: new URL(BRIDGE_URL).origin,
+    data: message,
+  });
+}
+
 describe('LedgerIframeBridge', function () {
   let bridge: LedgerIframeBridge;
 
@@ -66,6 +83,7 @@ describe('LedgerIframeBridge', function () {
       bridgeUrl: BRIDGE_URL,
     });
     await bridge.init();
+    jest.useFakeTimers();
   });
 
   afterEach(function () {
@@ -139,7 +157,7 @@ describe('LedgerIframeBridge', function () {
           target: LEDGER_IFRAME_ID,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerMakeApp,
           messageId: 1,
           success: true,
@@ -164,7 +182,7 @@ describe('LedgerIframeBridge', function () {
           target: LEDGER_IFRAME_ID,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerMakeApp,
           messageId: 1,
           success: false,
@@ -178,6 +196,16 @@ describe('LedgerIframeBridge', function () {
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
 
+    it('throws a timeout error when the message does not receive a response', async function () {
+      stubKeyringIFramePostMessage(bridge, () => {
+        jest.advanceTimersByTime(20_000);
+      });
+
+      await expect(bridge.attemptMakeApp()).rejects.toThrow(
+        'Ledger iframe message timeout',
+      );
+    });
+
     it('throws an error when unknown error occur', async function () {
       const errorMessage = 'Unknown error occurred';
 
@@ -188,7 +216,7 @@ describe('LedgerIframeBridge', function () {
           target: LEDGER_IFRAME_ID,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerMakeApp,
           messageId: 1,
           success: false,
@@ -214,7 +242,7 @@ describe('LedgerIframeBridge', function () {
           params: { transportType },
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerUpdateTransport,
           messageId: 1,
           success: true,
@@ -237,6 +265,18 @@ describe('LedgerIframeBridge', function () {
       );
     });
 
+    it('throws a timeout error when the message does not receive a response', async function () {
+      bridge.iframeLoaded = true;
+      const transportType = 'u2f';
+      stubKeyringIFramePostMessage(bridge, () => {
+        jest.advanceTimersByTime(20_000);
+      });
+
+      await expect(bridge.updateTransportMethod(transportType)).rejects.toThrow(
+        'Ledger iframe message timeout',
+      );
+    });
+
     it('throws an error when a ledger-update-transport message is not successful', async function () {
       bridge.iframeLoaded = true;
 
@@ -250,7 +290,7 @@ describe('LedgerIframeBridge', function () {
           target: LEDGER_IFRAME_ID,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerUpdateTransport,
           messageId: 1,
           success: false,
@@ -285,7 +325,7 @@ describe('LedgerIframeBridge', function () {
           target: LEDGER_IFRAME_ID,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerUnlock,
           messageId: 1,
           success: true,
@@ -315,7 +355,7 @@ describe('LedgerIframeBridge', function () {
           params,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerUnlock,
           messageId: 1,
           success: false,
@@ -350,7 +390,7 @@ describe('LedgerIframeBridge', function () {
           params,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerSignTransaction,
           messageId: 1,
           success: true,
@@ -378,7 +418,7 @@ describe('LedgerIframeBridge', function () {
           params,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerSignTransaction,
           messageId: 1,
           success: false,
@@ -412,7 +452,7 @@ describe('LedgerIframeBridge', function () {
           params,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerSignPersonalMessage,
           messageId: 1,
           success: true,
@@ -440,7 +480,7 @@ describe('LedgerIframeBridge', function () {
           params,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerSignPersonalMessage,
           messageId: 1,
           success: false,
@@ -489,7 +529,7 @@ describe('LedgerIframeBridge', function () {
           params,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerSignTypedData,
           messageId: 1,
           success: true,
@@ -516,7 +556,7 @@ describe('LedgerIframeBridge', function () {
           params,
         });
 
-        bridge.messageCallbacks[message.messageId]?.({
+        sendMessageToBridge(bridge, {
           action: IFrameMessageAction.LedgerSignTypedData,
           messageId: 1,
           success: false,

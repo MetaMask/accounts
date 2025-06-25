@@ -1,6 +1,6 @@
 {
   "name": "@metamask/accounts-monorepo",
-  "version": "40.0.0",
+  "version": "50.0.0",
   "private": true,
   "description": "Monorepo for MetaMask accounts related packages",
   "repository": {
@@ -30,9 +30,11 @@
     "release": "./scripts/release.sh",
     "setup": "yarn install",
     "test": "yarn foreach test",
-    "test:clean": "yarn foreach test:clean"
+    "test:clean": "yarn foreach test:clean",
+    "test:types": "yarn foreach test:types"
   },
   "resolutions": {
+    "@metamask/snaps-sdk@^6.24.0": "npm:@metamask/snaps-sdk@^7.0.0",
     "@types/node": "^20.12.12",
     "@types/web": "^0.0.69",
     "@typescript/lib-dom": "npm:@types/web@^0.0.69",
