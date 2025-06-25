@@ -4,14 +4,20 @@ import { add0x, getChecksumAddress } from '@metamask/utils';
 
 import {
   type AirgappedSignerDetails,
+  type IndexedAddress,
   AirgappedSigner,
   KeyringMode,
 } from './airgapped-signer';
 
 export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
 
+export type QrKeyringBridge = {
+  requestScan: () => Promise<string>;
+};
+
 export type QrKeyringOptions = {
   ur?: string;
+  bridge: QrKeyringBridge;
 };
 
 /**
@@ -58,13 +64,19 @@ export class QrKeyring implements Keyring {
 
   readonly type = QR_KEYRING_TYPE;
 
+  readonly bridge: QrKeyringBridge;
+
   readonly #signer: AirgappedSigner = new AirgappedSigner();
 
   #accounts: Hex[] = [];
 
   #accountToUnlock?: number | undefined;
 
-  constructor(options?: QrKeyringOptions) {
+  #currentPage: number = 0;
+
+  constructor(options: QrKeyringOptions) {
+    this.bridge = options.bridge;
+
     if (options?.ur) {
       this.submitUR(options.ur);
     }
@@ -198,5 +210,85 @@ export class QrKeyring implements Keyring {
    */
   setAccountToUnlock(index: number): void {
     this.#accountToUnlock = index;
+  }
+
+  /**
+   * Get the name of the paired device or the keyring type
+   * if unavailable.
+   *
+   * @returns The name of the paired device or the keyring type.
+   */
+  getName(): string {
+    const source = this.#signer.getSourceDetails();
+    return source?.name ?? QR_KEYRING_TYPE;
+  }
+
+  /**
+   * Fetch the first page of accounts. If the keyring is not currently initialized,
+   * it will trigger a scan request to initialize it.
+   *
+   * @returns The first page of accounts as an array of Hex strings.
+   */
+  async getFirstPage(): Promise<IndexedAddress[]> {
+    this.#currentPage = 0;
+    return this.getCurrentPage();
+  }
+
+  /**
+   * Fetch the next page of accounts. If the keyring is not currently initialized,
+   * it will trigger a scan request to initialize it.
+   *
+   * @returns The next page of accounts as an array of IndexedAddress objects.
+   */
+  async getNextPage(): Promise<IndexedAddress[]> {
+    this.#currentPage += 1;
+    return this.getCurrentPage();
+  }
+
+  /**
+   * Fetch the previous page of accounts. If the keyring is not currently initialized,
+   * it will trigger a scan request to initialize it.
+   *
+   * @returns The previous page of accounts as an array of IndexedAddress objects.
+   */
+  async getPreviousPage(): Promise<IndexedAddress[]> {
+    if (this.#currentPage > 0) {
+      this.#currentPage -= 1;
+    } else {
+      this.#currentPage = 0;
+    }
+    return this.getCurrentPage();
+  }
+
+  /**
+   * Fetch the current page of accounts. If the keyring is not currently initialized,
+   * it will trigger a scan request to initialize it.
+   *
+   * @returns The current page of accounts as an array of IndexedAddress objects.
+   */
+  async getCurrentPage(): Promise<IndexedAddress[]> {
+    if (!this.#signer.isInitialized()) {
+      await this.#scanAndInitialize();
+    }
+
+    return this.#signer.getAddressesPage(this.#currentPage);
+  }
+
+  /**
+   * Clear the keyring state and forget any paired device or accounts.
+   */
+  async forgetDevice(): Promise<void> {
+    this.#signer.clear();
+    this.#accounts = [];
+    this.#accountToUnlock = undefined;
+    this.#currentPage = 0;
+  }
+
+  /**
+   * Scan for a QR code and initialize the keyring with the
+   * scanned UR.
+   */
+  async #scanAndInitialize(): Promise<void> {
+    this.submitUR(await this.bridge.requestScan());
   }
 }

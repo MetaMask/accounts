@@ -23,6 +23,9 @@ const DEFAULT_CHILDREN_PATH = '0/*';
 
 const MAX_INDEX = 1_000;
 
+/**
+ * Common details for the signer source, which can be either a CryptoAccount or CryptoHDKey.
+ */
 export type CommonSignerDetails = {
   /**
    * Value take out from the device note field, if available.
@@ -43,6 +46,10 @@ export type CommonSignerDetails = {
   indexes: Record<Hex, number>;
 };
 
+/**
+ * Details for the HD mode of the AirgappedSigner. This mode derives
+ * accounts from a root public key (xpub) and a derivation path.
+ */
 export type HDModeSignerDetails = {
   /**
    * The keyring mode is HD, indicating that it derives accounts from a
@@ -63,6 +70,10 @@ export type HDModeSignerDetails = {
   childrenPath: string;
 };
 
+/**
+ * Details for the Account mode of the AirgappedSigner. This mode derives
+ * accounts from a set of addresses and their corresponding paths.
+ */
 export type AccountModeSignerDetails = {
   /**
    * The keyring mode is ACCOUNT, indicating that it derives accounts from
@@ -73,6 +84,14 @@ export type AccountModeSignerDetails = {
    * The derivation paths for each hex-encoded address in the device
    */
   paths: Record<Hex, string>;
+};
+
+/**
+ * An address with its corresponding index.
+ */
+export type IndexedAddress = {
+  address: Hex;
+  index: number;
 };
 
 /**
@@ -164,6 +183,15 @@ export class AirgappedSigner {
   }
 
   /**
+   * Check if the AirgappedSigner is initialized
+   *
+   * @returns True if the AirgappedSigner is initialized, false otherwise
+   */
+  isInitialized(): boolean {
+    return this.#source !== undefined;
+  }
+
+  /**
    * Derive an address from the source at a given index
    *
    * @param index - The index to derive the address from
@@ -239,6 +267,27 @@ export class AirgappedSigner {
     }
 
     throw new Error(`Address ${address} not found`);
+  }
+
+  /**
+   * Get a page of addresses derived from the source.
+   *
+   * @param page - The page number to retrieve
+   * @param pageSize - The number of addresses per page
+   * @returns An array of IndexedAddress objects, each containing the address and its index
+   * @throws Will throw an error if the source is not initialized
+   */
+  getAddressesPage(page: number, pageSize = 5): IndexedAddress[] {
+    const startIndex = page * pageSize;
+    const endIndex = startIndex + pageSize;
+    const addresses: IndexedAddress[] = [];
+
+    for (let i = startIndex; i < endIndex; i++) {
+      const address = this.addressFromIndex(i);
+      addresses.push({ address, index: i });
+    }
+
+    return addresses;
   }
 
   /**
