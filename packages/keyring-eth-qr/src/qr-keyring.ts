@@ -2,8 +2,11 @@ import type { Keyring } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 import { add0x, getChecksumAddress } from '@metamask/utils';
 
-import type { AirgappedSourceDetails } from './account-deriver';
-import { AccountDeriver, KeyringMode } from './account-deriver';
+import {
+  type AirgappedSignerDetails,
+  AirgappedSigner,
+  KeyringMode,
+} from './airgapped-signer';
 
 export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
 
@@ -26,7 +29,7 @@ export type SerializedQrKeyringState = {
     }
   | ({
       initialized: true;
-    } & AirgappedSourceDetails)
+    } & AirgappedSignerDetails)
 );
 
 /**
@@ -55,7 +58,7 @@ export class QrKeyring implements Keyring {
 
   readonly type = QR_KEYRING_TYPE;
 
-  readonly #deriver: AccountDeriver = new AccountDeriver();
+  readonly #signer: AirgappedSigner = new AirgappedSigner();
 
   #accounts: Hex[] = [];
 
@@ -73,7 +76,7 @@ export class QrKeyring implements Keyring {
    * @returns The serialized state
    */
   async serialize(): Promise<SerializedQrKeyringState> {
-    const source = this.#deriver.getSourceDetails();
+    const source = this.#signer.getSourceDetails();
 
     if (
       !source ||
@@ -121,11 +124,11 @@ export class QrKeyring implements Keyring {
   async deserialize(state: SerializedQrKeyringState): Promise<void> {
     if (!state.initialized) {
       this.#accounts = [];
-      this.#deriver.clear();
+      this.#signer.clear();
       return;
     }
 
-    this.#deriver.init(state);
+    this.#signer.init(state);
     this.#accounts = (state.accounts ?? []).map(normalizeAddress);
   }
 
@@ -139,12 +142,12 @@ export class QrKeyring implements Keyring {
     const lastAccount = this.#accounts[this.#accounts.length - 1];
     const startIndex =
       this.#accountToUnlock ??
-      (lastAccount ? this.#deriver.indexFromAddress(lastAccount) : 0);
+      (lastAccount ? this.#signer.indexFromAddress(lastAccount) : 0);
     const newAccounts: Hex[] = [];
 
     for (let i = 0; i < accountsToAdd; i++) {
       const index = startIndex + i;
-      const address = this.#deriver.addressFromIndex(index);
+      const address = this.#signer.addressFromIndex(index);
 
       if (this.#accounts.includes(address)) {
         continue;
@@ -185,7 +188,7 @@ export class QrKeyring implements Keyring {
    * @param ur - The CBOR encoded UR
    */
   submitUR(ur: string): void {
-    this.#deriver.init(ur);
+    this.#signer.init(ur);
   }
 
   /**

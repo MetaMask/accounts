@@ -23,7 +23,7 @@ const DEFAULT_CHILDREN_PATH = '0/*';
 
 const MAX_INDEX = 1_000;
 
-export type CommonSourceDetails = {
+export type CommonSignerDetails = {
   /**
    * Value take out from the device note field, if available.
    */
@@ -43,7 +43,7 @@ export type CommonSourceDetails = {
   indexes: Record<Hex, number>;
 };
 
-export type HDModeSourceDetails = {
+export type HDModeSignerDetails = {
   /**
    * The keyring mode is HD, indicating that it derives accounts from a
    * root public key (xpub) and a derivation path.
@@ -63,7 +63,7 @@ export type HDModeSourceDetails = {
   childrenPath: string;
 };
 
-export type AccountModeSourceDetails = {
+export type AccountModeSignerDetails = {
   /**
    * The keyring mode is ACCOUNT, indicating that it derives accounts from
    * a set of addresses and their corresponding paths.
@@ -77,10 +77,10 @@ export type AccountModeSourceDetails = {
 
 /**
  * The details of the source CryptoAccount or CryptoHDKey
- * that the AccountDeriver uses to derive accounts.
+ * that the AirgappedSigner uses to derive accounts.
  */
-export type AirgappedSourceDetails = CommonSourceDetails &
-  (HDModeSourceDetails | AccountModeSourceDetails);
+export type AirgappedSignerDetails = CommonSignerDetails &
+  (HDModeSignerDetails | AccountModeSignerDetails);
 
 /**
  * Get the fingerprint of the source CryptoAccount or CryptoHDKey
@@ -147,16 +147,15 @@ function readCryptoAccountOutputDescriptors(source: CryptoAccount): {
   };
 }
 
-export class AccountDeriver {
-  #source?: AirgappedSourceDetails | undefined;
+export class AirgappedSigner {
+  #source?: AirgappedSignerDetails | undefined;
 
   /**
-   * Initializes the AccountDeriver
+   * Initialize the AirgappedSigner with a source.
    *
-   * @param source - The source CryptoAccount or CryptoHDKey, or a UR string
-   * @throws Will throw an error if the UR is not supported
+   * @param source - The signer source, in the form of details object, or a UR string
    */
-  init(source: AirgappedSourceDetails | string): void {
+  init(source: AirgappedSignerDetails | string): void {
     if (typeof source === 'string') {
       this.#initFromUR(source);
     } else {
@@ -243,11 +242,11 @@ export class AccountDeriver {
   }
 
   /**
-   * Gets the source details of the AccountDeriver
+   * Gets the source details of the AirgappedSigner.
    *
    * @returns The source details, or undefined if not initialized
    */
-  getSourceDetails(): AirgappedSourceDetails | undefined {
+  getSourceDetails(): AirgappedSignerDetails | undefined {
     return this.#source;
   }
 
