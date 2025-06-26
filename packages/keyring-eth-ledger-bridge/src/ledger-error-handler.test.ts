@@ -146,7 +146,7 @@ describe('handleLedgerTransportError', () => {
 
       expect(() =>
         handleLedgerTransportError(originalError, fallbackMessage),
-      ).toThrow('Original error message');
+      ).toThrow(error.message);
     });
 
     it('should create new Error with fallback message for non-Error instances', () => {
