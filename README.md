@@ -23,6 +23,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/keyring-snap-client`](packages/keyring-snap-client)
 - [`@metamask/keyring-snap-sdk`](packages/keyring-snap-sdk)
 - [`@metamask/keyring-utils`](packages/keyring-utils)
+- [`@metamask/multichain-account-api`](packages/multichain-account-api)
 
 <!-- end package list -->
 
@@ -45,6 +46,7 @@ linkStyle default opacity:0.5
   keyring_snap_client(["@metamask/keyring-snap-client"]);
   keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
   keyring_utils(["@metamask/keyring-utils"]);
+  multichain_account_api(["@metamask/multichain-account-api"]);
   keyring_api --> keyring_utils;
   eth_hd_keyring --> keyring_utils;
   eth_ledger_bridge_keyring --> keyring_utils;
@@ -64,6 +66,9 @@ linkStyle default opacity:0.5
   keyring_snap_client --> keyring_utils;
   keyring_snap_sdk --> keyring_utils;
   keyring_snap_sdk --> keyring_api;
+  multichain_account_api --> keyring_api;
+  multichain_account_api --> keyring_internal_api;
+  multichain_account_api --> keyring_utils;
 ```
 
 <!-- end dependency graph -->

@@ -55,7 +55,7 @@
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/keyring-utils": "workspace:^",
-    "@metamask/utils": "^11.0.0",
+    "@metamask/utils": "^11.1.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
