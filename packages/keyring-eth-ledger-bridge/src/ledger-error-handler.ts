@@ -46,7 +46,6 @@ function getTransportErrorMessageFrom(
     case 0x650f:
       return 'Ledger: Ethereum app closed. Open it to unlock.';
     default:
-      // If the status code is not one of the known codes, just use the existing error message.
       return transportError.message;
   }
 }
