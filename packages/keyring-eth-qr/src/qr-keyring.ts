@@ -11,13 +11,26 @@ import {
 
 export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
 
+export enum QrScanRequestType {
+  /**
+   * Request a scan for a QR code containing a UR
+   * with information related to a hardware wallet.
+   */
+  PAIR = 'pair',
+  /**
+   * Request a scan for a QR code containing a
+   * UR-encoded transaction signature.
+   */
+  SIGN = 'sign',
+}
+
 export type QrScanResponse = {
   type: string;
   cbor: Hex;
 };
 
 export type QrKeyringBridge = {
-  requestScan: () => Promise<QrScanResponse>;
+  requestScan: (type: QrScanRequestType) => Promise<QrScanResponse>;
 };
 
 export type QrKeyringOptions = {
@@ -294,6 +307,6 @@ export class QrKeyring implements Keyring {
    * scanned UR.
    */
   async #scanAndInitialize(): Promise<void> {
-    this.submitUR(await this.bridge.requestScan());
+    this.submitUR(await this.bridge.requestScan(QrScanRequestType.PAIR));
   }
 }
