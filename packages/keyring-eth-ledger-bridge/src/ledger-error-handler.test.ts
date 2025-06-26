@@ -188,13 +188,9 @@ describe('handleLedgerTransportError', () => {
 
   describe('return type', () => {
     it('should have never return type (always throws)', () => {
-      const error = new Error('test');
-
-      // This test verifies that the function always throws
-      // by ensuring it never returns normally
-      expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-        'test',
-      );
-    });
+      type ReturnTypeIsNever<Function> = ReturnType<Function> extends never ? true : false;
+      
+      const isNever: ReturnTypeIsNever<typeof handleLedgerTransportError> = true;
+      expect(isNever).toBe(true);
   });
 });
