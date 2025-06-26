@@ -17,36 +17,36 @@ export function handleLedgerTransportError(
   if (error instanceof TransportStatusError) {
     const transportError: TransportStatusError = error;
 
-    switch (transportError.statusCode) {
-      case 0x6985:
-        throw new LedgerStatusError(
-          transportError.statusCode,
-          'Ledger: User rejected the transaction.',
-        );
-      case 0x6a80:
-        throw new LedgerStatusError(
-          transportError.statusCode,
-          'Ledger: Blind signing must be enabled.',
-        );
-      case 0x5515:
-        throw new LedgerStatusError(
-          transportError.statusCode,
-          'Ledger: Device is locked. Unlock it to continue.',
-        );
-      case 0x650f:
-        throw new LedgerStatusError(
-          transportError.statusCode,
-          'Ledger: Ethereum app closed. Open it to unlock.',
-        );
-      default:
-        // If the status code is not one of the known codes, throw the error with the status code and message
-        throw new LedgerStatusError(
-          transportError.statusCode,
-          transportError.message,
-        );
-    }
+    throw new LedgerStatusError(
+      transportError.statusCode,
+      getTransportErrorMessageFrom(transportError),
+    );
   }
 
   // For any other error (TransportStatusError not matching patterns or other errors)
   throw error instanceof Error ? error : new Error(fallbackMessage);
+}
+
+/**
+ * Get the transport error message from the transport error.
+ *
+ * @param transportError - The transport error
+ * @returns The transport error message
+ */
+function getTransportErrorMessageFrom(
+  transportError: TransportStatusError,
+): string {
+  switch (transportError.statusCode) {
+    case 0x6985:
+      return 'Ledger: User rejected the transaction';
+    case 0x6a80:
+      return 'Ledger: Blind signing must be enabled';
+    case 0x5515:
+      return 'Ledger: Device is locked. Unlock it to continue.';
+    case 0x650f:
+      return 'Ledger: Ethereum app closed. Open it to unlock.';
+    default:
+      // If the status code is not one of the known codes, just use the existing error message.
+      return transportError.message;
+  }
 }
