@@ -138,15 +138,15 @@ describe('handleLedgerTransportError', () => {
 
   describe('when error is not TransportStatusError', () => {
     it('re-throws Error instances as-is', () => {
-      const originalError = new Error('Original error message');
+      const error = new Error('Original error message');
 
-      expect(() =>
-        handleLedgerTransportError(originalError, fallbackMessage),
-      ).toThrow(originalError);
+      expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
+        error,
+      );
 
-      expect(() =>
-        handleLedgerTransportError(originalError, fallbackMessage),
-      ).toThrow(error.message);
+      expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
+        error.message,
+      );
     });
 
     it('creates new Error with fallback message for non-Error instances', () => {
