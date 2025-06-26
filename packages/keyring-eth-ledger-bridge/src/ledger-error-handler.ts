@@ -26,7 +26,7 @@ export function handleLedgerTransportError(
       case 0x6a80:
         throw new LedgerStatusError(
           transportError.statusCode,
-          'Ledger: Blind signing must be enabled',
+          'Ledger: Blind signing must be enabled.',
         );
       case 0x5515:
         throw new LedgerStatusError(
