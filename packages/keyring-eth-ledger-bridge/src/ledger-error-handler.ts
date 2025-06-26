@@ -21,7 +21,7 @@ export function handleLedgerTransportError(
       case 0x6985:
         throw new LedgerStatusError(
           transportError.statusCode,
-          'Ledger: User rejected the transaction',
+          'Ledger: User rejected the transaction.',
         );
       case 0x6a80:
         throw new LedgerStatusError(
