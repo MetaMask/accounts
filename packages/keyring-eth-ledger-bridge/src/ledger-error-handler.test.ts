@@ -27,7 +27,7 @@ describe('handleLedgerTransportError', () => {
   }
 
   describe('when error is TransportStatusError', () => {
-    it('should handle status code 0x6985 (user rejection)', () => {
+    it('handles status code 0x6985 (user rejection)', () => {
       const error = createTransportStatusError('User rejected', 0x6985);
 
       expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
@@ -47,7 +47,7 @@ describe('handleLedgerTransportError', () => {
       );
     });
 
-    it('should handle status code 0x6a80 (blind signing)', () => {
+    it('handles status code 0x6a80 (blind signing)', () => {
       const error = createTransportStatusError(
         'Blind signing required',
         0x6a80,
@@ -70,7 +70,7 @@ describe('handleLedgerTransportError', () => {
       );
     });
 
-    it('should handle status code 0x5515 (device locked)', () => {
+    it('handles status code 0x5515 (device locked)', () => {
       const error = createTransportStatusError('Device locked', 0x5515);
 
       expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
@@ -90,7 +90,7 @@ describe('handleLedgerTransportError', () => {
       );
     });
 
-    it('should handle status code 0x650f (app closed)', () => {
+    it('handles status code 0x650f (app closed)', () => {
       const error = createTransportStatusError('App closed', 0x650f);
 
       expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
@@ -110,7 +110,7 @@ describe('handleLedgerTransportError', () => {
       );
     });
 
-    it('should handle unknown status codes by preserving original message', () => {
+    it('handles unknown status codes by preserving original message', () => {
       const unknownStatusCode = 0x9999;
       const originalMessage = 'Unknown transport error';
       const error = createTransportStatusError(
@@ -137,7 +137,7 @@ describe('handleLedgerTransportError', () => {
   });
 
   describe('when error is not TransportStatusError', () => {
-    it('should re-throw Error instances as-is', () => {
+    it('re-throws Error instances as-is', () => {
       const originalError = new Error('Original error message');
 
       expect(() =>
@@ -149,7 +149,7 @@ describe('handleLedgerTransportError', () => {
       ).toThrow(error.message);
     });
 
-    it('should create new Error with fallback message for non-Error instances', () => {
+    it('creates new Error with fallback message for non-Error instances', () => {
       const nonErrorValue = 'string error';
 
       const throwingFunction = (): never =>
@@ -159,7 +159,7 @@ describe('handleLedgerTransportError', () => {
       expect(throwingFunction).toThrow(fallbackMessage);
     });
 
-    it('should create new Error with fallback message for null', () => {
+    it('creates new Error with fallback message for null', () => {
       const throwingFunctionNull = (): never =>
         handleLedgerTransportError(null, fallbackMessage);
 
@@ -167,7 +167,7 @@ describe('handleLedgerTransportError', () => {
       expect(throwingFunctionNull).toThrow(fallbackMessage);
     });
 
-    it('should create new Error with fallback message for undefined', () => {
+    it('creates new Error with fallback message for undefined', () => {
       const throwingFunctionUndefined = (): never =>
         handleLedgerTransportError(undefined, fallbackMessage);
 
@@ -175,7 +175,7 @@ describe('handleLedgerTransportError', () => {
       expect(throwingFunctionUndefined).toThrow(fallbackMessage);
     });
 
-    it('should create new Error with fallback message for objects without Error prototype', () => {
+    it('creates new Error with fallback message for objects without Error prototype', () => {
       const plainObject = { message: 'not an error' };
 
       const throwingFunction = (): never =>
@@ -187,10 +187,11 @@ describe('handleLedgerTransportError', () => {
   });
 
   describe('return type', () => {
-    it('should have never return type (always throws)', () => {
+    it('has never return type (always throws)', () => {
       type ReturnTypeIsNever<Function> = ReturnType<Function> extends never ? true : false;
-      
+
       const isNever: ReturnTypeIsNever<typeof handleLedgerTransportError> = true;
       expect(isNever).toBe(true);
+    });
   });
 });
