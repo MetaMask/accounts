@@ -188,9 +188,8 @@ describe('handleLedgerTransportError', () => {
 
   describe('return type', () => {
     it('has never return type (always throws)', () => {
-      type ReturnTypeIsNever<Function> = ReturnType<Function> extends never
-        ? true
-        : false;
+      type ReturnTypeIsNever<Function extends (...args: any) => any> =
+        ReturnType<Function> extends never ? true : false;
 
       const isNever: ReturnTypeIsNever<typeof handleLedgerTransportError> =
         true;
