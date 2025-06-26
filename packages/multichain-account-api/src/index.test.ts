@@ -22,15 +22,14 @@ import { v4 as uuid } from 'uuid';
 import type {
   AccountProvider,
   MultichainAccount,
-  MultichainAccountGroupObject,
   MultichainAccountSelector,
   MultichainAccountWallet,
-  MultichainAccountWalletObject,
 } from './api';
 import {
   MultichainAccountAdapter,
   MultichainAccountWalletAdapter,
   toMultichainAccountId,
+  toMultichainAccountWalletId,
 } from './api';
 
 const mockEvmAccount: InternalAccount = {
@@ -121,33 +120,17 @@ const mockAccounts = {
 
 const mockEntropySource = 'mock-entropy-source';
 
-const mockAccountGroup: MultichainAccountGroupObject = {
-  id: `multichain-account-wallet:${mockEntropySource}:0`,
-  accounts: Object.keys(mockAccounts),
-};
-
-const mockAccountGroup2: MultichainAccountGroupObject = {
-  id: `multichain-account-wallet:${mockEntropySource}:2`,
-  // We re-use the same accounts, but that`s ok for test purposes.
-  accounts: Object.keys(mockAccounts),
-};
-
-const mockAccountWallet: MultichainAccountWalletObject = {
-  id: `multichain-account-wallet:${mockEntropySource}`,
-  groups: [mockAccountGroup, mockAccountGroup2],
-};
-
-const mockGetAccount = jest.fn();
-
 function setupMultichainAccount({
   groupIndex = 0,
+  entropySource = mockEntropySource,
 }: {
   groupIndex?: number;
+  entropySource?: EntropySourceId;
 } = {}): MultichainAccount {
   return new MultichainAccountAdapter({
-    group: mockAccountGroup,
+    walletId: toMultichainAccountWalletId(entropySource),
+    accounts: Object.values(mockAccounts),
     groupIndex,
-    getAccount: mockGetAccount,
   });
 }
 
@@ -162,15 +145,16 @@ function setupAccountProviders(): AccountProvider[] {
 function setupMultichainAccountWallet({
   entropySource = mockEntropySource,
   providers = setupAccountProviders(),
+  multichainAccounts = [setupMultichainAccount()],
 }: {
   entropySource?: EntropySourceId;
   providers?: AccountProvider[];
+  multichainAccounts?: MultichainAccount[];
 } = {}): MultichainAccountWallet {
   return new MultichainAccountWalletAdapter({
-    wallet: mockAccountWallet,
     providers,
     entropySource,
-    getAccount: mockGetAccount,
+    multichainAccounts,
   });
 }
 
@@ -220,16 +204,21 @@ function mockAccountProviderUsing(
 
 describe('index', () => {
   describe('MultichainAccount', () => {
-    beforeEach(() => {
-      mockGetAccount.mockImplementation((id) => mockAccounts[id]);
-    });
-
     it('constructs a multichain account', () => {
-      const multichainAccount = setupMultichainAccount();
+      const groupIndex = 0;
+      const entropySource = mockEntropySource;
+      const multichainAccount = setupMultichainAccount({
+        entropySource,
+        groupIndex,
+      });
 
+      const expectedWalletId = toMultichainAccountWalletId(entropySource);
       const expectedAccounts = Object.values(mockAccounts);
-      expect(multichainAccount.id).toStrictEqual(mockAccountGroup.id);
-      expect(multichainAccount.index).toBe(0);
+      expect(multichainAccount.id).toStrictEqual(
+        toMultichainAccountId(expectedWalletId, groupIndex),
+      );
+      expect(multichainAccount.index).toBe(groupIndex);
+      expect(multichainAccount.walletId).toStrictEqual(expectedWalletId);
       expect(multichainAccount.accounts).toHaveLength(expectedAccounts.length);
       expect(multichainAccount.accounts).toStrictEqual(expectedAccounts);
     });
@@ -446,12 +435,15 @@ describe('index', () => {
 
   describe('MultichainAccountWallet', () => {
     it('constructs a multichain account wallet', () => {
+      const entropySource = mockEntropySource;
+      const accounts = [setupMultichainAccount({ entropySource })];
       const wallet = setupMultichainAccountWallet({
-        entropySource: mockEntropySource,
+        entropySource,
       });
 
-      expect(wallet.id).toStrictEqual(mockAccountWallet.id);
-      expect(wallet.accounts).toHaveLength(mockAccountWallet.groups.length);
+      const expectedWalletId = toMultichainAccountWalletId(entropySource);
+      expect(wallet.id).toStrictEqual(expectedWalletId);
+      expect(wallet.accounts).toHaveLength(accounts.length);
       expect(wallet.entropySource).toStrictEqual(mockEntropySource);
     });
 
