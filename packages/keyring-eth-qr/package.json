@@ -48,11 +48,15 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@ethereumjs/rlp": "^5.0.2",
+    "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
     "@keystonehq/bc-ur-registry-eth": "^0.19.1",
+    "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/utils": "^11.1.0",
-    "hdkey": "^2.1.0"
+    "hdkey": "^2.1.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@keystonehq/base-eth-keyring": "^0.15.1",

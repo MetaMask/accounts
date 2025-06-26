@@ -1,2 +1,2 @@
-export * from './qr-keyring-bridge';
+export * from './qr-keyring-scanner-bridge';
 export * from './qr-keyring';

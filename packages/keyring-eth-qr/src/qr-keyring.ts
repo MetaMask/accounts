@@ -1,6 +1,20 @@
+import { RLP } from '@ethereumjs/rlp';
+import {
+  type FeeMarketEIP1559Transaction,
+  TransactionFactory,
+  TransactionType,
+  type TypedTransaction,
+  type TypedTxData,
+} from '@ethereumjs/tx';
+import {
+  DataType,
+  ETHSignature,
+  EthSignRequest,
+} from '@keystonehq/bc-ur-registry-eth';
+import type { TypedMessage, MessageTypes } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
-import type { Hex } from '@metamask/utils';
-import { add0x, getChecksumAddress } from '@metamask/utils';
+import { type Hex, add0x, getChecksumAddress } from '@metamask/utils';
+import { stringify, v4 as uuidv4 } from 'uuid';
 
 import {
   type AirgappedSignerDetails,
@@ -10,6 +24,11 @@ import {
 } from './airgapped-signer';
 
 export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
+
+const DEFAULT_SCAN_REQUEST_TITLE = 'Scan with your hardware wallet';
+
+const DEFAULT_SCAN_REQUEST_DESCRIPTION =
+  'After your device has scanned this QR code, click on "Scan" to receive the information.';
 
 export enum QrScanRequestType {
   /**
@@ -24,13 +43,25 @@ export enum QrScanRequestType {
   SIGN = 'sign',
 }
 
-export type QrScanResponse = {
+export type QrSignatureRequest = {
+  requestId: string;
+  payload: SerializedUR;
+  requestTitle?: string;
+  requestDescription?: string;
+};
+
+export type QrScanRequest = {
+  type: QrScanRequestType;
+  request?: QrSignatureRequest;
+};
+
+export type SerializedUR = {
   type: string;
-  cbor: Hex;
+  cbor: string;
 };
 
 export type QrKeyringBridge = {
-  requestScan: (type: QrScanRequestType) => Promise<QrScanResponse>;
+  requestScan: (request: QrScanRequest) => Promise<SerializedUR>;
 };
 
 export type QrKeyringOptions = {
@@ -217,7 +248,7 @@ export class QrKeyring implements Keyring {
    *
    * @param ur - The CBOR encoded UR
    */
-  submitUR(ur: string | QrScanResponse): void {
+  submitUR(ur: string | SerializedUR): void {
     this.#signer.init(ur);
   }
 
@@ -303,10 +334,163 @@ export class QrKeyring implements Keyring {
   }
 
   /**
+   * Sign a transaction. This is equivalent to the `eth_signTransaction`
+   * Ethereum JSON-RPC method. See the Ethereum JSON-RPC API documentation for
+   * more details.
+   *
+   * @param address - The address of the account to use for signing.
+   * @param transaction - The transaction to sign.
+   * @returns The signed transaction.
+   */
+  async signTransaction(
+    address: Hex,
+    transaction: TypedTransaction,
+  ): Promise<TypedTxData> {
+    const signer = this.#signer.getSourceDetails();
+    if (!signer?.xfp) {
+      throw new Error('Keyring is not initialized. Please scan a QR code.');
+    }
+    const dataType =
+      transaction.type === TransactionType.Legacy
+        ? DataType.transaction
+        : DataType.typedTransaction;
+    let messageToSign: Buffer;
+    if (transaction.type === TransactionType.Legacy) {
+      messageToSign = Buffer.from(RLP.encode(transaction.getMessageToSign()));
+    } else {
+      messageToSign = Buffer.from(
+        (transaction as FeeMarketEIP1559Transaction).getMessageToSign(),
+      );
+    }
+
+    const hdPath = this.#signer.pathFromAddress(address);
+    const chainId = Number(transaction.common.chainId());
+    const requestId = uuidv4();
+    const ethSignRequestUR = EthSignRequest.constructETHRequest(
+      messageToSign,
+      dataType,
+      hdPath,
+      signer.xfp,
+      requestId,
+      chainId,
+    ).toUR();
+    const { r, s, v } = await this.#requestSignature({
+      requestId,
+      payload: {
+        type: ethSignRequestUR.type,
+        cbor: ethSignRequestUR.cbor.toString('hex'),
+      },
+      requestTitle: 'Scan with your hardware wallet',
+      requestDescription:
+        'After your device has signed this message, click on "Scan" to receive the signature',
+    });
+
+    return TransactionFactory.fromTxData(
+      {
+        ...transaction,
+        r,
+        s,
+        v,
+      },
+      {
+        common: transaction.common,
+      },
+    );
+  }
+
+  /**
+   * Sign a message. This is equivalent to the `eth_signTypedData` v4 Ethereum
+   * JSON-RPC method.
+   *
+   * @param address - The address of the account to use for signing.
+   * @param data - The data to sign.
+   * @returns The signed message.
+   */
+  async signTypedData<Types extends MessageTypes>(
+    address: Hex,
+    data: TypedMessage<Types>,
+  ): Promise<string> {
+    const signer = this.#signer.getSourceDetails();
+    if (!signer?.xfp) {
+      throw new Error('Keyring is not initialized. Please scan a QR code.');
+    }
+
+    const hdPath = this.#signer.pathFromAddress(address);
+    const requestId = uuidv4();
+    const ethSignRequestUR = EthSignRequest.constructETHRequest(
+      Buffer.from(JSON.stringify(data), 'utf8'),
+      DataType.typedData,
+      hdPath,
+      signer.xfp,
+      requestId,
+      undefined,
+      address,
+    ).toUR();
+
+    const { r, s, v } = await this.#requestSignature({
+      requestId,
+      payload: {
+        type: ethSignRequestUR.type,
+        cbor: ethSignRequestUR.cbor.toString('hex'),
+      },
+      requestTitle: DEFAULT_SCAN_REQUEST_TITLE,
+      requestDescription: DEFAULT_SCAN_REQUEST_DESCRIPTION,
+    });
+
+    return add0x(
+      Buffer.concat([
+        Uint8Array.from(r),
+        Uint8Array.from(s),
+        Uint8Array.from(v),
+      ]).toString('hex'),
+    );
+  }
+
+  /**
    * Scan for a QR code and initialize the keyring with the
    * scanned UR.
    */
   async #scanAndInitialize(): Promise<void> {
-    this.submitUR(await this.bridge.requestScan(QrScanRequestType.PAIR));
+    this.submitUR(
+      await this.bridge.requestScan({ type: QrScanRequestType.PAIR }),
+    );
+  }
+
+  /**
+   * Request a signature for a transaction or message.
+   *
+   * @param request - The signature request containing the data to sign.
+   * @returns The signature as an object containing r, s, and v values.
+   */
+  async #requestSignature(
+    request: QrSignatureRequest,
+  ): Promise<{ r: Buffer; s: Buffer; v: Buffer }> {
+    const response = await this.bridge.requestScan({
+      type: QrScanRequestType.SIGN,
+      request,
+    });
+    const signatureEnvelope = ETHSignature.fromCBOR(
+      Buffer.from(response.cbor, 'hex'),
+    );
+    const signature = signatureEnvelope.getSignature();
+    const requestId = signatureEnvelope.getRequestId();
+
+    if (!requestId) {
+      throw new Error('Signature request ID is missing.');
+    }
+
+    if (request.requestId !== stringify(requestId)) {
+      throw new Error(
+        `Signature request ID mismatch. Expected: ${
+          request.requestId
+        }, received: ${requestId.toString('hex')}`,
+      );
+    }
+
+    return {
+      r: signature.subarray(0, 32),
+      s: signature.subarray(32, 64),
+      v: signature.subarray(64),
+    };
   }
 }

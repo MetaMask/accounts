@@ -8,7 +8,7 @@ import { add0x, getChecksumAddress, type Hex } from '@metamask/utils';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import HdKey from 'hdkey';
 
-import type { QrScanResponse } from './qr-keyring';
+import type { SerializedUR } from './qr-keyring';
 
 export const SUPPORTED_UR_TYPE = {
   CRYPTO_HDKEY: 'crypto-hdkey',
@@ -176,7 +176,7 @@ export class AirgappedSigner {
    *
    * @param source - The signer source, in the form of details object, or a UR string
    */
-  init(source: AirgappedSignerDetails | string | QrScanResponse): void {
+  init(source: AirgappedSignerDetails | string | SerializedUR): void {
     if (typeof source === 'string' || 'cbor' in source) {
       this.#initFromUR(source);
     } else {
@@ -229,6 +229,33 @@ export class AirgappedSigner {
     this.#source.indexes[normalizedAddress] = index;
 
     return normalizedAddress;
+  }
+
+  /**
+   * Retrieve the path of an address derived from the source.
+   *
+   * @param address - The address to retrieve the path for
+   * @returns The path of the address
+   */
+  pathFromAddress(address: Hex): string {
+    if (!this.#source) {
+      throw new Error('UR not initialized');
+    }
+
+    const normalizedAddress = getChecksumAddress(add0x(address));
+
+    if (this.#source.keyringMode === KeyringMode.ACCOUNT) {
+      const path = this.#source.paths[normalizedAddress];
+      if (path === undefined) {
+        throw new Error(`Unknown address ${normalizedAddress}`);
+      }
+      return path;
+    }
+
+    const index = this.indexFromAddress(normalizedAddress);
+    return `${this.#source.hdPath}/${this.#source.childrenPath
+      .replace('*', index.toString())
+      .replace(/\*/gu, '0')}`;
   }
 
   /**
@@ -313,7 +340,7 @@ export class AirgappedSigner {
    *
    * @param ur - The UR string to set the root account from
    */
-  #initFromUR(ur: string | QrScanResponse): void {
+  #initFromUR(ur: string | SerializedUR): void {
     const source = this.#decodeUR(ur);
     const fingerprint = getFingerprintFromSource(source);
 
@@ -350,7 +377,7 @@ export class AirgappedSigner {
    * @returns The decoded CryptoAccount or CryptoHDKey
    * @throws Will throw an error if the UR type is not supported
    */
-  #decodeUR(ur: string | QrScanResponse): CryptoAccount | CryptoHDKey {
+  #decodeUR(ur: string | SerializedUR): CryptoAccount | CryptoHDKey {
     const decodedUR =
       typeof ur === 'string'
         ? URRegistryDecoder.decode(ur)
