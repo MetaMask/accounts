@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+// This rule seems to be triggering a false positive. Possibly eslint is not
+// inferring the `InternalAccount` type correctly which causes issue with the
+// union `| undefined`.
+
 import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import type { AccountId } from '@metamask/keyring-utils';
