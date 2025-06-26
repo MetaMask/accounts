@@ -13,7 +13,7 @@ import {
 } from '@keystonehq/bc-ur-registry-eth';
 import type { TypedMessage, MessageTypes } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
-import { type Hex, add0x, getChecksumAddress } from '@metamask/utils';
+import { type Hex, add0x, getChecksumAddress, remove0x } from '@metamask/utils';
 import { stringify, v4 as uuidv4 } from 'uuid';
 
 import {
@@ -346,34 +346,32 @@ export class QrKeyring implements Keyring {
     address: Hex,
     transaction: TypedTransaction,
   ): Promise<TypedTxData> {
-    const signer = this.#signer.getSourceDetails();
-    if (!signer?.xfp) {
+    const signerSource = this.#signer.getSourceDetails();
+    if (!signerSource?.xfp) {
       throw new Error('Keyring is not initialized. Please scan a QR code.');
     }
+
     const dataType =
       transaction.type === TransactionType.Legacy
         ? DataType.transaction
         : DataType.typedTransaction;
-    let messageToSign: Buffer;
-    if (transaction.type === TransactionType.Legacy) {
-      messageToSign = Buffer.from(RLP.encode(transaction.getMessageToSign()));
-    } else {
-      messageToSign = Buffer.from(
-        (transaction as FeeMarketEIP1559Transaction).getMessageToSign(),
-      );
-    }
 
-    const hdPath = this.#signer.pathFromAddress(address);
-    const chainId = Number(transaction.common.chainId());
+    const messageToSign = Buffer.from(
+      transaction.type === TransactionType.Legacy
+        ? RLP.encode(transaction.getMessageToSign())
+        : (transaction as FeeMarketEIP1559Transaction).getMessageToSign(),
+    );
+
     const requestId = uuidv4();
     const ethSignRequestUR = EthSignRequest.constructETHRequest(
       messageToSign,
       dataType,
-      hdPath,
-      signer.xfp,
+      this.#signer.pathFromAddress(address),
+      signerSource.xfp,
       requestId,
-      chainId,
+      Number(transaction.common.chainId()),
     ).toUR();
+
     const { r, s, v } = await this.#requestSignature({
       requestId,
       payload: {
@@ -410,18 +408,17 @@ export class QrKeyring implements Keyring {
     address: Hex,
     data: TypedMessage<Types>,
   ): Promise<string> {
-    const signer = this.#signer.getSourceDetails();
-    if (!signer?.xfp) {
+    const signerSource = this.#signer.getSourceDetails();
+    if (!signerSource?.xfp) {
       throw new Error('Keyring is not initialized. Please scan a QR code.');
     }
 
-    const hdPath = this.#signer.pathFromAddress(address);
     const requestId = uuidv4();
     const ethSignRequestUR = EthSignRequest.constructETHRequest(
       Buffer.from(JSON.stringify(data), 'utf8'),
       DataType.typedData,
-      hdPath,
-      signer.xfp,
+      this.#signer.pathFromAddress(address),
+      signerSource.xfp,
       requestId,
       undefined,
       address,
@@ -435,6 +432,52 @@ export class QrKeyring implements Keyring {
       },
       requestTitle: DEFAULT_SCAN_REQUEST_TITLE,
       requestDescription: DEFAULT_SCAN_REQUEST_DESCRIPTION,
+    });
+
+    return add0x(
+      Buffer.concat([
+        Uint8Array.from(r),
+        Uint8Array.from(s),
+        Uint8Array.from(v),
+      ]).toString('hex'),
+    );
+  }
+
+  /**
+   * Sign a message. This is equivalent to the `eth_sign` Ethereum JSON-RPC
+   * method, which is exposed by MetaMask as the method `personal_sign`. See
+   * the Ethereum JSON-RPC API documentation for more details.
+   *
+   * For more information about this method and why we call it `personal_sign`,
+   * see the {@link https://docs.metamask.io/guide/signing-data.html|MetaMask Docs}.
+   *
+   * @param address - The address of the account to use for signing.
+   * @param message - The message to sign.
+   * @returns The signed message.
+   */
+  async signPersonalMessage(address: Hex, message: Hex): Promise<string> {
+    const signerSource = this.#signer.getSourceDetails();
+    if (!signerSource?.xfp) {
+      throw new Error('Keyring is not initialized. Please scan a QR code.');
+    }
+
+    const requestId = uuidv4();
+    const ethSignRequestUR = EthSignRequest.constructETHRequest(
+      Buffer.from(remove0x(message), 'hex'),
+      DataType.personalMessage,
+      this.#signer.pathFromAddress(address),
+      signerSource.xfp,
+      requestId,
+      undefined,
+      address,
+    ).toUR();
+
+    const { r, s, v } = await this.#requestSignature({
+      requestId,
+      payload: {
+        type: ethSignRequestUR.type,
+        cbor: ethSignRequestUR.cbor.toString('hex'),
+      },
     });
 
     return add0x(

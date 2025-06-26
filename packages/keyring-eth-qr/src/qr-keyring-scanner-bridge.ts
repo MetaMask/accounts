@@ -9,14 +9,14 @@ import type {
  */
 export type QrKeyringScannerBridgeOptions = {
   /**
-   * An injected function that the bridge uses to request a QR code scan.
+   * The function that the bridge will use to initiate a QR scan request.
    */
   requestScan: (request: QrScanRequest) => Promise<SerializedUR>;
 };
 
 /**
- * A bridge that allows the QrKeyring to request a QR code scan
- * while keeping the implementation defined by the QrKeyring consumer.
+ * A generic transport bridge that allows the consumer to inject a scan
+ * request hook at construction time.
  */
 export class QrKeyringScannerBridge implements QrKeyringBridge {
   readonly #requestScan: QrKeyringScannerBridgeOptions['requestScan'];
