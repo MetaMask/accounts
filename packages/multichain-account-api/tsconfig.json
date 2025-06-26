@@ -7,6 +7,9 @@
   "exclude": ["./dist/**/*"],
   "references": [
     {
+      "path": "../keyring-api/tsconfig.build.json"
+    },
+    {
       "path": "../keyring-internal-api/tsconfig.build.json"
     },
     {
