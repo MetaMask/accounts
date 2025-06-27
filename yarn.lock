@@ -1789,7 +1789,7 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
-    "@metamask/keyring-utils": "npm:^3.0.0"
+    "@metamask/keyring-utils": "workspace:^"
     "@metamask/utils": "npm:^11.1.0"
     "@types/hdkey": "npm:^2.0.1"
     "@types/jest": "npm:^29.5.12"
@@ -2149,7 +2149,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-utils@npm:^3.0.0, @metamask/keyring-utils@workspace:^, @metamask/keyring-utils@workspace:packages/keyring-utils":
+"@metamask/keyring-utils@workspace:^, @metamask/keyring-utils@workspace:packages/keyring-utils":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-utils@workspace:packages/keyring-utils"
   dependencies:
