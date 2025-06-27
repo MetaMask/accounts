@@ -385,7 +385,7 @@ export class QrKeyring implements Keyring {
 
     return TransactionFactory.fromTxData(
       {
-        ...transaction,
+        ...transaction.toJSON(),
         r,
         s,
         v,
