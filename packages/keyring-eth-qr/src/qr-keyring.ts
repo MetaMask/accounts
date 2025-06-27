@@ -1,34 +1,16 @@
-import { RLP } from '@ethereumjs/rlp';
-import {
-  type FeeMarketEIP1559Transaction,
-  TransactionFactory,
-  TransactionType,
-  type TypedTransaction,
-  type TypedTxData,
-} from '@ethereumjs/tx';
-import {
-  DataType,
-  ETHSignature,
-  EthSignRequest,
-} from '@keystonehq/bc-ur-registry-eth';
+import { type TypedTransaction, type TypedTxData } from '@ethereumjs/tx';
 import type { TypedMessage, MessageTypes } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
-import { type Hex, add0x, getChecksumAddress, remove0x } from '@metamask/utils';
-import { stringify, v4 as uuidv4 } from 'uuid';
+import { type Hex, add0x, getChecksumAddress } from '@metamask/utils';
 
 import {
-  type AirgappedSignerDetails,
+  type DeviceDetails,
   type IndexedAddress,
-  AirgappedSigner,
-  KeyringMode,
-} from './airgapped-signer';
+  Device,
+  DeviceMode,
+} from './device';
 
 export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
-
-const DEFAULT_SCAN_REQUEST_TITLE = 'Scan with your hardware wallet';
-
-const DEFAULT_SCAN_REQUEST_DESCRIPTION =
-  'After your device has scanned this QR code, click on "Scan" to receive the information.';
 
 export enum QrScanRequestType {
   /**
@@ -84,7 +66,7 @@ export type SerializedQrKeyringState = {
     }
   | ({
       initialized: true;
-    } & AirgappedSignerDetails)
+    } & DeviceDetails)
 );
 
 /**
@@ -115,7 +97,7 @@ export class QrKeyring implements Keyring {
 
   readonly bridge: QrKeyringBridge;
 
-  readonly #signer: AirgappedSigner = new AirgappedSigner();
+  readonly #device: Device;
 
   #accounts: Hex[] = [];
 
@@ -125,6 +107,8 @@ export class QrKeyring implements Keyring {
 
   constructor(options: QrKeyringOptions) {
     this.bridge = options.bridge;
+
+    this.#device = new Device(this.bridge.requestScan.bind(this.bridge));
 
     if (options?.ur) {
       this.submitUR(options.ur);
@@ -137,43 +121,43 @@ export class QrKeyring implements Keyring {
    * @returns The serialized state
    */
   async serialize(): Promise<SerializedQrKeyringState> {
-    const source = this.#signer.getSourceDetails();
+    const deviceDetails = this.#device.getDeviceDetails();
 
     if (
-      !source ||
-      ![KeyringMode.HD, KeyringMode.ACCOUNT].includes(source.keyringMode)
+      !deviceDetails ||
+      ![DeviceMode.HD, DeviceMode.ACCOUNT].includes(deviceDetails.keyringMode)
     ) {
-      // the keyring has not initialized with a device source yet
+      // the keyring has not initialized with a deviceDetails device yet
       return getDefaultSerializedQrKeyringState();
     }
 
     const accounts = this.#accounts.slice();
 
-    if (source.keyringMode === KeyringMode.HD) {
+    if (deviceDetails.keyringMode === DeviceMode.HD) {
       // These properties are only relevant for HD Keys
       return {
         initialized: true,
-        name: source.name,
-        keyringMode: KeyringMode.HD,
-        keyringAccount: source.keyringAccount,
-        xfp: source.xfp,
-        xpub: source.xpub,
-        hdPath: source.hdPath,
-        childrenPath: source.childrenPath,
+        name: deviceDetails.name,
+        keyringMode: DeviceMode.HD,
+        keyringAccount: deviceDetails.keyringAccount,
+        xfp: deviceDetails.xfp,
+        xpub: deviceDetails.xpub,
+        hdPath: deviceDetails.hdPath,
+        childrenPath: deviceDetails.childrenPath,
         accounts,
-        indexes: source.indexes,
+        indexes: deviceDetails.indexes,
       };
     }
     // These properties are only relevant for Account Keys
     return {
       initialized: true,
-      name: source.name,
-      keyringMode: KeyringMode.ACCOUNT,
-      keyringAccount: source.keyringAccount,
-      xfp: source.xfp,
-      paths: source.paths,
+      name: deviceDetails.name,
+      keyringMode: DeviceMode.ACCOUNT,
+      keyringAccount: deviceDetails.keyringAccount,
+      xfp: deviceDetails.xfp,
+      paths: deviceDetails.paths,
       accounts,
-      indexes: source.indexes,
+      indexes: deviceDetails.indexes,
     };
   }
 
@@ -185,11 +169,11 @@ export class QrKeyring implements Keyring {
   async deserialize(state: SerializedQrKeyringState): Promise<void> {
     if (!state.initialized) {
       this.#accounts = [];
-      this.#signer.clear();
+      this.#device.clear();
       return;
     }
 
-    this.#signer.init(state);
+    this.#device.init(state);
     this.#accounts = (state.accounts ?? []).map(normalizeAddress);
   }
 
@@ -203,12 +187,12 @@ export class QrKeyring implements Keyring {
     const lastAccount = this.#accounts[this.#accounts.length - 1];
     const startIndex =
       this.#accountToUnlock ??
-      (lastAccount ? this.#signer.indexFromAddress(lastAccount) : 0);
+      (lastAccount ? this.#device.indexFromAddress(lastAccount) : 0);
     const newAccounts: Hex[] = [];
 
     for (let i = 0; i < accountsToAdd; i++) {
       const index = startIndex + i;
-      const address = this.#signer.addressFromIndex(index);
+      const address = this.#device.addressFromIndex(index);
 
       if (this.#accounts.includes(address)) {
         continue;
@@ -249,7 +233,7 @@ export class QrKeyring implements Keyring {
    * @param ur - The CBOR encoded UR
    */
   submitUR(ur: string | SerializedUR): void {
-    this.#signer.init(ur);
+    this.#device.init(ur);
   }
 
   /**
@@ -268,7 +252,7 @@ export class QrKeyring implements Keyring {
    * @returns The name of the paired device or the keyring type.
    */
   getName(): string {
-    const source = this.#signer.getSourceDetails();
+    const source = this.#device.getDeviceDetails();
     return source?.name ?? QR_KEYRING_TYPE;
   }
 
@@ -316,18 +300,18 @@ export class QrKeyring implements Keyring {
    * @returns The current page of accounts as an array of IndexedAddress objects.
    */
   async getCurrentPage(): Promise<IndexedAddress[]> {
-    if (!this.#signer.isInitialized()) {
+    if (!this.#device.isInitialized()) {
       await this.#scanAndInitialize();
     }
 
-    return this.#signer.getAddressesPage(this.#currentPage);
+    return this.#device.getAddressesPage(this.#currentPage);
   }
 
   /**
    * Clear the keyring state and forget any paired device or accounts.
    */
   async forgetDevice(): Promise<void> {
-    this.#signer.clear();
+    this.#device.clear();
     this.#accounts = [];
     this.#accountToUnlock = undefined;
     this.#currentPage = 0;
@@ -346,54 +330,7 @@ export class QrKeyring implements Keyring {
     address: Hex,
     transaction: TypedTransaction,
   ): Promise<TypedTxData> {
-    const signerSource = this.#signer.getSourceDetails();
-    if (!signerSource?.xfp) {
-      throw new Error('Keyring is not initialized. Please scan a QR code.');
-    }
-
-    const dataType =
-      transaction.type === TransactionType.Legacy
-        ? DataType.transaction
-        : DataType.typedTransaction;
-
-    const messageToSign = Buffer.from(
-      transaction.type === TransactionType.Legacy
-        ? RLP.encode(transaction.getMessageToSign())
-        : (transaction as FeeMarketEIP1559Transaction).getMessageToSign(),
-    );
-
-    const requestId = uuidv4();
-    const ethSignRequestUR = EthSignRequest.constructETHRequest(
-      messageToSign,
-      dataType,
-      this.#signer.pathFromAddress(address),
-      signerSource.xfp,
-      requestId,
-      Number(transaction.common.chainId()),
-    ).toUR();
-
-    const { r, s, v } = await this.#requestSignature({
-      requestId,
-      payload: {
-        type: ethSignRequestUR.type,
-        cbor: ethSignRequestUR.cbor.toString('hex'),
-      },
-      requestTitle: 'Scan with your hardware wallet',
-      requestDescription:
-        'After your device has signed this message, click on "Scan" to receive the signature',
-    });
-
-    return TransactionFactory.fromTxData(
-      {
-        ...transaction.toJSON(),
-        r,
-        s,
-        v,
-      },
-      {
-        common: transaction.common,
-      },
-    );
+    return this.#device.signTransaction(address, transaction);
   }
 
   /**
@@ -408,39 +345,7 @@ export class QrKeyring implements Keyring {
     address: Hex,
     data: TypedMessage<Types>,
   ): Promise<string> {
-    const signerSource = this.#signer.getSourceDetails();
-    if (!signerSource?.xfp) {
-      throw new Error('Keyring is not initialized. Please scan a QR code.');
-    }
-
-    const requestId = uuidv4();
-    const ethSignRequestUR = EthSignRequest.constructETHRequest(
-      Buffer.from(JSON.stringify(data), 'utf8'),
-      DataType.typedData,
-      this.#signer.pathFromAddress(address),
-      signerSource.xfp,
-      requestId,
-      undefined,
-      address,
-    ).toUR();
-
-    const { r, s, v } = await this.#requestSignature({
-      requestId,
-      payload: {
-        type: ethSignRequestUR.type,
-        cbor: ethSignRequestUR.cbor.toString('hex'),
-      },
-      requestTitle: DEFAULT_SCAN_REQUEST_TITLE,
-      requestDescription: DEFAULT_SCAN_REQUEST_DESCRIPTION,
-    });
-
-    return add0x(
-      Buffer.concat([
-        Uint8Array.from(r),
-        Uint8Array.from(s),
-        Uint8Array.from(v),
-      ]).toString('hex'),
-    );
+    return this.#device.signTypedData(address, data);
   }
 
   /**
@@ -456,37 +361,7 @@ export class QrKeyring implements Keyring {
    * @returns The signed message.
    */
   async signPersonalMessage(address: Hex, message: Hex): Promise<string> {
-    const signerSource = this.#signer.getSourceDetails();
-    if (!signerSource?.xfp) {
-      throw new Error('Keyring is not initialized. Please scan a QR code.');
-    }
-
-    const requestId = uuidv4();
-    const ethSignRequestUR = EthSignRequest.constructETHRequest(
-      Buffer.from(remove0x(message), 'hex'),
-      DataType.personalMessage,
-      this.#signer.pathFromAddress(address),
-      signerSource.xfp,
-      requestId,
-      undefined,
-      address,
-    ).toUR();
-
-    const { r, s, v } = await this.#requestSignature({
-      requestId,
-      payload: {
-        type: ethSignRequestUR.type,
-        cbor: ethSignRequestUR.cbor.toString('hex'),
-      },
-    });
-
-    return add0x(
-      Buffer.concat([
-        Uint8Array.from(r),
-        Uint8Array.from(s),
-        Uint8Array.from(v),
-      ]).toString('hex'),
-    );
+    return this.#device.signPersonalMessage(address, message);
   }
 
   /**
@@ -497,43 +372,5 @@ export class QrKeyring implements Keyring {
     this.submitUR(
       await this.bridge.requestScan({ type: QrScanRequestType.PAIR }),
     );
-  }
-
-  /**
-   * Request a signature for a transaction or message.
-   *
-   * @param request - The signature request containing the data to sign.
-   * @returns The signature as an object containing r, s, and v values.
-   */
-  async #requestSignature(
-    request: QrSignatureRequest,
-  ): Promise<{ r: Buffer; s: Buffer; v: Buffer }> {
-    const response = await this.bridge.requestScan({
-      type: QrScanRequestType.SIGN,
-      request,
-    });
-    const signatureEnvelope = ETHSignature.fromCBOR(
-      Buffer.from(response.cbor, 'hex'),
-    );
-    const signature = signatureEnvelope.getSignature();
-    const requestId = signatureEnvelope.getRequestId();
-
-    if (!requestId) {
-      throw new Error('Signature request ID is missing.');
-    }
-
-    if (request.requestId !== stringify(requestId)) {
-      throw new Error(
-        `Signature request ID mismatch. Expected: ${
-          request.requestId
-        }, received: ${requestId.toString('hex')}`,
-      );
-    }
-
-    return {
-      r: signature.subarray(0, 32),
-      s: signature.subarray(32, 64),
-      v: signature.subarray(64),
-    };
   }
 }

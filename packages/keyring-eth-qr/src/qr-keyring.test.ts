@@ -5,7 +5,7 @@ import type { Hex } from '@metamask/utils';
 
 import type { QrKeyringBridge, SerializedQrKeyringState } from '.';
 import { QrKeyring } from '.';
-import { KeyringMode } from './airgapped-signer';
+import { DeviceMode } from './device';
 
 const KNOWN_HDKEY_UR =
   'UR:CRYPTO-HDKEY/ONAXHDCLAXPYSTPELBTLSNGWTTWPGSBSIOWKRFOXHSWSRHURSAHGMYMNTEFLTEBGADAHAXKTNBAAHDCXIODLDNDNZCONGOGMYKJLGHCLTDRYBEJTGOWZWLGLJKEOKIHEFHCLNLAMQDNDZSGEAMTAADDYOEADLNCSDWYKCSFNYKAEYKAOCYIHCHGSOYAYCYIHIAECEYASJNFPINJPFLHSJOCXDPCXJYIHJKJYINDAAAEC';
@@ -33,7 +33,7 @@ const SERIALIZED_KEYSTONE_KEYRING: StoredKeyring = {
     '0xC64D05CD3582531f19dcB16e5FA9652B281fA018',
   ],
   keyringAccount: 'account.standard',
-  keyringMode: KeyringMode.HD,
+  keyringMode: DeviceMode.HD,
   name: 'AirGap - test',
   version: 1,
   xfp: '65174ca1',
@@ -55,7 +55,7 @@ const SERIALIZED_KEYSTONE_KEYRING: StoredKeyring = {
 const SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS: SerializedQrKeyringState = {
   initialized: true,
   name: 'AirGap - test',
-  keyringMode: KeyringMode.HD,
+  keyringMode: DeviceMode.HD,
   keyringAccount: KNOWN_HDKEY.getNote(),
   xfp: KNOWN_HDKEY.getParentFingerprint()?.toString('hex'),
   xpub: KNOWN_HDKEY.getBip32Key(),
@@ -290,7 +290,7 @@ describe('QrKeyring', () => {
         });
 
         await expect(keyring.addAccounts(1)).rejects.toThrow(
-          'UR not initialized',
+          'Device not paired',
         );
       });
     });
