@@ -26,23 +26,42 @@ describe('handleLedgerTransportError', () => {
     return error as TransportStatusError;
   }
 
+  /**
+   * Helper function to test that handleLedgerTransportError throws a LedgerStatusError
+   * with expected properties
+   *
+   * @param error - The error to pass to handleLedgerTransportError
+   * @param expectedStatusCode - Expected status code of the thrown LedgerStatusError
+   * @param expectedMessage - Expected message of the thrown LedgerStatusError
+   */
+  function expectLedgerStatusError(
+    error: unknown,
+    expectedStatusCode: number,
+    expectedMessage: string,
+  ): void {
+    expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
+      LedgerStatusError,
+    );
+
+    let thrownError: unknown;
+    try {
+      handleLedgerTransportError(error, fallbackMessage);
+    } catch (error_: unknown) {
+      thrownError = error_;
+    }
+    expect(thrownError).toBeInstanceOf(LedgerStatusError);
+    expect((thrownError as LedgerStatusError).statusCode).toBe(
+      expectedStatusCode,
+    );
+    expect((thrownError as LedgerStatusError).message).toBe(expectedMessage);
+  }
+
   describe('when error is TransportStatusError', () => {
     it('handles status code 0x6985 (user rejection)', () => {
       const error = createTransportStatusError('User rejected', 0x6985);
-
-      expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-        LedgerStatusError,
-      );
-
-      let thrownError: unknown;
-      try {
-        handleLedgerTransportError(error, fallbackMessage);
-      } catch (error_: unknown) {
-        thrownError = error_;
-      }
-      expect(thrownError).toBeInstanceOf(LedgerStatusError);
-      expect((thrownError as LedgerStatusError).statusCode).toBe(0x6985);
-      expect((thrownError as LedgerStatusError).message).toBe(
+      expectLedgerStatusError(
+        error,
+        0x6985,
         'Ledger: User rejected the transaction',
       );
     });
@@ -52,60 +71,27 @@ describe('handleLedgerTransportError', () => {
         'Blind signing required',
         0x6a80,
       );
-
-      expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-        LedgerStatusError,
-      );
-
-      let thrownError: unknown;
-      try {
-        handleLedgerTransportError(error, fallbackMessage);
-      } catch (error_: unknown) {
-        thrownError = error_;
-      }
-      expect(thrownError).toBeInstanceOf(LedgerStatusError);
-      expect((thrownError as LedgerStatusError).statusCode).toBe(0x6a80);
-      expect((thrownError as LedgerStatusError).message).toBe(
+      expectLedgerStatusError(
+        error,
+        0x6a80,
         'Ledger: Blind signing must be enabled',
       );
     });
 
     it('handles status code 0x5515 (device locked)', () => {
       const error = createTransportStatusError('Device locked', 0x5515);
-
-      expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-        LedgerStatusError,
-      );
-
-      let thrownError: unknown;
-      try {
-        handleLedgerTransportError(error, fallbackMessage);
-      } catch (error_: unknown) {
-        thrownError = error_;
-      }
-      expect(thrownError).toBeInstanceOf(LedgerStatusError);
-      expect((thrownError as LedgerStatusError).statusCode).toBe(0x5515);
-      expect((thrownError as LedgerStatusError).message).toBe(
+      expectLedgerStatusError(
+        error,
+        0x5515,
         'Ledger: Device is locked. Unlock it to continue',
       );
     });
 
     it('handles status code 0x650f (app closed)', () => {
       const error = createTransportStatusError('App closed', 0x650f);
-
-      expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-        LedgerStatusError,
-      );
-
-      let thrownError: unknown;
-      try {
-        handleLedgerTransportError(error, fallbackMessage);
-      } catch (error_: unknown) {
-        thrownError = error_;
-      }
-      expect(thrownError).toBeInstanceOf(LedgerStatusError);
-      expect((thrownError as LedgerStatusError).statusCode).toBe(0x650f);
-      expect((thrownError as LedgerStatusError).message).toBe(
+      expectLedgerStatusError(
+        error,
+        0x650f,
         'Ledger: Ethereum app closed. Open it to unlock',
       );
     });
@@ -117,22 +103,7 @@ describe('handleLedgerTransportError', () => {
         originalMessage,
         unknownStatusCode,
       );
-
-      expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-        LedgerStatusError,
-      );
-
-      let thrownError: unknown;
-      try {
-        handleLedgerTransportError(error, fallbackMessage);
-      } catch (error_: unknown) {
-        thrownError = error_;
-      }
-      expect(thrownError).toBeInstanceOf(LedgerStatusError);
-      expect((thrownError as LedgerStatusError).statusCode).toBe(
-        unknownStatusCode,
-      );
-      expect((thrownError as LedgerStatusError).message).toBe(originalMessage);
+      expectLedgerStatusError(error, unknownStatusCode, originalMessage);
     });
   });
 
