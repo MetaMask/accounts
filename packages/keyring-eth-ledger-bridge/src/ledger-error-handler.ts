@@ -42,9 +42,9 @@ function getTransportErrorMessageFrom(
     case 0x6a80:
       return 'Ledger: Blind signing must be enabled';
     case 0x5515:
-      return 'Ledger: Device is locked. Unlock it to continue.';
+      return 'Ledger: Device is locked. Unlock it to continue';
     case 0x650f:
-      return 'Ledger: Ethereum app closed. Open it to unlock.';
+      return 'Ledger: Ethereum app closed. Open it to unlock';
     default:
       return transportError.message;
   }

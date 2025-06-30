@@ -86,7 +86,7 @@ describe('handleLedgerTransportError', () => {
       expect(thrownError).toBeInstanceOf(LedgerStatusError);
       expect((thrownError as LedgerStatusError).statusCode).toBe(0x5515);
       expect((thrownError as LedgerStatusError).message).toBe(
-        'Ledger: Device is locked. Unlock it to continue.',
+        'Ledger: Device is locked. Unlock it to continue',
       );
     });
 
@@ -106,7 +106,7 @@ describe('handleLedgerTransportError', () => {
       expect(thrownError).toBeInstanceOf(LedgerStatusError);
       expect((thrownError as LedgerStatusError).statusCode).toBe(0x650f);
       expect((thrownError as LedgerStatusError).message).toBe(
-        'Ledger: Ethereum app closed. Open it to unlock.',
+        'Ledger: Ethereum app closed. Open it to unlock',
       );
     });
 
