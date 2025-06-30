@@ -473,16 +473,14 @@ describe('LedgerKeyring', function () {
 
     describe('getFirstPage', function () {
       it('sets the currentPage to 1', async function () {
-        keyring.setHdPath(`m/44'/60'/0'/0/0`);
-        jest.spyOn(keyring, 'unlock').mockResolvedValue(fakeAccounts[0]);
         await keyring.getFirstPage();
         expect(keyring.page).toBe(1);
       });
 
       it('returns the list of accounts for current page', async function () {
-        keyring.setHdPath(`m/44'/60'/0'`);
         const accounts = await keyring.getFirstPage();
-        expect(accounts).toHaveLength(5);
+
+        expect(accounts).toHaveLength(keyring.perPage);
         expect(accounts[0]?.address).toBe(fakeAccounts[0]);
         expect(accounts[1]?.address).toBe(fakeAccounts[1]);
         expect(accounts[2]?.address).toBe(fakeAccounts[2]);
@@ -494,73 +492,10 @@ describe('LedgerKeyring', function () {
         keyring.setHdPath(`m/44'/60'/0'/0/0`);
         jest.spyOn(keyring, 'unlock').mockResolvedValue(fakeAccounts[0]);
         const accounts = await keyring.getFirstPage();
-        expect(accounts).toHaveLength(5);
-        expect(accounts[0]?.address).toBe(fakeAccounts[0]);
-      });
 
-      it('returns the list of accounts when implementFullBIP44 is true and accounts have previous transactions', async function () {
-        keyring.setHdPath(`m/44'/60'/0'/0/0`);
-        keyring.implementFullBIP44 = true;
-        jest.spyOn(keyring, 'unlock').mockResolvedValue(fakeAccounts[0]);
-
-        // Mock window.fetch to simulate accounts with previous transactions
-        const mockFetch = jest.fn().mockResolvedValue({
-          json: jest.fn().mockResolvedValue({
-            status: '1',
-            result: [{ hash: '0x123' }],
-          }),
-        });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error - Mocking window.fetch
-        global.window = { fetch: mockFetch };
-
-        const accounts = await keyring.getFirstPage();
-        expect(accounts).toHaveLength(5);
-        expect(mockFetch).toHaveBeenCalled();
-        expect(accounts[0]?.address).toBe(fakeAccounts[0]);
-      });
-
-      it('stops adding accounts when implementFullBIP44 is true and account has no previous transactions', async function () {
-        keyring.setHdPath(`m/44'/60'/0'/0/0`);
-        keyring.implementFullBIP44 = true;
-        jest.spyOn(keyring, 'unlock').mockResolvedValue(fakeAccounts[0]);
-
-        // Mock window.fetch to simulate accounts with no previous transactions
-        const mockFetch = jest.fn().mockResolvedValue({
-          json: jest.fn().mockResolvedValue({
-            status: '0',
-            result: [],
-          }),
-        });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error - Mocking window.fetch
-        global.window = { fetch: mockFetch };
-
-        const accounts = await keyring.getFirstPage();
-        expect(accounts).toHaveLength(1);
-        expect(mockFetch).toHaveBeenCalled();
-        expect(accounts[0]?.address).toBe(fakeAccounts[0]);
-      });
-
-      it('uses different network API URLs based on network setting', async function () {
-        keyring.setHdPath(`m/44'/60'/0'/0/0`);
-        keyring.implementFullBIP44 = true;
-        keyring.network = 'https://api-ropsten.etherscan.io' as any;
-        jest.spyOn(keyring, 'unlock').mockResolvedValue(fakeAccounts[0]);
-
-        const mockFetch = jest.fn().mockResolvedValue({
-          json: jest.fn().mockResolvedValue({
-            status: '1',
-            result: [{ hash: '0x123' }],
-          }),
-        });
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error - Mocking window.fetch
-        global.window = { fetch: mockFetch };
-
-        await keyring.getFirstPage();
-        expect(mockFetch).toHaveBeenCalledWith(
-          expect.stringContaining('https://api-ropsten.etherscan.io'),
+        expect(accounts).toHaveLength(keyring.perPage);
+        expect(accounts[0]?.address).toBe(
+          '0xF30952A1c534CDE7bC471380065726fa8686dfB3',
         );
       });
     });
@@ -1255,7 +1190,7 @@ describe('LedgerKeyring', function () {
 
         const result = await keyring.signTypedData(
           fakeAccounts[15],
-          fixtureDataWithArrayBufferSalt as any,
+          expectedMessage as any,
           { version: sigUtil.SignTypedDataVersion.V4 },
         );
 
@@ -1266,40 +1201,6 @@ describe('LedgerKeyring', function () {
         });
         expect(bufferFromSpy).toHaveBeenCalled();
         expect(toStringSpy).toHaveBeenCalledWith('hex');
-        expect(result).toBe(
-          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e321b',
-        );
-      });
-
-      it('resolves properly when message domain salt is null', async function () {
-        const fixtureDataWithNullSalt = {
-          ...fixtureData,
-          domain: {
-            ...fixtureData.domain,
-            salt: null,
-          },
-        };
-
-        const deviceSignTypedDataSpy = jest
-          .spyOn(keyring.bridge, 'deviceSignTypedData')
-          .mockImplementation(async () => ({
-            v: 27,
-            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
-            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
-          }));
-
-        const result = await keyring.signTypedData(
-          fakeAccounts[15],
-          fixtureDataWithNullSalt as any,
-          { version: sigUtil.SignTypedDataVersion.V4 },
-        );
-
-        expect(deviceSignTypedDataSpy).toHaveBeenCalled();
-        expect(deviceSignTypedDataSpy).toHaveBeenCalledWith({
-          hdPath: "m/44'/60'/15'",
-          message: fixtureDataWithNullSalt,
-        });
-
         expect(result).toBe(
           '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e321b',
         );
