@@ -59,11 +59,11 @@ describe('handleLedgerTransportError', () => {
   describe('when error is TransportStatusError', () => {
     it('handles status code 0x6985 (user rejection)', () => {
       const error = createTransportStatusError('User rejected', 0x6985);
-      expectLedgerStatusError(
+      expect(expectLedgerStatusError(
         error,
         0x6985,
         'Ledger: User rejected the transaction',
-      );
+      )).toBe(true);
     });
 
     it('handles status code 0x6a80 (blind signing)', () => {
