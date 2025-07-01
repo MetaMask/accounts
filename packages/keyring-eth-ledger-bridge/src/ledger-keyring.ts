@@ -5,7 +5,6 @@ import {
   type TypedTransaction,
 } from '@ethereumjs/tx';
 import { publicToAddress } from '@ethereumjs/util';
-import { TransportStatusError } from '@ledgerhq/hw-transport';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import {
   recoverPersonalSignature,
@@ -26,6 +25,7 @@ import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
 import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
+import { handleLedgerTransportError } from './ledger-error-handler';
 import { LedgerIframeBridgeOptions } from './ledger-iframe-bridge';
 
 const pathBase = 'm';
@@ -237,10 +237,11 @@ export class LedgerKeyring implements Keyring {
       payload = await this.bridge.getPublicKey({
         hdPath: path,
       });
-    } catch (error) {
-      throw error instanceof Error
-        ? error
-        : new Error('Ledger Ethereum app closed. Open it to unlock.');
+    } catch (error: unknown) {
+      handleLedgerTransportError(
+        error,
+        'Ledger: Unknown error while unlocking account',
+      );
     }
 
     if (updateHdk && payload.chainCode) {
@@ -415,28 +416,10 @@ export class LedgerKeyring implements Keyring {
         hdPath,
       });
     } catch (error: unknown) {
-      // check whether error is TransportError
-      if (error instanceof TransportStatusError) {
-        // cast error to TransportError
-        const transportError: TransportStatusError = error;
-        if (
-          transportError.statusCode === 27013 &&
-          transportError.message.includes('(denied by the user?) (0x6985)')
-        ) {
-          throw new Error('Ledger: User rejected the transaction');
-        }
-
-        if (
-          transportError.statusCode === 27264 &&
-          transportError.message.includes('Invalid data received (0x6a80)')
-        ) {
-          throw new Error('Ledger: Blind signing must be enabled');
-        }
-      }
-
-      throw error instanceof Error
-        ? error
-        : new Error('Ledger: Unknown error while signing transaction');
+      handleLedgerTransportError(
+        error,
+        'Ledger: Unknown error while signing transaction',
+      );
     }
 
     const newOrMutatedTx = handleSigning(payload);
@@ -469,22 +452,10 @@ export class LedgerKeyring implements Keyring {
         message: remove0x(message),
       });
     } catch (error: unknown) {
-      if (error instanceof TransportStatusError) {
-        const transportError: TransportStatusError = error;
-        /**
-         * for user rejected the transaction error
-         */
-        if (
-          transportError.statusCode === 27013 &&
-          transportError.message.includes('(denied by the user?) (0x6985)')
-        ) {
-          throw new Error('Ledger: User rejected the transaction');
-        }
-      }
-
-      throw error instanceof Error
-        ? error
-        : new Error('Ledger: Unknown error while signing message');
+      handleLedgerTransportError(
+        error,
+        'Ledger: Unknown error while signing message',
+      );
     }
 
     let modifiedV = parseInt(String(payload.v), 10).toString(16);
@@ -574,26 +545,10 @@ export class LedgerKeyring implements Keyring {
         },
       });
     } catch (error: unknown) {
-      if (error instanceof TransportStatusError) {
-        // cast error to TransportError
-        const transportError: TransportStatusError = error;
-        if (
-          transportError.statusCode === 27013 &&
-          transportError.message.includes('(denied by the user?) (0x6985)')
-        ) {
-          throw new Error('Ledger: User rejected the transaction');
-        }
-
-        if (
-          transportError.statusCode === 27264 &&
-          transportError.message.includes('Invalid data received (0x6a80)')
-        ) {
-          throw new Error('Ledger: Blind signing must be enabled');
-        }
-      }
-      throw error instanceof Error
-        ? error
-        : new Error('Ledger: Unknown error while signing message');
+      handleLedgerTransportError(
+        error,
+        'Ledger: Unknown error while signing message',
+      );
     }
 
     let recoveryId = parseInt(String(payload.v), 10).toString(16);
