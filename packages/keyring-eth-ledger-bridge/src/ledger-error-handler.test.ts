@@ -33,12 +33,13 @@ describe('handleLedgerTransportError', () => {
    * @param error - The error to pass to handleLedgerTransportError
    * @param expectedStatusCode - Expected status code of the thrown LedgerStatusError
    * @param expectedMessage - Expected message of the thrown LedgerStatusError
+   * @returns True if all assertions pass
    */
   function expectLedgerStatusError(
     error: unknown,
     expectedStatusCode: number,
     expectedMessage: string,
-  ): void {
+  ): boolean {
     expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
       LedgerStatusError,
     );
@@ -54,57 +55,51 @@ describe('handleLedgerTransportError', () => {
       expectedStatusCode,
     );
     expect((thrownError as LedgerStatusError).message).toBe(expectedMessage);
+
+    return true;
   }
 
   describe('when error is TransportStatusError', () => {
-    it('handles status code 0x6985 (user rejection)', () => {
-      const error = createTransportStatusError('User rejected', 0x6985);
-      expect(expectLedgerStatusError(
-        error,
-        0x6985,
-        'Ledger: User rejected the transaction',
-      )).toBe(true);
-    });
-
-    it('handles status code 0x6a80 (blind signing)', () => {
-      const error = createTransportStatusError(
-        'Blind signing required',
-        0x6a80,
-      );
-      expectLedgerStatusError(
-        error,
-        0x6a80,
-        'Ledger: Blind signing must be enabled',
-      );
-    });
-
-    it('handles status code 0x5515 (device locked)', () => {
-      const error = createTransportStatusError('Device locked', 0x5515);
-      expectLedgerStatusError(
-        error,
-        0x5515,
-        'Ledger: Device is locked. Unlock it to continue',
-      );
-    });
-
-    it('handles status code 0x650f (app closed)', () => {
-      const error = createTransportStatusError('App closed', 0x650f);
-      expectLedgerStatusError(
-        error,
-        0x650f,
-        'Ledger: Ethereum app closed. Open it to unlock',
-      );
-    });
-
-    it('handles unknown status codes by preserving original message', () => {
-      const unknownStatusCode = 0x9999;
-      const originalMessage = 'Unknown transport error';
-      const error = createTransportStatusError(
-        originalMessage,
-        unknownStatusCode,
-      );
-      expectLedgerStatusError(error, unknownStatusCode, originalMessage);
-    });
+    it.each([
+      {
+        tc: 'user rejection',
+        inputMessage: 'User rejected',
+        status: 0x6985,
+        expectedMessage: 'Ledger: User rejected the transaction',
+      },
+      {
+        tc: 'blind signing',
+        inputMessage: 'Blind signing required',
+        status: 0x6a80,
+        expectedMessage: 'Ledger: Blind signing must be enabled',
+      },
+      {
+        tc: 'device locked',
+        inputMessage: 'Device locked',
+        status: 0x5515,
+        expectedMessage: 'Ledger: Device is locked. Unlock it to continue',
+      },
+      {
+        tc: 'app closed',
+        inputMessage: 'App closed',
+        status: 0x650f,
+        expectedMessage: 'Ledger: Ethereum app closed. Open it to unlock',
+      },
+      {
+        tc: 'unknown status codes by preserving original message',
+        inputMessage: 'Unknown transport error',
+        status: 0x9999,
+        expectedMessage: 'Unknown transport error',
+      },
+    ])(
+      'handles status code $status ($tc)',
+      ({ inputMessage, status, expectedMessage }) => {
+        const error = createTransportStatusError(inputMessage, status);
+        expect(expectLedgerStatusError(error, status, expectedMessage)).toBe(
+          true,
+        );
+      },
+    );
   });
 
   describe('when error is not TransportStatusError', () => {
