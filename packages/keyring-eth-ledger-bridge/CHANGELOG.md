@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.1.1]
+
 ### Uncategorized
 
 - feat(keyring-eth-ledger-bridge): improve error handling around `TransportStatusError` ([#301](https://github.com/MetaMask/accounts.git/pull/301))
@@ -334,7 +336,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.1.1...HEAD
+[11.1.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.1.0...@metamask/eth-ledger-bridge-keyring@11.1.1
 [11.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.0.3...@metamask/eth-ledger-bridge-keyring@11.1.0
 [11.0.3]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.0.2...@metamask/eth-ledger-bridge-keyring@11.0.3
 [11.0.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-ledger-bridge-keyring@11.0.1...@metamask/eth-ledger-bridge-keyring@11.0.2
