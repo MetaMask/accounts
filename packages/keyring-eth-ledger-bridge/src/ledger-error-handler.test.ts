@@ -103,6 +103,22 @@ describe('handleLedgerTransportError', () => {
   });
 
   describe('when error is not TransportStatusError', () => {
+    it.each([
+      { tc: 'null', value: null },
+      { tc: 'undefined', value: undefined },
+      { tc: 'non-Error instances', value: 'string error' },
+      {
+        tc: 'objects without Error prototype',
+        value: { message: 'not an error' },
+      },
+    ])('creates new Error with fallback message for: $tc', ({ value }) => {
+      const throwingFunction = (): never =>
+        handleLedgerTransportError(value, fallbackMessage);
+
+      expect(throwingFunction).toThrow(Error);
+      expect(throwingFunction).toThrow(fallbackMessage);
+    });
+
     it('re-throws Error instances as-is', () => {
       const error = new Error('Original error message');
 
@@ -113,42 +129,6 @@ describe('handleLedgerTransportError', () => {
       expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
         error.message,
       );
-    });
-
-    it('creates new Error with fallback message for non-Error instances', () => {
-      const nonErrorValue = 'string error';
-
-      const throwingFunction = (): never =>
-        handleLedgerTransportError(nonErrorValue, fallbackMessage);
-
-      expect(throwingFunction).toThrow(Error);
-      expect(throwingFunction).toThrow(fallbackMessage);
-    });
-
-    it('creates new Error with fallback message for null', () => {
-      const throwingFunctionNull = (): never =>
-        handleLedgerTransportError(null, fallbackMessage);
-
-      expect(throwingFunctionNull).toThrow(Error);
-      expect(throwingFunctionNull).toThrow(fallbackMessage);
-    });
-
-    it('creates new Error with fallback message for undefined', () => {
-      const throwingFunctionUndefined = (): never =>
-        handleLedgerTransportError(undefined, fallbackMessage);
-
-      expect(throwingFunctionUndefined).toThrow(Error);
-      expect(throwingFunctionUndefined).toThrow(fallbackMessage);
-    });
-
-    it('creates new Error with fallback message for objects without Error prototype', () => {
-      const plainObject = { message: 'not an error' };
-
-      const throwingFunction = (): never =>
-        handleLedgerTransportError(plainObject, fallbackMessage);
-
-      expect(throwingFunction).toThrow(Error);
-      expect(throwingFunction).toThrow(fallbackMessage);
     });
   });
 
