@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- feat(keyring-eth-ledger-bridge): improve error handling around `TransportStatusError` ([#301](https://github.com/MetaMask/accounts/pull/301))
+- Refactor error handling around `TransportStatusError` ([#301](https://github.com/MetaMask/accounts/pull/301))
 
 ## [11.1.0]
 
