@@ -1780,6 +1780,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@metamask/eth-qr-keyring@workspace:packages/keyring-eth-qr"
   dependencies:
+    "@ethereumjs/common": "npm:^4.4.0"
     "@ethereumjs/rlp": "npm:^5.0.2"
     "@ethereumjs/tx": "npm:^5.4.0"
     "@ethereumjs/util": "npm:^9.1.0"
