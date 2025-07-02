@@ -1,35 +1,50 @@
 import { Common } from '@ethereumjs/common';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { StoredKeyring } from '@keystonehq/base-eth-keyring';
-import { CryptoHDKey, ETHSignature } from '@keystonehq/bc-ur-registry-eth';
+import {
+  CryptoAccount,
+  CryptoHDKey,
+  CryptoOutput,
+  ETHSignature,
+  ScriptExpressions,
+} from '@keystonehq/bc-ur-registry-eth';
 import { MetaMaskKeyring as KeystoneKeyring } from '@keystonehq/metamask-airgapped-keyring';
 import * as uuid from 'uuid';
 
 import type { QrKeyringBridge, SerializedQrKeyringState } from '.';
 import { QrKeyring, QrScanRequestType } from '.';
 import { DeviceMode } from './device';
+import { Hex } from '@metamask/utils';
 
-const KNOWN_HDKEY_UR =
-  'UR:CRYPTO-HDKEY/ONAXHDCLAXPYSTPELBTLSNGWTTWPGSBSIOWKRFOXHSWSRHURSAHGMYMNTEFLTEBGADAHAXKTNBAAHDCXIODLDNDNZCONGOGMYKJLGHCLTDRYBEJTGOWZWLGLJKEOKIHEFHCLNLAMQDNDZSGEAMTAADDYOEADLNCSDWYKCSFNYKAEYKAOCYIHCHGSOYAYCYIHIAECEYASJNFPINJPFLHSJOCXDPCXJYIHJKJYINDAAAEC';
-
-const KNOWN_CBOR =
-  'a503582103abc7af7fd5cd4fd1ec4c0f67f4bca461efb9dfc2578f8ed347d31201050377a0045820672f2b2bfda55552f56f5421d2bd106e55f2e94e73337d5f3f219906b39bfa4a06d90130a20186182cf5183cf500f5021a65174ca1081a65633532096d416972476170202d2074657374';
+// This CBOR and the the following test fixtures are all derived from this SRP:
+// abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about
+const KNOWN_HDKEY_CBOR =
+  'a503582102eae4b876a8696134b868f88cc2f51f715f2dbedb7446b8e6edf3d4541c4eb67b045820d882718b7a42806803eeb17f7483f20620611adb88fc943c898dc5aba94c281906d90130a20186182cf5183cf500f5021ad32e4508081ad32e45080972696d546f6b656e2d4163636f756e74203031';
 
 const KNOWN_HDKEY: CryptoHDKey = CryptoHDKey.fromCBOR(
-  Buffer.from(KNOWN_CBOR, 'hex'),
+  Buffer.from(KNOWN_HDKEY_CBOR, 'hex'),
 );
 
+const KNOWN_HDKEY_UR = KNOWN_HDKEY.toUREncoder(2000).nextPart();
+
+const KNOWN_CRYPTO_ACCOUNT = new CryptoAccount(Buffer.from('37b5eed4', 'hex'), [
+  new CryptoOutput([ScriptExpressions.WITNESS_SCRIPT_HASH], KNOWN_HDKEY),
+]);
+
+const KNOWN_CRYPTO_ACCOUNT_UR =
+  KNOWN_CRYPTO_ACCOUNT.toUREncoder(2000).nextPart();
+
 const EXPECTED_ACCOUNTS = [
-  '0x8DC309e828CE024b1ae7a9AA7882D37AD18181d5',
-  '0x98396D8bF756F419eF6CDba819e9DF00E6F2B51B',
-  '0xC64D05CD3582531f19dcB16e5FA9652B281fA018',
-  '0xd28Fc67A38378f9Cc39eC4017fBBC490724aF17c',
-  '0x141458Edda4dD05e63097278920C0C5da45418FC',
-  '0x9a6517E1BD06C4b03A41944A561634CF6E4C796C',
-  '0x8f6B4E6C58859f1E2D0525973AEc85277FB89664',
-  '0x46A5F3444E0e3bF7a47469AfAb7C765A8f0DC05F',
-  '0x62311fBCcC7bc2731648CBDf70Bb8c5426fa546f',
-  '0xd708B935f25BabE7789D8229114d93f2c88De307',
+  '0x9858EfFD232B4033E47d90003D41EC34EcaEda94',
+  '0x6Fac4D18c912343BF86fa7049364Dd4E424Ab9C0',
+  '0xb6716976A3ebe8D39aCEB04372f22Ff8e6802D7A',
+  '0xF3f50213C1d2e255e4B2bAD430F8A38EEF8D718E',
+  '0x51cA8ff9f1C0a99f88E86B8112eA3237F55374cA',
+  '0xA40cFBFc8534FFC84E20a7d8bBC3729B26a35F6f',
+  '0xB191a13bfE648B61002F2e2135867015B71816a6',
+  '0x593814d3309e2dF31D112824F0bb5aa7Cb0D7d47',
+  '0xB14c391e2bf19E5a26941617ab546FA620A4f163',
+  '0x4C1C56443AbFe6dD33de31dAaF0a6E929DBc4971',
 ] as const;
 
 // Coming from an extension installation using `@keystonehq/metamask-airgapped-keyring`
@@ -37,22 +52,22 @@ const EXPECTED_ACCOUNTS = [
 const SERIALIZED_KEYSTONE_KEYRING: StoredKeyring = {
   initialized: true,
   accounts: [
-    '0x8DC309e828CE024b1ae7a9AA7882D37AD18181d5',
-    '0x98396D8bF756F419eF6CDba819e9DF00E6F2B51B',
-    '0xC64D05CD3582531f19dcB16e5FA9652B281fA018',
+    '0x9858EfFD232B4033E47d90003D41EC34EcaEda94',
+    '0x6Fac4D18c912343BF86fa7049364Dd4E424Ab9C0',
+    '0xb6716976A3ebe8D39aCEB04372f22Ff8e6802D7A',
   ],
   keyringAccount: 'account.standard',
   keyringMode: DeviceMode.HD,
-  name: 'AirGap - test',
+  name: 'imToken-Account 01',
   version: 1,
   xfp: '65174ca1',
-  xpub: 'xpub6CPzTSQVcBw9QiZT3wcB6bUVW53m1ica5uByu5ktss4aHSqdj85GitSLT9uarxQgoyfaedxkWZKAeSjSSMNSursAd7eiFpc5ywjnkS1Aur4',
+  xpub: 'xpub6DCoCpSuQZB2jawqnGMEPS63ePKWkwWPH4TU45Q7LPXWuNd8TMtVxRrgjtEshuqpK3mdhaWHPFsBngh5GFZaM6si3yZdUsT8ddYM3PwnATt',
   hdPath: "m/44'/60'/0'",
   childrenPath: '0/*',
   indexes: {
-    '0x8DC309e828CE024b1ae7a9AA7882D37AD18181d5': 0,
-    '0x98396D8bF756F419eF6CDba819e9DF00E6F2B51B': 1,
-    '0xC64D05CD3582531f19dcB16e5FA9652B281fA018': 2,
+    '0x9858EfFD232B4033E47d90003D41EC34EcaEda94': 0,
+    '0x6Fac4D18c912343BF86fa7049364Dd4E424Ab9C0': 1,
+    '0xb6716976A3ebe8D39aCEB04372f22Ff8e6802D7A': 2,
   },
   paths: {},
   // These last properties are not used by `@metamask/eth-qr-keyring`
@@ -61,9 +76,9 @@ const SERIALIZED_KEYSTONE_KEYRING: StoredKeyring = {
   perPage: 5,
 };
 
-const SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS: SerializedQrKeyringState = {
+const HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS: SerializedQrKeyringState = {
   initialized: true,
-  name: 'AirGap - test',
+  name: 'imToken-Account 01',
   keyringMode: DeviceMode.HD,
   keyringAccount: KNOWN_HDKEY.getNote(),
   xfp: KNOWN_HDKEY.getParentFingerprint()?.toString('hex'),
@@ -73,13 +88,33 @@ const SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS: SerializedQrKeyringState = {
   childrenPath: '0/*',
 };
 
-const SERIALIZED_QR_KEYRING_WITH_ACCOUNTS: SerializedQrKeyringState = {
-  ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+const HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS: SerializedQrKeyringState = {
+  ...HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
   accounts: EXPECTED_ACCOUNTS.slice(0, 3),
   indexes: {
     [EXPECTED_ACCOUNTS[0]]: 0,
     [EXPECTED_ACCOUNTS[1]]: 1,
     [EXPECTED_ACCOUNTS[2]]: 2,
+  },
+};
+
+const ACCOUNT_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS: SerializedQrKeyringState = {
+  initialized: true,
+  name: 'imToken-Account 01',
+  keyringMode: DeviceMode.ACCOUNT,
+  keyringAccount: KNOWN_HDKEY.getNote(),
+  xfp: '37b5eed4',
+  paths: {
+    '0x2043858DA83bCD92Ae342C1bAaD4D5F5B5C328B3': "M/44'/60'/0'",
+  },
+  indexes: {},
+};
+
+const ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS: SerializedQrKeyringState = {
+  ...ACCOUNT_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
+  accounts: ['0x2043858DA83bCD92Ae342C1bAaD4D5F5B5C328B3'],
+  indexes: {
+    '0x2043858DA83bCD92Ae342C1bAaD4D5F5B5C328B3': 0,
   },
 };
 
@@ -232,15 +267,53 @@ describe('QrKeyring', () => {
       expect(keyring).toBeInstanceOf(QrKeyring);
     });
 
-    it('can be constructed with a bridge and a UR string', async () => {
-      const keyring = new QrKeyring({
-        bridge: getMockBridge(),
-        ur: KNOWN_HDKEY_UR,
+    describe('when a UR is provided', () => {
+      it('can be constructed with a UR of type `crypto-hdkey`', async () => {
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_HDKEY_UR,
+        });
+
+        expect(await keyring.serialize()).toStrictEqual({
+          ...HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
+          accounts: [],
+        });
       });
 
-      expect(await keyring.serialize()).toStrictEqual({
-        ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
-        accounts: [],
+      it('can be constructed with a UR of type `crypto-account`', async () => {
+        const keyring = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_CRYPTO_ACCOUNT_UR,
+        });
+
+        expect(await keyring.serialize()).toStrictEqual({
+          ...ACCOUNT_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
+          accounts: [],
+        });
+      });
+
+      it('throws an error if the UR is a `crypto-account` but with no descriptors', () => {
+        const faultyUR = new CryptoAccount(Buffer.from('37b5eed4', 'hex'), [])
+          .toUREncoder(2000)
+          .nextPart();
+
+        expect(
+          () =>
+            new QrKeyring({
+              bridge: getMockBridge(),
+              ur: faultyUR,
+            }),
+        ).toThrow('No output descriptors found in CryptoAccount');
+      });
+
+      it('throws an error if the UR is not of type `crypto-hdkey` or `crypto-account`', () => {
+        expect(
+          () =>
+            new QrKeyring({
+              bridge: getMockBridge(),
+              ur: 'invalid-ur',
+            }),
+        ).toThrow('Invalid Scheme');
       });
     });
   });
@@ -256,7 +329,7 @@ describe('QrKeyring', () => {
         const serialized = await keyring.serialize();
 
         expect(serialized).toStrictEqual({
-          ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+          ...HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
           accounts: [],
           indexes: {},
         });
@@ -274,7 +347,7 @@ describe('QrKeyring', () => {
         const serialized = await keyring.serialize();
 
         expect(serialized).toStrictEqual({
-          ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+          ...HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
           accounts: [EXPECTED_ACCOUNTS[0], EXPECTED_ACCOUNTS[1]],
           indexes: {
             [EXPECTED_ACCOUNTS[0]]: 0,
@@ -305,11 +378,11 @@ describe('QrKeyring', () => {
           bridge: getMockBridge(),
         });
 
-        await keyring.deserialize(SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS);
+        await keyring.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS);
 
         expect(await keyring.getAccounts()).toStrictEqual([]);
         expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
-          SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS.xpub,
+          HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS.xpub,
         );
       });
     });
@@ -335,19 +408,48 @@ describe('QrKeyring', () => {
   });
 
   describe('addAccounts', () => {
-    describe('when the keyring is paired with a device', () => {
-      it('returns new accounts added', async () => {
-        const keyring = new QrKeyring({
-          bridge: getMockBridge(),
-          ur: KNOWN_HDKEY_UR,
+    describe.each([
+      ['crypto-hdkey', KNOWN_HDKEY_UR, EXPECTED_ACCOUNTS],
+      [
+        'crypto-account',
+        KNOWN_CRYPTO_ACCOUNT_UR,
+        ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.accounts as Hex[],
+      ],
+    ])(
+      'when the keyring is paired with a device of type `%s`',
+      (_, ur, expectedAccounts) => {
+        it('returns new accounts added', async () => {
+          const keyring = new QrKeyring({
+            bridge: getMockBridge(),
+            ur,
+          });
+
+          const accounts = await keyring.addAccounts(1);
+
+          expect(accounts).toHaveLength(1);
+          expect(accounts[0]).toBe(expectedAccounts[0]);
         });
 
-        const accounts = await keyring.addAccounts(1);
+        it('does not add accounts that already exist', async () => {
+          const keyring = new QrKeyring({
+            bridge: getMockBridge(),
+            ur,
+          });
+          const firstAddition = await keyring.addAccounts(1);
+          keyring.setAccountToUnlock(0);
 
-        expect(accounts).toHaveLength(1);
-        expect(accounts[0]).toBe(EXPECTED_ACCOUNTS[0]);
-      });
+          const secondAddition = await keyring.addAccounts(1);
 
+          expect(firstAddition).toStrictEqual(expectedAccounts.slice(0, 1));
+          expect(secondAddition).toStrictEqual([]);
+          expect(await keyring.getAccounts()).toStrictEqual(
+            expectedAccounts.slice(0, 1),
+          );
+        });
+      },
+    );
+
+    describe('when the keyring is paired with a device of type `crypto-hdkey`', () => {
       it('adds multiple accounts', async () => {
         const keyring = new QrKeyring({
           bridge: getMockBridge(),
@@ -368,7 +470,7 @@ describe('QrKeyring', () => {
           bridge: getMockBridge(),
         });
         await keyring.deserialize({
-          ...SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS,
+          ...HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
           accounts: EXPECTED_ACCOUNTS.slice(0, 3),
         });
 
@@ -385,21 +487,18 @@ describe('QrKeyring', () => {
           [EXPECTED_ACCOUNTS[2]]: 2,
         });
       });
+    });
 
-      it('does not add accounts that already exist', async () => {
+    describe('when the keyring is paired with a device of type `crypto-account`', () => {
+      it('throws an error if the index is not included in the UR descriptors', async () => {
         const keyring = new QrKeyring({
           bridge: getMockBridge(),
-          ur: KNOWN_HDKEY_UR,
+          ur: KNOWN_CRYPTO_ACCOUNT_UR,
         });
-        const firstAddition = await keyring.addAccounts(1);
-        keyring.setAccountToUnlock(0);
+        keyring.setAccountToUnlock(1);
 
-        const secondAddition = await keyring.addAccounts(1);
-
-        expect(firstAddition).toStrictEqual(EXPECTED_ACCOUNTS.slice(0, 1));
-        expect(secondAddition).toStrictEqual([]);
-        expect(await keyring.getAccounts()).toStrictEqual(
-          EXPECTED_ACCOUNTS.slice(0, 1),
+        await expect(keyring.addAccounts(1)).rejects.toThrow(
+          'Address not found for index 1',
         );
       });
     });
@@ -488,7 +587,7 @@ describe('QrKeyring', () => {
         });
 
         expect(keyring.getName()).toBe(
-          SERIALIZED_QR_KEYRING_WITH_NO_ACCOUNTS.name,
+          HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS.name,
         );
       });
     });
@@ -536,7 +635,21 @@ describe('QrKeyring', () => {
       const keyring = new QrKeyring({
         bridge: getMockBridge(),
       });
+
       expect(() => keyring.submitUR('invalid-ur')).toThrow('Invalid Scheme');
+    });
+
+    it('throws an error if the UR is not of type `crypto-hdkey` or `crypto-account`', () => {
+      const keyring = new QrKeyring({
+        bridge: getMockBridge(),
+      });
+
+      expect(() =>
+        keyring.submitUR({
+          type: 'invalid-type',
+          cbor: 'a0',
+        }),
+      ).toThrow('Unsupported UR type');
     });
   });
 
@@ -546,7 +659,7 @@ describe('QrKeyring', () => {
         const mockBridge = getMockBridge();
         jest.spyOn(mockBridge, 'requestScan').mockResolvedValue({
           type: 'crypto-hdkey',
-          cbor: KNOWN_CBOR,
+          cbor: KNOWN_HDKEY_CBOR,
         });
         const keyring = new QrKeyring({
           bridge: mockBridge,
@@ -564,7 +677,7 @@ describe('QrKeyring', () => {
       const mockBridge = getMockBridge();
       jest.spyOn(mockBridge, 'requestScan').mockResolvedValue({
         type: 'crypto-hdkey',
-        cbor: KNOWN_CBOR,
+        cbor: KNOWN_HDKEY_CBOR,
       });
       const keyring = new QrKeyring({
         bridge: mockBridge,
@@ -588,7 +701,7 @@ describe('QrKeyring', () => {
         const mockBridge = getMockBridge();
         jest.spyOn(mockBridge, 'requestScan').mockResolvedValue({
           type: 'crypto-hdkey',
-          cbor: KNOWN_CBOR,
+          cbor: KNOWN_HDKEY_CBOR,
         });
         const keyring = new QrKeyring({
           bridge: mockBridge,
@@ -606,7 +719,7 @@ describe('QrKeyring', () => {
       const mockBridge = getMockBridge();
       jest.spyOn(mockBridge, 'requestScan').mockResolvedValue({
         type: 'crypto-hdkey',
-        cbor: KNOWN_CBOR,
+        cbor: KNOWN_HDKEY_CBOR,
       });
       const keyring = new QrKeyring({
         bridge: mockBridge,
@@ -630,7 +743,7 @@ describe('QrKeyring', () => {
         const mockBridge = getMockBridge();
         jest.spyOn(mockBridge, 'requestScan').mockResolvedValue({
           type: 'crypto-hdkey',
-          cbor: KNOWN_CBOR,
+          cbor: KNOWN_HDKEY_CBOR,
         });
         const keyring = new QrKeyring({
           bridge: mockBridge,
@@ -648,7 +761,7 @@ describe('QrKeyring', () => {
       const mockBridge = getMockBridge();
       jest.spyOn(mockBridge, 'requestScan').mockResolvedValue({
         type: 'crypto-hdkey',
-        cbor: KNOWN_CBOR,
+        cbor: KNOWN_HDKEY_CBOR,
       });
       const keyring = new QrKeyring({
         bridge: mockBridge,
@@ -669,7 +782,7 @@ describe('QrKeyring', () => {
       const mockBridge = getMockBridge();
       jest.spyOn(mockBridge, 'requestScan').mockResolvedValue({
         type: 'crypto-hdkey',
-        cbor: KNOWN_CBOR,
+        cbor: KNOWN_HDKEY_CBOR,
       });
       const keyring = new QrKeyring({
         bridge: mockBridge,
@@ -697,13 +810,13 @@ describe('QrKeyring', () => {
       const keyring = new QrKeyring({
         bridge: getMockBridge(),
       });
-      await keyring.deserialize(SERIALIZED_QR_KEYRING_WITH_ACCOUNTS);
+      await keyring.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS);
       // let's make sure we have an xpub set
       expect(await keyring.getAccounts()).toStrictEqual(
-        SERIALIZED_QR_KEYRING_WITH_ACCOUNTS.accounts,
+        HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS.accounts,
       );
       expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
-        SERIALIZED_QR_KEYRING_WITH_ACCOUNTS.xpub,
+        HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS.xpub,
       );
 
       await keyring.forgetDevice();
@@ -726,51 +839,58 @@ describe('QrKeyring', () => {
       });
     });
 
-    describe('when the keyring is paired with a device', () => {
-      it('signs a transaction', async () => {
-        const keyring = new QrKeyring({
-          bridge: getMockBridge(),
-          ur: KNOWN_HDKEY_UR,
+    describe.each([
+      ['crypto-hdkey', KNOWN_HDKEY_UR, EXPECTED_ACCOUNTS[0]],
+      [
+        'crypto-account',
+        KNOWN_CRYPTO_ACCOUNT_UR,
+        ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.accounts?.[0] as Hex,
+      ],
+    ])(
+      'when the keyring is paired with a device of type `%s`',
+      (_, ur, from) => {
+        it('signs a transaction', async () => {
+          const keyring = new QrKeyring({
+            bridge: getMockBridge(),
+            ur,
+          });
+          mockBridgeScanResolution(
+            keyring.bridge,
+            '33ea4c1dc4b201ad1b1feaf172aadf60dcf2f8bd76d941396bfaebfc3b2868b0340d5689341925c99cdea39e3c5daf7fe2776f220e5b018e85d3b1df19c7bc4701',
+          );
+
+          const signedTx = await keyring.signTransaction(from, TRANSACTION);
+
+          expect(signedTx.r).toBeDefined();
+          expect(signedTx.s).toBeDefined();
+          expect(signedTx.v).toBeDefined();
+          expect(signedTx.to).toStrictEqual(TRANSACTION.to);
+          expect(signedTx.nonce).toBe(TRANSACTION.nonce);
         });
-        mockBridgeScanResolution(
-          keyring.bridge,
-          '33ea4c1dc4b201ad1b1feaf172aadf60dcf2f8bd76d941396bfaebfc3b2868b0340d5689341925c99cdea39e3c5daf7fe2776f220e5b018e85d3b1df19c7bc4701',
-        );
 
-        const signedTx = await keyring.signTransaction(
-          EXPECTED_ACCOUNTS[0],
-          TRANSACTION,
-        );
+        it('signs a legacy transaction', async () => {
+          const keyring = new QrKeyring({
+            bridge: getMockBridge(),
+            ur: KNOWN_HDKEY_UR,
+          });
+          mockBridgeScanResolution(
+            keyring.bridge,
+            'c28a6a8eeaedeef76bce7d1b2c255c6ee624feadd3b56797d88198c28853b25573221eb94f4ca5e2bce21d99c7c56823e22c7847064961f2e05d526037393fe701546d71',
+          );
 
-        expect(signedTx.r).toBeDefined();
-        expect(signedTx.s).toBeDefined();
-        expect(signedTx.v).toBeDefined();
-        expect(signedTx.to).toStrictEqual(TRANSACTION.to);
-        expect(signedTx.nonce).toBe(TRANSACTION.nonce);
-      });
+          const signedTx = await keyring.signTransaction(
+            EXPECTED_ACCOUNTS[0],
+            LEGACY_TRANSACTION,
+          );
 
-      it('signs a legacy transaction', async () => {
-        const keyring = new QrKeyring({
-          bridge: getMockBridge(),
-          ur: KNOWN_HDKEY_UR,
+          expect(signedTx.r).toBeDefined();
+          expect(signedTx.s).toBeDefined();
+          expect(signedTx.v).toBeDefined();
+          expect(signedTx.to).toStrictEqual(LEGACY_TRANSACTION.to);
+          expect(signedTx.nonce).toBe(LEGACY_TRANSACTION.nonce);
         });
-        mockBridgeScanResolution(
-          keyring.bridge,
-          'c28a6a8eeaedeef76bce7d1b2c255c6ee624feadd3b56797d88198c28853b25573221eb94f4ca5e2bce21d99c7c56823e22c7847064961f2e05d526037393fe701546d71',
-        );
-
-        const signedTx = await keyring.signTransaction(
-          EXPECTED_ACCOUNTS[0],
-          LEGACY_TRANSACTION,
-        );
-
-        expect(signedTx.r).toBeDefined();
-        expect(signedTx.s).toBeDefined();
-        expect(signedTx.v).toBeDefined();
-        expect(signedTx.to).toStrictEqual(LEGACY_TRANSACTION.to);
-        expect(signedTx.nonce).toBe(LEGACY_TRANSACTION.nonce);
-      });
-    });
+      },
+    );
   });
 
   describe('signTypedData', () => {
@@ -786,28 +906,38 @@ describe('QrKeyring', () => {
       });
     });
 
-    describe('when the keyring is paired with a device', () => {
-      it('signs a typed data message', async () => {
-        const keyring = new QrKeyring({
-          bridge: getMockBridge(),
-          ur: KNOWN_HDKEY_UR,
+    describe.each([
+      ['crypto-hdkey', KNOWN_HDKEY_UR, EXPECTED_ACCOUNTS[0]],
+      [
+        'crypto-account',
+        KNOWN_CRYPTO_ACCOUNT_UR,
+        ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.accounts?.[0] as Hex,
+      ],
+    ])(
+      'when the keyring is paired with a device of type `%s`',
+      (_, ur, from) => {
+        it('signs a typed data message', async () => {
+          const keyring = new QrKeyring({
+            bridge: getMockBridge(),
+            ur,
+          });
+          mockBridgeScanResolution(
+            keyring.bridge,
+            '1271c3de4683ed99b11ceecc0a81f48701057174eb0edd729342ecdd9e061ed26eea3c4b84d232e01de00f1f3884fdfe15f664fe2c58c2e565d672b3cb281ccb1c',
+          );
+
+          const signedMessage = await keyring.signTypedData(
+            from,
+            TYPED_MESSAGE,
+          );
+
+          expect(signedMessage).toBeDefined();
+          expect(signedMessage).toBe(
+            '0x1271c3de4683ed99b11ceecc0a81f48701057174eb0edd729342ecdd9e061ed26eea3c4b84d232e01de00f1f3884fdfe15f664fe2c58c2e565d672b3cb281ccb1c',
+          );
         });
-        mockBridgeScanResolution(
-          keyring.bridge,
-          '1271c3de4683ed99b11ceecc0a81f48701057174eb0edd729342ecdd9e061ed26eea3c4b84d232e01de00f1f3884fdfe15f664fe2c58c2e565d672b3cb281ccb1c',
-        );
-
-        const signedMessage = await keyring.signTypedData(
-          EXPECTED_ACCOUNTS[0],
-          TYPED_MESSAGE,
-        );
-
-        expect(signedMessage).toBeDefined();
-        expect(signedMessage).toBe(
-          '0x1271c3de4683ed99b11ceecc0a81f48701057174eb0edd729342ecdd9e061ed26eea3c4b84d232e01de00f1f3884fdfe15f664fe2c58c2e565d672b3cb281ccb1c',
-        );
-      });
-    });
+      },
+    );
   });
 
   describe('signPersonalMessage', () => {
@@ -823,27 +953,37 @@ describe('QrKeyring', () => {
       });
     });
 
-    describe('when the keyring is paired with a device', () => {
-      it('signs a personal message', async () => {
-        const keyring = new QrKeyring({
-          bridge: getMockBridge(),
-          ur: KNOWN_HDKEY_UR,
+    describe.each([
+      ['crypto-hdkey', KNOWN_HDKEY_UR, EXPECTED_ACCOUNTS[0]],
+      [
+        'crypto-account',
+        KNOWN_CRYPTO_ACCOUNT_UR,
+        ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.accounts?.[0] as Hex,
+      ],
+    ])(
+      'when the keyring is paired with a device of type `%s`',
+      (_, ur, from) => {
+        it('signs a personal message', async () => {
+          const keyring = new QrKeyring({
+            bridge: getMockBridge(),
+            ur,
+          });
+          mockBridgeScanResolution(
+            keyring.bridge,
+            'b1c3f8d2e5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1',
+          );
+
+          const signedMessage = await keyring.signPersonalMessage(
+            from,
+            '0x1234',
+          );
+
+          expect(signedMessage).toBeDefined();
+          expect(signedMessage).toBe(
+            '0xb1c3f8d2e5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1',
+          );
         });
-        mockBridgeScanResolution(
-          keyring.bridge,
-          'b1c3f8d2e5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1',
-        );
-
-        const signedMessage = await keyring.signPersonalMessage(
-          EXPECTED_ACCOUNTS[0],
-          '0x1234',
-        );
-
-        expect(signedMessage).toBeDefined();
-        expect(signedMessage).toBe(
-          '0xb1c3f8d2e5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1',
-        );
-      });
-    });
+      },
+    );
   });
 });
