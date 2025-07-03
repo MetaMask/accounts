@@ -121,6 +121,21 @@ export type IndexedAddress = {
 export type DeviceDetails = CommonDeviceDetails &
   (HDModeDeviceDetails | AccountModeDeviceDetails);
 
+export type DeviceOptions = {
+  /**
+   * The requestScan function to scan the QR code
+   */
+  requestScan: QrKeyringBridge['requestScan'];
+  /**
+   * The source of the device, which can be of type `DeviceDetails`,
+   * `string`, or `SerializedUR`.
+   *
+   * When a `string` or `SerializedUR` is provided, the Device will
+   * initialize itself from the UR.
+   */
+  source: DeviceDetails | string | SerializedUR;
+};
+
 /**
  * Get the fingerprint of the source CryptoAccount or CryptoHDKey
  *
@@ -189,32 +204,23 @@ function readCryptoAccountOutputDescriptors(source: CryptoAccount): {
 export class Device {
   readonly #requestScan: QrKeyringBridge['requestScan'];
 
-  #pairedDevice?: DeviceDetails | undefined;
+  readonly #pairedDevice: DeviceDetails;
 
-  constructor(requestScan: QrKeyringBridge['requestScan']) {
+  /**
+   * Create a new Device instance.
+   *
+   * @param options - The options for the Device, including the requestScan function
+   * and the source of the device details.
+   * @param options.requestScan - The function to request a scan of the QR code.
+   * @param options.source - The source of the device details, which can be a
+   * UR string, a `SerializedUR`, or a `DeviceDetails` object.
+   */
+  constructor({ requestScan, source }: DeviceOptions) {
     this.#requestScan = requestScan;
-  }
-
-  /**
-   * Initialize the Device with a source.
-   *
-   * @param source - The account source, which can be a CryptoAccount, CryptoHDKey, or a UR string.
-   */
-  init(source: DeviceDetails | string | SerializedUR): void {
-    if (typeof source === 'string' || 'cbor' in source) {
-      this.#initFromUR(source);
-    } else {
-      this.#pairedDevice = source;
-    }
-  }
-
-  /**
-   * Check if this class instance is paired with a device
-   *
-   * @returns True if the Device is initialized, false otherwise
-   */
-  isInitialized(): boolean {
-    return this.#pairedDevice !== undefined;
+    this.#pairedDevice =
+      typeof source === 'string' || 'cbor' in source
+        ? this.#deviceDetailsFromUR(source)
+        : source;
   }
 
   /**
@@ -225,10 +231,6 @@ export class Device {
    * @throws Will throw an error if the source is not initialized
    */
   addressFromIndex(index: number): Hex {
-    if (!this.#pairedDevice) {
-      throw new Error('Device not paired');
-    }
-
     if (this.#pairedDevice.keyringMode === DeviceMode.ACCOUNT) {
       const address = Object.keys(this.#pairedDevice.paths)[index];
       if (!address) {
@@ -262,10 +264,6 @@ export class Device {
    * @returns The path of the address
    */
   pathFromAddress(address: Hex): string {
-    if (!this.#pairedDevice) {
-      throw new Error('UR not initialized');
-    }
-
     const normalizedAddress = getChecksumAddress(add0x(address));
 
     if (this.#pairedDevice.keyringMode === DeviceMode.ACCOUNT) {
@@ -289,10 +287,6 @@ export class Device {
    * @returns The index of the address
    */
   indexFromAddress(address: Hex): number {
-    if (!this.#pairedDevice) {
-      throw new Error('UR not initialized');
-    }
-
     const cachedIndex = this.#pairedDevice.indexes[address];
     if (cachedIndex !== undefined) {
       return Number(cachedIndex);
@@ -344,19 +338,12 @@ export class Device {
   }
 
   /**
-   * Retrieve the details of the paired device, if any.
+   * Retrieve the details of the paired device.
    *
-   * @returns Thea paired device details, or undefined if not initialized
+   * @returns Thea paired device details
    */
-  getDeviceDetails(): DeviceDetails | undefined {
+  getDeviceDetails(): DeviceDetails {
     return this.#pairedDevice;
-  }
-
-  /**
-   * Clear the paired device details.
-   */
-  clear(): void {
-    this.#pairedDevice = undefined;
   }
 
   /**
@@ -372,10 +359,6 @@ export class Device {
     address: Hex,
     transaction: TypedTransaction,
   ): Promise<TypedTxData> {
-    if (!this.#pairedDevice?.xfp) {
-      throw new Error('No device paired.');
-    }
-
     const dataType =
       transaction.type === TransactionType.Legacy
         ? DataType.transaction
@@ -433,10 +416,6 @@ export class Device {
     address: Hex,
     data: TypedMessage<Types>,
   ): Promise<string> {
-    if (!this.#pairedDevice?.xfp) {
-      throw new Error('No device paired.');
-    }
-
     const requestId = uuidv4();
     const ethSignRequestUR = EthSignRequest.constructETHRequest(
       Buffer.from(JSON.stringify(data), 'utf8'),
@@ -478,10 +457,6 @@ export class Device {
    * @returns The signed message.
    */
   async signPersonalMessage(address: Hex, message: Hex): Promise<string> {
-    if (!this.#pairedDevice?.xfp) {
-      throw new Error('No device paired.');
-    }
-
     const requestId = uuidv4();
     const ethSignRequestUR = EthSignRequest.constructETHRequest(
       Buffer.from(remove0x(message), 'hex'),
@@ -511,18 +486,19 @@ export class Device {
   }
 
   /**
-   * Set the paired device from a UR string
+   * Derive the device details from a UR string
    *
    * @param ur - The UR string to set the root account from
+   * @returns The device details derived from the UR
    */
-  #initFromUR(ur: string | SerializedUR): void {
+  #deviceDetailsFromUR(ur: string | SerializedUR): DeviceDetails {
     const source = this.#decodeUR(ur);
     const fingerprint = getFingerprintFromSource(source);
 
     if (source instanceof CryptoAccount) {
       const { name, xfp, paths, keyringAccount } =
         readCryptoAccountOutputDescriptors(source);
-      this.#pairedDevice = {
+      return {
         keyringMode: DeviceMode.ACCOUNT,
         keyringAccount,
         name,
@@ -530,19 +506,19 @@ export class Device {
         paths,
         indexes: {},
       };
-    } else {
-      const { getBip32Key, getOrigin, getChildren, getName, getNote } = source;
-      this.#pairedDevice = {
-        keyringMode: DeviceMode.HD,
-        keyringAccount: getNote(),
-        name: getName(),
-        xfp: fingerprint,
-        hdPath: `m/${getOrigin().getPath()}`,
-        childrenPath: getChildren()?.getPath() || DEFAULT_CHILDREN_PATH,
-        xpub: getBip32Key(),
-        indexes: {},
-      };
     }
+
+    const { getBip32Key, getOrigin, getChildren, getName, getNote } = source;
+    return {
+      keyringMode: DeviceMode.HD,
+      keyringAccount: getNote(),
+      name: getName(),
+      xfp: fingerprint,
+      hdPath: `m/${getOrigin().getPath()}`,
+      childrenPath: getChildren()?.getPath() || DEFAULT_CHILDREN_PATH,
+      xpub: getBip32Key(),
+      indexes: {},
+    };
   }
 
   /**

@@ -1,7 +1,7 @@
 import { type TypedTransaction, type TypedTxData } from '@ethereumjs/tx';
 import type { TypedMessage, MessageTypes } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
-import { type Hex, add0x, getChecksumAddress } from '@metamask/utils';
+import { type Hex, add0x, assert, getChecksumAddress } from '@metamask/utils';
 
 import {
   type DeviceDetails,
@@ -97,7 +97,7 @@ export class QrKeyring implements Keyring {
 
   readonly bridge: QrKeyringBridge;
 
-  readonly #device: Device;
+  #device?: Device | undefined;
 
   #accounts: Hex[] = [];
 
@@ -108,10 +108,8 @@ export class QrKeyring implements Keyring {
   constructor(options: QrKeyringOptions) {
     this.bridge = options.bridge;
 
-    this.#device = new Device(this.bridge.requestScan.bind(this.bridge));
-
     if (options?.ur) {
-      this.submitUR(options.ur);
+      this.pairDevice(options.ur);
     }
   }
 
@@ -121,7 +119,9 @@ export class QrKeyring implements Keyring {
    * @returns The serialized state
    */
   async serialize(): Promise<SerializedQrKeyringState> {
-    const deviceDetails = this.#device.getDeviceDetails();
+    const deviceDetails = this.#device
+      ? this.#device.getDeviceDetails()
+      : undefined;
 
     if (
       !deviceDetails ||
@@ -169,11 +169,14 @@ export class QrKeyring implements Keyring {
   async deserialize(state: SerializedQrKeyringState): Promise<void> {
     if (!state.initialized) {
       this.#accounts = [];
-      this.#device.clear();
+      this.#device = undefined;
       return;
     }
 
-    this.#device.init(state);
+    this.#device = new Device({
+      requestScan: this.bridge.requestScan.bind(this.bridge),
+      source: state,
+    });
     this.#accounts = (state.accounts ?? []).map(normalizeAddress);
   }
 
@@ -184,6 +187,10 @@ export class QrKeyring implements Keyring {
    * @returns The accounts added
    */
   async addAccounts(accountsToAdd: number): Promise<Hex[]> {
+    if (!this.#device) {
+      throw new Error('No device paired.');
+    }
+
     const lastAccount = this.#accounts[this.#accounts.length - 1];
     const startIndex =
       this.#accountToUnlock ??
@@ -228,12 +235,15 @@ export class QrKeyring implements Keyring {
   }
 
   /**
-   * Submits a CBOR encoded UR to the QrKeyring
+   * Pair a QR-based Hardware Device from a CBOR encoded UR to the QrKeyring
    *
    * @param ur - The CBOR encoded UR
    */
-  submitUR(ur: string | SerializedUR): void {
-    this.#device.init(ur);
+  pairDevice(ur: string | SerializedUR): void {
+    this.#device = new Device({
+      requestScan: this.bridge.requestScan.bind(this.bridge),
+      source: ur,
+    });
   }
 
   /**
@@ -252,8 +262,11 @@ export class QrKeyring implements Keyring {
    * @returns The name of the paired device or the keyring type.
    */
   getName(): string {
+    if (!this.#device) {
+      return QR_KEYRING_TYPE;
+    }
     const source = this.#device.getDeviceDetails();
-    return source?.name ?? QR_KEYRING_TYPE;
+    return source.name;
   }
 
   /**
@@ -300,10 +313,13 @@ export class QrKeyring implements Keyring {
    * @returns The current page of accounts as an array of IndexedAddress objects.
    */
   async getCurrentPage(): Promise<IndexedAddress[]> {
-    if (!this.#device.isInitialized()) {
+    if (!this.#device) {
       await this.#scanAndInitialize();
     }
-
+    assert(
+      this.#device,
+      'A device is expected to be paired before fetching accounts.',
+    );
     return this.#device.getAddressesPage(this.#currentPage);
   }
 
@@ -311,7 +327,7 @@ export class QrKeyring implements Keyring {
    * Clear the keyring state and forget any paired device or accounts.
    */
   async forgetDevice(): Promise<void> {
-    this.#device.clear();
+    this.#device = undefined;
     this.#accounts = [];
     this.#accountToUnlock = undefined;
     this.#currentPage = 0;
@@ -330,6 +346,9 @@ export class QrKeyring implements Keyring {
     address: Hex,
     transaction: TypedTransaction,
   ): Promise<TypedTxData> {
+    if (!this.#device) {
+      throw new Error('No device paired.');
+    }
     return this.#device.signTransaction(address, transaction);
   }
 
@@ -345,6 +364,9 @@ export class QrKeyring implements Keyring {
     address: Hex,
     data: TypedMessage<Types>,
   ): Promise<string> {
+    if (!this.#device) {
+      throw new Error('No device paired.');
+    }
     return this.#device.signTypedData(address, data);
   }
 
@@ -361,6 +383,9 @@ export class QrKeyring implements Keyring {
    * @returns The signed message.
    */
   async signPersonalMessage(address: Hex, message: Hex): Promise<string> {
+    if (!this.#device) {
+      throw new Error('No device paired.');
+    }
     return this.#device.signPersonalMessage(address, message);
   }
 
@@ -369,7 +394,7 @@ export class QrKeyring implements Keyring {
    * scanned UR.
    */
   async #scanAndInitialize(): Promise<void> {
-    this.submitUR(
+    this.pairDevice(
       await this.bridge.requestScan({ type: QrScanRequestType.PAIR }),
     );
   }

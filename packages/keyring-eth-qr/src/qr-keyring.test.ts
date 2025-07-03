@@ -63,17 +63,23 @@ function getMockBridge(): QrKeyringBridge {
  *
  * @param bridge - The QrKeyringBridge instance to mock.
  * @param signature - The signature to return in the mocked scan resolution.
+ * @param requestId - Optional request ID to use in the signature UR.
  */
 function mockBridgeScanResolution(
   bridge: QrKeyringBridge,
   signature: string,
+  requestId?: string | null,
 ): void {
   jest.spyOn(bridge, 'requestScan').mockImplementationOnce(async (request) => {
     const signatureUR = new ETHSignature(
       Buffer.from(signature, 'hex'),
-      Buffer.from(
-        Uint8Array.from(uuid.parse(request.request?.requestId ?? '')),
-      ),
+      requestId === null
+        ? undefined
+        : Buffer.from(
+            Uint8Array.from(
+              uuid.parse(requestId ?? request.request?.requestId ?? ''),
+            ),
+          ),
     ).toUR();
     return {
       type: signatureUR.type,
@@ -332,7 +338,7 @@ describe('QrKeyring', () => {
         });
 
         await expect(keyring.addAccounts(1)).rejects.toThrow(
-          'Device not paired',
+          'No device paired.',
         );
       });
     });
@@ -440,13 +446,13 @@ describe('QrKeyring', () => {
     });
   });
 
-  describe('submitUR', () => {
-    it('initializes the QrKeyring with a UR', async () => {
+  describe('pairDevice', () => {
+    it('pairs a device to the QrKeyring with a UR', async () => {
       const keyring = new QrKeyring({
         bridge: getMockBridge(),
       });
 
-      keyring.submitUR(KNOWN_HDKEY_UR);
+      keyring.pairDevice(KNOWN_HDKEY_UR);
 
       expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
         SERIALIZED_KEYSTONE_KEYRING.xpub,
@@ -458,7 +464,7 @@ describe('QrKeyring', () => {
         bridge: getMockBridge(),
       });
 
-      expect(() => keyring.submitUR('invalid-ur')).toThrow('Invalid Scheme');
+      expect(() => keyring.pairDevice('invalid-ur')).toThrow('Invalid Scheme');
     });
 
     it('throws an error if the UR is not of type `crypto-hdkey` or `crypto-account`', () => {
@@ -467,7 +473,7 @@ describe('QrKeyring', () => {
       });
 
       expect(() =>
-        keyring.submitUR({
+        keyring.pairDevice({
           type: 'invalid-type',
           cbor: 'a0',
         }),
@@ -710,6 +716,38 @@ describe('QrKeyring', () => {
           expect(signedTx.v).toBeDefined();
           expect(signedTx.to).toStrictEqual(LEGACY_TRANSACTION.to);
           expect(signedTx.nonce).toBe(LEGACY_TRANSACTION.nonce);
+        });
+
+        it('throws an error if the signature scan `requestId` is wrong', async () => {
+          const keyring = new QrKeyring({
+            bridge: getMockBridge(),
+            ur,
+          });
+          mockBridgeScanResolution(
+            keyring.bridge,
+            '33ea4c1dc4b201ad1b1feaf172aadf60dcf2f8bd76d941396bfaebfc3b2868b0340d5689341925c99cdea39e3c5daf7fe2776f220e5b018e85d3b1df19c7bc4701',
+            '92fdd736-e03e-4650-9992-ff3c70f16f4e',
+          );
+
+          await expect(
+            keyring.signTransaction(from, TRANSACTION),
+          ).rejects.toThrow(/Signature request ID mismatch./u);
+        });
+
+        it('throws an error if the signature scan `requestId` is missing', async () => {
+          const keyring = new QrKeyring({
+            bridge: getMockBridge(),
+            ur,
+          });
+          mockBridgeScanResolution(
+            keyring.bridge,
+            '33ea4c1dc4b201ad1b1feaf172aadf60dcf2f8bd76d941396bfaebfc3b2868b0340d5689341925c99cdea39e3c5daf7fe2776f220e5b018e85d3b1df19c7bc4701',
+            null,
+          );
+
+          await expect(
+            keyring.signTransaction(from, TRANSACTION),
+          ).rejects.toThrow('Signature request ID is missing.');
         });
       },
     );
