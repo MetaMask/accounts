@@ -60,7 +60,6 @@
   },
   "devDependencies": {
     "@ethereumjs/common": "^4.4.0",
-    "@keystonehq/base-eth-keyring": "^0.15.1",
     "@keystonehq/metamask-airgapped-keyring": "^0.15.2",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@metamask/auto-changelog": "^3.4.4",
