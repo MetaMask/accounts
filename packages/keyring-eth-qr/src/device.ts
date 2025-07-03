@@ -274,7 +274,20 @@ export class Device {
       return path;
     }
 
-    const index = this.indexFromAddress(normalizedAddress);
+    let index = this.#pairedDevice.indexes[normalizedAddress];
+    if (index === undefined) {
+      for (let i = 0; i < MAX_INDEX; i++) {
+        const derivedAddress = this.addressFromIndex(i);
+        if (derivedAddress === address) {
+          index = i;
+          break;
+        }
+      }
+      if (index === undefined) {
+        throw new Error(`Unknown address ${normalizedAddress}`);
+      }
+    }
+
     return `${this.#pairedDevice.hdPath}/${this.#pairedDevice.childrenPath
       .replace('*', index.toString())
       .replace(/\*/gu, '0')}`;
@@ -292,28 +305,14 @@ export class Device {
       return Number(cachedIndex);
     }
 
-    if (this.#pairedDevice.keyringMode === DeviceMode.ACCOUNT) {
-      const path = this.#pairedDevice.paths[address];
-      if (path === undefined) {
-        throw new Error(`Unknown address`);
-      }
-
-      const index = path.split('/').pop();
-      if (index === undefined) {
-        throw new Error(`Invalid path for address ${address}`);
-      }
-
-      return Number(index);
+    const index = this.pathFromAddress(address).split('/').pop();
+    if (index === undefined) {
+      throw new Error(`Invalid path for address ${address}`);
     }
 
-    for (let i = 0; i < MAX_INDEX; i++) {
-      const derivedAddress = this.addressFromIndex(i);
-      if (derivedAddress === address) {
-        return i;
-      }
-    }
+    this.#pairedDevice.indexes[address] = Number(index);
 
-    throw new Error(`Address ${address} not found`);
+    return Number(index);
   }
 
   /**

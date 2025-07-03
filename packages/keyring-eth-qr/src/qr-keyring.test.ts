@@ -1,6 +1,6 @@
 import { CryptoAccount, ETHSignature } from '@keystonehq/bc-ur-registry-eth';
 import { MetaMaskKeyring as KeystoneKeyring } from '@keystonehq/metamask-airgapped-keyring';
-import type { Hex } from '@metamask/utils';
+import { add0x, type Hex } from '@metamask/utils';
 import * as uuid from 'uuid';
 
 import type { QrKeyringBridge } from '.';
@@ -716,6 +716,18 @@ describe('QrKeyring', () => {
           expect(signedTx.v).toBeDefined();
           expect(signedTx.to).toStrictEqual(LEGACY_TRANSACTION.to);
           expect(signedTx.nonce).toBe(LEGACY_TRANSACTION.nonce);
+        });
+
+        it('throws an error if the address is not found in the keyring', async () => {
+          const keyring = new QrKeyring({
+            bridge: getMockBridge(),
+            ur,
+          });
+          const unknownAddress = add0x('0'.repeat(40));
+
+          await expect(
+            keyring.signTransaction(unknownAddress, TRANSACTION),
+          ).rejects.toThrow(`Unknown address ${unknownAddress}`);
         });
 
         it('throws an error if the signature scan `requestId` is wrong', async () => {
