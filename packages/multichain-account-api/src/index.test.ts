@@ -32,12 +32,17 @@ import {
   toMultichainAccountWalletId,
 } from './api';
 
+const mockEntropySource = 'mock-entropy-source';
+
 const mockEvmAccount: InternalAccount = {
   id: '4b660336-b935-44cc-bdc4-642648279ac7',
   type: EthAccountType.Eoa,
   methods: [EthMethod.SignTransaction, EthMethod.PersonalSign],
   address: '0x2A38B198895f358c3232BB6c661aA4eFB1d2e2fc',
-  options: {},
+  options: {
+    entropySource: mockEntropySource,
+    index: 0,
+  },
   scopes: [EthScope.Eoa],
   metadata: {
     name: 'Account 1',
@@ -53,7 +58,10 @@ const mockBtcP2wpkhAccount: InternalAccount = {
   type: BtcAccountType.P2wpkh,
   methods: [BtcMethod.SendBitcoin],
   address: 'bc1qx8ls07cy8j8nrluy2u0xwn7gh8fxg0rg4s8zze',
-  options: {},
+  options: {
+    entropySource: mockEntropySource,
+    index: 0,
+  },
   scopes: [BtcScope.Mainnet],
   metadata: {
     name: 'Account 2',
@@ -74,7 +82,10 @@ const mockBtcP2trAccount: InternalAccount = {
   type: BtcAccountType.P2tr,
   methods: [BtcMethod.SendBitcoin],
   address: 'tb1p5cyxnuxmeuwuvkwfem96lxx9wex9kkf4mt9ll6q60jfsnrzqg4sszkqjnh',
-  options: {},
+  options: {
+    entropySource: mockEntropySource,
+    index: 0,
+  },
   scopes: [BtcScope.Testnet],
   metadata: {
     name: 'Account 3',
@@ -95,7 +106,10 @@ const mockSolAccount: InternalAccount = {
   type: SolAccountType.DataAccount,
   methods: [SolMethod.SignAndSendTransaction],
   address: 'DphAa9aQdzRSacjh5czkapALbVDZS4Q4iMctE3wbr3c4',
-  options: {},
+  options: {
+    entropySource: mockEntropySource,
+    index: 0,
+  },
   scopes: [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet],
   metadata: {
     name: 'Account 4',
@@ -111,120 +125,199 @@ const mockSolAccount: InternalAccount = {
   },
 } as const;
 
-const mockAccounts = {
-  [mockEvmAccount.id]: mockEvmAccount,
-  [mockSolAccount.id]: mockSolAccount,
-  [mockBtcP2trAccount.id]: mockBtcP2trAccount,
-  [mockBtcP2wpkhAccount.id]: mockBtcP2wpkhAccount,
-} as const;
+class MockAccountProvider implements AccountProvider {
+  readonly #name: string;
 
-const mockEntropySource = 'mock-entropy-source';
+  readonly #createAccounts: () => InternalAccount[];
 
-function setupMultichainAccount({
-  groupIndex = 0,
-  entropySource = mockEntropySource,
-}: {
-  groupIndex?: number;
-  entropySource?: EntropySourceId;
-} = {}): MultichainAccount {
-  return new MultichainAccountAdapter({
-    walletId: toMultichainAccountWalletId(entropySource),
-    accounts: Object.values(mockAccounts),
-    groupIndex,
+  readonly #accounts: InternalAccount[];
+
+  get name(): string {
+    return this.#name;
+  }
+
+  constructor(
+    createAccounts: () => InternalAccount[],
+    accounts: InternalAccount[],
+  ) {
+    this.#createAccounts = createAccounts;
+    this.#accounts = accounts;
+    this.#name = accounts.map((account) => account.type).join('+');
+  }
+
+  getEntropySources = jest.fn().mockImplementation((): EntropySourceId[] => {
+    const entropySources = new Set<EntropySourceId>(
+      this.#accounts.map(
+        // Assuming it's always defined in our tests.
+        (account) => account.options.entropySource as EntropySourceId,
+      ),
+    );
+
+    return Array.from(entropySources);
   });
-}
 
-function setupAccountProviders(): AccountProvider[] {
-  return [
-    mockAccountProviderUsing(mockEvmAccount),
-    mockAccountProviderUsing(mockSolAccount),
-    mockAccountProviderUsing(mockBtcP2wpkhAccount),
-  ];
-}
+  getAccounts = jest
+    .fn()
+    .mockImplementation(({ entropySource, groupIndex }): InternalAccount[] => {
+      return this.#accounts.filter(
+        (account) =>
+          account.options.entropySource === entropySource &&
+          account.options.index === groupIndex,
+      );
+    });
 
-function setupMultichainAccountWallet({
-  entropySource = mockEntropySource,
-  providers = setupAccountProviders(),
-  multichainAccounts = [setupMultichainAccount()],
-}: {
-  entropySource?: EntropySourceId;
-  providers?: AccountProvider[];
-  multichainAccounts?: MultichainAccount[];
-} = {}): MultichainAccountWallet {
-  return new MultichainAccountWalletAdapter({
-    providers,
-    entropySource,
-    multichainAccounts,
-  });
-}
-
-function mockAccountProviderUsing(
-  account: InternalAccount,
-  { discover = true }: { discover?: boolean } = {},
-): AccountProvider {
-  return {
-    createAccounts: jest
-      .fn()
-      .mockImplementation(
-        async ({ entropySource, groupIndex }): Promise<InternalAccount[]> => {
+  createAccounts = jest
+    .fn()
+    .mockImplementation(
+      async ({ entropySource, groupIndex }): Promise<InternalAccount[]> => {
+        const accounts = this.#createAccounts().map((baseAccount) => {
           // Deep copy existing account.
-          const newAccount: InternalAccount = JSON.parse(
-            JSON.stringify(account),
+          const account: InternalAccount = JSON.parse(
+            JSON.stringify(baseAccount),
           );
 
-          newAccount.id = uuid();
-          newAccount.options.entropySource = entropySource;
-          newAccount.options.groupIndex = groupIndex;
+          account.id = uuid();
+          account.address += `+${groupIndex}`; // Adds the index to the address to make it unique.
+          account.options.entropySource = entropySource;
+          account.options.index = groupIndex;
+          account.metadata.name += ` + ${groupIndex}`; // Same for the name.
 
-          return [newAccount];
-        },
-      ),
-    discoverAndCreateAccounts: jest
-      .fn()
-      .mockImplementation(
-        async ({ groupIndex }): Promise<DiscoveredAccount[]> => {
-          if (!discover) {
-            return [];
-          }
+          return account;
+        });
 
-          return groupIndex === 0
-            ? // Discover only the first index.
-              [
+        for (const account of accounts) {
+          this.#accounts.push(account);
+        }
+
+        return accounts;
+      },
+    );
+
+  discoverAndCreateAccounts = jest
+    .fn()
+    .mockImplementation(
+      async ({ groupIndex }): Promise<DiscoveredAccount[]> => {
+        return this.#accounts.flatMap((account) => {
+          return account.options.index === groupIndex
+            ? [
                 {
                   type: 'bip44',
                   scopes: account.scopes,
-                  derivationPath: 'm/mock/path',
+                  derivationPath: `m/mock/path/${groupIndex}`,
                 },
               ]
             : [];
-        },
-      ),
-  };
+        });
+      },
+    );
+}
+function setupAccountProviders(): AccountProvider[] {
+  return [
+    new MockAccountProvider(() => [mockEvmAccount], [mockEvmAccount]),
+    new MockAccountProvider(() => [mockSolAccount], [mockSolAccount]),
+    new MockAccountProvider(
+      () => [mockBtcP2wpkhAccount, mockBtcP2trAccount],
+      [mockBtcP2wpkhAccount, mockBtcP2trAccount],
+    ),
+  ];
+}
+
+async function setupMultichainAccount({
+  wallet,
+  groupIndex = 0,
+  providers = setupAccountProviders(),
+}: {
+  wallet: MultichainAccountWallet;
+  groupIndex?: number;
+  providers?: AccountProvider[];
+}): Promise<MultichainAccount> {
+  const multichainAccount = new MultichainAccountAdapter({
+    wallet,
+    groupIndex,
+    providers,
+  });
+
+  await multichainAccount.init();
+  return multichainAccount;
+}
+
+async function setupMultichainAccountWallet({
+  entropySource = mockEntropySource,
+  providers = setupAccountProviders(),
+}: {
+  entropySource?: EntropySourceId;
+  providers?: AccountProvider[];
+  init?: boolean;
+} = {}): Promise<MultichainAccountWallet> {
+  const wallet = new MultichainAccountWalletAdapter({
+    providers,
+    entropySource,
+  });
+
+  await wallet.init();
+
+  return wallet;
 }
 
 describe('index', () => {
   describe('MultichainAccount', () => {
-    it('constructs a multichain account', () => {
+    const setup = (): {
+      wallet: MultichainAccountWallet;
+      providers: AccountProvider[];
+    } => {
+      const providers = setupAccountProviders();
+      const wallet = new MultichainAccountWalletAdapter({
+        providers,
+        entropySource: mockEntropySource,
+      });
+
+      return { wallet, providers };
+    };
+
+    beforeEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it('constructs a multichain account', async () => {
+      const { wallet, providers } = setup();
       const groupIndex = 0;
-      const entropySource = mockEntropySource;
-      const multichainAccount = setupMultichainAccount({
-        entropySource,
+      const multichainAccount = await setupMultichainAccount({
+        wallet,
         groupIndex,
       });
 
-      const expectedWalletId = toMultichainAccountWalletId(entropySource);
-      const expectedAccounts = Object.values(mockAccounts);
+      const expectedWalletId = toMultichainAccountWalletId(
+        wallet.entropySource,
+      );
+      const expectedAccounts = providers.flatMap((provider) =>
+        provider.getAccounts({
+          entropySource: wallet.entropySource,
+          groupIndex,
+        }),
+      );
       expect(multichainAccount.id).toStrictEqual(
         toMultichainAccountId(expectedWalletId, groupIndex),
       );
       expect(multichainAccount.index).toBe(groupIndex);
-      expect(multichainAccount.walletId).toStrictEqual(expectedWalletId);
+      expect(multichainAccount.wallet).toStrictEqual(wallet);
       expect(multichainAccount.accounts).toHaveLength(expectedAccounts.length);
       expect(multichainAccount.accounts).toStrictEqual(expectedAccounts);
     });
 
-    it('gets internal account from its id', () => {
-      const multichainAccount = setupMultichainAccount();
+    it('constructs a multichain account for a specific index', async () => {
+      const { wallet } = setup();
+      const groupIndex = 2;
+      const multichainAccount = await setupMultichainAccount({
+        wallet,
+        groupIndex,
+      });
+
+      expect(multichainAccount.index).toBe(groupIndex);
+    });
+
+    it('gets internal account from its id', async () => {
+      const { wallet } = setup();
+      const multichainAccount = await setupMultichainAccount({ wallet });
 
       expect(multichainAccount.getAccount(mockSolAccount.id)).toStrictEqual(
         mockSolAccount,
@@ -293,8 +386,9 @@ describe('index', () => {
       expected: InternalAccount;
     }[])(
       'gets internal account from selector: $tc',
-      ({ selector, expected }) => {
-        const multichainAccount = setupMultichainAccount();
+      async ({ selector, expected }) => {
+        const { wallet } = setup();
+        const multichainAccount = await setupMultichainAccount({ wallet });
 
         expect(multichainAccount.get(selector)).toStrictEqual(expected);
       },
@@ -326,14 +420,19 @@ describe('index', () => {
     ] as {
       tc: string;
       selector: MultichainAccountSelector;
-    }[])('gets undefined if not matching selector: $tc', ({ selector }) => {
-      const multichainAccount = setupMultichainAccount();
+    }[])(
+      'gets undefined if not matching selector: $tc',
+      async ({ selector }) => {
+        const { wallet } = setup();
+        const multichainAccount = await setupMultichainAccount({ wallet });
 
-      expect(multichainAccount.get(selector)).toBeUndefined();
-    });
+        expect(multichainAccount.get(selector)).toBeUndefined();
+      },
+    );
 
-    it('throws if multiple candidates are found', () => {
-      const multichainAccount = setupMultichainAccount();
+    it('throws if multiple candidates are found', async () => {
+      const { wallet } = setup();
+      const multichainAccount = await setupMultichainAccount({ wallet });
 
       const selector = {
         scopes: [BtcScope.Mainnet, BtcScope.Testnet],
@@ -393,7 +492,7 @@ describe('index', () => {
       {
         tc: 'using multiple scopes',
         selector: { scopes: [BtcScope.Mainnet, BtcScope.Testnet] },
-        expected: [mockBtcP2trAccount, mockBtcP2wpkhAccount],
+        expected: [mockBtcP2wpkhAccount, mockBtcP2trAccount],
       },
       {
         tc: 'using non-matching scopes',
@@ -405,7 +504,7 @@ describe('index', () => {
       {
         tc: 'using method',
         selector: { methods: [BtcMethod.SendBitcoin] },
-        expected: [mockBtcP2trAccount, mockBtcP2wpkhAccount],
+        expected: [mockBtcP2wpkhAccount, mockBtcP2trAccount],
       },
       {
         tc: 'using multiple methods',
@@ -425,8 +524,9 @@ describe('index', () => {
       expected: InternalAccount[];
     }[])(
       'selects internal accounts from selector: $tc',
-      ({ selector, expected }) => {
-        const multichainAccount = setupMultichainAccount();
+      async ({ selector, expected }) => {
+        const { wallet } = setup();
+        const multichainAccount = await setupMultichainAccount({ wallet });
 
         expect(multichainAccount.select(selector)).toStrictEqual(expected);
       },
@@ -434,23 +534,22 @@ describe('index', () => {
   });
 
   describe('MultichainAccountWallet', () => {
-    it('constructs a multichain account wallet', () => {
+    it('constructs a multichain account wallet', async () => {
       const entropySource = mockEntropySource;
-      const accounts = [setupMultichainAccount({ entropySource })];
-      const wallet = setupMultichainAccountWallet({
+      const wallet = await setupMultichainAccountWallet({
         entropySource,
       });
 
       const expectedWalletId = toMultichainAccountWalletId(entropySource);
       expect(wallet.id).toStrictEqual(expectedWalletId);
-      expect(wallet.accounts).toHaveLength(accounts.length);
-      expect(wallet.entropySource).toStrictEqual(mockEntropySource);
+      expect(wallet.accounts).toHaveLength(1); // All internal accounts are using index 0, so it means only 1 multichain account.
+      expect(wallet.entropySource).toStrictEqual(entropySource);
     });
 
     it('creates a new multichain account with the next index', async () => {
       const index = 1;
       const providers = setupAccountProviders();
-      const wallet = setupMultichainAccountWallet({ providers });
+      const wallet = await setupMultichainAccountWallet({ providers });
 
       const multichainAccount = await wallet.createMultichainAccount(index);
 
@@ -458,12 +557,12 @@ describe('index', () => {
         toMultichainAccountId(wallet.id, index),
       );
       expect(multichainAccount.index).toBe(index);
-      expect(multichainAccount.accounts).toHaveLength(providers.length);
+      expect(multichainAccount.accounts).toHaveLength(4); // EVM + SOL + 2 BTC.
     });
 
     it('creates a new multichain account with the next index automatically', async () => {
       const providers = setupAccountProviders();
-      const wallet = setupMultichainAccountWallet({ providers });
+      const wallet = await setupMultichainAccountWallet({ providers });
 
       const index = wallet.getNextGroupIndex();
       const multichainAccount = await wallet.createNextMultichainAccount();
@@ -472,11 +571,11 @@ describe('index', () => {
         toMultichainAccountId(wallet.id, index),
       );
       expect(multichainAccount.index).toBe(index);
-      expect(multichainAccount.accounts).toHaveLength(providers.length);
+      expect(multichainAccount.accounts).toHaveLength(4); // EVM + SOL + 2 BTC.
     });
 
     it('returns the same multichain account if index already exist', async () => {
-      const wallet = setupMultichainAccountWallet();
+      const wallet = await setupMultichainAccountWallet();
 
       const multichainAccount = await wallet.createNextMultichainAccount();
       const sameMultichainAccount = await wallet.createMultichainAccount(
@@ -487,7 +586,7 @@ describe('index', () => {
     });
 
     it('throws if using an index higher than the next available one', async () => {
-      const wallet = setupMultichainAccountWallet();
+      const wallet = await setupMultichainAccountWallet();
 
       const nextIndex = wallet.getNextGroupIndex();
       await expect(
@@ -500,26 +599,34 @@ describe('index', () => {
     });
 
     it('refreshes internal accounts if an account provider return a new account', async () => {
-      const evmAccountProvider = mockAccountProviderUsing(mockEvmAccount);
-      const btcAccountProvider = mockAccountProviderUsing(mockBtcP2wpkhAccount); // Only native-segwit for now.
+      const evmAccountProvider = new MockAccountProvider(
+        () => [mockEvmAccount],
+        [mockEvmAccount],
+      );
+      const btcAccountProvider = new MockAccountProvider(
+        () => [mockBtcP2wpkhAccount],
+        [mockBtcP2wpkhAccount],
+      ); // Only native-segwit for now.
       const providers = [evmAccountProvider, btcAccountProvider];
-      const wallet = setupMultichainAccountWallet({ providers });
+      const wallet = await setupMultichainAccountWallet({ providers });
 
       // Each providers create 1 account, so both length must match.
       const multichainAccount = await wallet.createNextMultichainAccount();
       expect(multichainAccount.accounts).toHaveLength(providers.length);
 
       // Re-use old accounts that are already part of the multichain account.
-      const oldBtcAccounts = (
-        btcAccountProvider.createAccounts as jest.Mock
-      ).mock.results.at(-1)?.value as Promise<KeyringAccount[]>;
+      const oldBtcAccounts = btcAccountProvider.createAccounts.mock.results.at(
+        -1,
+      )?.value as Promise<KeyringAccount[]>;
       expect(oldBtcAccounts).toBeDefined();
 
       // Now update one of the provider to return 2 accounts instead of 1.
-      (btcAccountProvider.createAccounts as jest.Mock).mockImplementation(
+      btcAccountProvider.createAccounts.mockImplementation(
         async (args: Parameters<AccountProvider['createAccounts']>[0]) => {
-          const btcP2trAccountProvider =
-            mockAccountProviderUsing(mockBtcP2trAccount);
+          const btcP2trAccountProvider = new MockAccountProvider(
+            () => [mockBtcP2trAccount],
+            [mockBtcP2trAccount],
+          );
 
           // Re-use old accounts + new ones (e.g if the Bitcoin Snap enable
           // the taproot support dynamically, then its `createAccounts` might now
@@ -540,23 +647,32 @@ describe('index', () => {
     });
 
     it('discovers accounts and create accounts', async () => {
-      const evmAccountProvider = mockAccountProviderUsing(mockEvmAccount);
-      const btcAccountProvider = mockAccountProviderUsing(mockBtcP2wpkhAccount);
+      const evmAccountProvider = new MockAccountProvider(
+        () => [mockEvmAccount],
+        [mockEvmAccount],
+      );
+      const btcAccountProvider = new MockAccountProvider(
+        () => [mockBtcP2wpkhAccount],
+        [mockBtcP2wpkhAccount],
+      );
       const providers = [evmAccountProvider, btcAccountProvider];
-      const wallet = setupMultichainAccountWallet({ providers });
+      const wallet = await setupMultichainAccountWallet({ providers });
 
       const accounts = await wallet.discoverAndCreateMultichainAccounts();
       expect(accounts).toHaveLength(1); // We only discover for index 0 in the test setup.
     });
 
     it('discovers accounts and create missing accounts if one provider did not discovered any account', async () => {
-      const evmAccountProvider = mockAccountProviderUsing(mockEvmAccount);
-      const btcAccountProvider = mockAccountProviderUsing(
-        mockBtcP2wpkhAccount,
-        { discover: false },
+      const evmAccountProvider = new MockAccountProvider(
+        () => [mockEvmAccount],
+        [mockEvmAccount],
+      );
+      const btcAccountProvider = new MockAccountProvider(
+        () => [mockBtcP2wpkhAccount],
+        [], // No account to discover.
       );
       const providers = [evmAccountProvider, btcAccountProvider];
-      const wallet = setupMultichainAccountWallet({ providers });
+      const wallet = await setupMultichainAccountWallet({ providers });
 
       const accounts = await wallet.discoverAndCreateMultichainAccounts();
       expect(accounts).toHaveLength(1); // We only discover for index 0 in the test setup.

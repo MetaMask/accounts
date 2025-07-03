@@ -14,6 +14,13 @@ export type AccountType = string;
 export type AccountMethod = string;
 
 export type AccountProvider = {
+  getEntropySources: () => EntropySourceId[];
+
+  getAccounts: (opts: {
+    entropySource: EntropySourceId;
+    groupIndex: number;
+  }) => InternalAccount[];
+
   createAccounts: (opts: {
     entropySource: EntropySourceId;
     groupIndex: number;
@@ -39,7 +46,7 @@ export type MultichainAccountSelector = {
 
 export type MultichainAccount = {
   get id(): MultichainAccountId;
-  get walletId(): MultichainAccountWalletId;
+  get wallet(): MultichainAccountWallet;
   get index(): number;
   get accounts(): InternalAccount[];
 
@@ -98,33 +105,63 @@ export function toMultichainAccountId(
 export class MultichainAccountAdapter implements MultichainAccount {
   readonly #id: MultichainAccountId;
 
-  readonly #walletId: MultichainAccountWalletId;
+  readonly #wallet: MultichainAccountWallet;
 
   readonly #index: number;
 
-  readonly #accounts: InternalAccount[];
+  readonly #providers: AccountProvider[];
+
+  #accounts: InternalAccount[];
 
   constructor({
-    accounts,
     groupIndex,
-    walletId,
+    wallet,
+    providers,
   }: {
-    accounts: InternalAccount[];
     groupIndex: number;
-    walletId: MultichainAccountWalletId;
+    wallet: MultichainAccountWallet;
+    providers: AccountProvider[];
   }) {
-    this.#id = toMultichainAccountId(walletId, groupIndex);
+    this.#id = toMultichainAccountId(wallet.id, groupIndex);
     this.#index = groupIndex;
+    this.#wallet = wallet;
+    this.#providers = providers;
+    this.#accounts = [];
+  }
+
+  async init(): Promise<void> {
+    let accounts: InternalAccount[] = [];
+
+    for (const provider of this.#providers) {
+      accounts = accounts.concat(
+        provider.getAccounts({
+          entropySource: this.#wallet.entropySource,
+          groupIndex: this.#index,
+        }),
+      );
+    }
+
     this.#accounts = accounts;
-    this.#walletId = walletId;
+  }
+
+  static async from(args: {
+    groupIndex: number;
+    wallet: MultichainAccountWallet;
+    providers: AccountProvider[];
+  }): Promise<MultichainAccount> {
+    const multichainAccount = new MultichainAccountAdapter(args);
+
+    await multichainAccount.init();
+
+    return multichainAccount;
   }
 
   get id(): MultichainAccountId {
     return this.#id;
   }
 
-  get walletId(): MultichainAccountWalletId {
-    return this.#walletId;
+  get wallet(): MultichainAccountWallet {
+    return this.#wallet;
   }
 
   get index(): number {
@@ -225,22 +262,47 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
   constructor({
     providers,
     entropySource,
-    multichainAccounts,
   }: {
     providers: AccountProvider[];
     entropySource: EntropySourceId;
-    multichainAccounts: { [groupIndex: number]: MultichainAccount };
   }) {
     this.#id = toMultichainAccountWalletId(entropySource);
     this.#providers = providers;
     this.#entropySource = entropySource;
 
     this.#accounts = new Map();
-    for (const [groupIndex, multichainAccount] of Object.entries(
-      multichainAccounts,
-    )) {
-      this.#accounts.set(groupIndex as unknown as number, multichainAccount);
-    }
+  }
+
+  async init(): Promise<void> {
+    let index = 0;
+    let hasAccounts = false;
+
+    do {
+      // Make an explicit const copy of that value, to avoid unsafe reference.
+      // See: https://eslint.org/docs/latest/rules/no-loop-func
+      const groupIndex = index;
+
+      hasAccounts = this.#providers.some((provider) => {
+        return Boolean(
+          provider.getAccounts({
+            entropySource: this.#entropySource,
+            groupIndex,
+          }).length,
+        );
+      });
+
+      if (hasAccounts) {
+        const multichainAccount = await MultichainAccountAdapter.from({
+          groupIndex,
+          wallet: this,
+          providers: this.#providers,
+        });
+
+        this.#accounts.set(groupIndex, multichainAccount);
+      }
+
+      index += 1;
+    } while (hasAccounts);
   }
 
   get id(): MultichainAccountWalletId {
@@ -255,14 +317,13 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
     return Array.from(this.#accounts.values()); // TODO: Prevent copy here.
   }
 
-  #createMultichainAccount(
+  async #createMultichainAccount(
     groupIndex: number,
-    accounts: InternalAccount[],
-  ): MultichainAccount {
-    const multichainAccount = new MultichainAccountAdapter({
-      walletId: this.id,
+  ): Promise<MultichainAccount> {
+    const multichainAccount = await MultichainAccountAdapter.from({
+      wallet: this,
+      providers: this.#providers,
       groupIndex,
-      accounts,
     });
 
     // Register the account to our internal map.
@@ -286,20 +347,17 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
       );
     }
 
-    const accounts: InternalAccount[] = [];
     for (const provider of this.#providers) {
-      for (const account of await provider.createAccounts({
+      await provider.createAccounts({
         entropySource: this.#entropySource,
         groupIndex,
-      })) {
-        accounts.push(account);
-      }
+      });
     }
 
     // Re-create and "refresh" the multichain account (we assume all account creations are
     // idempotent, so we should get the same accounts and potentially some new accounts (if
     // some account providers decide to return more of them this time).
-    return this.#createMultichainAccount(groupIndex, accounts);
+    return await this.#createMultichainAccount(groupIndex);
   }
 
   async createNextMultichainAccount(): Promise<MultichainAccount> {
@@ -339,17 +397,15 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
         // We only create missing accounts if one of the provider has discovered
         // and created accounts.
         for (const provider of missingProviders) {
-          const missingAccounts = await provider.createAccounts({
+          await provider.createAccounts({
             entropySource: this.#entropySource,
             groupIndex,
           });
-
-          accounts = accounts.concat(missingAccounts);
         }
 
         // We've got all the accounts now, we can create our multichain account.
         multichainAccounts.push(
-          this.#createMultichainAccount(groupIndex, accounts),
+          await this.#createMultichainAccount(groupIndex),
         );
 
         // We have accounts, we need to check the next index.
