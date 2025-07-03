@@ -18,7 +18,7 @@
     {
       "label": "use tilde range for @trezor/connect-web (TODO: remove once the extension agree on using a higher version)",
       "dependencies": ["@trezor/connect-web"],
-      "range": "~"
+      "range": "^"
     },
     {
       "label": "use exact versions for some dependencies",
