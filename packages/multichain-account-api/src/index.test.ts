@@ -126,15 +126,9 @@ const mockSolAccount: InternalAccount = {
 } as const;
 
 class MockAccountProvider implements AccountProvider {
-  readonly #name: string;
-
   readonly #createAccounts: () => InternalAccount[];
 
   readonly #accounts: InternalAccount[];
-
-  get name(): string {
-    return this.#name;
-  }
 
   constructor(
     createAccounts: () => InternalAccount[],
@@ -142,7 +136,6 @@ class MockAccountProvider implements AccountProvider {
   ) {
     this.#createAccounts = createAccounts;
     this.#accounts = accounts;
-    this.#name = accounts.map((account) => account.type).join('+');
   }
 
   getEntropySources = jest.fn().mockImplementation((): EntropySourceId[] => {
