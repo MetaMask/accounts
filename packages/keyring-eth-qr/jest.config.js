@@ -15,15 +15,15 @@ module.exports = merge(baseConfig, {
   displayName,
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['./src/tests'],
+  coveragePathIgnorePatterns: [],
 
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
     global: {
-      branches: 91.8,
+      branches: 91.66,
       functions: 100,
-      lines: 95.04,
-      statements: 95.14,
+      lines: 94.97,
+      statements: 95.07,
     },
   },
 });

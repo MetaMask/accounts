@@ -131,33 +131,10 @@ export class QrKeyring implements Keyring {
       return getDefaultSerializedQrKeyringState();
     }
 
-    const accounts = this.#accounts.slice();
-
-    if (deviceDetails.keyringMode === DeviceMode.HD) {
-      // These properties are only relevant for HD Keys
-      return {
-        initialized: true,
-        name: deviceDetails.name,
-        keyringMode: DeviceMode.HD,
-        keyringAccount: deviceDetails.keyringAccount,
-        xfp: deviceDetails.xfp,
-        xpub: deviceDetails.xpub,
-        hdPath: deviceDetails.hdPath,
-        childrenPath: deviceDetails.childrenPath,
-        accounts,
-        indexes: deviceDetails.indexes,
-      };
-    }
-    // These properties are only relevant for Account Keys
     return {
+      ...deviceDetails,
       initialized: true,
-      name: deviceDetails.name,
-      keyringMode: DeviceMode.ACCOUNT,
-      keyringAccount: deviceDetails.keyringAccount,
-      xfp: deviceDetails.xfp,
-      paths: deviceDetails.paths,
-      accounts,
-      indexes: deviceDetails.indexes,
+      accounts: this.#accounts.slice(),
     };
   }
 
@@ -219,7 +196,7 @@ export class QrKeyring implements Keyring {
    * @returns The accounts in the QrKeyring
    */
   async getAccounts(): Promise<Hex[]> {
-    return Array.from(this.#accounts.values());
+    return this.#accounts.slice();
   }
 
   /**
