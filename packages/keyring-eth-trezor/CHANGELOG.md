@@ -11,10 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Uncategorized
 
-- Bump `@trezor/connect-web` to `^9.6.0` ([#241](https://github.com/MetaMask/accounts/pull/241)), ([#300](https://github.com/MetaMask/accounts/pull/300))
-  - Require to enable new 7702 signing flows.
 
 ### Changed
+- Bump `@trezor/connect-web` to `^9.6.0` ([#241](https://github.com/MetaMask/accounts/pull/241)), ([#300](https://github.com/MetaMask/accounts/pull/300))
+  - Require to enable new 7702 signing flows.
 
 - **BREAKING:** The method signature for `signTypedData` has been changed ([#224](https://github.com/MetaMask/accounts/pull/224))
   - The `options` argument type has been changed to `{ version: SignTypedDataVersion.V3 | SignTypedDataVersion.V4 } | undefined`.
