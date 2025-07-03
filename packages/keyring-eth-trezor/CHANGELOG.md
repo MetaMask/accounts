@@ -9,9 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.0.0]
 
-### Uncategorized
-
-
 ### Changed
 - Bump `@trezor/connect-web` to `^9.6.0` ([#241](https://github.com/MetaMask/accounts/pull/241)), ([#300](https://github.com/MetaMask/accounts/pull/300))
   - Require to enable new 7702 signing flows.
