@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.0.0]
+
 ### Uncategorized
 
 - feat(keyring-eth-trezor): bump `@trezor/connect-web` to 9.6.0 to support new flow ([#300](https://github.com/MetaMask/accounts.git/pull/300))
@@ -214,7 +216,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-trezor-keyring@8.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-trezor-keyring@9.0.0...HEAD
+[9.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-trezor-keyring@8.0.0...@metamask/eth-trezor-keyring@9.0.0
 [8.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-trezor-keyring@7.0.0...@metamask/eth-trezor-keyring@8.0.0
 [7.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-trezor-keyring@6.1.1...@metamask/eth-trezor-keyring@7.0.0
 [6.1.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/eth-trezor-keyring@6.1.0...@metamask/eth-trezor-keyring@6.1.1
