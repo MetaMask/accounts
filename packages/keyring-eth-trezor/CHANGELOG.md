@@ -11,10 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Uncategorized
 
-- feat(keyring-eth-trezor): bump `@trezor/connect-web` to 9.6.0 to support new flow ([#300](https://github.com/MetaMask/accounts/pull/300))
-- chore: update `@trezor/connect-web` ([#241](https://github.com/MetaMask/accounts/pull/241))
-- revert: chore: bump trezor/connect-web (#234) ([#234](https://github.com/MetaMask/accounts/pull/234))
-- chore: bump trezor/connect-web ([#234](https://github.com/MetaMask/accounts/pull/234))
+- Bump `@trezor/connect-web` to `^9.6.0` ([#241](https://github.com/MetaMask/accounts/pull/241)), ([#300](https://github.com/MetaMask/accounts/pull/300))
+  - Require to enable new 7702 signing flows.
 
 ### Changed
 
