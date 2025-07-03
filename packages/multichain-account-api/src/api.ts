@@ -111,7 +111,7 @@ export class MultichainAccountAdapter implements MultichainAccount {
 
   readonly #providers: AccountProvider[];
 
-  #accounts: InternalAccount[];
+  readonly #accounts: InternalAccount[];
 
   constructor({
     groupIndex,
@@ -127,9 +127,7 @@ export class MultichainAccountAdapter implements MultichainAccount {
     this.#wallet = wallet;
     this.#providers = providers;
     this.#accounts = [];
-  }
 
-  async init(): Promise<void> {
     let accounts: InternalAccount[] = [];
 
     for (const provider of this.#providers) {
@@ -142,18 +140,6 @@ export class MultichainAccountAdapter implements MultichainAccount {
     }
 
     this.#accounts = accounts;
-  }
-
-  static async from(args: {
-    groupIndex: number;
-    wallet: MultichainAccountWallet;
-    providers: AccountProvider[];
-  }): Promise<MultichainAccount> {
-    const multichainAccount = new MultichainAccountAdapter(args);
-
-    await multichainAccount.init();
-
-    return multichainAccount;
   }
 
   get id(): MultichainAccountId {
@@ -269,11 +255,8 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
     this.#id = toMultichainAccountWalletId(entropySource);
     this.#providers = providers;
     this.#entropySource = entropySource;
-
     this.#accounts = new Map();
-  }
 
-  async init(): Promise<void> {
     let index = 0;
     let hasAccounts = false;
 
@@ -292,7 +275,7 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
       });
 
       if (hasAccounts) {
-        const multichainAccount = await MultichainAccountAdapter.from({
+        const multichainAccount = new MultichainAccountAdapter({
           groupIndex,
           wallet: this,
           providers: this.#providers,
@@ -317,10 +300,8 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
     return Array.from(this.#accounts.values()); // TODO: Prevent copy here.
   }
 
-  async #createMultichainAccount(
-    groupIndex: number,
-  ): Promise<MultichainAccount> {
-    const multichainAccount = await MultichainAccountAdapter.from({
+  #createMultichainAccount(groupIndex: number): MultichainAccount {
+    const multichainAccount = new MultichainAccountAdapter({
       wallet: this,
       providers: this.#providers,
       groupIndex,
@@ -357,7 +338,7 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
     // Re-create and "refresh" the multichain account (we assume all account creations are
     // idempotent, so we should get the same accounts and potentially some new accounts (if
     // some account providers decide to return more of them this time).
-    return await this.#createMultichainAccount(groupIndex);
+    return this.#createMultichainAccount(groupIndex);
   }
 
   async createNextMultichainAccount(): Promise<MultichainAccount> {
@@ -404,9 +385,7 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
         }
 
         // We've got all the accounts now, we can create our multichain account.
-        multichainAccounts.push(
-          await this.#createMultichainAccount(groupIndex),
-        );
+        multichainAccounts.push(this.#createMultichainAccount(groupIndex));
 
         // We have accounts, we need to check the next index.
         groupIndex += 1;

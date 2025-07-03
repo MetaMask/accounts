@@ -224,14 +224,11 @@ async function setupMultichainAccount({
   groupIndex?: number;
   providers?: AccountProvider[];
 }): Promise<MultichainAccount> {
-  const multichainAccount = new MultichainAccountAdapter({
+  return new MultichainAccountAdapter({
     wallet,
     groupIndex,
     providers,
   });
-
-  await multichainAccount.init();
-  return multichainAccount;
 }
 
 async function setupMultichainAccountWallet({
@@ -242,14 +239,10 @@ async function setupMultichainAccountWallet({
   providers?: AccountProvider[];
   init?: boolean;
 } = {}): Promise<MultichainAccountWallet> {
-  const wallet = new MultichainAccountWalletAdapter({
+  return new MultichainAccountWalletAdapter({
     providers,
     entropySource,
   });
-
-  await wallet.init();
-
-  return wallet;
 }
 
 describe('index', () => {
