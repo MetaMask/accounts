@@ -7,100 +7,16 @@ import type { EntropySourceId } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
-import type { CaipChainId } from '@metamask/utils';
 
-export type AccountType = string;
-
-export type AccountMethod = string;
-
-export type AccountProvider = {
-  getEntropySources: () => EntropySourceId[];
-
-  getAccounts: (opts: {
-    entropySource: EntropySourceId;
-    groupIndex: number;
-  }) => InternalAccount[];
-
-  createAccounts: (opts: {
-    entropySource: EntropySourceId;
-    groupIndex: number;
-  }) => Promise<InternalAccount[]>;
-
-  discoverAndCreateAccounts: (opts: {
-    entropySource: EntropySourceId;
-    groupIndex: number;
-  }) => Promise<InternalAccount[]>;
-};
-
-export type MultichainAccountWalletId = `multichain-account-wallet:${string}`;
-
-export type MultichainAccountId = `${MultichainAccountWalletId}:${number}`; // Use number for the account group index.
-
-export type MultichainAccountSelector = {
-  id?: AccountId;
-  address?: string;
-  type?: AccountType;
-  methods?: AccountMethod[];
-  scopes?: CaipChainId[];
-};
-
-export type MultichainAccount = {
-  get id(): MultichainAccountId;
-  get wallet(): MultichainAccountWallet;
-  get index(): number;
-  get accounts(): InternalAccount[];
-
-  /**
-   * Gets the "blockchain" account for a given account ID.
-   *
-   * @param id - Account ID.
-   * @returns The "blockchain" account or undefined if not found.
-   */
-  getAccount(id: AccountId): InternalAccount | undefined;
-
-  /**
-   * Query a "blockchain" account matching the selector.
-   *
-   * @param selector - Query selector.
-   * @returns The "blockchain" account matching the selector or undefined if not matching.
-   * @throws If multiple accounts match the selector.
-   */
-  get(selector: MultichainAccountSelector): InternalAccount | undefined;
-
-  /**
-   * Query "blockchain" accounts matching the selector.
-   *
-   * @param selector - Query selector.
-   * @returns The "blockchain" accounts matching the selector.
-   */
-  select(selector: MultichainAccountSelector): InternalAccount[];
-};
-
-/**
- * Gets the multichain account wallet ID from its entropy source.
- *
- * @param entropySource - Entropy source ID of that wallet.
- * @returns The multichain account wallet ID.
- */
-export function toMultichainAccountWalletId(
-  entropySource: EntropySourceId,
-): MultichainAccountWalletId {
-  return `multichain-account-wallet:${entropySource}`;
-}
-
-/**
- * Gets the multichain account ID from its multichain account wallet ID and its index.
- *
- * @param walletId - Multichain account wallet ID.
- * @param groupIndex - Index of that multichain account.
- * @returns The multichain account ID.
- */
-export function toMultichainAccountId(
-  walletId: MultichainAccountWalletId,
-  groupIndex: number,
-): MultichainAccountId {
-  return `${walletId}:${groupIndex}`;
-}
+import type {
+  AccountProvider,
+  MultichainAccount,
+  MultichainAccountId,
+  MultichainAccountSelector,
+  MultichainAccountWallet,
+  MultichainAccountWalletId,
+} from './api';
+import { toMultichainAccountId, toMultichainAccountWalletId } from './api';
 
 export class MultichainAccountAdapter implements MultichainAccount {
   readonly #id: MultichainAccountId;
@@ -196,45 +112,6 @@ export class MultichainAccountAdapter implements MultichainAccount {
     });
   }
 }
-
-export type MultichainAccountWallet = {
-  get id(): MultichainAccountWalletId;
-
-  get entropySource(): EntropySourceId;
-
-  get accounts(): MultichainAccount[];
-
-  /**
-   * Gets the next available account index (named group index internally).
-   *
-   * @returns Next available group index.
-   */
-  getNextGroupIndex(): number;
-
-  /**
-   * Creates a new multichain account on a given group index.
-   *
-   * NOTE: This method is idempotent.
-   *
-   * @param groupIndex - Next available group index.
-   * @returns New (or existing) multichain account for the given group index.
-   */
-  createMultichainAccount(groupIndex: number): Promise<MultichainAccount>;
-
-  /**
-   * Creates a new multichain account for the next available group index.
-   *
-   * @returns Next multichain account.
-   */
-  createNextMultichainAccount(): Promise<MultichainAccount>;
-
-  /**
-   * Discovers and automatically create multichain accounts for that wallet.
-   *
-   * @returns List of all multichain accounts that got discovered or automatically created.
-   */
-  discoverAndCreateMultichainAccounts(): Promise<MultichainAccount[]>;
-};
 
 export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
   readonly #id: MultichainAccountWalletId;

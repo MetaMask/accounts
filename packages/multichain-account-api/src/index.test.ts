@@ -19,18 +19,17 @@ import {
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { v4 as uuid } from 'uuid';
 
+import {
+  MultichainAccountAdapter,
+  MultichainAccountWalletAdapter,
+} from './adapters';
 import type {
   AccountProvider,
   MultichainAccount,
   MultichainAccountSelector,
   MultichainAccountWallet,
 } from './api';
-import {
-  MultichainAccountAdapter,
-  MultichainAccountWalletAdapter,
-  toMultichainAccountId,
-  toMultichainAccountWalletId,
-} from './api';
+import { toMultichainAccountId, toMultichainAccountWalletId } from './api';
 
 const mockEntropySource = 'mock-entropy-source';
 
