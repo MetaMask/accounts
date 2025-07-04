@@ -139,8 +139,6 @@ class MockAccountProvider implements AccountProvider<InternalAccount> {
   }
 
   getAccount = jest.fn().mockImplementation((id): InternalAccount => {
-    console.log(id);
-    console.log(this.#accounts);
     const found = this.#accounts.find((account) => account.id === id);
 
     if (!found) {
@@ -250,7 +248,6 @@ describe('index', () => {
         providers,
         entropySource: mockEntropySource,
       });
-      console.log('here');
 
       return { wallet, providers };
     };
