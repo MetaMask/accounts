@@ -2107,8 +2107,6 @@ describe('SnapKeyring', () => {
     it('returns the list of accounts', async () => {
       const snapMetadata = {
         id: snapId,
-        name: 'Snap Name',
-        enabled: true,
       };
       const snapObject = {
         id: snapId,
@@ -2157,7 +2155,7 @@ describe('SnapKeyring', () => {
           metadata: {
             name: '',
             importTime: 0,
-            snap: { id: snapId, name: 'snap-name', enabled: true },
+            snap: { id: snapId },
             keyring: { type: 'Snap Keyring' },
           },
         },
