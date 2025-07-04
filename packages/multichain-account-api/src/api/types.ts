@@ -66,6 +66,15 @@ export type MultichainAccountWallet<Account extends KeyringAccount> = {
   get entropySource(): EntropySourceId;
 
   /**
+   * Gets multichain account for a given index.
+   *
+   * @returns Multichain accounts.
+   */
+  getMultichainAccount(
+    groupIndex: number,
+  ): MultichainAccount<Account> | undefined;
+
+  /**
    * Gets multichain accounts.
    *
    * @returns Multichain accounts.

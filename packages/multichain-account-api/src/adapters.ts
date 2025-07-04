@@ -183,6 +183,12 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
     return this.#entropySource;
   }
 
+  getMultichainAccount(
+    groupIndex: number,
+  ): MultichainAccount<Account> | undefined {
+    return this.#accounts.get(groupIndex);
+  }
+
   getMultichainAccounts(): MultichainAccount<Account>[] {
     return Array.from(this.#accounts.values()); // TODO: Prevent copy here.
   }
