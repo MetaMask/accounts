@@ -67,8 +67,8 @@ linkStyle default opacity:0.5
   keyring_snap_sdk --> keyring_utils;
   keyring_snap_sdk --> keyring_api;
   multichain_account_api --> keyring_api;
-  multichain_account_api --> keyring_internal_api;
   multichain_account_api --> keyring_utils;
+  multichain_account_api --> keyring_internal_api;
 ```
 
 <!-- end dependency graph -->
