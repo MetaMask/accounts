@@ -137,17 +137,6 @@ class MockAccountProvider implements AccountProvider {
     this.#accounts = accounts;
   }
 
-  getEntropySources = jest.fn().mockImplementation((): EntropySourceId[] => {
-    const entropySources = new Set<EntropySourceId>(
-      this.#accounts.map(
-        // Assuming it's always defined in our tests.
-        (account) => account.options.entropySource as EntropySourceId,
-      ),
-    );
-
-    return Array.from(entropySources);
-  });
-
   getAccounts = jest
     .fn()
     .mockImplementation(({ entropySource, groupIndex }): InternalAccount[] => {
