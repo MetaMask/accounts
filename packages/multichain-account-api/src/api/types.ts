@@ -1,5 +1,8 @@
-import type { CaipChainId, EntropySourceId } from '@metamask/keyring-api';
-import type { InternalAccount } from '@metamask/keyring-internal-api';
+import type {
+  CaipChainId,
+  EntropySourceId,
+  KeyringAccount,
+} from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 
 import type { MultichainAccountId, MultichainAccountWalletId } from './id';
@@ -15,11 +18,21 @@ export type MultichainAccountSelector = {
   methods?: AccountMethod[];
   scopes?: CaipChainId[];
 };
-export type MultichainAccount = {
+
+export type MultichainAccount<Account extends KeyringAccount> = {
   get id(): MultichainAccountId;
-  get wallet(): MultichainAccountWallet;
+
+  get wallet(): MultichainAccountWallet<Account>;
+
   get index(): number;
-  get accounts(): InternalAccount[];
+
+  /**
+   * Gets the "blockchain" accounts for this multichain account.
+   *
+   * @param id - Account ID.
+   * @returns The "blockchain" accounts.
+   */
+  getAccounts(): Account[];
 
   /**
    * Gets the "blockchain" account for a given account ID.
@@ -27,7 +40,7 @@ export type MultichainAccount = {
    * @param id - Account ID.
    * @returns The "blockchain" account or undefined if not found.
    */
-  getAccount(id: AccountId): InternalAccount | undefined;
+  getAccount(id: AccountId): Account | undefined;
 
   /**
    * Query a "blockchain" account matching the selector.
@@ -36,7 +49,7 @@ export type MultichainAccount = {
    * @returns The "blockchain" account matching the selector or undefined if not matching.
    * @throws If multiple accounts match the selector.
    */
-  get(selector: MultichainAccountSelector): InternalAccount | undefined;
+  get(selector: MultichainAccountSelector): Account | undefined;
 
   /**
    * Query "blockchain" accounts matching the selector.
@@ -44,15 +57,20 @@ export type MultichainAccount = {
    * @param selector - Query selector.
    * @returns The "blockchain" accounts matching the selector.
    */
-  select(selector: MultichainAccountSelector): InternalAccount[];
+  select(selector: MultichainAccountSelector): Account[];
 };
 
-export type MultichainAccountWallet = {
+export type MultichainAccountWallet<Account extends KeyringAccount> = {
   get id(): MultichainAccountWalletId;
 
   get entropySource(): EntropySourceId;
 
-  get accounts(): MultichainAccount[];
+  /**
+   * Gets multichain accounts.
+   *
+   * @returns Multichain accounts.
+   */
+  getMultichainAccounts(): MultichainAccount<Account>[];
 
   /**
    * Gets the next available account index (named group index internally).
@@ -69,19 +87,21 @@ export type MultichainAccountWallet = {
    * @param groupIndex - Next available group index.
    * @returns New (or existing) multichain account for the given group index.
    */
-  createMultichainAccount(groupIndex: number): Promise<MultichainAccount>;
+  createMultichainAccount(
+    groupIndex: number,
+  ): Promise<MultichainAccount<Account>>;
 
   /**
    * Creates a new multichain account for the next available group index.
    *
    * @returns Next multichain account.
    */
-  createNextMultichainAccount(): Promise<MultichainAccount>;
+  createNextMultichainAccount(): Promise<MultichainAccount<Account>>;
 
   /**
    * Discovers and automatically create multichain accounts for that wallet.
    *
    * @returns List of all multichain accounts that got discovered or automatically created.
    */
-  discoverAndCreateMultichainAccounts(): Promise<MultichainAccount[]>;
+  discoverAndCreateMultichainAccounts(): Promise<MultichainAccount<Account>[]>;
 };

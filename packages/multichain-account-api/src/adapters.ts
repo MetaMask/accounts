@@ -3,8 +3,7 @@
 // inferring the `InternalAccount` type correctly which causes issue with the
 // union `| undefined`.
 
-import type { EntropySourceId } from '@metamask/keyring-api';
-import type { InternalAccount } from '@metamask/keyring-internal-api';
+import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
@@ -18,16 +17,20 @@ import type {
 } from './api';
 import { toMultichainAccountId, toMultichainAccountWalletId } from './api';
 
-export class MultichainAccountAdapter implements MultichainAccount {
+export class MultichainAccountAdapter<Account extends KeyringAccount>
+  implements MultichainAccount<Account>
+{
   readonly #id: MultichainAccountId;
 
-  readonly #wallet: MultichainAccountWallet;
+  readonly #wallet: MultichainAccountWallet<Account>;
 
   readonly #index: number;
 
-  readonly #providers: AccountProvider[];
+  readonly #providers: AccountProvider<Account>[];
 
-  readonly #accounts: InternalAccount[];
+  readonly #providersByAccountId: Map<AccountId, AccountProvider<Account>>;
+
+  readonly #accounts: Map<AccountProvider<Account>, AccountId[]>;
 
   constructor({
     groupIndex,
@@ -35,34 +38,34 @@ export class MultichainAccountAdapter implements MultichainAccount {
     providers,
   }: {
     groupIndex: number;
-    wallet: MultichainAccountWallet;
-    providers: AccountProvider[];
+    wallet: MultichainAccountWallet<Account>;
+    providers: AccountProvider<Account>[];
   }) {
     this.#id = toMultichainAccountId(wallet.id, groupIndex);
     this.#index = groupIndex;
     this.#wallet = wallet;
     this.#providers = providers;
-    this.#accounts = [];
-
-    let accounts: InternalAccount[] = [];
+    this.#accounts = new Map();
+    this.#providersByAccountId = new Map();
 
     for (const provider of this.#providers) {
-      accounts = accounts.concat(
-        provider.getAccounts({
-          entropySource: this.#wallet.entropySource,
-          groupIndex: this.#index,
-        }),
-      );
-    }
+      const accounts = provider.getAccounts({
+        entropySource: this.#wallet.entropySource,
+        groupIndex: this.#index,
+      });
 
-    this.#accounts = accounts;
+      this.#accounts.set(provider, accounts);
+      for (const id of accounts) {
+        this.#providersByAccountId.set(id, provider);
+      }
+    }
   }
 
   get id(): MultichainAccountId {
     return this.#id;
   }
 
-  get wallet(): MultichainAccountWallet {
+  get wallet(): MultichainAccountWallet<Account> {
     return this.#wallet;
   }
 
@@ -70,15 +73,31 @@ export class MultichainAccountAdapter implements MultichainAccount {
     return this.#index;
   }
 
-  get accounts(): InternalAccount[] {
-    return this.#accounts;
+  hasAccounts(): boolean {
+    // Use this map, cause if there's no accounts, then this map will also
+    // be empty.
+    return this.#providersByAccountId.size > 0;
   }
 
-  getAccount(id: AccountId): InternalAccount | undefined {
-    return this.#accounts.find((account) => account.id === id);
+  getAccounts(): Account[] {
+    let allAccounts: Account[] = [];
+
+    for (const [provider, accounts] of this.#accounts.entries()) {
+      allAccounts = allAccounts.concat(
+        accounts.map((id) => provider.getAccount(id)),
+      );
+    }
+
+    return allAccounts;
   }
 
-  get(selector: MultichainAccountSelector): InternalAccount | undefined {
+  getAccount(id: AccountId): Account | undefined {
+    const provider = this.#providersByAccountId.get(id);
+
+    return provider?.getAccount(id);
+  }
+
+  get(selector: MultichainAccountSelector): Account | undefined {
     const accounts = this.select(selector);
 
     if (accounts.length > 1) {
@@ -94,8 +113,8 @@ export class MultichainAccountAdapter implements MultichainAccount {
     return accounts[0]; // This is safe, see checks above.
   }
 
-  select(selector: MultichainAccountSelector): InternalAccount[] {
-    return this.#accounts.filter((account) => {
+  select(selector: MultichainAccountSelector): Account[] {
+    return this.getAccounts().filter((account) => {
       return (
         Boolean(selector.id && account.id === selector.id) ||
         Boolean(selector.address && account.address === selector.address) ||
@@ -113,20 +132,22 @@ export class MultichainAccountAdapter implements MultichainAccount {
   }
 }
 
-export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
+export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
+  implements MultichainAccountWallet<Account>
+{
   readonly #id: MultichainAccountWalletId;
 
-  readonly #providers: AccountProvider[];
+  readonly #providers: AccountProvider<Account>[];
 
   readonly #entropySource: EntropySourceId;
 
-  readonly #accounts: Map<number, MultichainAccount>;
+  readonly #accounts: Map<number, MultichainAccount<Account>>;
 
   constructor({
     providers,
     entropySource,
   }: {
-    providers: AccountProvider[];
+    providers: AccountProvider<Account>[];
     entropySource: EntropySourceId;
   }) {
     this.#id = toMultichainAccountWalletId(entropySource);
@@ -145,7 +166,7 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
       });
 
       // We only add multichain account that has underlying accounts.
-      hasAccounts = multichainAccount.accounts.length > 0;
+      hasAccounts = multichainAccount.hasAccounts();
       if (hasAccounts) {
         this.#accounts.set(groupIndex, multichainAccount);
       }
@@ -162,11 +183,11 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
     return this.#entropySource;
   }
 
-  get accounts(): MultichainAccount[] {
+  getMultichainAccounts(): MultichainAccount<Account>[] {
     return Array.from(this.#accounts.values()); // TODO: Prevent copy here.
   }
 
-  #createMultichainAccount(groupIndex: number): MultichainAccount {
+  #createMultichainAccount(groupIndex: number): MultichainAccount<Account> {
     const multichainAccount = new MultichainAccountAdapter({
       wallet: this,
       providers: this.#providers,
@@ -186,7 +207,7 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
 
   async createMultichainAccount(
     groupIndex: number,
-  ): Promise<MultichainAccount> {
+  ): Promise<MultichainAccount<Account>> {
     const nextGroupIndex = this.getNextGroupIndex();
     if (groupIndex > nextGroupIndex) {
       throw new Error(
@@ -207,14 +228,16 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
     return this.#createMultichainAccount(groupIndex);
   }
 
-  async createNextMultichainAccount(): Promise<MultichainAccount> {
+  async createNextMultichainAccount(): Promise<MultichainAccount<Account>> {
     return this.createMultichainAccount(this.getNextGroupIndex());
   }
 
-  async discoverAndCreateMultichainAccounts(): Promise<MultichainAccount[]> {
-    const multichainAccounts: MultichainAccount[] = [];
+  async discoverAndCreateMultichainAccounts(): Promise<
+    MultichainAccount<Account>[]
+  > {
+    const multichainAccounts: MultichainAccount<Account>[] = [];
 
-    let accounts: InternalAccount[];
+    let accounts: AccountId[];
     let groupIndex = 0;
 
     do {

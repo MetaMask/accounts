@@ -1,19 +1,21 @@
-import type { EntropySourceId } from '@metamask/keyring-api';
-import type { InternalAccount } from '@metamask/keyring-internal-api';
+import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
+import type { AccountId } from '@metamask/keyring-utils';
 
-export type AccountProvider = {
+export type AccountProvider<Account extends KeyringAccount> = {
+  getAccount: (id: AccountId) => Account; // Assuming getting an account from the provider can never fail.
+
   getAccounts: (opts: {
     entropySource: EntropySourceId;
     groupIndex: number;
-  }) => InternalAccount[];
+  }) => AccountId[];
 
   createAccounts: (opts: {
     entropySource: EntropySourceId;
     groupIndex: number;
-  }) => Promise<InternalAccount[]>;
+  }) => Promise<AccountId[]>;
 
   discoverAndCreateAccounts: (opts: {
     entropySource: EntropySourceId;
     groupIndex: number;
-  }) => Promise<InternalAccount[]>;
+  }) => Promise<AccountId[]>;
 };
