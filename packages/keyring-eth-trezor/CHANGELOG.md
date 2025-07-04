@@ -7,8 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.0.0]
+
 ### Changed
 
+- Bump `@trezor/connect-web` to `^9.6.0` ([#241](https://github.com/MetaMask/accounts/pull/241)), ([#300](https://github.com/MetaMask/accounts/pull/300))
+  - Require to enable new 7702 signing flows.
 - **BREAKING:** The method signature for `signTypedData` has been changed ([#224](https://github.com/MetaMask/accounts/pull/224))
   - The `options` argument type has been changed to `{ version: SignTypedDataVersion.V3 | SignTypedDataVersion.V4 } | undefined`.
   - The `options.version` argument type has been restricted to accept `SignTypedDataVersion.V3 | SignTypedDataVersion.V4` ([#224](https://github.com/MetaMask/accounts/pull/224))
@@ -207,7 +211,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@8.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@9.0.0...HEAD
+[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@8.0.0...@metamask/eth-trezor-keyring@9.0.0
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@7.0.0...@metamask/eth-trezor-keyring@8.0.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.1...@metamask/eth-trezor-keyring@7.0.0
 [6.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.0...@metamask/eth-trezor-keyring@6.1.1

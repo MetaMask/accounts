@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-trezor-keyring",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "description": "A MetaMask compatible keyring, for trezor hardware wallets",
   "keywords": [
     "ethereum",
