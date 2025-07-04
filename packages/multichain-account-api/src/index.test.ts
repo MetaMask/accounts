@@ -1,10 +1,6 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
-import type {
-  DiscoveredAccount,
-  EntropySourceId,
-  KeyringAccount,
-} from '@metamask/keyring-api';
+import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 import {
   BtcAccountType,
   BtcMethod,
