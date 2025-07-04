@@ -134,34 +134,23 @@ export class MultichainAccountWalletAdapter implements MultichainAccountWallet {
     this.#entropySource = entropySource;
     this.#accounts = new Map();
 
-    let index = 0;
+    let groupIndex = 0;
     let hasAccounts = false;
 
     do {
-      // Make an explicit const copy of that value, to avoid unsafe reference.
-      // See: https://eslint.org/docs/latest/rules/no-loop-func
-      const groupIndex = index;
-
-      hasAccounts = this.#providers.some((provider) => {
-        return Boolean(
-          provider.getAccounts({
-            entropySource: this.#entropySource,
-            groupIndex,
-          }).length,
-        );
+      const multichainAccount = new MultichainAccountAdapter({
+        groupIndex,
+        wallet: this,
+        providers: this.#providers,
       });
 
+      // We only add multichain account that has underlying accounts.
+      hasAccounts = multichainAccount.accounts.length > 0;
       if (hasAccounts) {
-        const multichainAccount = new MultichainAccountAdapter({
-          groupIndex,
-          wallet: this,
-          providers: this.#providers,
-        });
-
         this.#accounts.set(groupIndex, multichainAccount);
       }
 
-      index += 1;
+      groupIndex += 1;
     } while (hasAccounts);
   }
 
