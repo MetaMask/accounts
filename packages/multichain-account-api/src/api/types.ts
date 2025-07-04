@@ -1,9 +1,6 @@
-import type {
-  CaipChainId,
-  EntropySourceId,
-  KeyringAccount,
-} from '@metamask/keyring-api';
+import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
+import type { CaipChainId } from '@metamask/utils';
 
 import type { MultichainAccountId, MultichainAccountWalletId } from './id';
 
