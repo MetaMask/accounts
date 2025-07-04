@@ -551,6 +551,15 @@ describe('index', () => {
       expect(multichainAccount.getAccounts()).toHaveLength(4); // EVM + SOL + 2 BTC.
     });
 
+    it('gets a multichain account from its index', async () => {
+      const wallet = await setupMultichainAccountWallet();
+
+      const groupIndex = 0;
+      const multichainAccount = wallet.getMultichainAccount(groupIndex);
+      expect(multichainAccount).toBeDefined();
+      expect(multichainAccount?.index).toBe(groupIndex);
+    });
+
     it('returns the same multichain account if index already exist', async () => {
       const wallet = await setupMultichainAccountWallet();
 
