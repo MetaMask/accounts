@@ -278,7 +278,7 @@ export class Device {
     if (index === undefined) {
       for (let i = 0; i < MAX_INDEX; i++) {
         const derivedAddress = this.addressFromIndex(i);
-        if (derivedAddress === address) {
+        if (derivedAddress === normalizedAddress) {
           index = i;
           break;
         }
