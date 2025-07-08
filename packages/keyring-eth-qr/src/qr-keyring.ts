@@ -168,14 +168,10 @@ export class QrKeyring implements Keyring {
       throw new Error('No device paired.');
     }
 
-    const lastAccount = this.#accounts[this.#accounts.length - 1];
-    const startIndex =
-      this.#accountToUnlock ??
-      (lastAccount ? this.#device.indexFromAddress(lastAccount) : 0);
     const newAccounts: Hex[] = [];
 
     for (let i = 0; i < accountsToAdd; i++) {
-      const index = startIndex + i;
+      const index = this.#accountToUnlock ?? this.#accounts.length + i;
       const address = this.#device.addressFromIndex(index);
 
       if (this.#accounts.includes(address)) {
@@ -184,9 +180,9 @@ export class QrKeyring implements Keyring {
 
       this.#accounts.push(address);
       newAccounts.push(address);
+      this.setAccountToUnlock(index + 1);
     }
 
-    this.#accountToUnlock = startIndex + accountsToAdd;
     return newAccounts;
   }
 

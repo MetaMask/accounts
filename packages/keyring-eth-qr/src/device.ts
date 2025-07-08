@@ -294,28 +294,6 @@ export class Device {
   }
 
   /**
-   * Retrieve the index of an address from the source
-   *
-   * @param address - The normalized address to retrieve the index for
-   * @returns The index of the address
-   */
-  indexFromAddress(address: Hex): number {
-    const cachedIndex = this.#pairedDevice.indexes[address];
-    if (cachedIndex !== undefined) {
-      return Number(cachedIndex);
-    }
-
-    const index = this.pathFromAddress(address).split('/').pop();
-    if (index === undefined) {
-      throw new Error(`Invalid path for address ${address}`);
-    }
-
-    this.#pairedDevice.indexes[address] = Number(index);
-
-    return Number(index);
-  }
-
-  /**
    * Get a page of addresses derived from the source.
    *
    * @param page - The page number to retrieve

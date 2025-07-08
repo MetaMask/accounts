@@ -292,29 +292,6 @@ describe('QrKeyring', () => {
           EXPECTED_ACCOUNTS.slice(0, numberOfAccountsToAdd),
         );
       });
-
-      it('recovers indexes if they are not present in the serialized state', async () => {
-        const keyring = new QrKeyring({
-          bridge: getMockBridge(),
-        });
-        await keyring.deserialize({
-          ...HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
-          accounts: EXPECTED_ACCOUNTS.slice(0, 3),
-        });
-
-        // This function call will create the third account starting
-        // from the last account's index.
-        // This will require the keyring to recover indexes for the first two accounts
-        await keyring.addAccounts(1);
-
-        const serialized = await keyring.serialize();
-        expect(await keyring.getAccounts()).toHaveLength(3);
-        expect('indexes' in serialized && serialized.indexes).toStrictEqual({
-          [EXPECTED_ACCOUNTS[0]]: 0,
-          [EXPECTED_ACCOUNTS[1]]: 1,
-          [EXPECTED_ACCOUNTS[2]]: 2,
-        });
-      });
     });
 
     describe('when the keyring is paired with a device of type `crypto-account`', () => {
