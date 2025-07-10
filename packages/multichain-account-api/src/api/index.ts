@@ -1,3 +1,3 @@
-export type * from './group';
-export type * from './wallet';
+export * from './group';
+export * from './wallet';
 export * from './multichain';

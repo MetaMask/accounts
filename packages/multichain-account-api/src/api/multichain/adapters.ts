@@ -18,6 +18,7 @@ import type {
 } from '..';
 import {
   getGroupIndexFromAccountGroupId,
+  toDefaultAccountGroupId,
   toMultichainAccountId,
   toMultichainAccountWalletId,
 } from '..';
@@ -191,8 +192,12 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
   getAccountGroup(
     groupId: AccountGroupId,
   ): MultichainAccount<Account> | undefined {
-    const groupIndex = getGroupIndexFromAccountGroupId(groupId);
+    // We consider the "default case" to be mapped to index 0.
+    if (groupId === toDefaultAccountGroupId(this.id)) {
+      return this.#accounts.get(0);
+    }
 
+    const groupIndex = getGroupIndexFromAccountGroupId(groupId);
     if (groupIndex === undefined) {
       return undefined;
     }

@@ -16,17 +16,27 @@ import type { InternalAccount } from '@metamask/keyring-internal-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import { v4 as uuid } from 'uuid';
 
-import {
-  MultichainAccountAdapter,
-  MultichainAccountWalletAdapter,
-} from './api/multichain/adapters';
 import type {
+  AccountGroup,
+  AccountGroupId,
   AccountProvider,
+  AccountWallet,
   MultichainAccount,
   MultichainAccountSelector,
   MultichainAccountWallet,
 } from './api';
-import { toMultichainAccountId, toMultichainAccountWalletId } from './api';
+import {
+  AccountWalletCategory,
+  toAccountGroupId,
+  toAccountWalletId,
+  toDefaultAccountGroupId,
+  toMultichainAccountId,
+  toMultichainAccountWalletId,
+} from './api';
+import {
+  MultichainAccountAdapter,
+  MultichainAccountWalletAdapter,
+} from './api/multichain/adapters';
 
 const mockEntropySource = 'mock-entropy-source';
 
@@ -667,6 +677,72 @@ describe('index', () => {
       const accounts = await wallet.discoverAndCreateMultichainAccounts();
       expect(accounts).toHaveLength(1); // We only discover for index 0 in the test setup.
       expect(accounts[0]?.getAccounts()).toHaveLength(2); // EVM + BTC.
+    });
+  });
+
+  describe('AccountGroup', () => {
+    it('gets an account from it account id', async () => {
+      // MultichainAccountWallet is also an AccountWallet, so we can use it to
+      // test AccountGroup too!
+      // NOTE: Force types, to make sure multichain adapters can be
+      // used through those.
+      const wallet: AccountWallet<InternalAccount> =
+        await setupMultichainAccountWallet();
+
+      const groupId: AccountGroupId = toAccountGroupId(wallet.id, '0'); // Use number as a string here.
+      const group: AccountGroup<InternalAccount> | undefined =
+        wallet.getAccountGroup(groupId);
+
+      expect(group).toBeDefined();
+      expect(group?.id).toStrictEqual(groupId);
+    });
+
+    it('gets the default account when using the default group id', async () => {
+      const wallet: AccountWallet<InternalAccount> =
+        await setupMultichainAccountWallet();
+
+      const groupId: AccountGroupId = toDefaultAccountGroupId(wallet.id);
+      const group: AccountGroup<InternalAccount> | undefined =
+        wallet.getAccountGroup(groupId);
+
+      expect(group).toBeDefined();
+
+      // We know it's safe, since we're using a MultichainAccountWallet
+      const multichainAccount = group as MultichainAccount<InternalAccount>;
+      expect(multichainAccount.index).toBe(0); // Default group ID is referring to index 0.
+    });
+
+    it('returns undefined if we cannot match the account group id', async () => {
+      const wallet: AccountWallet<InternalAccount> =
+        await setupMultichainAccountWallet();
+
+      const groupId: AccountGroupId = toAccountGroupId(
+        toAccountWalletId(AccountWalletCategory.Keyring, 'bad-keyring-id'),
+        'bad-index',
+      );
+      const group: AccountGroup<InternalAccount> | undefined =
+        wallet.getAccountGroup(groupId);
+
+      expect(group).toBeUndefined();
+    });
+
+    it('gets accounts', async () => {
+      const wallet = await setupMultichainAccountWallet();
+      const groups: AccountGroup<InternalAccount>[] = wallet.getAccountGroups();
+
+      expect(groups.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('AccountWallet', () => {
+    it('uses a compatible wallet id', async () => {
+      // MultichainAccountWallet is also an AccountWallet, so we can use it to
+      // test AccountGroup too!
+      const wallet = await setupMultichainAccountWallet();
+
+      expect(wallet.id).toStrictEqual(
+        toAccountWalletId(AccountWalletCategory.Entropy, wallet.entropySource),
+      );
     });
   });
 });
