@@ -4,11 +4,11 @@ Various JavaScript/TypeScript utilities required by Keyrings.
 
 ## Installation
 
-`yarn add @metamask/multichain-account`
+`yarn add @metamask/account-api`
 
 or
 
-`npm install @metamask/multichain-account`
+`npm install @metamask/account-api`
 
 ## Contributing
 
