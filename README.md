@@ -12,6 +12,7 @@ This repository contains the following packages [^fn1]:
 
 <!-- start package list -->
 
+- [`@metamask/account-api`](packages/account-api)
 - [`@metamask/eth-hd-keyring`](packages/keyring-eth-hd)
 - [`@metamask/eth-ledger-bridge-keyring`](packages/keyring-eth-ledger-bridge)
 - [`@metamask/eth-simple-keyring`](packages/keyring-eth-simple)
@@ -34,6 +35,7 @@ Or, in graph form [^fn1]:
 %%{ init: { 'flowchart': { 'curve': 'bumpX' } } }%%
 graph LR;
 linkStyle default opacity:0.5
+  account_api(["@metamask/account-api"]);
   keyring_api(["@metamask/keyring-api"]);
   eth_hd_keyring(["@metamask/eth-hd-keyring"]);
   eth_ledger_bridge_keyring(["@metamask/eth-ledger-bridge-keyring"]);
@@ -45,6 +47,9 @@ linkStyle default opacity:0.5
   keyring_snap_client(["@metamask/keyring-snap-client"]);
   keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
   keyring_utils(["@metamask/keyring-utils"]);
+  account_api --> keyring_api;
+  account_api --> keyring_utils;
+  account_api --> keyring_internal_api;
   keyring_api --> keyring_utils;
   eth_hd_keyring --> keyring_utils;
   eth_ledger_bridge_keyring --> keyring_utils;

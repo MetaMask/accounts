@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.packages.build.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./src/**/*.test.ts", "./src/**/*.test-d.ts"],
+  "references": [
+    {
+      "path": "../keyring-api/tsconfig.build.json"
+    },
+    {
+      "path": "../keyring-internal-api/tsconfig.build.json"
+    },
+    {
+      "path": "../keyring-utils/tsconfig.build.json"
+    }
+  ]
+}
