@@ -1,5 +1,5 @@
 {
-  "name": "@metamask/multichain-account-api",
+  "name": "@metamask/account-api",
   "version": "0.0.0",
   "description": "MetaMask Multichain Account API",
   "keywords": [
