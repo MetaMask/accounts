@@ -281,12 +281,12 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
   > {
     const multichainAccounts: MultichainAccount<Account>[] = [];
 
-    let accounts: AccountId[];
+    let discovered: boolean;
     let groupIndex = 0;
 
     do {
-      // New index means new accounts.
-      accounts = [];
+      // Keep track if any accounts got discovered for that new index.
+      discovered = false;
 
       const missingProviders = [];
       for (const provider of this.#providers) {
@@ -298,7 +298,7 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
         if (discoveredAccounts.length) {
           // This provider has discovered and created accounts, meaning there might
           // be something to discover on the next index.
-          accounts = discoveredAccounts;
+          discovered = true;
         } else {
           // This provider did not discover or create any accounts. We mark it as
           // "missing", so we can create accounts on this index if other providers
@@ -307,7 +307,7 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
         }
       }
 
-      if (accounts.length) {
+      if (discovered) {
         // We only create missing accounts if one of the provider has discovered
         // and created accounts.
         for (const provider of missingProviders) {
@@ -323,7 +323,7 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
         // We have accounts, we need to check the next index.
         groupIndex += 1;
       }
-    } while (accounts.length);
+    } while (discovered);
 
     return multichainAccounts;
   }
