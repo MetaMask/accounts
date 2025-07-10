@@ -121,19 +121,32 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
 
   select(selector: MultichainAccountSelector): Account[] {
     return this.getAccounts().filter((account) => {
-      return (
-        Boolean(selector.id && account.id === selector.id) ||
-        Boolean(selector.address && account.address === selector.address) ||
-        Boolean(selector.type && account.type === selector.type) ||
-        Boolean(
-          selector.methods?.some((method) => account.methods.includes(method)),
-        ) ||
-        Boolean(
-          selector.scopes?.some(
-            (scope) => isScopeEqualToAny(scope, account.scopes), // This will cover specific EVM EOA scopes as well.
-          ),
-        )
-      );
+      let selected = true;
+
+      if (selector.id) {
+        selected &&= account.id === selector.id;
+      }
+      if (selector.address) {
+        selected &&= account.address === selector.address;
+      }
+      if (selector.type) {
+        selected &&= account.type === selector.type;
+      }
+      if (selector.methods !== undefined) {
+        selected &&= selector.methods.some((method) =>
+          account.methods.includes(method),
+        );
+      }
+      if (selector.scopes !== undefined) {
+        selected &&= selector.scopes.some((scope) => {
+          return (
+            // This will cover specific EVM EOA scopes as well.
+            isScopeEqualToAny(scope, account.scopes)
+          );
+        });
+      }
+
+      return selected;
     });
   }
 }

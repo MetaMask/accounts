@@ -505,6 +505,22 @@ describe('index', () => {
         selector: { methods: [EthMethod.Sign] },
         expected: [],
       },
+      {
+        tc: 'using multiple selectors',
+        selector: {
+          type: EthAccountType.Eoa,
+          methods: [EthMethod.SignTransaction, EthMethod.PersonalSign],
+        },
+        expected: [mockEvmAccount],
+      },
+      {
+        tc: 'using non-matching selectors',
+        selector: {
+          type: BtcAccountType.P2wpkh,
+          methods: [EthMethod.SignTransaction, EthMethod.PersonalSign],
+        },
+        expected: [],
+      },
     ] as {
       tc: string;
       selector: MultichainAccountSelector;
