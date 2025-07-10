@@ -19,7 +19,7 @@ import { v4 as uuid } from 'uuid';
 import {
   MultichainAccountAdapter,
   MultichainAccountWalletAdapter,
-} from './adapters';
+} from './api/multichain/adapters';
 import type {
   AccountProvider,
   MultichainAccount,

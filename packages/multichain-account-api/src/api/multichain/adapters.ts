@@ -8,14 +8,19 @@ import type { AccountId } from '@metamask/keyring-utils';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
 import type {
+  AccountGroupId,
   AccountProvider,
   MultichainAccount,
   MultichainAccountId,
   MultichainAccountSelector,
   MultichainAccountWallet,
   MultichainAccountWalletId,
-} from './api';
-import { toMultichainAccountId, toMultichainAccountWalletId } from './api';
+} from '..';
+import {
+  getGroupIndexFromAccountGroupId,
+  toMultichainAccountId,
+  toMultichainAccountWalletId,
+} from '..';
 
 export class MultichainAccountAdapter<Account extends KeyringAccount>
   implements MultichainAccount<Account>
@@ -181,6 +186,21 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
 
   get entropySource(): EntropySourceId {
     return this.#entropySource;
+  }
+
+  getAccountGroup(
+    groupId: AccountGroupId,
+  ): MultichainAccount<Account> | undefined {
+    const groupIndex = getGroupIndexFromAccountGroupId(groupId);
+
+    if (groupIndex === undefined) {
+      return undefined;
+    }
+    return this.#accounts.get(groupIndex);
+  }
+
+  getAccountGroups(): MultichainAccount<Account>[] {
+    return this.getMultichainAccounts();
   }
 
   getMultichainAccount(

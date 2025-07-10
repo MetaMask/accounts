@@ -1,2 +1,2 @@
 export * from './api';
-export * from './adapters';
+export * from './api/multichain/adapters';
