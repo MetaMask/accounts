@@ -15,7 +15,7 @@ export const DEFAULT_ACCOUNT_GROUP_UNIQUE_ID: string = 'default';
 /**
  * Account group ID.
  */
-export type AccountGroupId = `${AccountWalletId}:${string}`;
+export type AccountGroupId = `${AccountWalletId}/${string}`;
 
 /**
  * Account group that can hold multiple accounts.
@@ -59,7 +59,7 @@ export function toAccountGroupId(
   walletId: AccountWalletId,
   id: string,
 ): AccountGroupId {
-  return `${walletId}:${id}`;
+  return `${walletId}/${id}`;
 }
 
 /**
