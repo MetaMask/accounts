@@ -1,6 +1,6 @@
-# MetaMask Keyring utils
+# MetaMask Account API
 
-Various JavaScript/TypeScript utilities required by Keyrings.
+API for the MetaMask account model.
 
 ## Installation
 
