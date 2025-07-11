@@ -31,10 +31,10 @@ export enum SolAccountType {
 }
 
 /**
- * Supported Tron account types.
+ * Supported TRON account types.
  */
-export enum TronAccountType {
-  DataAccount = 'tron:data-account',
+export enum TrxAccountType {
+  Eoa = 'tron:eoa',
 }
 
 /**
@@ -48,7 +48,7 @@ export type KeyringAccountType =
   | `${BtcAccountType.P2wpkh}`
   | `${BtcAccountType.P2tr}`
   | `${SolAccountType.DataAccount}`
-  | `${TronAccountType.DataAccount}`;
+  | `${TrxAccountType.Eoa}`;
 
 /**
  * A struct which represents a Keyring account object. It is abstract enough to
@@ -74,7 +74,7 @@ export const KeyringAccountStruct = object({
     `${BtcAccountType.P2wpkh}`,
     `${BtcAccountType.P2tr}`,
     `${SolAccountType.DataAccount}`,
-    `${TronAccountType.DataAccount}`,
+    `${TrxAccountType.Eoa}`,
   ]),
 
   /**

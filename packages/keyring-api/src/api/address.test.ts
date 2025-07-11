@@ -6,16 +6,19 @@ import type { CaipAccountId } from './caip';
 import { BtcScope } from '../btc';
 import { EthScope } from '../eth';
 import { SolScope } from '../sol';
+import { TrxScope } from '../trx';
 
 const MOCK_ETH_ADDRESS = '0x6431726EEE67570BF6f0Cf892aE0a3988F03903F';
 const MOCK_BTC_ADDRESS = 'bc1qwl8399fz829uqvqly9tcatgrgtwp3udnhxfq4k';
 const MOCK_SOL_ADDRESS = '7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV';
+const MOCK_TRX_ADDRESS = 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N';
 
 describe('ResolveAccountAddress', () => {
   it.each([
     `${EthScope.Eoa}:${MOCK_ETH_ADDRESS}`,
     `${BtcScope.Mainnet}:${MOCK_BTC_ADDRESS}`,
     `${SolScope.Mainnet}:${MOCK_SOL_ADDRESS}`,
+    `${TrxScope.Mainnet}:${MOCK_TRX_ADDRESS}`,
   ] as CaipAccountId[])(
     'allows CAIP-10 account ID: %s',
     (address: CaipAccountId) => {
@@ -28,7 +31,12 @@ describe('ResolveAccountAddress', () => {
     },
   );
 
-  it.each([MOCK_ETH_ADDRESS, MOCK_BTC_ADDRESS, MOCK_SOL_ADDRESS])(
+  it.each([
+    MOCK_ETH_ADDRESS,
+    MOCK_BTC_ADDRESS,
+    MOCK_SOL_ADDRESS,
+    MOCK_TRX_ADDRESS,
+  ])(
     'throws an error if address is not a CAIP-10 account ID: %s',
     (address: string) => {
       const resolvedAddress: ResolvedAccountAddress = {

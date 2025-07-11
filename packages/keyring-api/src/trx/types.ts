@@ -6,39 +6,38 @@ import { definePattern } from '@metamask/utils';
 import {
   CaipChainIdStruct,
   KeyringAccountStruct,
-  TronAccountType,
+  TrxAccountType,
 } from '../api';
 
 /**
  * TRON addresses are Base58-encoded strings that are exactly 34 characters long
  * and start with the letter 'T'.
- * Mainnet addresses begin with 'T'.
  */
-export const TronAddressStruct = definePattern(
-  'TronAddress',
-  /^T[1-9A-HJ-NP-Za-km-z]{33}$/iu,
+export const TrxAddressStruct = definePattern(
+  'TrxAddress',
+  /^T[1-9A-HJ-NP-Za-km-z]{33}$/u,
 );
 
 /**
  * Supported TRON methods.
  */
-export enum TronMethod {
+export enum TrxMethod {
   SignMessageV2 = 'signMessageV2',
   VerifyMessageV2 = 'verifyMessageV2',
 }
 
-export const TronDataAccountStruct = object({
+export const TrxEoaAccountStruct = object({
   ...KeyringAccountStruct.schema,
 
   /**
    * Account address.
    */
-  address: TronAddressStruct,
+  address: TrxAddressStruct,
 
   /**
    * Account type.
    */
-  type: literal(`${TronAccountType.DataAccount}`),
+  type: literal(`${TrxAccountType.Eoa}`),
 
   /**
    * Account supported scopes (CAIP-2 chain IDs).
@@ -48,7 +47,7 @@ export const TronDataAccountStruct = object({
   /**
    * Account supported methods.
    */
-  methods: array(enums(Object.values(TronMethod))),
+  methods: array(enums(Object.values(TrxMethod))),
 });
 
-export type TronDataAccount = Infer<typeof TronDataAccountStruct>;
+export type TrxEoaAccount = Infer<typeof TrxEoaAccountStruct>;
