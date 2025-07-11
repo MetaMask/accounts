@@ -1,6 +1,6 @@
 import { AccountIdStruct, object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { nonempty, array, enums, record, string } from '@metamask/superstruct';
+import { array, enums, nonempty, record, string } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
 import { CaipChainIdStruct } from './caip';
@@ -31,6 +31,13 @@ export enum SolAccountType {
 }
 
 /**
+ * Supported Tron account types.
+ */
+export enum TronAccountType {
+  DataAccount = 'tron:data-account',
+}
+
+/**
  * Supported account types.
  */
 export type KeyringAccountType =
@@ -40,7 +47,8 @@ export type KeyringAccountType =
   | `${BtcAccountType.P2sh}`
   | `${BtcAccountType.P2wpkh}`
   | `${BtcAccountType.P2tr}`
-  | `${SolAccountType.DataAccount}`;
+  | `${SolAccountType.DataAccount}`
+  | `${TronAccountType.DataAccount}`;
 
 /**
  * A struct which represents a Keyring account object. It is abstract enough to
@@ -66,6 +74,7 @@ export const KeyringAccountStruct = object({
     `${BtcAccountType.P2wpkh}`,
     `${BtcAccountType.P2tr}`,
     `${SolAccountType.DataAccount}`,
+    `${TronAccountType.DataAccount}`,
   ]),
 
   /**
