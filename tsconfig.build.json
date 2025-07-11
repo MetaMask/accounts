@@ -10,7 +10,8 @@
     { "path": "./packages/keyring-snap-sdk/tsconfig.build.json" },
     { "path": "./packages/keyring-snap-client/tsconfig.build.json" },
     { "path": "./packages/keyring-internal-snap-client/tsconfig.build.json" },
-    { "path": "./packages/keyring-utils/tsconfig.build.json" }
+    { "path": "./packages/keyring-utils/tsconfig.build.json" },
+    { "path": "./packages/account-api/tsconfig.build.json" }
   ],
   "files": [],
   "include": []

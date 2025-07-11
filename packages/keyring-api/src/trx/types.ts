@@ -16,7 +16,7 @@ import {
  */
 export const TronAddressStruct = definePattern(
   'TronAddress',
-  /^T[1-9A-HJ-NP-Za-km-z]{33}$/iu,
+  /^T[1-9A-HJ-NP-Za-km-z]{33}$/u,
 );
 
 /**
@@ -38,7 +38,7 @@ export const TronDataAccountStruct = object({
   /**
    * Account type.
    */
-  type: literal(`${TronAccountType.DataAccount}`),
+  type: literal(`${TronAccountType.Eoa}`),
 
   /**
    * Account supported scopes (CAIP-2 chain IDs).

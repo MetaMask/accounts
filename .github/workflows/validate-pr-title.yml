@@ -50,6 +50,7 @@ jobs:
             keyring-snap-client
             keyring-snap-sdk
             keyring-utils
+            account-api
           subjectPattern: '^(?![A-Z]).+$'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
