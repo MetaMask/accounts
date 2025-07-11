@@ -32,7 +32,7 @@ export type AccountGroup<Account extends KeyringAccount> = {
   get wallet(): AccountWallet<Account>;
 
   /**
-   * Gets the "blockchain" accounts for this multichain account.
+   * Gets the "blockchain" accounts for this account group.
    *
    * @param id - Account ID.
    * @returns The "blockchain" accounts.

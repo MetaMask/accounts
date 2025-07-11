@@ -1,13 +1,13 @@
 {
   "name": "@metamask/account-api",
   "version": "0.0.0",
-  "description": "MetaMask Multichain Account API",
+  "description": "MetaMask Account API",
   "keywords": [
     "metamask",
     "account",
     "multichain"
   ],
-  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/multichain-account#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/account-api#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
