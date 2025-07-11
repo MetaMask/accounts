@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.packages.build.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "dist",
+    "rootDir": "src",
+    "target": "es2020"
+  },
+  "references": [
+    {
+      "path": "../keyring-utils/tsconfig.build.json"
+    }
+  ],
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./src/**/*.test.ts", "./src/sample.ts"]
+}
