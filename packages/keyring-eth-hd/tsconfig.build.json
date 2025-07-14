@@ -5,11 +5,15 @@
     "baseUrl": "./",
     "outDir": "dist",
     "rootDir": "src",
-    "exactOptionalPropertyTypes": false
+    "exactOptionalPropertyTypes": false,
+    "jsx": "react-jsx"
   },
   "references": [
     {
       "path": "../keyring-utils/tsconfig.build.json"
+    },
+    {
+      "path": "../webview-crypto/tsconfig.build.json"
     }
   ],
   "include": ["./src/**/*.ts", "./src/**/*.js"],

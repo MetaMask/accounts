@@ -88,7 +88,7 @@ export type Keyring = {
    *
    * @param address - The address of the account to remove.
    */
-  removeAccount?(address: Hex): void;
+  removeAccount?(address: Hex): void | Promise<void>;
 
   /**
    * Export the private key for one of the keyring accounts.

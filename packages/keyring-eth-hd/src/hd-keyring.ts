@@ -31,8 +31,9 @@ import {
   type Hex,
   remove0x,
 } from '@metamask/utils';
-import { HDKey } from 'ethereum-cryptography/hdkey';
 import { keccak256 } from 'ethereum-cryptography/keccak';
+
+import { AsyncHDKey } from './AsyncHDKey';
 
 // Options:
 const hdPathString = `m/44'/60'/0'/0`;
@@ -108,13 +109,13 @@ export class HdKeyring implements Keyring {
 
   seed?: Uint8Array | null;
 
-  root?: HDKey | null;
+  root?: AsyncHDKey | null;
 
-  hdWallet?: HDKey;
+  hdWallet?: AsyncHDKey;
 
   hdPath: string = hdPathString;
 
-  #wallets: HDKey[] = [];
+  #wallets: AsyncHDKey[] = [];
 
   readonly #cryptographicFunctions?: CryptographicFunctions;
 
@@ -200,17 +201,20 @@ export class HdKeyring implements Keyring {
     }
 
     const oldLen = this.#wallets.length;
-    const newWallets: HDKey[] = [];
+    const newWallets: AsyncHDKey[] = [];
     for (let i = oldLen; i < numberOfAccounts + oldLen; i++) {
-      const wallet = this.root.deriveChild(i);
+      const wallet = await this.root.deriveChild(i);
       newWallets.push(wallet);
       this.#wallets.push(wallet);
     }
-    const hexWallets = newWallets.map((wallet) => {
-      assert(wallet.publicKey, 'Expected public key to be set');
-      return this.#addressfromPublicKey(wallet.publicKey);
-    });
-    return Promise.resolve(hexWallets);
+    const hexWallets = await Promise.all(
+      newWallets.map(async (wallet) => {
+        const publicKey = await wallet.getPublicKey();
+        assert(publicKey, 'Expected public key to be set');
+        return this.#addressfromPublicKey(publicKey);
+      }),
+    );
+    return hexWallets;
   }
 
   /**
@@ -219,10 +223,13 @@ export class HdKeyring implements Keyring {
    * @returns The addresses of all accounts in the keyring.
    */
   async getAccounts(): Promise<Hex[]> {
-    return this.#wallets.map((wallet) => {
-      assert(wallet.publicKey, 'Expected public key to be set');
-      return this.#addressfromPublicKey(wallet.publicKey);
-    });
+    return Promise.all(
+      this.#wallets.map(async (wallet) => {
+        const publicKey = await wallet.getPublicKey();
+        assert(publicKey, 'Expected public key to be set');
+        return this.#addressfromPublicKey(publicKey);
+      }),
+    );
   }
 
   /**
@@ -236,7 +243,7 @@ export class HdKeyring implements Keyring {
     if (!origin || typeof origin !== 'string') {
       throw new Error(`'origin' must be a non-empty string`);
     }
-    const wallet = this.#getWalletForAccount(address, {
+    const wallet = await this.#getWalletForAccount(address, {
       withAppKeyOrigin: origin,
     });
     assert(wallet.publicKey, 'Expected public key to be set');
@@ -260,9 +267,18 @@ export class HdKeyring implements Keyring {
     opts?: { withAppKeyOrigin: string },
   ): Promise<string> {
     const wallet = opts
-      ? this.#getWalletForAccount(address, opts)
-      : this.#getWalletForAccount(address);
-    const { privateKey } = wallet;
+      ? await this.#getWalletForAccount(address, opts)
+      : await this.#getWalletForAccount(address);
+
+    let privateKey: Uint8Array;
+    if ('getPrivateKey' in wallet) {
+      const key = await wallet.getPrivateKey();
+      assert(key, 'Expected private key to be set');
+      privateKey = key;
+    } else {
+      privateKey = wallet.privateKey;
+    }
+
     assert(
       privateKey instanceof Uint8Array,
       'Expected private key to be of type Uint8Array',
@@ -283,7 +299,7 @@ export class HdKeyring implements Keyring {
     tx: TypedTransaction,
     opts = {},
   ): Promise<TypedTransaction> {
-    const privKey = this.#getPrivateKeyFor(address, opts);
+    const privKey = await this.#getPrivateKeyFor(address, opts);
     const signedTx = tx.sign(Buffer.from(privKey));
     // Newer versions of Ethereumjs-tx are immutable and return a new tx object
     return signedTx ?? tx;
@@ -304,7 +320,7 @@ export class HdKeyring implements Keyring {
   ): Promise<string> {
     assertIsHexString(data);
     const message = remove0x(data);
-    const privKey = this.#getPrivateKeyFor(address, opts);
+    const privKey = await this.#getPrivateKeyFor(address, opts);
     const msgSig = ecsign(Buffer.from(message, 'hex'), Buffer.from(privKey));
     const rawMsgSig = concatSig(
       Buffer.from(bigIntToBytes(msgSig.v)),
@@ -328,7 +344,7 @@ export class HdKeyring implements Keyring {
     msgHex: string,
     opts: HDKeyringAccountSelectionOptions = {},
   ): Promise<string> {
-    const privKey = this.#getPrivateKeyFor(address, opts);
+    const privKey = await this.#getPrivateKeyFor(address, opts);
     const privateKey = Buffer.from(privKey);
     return personalSign({ privateKey, data: msgHex });
   }
@@ -346,8 +362,8 @@ export class HdKeyring implements Keyring {
     withAccount: Hex,
     encryptedData: EthEncryptedData,
   ): Promise<string> {
-    const wallet = this.#getWalletForAccount(withAccount);
-    const { privateKey: privateKeyAsUint8Array } = wallet;
+    const wallet = await this.#getWalletForAccount(withAccount);
+    const privateKeyAsUint8Array = await wallet.getPrivateKey();
     assert(privateKeyAsUint8Array, 'Expected private key to be set');
     const privateKeyAsHex = Buffer.from(privateKeyAsUint8Array).toString('hex');
     return decrypt({ privateKey: privateKeyAsHex, encryptedData });
@@ -378,7 +394,7 @@ export class HdKeyring implements Keyring {
       version = SignTypedDataVersion.V1;
     }
 
-    const privateKey = this.#getPrivateKeyFor(address, options);
+    const privateKey = await this.#getPrivateKeyFor(address, options);
     return signTypedData({
       privateKey: Buffer.from(privateKey),
       data,
@@ -400,7 +416,7 @@ export class HdKeyring implements Keyring {
     authorization: EIP7702Authorization,
     opts?: HDKeyringAccountSelectionOptions,
   ): Promise<string> {
-    const privateKey = this.#getPrivateKeyFor(withAccount, opts);
+    const privateKey = await this.#getPrivateKeyFor(withAccount, opts);
     return signEIP7702Authorization({
       privateKey: Buffer.from(privateKey),
       authorization,
@@ -412,22 +428,34 @@ export class HdKeyring implements Keyring {
    *
    * @param account - The address of the account to remove.
    */
-  removeAccount(account: Hex): void {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  async removeAccount(account: Hex): Promise<void> {
     const address = this.#normalizeAddress(account);
-    if (
-      !this.#wallets
-        .map(
-          ({ publicKey }) => publicKey && this.#addressfromPublicKey(publicKey),
-        )
-        .includes(address)
-    ) {
+    const addresses = await Promise.all(
+      this.#wallets.map(async (wallet) => {
+        const publicKey = await wallet.getPublicKey();
+        return publicKey ? this.#addressfromPublicKey(publicKey) : null;
+      }),
+    );
+
+    const addressIndex = addresses.indexOf(address);
+    if (addressIndex === -1) {
       throw new Error(`Address ${address} not found in this keyring`);
     }
 
-    this.#wallets = this.#wallets.filter(
-      ({ publicKey }) =>
-        publicKey && this.#addressfromPublicKey(publicKey) !== address,
+    const walletsToKeep = await Promise.all(
+      this.#wallets.map(async (wallet) => {
+        const publicKey = await wallet.getPublicKey();
+        const walletAddress = publicKey
+          ? this.#addressfromPublicKey(publicKey)
+          : null;
+        return walletAddress === address ? null : wallet;
+      }),
     );
+
+    this.#wallets = walletsToKeep.filter(
+      (wallet: any) => wallet !== null,
+    ) as AsyncHDKey[];
   }
 
   /**
@@ -441,7 +469,7 @@ export class HdKeyring implements Keyring {
     withAccount: Hex,
     opts: HDKeyringAccountSelectionOptions = {},
   ): Promise<string> {
-    const privKey = this.#getPrivateKeyFor(withAccount, opts);
+    const privKey = await this.#getPrivateKeyFor(withAccount, opts);
     const publicKey = getEncryptionPublicKey(remove0x(bytesToHex(privKey)));
     return publicKey;
   }
@@ -522,14 +550,20 @@ export class HdKeyring implements Keyring {
    * @param opts - The options for selecting the account.
    * @returns The private key of the account.
    */
-  #getPrivateKeyFor(
+  async #getPrivateKeyFor(
     address: Hex,
     opts?: HDKeyringAccountSelectionOptions,
-  ): Uint8Array | Buffer {
+  ): Promise<Uint8Array | Buffer> {
     if (!address) {
       throw new Error('Must specify address.');
     }
-    const wallet = this.#getWalletForAccount(address, opts);
+    const wallet = await this.#getWalletForAccount(address, opts);
+
+    if ('getPrivateKey' in wallet) {
+      const privateKey = await wallet.getPrivateKey();
+      assert(privateKey, 'Missing private key');
+      return privateKey;
+    }
     assert(wallet.privateKey, 'Missing private key');
     return wallet.privateKey;
   }
@@ -538,9 +572,9 @@ export class HdKeyring implements Keyring {
    * Get the wallet for the specified account.
    *
    * @param account - The address of the account.
-   * @returns The wallet for the account as HDKey.
+   * @returns The wallet for the account as AsyncHDKey.
    */
-  #getWalletForAccount(account: Hex): HDKey;
+  async #getWalletForAccount(account: Hex): Promise<AsyncHDKey>;
 
   /**
    * Get the wallet for the specified account and app origin.
@@ -549,10 +583,10 @@ export class HdKeyring implements Keyring {
    * @param opts - The options for selecting the account.
    * @returns A key pair representing the wallet.
    */
-  #getWalletForAccount(
+  async #getWalletForAccount(
     accounts: Hex,
     opts: { withAppKeyOrigin: string },
-  ): { privateKey: Buffer; publicKey: Buffer };
+  ): Promise<{ privateKey: Buffer; publicKey: Buffer }>;
 
   /**
    * Get the wallet for the specified account with optional
@@ -562,25 +596,32 @@ export class HdKeyring implements Keyring {
    * @param opts - The options for selecting the account.
    * @returns A key pair representing the wallet.
    */
-  #getWalletForAccount(
+  async #getWalletForAccount(
     account: Hex,
     opts?: HDKeyringAccountSelectionOptions,
-  ): HDKey | { privateKey: Buffer; publicKey: Buffer };
+  ): Promise<AsyncHDKey | { privateKey: Buffer; publicKey: Buffer }>;
 
-  #getWalletForAccount(
+  async #getWalletForAccount(
     account: Hex,
     { withAppKeyOrigin }: HDKeyringAccountSelectionOptions = {},
-  ): HDKey | { privateKey: Buffer; publicKey: Buffer } {
+  ): Promise<AsyncHDKey | { privateKey: Buffer; publicKey: Buffer }> {
     const address = this.#normalizeAddress(account);
-    const wallet = this.#wallets.find(({ publicKey }) => {
-      return publicKey && this.#addressfromPublicKey(publicKey) === address;
-    });
+    let wallet: AsyncHDKey | undefined;
+
+    for (const currentWallet of this.#wallets) {
+      const publicKey = await currentWallet.getPublicKey();
+      if (publicKey && this.#addressfromPublicKey(publicKey) === address) {
+        wallet = currentWallet;
+        break;
+      }
+    }
+
     if (!wallet) {
       throw new Error('HD Keyring - Unable to find matching address.');
     }
 
     if (withAppKeyOrigin) {
-      const { privateKey } = wallet;
+      const privateKey = await wallet.getPrivateKey();
       assert(privateKey, 'Expected private key to be set');
       const appKeyOriginBuffer = Buffer.from(withAppKeyOrigin, 'utf8');
       const appKeyBuffer = Buffer.concat([privateKey, appKeyOriginBuffer]);
@@ -616,8 +657,8 @@ export class HdKeyring implements Keyring {
       '', // No passphrase
       this.#cryptographicFunctions,
     );
-    this.hdWallet = HDKey.fromMasterSeed(this.seed);
-    this.root = this.hdWallet.derive(this.hdPath);
+    this.hdWallet = await AsyncHDKey.fromMasterSeed(this.seed);
+    this.root = await this.hdWallet.derive(this.hdPath);
   }
 
   /**

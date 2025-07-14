@@ -11,7 +11,8 @@
     { "path": "./packages/keyring-snap-client" },
     { "path": "./packages/keyring-internal-snap-client" },
     { "path": "./packages/keyring-snap-sdk" },
-    { "path": "./packages/keyring-utils" }
+    { "path": "./packages/keyring-utils" },
+    { "path": "./packages/webview-crypto" }
   ],
   "files": [],
   "include": []

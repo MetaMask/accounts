@@ -769,16 +769,16 @@ describe('hd-keyring', () => {
       it('should remove that account', async function () {
         const addresses = await keyring.getAccounts();
         expect(addresses).toHaveLength(1);
-        keyring.removeAccount(await getAddressAtIndex(keyring, 0));
+        await keyring.removeAccount(await getAddressAtIndex(keyring, 0));
         const addressesAfterRemoval = await keyring.getAccounts();
         expect(addressesAfterRemoval).toHaveLength(0);
       });
     });
 
     describe('if the account does not exist', function () {
-      it('should throw an error', function () {
+      it('should throw an error', async function () {
         const unexistingAccount = '0x0000000000000000000000000000000000000000';
-        expect(() => keyring.removeAccount(unexistingAccount)).toThrow(
+        await expect(keyring.removeAccount(unexistingAccount)).rejects.toThrow(
           `Address ${unexistingAccount} not found in this keyring`,
         );
       });

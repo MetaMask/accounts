@@ -6,7 +6,10 @@
     "exactOptionalPropertyTypes": false,
     "target": "es2017"
   },
-  "references": [{ "path": "../keyring-utils" }],
+  "references": [
+    { "path": "../keyring-utils" },
+    { "path": "../webview-crypto" }
+  ],
   "include": ["./src", "./types"],
   "exclude": ["./dist/**/*"]
 }
