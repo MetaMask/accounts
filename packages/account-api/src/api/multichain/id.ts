@@ -4,7 +4,7 @@ import type { AccountGroupId } from '../group';
 import { AccountWalletCategory } from '../wallet';
 
 export type MultichainAccountWalletId =
-  `${AccountWalletCategory.Entropy}:${string}`;
+  `${AccountWalletCategory.Entropy}:${EntropySourceId}`;
 
 export type MultichainAccountId = `${MultichainAccountWalletId}/${number}`; // Use number for the account group index.
 
