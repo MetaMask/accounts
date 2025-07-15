@@ -8,21 +8,21 @@ import type { AccountId } from '@metamask/keyring-utils';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
 import {
+  toMultichainAccountId,
+  toMultichainAccountWalletId,
+  getGroupIndexFromAccountGroupId,
+} from './id';
+import type {
   AccountGroupId,
   AccountProvider,
-  AccountWalletCategory,
   MultichainAccount,
   MultichainAccountId,
   MultichainAccountSelector,
   MultichainAccountWallet,
   MultichainAccountWalletId,
 } from '..';
-import {
-  getGroupIndexFromAccountGroupId,
-  toDefaultAccountGroupId,
-  toMultichainAccountId,
-  toMultichainAccountWalletId,
-} from '..';
+import { toDefaultAccountGroupId } from '../group';
+import { AccountWalletCategory } from '../wallet';
 
 export class MultichainAccountAdapter<Account extends KeyringAccount>
   implements MultichainAccount<Account>
