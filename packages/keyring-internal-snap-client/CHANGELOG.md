@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- chore: bump snap deps ([#304](https://github.com/MetaMask/accounts/pull/304))
-
 ## [4.1.0]
 
 ### Added
