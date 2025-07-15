@@ -55,6 +55,7 @@
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/utils": "^11.1.0",
+    "async-mutex": "^0.5.0",
     "hdkey": "^2.1.0",
     "uuid": "^9.0.1"
   },

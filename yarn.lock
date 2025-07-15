@@ -1732,6 +1732,7 @@ __metadata:
     "@types/hdkey": "npm:^2.0.1"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
+    async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     hdkey: "npm:^2.1.0"
