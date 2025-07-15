@@ -15,6 +15,8 @@ import {
   EthEoaAccountStruct,
   EthErc4337AccountStruct,
   SolDataAccountStruct,
+  TrxAccountType,
+  TrxEoaAccountStruct,
 } from '@metamask/keyring-api';
 import { exactOptional, object } from '@metamask/keyring-utils';
 import type { Infer, Struct } from '@metamask/superstruct';
@@ -23,7 +25,8 @@ import { boolean, string, number } from '@metamask/superstruct';
 export type InternalAccountType =
   | EthAccountType
   | BtcAccountType
-  | SolAccountType;
+  | SolAccountType
+  | TrxAccountType;
 
 export const InternalAccountMetadataStruct = object({
   metadata: object({
@@ -79,6 +82,11 @@ export const InternalSolDataAccountStruct = object({
   ...InternalAccountMetadataStruct.schema,
 });
 
+export const InternalTrxEoaAccountStruct = object({
+  ...TrxEoaAccountStruct.schema,
+  ...InternalAccountMetadataStruct.schema,
+});
+
 export type InternalEthEoaAccount = Infer<typeof InternalEthEoaAccountStruct>;
 
 export type InternalEthErc4337Account = Infer<
@@ -99,6 +107,8 @@ export type InternalBtcP2trAccount = Infer<typeof InternalBtcP2trAccountStruct>;
 
 export type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;
 
+export type InternalTrxEoaAccount = Infer<typeof InternalTrxEoaAccountStruct>;
+
 export const InternalAccountStructs: Record<
   string,
   | Struct<InternalEthEoaAccount>
@@ -108,6 +118,7 @@ export const InternalAccountStructs: Record<
   | Struct<InternalBtcP2wpkhAccount>
   | Struct<InternalBtcP2trAccount>
   | Struct<InternalSolDataAccount>
+  | Struct<InternalTrxEoaAccount>
 > = {
   [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,
   [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,
@@ -116,6 +127,7 @@ export const InternalAccountStructs: Record<
   [`${BtcAccountType.P2wpkh}`]: InternalBtcP2wpkhAccountStruct,
   [`${BtcAccountType.P2tr}`]: InternalBtcP2trAccountStruct,
   [`${SolAccountType.DataAccount}`]: InternalSolDataAccountStruct,
+  [`${TrxAccountType.Eoa}`]: InternalTrxEoaAccountStruct,
 };
 
 export type InternalAccountTypes =
@@ -125,7 +137,8 @@ export type InternalAccountTypes =
   | InternalBtcP2shAccount
   | InternalBtcP2wpkhAccount
   | InternalBtcP2trAccount
-  | InternalSolDataAccount;
+  | InternalSolDataAccount
+  | InternalTrxEoaAccount;
 
 export const InternalAccountStruct = object({
   ...KeyringAccountStruct.schema,
