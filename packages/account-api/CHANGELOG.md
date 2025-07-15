@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0]
 
-### Uncategorized
+### Added
 
-- feat(account-api): add `Account{Group,Wallet}` support ([#307](https://github.com/MetaMask/accounts/pull/307))
+- Add `AccountGroup` and `AccountWallet` ([#307](https://github.com/MetaMask/accounts/pull/307))
 
 [Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.1.0...HEAD
 [0.1.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/account-api@0.1.0
