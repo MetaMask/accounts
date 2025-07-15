@@ -173,6 +173,7 @@ export class QrKeyring implements Keyring {
     for (let i = 0; i < accountsToAdd; i++) {
       const index = this.#accountToUnlock ?? this.#accounts.length + i;
       const address = this.#device.addressFromIndex(index);
+      this.setAccountToUnlock(index + 1);
 
       if (this.#accounts.includes(address)) {
         continue;
@@ -180,7 +181,6 @@ export class QrKeyring implements Keyring {
 
       this.#accounts.push(address);
       newAccounts.push(address);
-      this.setAccountToUnlock(index + 1);
     }
 
     return newAccounts;
