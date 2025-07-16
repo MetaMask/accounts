@@ -70,22 +70,6 @@ export type MultichainAccount<Account extends KeyringAccount> =
     get index(): number;
 
     /**
-     * Gets the "blockchain" accounts for this multichain account.
-     *
-     * @param id - Account ID.
-     * @returns The "blockchain" accounts.
-     */
-    getAccounts(): Account[];
-
-    /**
-     * Gets the "blockchain" account for a given account ID.
-     *
-     * @param id - Account ID.
-     * @returns The "blockchain" account or undefined if not found.
-     */
-    getAccount(id: Account['id']): Account | undefined;
-
-    /**
      * Query a "blockchain" account matching the selector.
      *
      * @param selector - Query selector.
