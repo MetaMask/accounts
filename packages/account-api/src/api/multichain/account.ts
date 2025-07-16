@@ -238,7 +238,7 @@ export function toMultichainAccountId(
  * @param groupId - Account group ID.
  * @returns The multichain account index if extractable, undefined otherwise.
  */
-export function getGroupIndexFromAccountGroupId(
+export function getGroupIndexFromMultichainAccountId(
   groupId: AccountGroupId,
 ): number | undefined {
   const matched = groupId.match(MULTICHAIN_ACCOUNT_GROUP_INDEX_REGEX);
