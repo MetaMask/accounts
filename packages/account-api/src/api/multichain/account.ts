@@ -1,12 +1,12 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
-import type { MultichainAccountProvider } from './provider';
 import type {
   MultichainAccountWallet,
   MultichainAccountWalletId,
 } from './wallet';
 import type { AccountGroup, AccountGroupId } from '../group';
+import type { AccountGroupProvider } from '../provider';
 import { AccountWalletCategory } from '../wallet';
 
 const MULTICHAIN_ACCOUNT_GROUP_INDEX_REGEX = new RegExp(
@@ -112,14 +112,14 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
 
   readonly #index: number;
 
-  readonly #providers: MultichainAccountProvider<Account>[];
+  readonly #providers: AccountGroupProvider<Account>[];
 
   readonly #providersByAccountId: Map<
     Account['id'],
-    MultichainAccountProvider<Account>
+    AccountGroupProvider<Account>
   >;
 
-  readonly #accounts: Map<MultichainAccountProvider<Account>, Account['id'][]>;
+  readonly #accounts: Map<AccountGroupProvider<Account>, Account['id'][]>;
 
   constructor({
     groupIndex,
@@ -128,7 +128,7 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
   }: {
     groupIndex: number;
     wallet: MultichainAccountWallet<Account>;
-    providers: MultichainAccountProvider<Account>[];
+    providers: AccountGroupProvider<Account>[];
   }) {
     this.#id = toMultichainAccountId(wallet.id, groupIndex);
     this.#index = groupIndex;

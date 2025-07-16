@@ -1,9 +1,9 @@
 import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 
 /**
- * A multichain account provider is reponsible of providing "blockchain" accounts to a multichain account.
+ * A account provider is reponsible of providing "blockchain" accounts to a account group.
  */
-export type MultichainAccountProvider<Account extends KeyringAccount> = {
+export type AccountGroupProvider<Account extends KeyringAccount> = {
   /**
    * Gets a "blockchain" account from its ID.
    *

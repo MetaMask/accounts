@@ -5,9 +5,9 @@ import {
   MultichainAccountAdapter,
   type MultichainAccount,
 } from './account';
-import type { MultichainAccountProvider } from './provider';
 import type { AccountGroupId } from '../group';
 import { toDefaultAccountGroupId } from '../group';
+import type { AccountGroupProvider } from '../provider';
 import type { AccountWallet } from '../wallet';
 import { AccountWalletCategory } from '../wallet';
 
@@ -55,7 +55,7 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
 {
   readonly #id: MultichainAccountWalletId;
 
-  readonly #providers: MultichainAccountProvider<Account>[];
+  readonly #providers: AccountGroupProvider<Account>[];
 
   readonly #entropySource: EntropySourceId;
 
@@ -65,7 +65,7 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
     providers,
     entropySource,
   }: {
-    providers: MultichainAccountProvider<Account>[];
+    providers: AccountGroupProvider<Account>[];
     entropySource: EntropySourceId;
   }) {
     this.#id = toMultichainAccountWalletId(entropySource);
