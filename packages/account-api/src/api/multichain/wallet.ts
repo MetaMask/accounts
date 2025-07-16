@@ -63,6 +63,11 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
     let groupIndex = 0;
     let hasAccounts = false;
 
+    // NOTE: We do not allow any gap for now. So if we have accounts for index 0 and index 2,
+    // then this logic will stop at index 1, given that no account will be "provided".
+    //
+    // QUESTION: Should we a hard limit to the `groupIndex` to avoid having an infinite
+    // loop here in case one of the provider is buggy?
     do {
       const multichainAccount = new MultichainAccountAdapter({
         groupIndex,
