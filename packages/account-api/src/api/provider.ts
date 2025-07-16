@@ -10,7 +10,7 @@ export type AccountGroupProvider<Account extends KeyringAccount> = {
    * NOTE: Assuming getting an account can never fail and will always be
    * invoked with a valid account ID coming from a `getAccounts` response.
    *
-   * @param id - The "blochain" account ID.
+   * @param id - The account ID.
    * @returns The account.
    */
   getAccount: (id: Account['id']) => Account;
