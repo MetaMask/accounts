@@ -29,7 +29,7 @@
   "versionGroups": [
     {
       "label": "use workspace version of packages in the monorepo",
-      "dependencyTypes": ["!local"],
+      "dependencyTypes": ["!local", "!peer"],
       "dependencies": [
         "@metamask/keyring-**",
         "@metamask/eth-**-keyring"
