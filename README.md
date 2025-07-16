@@ -49,6 +49,7 @@ linkStyle default opacity:0.5
   keyring_utils(["@metamask/keyring-utils"]);
   account_api --> keyring_api;
   account_api --> keyring_utils;
+  account_api --> keyring_internal_api;
   keyring_api --> keyring_utils;
   eth_hd_keyring --> keyring_utils;
   eth_ledger_bridge_keyring --> keyring_utils;
