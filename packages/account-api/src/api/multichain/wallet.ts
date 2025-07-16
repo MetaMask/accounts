@@ -1,163 +1,83 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-// This rule seems to be triggering a false positive. Possibly eslint is not
-// inferring the `InternalAccount` type correctly which causes issue with the
-// union `| undefined`.
-
 import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
-import type { AccountId } from '@metamask/keyring-utils';
-import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
 import {
-  toMultichainAccountId,
-  toMultichainAccountWalletId,
   getGroupIndexFromAccountGroupId,
-} from './id';
-import type {
-  AccountGroupId,
-  AccountProvider,
-  MultichainAccount,
-  MultichainAccountId,
-  MultichainAccountSelector,
-  MultichainAccountWallet,
-  MultichainAccountWalletId,
-} from '..';
+  MultichainAccountAdapter,
+  type MultichainAccount,
+} from './account';
+import type { MultichainAccountProvider } from './provider';
+import type { AccountGroupId } from '../group';
 import { toDefaultAccountGroupId } from '../group';
+import type { AccountWallet } from '../wallet';
 import { AccountWalletCategory } from '../wallet';
 
-export class MultichainAccountAdapter<Account extends KeyringAccount>
-  implements MultichainAccount<Account>
-{
-  readonly #id: MultichainAccountId;
+export type MultichainAccountWalletId =
+  `${AccountWalletCategory.Entropy}:${EntropySourceId}`;
 
-  readonly #wallet: MultichainAccountWallet<Account>;
+export type MultichainAccountWallet<Account extends KeyringAccount> =
+  AccountWallet<Account> & {
+    get id(): MultichainAccountWalletId;
 
-  readonly #index: number;
+    get entropySource(): EntropySourceId;
 
-  readonly #providers: AccountProvider<Account>[];
+    /**
+     * Gets multichain account for a given index.
+     *
+     * @returns Multichain accounts.
+     */
+    getMultichainAccount(
+      groupIndex: number,
+    ): MultichainAccount<Account> | undefined;
 
-  readonly #providersByAccountId: Map<AccountId, AccountProvider<Account>>;
+    /**
+     * Gets multichain accounts.
+     *
+     * @returns Multichain accounts.
+     */
+    getMultichainAccounts(): MultichainAccount<Account>[];
 
-  readonly #accounts: Map<AccountProvider<Account>, AccountId[]>;
+    /**
+     * Gets the next available account index (named group index internally).
+     *
+     * @returns Next available group index.
+     */
+    getNextGroupIndex(): number;
 
-  constructor({
-    groupIndex,
-    wallet,
-    providers,
-  }: {
-    groupIndex: number;
-    wallet: MultichainAccountWallet<Account>;
-    providers: AccountProvider<Account>[];
-  }) {
-    this.#id = toMultichainAccountId(wallet.id, groupIndex);
-    this.#index = groupIndex;
-    this.#wallet = wallet;
-    this.#providers = providers;
-    this.#accounts = new Map();
-    this.#providersByAccountId = new Map();
+    /**
+     * Creates a new multichain account on a given group index.
+     *
+     * NOTE: This method is idempotent.
+     *
+     * @param groupIndex - Next available group index.
+     * @returns New (or existing) multichain account for the given group index.
+     */
+    createMultichainAccount(
+      groupIndex: number,
+    ): Promise<MultichainAccount<Account>>;
 
-    for (const provider of this.#providers) {
-      const accounts = provider.getAccounts({
-        entropySource: this.#wallet.entropySource,
-        groupIndex: this.#index,
-      });
+    /**
+     * Creates a new multichain account for the next available group index.
+     *
+     * @returns Next multichain account.
+     */
+    createNextMultichainAccount(): Promise<MultichainAccount<Account>>;
 
-      this.#accounts.set(provider, accounts);
-      for (const id of accounts) {
-        this.#providersByAccountId.set(id, provider);
-      }
-    }
-  }
-
-  get id(): MultichainAccountId {
-    return this.#id;
-  }
-
-  get wallet(): MultichainAccountWallet<Account> {
-    return this.#wallet;
-  }
-
-  get index(): number {
-    return this.#index;
-  }
-
-  hasAccounts(): boolean {
-    // Use this map, cause if there's no accounts, then this map will also
-    // be empty.
-    return this.#providersByAccountId.size > 0;
-  }
-
-  getAccounts(): Account[] {
-    let allAccounts: Account[] = [];
-
-    for (const [provider, accounts] of this.#accounts.entries()) {
-      allAccounts = allAccounts.concat(
-        accounts.map((id) => provider.getAccount(id)),
-      );
-    }
-
-    return allAccounts;
-  }
-
-  getAccount(id: AccountId): Account | undefined {
-    const provider = this.#providersByAccountId.get(id);
-
-    return provider?.getAccount(id);
-  }
-
-  get(selector: MultichainAccountSelector): Account | undefined {
-    const accounts = this.select(selector);
-
-    if (accounts.length > 1) {
-      throw new Error(
-        `Too many account candidates, expected 1, got: ${accounts.length}`,
-      );
-    }
-
-    if (accounts.length === 0) {
-      return undefined;
-    }
-
-    return accounts[0]; // This is safe, see checks above.
-  }
-
-  select(selector: MultichainAccountSelector): Account[] {
-    return this.getAccounts().filter((account) => {
-      let selected = true;
-
-      if (selector.id) {
-        selected &&= account.id === selector.id;
-      }
-      if (selector.address) {
-        selected &&= account.address === selector.address;
-      }
-      if (selector.type) {
-        selected &&= account.type === selector.type;
-      }
-      if (selector.methods !== undefined) {
-        selected &&= selector.methods.some((method) =>
-          account.methods.includes(method),
-        );
-      }
-      if (selector.scopes !== undefined) {
-        selected &&= selector.scopes.some((scope) => {
-          return (
-            // This will cover specific EVM EOA scopes as well.
-            isScopeEqualToAny(scope, account.scopes)
-          );
-        });
-      }
-
-      return selected;
-    });
-  }
-}
+    /**
+     * Discovers and automatically create multichain accounts for that wallet.
+     *
+     * @returns List of all multichain accounts that got discovered or automatically created.
+     */
+    discoverAndCreateMultichainAccounts(): Promise<
+      MultichainAccount<Account>[]
+    >;
+  };
 
 export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
   implements MultichainAccountWallet<Account>
 {
   readonly #id: MultichainAccountWalletId;
 
-  readonly #providers: AccountProvider<Account>[];
+  readonly #providers: MultichainAccountProvider<Account>[];
 
   readonly #entropySource: EntropySourceId;
 
@@ -167,7 +87,7 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
     providers,
     entropySource,
   }: {
-    providers: AccountProvider<Account>[];
+    providers: MultichainAccountProvider<Account>[];
     entropySource: EntropySourceId;
   }) {
     this.#id = toMultichainAccountWalletId(entropySource);
@@ -336,4 +256,16 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
 
     return multichainAccounts;
   }
+}
+
+/**
+ * Gets the multichain account wallet ID from its entropy source.
+ *
+ * @param entropySource - Entropy source ID of that wallet.
+ * @returns The multichain account wallet ID.
+ */
+export function toMultichainAccountWalletId(
+  entropySource: EntropySourceId,
+): MultichainAccountWalletId {
+  return `${AccountWalletCategory.Entropy}:${entropySource}`;
 }

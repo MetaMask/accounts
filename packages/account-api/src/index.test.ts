@@ -19,7 +19,7 @@ import { v4 as uuid } from 'uuid';
 import type {
   AccountGroup,
   AccountGroupId,
-  AccountProvider,
+  MultichainAccountProvider,
   AccountWallet,
   MultichainAccount,
   MultichainAccountSelector,
@@ -32,11 +32,9 @@ import {
   toDefaultAccountGroupId,
   toMultichainAccountId,
   toMultichainAccountWalletId,
-} from './api';
-import {
   MultichainAccountAdapter,
   MultichainAccountWalletAdapter,
-} from './api/multichain/adapters';
+} from './api';
 
 const mockEntropySource = 'mock-entropy-source';
 
@@ -131,7 +129,9 @@ const mockSolAccount: InternalAccount = {
   },
 } as const;
 
-class MockAccountProvider implements AccountProvider<InternalAccount> {
+class MockAccountProvider
+  implements MultichainAccountProvider<InternalAccount>
+{
   readonly #createAccounts: () => InternalAccount[];
 
   readonly #accounts: InternalAccount[];
@@ -224,7 +224,7 @@ async function setupMultichainAccount({
 }: {
   wallet: MultichainAccountWallet<InternalAccount>;
   groupIndex?: number;
-  providers?: AccountProvider<InternalAccount>[];
+  providers?: MultichainAccountProvider<InternalAccount>[];
 }): Promise<MultichainAccount<InternalAccount>> {
   return new MultichainAccountAdapter({
     wallet,
@@ -238,7 +238,7 @@ async function setupMultichainAccountWallet({
   providers = setupAccountProviders(),
 }: {
   entropySource?: EntropySourceId;
-  providers?: AccountProvider<InternalAccount>[];
+  providers?: MultichainAccountProvider<InternalAccount>[];
   init?: boolean;
 } = {}): Promise<MultichainAccountWallet<InternalAccount>> {
   return new MultichainAccountWalletAdapter({
@@ -636,7 +636,7 @@ describe('index', () => {
       btcAccountProvider.createAccounts.mockImplementation(
         async (
           args: Parameters<
-            AccountProvider<InternalAccount>['createAccounts']
+            MultichainAccountProvider<InternalAccount>['createAccounts']
           >[0],
         ) => {
           const btcP2trAccountProvider = new MockAccountProvider(
