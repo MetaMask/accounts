@@ -13,7 +13,6 @@ import {
   SolScope,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
-import type { AccountId } from '@metamask/keyring-utils';
 import { v4 as uuid } from 'uuid';
 
 import type {
@@ -160,20 +159,25 @@ class MockAccountProvider
 
   getAccounts = jest
     .fn()
-    .mockImplementation(({ entropySource, groupIndex }): AccountId[] => {
-      return this.#accounts
-        .filter(
-          (account) =>
-            account.options.entropySource === entropySource &&
-            account.options.index === groupIndex,
-        )
-        .map((account) => account.id);
-    });
+    .mockImplementation(
+      ({ entropySource, groupIndex }): InternalAccount['id'][] => {
+        return this.#accounts
+          .filter(
+            (account) =>
+              account.options.entropySource === entropySource &&
+              account.options.index === groupIndex,
+          )
+          .map((account) => account.id);
+      },
+    );
 
   createAccounts = jest
     .fn()
     .mockImplementation(
-      async ({ entropySource, groupIndex }): Promise<AccountId[]> => {
+      async ({
+        entropySource,
+        groupIndex,
+      }): Promise<InternalAccount['id'][]> => {
         const accounts = this.#createAccounts().map((baseAccount) => {
           // Deep copy existing account.
           const account: InternalAccount = JSON.parse(
@@ -199,12 +203,14 @@ class MockAccountProvider
 
   discoverAndCreateAccounts = jest
     .fn()
-    .mockImplementation(async ({ groupIndex }): Promise<AccountId[]> => {
-      return this.#accounts
-        .flatMap((account) => account)
-        .filter((account) => account.options.index === groupIndex)
-        .map((account) => account.id);
-    });
+    .mockImplementation(
+      async ({ groupIndex }): Promise<InternalAccount['id'][]> => {
+        return this.#accounts
+          .flatMap((account) => account)
+          .filter((account) => account.options.index === groupIndex)
+          .map((account) => account.id);
+      },
+    );
 }
 function setupAccountProviders(): MockAccountProvider[] {
   return [

@@ -1,5 +1,4 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
-import type { AccountId } from '@metamask/keyring-utils';
 
 // Circular import are allowed when using `import type`.
 import type { AccountWallet, AccountWalletId } from './wallet';
@@ -45,7 +44,7 @@ export type AccountGroup<Account extends KeyringAccount> = {
    * @param id - Account ID.
    * @returns The "blockchain" account or undefined if not found.
    */
-  getAccount(id: AccountId): Account | undefined;
+  getAccount(id: Account['id']): Account | undefined;
 };
 
 /**

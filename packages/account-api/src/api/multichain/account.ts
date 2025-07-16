@@ -1,6 +1,5 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
-import { isScopeEqualToAny, type AccountId } from '@metamask/keyring-utils';
-import type { CaipChainId } from '@metamask/utils';
+import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
 import type { MultichainAccountProvider } from './provider';
 import type {
@@ -15,26 +14,59 @@ const MULTICHAIN_ACCOUNT_GROUP_INDEX_REGEX = new RegExp(
   'u',
 );
 
-export type AccountType = string;
-
-export type AccountMethod = string;
-
+/**
+ * Selector to query a specific "blockchain" account based on some criteria.
+ */
 export type MultichainAccountSelector = {
-  id?: AccountId;
-  address?: string;
-  type?: AccountType;
-  methods?: AccountMethod[];
-  scopes?: CaipChainId[];
+  /**
+   * Query by account ID.
+   */
+  id?: KeyringAccount['id'];
+
+  /**
+   * Query by account address.
+   */
+  address?: KeyringAccount['address'];
+
+  /**
+   * Query by account type.
+   */
+  type?: KeyringAccount['type'];
+
+  /**
+   * Query by account methods.
+   */
+  methods?: KeyringAccount['methods'];
+
+  /**
+   * Query by account scopes.
+   */
+  scopes?: KeyringAccount['scopes'];
 };
 
+/**
+ * Multichain account ID.
+ */
 export type MultichainAccountId = `${MultichainAccountWalletId}/${number}`; // Use number for the account group index.
 
+/**
+ * A multichain account that holds multiple "blockchain" accounts.
+ */
 export type MultichainAccount<Account extends KeyringAccount> =
   AccountGroup<Account> & {
+    /**
+     * Multichain account ID.
+     */
     get id(): MultichainAccountId;
 
+    /**
+     * Multichain account's wallet reference (parent).
+     */
     get wallet(): MultichainAccountWallet<Account>;
 
+    /**
+     * Multichain account group index.
+     */
     get index(): number;
 
     /**
@@ -51,7 +83,7 @@ export type MultichainAccount<Account extends KeyringAccount> =
      * @param id - Account ID.
      * @returns The "blockchain" account or undefined if not found.
      */
-    getAccount(id: AccountId): Account | undefined;
+    getAccount(id: Account['id']): Account | undefined;
 
     /**
      * Query a "blockchain" account matching the selector.
@@ -83,11 +115,11 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
   readonly #providers: MultichainAccountProvider<Account>[];
 
   readonly #providersByAccountId: Map<
-    AccountId,
+    Account['id'],
     MultichainAccountProvider<Account>
   >;
 
-  readonly #accounts: Map<MultichainAccountProvider<Account>, AccountId[]>;
+  readonly #accounts: Map<MultichainAccountProvider<Account>, Account['id'][]>;
 
   constructor({
     groupIndex,
@@ -148,7 +180,7 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
     return allAccounts;
   }
 
-  getAccount(id: AccountId): Account | undefined {
+  getAccount(id: Account['id']): Account | undefined {
     const provider = this.#providersByAccountId.get(id);
 
     return provider?.getAccount(id);

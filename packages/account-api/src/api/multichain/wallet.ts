@@ -11,13 +11,26 @@ import { toDefaultAccountGroupId } from '../group';
 import type { AccountWallet } from '../wallet';
 import { AccountWalletCategory } from '../wallet';
 
+/**
+ * Multichain account wallet ID.
+ */
 export type MultichainAccountWalletId =
   `${AccountWalletCategory.Entropy}:${EntropySourceId}`;
 
+/**
+ * A multichain account wallet that holds multiple multichain accounts (one multichain account per
+ * group index).
+ */
 export type MultichainAccountWallet<Account extends KeyringAccount> =
   AccountWallet<Account> & {
+    /**
+     * Multichain account wallet ID.
+     */
     get id(): MultichainAccountWalletId;
 
+    /**
+     * Multichain account wallet entropy source.
+     */
     get entropySource(): EntropySourceId;
 
     /**
