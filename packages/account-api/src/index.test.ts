@@ -21,6 +21,7 @@ import type {
   AccountGroupProvider,
   AccountWallet,
   MultichainAccount,
+  MultichainAccountId,
   MultichainAccountSelector,
   MultichainAccountWallet,
 } from './api';
@@ -33,6 +34,7 @@ import {
   toMultichainAccountWalletId,
   MultichainAccountAdapter,
   MultichainAccountWalletAdapter,
+  getGroupIndexFromMultichainAccountId,
 } from './api';
 
 const mockEntropySource = 'mock-entropy-source';
@@ -645,6 +647,21 @@ describe('index', () => {
       const groupId = toDefaultAccountGroupId(walletId);
 
       expect(groupId.startsWith(walletId)).toBe(true);
+    });
+  });
+
+  describe('getGroupIndexFromMultichainAccountId', () => {
+    it('throws if it cannot extract group index', () => {
+      const walletId = toAccountWalletId(AccountWalletCategory.Keyring, 'test');
+      const groupId = toAccountGroupId(walletId, 'test');
+
+      expect(() =>
+        getGroupIndexFromMultichainAccountId(
+          // Force the error case even though, type wise, this should not
+          // be possible!
+          groupId as unknown as MultichainAccountId,
+        ),
+      ).toThrow('Unable to extract group index');
     });
   });
 });

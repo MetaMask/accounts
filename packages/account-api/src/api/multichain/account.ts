@@ -5,11 +5,11 @@ import type {
   MultichainAccountWallet,
   MultichainAccountWalletId,
 } from './wallet';
-import type { AccountGroup, AccountGroupId } from '../group';
+import type { AccountGroup } from '../group';
 import type { AccountGroupProvider } from '../provider';
 import { AccountWalletCategory } from '../wallet';
 
-const MULTICHAIN_ACCOUNT_GROUP_INDEX_REGEX = new RegExp(
+const MULTICHAIN_ACCOUNT_ID_REGEX = new RegExp(
   `^${AccountWalletCategory.Entropy}:.*/(?<groupIndex>\\d+)$`,
   'u',
 );
@@ -233,21 +233,32 @@ export function toMultichainAccountId(
 }
 
 /**
+ * Checks if the given value is {@link MultichainAccountId}.
+ *
+ * @param value - The value to check.
+ * @returns Whether the value is a {@link MultichainAccountId}.
+ */
+export function isMultichainAccountId(
+  value: string,
+): value is MultichainAccountId {
+  return MULTICHAIN_ACCOUNT_ID_REGEX.test(value);
+}
+
+/**
  * Gets the multichain account index from an account group ID.
  *
- * @param groupId - Account group ID.
+ * @param id - Multichain account ID.
  * @returns The multichain account index if extractable, undefined otherwise.
  */
 export function getGroupIndexFromMultichainAccountId(
-  groupId: AccountGroupId,
-): number | undefined {
-  const matched = groupId.match(MULTICHAIN_ACCOUNT_GROUP_INDEX_REGEX);
-  if (matched) {
-    if (matched.groups?.groupIndex !== undefined) {
-      return Number(matched.groups.groupIndex);
-    }
+  id: MultichainAccountId,
+): number {
+  const matched = id.match(MULTICHAIN_ACCOUNT_ID_REGEX);
+  if (matched?.groups?.groupIndex === undefined) {
+    // Unable to extract group index, even though, type wise, this should not
+    // be possible!
+    throw new Error('Unable to extract group index');
   }
 
-  // Unable to extract group index.
-  return undefined;
+  return Number(matched.groups.groupIndex);
 }
