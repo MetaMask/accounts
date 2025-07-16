@@ -1,7 +1,7 @@
 import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 
 import {
-  getGroupIndexFromAccountGroupId,
+  getGroupIndexFromMultichainAccountId,
   MultichainAccountAdapter,
   type MultichainAccount,
 } from './account';
@@ -118,7 +118,7 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
       return this.#accounts.get(0);
     }
 
-    const groupIndex = getGroupIndexFromAccountGroupId(groupId);
+    const groupIndex = getGroupIndexFromMultichainAccountId(groupId);
     if (groupIndex === undefined) {
       return undefined;
     }
