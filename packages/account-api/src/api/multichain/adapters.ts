@@ -260,7 +260,7 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
     const nextGroupIndex = this.getNextGroupIndex();
     if (groupIndex > nextGroupIndex) {
       throw new Error(
-        `You cannot use an group index that is higher than the next available one: expect <${nextGroupIndex}, got ${groupIndex}`,
+        `You cannot use a group index that is higher than the next available one: expected <=${nextGroupIndex}, got ${groupIndex}`,
       );
     }
 

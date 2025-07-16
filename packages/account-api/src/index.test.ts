@@ -604,7 +604,7 @@ describe('index', () => {
       await expect(
         wallet.createMultichainAccount(nextIndex + 2),
       ).rejects.toThrow(
-        `You cannot use an group index that is higher than the next available one: expect <${nextIndex}, got ${
+        `You cannot use a group index that is higher than the next available one: expected <=${nextIndex}, got ${
           nextIndex + 2
         }`,
       );
