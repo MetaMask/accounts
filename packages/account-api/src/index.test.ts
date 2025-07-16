@@ -375,7 +375,7 @@ describe('index', () => {
       },
     ] as {
       tc: string;
-      selector: MultichainAccountSelector;
+      selector: MultichainAccountSelector<InternalAccount>;
       expected: InternalAccount;
     }[])(
       'gets internal account from selector: $tc',
@@ -412,7 +412,7 @@ describe('index', () => {
       },
     ] as {
       tc: string;
-      selector: MultichainAccountSelector;
+      selector: MultichainAccountSelector<InternalAccount>;
     }[])(
       'gets undefined if not matching selector: $tc',
       async ({ selector }) => {
@@ -529,7 +529,7 @@ describe('index', () => {
       },
     ] as {
       tc: string;
-      selector: MultichainAccountSelector;
+      selector: MultichainAccountSelector<InternalAccount>;
       expected: InternalAccount[];
     }[])(
       'selects internal accounts from selector: $tc',

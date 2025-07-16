@@ -17,31 +17,31 @@ const MULTICHAIN_ACCOUNT_GROUP_INDEX_REGEX = new RegExp(
 /**
  * Selector to query a specific "blockchain" account based on some criteria.
  */
-export type MultichainAccountSelector = {
+export type MultichainAccountSelector<Account extends KeyringAccount> = {
   /**
    * Query by account ID.
    */
-  id?: KeyringAccount['id'];
+  id?: Account['id'];
 
   /**
    * Query by account address.
    */
-  address?: KeyringAccount['address'];
+  address?: Account['address'];
 
   /**
    * Query by account type.
    */
-  type?: KeyringAccount['type'];
+  type?: Account['type'];
 
   /**
    * Query by account methods.
    */
-  methods?: KeyringAccount['methods'];
+  methods?: Account['methods'];
 
   /**
    * Query by account scopes.
    */
-  scopes?: KeyringAccount['scopes'];
+  scopes?: Account['scopes'];
 };
 
 /**
@@ -92,7 +92,7 @@ export type MultichainAccount<Account extends KeyringAccount> =
      * @returns The "blockchain" account matching the selector or undefined if not matching.
      * @throws If multiple accounts match the selector.
      */
-    get(selector: MultichainAccountSelector): Account | undefined;
+    get(selector: MultichainAccountSelector<Account>): Account | undefined;
 
     /**
      * Query "blockchain" accounts matching the selector.
@@ -100,7 +100,7 @@ export type MultichainAccount<Account extends KeyringAccount> =
      * @param selector - Query selector.
      * @returns The "blockchain" accounts matching the selector.
      */
-    select(selector: MultichainAccountSelector): Account[];
+    select(selector: MultichainAccountSelector<Account>): Account[];
   };
 
 export class MultichainAccountAdapter<Account extends KeyringAccount>
@@ -186,7 +186,7 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
     return provider?.getAccount(id);
   }
 
-  get(selector: MultichainAccountSelector): Account | undefined {
+  get(selector: MultichainAccountSelector<Account>): Account | undefined {
     const accounts = this.select(selector);
 
     if (accounts.length > 1) {
@@ -202,7 +202,7 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
     return accounts[0]; // This is safe, see checks above.
   }
 
-  select(selector: MultichainAccountSelector): Account[] {
+  select(selector: MultichainAccountSelector<Account>): Account[] {
     return this.getAccounts().filter((account) => {
       let selected = true;
 
