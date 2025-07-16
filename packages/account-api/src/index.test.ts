@@ -631,7 +631,7 @@ describe('index', () => {
   });
 
   describe('toAccountGroupId', () => {
-    it('converts a account wallet id and a unique id to a group id', () => {
+    it('converts an account wallet id and a unique id to a group id', () => {
       const walletId = toAccountWalletId(AccountWalletCategory.Keyring, 'test');
       const groupId = toAccountGroupId(walletId, 'test');
 
@@ -640,7 +640,7 @@ describe('index', () => {
   });
 
   describe('toDefaultAccountGroupId', () => {
-    it('converts a account wallet id and to the default group id', () => {
+    it('converts an account wallet id and to the default group id', () => {
       const walletId = toAccountWalletId(AccountWalletCategory.Keyring, 'test');
       const groupId = toDefaultAccountGroupId(walletId);
 

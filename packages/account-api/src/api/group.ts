@@ -31,18 +31,18 @@ export type AccountGroup<Account extends KeyringAccount> = {
   get wallet(): AccountWallet<Account>;
 
   /**
-   * Gets the "blockchain" accounts for this account group.
+   * Gets the accounts for this account group.
    *
    * @param id - Account ID.
-   * @returns The "blockchain" accounts.
+   * @returns The accounts.
    */
   getAccounts(): Account[];
 
   /**
-   * Gets the "blockchain" account for a given account ID.
+   * Gets the account for a given account ID.
    *
    * @param id - Account ID.
-   * @returns The "blockchain" account or undefined if not found.
+   * @returns The account or undefined if not found.
    */
   getAccount(id: Account['id']): Account | undefined;
 };

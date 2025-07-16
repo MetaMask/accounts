@@ -15,7 +15,7 @@ const MULTICHAIN_ACCOUNT_GROUP_INDEX_REGEX = new RegExp(
 );
 
 /**
- * Selector to query a specific "blockchain" account based on some criteria.
+ * Selector to query a specific account based on some criteria.
  */
 export type MultichainAccountSelector<Account extends KeyringAccount> = {
   /**
@@ -50,7 +50,7 @@ export type MultichainAccountSelector<Account extends KeyringAccount> = {
 export type MultichainAccountId = `${MultichainAccountWalletId}/${number}`; // Use number for the account group index.
 
 /**
- * A multichain account that holds multiple "blockchain" accounts.
+ * A multichain account that holds multiple accounts.
  */
 export type MultichainAccount<Account extends KeyringAccount> =
   AccountGroup<Account> & {
@@ -70,19 +70,19 @@ export type MultichainAccount<Account extends KeyringAccount> =
     get index(): number;
 
     /**
-     * Query a "blockchain" account matching the selector.
+     * Query an account matching the selector.
      *
      * @param selector - Query selector.
-     * @returns The "blockchain" account matching the selector or undefined if not matching.
+     * @returns The account matching the selector or undefined if not matching.
      * @throws If multiple accounts match the selector.
      */
     get(selector: MultichainAccountSelector<Account>): Account | undefined;
 
     /**
-     * Query "blockchain" accounts matching the selector.
+     * Query accounts matching the selector.
      *
      * @param selector - Query selector.
-     * @returns The "blockchain" accounts matching the selector.
+     * @returns The accounts matching the selector.
      */
     select(selector: MultichainAccountSelector<Account>): Account[];
   };
