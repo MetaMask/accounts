@@ -10,42 +10,13 @@ import type {
 } from './wallet';
 import type { AccountGroup } from '../group';
 import type { AccountProvider } from '../provider';
+import type { AccountSelector } from '../selector';
 import { AccountWalletCategory } from '../wallet';
 
 const MULTICHAIN_ACCOUNT_ID_REGEX = new RegExp(
   `^${AccountWalletCategory.Entropy}:.*/(?<groupIndex>\\d+)$`,
   'u',
 );
-
-/**
- * Selector to query a specific account based on some criteria.
- */
-export type MultichainAccountSelector<Account extends KeyringAccount> = {
-  /**
-   * Query by account ID.
-   */
-  id?: Account['id'];
-
-  /**
-   * Query by account address.
-   */
-  address?: Account['address'];
-
-  /**
-   * Query by account type.
-   */
-  type?: Account['type'];
-
-  /**
-   * Query by account methods.
-   */
-  methods?: Account['methods'];
-
-  /**
-   * Query by account scopes.
-   */
-  scopes?: Account['scopes'];
-};
 
 /**
  * Multichain account ID.
@@ -164,7 +135,7 @@ export class MultichainAccount<Account extends KeyringAccount>
    * @returns The account matching the selector or undefined if not matching.
    * @throws If multiple accounts match the selector.
    */
-  get(selector: MultichainAccountSelector<Account>): Account | undefined {
+  get(selector: AccountSelector<Account>): Account | undefined {
     const accounts = this.select(selector);
 
     if (accounts.length > 1) {
@@ -186,7 +157,7 @@ export class MultichainAccount<Account extends KeyringAccount>
    * @param selector - Query selector.
    * @returns The accounts matching the selector.
    */
-  select(selector: MultichainAccountSelector<Account>): Account[] {
+  select(selector: AccountSelector<Account>): Account[] {
     return this.getAccounts().filter((account) => {
       let selected = true;
 

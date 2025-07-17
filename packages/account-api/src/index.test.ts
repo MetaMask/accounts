@@ -25,7 +25,7 @@ import type {
   AccountProvider,
   AccountWallet,
   MultichainAccountId,
-  MultichainAccountSelector,
+  AccountSelector,
 } from './api';
 import {
   AccountWalletCategory,
@@ -362,7 +362,7 @@ describe('index', () => {
       },
     ] as {
       tc: string;
-      selector: MultichainAccountSelector<InternalAccount>;
+      selector: AccountSelector<InternalAccount>;
       expected: InternalAccount;
     }[])(
       'gets internal account from selector: $tc',
@@ -399,7 +399,7 @@ describe('index', () => {
       },
     ] as {
       tc: string;
-      selector: MultichainAccountSelector<InternalAccount>;
+      selector: AccountSelector<InternalAccount>;
     }[])(
       'gets undefined if not matching selector: $tc',
       async ({ selector }) => {
@@ -516,7 +516,7 @@ describe('index', () => {
       },
     ] as {
       tc: string;
-      selector: MultichainAccountSelector<InternalAccount>;
+      selector: AccountSelector<InternalAccount>;
       expected: InternalAccount[];
     }[])(
       'selects internal accounts from selector: $tc',
