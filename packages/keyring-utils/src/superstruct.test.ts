@@ -161,6 +161,6 @@ describe('type', () => {
   });
 
   it('is valid even with extra properties', () => {
-    expect(() => is({ foo: 'foo', bar: 1 }, struct)).not.toThrow();
+    expect(is({ foo: 'foo', bar: 1 }, struct)).toBe(true);
   });
 });
