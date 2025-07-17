@@ -45,6 +45,7 @@ export type AccountWallet<Account extends KeyringAccount> = {
   /**
    * Gets account group for a given ID.
    *
+   * @param id - Account group ID.
    * @returns Account group.
    */
   getAccountGroup(id: AccountGroupId): AccountGroup<Account> | undefined;
