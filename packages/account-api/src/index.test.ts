@@ -20,10 +20,8 @@ import type {
   AccountGroupId,
   AccountGroupProvider,
   AccountWallet,
-  MultichainAccount,
   MultichainAccountId,
   MultichainAccountSelector,
-  MultichainAccountWallet,
 } from './api';
 import {
   AccountWalletCategory,
@@ -32,8 +30,8 @@ import {
   toDefaultAccountGroupId,
   toMultichainAccountId,
   toMultichainAccountWalletId,
-  MultichainAccountAdapter,
-  MultichainAccountWalletAdapter,
+  MultichainAccount,
+  MultichainAccountWallet,
   getGroupIndexFromMultichainAccountId,
 } from './api';
 
@@ -212,7 +210,7 @@ async function setupMultichainAccount({
   groupIndex?: number;
   providers?: AccountGroupProvider<InternalAccount>[];
 }): Promise<MultichainAccount<InternalAccount>> {
-  return new MultichainAccountAdapter({
+  return new MultichainAccount({
     wallet,
     groupIndex,
     providers,
@@ -227,7 +225,7 @@ async function setupMultichainAccountWallet({
   providers?: AccountGroupProvider<InternalAccount>[];
   init?: boolean;
 } = {}): Promise<MultichainAccountWallet<InternalAccount>> {
-  return new MultichainAccountWalletAdapter({
+  return new MultichainAccountWallet({
     providers,
     entropySource,
   });
@@ -240,7 +238,7 @@ describe('index', () => {
       providers: MockAccountProvider[];
     } => {
       const providers = setupAccountProviders();
-      const wallet = new MultichainAccountWalletAdapter<InternalAccount>({
+      const wallet = new MultichainAccountWallet<InternalAccount>({
         providers,
         entropySource: mockEntropySource,
       });

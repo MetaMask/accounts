@@ -3,8 +3,7 @@ import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 import {
   getGroupIndexFromMultichainAccountId,
   isMultichainAccountId,
-  MultichainAccountAdapter,
-  type MultichainAccount,
+  MultichainAccount,
 } from './account';
 import type { AccountGroupId } from '../group';
 import { toDefaultAccountGroupId } from '../group';
@@ -22,37 +21,8 @@ export type MultichainAccountWalletId =
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per
  * group index).
  */
-export type MultichainAccountWallet<Account extends KeyringAccount> =
-  AccountWallet<Account> & {
-    /**
-     * Multichain account wallet ID.
-     */
-    get id(): MultichainAccountWalletId;
-
-    /**
-     * Multichain account wallet entropy source.
-     */
-    get entropySource(): EntropySourceId;
-
-    /**
-     * Gets multichain account for a given index.
-     *
-     * @returns Multichain accounts.
-     */
-    getMultichainAccount(
-      groupIndex: number,
-    ): MultichainAccount<Account> | undefined;
-
-    /**
-     * Gets multichain accounts.
-     *
-     * @returns Multichain accounts.
-     */
-    getMultichainAccounts(): MultichainAccount<Account>[];
-  };
-
-export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
-  implements MultichainAccountWallet<Account>
+export class MultichainAccountWallet<Account extends KeyringAccount>
+  implements AccountWallet<Account>
 {
   readonly #id: MultichainAccountWalletId;
 
@@ -83,7 +53,7 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
     // QUESTION: Should we a hard limit to the `groupIndex` to avoid having an infinite
     // loop here in case one of the provider is buggy?
     do {
-      const multichainAccount = new MultichainAccountAdapter({
+      const multichainAccount = new MultichainAccount<Account>({
         groupIndex,
         wallet: this,
         providers: this.#providers,
@@ -99,46 +69,82 @@ export class MultichainAccountWalletAdapter<Account extends KeyringAccount>
     } while (hasAccounts);
   }
 
+  /**
+   * Gets the multichain account wallet ID.
+   *
+   * @returns The multichain account wallet ID.
+   */
   get id(): MultichainAccountWalletId {
     return this.#id;
   }
 
+  /**
+   * Gets the multichain account wallet category, which is always {@link AccountWalletCategory.Entropy}.
+   *
+   * @returns The multichain account wallet category.
+   */
   get category(): AccountWalletCategory.Entropy {
     return AccountWalletCategory.Entropy;
   }
 
+  /**
+   * Gets the multichain account wallet entropy source.
+   *
+   * @returns The multichain account wallet entropy source.
+   */
   get entropySource(): EntropySourceId {
     return this.#entropySource;
   }
 
-  getAccountGroup(
-    groupId: AccountGroupId,
-  ): MultichainAccount<Account> | undefined {
+  /**
+   * Gets multichain account for a given ID.
+   * The default group ID will default to the multichain account with index 0.
+   *
+   * @param id - Account group ID.
+   * @returns Account group.
+   */
+  getAccountGroup(id: AccountGroupId): MultichainAccount<Account> | undefined {
     // We consider the "default case" to be mapped to index 0.
-    if (groupId === toDefaultAccountGroupId(this.id)) {
+    if (id === toDefaultAccountGroupId(this.id)) {
       return this.#accounts.get(0);
     }
 
     // If it is not a valid ID, we cannot extract the group index
     // from it, so we fail fast.
-    if (!isMultichainAccountId(groupId)) {
+    if (!isMultichainAccountId(id)) {
       return undefined;
     }
 
-    const groupIndex = getGroupIndexFromMultichainAccountId(groupId);
+    const groupIndex = getGroupIndexFromMultichainAccountId(id);
     return this.#accounts.get(groupIndex);
   }
 
+  /**
+   * Gets all multichain accounts. Similar to {@link MultichainAccountWallet.getMultichainAccounts}.
+   *
+   * @returns The multichain accounts.
+   */
   getAccountGroups(): MultichainAccount<Account>[] {
     return this.getMultichainAccounts();
   }
 
+  /**
+   * Gets multichain account for a given index.
+   *
+   * @param groupIndex - Multichain account index.
+   * @returns The multichain account associated with the given index.
+   */
   getMultichainAccount(
     groupIndex: number,
   ): MultichainAccount<Account> | undefined {
     return this.#accounts.get(groupIndex);
   }
 
+  /**
+   * Gets all multichain accounts.
+   *
+   * @returns The multichain accounts.
+   */
   getMultichainAccounts(): MultichainAccount<Account>[] {
     return Array.from(this.#accounts.values()); // TODO: Prevent copy here.
   }

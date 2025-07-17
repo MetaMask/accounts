@@ -33,7 +33,6 @@ export type AccountGroup<Account extends KeyringAccount> = {
   /**
    * Gets the accounts for this account group.
    *
-   * @param id - Account ID.
    * @returns The accounts.
    */
   getAccounts(): Account[];

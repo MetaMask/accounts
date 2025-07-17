@@ -52,43 +52,8 @@ export type MultichainAccountId = `${MultichainAccountWalletId}/${number}`; // U
 /**
  * A multichain account that holds multiple accounts.
  */
-export type MultichainAccount<Account extends KeyringAccount> =
-  AccountGroup<Account> & {
-    /**
-     * Multichain account ID.
-     */
-    get id(): MultichainAccountId;
-
-    /**
-     * Multichain account's wallet reference (parent).
-     */
-    get wallet(): MultichainAccountWallet<Account>;
-
-    /**
-     * Multichain account group index.
-     */
-    get index(): number;
-
-    /**
-     * Query an account matching the selector.
-     *
-     * @param selector - Query selector.
-     * @returns The account matching the selector or undefined if not matching.
-     * @throws If multiple accounts match the selector.
-     */
-    get(selector: MultichainAccountSelector<Account>): Account | undefined;
-
-    /**
-     * Query accounts matching the selector.
-     *
-     * @param selector - Query selector.
-     * @returns The accounts matching the selector.
-     */
-    select(selector: MultichainAccountSelector<Account>): Account[];
-  };
-
-export class MultichainAccountAdapter<Account extends KeyringAccount>
-  implements MultichainAccount<Account>
+export class MultichainAccount<Account extends KeyringAccount>
+  implements AccountGroup<Account>
 {
   readonly #id: MultichainAccountId;
 
@@ -113,22 +78,47 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
     this.#providers = providers;
   }
 
+  /**
+   * Gets the multichain account ID.
+   *
+   * @returns The multichain account ID.
+   */
   get id(): MultichainAccountId {
     return this.#id;
   }
 
+  /**
+   * Gets the multichain account's wallet reference (parent).
+   *
+   * @returns The multichain account's wallet.
+   */
   get wallet(): MultichainAccountWallet<Account> {
     return this.#wallet;
   }
 
+  /**
+   * Gets the multichain account group index.
+   *
+   * @returns The multichain account group index.
+   */
   get index(): number {
     return this.#index;
   }
 
+  /**
+   * Checks if there's any underlying accounts for this multichain accounts.
+   *
+   * @returns True if there's any underlying accounts, false otherwise.
+   */
   hasAccounts(): boolean {
     return this.getAccounts().length > 0;
   }
 
+  /**
+   * Gets the accounts for this multichain account.
+   *
+   * @returns The accounts.
+   */
   getAccounts(): Account[] {
     let allAccounts: Account[] = [];
 
@@ -149,12 +139,25 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
     return allAccounts;
   }
 
+  /**
+   * Gets the account for a given account ID.
+   *
+   * @param id - Account ID.
+   * @returns The account or undefined if not found.
+   */
   getAccount(id: Account['id']): Account | undefined {
     // NOTE: Same remark here. We could keep a state to make this operation
     // faster.
     return this.getAccounts().find((account) => account.id === id);
   }
 
+  /**
+   * Query an account matching the selector.
+   *
+   * @param selector - Query selector.
+   * @returns The account matching the selector or undefined if not matching.
+   * @throws If multiple accounts match the selector.
+   */
   get(selector: MultichainAccountSelector<Account>): Account | undefined {
     const accounts = this.select(selector);
 
@@ -171,6 +174,12 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
     return accounts[0]; // This is safe, see checks above.
   }
 
+  /**
+   * Query accounts matching the selector.
+   *
+   * @param selector - Query selector.
+   * @returns The accounts matching the selector.
+   */
   select(selector: MultichainAccountSelector<Account>): Account[] {
     return this.getAccounts().filter((account) => {
       let selected = true;

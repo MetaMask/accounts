@@ -1,7 +1,7 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 
 /**
- * an account provider is reponsible of providing accounts to an account group.
+ * An account provider is reponsible of providing accounts to an account group.
  */
 export type AccountGroupProvider<Account extends KeyringAccount> = {
   /**
