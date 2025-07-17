@@ -57,7 +57,7 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
     );
 
     // NOTE: We could have some gap for now, until we fully implement the
-    // gap/aligment mechanisms to backfill all "missing accounts".
+    // gap/alignment mechanisms to backfill all "missing accounts".
     for (let groupIndex = 0; groupIndex <= maxGroupIndex; groupIndex++) {
       // Use "lower or equal", since we need to "include" the max index (which
       // can also be 0)
