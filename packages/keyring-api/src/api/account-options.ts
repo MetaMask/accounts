@@ -83,13 +83,10 @@ export type KeyringAccountEntropyPrivateKeyOptions = Infer<
  */
 export const KeyringAccountEntropyOptionsStruct = selectiveUnion(
   (value: any) => {
-    const hasType = isPlainObject(value) && typeof value.type === 'string';
-
-    if (hasType && value.type === KeyringAccountEntropyTypeOption.PrivateKey) {
-      return KeyringAccountEntropyPrivateKeyOptionsStruct;
-    }
-
-    return KeyringAccountEntropyMnemonicOptionsStruct;
+    return isPlainObject(value) &&
+      value.type === KeyringAccountEntropyTypeOption.PrivateKey
+      ? KeyringAccountEntropyPrivateKeyOptionsStruct
+      : KeyringAccountEntropyMnemonicOptionsStruct;
   },
 );
 
