@@ -12,7 +12,7 @@ import {
 } from '@metamask/superstruct';
 import { isPlainObject } from '@metamask/utils';
 
-import { exactOptional, object, strictMask, selectiveUnion } from '.';
+import { exactOptional, object, strictMask, selectiveUnion, type } from '.';
 
 describe('exactOptional', () => {
   const simpleStruct = object({
@@ -152,5 +152,15 @@ describe('strictMask', () => {
     expect(() => strictMask({ bar: 1 }, struct)).toThrow(
       'At path: foo -- Expected a string, but received: undefined',
     );
+  });
+});
+
+describe('type', () => {
+  const struct = type({
+    foo: string(),
+  });
+
+  it('is valid even with extra properties', () => {
+    expect(() => is({ foo: 'foo', bar: 1 }, struct)).not.toThrow();
   });
 });
