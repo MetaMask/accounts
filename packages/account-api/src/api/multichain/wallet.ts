@@ -44,15 +44,19 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
     this.#entropySource = entropySource;
     this.#accounts = new Map();
 
-    let groupIndex = 0;
-    let hasAccounts = false;
+    // NOTE: This will traverse all accounts to compute the max index. We could try
+    // to minimize the number of filtering we're doing on each providers if this
+    // becomes too costly.
+    const maxGroupIndex = MultichainAccountWallet.getHighestGroupIndexFrom(
+      providers,
+      entropySource,
+    );
 
-    // NOTE: We do not allow any gap for now. So if we have accounts for index 0 and index 2,
-    // then this logic will stop at index 1, given that no account will be "provided".
-    //
-    // QUESTION: Should we a hard limit to the `groupIndex` to avoid having an infinite
-    // loop here in case one of the provider is buggy?
-    do {
+    // NOTE: We could have some gap for now, until we fully implement the
+    // gap/aligment mechanisms to backfill all "missing accounts".
+    for (let groupIndex = 0; groupIndex <= maxGroupIndex; groupIndex++) {
+      // Use "lower or equal", since we need to "include" the max index (which
+      // can also be 0)
       const multichainAccount = new MultichainAccount<Account>({
         groupIndex,
         wallet: this,
@@ -60,13 +64,39 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
       });
 
       // We only add multichain account that has underlying accounts.
-      hasAccounts = multichainAccount.hasAccounts();
-      if (hasAccounts) {
+      if (multichainAccount.hasAccounts()) {
         this.#accounts.set(groupIndex, multichainAccount);
       }
+    }
+  }
 
-      groupIndex += 1;
-    } while (hasAccounts);
+  /**
+   * Gets the highest group index from multiple account providers for a given
+   * entropy source.
+   *
+   * @param providers - Account providers.
+   * @param entropySource - Entropy source to filter on.
+   * @returns The highest group index for a given entropy source.
+   */
+  static getHighestGroupIndexFrom<Account extends KeyringAccount>(
+    providers: AccountGroupProvider<Account>[],
+    entropySource: EntropySourceId,
+  ): number {
+    let max = -1;
+
+    for (const provider of providers) {
+      for (const account of provider.getAccounts()) {
+        if (
+          // We only consider a given entropy source.
+          account.options.entropySource === entropySource &&
+          typeof account.options.groupIndex === 'number'
+        ) {
+          max = Math.max(max, account.options.groupIndex);
+        }
+      }
+    }
+
+    return max;
   }
 
   /**
