@@ -98,13 +98,6 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
 
   readonly #providers: AccountGroupProvider<Account>[];
 
-  readonly #providersByAccountId: Map<
-    Account['id'],
-    AccountGroupProvider<Account>
-  >;
-
-  readonly #accounts: Map<AccountGroupProvider<Account>, Account['id'][]>;
-
   constructor({
     groupIndex,
     wallet,
@@ -118,20 +111,6 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
     this.#index = groupIndex;
     this.#wallet = wallet;
     this.#providers = providers;
-    this.#accounts = new Map();
-    this.#providersByAccountId = new Map();
-
-    for (const provider of this.#providers) {
-      const accounts = provider.getAccounts({
-        entropySource: this.#wallet.entropySource,
-        groupIndex: this.#index,
-      });
-
-      this.#accounts.set(provider, accounts);
-      for (const id of accounts) {
-        this.#providersByAccountId.set(id, provider);
-      }
-    }
   }
 
   get id(): MultichainAccountId {
@@ -147,17 +126,23 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
   }
 
   hasAccounts(): boolean {
-    // Use this map, cause if there's no accounts, then this map will also
-    // be empty.
-    return this.#providersByAccountId.size > 0;
+    return this.getAccounts().length > 0;
   }
 
   getAccounts(): Account[] {
     let allAccounts: Account[] = [];
 
-    for (const [provider, accounts] of this.#accounts.entries()) {
+    for (const provider of this.#providers) {
       allAccounts = allAccounts.concat(
-        accounts.map((id) => provider.getAccount(id)),
+        provider.getAccounts().filter(
+          // NOTE: For now we always query the providers to get the latest
+          // account list. If this becomes too "heavy" in terms of computation
+          // we might wanna consider adding a state to that object and store
+          // the list of account IDs here.
+          (account) =>
+            account.options.entropySource === this.wallet.entropySource &&
+            account.options.groupIndex === this.index,
+        ),
       );
     }
 
@@ -165,9 +150,9 @@ export class MultichainAccountAdapter<Account extends KeyringAccount>
   }
 
   getAccount(id: Account['id']): Account | undefined {
-    const provider = this.#providersByAccountId.get(id);
-
-    return provider?.getAccount(id);
+    // NOTE: Same remark here. We could keep a state to make this operation
+    // faster.
+    return this.getAccounts().find((account) => account.id === id);
   }
 
   get(selector: MultichainAccountSelector<Account>): Account | undefined {

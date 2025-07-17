@@ -46,7 +46,7 @@ const mockEvmAccount: InternalAccount = {
   address: '0x2A38B198895f358c3232BB6c661aA4eFB1d2e2fc',
   options: {
     entropySource: mockEntropySource,
-    index: 0,
+    groupIndex: 0,
   },
   scopes: [EthScope.Eoa],
   metadata: {
@@ -65,7 +65,7 @@ const mockBtcP2wpkhAccount: InternalAccount = {
   address: 'bc1qx8ls07cy8j8nrluy2u0xwn7gh8fxg0rg4s8zze',
   options: {
     entropySource: mockEntropySource,
-    index: 0,
+    groupIndex: 0,
   },
   scopes: [BtcScope.Mainnet],
   metadata: {
@@ -89,7 +89,7 @@ const mockBtcP2trAccount: InternalAccount = {
   address: 'tb1p5cyxnuxmeuwuvkwfem96lxx9wex9kkf4mt9ll6q60jfsnrzqg4sszkqjnh',
   options: {
     entropySource: mockEntropySource,
-    index: 0,
+    groupIndex: 0,
   },
   scopes: [BtcScope.Testnet],
   metadata: {
@@ -113,7 +113,7 @@ const mockSolAccount: InternalAccount = {
   address: 'DphAa9aQdzRSacjh5czkapALbVDZS4Q4iMctE3wbr3c4',
   options: {
     entropySource: mockEntropySource,
-    index: 0,
+    groupIndex: 0,
   },
   scopes: [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet],
   metadata: {
@@ -147,29 +147,9 @@ class MockAccountProvider implements AccountGroupProvider<InternalAccount> {
     return this.#accounts;
   }
 
-  getAccount = jest.fn().mockImplementation((id): InternalAccount => {
-    const found = this.#accounts.find((account) => account.id === id);
-
-    if (!found) {
-      throw new Error('Unknown account');
-    }
-
-    return found;
+  getAccounts = jest.fn().mockImplementation((): InternalAccount[] => {
+    return this.#accounts;
   });
-
-  getAccounts = jest
-    .fn()
-    .mockImplementation(
-      ({ entropySource, groupIndex }): InternalAccount['id'][] => {
-        return this.#accounts
-          .filter(
-            (account) =>
-              account.options.entropySource === entropySource &&
-              account.options.index === groupIndex,
-          )
-          .map((account) => account.id);
-      },
-    );
 
   createAccounts = jest
     .fn()
@@ -260,7 +240,7 @@ describe('index', () => {
       providers: MockAccountProvider[];
     } => {
       const providers = setupAccountProviders();
-      const wallet = new MultichainAccountWalletAdapter({
+      const wallet = new MultichainAccountWalletAdapter<InternalAccount>({
         providers,
         entropySource: mockEntropySource,
       });
