@@ -1,6 +1,6 @@
 {
   "name": "@metamask/account-api",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MetaMask Account API",
   "keywords": [
     "metamask",

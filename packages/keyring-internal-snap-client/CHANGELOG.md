@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0]
+
 ### Uncategorized
 
 - chore: bump snap deps ([#304](https://github.com/MetaMask/accounts/pull/304))
@@ -108,7 +110,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@5.0.0...HEAD
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.1.0...@metamask/keyring-internal-snap-client@5.0.0
 [4.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.0.2...@metamask/keyring-internal-snap-client@4.1.0
 [4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.0.1...@metamask/keyring-internal-snap-client@4.0.2
 [4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.0.0...@metamask/keyring-internal-snap-client@4.0.1
