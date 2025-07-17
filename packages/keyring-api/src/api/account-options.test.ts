@@ -41,12 +41,6 @@ describe('api', () => {
       expect(() => assert(options, KeyringAccountOptionsStruct)).not.toThrow();
     });
 
-    it('validates options for unknown entropy source type', () => {
-      const options = { entropy: { type: 'unknown', something: 'else' } };
-
-      expect(() => assert(options, KeyringAccountOptionsStruct)).not.toThrow();
-    });
-
     it('validates legacy options', () => {
       const options = {
         some: {
@@ -80,5 +74,13 @@ describe('api', () => {
         'At path: exportable -- Expected a value of type `boolean`, but received: `"maybe"`',
       );
     });
+  });
+
+  it('throws if options.entropy.type is not known', () => {
+    const options = { entropy: { type: 'unknown', something: 'else' } };
+
+    expect(() => assert(options, KeyringAccountOptionsStruct)).toThrow(
+      `At path: entropy.type -- Expected the literal \`"mnemonic"\`, but received: "${options.entropy.type}"`,
+    );
   });
 });

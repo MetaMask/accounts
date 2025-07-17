@@ -87,16 +87,11 @@ export const KeyringAccountEntropyOptionsStruct = selectiveUnion(
   (value: any) => {
     const hasType = isPlainObject(value) && typeof value.type === 'string';
 
-    if (hasType && value.type === KeyringAccountEntropyTypeOption.Mnemonic) {
-      return KeyringAccountEntropyMnemonicOptionsStruct;
-    }
-
     if (hasType && value.type === KeyringAccountEntropyTypeOption.PrivateKey) {
       return KeyringAccountEntropyPrivateKeyOptionsStruct;
     }
 
-    // Fallback to a "generic value" if we fail to identify the type.
-    return JsonStruct;
+    return KeyringAccountEntropyMnemonicOptionsStruct;
   },
 );
 
