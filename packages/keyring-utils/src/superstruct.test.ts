@@ -164,7 +164,9 @@ describe('type', () => {
     expect(is({ foo: 'foo', bar: 1 }, struct)).toBe(true);
   });
 
-  it('throws an error if value is valid', () => {
-    expect(is({ foo: 1, bar: 1 }, struct)).toBe(false);
+  it('throws an error if value is invalid', () => {
+    expect(() => assert({ foo: 1, bar: 1 }, struct)).toThrow(
+      'At path: foo -- Expected a string, but received: 1',
+    );
   });
 });
