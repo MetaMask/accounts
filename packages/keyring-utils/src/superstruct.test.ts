@@ -163,4 +163,8 @@ describe('type', () => {
   it('is valid even with extra properties', () => {
     expect(is({ foo: 'foo', bar: 1 }, struct)).toBe(true);
   });
+
+  it('throws an error if value is valid', () => {
+    expect(is({ foo: 1, bar: 1 }, struct)).toBe(false);
+  });
 });
