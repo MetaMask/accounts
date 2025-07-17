@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [14.0.0]
 
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^18.0.0` to `^19.0.0` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - The `KeyringAccount.options` field is now partially typed.
+
 ## [13.0.0]
 
 ### Changed

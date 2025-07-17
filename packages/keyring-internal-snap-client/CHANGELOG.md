@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.0.0]
 
-### Uncategorized
+### Changed
 
-- chore: bump snap deps ([#304](https://github.com/MetaMask/accounts/pull/304))
+- **BREAKING:** Bump `@metamask/keyring-api` from `^18.0.0` to `^19.0.0` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - The `KeyringAccount.options` field is now partially typed.
 
 ## [4.1.0]
 

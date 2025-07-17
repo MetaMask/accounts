@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [19.0.0]
 
+### Changed
+
+- **BREAKING:** Add typed `KeyringAccount.options` ([#316](https://github.com/MetaMask/accounts/pull/316))
+  - We still support the old `Record<string, Json>` type for `options`, however we now constrain 2 fields (`entropy` and `exportable`) and type their shapes to meet new requirements.
+
 ## [18.0.0]
 
 ### Changed
