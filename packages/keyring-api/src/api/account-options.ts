@@ -1,4 +1,4 @@
-import { selectiveUnion } from '@metamask/keyring-utils';
+import { exactOptional, selectiveUnion, type } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   boolean,
@@ -6,10 +6,8 @@ import {
   literal,
   number,
   object,
-  optional,
   record,
   string,
-  type,
 } from '@metamask/superstruct';
 import { isPlainObject, JsonStruct } from '@metamask/utils';
 
@@ -151,19 +149,16 @@ export const KeyringAccountOptionsStruct = intersection([
   // READ THIS CAREFULLY:
   // Previous options that can be matched by this struct will be breaking
   // existing keyring account options.
-  //
-  // NOTE: Looks like we cannot use `exactOptional` with `type`, so we just
-  // use `optional` instead.
   type({
     /**
      * Entropy options.
      */
-    entropy: optional(KeyringAccountEntropyOptionsStruct),
+    entropy: exactOptional(KeyringAccountEntropyOptionsStruct),
 
     /**
      * Indicates whether the account can be exported.
      */
-    exportable: optional(boolean()),
+    exportable: exactOptional(boolean()),
   }),
 ]);
 
