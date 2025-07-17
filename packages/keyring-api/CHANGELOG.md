@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [19.0.0]
+
+### Changed
+
+- **BREAKING:** Add typed `KeyringAccount.options` ([#316](https://github.com/MetaMask/accounts/pull/316))
+  - We still support the old `Record<string, Json>` type for `options`, however we now constrain 2 fields (`entropy` and `exportable`) and type their shapes to meet new requirements.
+
 ## [18.0.0]
 
 ### Changed
@@ -583,7 +590,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@18.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@19.0.0...HEAD
+[19.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@18.0.0...@metamask/keyring-api@19.0.0
 [18.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.6.0...@metamask/keyring-api@18.0.0
 [17.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.5.0...@metamask/keyring-api@17.6.0
 [17.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.4.0...@metamask/keyring-api@17.5.0
