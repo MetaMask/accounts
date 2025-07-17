@@ -1,6 +1,9 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
-import type { EntropySourceId } from '@metamask/keyring-api';
+import type {
+  EntropySourceId,
+  KeyringAccountOptions,
+} from '@metamask/keyring-api';
 import {
   BtcAccountType,
   BtcMethod,
@@ -8,6 +11,7 @@ import {
   EthAccountType,
   EthMethod,
   EthScope,
+  KeyringAccountEntropyTypeOption,
   SolAccountType,
   SolMethod,
   SolScope,
@@ -37,15 +41,21 @@ import {
 
 const mockEntropySource = 'mock-entropy-source';
 
+const mockAccountOptions: KeyringAccountOptions = {
+  entropy: {
+    type: KeyringAccountEntropyTypeOption.Mnemonic,
+    id: mockEntropySource,
+    groupIndex: 0,
+    derivationPath: '',
+  },
+};
+
 const mockEvmAccount: InternalAccount = {
   id: '4b660336-b935-44cc-bdc4-642648279ac7',
   type: EthAccountType.Eoa,
   methods: [EthMethod.SignTransaction, EthMethod.PersonalSign],
   address: '0x2A38B198895f358c3232BB6c661aA4eFB1d2e2fc',
-  options: {
-    entropySource: mockEntropySource,
-    groupIndex: 0,
-  },
+  options: mockAccountOptions,
   scopes: [EthScope.Eoa],
   metadata: {
     name: 'Account 1',
@@ -61,10 +71,7 @@ const mockBtcP2wpkhAccount: InternalAccount = {
   type: BtcAccountType.P2wpkh,
   methods: [BtcMethod.SendBitcoin],
   address: 'bc1qx8ls07cy8j8nrluy2u0xwn7gh8fxg0rg4s8zze',
-  options: {
-    entropySource: mockEntropySource,
-    groupIndex: 0,
-  },
+  options: mockAccountOptions,
   scopes: [BtcScope.Mainnet],
   metadata: {
     name: 'Account 2',
@@ -85,10 +92,7 @@ const mockBtcP2trAccount: InternalAccount = {
   type: BtcAccountType.P2tr,
   methods: [BtcMethod.SendBitcoin],
   address: 'tb1p5cyxnuxmeuwuvkwfem96lxx9wex9kkf4mt9ll6q60jfsnrzqg4sszkqjnh',
-  options: {
-    entropySource: mockEntropySource,
-    groupIndex: 0,
-  },
+  options: mockAccountOptions,
   scopes: [BtcScope.Testnet],
   metadata: {
     name: 'Account 3',
@@ -109,10 +113,7 @@ const mockSolAccount: InternalAccount = {
   type: SolAccountType.DataAccount,
   methods: [SolMethod.SignAndSendTransaction],
   address: 'DphAa9aQdzRSacjh5czkapALbVDZS4Q4iMctE3wbr3c4',
-  options: {
-    entropySource: mockEntropySource,
-    groupIndex: 0,
-  },
+  options: mockAccountOptions,
   scopes: [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet],
   metadata: {
     name: 'Account 4',
@@ -162,10 +163,18 @@ class MockAccountProvider implements AccountGroupProvider<InternalAccount> {
             JSON.stringify(baseAccount),
           );
 
+          if (
+            !account.options.entropy ||
+            account.options.entropy.type !==
+              KeyringAccountEntropyTypeOption.Mnemonic
+          ) {
+            throw new Error('Invalid HD account');
+          }
+
           account.id = uuid();
           account.address += `+${groupIndex}`; // Adds the index to the address to make it unique.
-          account.options.entropySource = entropySource;
-          account.options.index = groupIndex;
+          account.options.entropy.id = entropySource;
+          account.options.entropy.groupIndex = groupIndex;
           account.metadata.name += ` + ${groupIndex}`; // Same for the name.
 
           return account;

@@ -1,4 +1,7 @@
-import type { KeyringAccount } from '@metamask/keyring-api';
+import {
+  KeyringAccountEntropyTypeOption,
+  type KeyringAccount,
+} from '@metamask/keyring-api';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
 import type {
@@ -130,8 +133,11 @@ export class MultichainAccount<Account extends KeyringAccount>
           // we might wanna consider adding a state to that object and store
           // the list of account IDs here.
           (account) =>
-            account.options.entropySource === this.wallet.entropySource &&
-            account.options.groupIndex === this.index,
+            account.options.entropy &&
+            account.options.entropy.type ===
+              KeyringAccountEntropyTypeOption.Mnemonic &&
+            account.options.entropy.id === this.wallet.entropySource &&
+            account.options.entropy.groupIndex === this.index,
         ),
       );
     }

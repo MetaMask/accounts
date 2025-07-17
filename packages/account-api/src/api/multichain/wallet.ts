@@ -1,4 +1,8 @@
-import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
+import {
+  KeyringAccountEntropyTypeOption,
+  type EntropySourceId,
+  type KeyringAccount,
+} from '@metamask/keyring-api';
 
 import {
   getGroupIndexFromMultichainAccountId,
@@ -87,11 +91,12 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
     for (const provider of providers) {
       for (const account of provider.getAccounts()) {
         if (
-          // We only consider a given entropy source.
-          account.options.entropySource === entropySource &&
-          typeof account.options.groupIndex === 'number'
+          account.options.entropy &&
+          account.options.entropy.type ===
+            KeyringAccountEntropyTypeOption.Mnemonic &&
+          account.options.entropy.id === entropySource
         ) {
-          max = Math.max(max, account.options.groupIndex);
+          max = Math.max(max, account.options.entropy.groupIndex);
         }
       }
     }
