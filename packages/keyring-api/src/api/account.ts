@@ -1,8 +1,8 @@
 import { AccountIdStruct, object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { nonempty, array, enums, record, string } from '@metamask/superstruct';
-import { JsonStruct } from '@metamask/utils';
+import { nonempty, array, enums, string } from '@metamask/superstruct';
 
+import { KeyringAccountOptionsStruct } from './account-options';
 import { CaipChainIdStruct } from './caip';
 
 /**
@@ -81,7 +81,7 @@ export const KeyringAccountStruct = object({
   /**
    * Account options.
    */
-  options: record(string(), JsonStruct),
+  options: KeyringAccountOptionsStruct,
 
   /**
    * Account supported methods.
