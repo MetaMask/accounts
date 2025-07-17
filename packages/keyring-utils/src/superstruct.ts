@@ -60,8 +60,8 @@ export type ObjectType<Schema extends ObjectSchema> = Simplify<
 >;
 
 /**
- * Change the return type of a superstruct object struct to support exact
- * optional properties.
+ * Change the return type of a superstruct's `object` function to support
+ * exact optional properties.
  *
  * @param schema - The object schema.
  * @returns A struct representing an object with a known set of properties.
@@ -73,8 +73,8 @@ export function object<Schema extends ObjectSchema>(
 }
 
 /**
- * Change the return type of a superstruct type struct to support exact
- * optional properties.
+ * Change the return type of a superstruct's `type` function to support
+ * exact optional properties.
  *
  * @param schema - The object schema.
  * @returns A struct representing an object with a known set of properties
