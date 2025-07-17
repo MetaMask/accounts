@@ -9,7 +9,7 @@ import type {
   MultichainAccountWalletId,
 } from './wallet';
 import type { AccountGroup } from '../group';
-import type { AccountGroupProvider } from '../provider';
+import type { AccountProvider } from '../provider';
 import { AccountWalletCategory } from '../wallet';
 
 const MULTICHAIN_ACCOUNT_ID_REGEX = new RegExp(
@@ -64,7 +64,7 @@ export class MultichainAccount<Account extends KeyringAccount>
 
   readonly #index: number;
 
-  readonly #providers: AccountGroupProvider<Account>[];
+  readonly #providers: AccountProvider<Account>[];
 
   constructor({
     groupIndex,
@@ -73,7 +73,7 @@ export class MultichainAccount<Account extends KeyringAccount>
   }: {
     groupIndex: number;
     wallet: MultichainAccountWallet<Account>;
-    providers: AccountGroupProvider<Account>[];
+    providers: AccountProvider<Account>[];
   }) {
     this.#id = toMultichainAccountId(wallet.id, groupIndex);
     this.#index = groupIndex;

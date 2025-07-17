@@ -22,7 +22,7 @@ import { v4 as uuid } from 'uuid';
 import type {
   AccountGroup,
   AccountGroupId,
-  AccountGroupProvider,
+  AccountProvider,
   AccountWallet,
   MultichainAccountId,
   MultichainAccountSelector,
@@ -129,7 +129,7 @@ const mockSolAccount: InternalAccount = {
   },
 } as const;
 
-class MockAccountProvider implements AccountGroupProvider<InternalAccount> {
+class MockAccountProvider implements AccountProvider<InternalAccount> {
   readonly #createAccounts: () => InternalAccount[];
 
   readonly #accounts: InternalAccount[];
@@ -217,7 +217,7 @@ async function setupMultichainAccount({
 }: {
   wallet: MultichainAccountWallet<InternalAccount>;
   groupIndex?: number;
-  providers?: AccountGroupProvider<InternalAccount>[];
+  providers?: AccountProvider<InternalAccount>[];
 }): Promise<MultichainAccount<InternalAccount>> {
   return new MultichainAccount({
     wallet,
@@ -231,7 +231,7 @@ async function setupMultichainAccountWallet({
   providers = setupAccountProviders(),
 }: {
   entropySource?: EntropySourceId;
-  providers?: AccountGroupProvider<InternalAccount>[];
+  providers?: AccountProvider<InternalAccount>[];
   init?: boolean;
 } = {}): Promise<MultichainAccountWallet<InternalAccount>> {
   return new MultichainAccountWallet({

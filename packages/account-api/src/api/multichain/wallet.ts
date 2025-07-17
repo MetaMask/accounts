@@ -11,7 +11,7 @@ import {
 } from './account';
 import type { AccountGroupId } from '../group';
 import { toDefaultAccountGroupId } from '../group';
-import type { AccountGroupProvider } from '../provider';
+import type { AccountProvider } from '../provider';
 import type { AccountWallet } from '../wallet';
 import { AccountWalletCategory } from '../wallet';
 
@@ -30,7 +30,7 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
 {
   readonly #id: MultichainAccountWalletId;
 
-  readonly #providers: AccountGroupProvider<Account>[];
+  readonly #providers: AccountProvider<Account>[];
 
   readonly #entropySource: EntropySourceId;
 
@@ -40,7 +40,7 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
     providers,
     entropySource,
   }: {
-    providers: AccountGroupProvider<Account>[];
+    providers: AccountProvider<Account>[];
     entropySource: EntropySourceId;
   }) {
     this.#id = toMultichainAccountWalletId(entropySource);
@@ -83,7 +83,7 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
    * @returns The highest group index for a given entropy source.
    */
   static getHighestGroupIndexFrom<Account extends KeyringAccount>(
-    providers: AccountGroupProvider<Account>[],
+    providers: AccountProvider<Account>[],
     entropySource: EntropySourceId,
   ): number {
     let max = -1;
