@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(keyring-api)!: add typed `KeyringAccountOptions` support ([#316](https://github.com/MetaMask/accounts/pull/316))
+- feat: bitcoin account types ([#284](https://github.com/MetaMask/accounts/pull/284))
+- fix!: `Keyring.signTypedData` accepts types for V1 ([#224](https://github.com/MetaMask/accounts/pull/224))
+
 ## [3.0.0]
 
 ### Changed
