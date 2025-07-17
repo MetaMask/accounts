@@ -9,9 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0]
 
-### Uncategorized
+### Added
 
-- feat: add multichain account/wallet (readonly) support ([#315](https://github.com/MetaMask/accounts/pull/315))
+- Add multichain account/wallet support ([#315](https://github.com/MetaMask/accounts/pull/315))
+  - This is only about "grouping" wallets and accounts together.
+
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^18.0.0` to `^19.0.0` ([#317](https://github.com/MetaMask/accounts/pull/317))
+  - The `KeyringAccount.options` field is now partially typed.
 
 ## [0.1.0]
 
