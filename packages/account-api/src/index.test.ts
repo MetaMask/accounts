@@ -2,6 +2,7 @@
 
 import type {
   EntropySourceId,
+  KeyringAccountEntropyMnemonicOptions,
   KeyringAccountOptions,
 } from '@metamask/keyring-api';
 import {
@@ -37,6 +38,7 @@ import {
   MultichainAccount,
   MultichainAccountWallet,
   getGroupIndexFromMultichainAccountId,
+  isBip44Account,
 } from './api';
 
 const mockEntropySource = 'mock-entropy-source';
@@ -649,6 +651,75 @@ describe('index', () => {
           groupId as unknown as MultichainAccountId,
         ),
       ).toThrow('Unable to extract group index');
+    });
+  });
+
+  describe('bip44', () => {
+    describe('isBip44Account', () => {
+      it('returns true if the account is BIP-44 compatible', () => {
+        expect(isBip44Account(mockEvmAccount)).toBe(true);
+      });
+
+      it.each([
+        {
+          tc: 'missing type',
+          options: {
+            entropy: {
+              // Missing type.
+              id: mockEntropySource,
+              groupIndex: 0,
+              derivationPath: '',
+            },
+          },
+        },
+        {
+          tc: 'missing id',
+          options: {
+            entropy: {
+              type: KeyringAccountEntropyTypeOption.Mnemonic,
+              // Missing id.
+              groupIndex: 0,
+              derivationPath: '',
+            },
+          },
+        },
+        {
+          tc: 'missing groupIndex',
+          options: {
+            entropy: {
+              type: 'mnemonic',
+              id: mockEntropySource,
+              // Missing groupIndex.
+              derivationPath: '',
+            },
+          },
+        },
+        {
+          tc: 'missing derivationPath',
+          options: {
+            entropy: {
+              type: 'mnemonic',
+              id: mockEntropySource,
+              groupIndex: 0,
+              // Missing derivationPath.
+            },
+          },
+        },
+      ])(
+        'returns false if the account is not BIP-44 compatible with: $tc',
+        ({ options }) => {
+          const account = {
+            ...mockEvmAccount,
+            options: {
+              entropy:
+                // Force the error case here.
+                options as unknown as KeyringAccountEntropyMnemonicOptions,
+            },
+          };
+
+          expect(isBip44Account(account)).toBe(false);
+        },
+      );
     });
   });
 });
