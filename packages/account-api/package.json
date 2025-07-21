@@ -46,6 +46,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@metamask/base-controller": "^8.0.1",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/superstruct": "^3.1.0"

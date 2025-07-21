@@ -23,12 +23,13 @@ import { v4 as uuid } from 'uuid';
 import type {
   AccountGroup,
   AccountGroupId,
-  AccountProvider,
   AccountWallet,
   MultichainAccountId,
   AccountSelector,
+  Bip44Account,
 } from './api';
 import {
+  AccountProvider,
   AccountWalletCategory,
   toAccountGroupId,
   toAccountWalletId,
@@ -131,7 +132,7 @@ const mockSolAccount: InternalAccount = {
   },
 } as const;
 
-class MockAccountProvider implements AccountProvider<InternalAccount> {
+class MockAccountProvider extends AccountProvider<InternalAccount> {
   readonly #createAccounts: () => InternalAccount[];
 
   readonly #accounts: InternalAccount[];
@@ -140,6 +141,7 @@ class MockAccountProvider implements AccountProvider<InternalAccount> {
     createAccounts: () => InternalAccount[],
     accounts: InternalAccount[],
   ) {
+    super();
     this.#createAccounts = createAccounts;
     this.#accounts = accounts;
   }
@@ -147,6 +149,22 @@ class MockAccountProvider implements AccountProvider<InternalAccount> {
   get accounts(): InternalAccount[] {
     return this.#accounts;
   }
+
+  addAccount = jest
+    .fn()
+    .mockImplementation((account: Bip44Account<InternalAccount>): void => {
+      this.#accounts.push(account);
+      this.publish('AccountProvider:accountAdded', account);
+    });
+
+  getAccount = jest
+    .fn()
+    .mockImplementation((id: InternalAccount['id']): InternalAccount => {
+      // Assuming this never fails.
+      return this.#accounts.find(
+        (account) => account.id === id,
+      ) as InternalAccount;
+    });
 
   getAccounts = jest.fn().mockImplementation((): InternalAccount[] => {
     return this.#accounts;
@@ -284,6 +302,7 @@ describe('index', () => {
         expectedAccounts.length,
       );
       expect(multichainAccount.getAccounts()).toStrictEqual(expectedAccounts);
+      expect(multichainAccount.hasAccounts()).toBe(true);
     });
 
     it('constructs a multichain account for a specific index', async () => {
@@ -297,7 +316,7 @@ describe('index', () => {
       expect(multichainAccount.index).toBe(groupIndex);
     });
 
-    it('gets internal account from its id', async () => {
+    it('gets internal account from its ID', async () => {
       const { wallet } = setup();
       const multichainAccount = await setupMultichainAccount({ wallet });
 
@@ -307,6 +326,13 @@ describe('index', () => {
       expect(multichainAccount.getAccount(mockEvmAccount.id)).toStrictEqual(
         mockEvmAccount,
       );
+    });
+
+    it('returns undefined if the account ID does not belong to the multichain account', async () => {
+      const { wallet } = setup();
+      const multichainAccount = await setupMultichainAccount({ wallet });
+
+      expect(multichainAccount.getAccount('unknown-id')).toBeUndefined();
     });
 
     it.each([
@@ -552,6 +578,22 @@ describe('index', () => {
       expect(multichainAccount).toBeDefined();
       expect(multichainAccount?.index).toBe(groupIndex);
     });
+
+    it('gets a multichain account from an account ID', async () => {
+      const wallet = await setupMultichainAccountWallet();
+
+      const groupIndex = 0;
+      const multichainAccount = wallet.getMultichainAccount(groupIndex);
+      expect(multichainAccount).toBeDefined();
+
+      const accounts = multichainAccount?.getAccounts() as InternalAccount[];
+      expect(accounts.length).toBeGreaterThan(0);
+      expect(
+        wallet.getMultichainAccountFromAccountId(
+          (accounts[0] as InternalAccount).id,
+        ),
+      ).toBe(multichainAccount);
+    });
   });
 
   describe('AccountGroup', () => {
@@ -720,6 +762,33 @@ describe('index', () => {
           expect(isBip44Account(account)).toBe(false);
         },
       );
+    });
+  });
+
+  describe('AccountProvider', () => {
+    it('dispatches events when adding/removing account', async () => {
+      const provider = new MockAccountProvider(
+        () => [mockEvmAccount],
+        [mockEvmAccount],
+      );
+      const wallet = await setupMultichainAccountWallet({
+        providers: [provider],
+      });
+
+      expect(wallet.getMultichainAccounts()).toHaveLength(1);
+      expect(provider.getAccounts()).toHaveLength(1);
+
+      const mockNewEvmAccount = {
+        ...mockEvmAccount,
+        id: 'b5ef008c-fa5e-40c6-bc59-5fbc0b8d0d63',
+        address: '0x1234567890abcdef1234567890abcdef12345678',
+      };
+
+      provider.addAccount(mockNewEvmAccount);
+      expect(provider.getAccounts()).toHaveLength(2);
+
+      // Also cover unsubscribe.
+      wallet.destroy();
     });
   });
 });

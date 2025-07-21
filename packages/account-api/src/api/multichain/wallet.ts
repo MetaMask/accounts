@@ -1,5 +1,4 @@
 import {
-  KeyringAccountEntropyTypeOption,
   type EntropySourceId,
   type KeyringAccount,
 } from '@metamask/keyring-api';
@@ -9,9 +8,13 @@ import {
   isMultichainAccountId,
   MultichainAccount,
 } from './account';
+import type { Bip44Account } from '../bip44';
 import type { AccountGroupId } from '../group';
 import { toDefaultAccountGroupId } from '../group';
-import type { AccountProvider } from '../provider';
+import type {
+  AccountProvider,
+  AccountProviderEventUnsubscriber,
+} from '../provider';
 import type { AccountWallet } from '../wallet';
 import { AccountWalletCategory } from '../wallet';
 
@@ -32,9 +35,13 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
 
   readonly #providers: AccountProvider<Account>[];
 
+  readonly #unsubscribers: AccountProviderEventUnsubscriber[];
+
   readonly #entropySource: EntropySourceId;
 
   readonly #accounts: Map<number, MultichainAccount<Account>>;
+
+  readonly #reverse: Map<Account['id'], MultichainAccount<Account>>;
 
   constructor({
     providers,
@@ -45,63 +52,95 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
   }) {
     this.#id = toMultichainAccountWalletId(entropySource);
     this.#providers = providers;
+    this.#unsubscribers = [];
     this.#entropySource = entropySource;
     this.#accounts = new Map();
+    this.#reverse = new Map();
 
-    // NOTE: This will traverse all accounts to compute the max index. We could try
-    // to minimize the number of filtering we're doing on each providers if this
-    // becomes too costly.
-    const maxGroupIndex = MultichainAccountWallet.getHighestGroupIndexFrom(
-      providers,
-      entropySource,
-    );
+    this.#update();
+    this.#subscribe();
+  }
 
+  /**
+   * Destroy in-memory wallet.
+   */
+  destroy(): void {
+    for (const unsubscribe of this.#unsubscribers) {
+      unsubscribe();
+    }
+  }
+
+  /**
+   * Subscribe to account provider events.
+   */
+  #subscribe(): void {
+    // Listen for account events and see if we need to update our content.
+    for (const provider of this.#providers) {
+      const unsubscribe = provider.subscribe(
+        'AccountProvider:accountAdded',
+        (account) => this.#handleOnAccountAdded(account),
+      );
+      this.#unsubscribers.push(unsubscribe);
+    }
+  }
+
+  /**
+   * Update internal multichain accounts.
+   */
+  #update(): void {
     // NOTE: We could have some gap for now, until we fully implement the
     // gap/alignment mechanisms to backfill all "missing accounts".
-    for (let groupIndex = 0; groupIndex <= maxGroupIndex; groupIndex++) {
-      // Use "lower or equal", since we need to "include" the max index (which
-      // can also be 0)
-      const multichainAccount = new MultichainAccount<Account>({
-        groupIndex,
-        wallet: this,
-        providers: this.#providers,
-      });
+    for (const provider of this.#providers) {
+      for (const account of provider.getAccounts()) {
+        const multichainAccount = this.#getOrCreateMultichainAccount(
+          account.options.entropy.groupIndex,
+        );
 
-      // We only add multichain account that has underlying accounts.
-      if (multichainAccount.hasAccounts()) {
-        this.#accounts.set(groupIndex, multichainAccount);
+        // Reverse-mapping for fast indexing.
+        this.#reverse.set(account.id, multichainAccount);
       }
     }
   }
 
   /**
-   * Gets the highest group index from multiple account providers for a given
-   * entropy source.
+   * Callback when an account got added to the account provider.
    *
-   * @param providers - Account providers.
-   * @param entropySource - Entropy source to filter on.
-   * @returns The highest group index for a given entropy source.
+   * @param account - Account being added.
    */
-  static getHighestGroupIndexFrom<Account extends KeyringAccount>(
-    providers: AccountProvider<Account>[],
-    entropySource: EntropySourceId,
-  ): number {
-    let max = -1;
+  #handleOnAccountAdded(account: Bip44Account<Account>): void {
+    // We call get or create, because this might be a new multichain account!
+    const multichainAccount = this.#getOrCreateMultichainAccount(
+      account.options.entropy.groupIndex,
+    );
 
-    for (const provider of providers) {
-      for (const account of provider.getAccounts()) {
-        if (
-          account.options.entropy &&
-          account.options.entropy.type ===
-            KeyringAccountEntropyTypeOption.Mnemonic &&
-          account.options.entropy.id === entropySource
-        ) {
-          max = Math.max(max, account.options.entropy.groupIndex);
-        }
-      }
+    // Reverse-mapping for fast indexing.
+    this.#reverse.set(account.id, multichainAccount);
+  }
+
+  /**
+   * Gets or create a multichain account for the given group index.
+   *
+   * @param groupIndex - Group index.
+   * @returns The existing multichain account or create a new one for that group index
+   * and returns it.
+   */
+  #getOrCreateMultichainAccount(
+    groupIndex: number,
+  ): MultichainAccount<Account> {
+    let multichainAccount = this.#accounts.get(groupIndex);
+
+    if (!multichainAccount) {
+      multichainAccount = new MultichainAccount<Account>({
+        groupIndex,
+        wallet: this,
+        providers: this.#providers,
+      });
+
+      // We assume this new multichain account has underlying accounts.
+      this.#accounts.set(groupIndex, multichainAccount);
     }
 
-    return max;
+    return multichainAccount;
   }
 
   /**
@@ -182,6 +221,18 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
    */
   getMultichainAccounts(): MultichainAccount<Account>[] {
     return Array.from(this.#accounts.values()); // TODO: Prevent copy here.
+  }
+
+  /**
+   * Gets multichain accounts given an underlying account ID.
+   *
+   * @param id - Account ID.
+   * @returns The multichain account or undefined if not found.
+   */
+  getMultichainAccountFromAccountId(
+    id: Account['id'],
+  ): MultichainAccount<Account> | undefined {
+    return this.#reverse.get(id);
   }
 }
 
