@@ -198,7 +198,7 @@ describe('SnapKeyring', () => {
 
   // This is an example generic chain, its scope and address are bogus.
   const anyGenericAccount: KeyringAccount = {
-    id: '380ee179-5ab5-449d-9c25-34e12c1ada66',
+    id: '6131c205-26b5-40a8-9626-4761423bb1d5',
     address: 'test-address-1234',
     options: {},
     methods: [],
