@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **BREAKING:** Added `AccountProvider.getAccount` ([#320](https://github.com/MetaMask/accounts/pull/320))
+
+### Changed
+
+- **BREAKING:** `AccountProvider` is now an abstract class ([#320](https://github.com/MetaMask/accounts/pull/320))
+  - It provides some internal messaging/event mechanism to publish `:accountAdded` to `MultichainAccount` and `MultichainAccountWallet`.
+- **BREAKING:** `AccountProvider.getAccounts` now uses `Bip44Account` ([#320](https://github.com/MetaMask/accounts/pull/320))
+  - This makes it easy to use `options.entropy` object.
+- Reduce heavy filtering in favor of event-based updated from the `AccountProvider`s. ([#320](https://github.com/MetaMask/accounts/pull/320))
+
 ## [0.2.0]
 
 ### Added
