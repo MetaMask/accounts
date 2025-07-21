@@ -31,7 +31,8 @@ export enum SolAccountType {
 }
 
 /**
- * A generic account type that is expected to work with any blockchain.
+ * A generic account type. It can be used to represent any account type that is
+ * not covered by the other account types. It only applies to non-EVM chains.
  */
 export enum AnyAccountType {
   Account = 'any:account',
