@@ -200,6 +200,11 @@ export class SnapKeyring extends EventEmitter {
    */
   readonly #callbacks: SnapKeyringCallbacks;
 
+  /**
+   * Whether to allow the creation and update of generic accounts.
+   *
+   * Account deletion is not affected by this flag and is always allowed.
+   */
   readonly #isAnyAccountTypeAllowed: boolean;
 
   /**
