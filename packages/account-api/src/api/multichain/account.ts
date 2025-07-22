@@ -78,15 +78,6 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
   }
 
   /**
-   * Checks if there's any underlying accounts for this multichain accounts.
-   *
-   * @returns True if there's any underlying accounts, false otherwise.
-   */
-  hasAccounts(): boolean {
-    return this.getAccounts().length > 0;
-  }
-
-  /**
    * Gets the accounts for this multichain account.
    *
    * @returns The accounts.
