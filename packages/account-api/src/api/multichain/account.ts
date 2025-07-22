@@ -1,13 +1,11 @@
-import {
-  KeyringAccountEntropyTypeOption,
-  type KeyringAccount,
-} from '@metamask/keyring-api';
+import { type KeyringAccount } from '@metamask/keyring-api';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
 import type {
   MultichainAccountWallet,
   MultichainAccountWalletId,
 } from './wallet';
+import type { Bip44Account } from '../bip44';
 import type { AccountGroup } from '../group';
 import type { AccountProvider } from '../provider';
 import type { AccountSelector } from '../selector';
@@ -35,7 +33,12 @@ export class MultichainAccount<Account extends KeyringAccount>
 
   readonly #index: number;
 
-  readonly #providers: AccountProvider<Account>[];
+  readonly #accounts: {
+    provider: AccountProvider<Account>;
+    accounts: Account['id'][];
+  }[];
+
+  readonly #reverse: Map<Account['id'], AccountProvider<Account>>;
 
   constructor({
     groupIndex,
@@ -49,7 +52,23 @@ export class MultichainAccount<Account extends KeyringAccount>
     this.#id = toMultichainAccountId(wallet.id, groupIndex);
     this.#index = groupIndex;
     this.#wallet = wallet;
-    this.#providers = providers;
+    this.#accounts = [];
+    this.#reverse = new Map();
+
+    for (const provider of providers) {
+      // We only use IDs to always fetch the latest version of accounts.
+      const accounts = provider.getAccounts().map((account) => account.id);
+
+      this.#accounts.push({
+        provider,
+        accounts,
+      });
+
+      // Reverse-mapping for fast indexing.
+      for (const id of accounts) {
+        this.#reverse.set(id, provider);
+      }
+    }
   }
 
   /**
@@ -85,7 +104,8 @@ export class MultichainAccount<Account extends KeyringAccount>
    * @returns True if there's any underlying accounts, false otherwise.
    */
   hasAccounts(): boolean {
-    return this.getAccounts().length > 0;
+    // If there's anything in the reverse-map, it means we have some accounts.
+    return this.#reverse.size > 0;
   }
 
   /**
@@ -93,23 +113,18 @@ export class MultichainAccount<Account extends KeyringAccount>
    *
    * @returns The accounts.
    */
-  getAccounts(): Account[] {
-    let allAccounts: Account[] = [];
+  getAccounts(): Bip44Account<Account>[] {
+    let allAccounts: Bip44Account<Account>[] = [];
 
-    for (const provider of this.#providers) {
+    for (const { provider, accounts } of this.#accounts) {
       allAccounts = allAccounts.concat(
-        provider.getAccounts().filter(
-          // NOTE: For now we always query the providers to get the latest
-          // account list. If this becomes too "heavy" in terms of computation
-          // we might wanna consider adding a state to that object and store
-          // the list of account IDs here.
-          (account) =>
-            account.options.entropy &&
-            account.options.entropy.type ===
-              KeyringAccountEntropyTypeOption.Mnemonic &&
-            account.options.entropy.id === this.wallet.entropySource &&
-            account.options.entropy.groupIndex === this.index,
-        ),
+        accounts
+          .map((id) => provider.getAccount(id))
+          .filter(
+            (account) =>
+              account.options.entropy.id === this.wallet.entropySource &&
+              account.options.entropy.groupIndex === this.index,
+          ),
       );
     }
 
@@ -122,10 +137,15 @@ export class MultichainAccount<Account extends KeyringAccount>
    * @param id - Account ID.
    * @returns The account or undefined if not found.
    */
-  getAccount(id: Account['id']): Account | undefined {
-    // NOTE: Same remark here. We could keep a state to make this operation
-    // faster.
-    return this.getAccounts().find((account) => account.id === id);
+  getAccount(id: Account['id']): Bip44Account<Account> | undefined {
+    const provider = this.#reverse.get(id);
+
+    // If there's nothing in the map, it means we tried to get an account
+    // that does not belong to this multichain account.
+    if (!provider) {
+      return undefined;
+    }
+    return provider.getAccount(id);
   }
 
   /**
@@ -135,7 +155,7 @@ export class MultichainAccount<Account extends KeyringAccount>
    * @returns The account matching the selector or undefined if not matching.
    * @throws If multiple accounts match the selector.
    */
-  get(selector: AccountSelector<Account>): Account | undefined {
+  get(selector: AccountSelector<Account>): Bip44Account<Account> | undefined {
     const accounts = this.select(selector);
 
     if (accounts.length > 1) {
@@ -157,7 +177,7 @@ export class MultichainAccount<Account extends KeyringAccount>
    * @param selector - Query selector.
    * @returns The accounts matching the selector.
    */
-  select(selector: AccountSelector<Account>): Account[] {
+  select(selector: AccountSelector<Account>): Bip44Account<Account>[] {
     return this.getAccounts().filter((account) => {
       let selected = true;
 
