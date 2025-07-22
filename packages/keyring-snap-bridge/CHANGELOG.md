@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** Add `isAnyAccountTypeAllowed` flag to `SnapKeyring` constructor ([#322](https://github.com/MetaMask/accounts/pull/322))
+  - The `SnapKeyring` constructor now accepts an options object instead of individual parameters.
+  - The new `isAnyAccountTypeAllowed` flag defaults to `false`.
+
 ## [14.0.0]
 
 ### Changed
