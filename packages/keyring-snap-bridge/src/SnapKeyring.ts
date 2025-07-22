@@ -317,7 +317,7 @@ export class SnapKeyring extends EventEmitter {
       account.type === AnyAccountType.Account
     ) {
       throw new Error(
-        `Cannot create account '${account.id}' with a generic account type`,
+        `Cannot create generic account '${account.id}'`,
       );
     }
 
