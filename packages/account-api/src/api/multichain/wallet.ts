@@ -62,18 +62,23 @@ export class MultichainAccountWallet<
   sync(): void {
     for (const provider of this.#providers) {
       for (const account of provider.getAccounts()) {
-        const { groupIndex } = account.options.entropy;
+        const { entropy } = account.options;
+
+        // Filter for this wallet only.
+        if (entropy.id !== this.entropySource) {
+          continue;
+        }
 
         // This multichain account might exists already.
-        let multichainAccount = this.#accounts.get(groupIndex);
+        let multichainAccount = this.#accounts.get(entropy.groupIndex);
         if (!multichainAccount) {
           multichainAccount = new MultichainAccount<Account>({
-            groupIndex,
+            groupIndex: entropy.groupIndex,
             wallet: this,
             providers: this.#providers,
           });
 
-          this.#accounts.set(groupIndex, multichainAccount);
+          this.#accounts.set(entropy.groupIndex, multichainAccount);
         }
       }
     }

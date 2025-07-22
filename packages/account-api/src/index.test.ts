@@ -581,6 +581,38 @@ describe('index', () => {
       wallet.sync();
       expect(wallet.getMultichainAccounts()).toHaveLength(2);
     });
+
+    it('skips non-matching wallet during sync', async () => {
+      const provider = new MockAccountProvider(
+        () => [mockEvmAccount],
+        [mockEvmAccount],
+      );
+      const wallet = await setupMultichainAccountWallet({
+        providers: [provider],
+      });
+
+      expect(wallet.getMultichainAccounts()).toHaveLength(1);
+
+      provider.getAccounts.mockReturnValue([
+        mockEvmAccount,
+        {
+          ...mockEvmAccount,
+          options: {
+            ...mockEvmAccount.options,
+            entropy: {
+              ...mockEvmAccount.options.entropy,
+              id: 'mock-unknown-entropy-id',
+              groupIndex: 1,
+            },
+          },
+        },
+      ]);
+
+      // Even if we have a new account, it's not for this wallet, so it should
+      // not create a new multichain account!
+      wallet.sync();
+      expect(wallet.getMultichainAccounts()).toHaveLength(1);
+    });
   });
 
   describe('AccountGroup', () => {
