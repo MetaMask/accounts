@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [15.0.0]
+
 ### Changed
 
 - **BREAKING:** Add `isAnyAccountTypeAllowed` flag to `SnapKeyring` constructor ([#322](https://github.com/MetaMask/accounts/pull/322))
   - The `SnapKeyring` constructor now accepts an options object instead of individual parameters.
   - The new `isAnyAccountTypeAllowed` flag defaults to `false`.
+  - This flag only affects account creation and update; account deletion is unaffected by it.
 
 ## [14.0.0]
 
@@ -537,7 +540,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@14.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@15.0.0...HEAD
+[15.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@14.0.0...@metamask/eth-snap-keyring@15.0.0
 [14.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@13.0.0...@metamask/eth-snap-keyring@14.0.0
 [13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.2.0...@metamask/eth-snap-keyring@13.0.0
 [12.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@12.1.1...@metamask/eth-snap-keyring@12.2.0
