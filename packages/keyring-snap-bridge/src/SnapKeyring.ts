@@ -316,9 +316,7 @@ export class SnapKeyring extends EventEmitter {
       !this.#isAnyAccountTypeAllowed &&
       account.type === AnyAccountType.Account
     ) {
-      throw new Error(
-        `Cannot create generic account '${account.id}'`,
-      );
+      throw new Error(`Cannot create generic account '${account.id}'`);
     }
 
     // The UI still uses the account address to identify accounts, so we need
@@ -428,8 +426,8 @@ export class SnapKeyring extends EventEmitter {
     // The `AnyAccountType.Account` generic account type is allowed only during
     // development, so we check whether it's allowed before continuing.
     //
-    // An account cannot be updated if the `isAnyAccountTypeAllowed` flag is set
-    // to `false` and the new or old account is a generic account.
+    // An account cannot be updated if the `isAnyAccountTypeAllowed` flag is
+    // set to `false` and the new or old account is a generic account.
     const isGenericAccountInvolved =
       newAccount.type === AnyAccountType.Account ||
       oldAccount.type === AnyAccountType.Account;
