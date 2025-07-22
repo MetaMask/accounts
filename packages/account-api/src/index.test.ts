@@ -563,6 +563,7 @@ describe('index', () => {
 
       expect(wallet.getMultichainAccounts()).toHaveLength(1);
 
+      // Add a new account for the next index.
       provider.getAccounts.mockReturnValue([
         mockEvmAccount,
         {
@@ -593,6 +594,7 @@ describe('index', () => {
 
       expect(wallet.getMultichainAccounts()).toHaveLength(1);
 
+      // Add a new account for another index but not for this wallet.
       provider.getAccounts.mockReturnValue([
         mockEvmAccount,
         {
@@ -612,6 +614,26 @@ describe('index', () => {
       // not create a new multichain account!
       wallet.sync();
       expect(wallet.getMultichainAccounts()).toHaveLength(1);
+    });
+
+    it('cleans up old multichain account during sync', async () => {
+      const provider = new MockAccountProvider(
+        () => [mockEvmAccount],
+        [mockEvmAccount],
+      );
+      const wallet = await setupMultichainAccountWallet({
+        providers: [provider],
+      });
+
+      expect(wallet.getMultichainAccounts()).toHaveLength(1);
+
+      // Account for index 0 got removed, thus, the multichain account for index 0
+      // will also be removed.
+      provider.getAccounts.mockReturnValue([]);
+
+      // We should not have any multichain account anymore.
+      wallet.sync();
+      expect(wallet.getMultichainAccounts()).toHaveLength(0);
     });
   });
 

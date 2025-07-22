@@ -60,6 +60,10 @@ export class MultichainAccountWallet<
    * doesn't know about.
    */
   sync(): void {
+    // We keep track of all existing indexes to see if some of them are no
+    // longer in use after the sync.
+    const outdatedIndexes = new Set(this.#accounts.keys());
+
     for (const provider of this.#providers) {
       for (const account of provider.getAccounts()) {
         const { entropy } = account.options;
@@ -68,6 +72,10 @@ export class MultichainAccountWallet<
         if (entropy.id !== this.entropySource) {
           continue;
         }
+
+        // We still got an account for this index, thus we can mark this index
+        // as "in use" (to not clean it up later on).
+        outdatedIndexes.delete(entropy.groupIndex);
 
         // This multichain account might exists already.
         let multichainAccount = this.#accounts.get(entropy.groupIndex);
@@ -81,6 +89,11 @@ export class MultichainAccountWallet<
           this.#accounts.set(entropy.groupIndex, multichainAccount);
         }
       }
+    }
+
+    // Clean up old multichain accounts.
+    for (const outdatedIndex of outdatedIndexes) {
+      this.#accounts.delete(outdatedIndex);
     }
   }
 
