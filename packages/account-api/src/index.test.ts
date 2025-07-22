@@ -195,7 +195,9 @@ class MockAccountProvider implements AccountProvider<MockedAccount> {
       async ({ groupIndex }): Promise<MockedAccount['id'][]> => {
         return this.#accounts
           .flatMap((account) => account)
-          .filter((account) => account.options.index === groupIndex)
+          .filter(
+            (account) => account.options.entropy.groupIndex === groupIndex,
+          )
           .map((account) => account.id);
       },
     );
