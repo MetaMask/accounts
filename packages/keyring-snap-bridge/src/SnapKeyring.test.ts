@@ -2784,7 +2784,7 @@ describe('SnapKeyring', () => {
           },
         }),
       ).rejects.toThrow(
-        `Cannot create account '${anyGenericAccount.id}' with a generic account type`,
+        `Cannot create generic account '${anyGenericAccount.id}'`,
       );
     });
 
