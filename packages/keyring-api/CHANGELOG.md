@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [19.1.0]
 
-### Uncategorized
+### Added
 
-- feat(keyring-api): add generic account type ([#318](https://github.com/metamask/accounts/pull/318))
+- Add generic account type ([#318](https://github.com/metamask/accounts/pull/318))
+  - This account type can be used during the integration of new chains.
+  - It's allowed only Flask builds of MetaMask clients.
 
 ## [19.0.0]
 
