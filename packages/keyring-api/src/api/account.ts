@@ -31,6 +31,14 @@ export enum SolAccountType {
 }
 
 /**
+ * A generic account type. It can be used to represent any account type that is
+ * not covered by the other account types. It only applies to non-EVM chains.
+ */
+export enum AnyAccountType {
+  Account = 'any:account',
+}
+
+/**
  * Supported account types.
  */
 export type KeyringAccountType =
@@ -40,7 +48,8 @@ export type KeyringAccountType =
   | `${BtcAccountType.P2sh}`
   | `${BtcAccountType.P2wpkh}`
   | `${BtcAccountType.P2tr}`
-  | `${SolAccountType.DataAccount}`;
+  | `${SolAccountType.DataAccount}`
+  | `${AnyAccountType.Account}`;
 
 /**
  * A struct which represents a Keyring account object. It is abstract enough to
@@ -66,6 +75,7 @@ export const KeyringAccountStruct = object({
     `${BtcAccountType.P2wpkh}`,
     `${BtcAccountType.P2tr}`,
     `${SolAccountType.DataAccount}`,
+    `${AnyAccountType.Account}`,
   ]),
 
   /**
