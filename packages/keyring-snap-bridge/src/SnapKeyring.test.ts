@@ -315,7 +315,11 @@ describe('SnapKeyring', () => {
   });
 
   beforeEach(async () => {
-    keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
+    keyring = new SnapKeyring({
+      messenger: mockSnapKeyringMessenger,
+      callbacks: mockCallbacks,
+      isAnyAccountTypeAllowed: true,
+    });
 
     // We do need to return a promise for this method now:
     mockCallbacks.saveState.mockImplementation(async () => {
@@ -492,7 +496,10 @@ describe('SnapKeyring', () => {
             // Reset mock
             mockCallbacks.addAccount.mockClear();
             // Reset the keyring so it's empty.
-            keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
+            keyring = new SnapKeyring({
+              messenger: mockSnapKeyringMessenger,
+              callbacks: mockCallbacks,
+            });
 
             const params = {
               account,
@@ -535,7 +542,10 @@ describe('SnapKeyring', () => {
 
       it('creates an account and registers it properly', async () => {
         // Reset the keyring so it's empty.
-        keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
+        keyring = new SnapKeyring({
+          messenger: mockSnapKeyringMessenger,
+          callbacks: mockCallbacks,
+        });
 
         const account = ethEoaAccount1;
         await keyring.handleKeyringSnapMessage(snapId, {
@@ -555,7 +565,10 @@ describe('SnapKeyring', () => {
 
       it('creates an EOA account and set a default scopes if not provided', async () => {
         // Reset the keyring so it's empty.
-        keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
+        keyring = new SnapKeyring({
+          messenger: mockSnapKeyringMessenger,
+          callbacks: mockCallbacks,
+        });
 
         // Omit `scopes` from `account`.
         const account = noScopes(ethEoaAccount1);
@@ -579,7 +592,10 @@ describe('SnapKeyring', () => {
 
       it('creating a non-EVM account with the no scope will throw an error', async () => {
         // Reset the keyring so it's empty.
-        keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
+        keyring = new SnapKeyring({
+          messenger: mockSnapKeyringMessenger,
+          callbacks: mockCallbacks,
+        });
 
         // Omit `scopes` from non-EVM `account`.
         const account = noScopes(btcAccount);
@@ -1392,14 +1408,20 @@ describe('SnapKeyring', () => {
 
     it('fails to restore an undefined state', async () => {
       // Reset the keyring so it's empty.
-      keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
+      keyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+      });
       await keyring.deserialize(undefined as unknown as KeyringState);
       expect(await keyring.getAccounts()).toStrictEqual([]);
     });
 
     it('fails to restore an empty state', async () => {
       // Reset the keyring so it's empty.
-      keyring = new SnapKeyring(mockSnapKeyringMessenger, mockCallbacks);
+      keyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+      });
       await expect(
         keyring.deserialize({} as unknown as KeyringState),
       ).rejects.toThrow('Cannot convert undefined or null to object');
@@ -2742,6 +2764,90 @@ describe('SnapKeyring', () => {
           executionContext,
         ),
       ).rejects.toThrow(regexForUUIDInRequiredSyncErrorMessage);
+    });
+  });
+
+  describe('isAnyAccountTypeAllowed', () => {
+    it('does not allow the creation of a generic account', async () => {
+      keyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+        isAnyAccountTypeAllowed: false,
+      });
+
+      // Try to create a generic account
+      await expect(
+        keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: anyGenericAccount,
+          },
+        }),
+      ).rejects.toThrow(
+        `Cannot create account '${anyGenericAccount.id}' with a generic account type`,
+      );
+    });
+
+    it('does not allow a non-generic account to be made generic', async () => {
+      keyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+        isAnyAccountTypeAllowed: false,
+      });
+
+      // First create a non-generic account
+      await keyring.handleKeyringSnapMessage(snapId, {
+        method: KeyringEvent.AccountCreated,
+        params: {
+          account: ethEoaAccount1,
+        },
+      });
+
+      // Then try to update it to a generic account type
+      await expect(
+        keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountUpdated,
+          params: {
+            account: {
+              ...ethEoaAccount1,
+              type: AnyAccountType.Account,
+            },
+          },
+        }),
+      ).rejects.toThrow(`Cannot update generic account '${ethEoaAccount1.id}'`);
+    });
+
+    it('does not allow a generic account to have the methods updated', async () => {
+      keyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+        isAnyAccountTypeAllowed: false,
+      });
+
+      // First create a generic account
+      await keyring.deserialize({
+        accounts: {
+          [anyGenericAccount.id]: {
+            account: anyGenericAccount,
+            snapId,
+          },
+        },
+      });
+
+      // Then try to update its methods
+      await expect(
+        keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountUpdated,
+          params: {
+            account: {
+              ...anyGenericAccount,
+              methods: [EthMethod.PersonalSign], // Try to add some methods
+            },
+          },
+        }),
+      ).rejects.toThrow(
+        `Cannot update generic account '${anyGenericAccount.id}'`,
+      );
     });
   });
 });

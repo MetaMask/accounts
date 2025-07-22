@@ -205,17 +205,21 @@ export class SnapKeyring extends EventEmitter {
   /**
    * Create a new Snap keyring.
    *
-   * @param messenger - Snap keyring messenger.
-   * @param callbacks - Callbacks used to interact with other components.
-   * @param isAnyAccountTypeAllowed - Whether to allow the `AnyAccountType`
-   * generic account type.
+   * @param options - Constructor options.
+   * @param options.messenger - Snap keyring messenger.
+   * @param options.callbacks - Callbacks used to interact with other components.
+   * @param options.isAnyAccountTypeAllowed - Whether to allow the `AnyAccountType` generic account type.
    * @returns A new Snap keyring.
    */
-  constructor(
-    messenger: SnapKeyringMessenger,
-    callbacks: SnapKeyringCallbacks,
-    isAnyAccountTypeAllowed: boolean,
-  ) {
+  constructor({
+    messenger,
+    callbacks,
+    isAnyAccountTypeAllowed = false,
+  }: {
+    messenger: SnapKeyringMessenger;
+    callbacks: SnapKeyringCallbacks;
+    isAnyAccountTypeAllowed?: boolean;
+  }) {
     super();
     this.type = SnapKeyring.type;
     this.#messenger = messenger;
@@ -720,6 +724,7 @@ export class SnapKeyring extends EventEmitter {
 
     // Running Snap keyring migrations. We might have some accounts that have a
     // different "version" than the one we expect.
+    //
     // In this case, we "transform" then directly when deserializing to convert
     // them in the final account version.
     const accounts: KeyringState['accounts'] = {};
