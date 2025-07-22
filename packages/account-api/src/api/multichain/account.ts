@@ -65,6 +65,10 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
    * account doesn't know about.
    */
   sync(): void {
+    // Clear reverse mapping and re-construct it entirely based on the refreshed
+    // list of accounts from each providers.
+    this.#reverse.clear();
+
     for (const provider of this.#providers) {
       // Filter account only for that index.
       const accounts = [];
@@ -111,6 +115,16 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
    */
   get index(): number {
     return this.#index;
+  }
+
+  /**
+   * Checks if there's any underlying accounts for this multichain accounts.
+   *
+   * @returns True if there's any underlying accounts, false otherwise.
+   */
+  hasAccounts(): boolean {
+    // If there's anything in the reverse-map, it means we have some accounts.
+    return this.#reverse.size > 0;
   }
 
   /**
