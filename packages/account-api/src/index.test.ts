@@ -156,12 +156,12 @@ class MockAccountProvider implements AccountProvider<MockedAccount> {
 
   getAccount = jest
     .fn()
-    .mockImplementation((id: MockedAccount['id']): MockedAccount => {
-      // Assuming this never fails.
-      return this.#accounts.find(
-        (account) => account.id === id,
-      ) as MockedAccount;
-    });
+    .mockImplementation(
+      (id: MockedAccount['id']): MockedAccount | undefined => {
+        // Assuming this never fails.
+        return this.#accounts.find((account) => account.id === id);
+      },
+    );
 
   createAccounts = jest
     .fn()

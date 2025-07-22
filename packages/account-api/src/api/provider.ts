@@ -7,10 +7,9 @@ export type AccountProvider<Account extends KeyringAccount> = {
   /**
    * Gets an account for a given ID.
    *
-   * @throws If the account ID does not belong to this provider.
-   * @returns An account.
+   * @returns An account, or undefined if not found.
    */
-  getAccount: (id: Account['id']) => Account;
+  getAccount: (id: Account['id']) => Account | undefined;
 
   /**
    * Gets all accounts for a given entropy source and group index.

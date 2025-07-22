@@ -133,12 +133,19 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
    * @returns The accounts.
    */
   getAccounts(): Account[] {
-    let allAccounts: Account[] = [];
+    const allAccounts: Account[] = [];
 
     for (const [provider, accounts] of this.#accounts.entries()) {
-      allAccounts = allAccounts.concat(
-        accounts.map((id) => provider.getAccount(id)),
-      );
+      for (const id of accounts) {
+        const account = provider.getAccount(id);
+
+        if (account) {
+          // If for some reason we cannot get this account from the provider, it
+          // might means it has been deleted or something, so we just filter it
+          // out.
+          allAccounts.push(account);
+        }
+      }
     }
 
     return allAccounts;
