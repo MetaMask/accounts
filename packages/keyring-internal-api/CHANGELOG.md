@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^19.0.0` to `^19.1.0` ([#323](https://github.com/MetaMask/accounts/pull/323))
-  - Add generic account type ([#318](https://github.com/metamask/accounts/pull/318))
+  - Add generic account type.
 
 ## [7.0.0]
 
