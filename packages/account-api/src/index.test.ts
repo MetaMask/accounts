@@ -154,6 +154,15 @@ class MockAccountProvider implements AccountProvider<MockedAccount> {
     return this.#accounts;
   });
 
+  getAccount = jest
+    .fn()
+    .mockImplementation((id: MockedAccount['id']): MockedAccount => {
+      // Assuming this never fails.
+      return this.#accounts.find(
+        (account) => account.id === id,
+      ) as MockedAccount;
+    });
+
   createAccounts = jest
     .fn()
     .mockImplementation(
@@ -308,6 +317,13 @@ describe('index', () => {
       expect(multichainAccount.getAccount(mockEvmAccount.id)).toStrictEqual(
         mockEvmAccount,
       );
+    });
+
+    it('returns undefined if the account ID does not belong to the multichain account', async () => {
+      const { wallet } = setup();
+      const multichainAccount = await setupMultichainAccount({ wallet });
+
+      expect(multichainAccount.getAccount('unknown-id')).toBeUndefined();
     });
 
     it.each([

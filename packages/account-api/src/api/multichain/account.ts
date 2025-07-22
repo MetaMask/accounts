@@ -35,6 +35,10 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
 
   readonly #providers: AccountProvider<Account>[];
 
+  readonly #accounts: Map<AccountProvider<Account>, Account['id'][]>;
+
+  readonly #reverse: Map<Account['id'], AccountProvider<Account>>;
+
   constructor({
     groupIndex,
     wallet,
@@ -48,6 +52,38 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
     this.#index = groupIndex;
     this.#wallet = wallet;
     this.#providers = providers;
+    this.#accounts = new Map();
+    this.#reverse = new Map();
+
+    this.sync();
+  }
+
+  /**
+   * Force multichain account synchronization.
+   *
+   * This can be used if account providers got new accounts that the multichain
+   * account doesn't know about.
+   */
+  sync(): void {
+    for (const provider of this.#providers) {
+      // Filter account only for that index.
+      const accounts = [];
+      for (const account of provider.getAccounts()) {
+        if (
+          account.options.entropy.id === this.wallet.entropySource &&
+          account.options.entropy.groupIndex === this.index
+        ) {
+          // We only use IDs to always fetch the latest version of accounts.
+          accounts.push(account.id);
+        }
+      }
+      this.#accounts.set(provider, accounts);
+
+      // Reverse-mapping for fast indexing.
+      for (const id of accounts) {
+        this.#reverse.set(id, provider);
+      }
+    }
   }
 
   /**
@@ -85,17 +121,9 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
   getAccounts(): Account[] {
     let allAccounts: Account[] = [];
 
-    for (const provider of this.#providers) {
+    for (const [provider, accounts] of this.#accounts.entries()) {
       allAccounts = allAccounts.concat(
-        provider.getAccounts().filter(
-          // NOTE: For now we always query the providers to get the latest
-          // account list. If this becomes too "heavy" in terms of computation
-          // we might wanna consider adding a state to that object and store
-          // the list of account IDs here.
-          (account) =>
-            account.options.entropy.id === this.wallet.entropySource &&
-            account.options.entropy.groupIndex === this.index,
-        ),
+        accounts.map((id) => provider.getAccount(id)),
       );
     }
 
@@ -109,9 +137,14 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
    * @returns The account or undefined if not found.
    */
   getAccount(id: Account['id']): Account | undefined {
-    // NOTE: Same remark here. We could keep a state to make this operation
-    // faster.
-    return this.getAccounts().find((account) => account.id === id);
+    const provider = this.#reverse.get(id);
+
+    // If there's nothing in the map, it means we tried to get an account
+    // that does not belong to this multichain account.
+    if (!provider) {
+      return undefined;
+    }
+    return provider.getAccount(id);
   }
 
   /**
