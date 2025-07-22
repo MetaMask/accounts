@@ -9,6 +9,7 @@ import {
   isMultichainAccountId,
   MultichainAccount,
 } from './account';
+import type { Bip44Account } from '../bip44';
 import type { AccountGroupId } from '../group';
 import { toDefaultAccountGroupId } from '../group';
 import type { AccountProvider } from '../provider';
@@ -25,8 +26,9 @@ export type MultichainAccountWalletId =
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per
  * group index).
  */
-export class MultichainAccountWallet<Account extends KeyringAccount>
-  implements AccountWallet<Account>
+export class MultichainAccountWallet<
+  Account extends Bip44Account<KeyringAccount>,
+> implements AccountWallet<Account>
 {
   readonly #id: MultichainAccountWalletId;
 

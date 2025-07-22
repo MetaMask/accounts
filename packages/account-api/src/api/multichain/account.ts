@@ -1,13 +1,11 @@
-import {
-  KeyringAccountEntropyTypeOption,
-  type KeyringAccount,
-} from '@metamask/keyring-api';
+import { type KeyringAccount } from '@metamask/keyring-api';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
 import type {
   MultichainAccountWallet,
   MultichainAccountWalletId,
 } from './wallet';
+import type { Bip44Account } from '../bip44';
 import type { AccountGroup } from '../group';
 import type { AccountProvider } from '../provider';
 import type { AccountSelector } from '../selector';
@@ -26,7 +24,7 @@ export type MultichainAccountId = `${MultichainAccountWalletId}/${number}`; // U
 /**
  * A multichain account that holds multiple accounts.
  */
-export class MultichainAccount<Account extends KeyringAccount>
+export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
   implements AccountGroup<Account>
 {
   readonly #id: MultichainAccountId;
@@ -104,9 +102,6 @@ export class MultichainAccount<Account extends KeyringAccount>
           // we might wanna consider adding a state to that object and store
           // the list of account IDs here.
           (account) =>
-            account.options.entropy &&
-            account.options.entropy.type ===
-              KeyringAccountEntropyTypeOption.Mnemonic &&
             account.options.entropy.id === this.wallet.entropySource &&
             account.options.entropy.groupIndex === this.index,
         ),
