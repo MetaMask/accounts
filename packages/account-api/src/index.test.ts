@@ -551,6 +551,36 @@ describe('index', () => {
       expect(multichainAccount).toBeDefined();
       expect(multichainAccount?.index).toBe(groupIndex);
     });
+
+    it('force sync wallet after account provider got new account', async () => {
+      const provider = new MockAccountProvider(
+        () => [mockEvmAccount],
+        [mockEvmAccount],
+      );
+      const wallet = await setupMultichainAccountWallet({
+        providers: [provider],
+      });
+
+      expect(wallet.getMultichainAccounts()).toHaveLength(1);
+
+      provider.getAccounts.mockReturnValue([
+        mockEvmAccount,
+        {
+          ...mockEvmAccount,
+          options: {
+            ...mockEvmAccount.options,
+            entropy: {
+              ...mockEvmAccount.options.entropy,
+              groupIndex: 1,
+            },
+          },
+        },
+      ]);
+
+      // Force sync, so the wallet will "find" a new multichain account.
+      wallet.sync();
+      expect(wallet.getMultichainAccounts()).toHaveLength(2);
+    });
   });
 
   describe('AccountGroup', () => {
