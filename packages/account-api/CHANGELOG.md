@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `MultichainAccountWallet.sync` method ([#321](https://github.com/MetaMask/accounts/pull/321))
+  - This can be used to force wallet synchronization if new accounts are available on the account providers.
+
+### Changed
+
+- **BREAKING:** Force `Bip44Account<Account>` for `Multichain*` types ([#321](https://github.com/MetaMask/accounts/pull/321))
+  - This requires the `AccountProvider`s to also use new `Bip44Account` type constraint.
+
 ## [0.2.0]
 
 ### Added

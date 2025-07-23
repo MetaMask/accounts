@@ -1,13 +1,11 @@
-import {
-  KeyringAccountEntropyTypeOption,
-  type KeyringAccount,
-} from '@metamask/keyring-api';
+import { type KeyringAccount } from '@metamask/keyring-api';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
 import type {
   MultichainAccountWallet,
   MultichainAccountWalletId,
 } from './wallet';
+import type { Bip44Account } from '../bip44';
 import type { AccountGroup } from '../group';
 import type { AccountProvider } from '../provider';
 import type { AccountSelector } from '../selector';
@@ -26,7 +24,7 @@ export type MultichainAccountId = `${MultichainAccountWalletId}/${number}`; // U
 /**
  * A multichain account that holds multiple accounts.
  */
-export class MultichainAccount<Account extends KeyringAccount>
+export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
   implements AccountGroup<Account>
 {
   readonly #id: MultichainAccountId;
@@ -36,6 +34,10 @@ export class MultichainAccount<Account extends KeyringAccount>
   readonly #index: number;
 
   readonly #providers: AccountProvider<Account>[];
+
+  readonly #providerToAccounts: Map<AccountProvider<Account>, Account['id'][]>;
+
+  readonly #accountToProvider: Map<Account['id'], AccountProvider<Account>>;
 
   constructor({
     groupIndex,
@@ -50,6 +52,42 @@ export class MultichainAccount<Account extends KeyringAccount>
     this.#index = groupIndex;
     this.#wallet = wallet;
     this.#providers = providers;
+    this.#providerToAccounts = new Map();
+    this.#accountToProvider = new Map();
+
+    this.sync();
+  }
+
+  /**
+   * Force multichain account synchronization.
+   *
+   * This can be used if account providers got new accounts that the multichain
+   * account doesn't know about.
+   */
+  sync(): void {
+    // Clear reverse mapping and re-construct it entirely based on the refreshed
+    // list of accounts from each providers.
+    this.#accountToProvider.clear();
+
+    for (const provider of this.#providers) {
+      // Filter account only for that index.
+      const accounts = [];
+      for (const account of provider.getAccounts()) {
+        if (
+          account.options.entropy.id === this.wallet.entropySource &&
+          account.options.entropy.groupIndex === this.index
+        ) {
+          // We only use IDs to always fetch the latest version of accounts.
+          accounts.push(account.id);
+        }
+      }
+      this.#providerToAccounts.set(provider, accounts);
+
+      // Reverse-mapping for fast indexing.
+      for (const id of accounts) {
+        this.#accountToProvider.set(id, provider);
+      }
+    }
   }
 
   /**
@@ -85,7 +123,8 @@ export class MultichainAccount<Account extends KeyringAccount>
    * @returns True if there's any underlying accounts, false otherwise.
    */
   hasAccounts(): boolean {
-    return this.getAccounts().length > 0;
+    // If there's anything in the reverse-map, it means we have some accounts.
+    return this.#accountToProvider.size > 0;
   }
 
   /**
@@ -94,23 +133,19 @@ export class MultichainAccount<Account extends KeyringAccount>
    * @returns The accounts.
    */
   getAccounts(): Account[] {
-    let allAccounts: Account[] = [];
+    const allAccounts: Account[] = [];
 
-    for (const provider of this.#providers) {
-      allAccounts = allAccounts.concat(
-        provider.getAccounts().filter(
-          // NOTE: For now we always query the providers to get the latest
-          // account list. If this becomes too "heavy" in terms of computation
-          // we might wanna consider adding a state to that object and store
-          // the list of account IDs here.
-          (account) =>
-            account.options.entropy &&
-            account.options.entropy.type ===
-              KeyringAccountEntropyTypeOption.Mnemonic &&
-            account.options.entropy.id === this.wallet.entropySource &&
-            account.options.entropy.groupIndex === this.index,
-        ),
-      );
+    for (const [provider, accounts] of this.#providerToAccounts.entries()) {
+      for (const id of accounts) {
+        const account = provider.getAccount(id);
+
+        if (account) {
+          // If for some reason we cannot get this account from the provider, it
+          // might means it has been deleted or something, so we just filter it
+          // out.
+          allAccounts.push(account);
+        }
+      }
     }
 
     return allAccounts;
@@ -123,9 +158,14 @@ export class MultichainAccount<Account extends KeyringAccount>
    * @returns The account or undefined if not found.
    */
   getAccount(id: Account['id']): Account | undefined {
-    // NOTE: Same remark here. We could keep a state to make this operation
-    // faster.
-    return this.getAccounts().find((account) => account.id === id);
+    const provider = this.#accountToProvider.get(id);
+
+    // If there's nothing in the map, it means we tried to get an account
+    // that does not belong to this multichain account.
+    if (!provider) {
+      return undefined;
+    }
+    return provider.getAccount(id);
   }
 
   /**

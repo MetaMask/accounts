@@ -1,5 +1,4 @@
 import {
-  KeyringAccountEntropyTypeOption,
   type EntropySourceId,
   type KeyringAccount,
 } from '@metamask/keyring-api';
@@ -9,6 +8,7 @@ import {
   isMultichainAccountId,
   MultichainAccount,
 } from './account';
+import type { Bip44Account } from '../bip44';
 import type { AccountGroupId } from '../group';
 import { toDefaultAccountGroupId } from '../group';
 import type { AccountProvider } from '../provider';
@@ -25,8 +25,9 @@ export type MultichainAccountWalletId =
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per
  * group index).
  */
-export class MultichainAccountWallet<Account extends KeyringAccount>
-  implements AccountWallet<Account>
+export class MultichainAccountWallet<
+  Account extends Bip44Account<KeyringAccount>,
+> implements AccountWallet<Account>
 {
   readonly #id: MultichainAccountWalletId;
 
@@ -48,60 +49,49 @@ export class MultichainAccountWallet<Account extends KeyringAccount>
     this.#entropySource = entropySource;
     this.#accounts = new Map();
 
-    // NOTE: This will traverse all accounts to compute the max index. We could try
-    // to minimize the number of filtering we're doing on each providers if this
-    // becomes too costly.
-    const maxGroupIndex = MultichainAccountWallet.getHighestGroupIndexFrom(
-      providers,
-      entropySource,
-    );
-
-    // NOTE: We could have some gap for now, until we fully implement the
-    // gap/alignment mechanisms to backfill all "missing accounts".
-    for (let groupIndex = 0; groupIndex <= maxGroupIndex; groupIndex++) {
-      // Use "lower or equal", since we need to "include" the max index (which
-      // can also be 0)
-      const multichainAccount = new MultichainAccount<Account>({
-        groupIndex,
-        wallet: this,
-        providers: this.#providers,
-      });
-
-      // We only add multichain account that has underlying accounts.
-      if (multichainAccount.hasAccounts()) {
-        this.#accounts.set(groupIndex, multichainAccount);
-      }
-    }
+    // Initial synchronization.
+    this.sync();
   }
 
   /**
-   * Gets the highest group index from multiple account providers for a given
-   * entropy source.
+   * Force wallet synchronization.
    *
-   * @param providers - Account providers.
-   * @param entropySource - Entropy source to filter on.
-   * @returns The highest group index for a given entropy source.
+   * This can be used if account providers got new accounts that the wallet
+   * doesn't know about.
    */
-  static getHighestGroupIndexFrom<Account extends KeyringAccount>(
-    providers: AccountProvider<Account>[],
-    entropySource: EntropySourceId,
-  ): number {
-    let max = -1;
-
-    for (const provider of providers) {
+  sync(): void {
+    for (const provider of this.#providers) {
       for (const account of provider.getAccounts()) {
-        if (
-          account.options.entropy &&
-          account.options.entropy.type ===
-            KeyringAccountEntropyTypeOption.Mnemonic &&
-          account.options.entropy.id === entropySource
-        ) {
-          max = Math.max(max, account.options.entropy.groupIndex);
+        const { entropy } = account.options;
+
+        // Filter for this wallet only.
+        if (entropy.id !== this.entropySource) {
+          continue;
+        }
+
+        // This multichain account might exists already.
+        let multichainAccount = this.#accounts.get(entropy.groupIndex);
+        if (!multichainAccount) {
+          multichainAccount = new MultichainAccount<Account>({
+            groupIndex: entropy.groupIndex,
+            wallet: this,
+            providers: this.#providers,
+          });
+
+          this.#accounts.set(entropy.groupIndex, multichainAccount);
         }
       }
     }
 
-    return max;
+    // Now force-sync all remaining multichain accounts.
+    for (const [groupIndex, multichainAccount] of this.#accounts.entries()) {
+      multichainAccount.sync();
+
+      // Clean up old multichain accounts.
+      if (!multichainAccount.hasAccounts()) {
+        this.#accounts.delete(groupIndex);
+      }
+    }
   }
 
   /**
