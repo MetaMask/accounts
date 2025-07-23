@@ -45,7 +45,7 @@ type MockedAccount = Bip44Account<InternalAccount>;
 
 const mockEntropySource = 'mock-entropy-source';
 
-const mockAccountOptions = {
+const mockAccountOptions: MockedAccount['options'] = {
   entropy: {
     type: KeyringAccountEntropyTypeOption.Mnemonic,
     id: mockEntropySource,
