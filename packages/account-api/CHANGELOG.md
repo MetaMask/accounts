@@ -9,12 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.0]
 
-### Uncategorized
-
-- feat(account-api): add `isBip44Account` helper ([#319](https://github.com/MetaMask/accounts/pull/319))
-
 ### Added
 
+- Add `Bip44Account<Account>` type + `isBip44Account` helper ([#319](https://github.com/MetaMask/accounts/pull/319))
 - Add `MultichainAccountWallet.sync` method ([#321](https://github.com/MetaMask/accounts/pull/321))
   - This can be used to force wallet synchronization if new accounts are available on the account providers.
 
