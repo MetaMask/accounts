@@ -35,9 +35,9 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
 
   readonly #providers: AccountProvider<Account>[];
 
-  readonly #accounts: Map<AccountProvider<Account>, Account['id'][]>;
+  readonly #providerToAccounts: Map<AccountProvider<Account>, Account['id'][]>;
 
-  readonly #reverse: Map<Account['id'], AccountProvider<Account>>;
+  readonly #accountToProvider: Map<Account['id'], AccountProvider<Account>>;
 
   constructor({
     groupIndex,
@@ -52,8 +52,8 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
     this.#index = groupIndex;
     this.#wallet = wallet;
     this.#providers = providers;
-    this.#accounts = new Map();
-    this.#reverse = new Map();
+    this.#providerToAccounts = new Map();
+    this.#accountToProvider = new Map();
 
     this.sync();
   }
@@ -67,7 +67,7 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
   sync(): void {
     // Clear reverse mapping and re-construct it entirely based on the refreshed
     // list of accounts from each providers.
-    this.#reverse.clear();
+    this.#accountToProvider.clear();
 
     for (const provider of this.#providers) {
       // Filter account only for that index.
@@ -81,11 +81,11 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
           accounts.push(account.id);
         }
       }
-      this.#accounts.set(provider, accounts);
+      this.#providerToAccounts.set(provider, accounts);
 
       // Reverse-mapping for fast indexing.
       for (const id of accounts) {
-        this.#reverse.set(id, provider);
+        this.#accountToProvider.set(id, provider);
       }
     }
   }
@@ -124,7 +124,7 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
    */
   hasAccounts(): boolean {
     // If there's anything in the reverse-map, it means we have some accounts.
-    return this.#reverse.size > 0;
+    return this.#accountToProvider.size > 0;
   }
 
   /**
@@ -135,7 +135,7 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
   getAccounts(): Account[] {
     const allAccounts: Account[] = [];
 
-    for (const [provider, accounts] of this.#accounts.entries()) {
+    for (const [provider, accounts] of this.#providerToAccounts.entries()) {
       for (const id of accounts) {
         const account = provider.getAccount(id);
 
@@ -158,7 +158,7 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
    * @returns The account or undefined if not found.
    */
   getAccount(id: Account['id']): Account | undefined {
-    const provider = this.#reverse.get(id);
+    const provider = this.#accountToProvider.get(id);
 
     // If there's nothing in the map, it means we tried to get an account
     // that does not belong to this multichain account.
