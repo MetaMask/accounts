@@ -12,7 +12,7 @@ import type { Bip44Account } from '../bip44';
 import type { AccountGroupId } from '../group';
 import { toDefaultAccountGroupId } from '../group';
 import type { AccountProvider } from '../provider';
-import type { AccountWallet } from '../wallet';
+import type { AccountWallet, AccountWalletOptions } from '../wallet';
 import { AccountWalletCategory } from '../wallet';
 
 /**
@@ -110,6 +110,20 @@ export class MultichainAccountWallet<
    */
   get category(): AccountWalletCategory.Entropy {
     return AccountWalletCategory.Entropy;
+  }
+
+  /**
+   * Gets the multichain account wallet options.
+   *
+   * @returns The multichain account wallet options.
+   */
+  get options(): AccountWalletOptions {
+    return {
+      type: AccountWalletCategory.Entropy,
+      entropy: {
+        id: this.#entropySource,
+      },
+    };
   }
 
   /**

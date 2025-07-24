@@ -1,4 +1,5 @@
-import type { KeyringAccount } from '@metamask/keyring-api';
+import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
+import type { SnapId } from '@metamask/snaps-sdk';
 
 // Circular import are allowed when using `import type`.
 import type { AccountGroup, AccountGroupId } from './group';
@@ -29,6 +30,44 @@ export enum AccountWalletCategory {
 export type AccountWalletId = `${AccountWalletCategory}:${string}`;
 
 /**
+ * Account wallet options for the "entropy" wallet category.
+ */
+export type AccountWalletEntropyOptions = {
+  type: AccountWalletCategory.Entropy;
+  entropy: {
+    id: EntropySourceId;
+  };
+};
+
+/**
+ * Account wallet options for the "snap" wallet category.
+ */
+export type AccountWalletSnapOptions = {
+  type: AccountWalletCategory.Snap;
+  snap: {
+    id: SnapId;
+  };
+};
+
+/**
+ * Account wallet options for the "keyring" wallet category.
+ */
+export type AccountWalletKeyringOptions = {
+  type: AccountWalletCategory.Keyring;
+  keyring: {
+    type: string;
+  };
+};
+
+/**
+ * Account wallet options for the "keyring" wallet category.
+ */
+export type AccountWalletOptions =
+  | AccountWalletEntropyOptions
+  | AccountWalletSnapOptions
+  | AccountWalletKeyringOptions;
+
+/**
  * Account wallet that can hold multiple account groups.
  */
 export type AccountWallet<Account extends KeyringAccount> = {
@@ -41,6 +80,11 @@ export type AccountWallet<Account extends KeyringAccount> = {
    * Account wallet category.
    */
   get category(): AccountWalletCategory;
+
+  /**
+   * Account wallet category.
+   */
+  get options(): AccountWalletOptions;
 
   /**
    * Gets account group for a given ID.
