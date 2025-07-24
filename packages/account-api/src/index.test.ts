@@ -557,6 +557,18 @@ describe('index', () => {
       expect(wallet.getMultichainAccounts()).toHaveLength(1); // All internal accounts are using index 0, so it means only 1 multichain account.
     });
 
+    it('provides wallet options', async () => {
+      const entropySource = mockEntropySource;
+      const wallet = await setupMultichainAccountWallet({ entropySource });
+
+      expect(wallet.options).toStrictEqual({
+        type: AccountWalletCategory.Entropy,
+        entropy: {
+          id: entropySource,
+        }
+      });
+    });
+
     it('gets a multichain account from its index', async () => {
       const wallet = await setupMultichainAccountWallet();
 
