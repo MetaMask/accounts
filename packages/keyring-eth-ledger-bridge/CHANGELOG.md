@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.1.2]
 
-### Uncategorized
+### Changed
 
 - fix(keyring-eth-ledger-bridge): increase ledger iframe timeout ([#314](https://github.com/MetaMask/accounts.git/pull/314))
 
