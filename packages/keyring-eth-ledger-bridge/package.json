@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-ledger-bridge-keyring",
-  "version": "11.1.1",
+  "version": "11.1.2",
   "description": "A MetaMask compatible keyring, for ledger hardware wallets",
   "keywords": [
     "ethereum",
