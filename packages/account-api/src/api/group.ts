@@ -21,7 +21,7 @@ export enum AccountGroupType {
   MultichainAccount = 'multichain-account',
 
   /** Group that represents a single account. */
-  Account = 'account',
+  SingleAccount = 'single-account',
 }
 
 /**
