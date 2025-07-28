@@ -9,10 +9,10 @@ import type { Bip44Account } from '../bip44';
 import type { AccountGroup } from '../group';
 import type { AccountProvider } from '../provider';
 import type { AccountSelector } from '../selector';
-import { AccountWalletCategory } from '../wallet';
+import { AccountWalletType } from '../wallet';
 
 const MULTICHAIN_ACCOUNT_ID_REGEX = new RegExp(
-  `^${AccountWalletCategory.Entropy}:.*/(?<groupIndex>\\d+)$`,
+  `^${AccountWalletType.Entropy}:.*/(?<groupIndex>\\d+)$`,
   'u',
 );
 
