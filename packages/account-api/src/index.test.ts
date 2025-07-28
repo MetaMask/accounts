@@ -666,6 +666,7 @@ describe('index', () => {
 
       expect(group).toBeDefined();
       expect(group?.id).toStrictEqual(groupId);
+      expect(group?.type).toBeDefined();
     });
 
     it('gets the default account when using the default group id', async () => {

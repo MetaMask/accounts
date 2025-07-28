@@ -6,7 +6,7 @@ import type {
   MultichainAccountWalletId,
 } from './wallet';
 import type { Bip44Account } from '../bip44';
-import type { AccountGroup } from '../group';
+import { AccountGroup, AccountGroupType } from '../group';
 import type { AccountProvider } from '../provider';
 import type { AccountSelector } from '../selector';
 import { AccountWalletType } from '../wallet';
@@ -97,6 +97,15 @@ export class MultichainAccount<Account extends Bip44Account<KeyringAccount>>
    */
   get id(): MultichainAccountId {
     return this.#id;
+  }
+
+  /**
+   * Gets the multichain account type.
+   *
+   * @returns The multichain account type.
+   */
+  get type(): AccountGroupType.MultichainAccount {
+    return AccountGroupType.MultichainAccount;
   }
 
   /**
