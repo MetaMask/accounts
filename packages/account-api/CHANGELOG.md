@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** Rename `AccountWalletCategory` to `AccountWalletType` + `category` to `type` ([#328](https://github.com/MetaMask/accounts/pull/328))
+  - This name better reflects other patterns we already have in place elsewhere.
+
 ## [0.3.0]
 
 ### Added
