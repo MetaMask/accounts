@@ -12,6 +12,19 @@ import type { AccountWallet, AccountWalletId } from './wallet';
 export const DEFAULT_ACCOUNT_GROUP_UNIQUE_ID: string = 'default';
 
 /**
+ * Account group object.
+ *
+ * Each group types groups accounts using different criterias.
+ */
+export enum AccountGroupType {
+  /** Group that represents a multichain account. */
+  MultichainAccount = 'multichain-account',
+
+  /** Group that represents a single account. */
+  SingleAccount = 'single-account',
+}
+
+/**
  * Account group ID.
  */
 export type AccountGroupId = `${AccountWalletId}/${string}`;
@@ -24,6 +37,11 @@ export type AccountGroup<Account extends KeyringAccount> = {
    * Account group ID.
    */
   get id(): AccountGroupId;
+
+  /**
+   * Account group type.
+   */
+  get type(): AccountGroupType;
 
   /**
    * Account wallet (parent).
