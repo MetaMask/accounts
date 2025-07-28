@@ -13,13 +13,13 @@ import type { AccountGroupId } from '../group';
 import { toDefaultAccountGroupId } from '../group';
 import type { AccountProvider } from '../provider';
 import type { AccountWallet } from '../wallet';
-import { AccountWalletCategory } from '../wallet';
+import { AccountWalletType } from '../wallet';
 
 /**
  * Multichain account wallet ID.
  */
 export type MultichainAccountWalletId =
-  `${AccountWalletCategory.Entropy}:${EntropySourceId}`;
+  `${AccountWalletType.Entropy}:${EntropySourceId}`;
 
 /**
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per
@@ -104,12 +104,12 @@ export class MultichainAccountWallet<
   }
 
   /**
-   * Gets the multichain account wallet category, which is always {@link AccountWalletCategory.Entropy}.
+   * Gets the multichain account wallet type, which is always {@link AccountWalletType.Entropy}.
    *
-   * @returns The multichain account wallet category.
+   * @returns The multichain account wallet type.
    */
-  get category(): AccountWalletCategory.Entropy {
-    return AccountWalletCategory.Entropy;
+  get type(): AccountWalletType.Entropy {
+    return AccountWalletType.Entropy;
   }
 
   /**
@@ -184,5 +184,5 @@ export class MultichainAccountWallet<
 export function toMultichainAccountWalletId(
   entropySource: EntropySourceId,
 ): MultichainAccountWalletId {
-  return `${AccountWalletCategory.Entropy}:${entropySource}`;
+  return `${AccountWalletType.Entropy}:${entropySource}`;
 }

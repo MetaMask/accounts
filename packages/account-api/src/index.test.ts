@@ -29,7 +29,7 @@ import type {
   Bip44Account,
 } from './api';
 import {
-  AccountWalletCategory,
+  AccountWalletType,
   toAccountGroupId,
   toAccountWalletId,
   toDefaultAccountGroupId,
@@ -688,7 +688,7 @@ describe('index', () => {
         await setupMultichainAccountWallet();
 
       const groupId: AccountGroupId = toAccountGroupId(
-        toAccountWalletId(AccountWalletCategory.Keyring, 'bad-keyring-id'),
+        toAccountWalletId(AccountWalletType.Keyring, 'bad-keyring-id'),
         'bad-index',
       );
       const group: AccountGroup<MockedAccount> | undefined =
@@ -711,16 +711,16 @@ describe('index', () => {
       // test AccountGroup too!
       const wallet = await setupMultichainAccountWallet();
 
-      expect(wallet.category).toBe(AccountWalletCategory.Entropy);
+      expect(wallet.type).toBe(AccountWalletType.Entropy);
       expect(wallet.id).toStrictEqual(
-        toAccountWalletId(AccountWalletCategory.Entropy, wallet.entropySource),
+        toAccountWalletId(AccountWalletType.Entropy, wallet.entropySource),
       );
     });
   });
 
   describe('toAccountGroupId', () => {
     it('converts an account wallet id and a unique id to a group id', () => {
-      const walletId = toAccountWalletId(AccountWalletCategory.Keyring, 'test');
+      const walletId = toAccountWalletId(AccountWalletType.Keyring, 'test');
       const groupId = toAccountGroupId(walletId, 'test');
 
       expect(groupId.startsWith(walletId)).toBe(true);
@@ -729,7 +729,7 @@ describe('index', () => {
 
   describe('toDefaultAccountGroupId', () => {
     it('converts an account wallet id and to the default group id', () => {
-      const walletId = toAccountWalletId(AccountWalletCategory.Keyring, 'test');
+      const walletId = toAccountWalletId(AccountWalletType.Keyring, 'test');
       const groupId = toDefaultAccountGroupId(walletId);
 
       expect(groupId.startsWith(walletId)).toBe(true);
@@ -738,7 +738,7 @@ describe('index', () => {
 
   describe('getGroupIndexFromMultichainAccountId', () => {
     it('throws if it cannot extract group index', () => {
-      const walletId = toAccountWalletId(AccountWalletCategory.Keyring, 'test');
+      const walletId = toAccountWalletId(AccountWalletType.Keyring, 'test');
       const groupId = toAccountGroupId(walletId, 'test');
 
       expect(() =>
