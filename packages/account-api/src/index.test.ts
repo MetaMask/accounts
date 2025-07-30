@@ -2,16 +2,10 @@
 
 import type { KeyringAccountEntropyMnemonicOptions } from '@metamask/keyring-api';
 import {
-  BtcAccountType,
-  BtcMethod,
-  BtcScope,
   EthAccountType,
   EthMethod,
   EthScope,
   KeyringAccountEntropyTypeOption,
-  SolAccountType,
-  SolMethod,
-  SolScope,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 
@@ -53,69 +47,6 @@ const mockEvmAccount: MockedAccount = {
     importTime: 0,
     keyring: {
       type: 'HD Keyring',
-    },
-  },
-} as const;
-
-const mockBtcP2wpkhAccount: MockedAccount = {
-  id: 'b0f030d8-e101-4b5a-a3dd-13f8ca8ec1db',
-  type: BtcAccountType.P2wpkh,
-  methods: [BtcMethod.SendBitcoin],
-  address: 'bc1qx8ls07cy8j8nrluy2u0xwn7gh8fxg0rg4s8zze',
-  options: mockAccountOptions,
-  scopes: [BtcScope.Mainnet],
-  metadata: {
-    name: 'Account 2',
-    importTime: 0,
-    keyring: {
-      type: 'Snap keyring',
-    },
-    snap: {
-      id: 'mock-btc-snap-id',
-      enabled: true,
-      name: 'Mock Bitcoin Snap',
-    },
-  },
-} as const;
-
-const mockBtcP2trAccount: MockedAccount = {
-  id: 'a20c2e1a-6ff6-40ba-b8e0-ccdb6f9933bb',
-  type: BtcAccountType.P2tr,
-  methods: [BtcMethod.SendBitcoin],
-  address: 'tb1p5cyxnuxmeuwuvkwfem96lxx9wex9kkf4mt9ll6q60jfsnrzqg4sszkqjnh',
-  options: mockAccountOptions,
-  scopes: [BtcScope.Testnet],
-  metadata: {
-    name: 'Account 3',
-    importTime: 0,
-    keyring: {
-      type: 'Snap keyring',
-    },
-    snap: {
-      id: 'mock-btc-snap-id',
-      enabled: true,
-      name: 'Mock Bitcoin Snap',
-    },
-  },
-} as const;
-
-const mockSolAccount: MockedAccount = {
-  id: '3648c675-6172-485b-a196-4668780b1a58',
-  type: SolAccountType.DataAccount,
-  methods: [SolMethod.SignAndSendTransaction],
-  address: 'DphAa9aQdzRSacjh5czkapALbVDZS4Q4iMctE3wbr3c4',
-  options: mockAccountOptions,
-  scopes: [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet],
-  metadata: {
-    name: 'Account 4',
-    importTime: 0,
-    keyring: {
-      type: 'Snap keyring',
-    },
-    snap: {
-      id: 'mock-solana-snap-id',
-      enabled: true,
-      name: 'Mock Solana Snap',
     },
   },
 } as const;
@@ -223,7 +154,6 @@ describe('index', () => {
 
         expect(isMultichainAccountGroupId(groupId)).toBe(false);
       });
-
     });
 
     describe('getGroupIndexFromMultichainAccountId', () => {
