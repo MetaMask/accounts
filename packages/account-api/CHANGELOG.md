@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `MultichainAccount` is now an interface and has been renamed `MultichainAccountGroup` ([#333](https://github.com/MetaMask/accounts/pull/333))
+  - Its implementation will be moved to the [`MultichainAccountService`](https://github.com/MetaMask/core/tree/main/packages/multichain-account-service).
+- `MultichainAccountWallet` is now an interface ([#333](https://github.com/MetaMask/accounts/pull/333))
+  - Its implementation will be moved to the [`MultichainAccountService`](https://github.com/MetaMask/core/tree/main/packages/multichain-account-service).
+
 ## [0.5.0]
 
 ### Added
