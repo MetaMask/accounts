@@ -98,7 +98,7 @@ export function toAccountGroupId<WalletType extends AccountWalletType>(
  */
 export function toDefaultAccountGroupId<WalletType extends AccountWalletType>(
   walletId: AccountWalletIdOf<WalletType>,
-): AccountGroupId {
+): AccountGroupIdOf<WalletType> {
   return toAccountGroupId<WalletType>(
     walletId,
     DEFAULT_ACCOUNT_GROUP_UNIQUE_ID,
