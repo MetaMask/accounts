@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0]
+
 ### Changed
 
 - `MultichainAccount` is now an interface and has been renamed `MultichainAccountGroup` ([#333](https://github.com/MetaMask/accounts/pull/333))
@@ -66,7 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `AccountGroup` and `AccountWallet` ([#307](https://github.com/MetaMask/accounts/pull/307))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.5.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.6.0...HEAD
+[0.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.5.0...@metamask/account-api@0.6.0
 [0.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.4.0...@metamask/account-api@0.5.0
 [0.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.3.0...@metamask/account-api@0.4.0
 [0.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.2.0...@metamask/account-api@0.3.0
