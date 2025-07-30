@@ -1,7 +1,12 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 
 // Circular import are allowed when using `import type`.
-import type { AccountWallet, AccountWalletId } from './wallet';
+import type {
+  AccountWallet,
+  AccountWalletId,
+  AccountWalletIdOf,
+  AccountWalletType,
+} from './wallet';
 
 /**
  * Default account group unique ID.
@@ -65,16 +70,23 @@ export type AccountGroup<Account extends KeyringAccount> = {
 };
 
 /**
+ * Type utility to compute a constrained {@link AccountGroupId} type given a
+ * specifc {@link AccountWalletType}.
+ */
+export type AccountGroupIdOf<WalletType extends AccountWalletType> =
+  `${AccountWalletIdOf<WalletType>}/${string}`;
+
+/**
  * Convert a wallet ID and a unique ID, to a group ID.
  *
  * @param walletId - A wallet ID.
  * @param id - A unique ID.
  * @returns A group ID.
  */
-export function toAccountGroupId(
-  walletId: AccountWalletId,
+export function toAccountGroupId<WalletType extends AccountWalletType>(
+  walletId: AccountWalletIdOf<WalletType>,
   id: string,
-): AccountGroupId {
+): AccountGroupIdOf<WalletType> {
   return `${walletId}/${id}`;
 }
 
@@ -84,8 +96,11 @@ export function toAccountGroupId(
  * @param walletId - A wallet ID.
  * @returns The default group ID.
  */
-export function toDefaultAccountGroupId(
-  walletId: AccountWalletId,
+export function toDefaultAccountGroupId<WalletType extends AccountWalletType>(
+  walletId: AccountWalletIdOf<WalletType>,
 ): AccountGroupId {
-  return toAccountGroupId(walletId, DEFAULT_ACCOUNT_GROUP_UNIQUE_ID);
+  return toAccountGroupId<WalletType>(
+    walletId,
+    DEFAULT_ACCOUNT_GROUP_UNIQUE_ID,
+  );
 }
