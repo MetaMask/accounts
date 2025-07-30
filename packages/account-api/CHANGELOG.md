@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `Account{Wallet,Group}IdOf` type utility ([#331](https://github.com/MetaMask/accounts/pull/331))
+
+### Changed
+
+- Use generic type for `toAccount{Wallet,Group}Id` ([#331](https://github.com/MetaMask/accounts/pull/331))
+
 ## [0.4.0]
 
 ### Added
