@@ -9,19 +9,13 @@ import type { AccountGroup, AccountGroupId } from './group';
  * Each wallet types groups accounts using different criterias.
  */
 export enum AccountWalletType {
-  /**
-   * Wallet grouping accounts based on their entropy source.
-   */
+  /** Wallet grouping accounts based on their entropy source. */
   Entropy = 'entropy',
 
-  /**
-   * Wallet grouping accounts based on their keyring's type.
-   */
+  /** Wallet grouping accounts based on their keyring's type. */
   Keyring = 'keyring',
 
-  /**
-   * Wallet grouping accounts associated with an account management Snap.
-   */
+  /** Wallet grouping accounts associated with an account management Snap. */
   Snap = 'snap',
 }
 
@@ -61,15 +55,22 @@ export type AccountWallet<Account extends KeyringAccount> = {
 };
 
 /**
+ * Type utility to compute a constrained {@link AccountWalletId} type given a
+ * specifc {@link AccountWalletType}.
+ */
+export type AccountWalletIdOf<WalletType extends AccountWalletType> =
+  `${WalletType}:${string}`;
+
+/**
  * Convert a unique ID to a wallet ID for a given type.
  *
  * @param type - A wallet type.
  * @param id - A unique ID.
  * @returns A wallet ID.
  */
-export function toAccountWalletId(
-  type: AccountWalletType,
+export function toAccountWalletId<WalletType extends AccountWalletType>(
+  type: WalletType,
   id: string,
-): AccountWalletId {
+): AccountWalletIdOf<WalletType> {
   return `${type}:${id}`;
 }
