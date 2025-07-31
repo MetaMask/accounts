@@ -1,0 +1,107 @@
+{
+  "name": "@metamask/eth-onekey-keyring",
+  "version": "1.0.0",
+  "description": "A MetaMask compatible keyring, for onekey hardware wallets",
+  "keywords": [
+    "ethereum",
+    "keyring",
+    "onekey",
+    "metamask"
+  ],
+  "homepage": "https://github.com/MetaMask/accounts/blob/main/packages/keyring-eth-onekey/README.md",
+  "bugs": {
+    "url": "https://github.com/MetaMask/accounts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/accounts.git"
+  },
+  "license": "ISC",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "ts-bridge --project tsconfig.build.json --no-references",
+    "build:clean": "yarn build --clean",
+    "build:docs": "typedoc",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-trezor-keyring",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-trezor-keyring",
+    "publish:preview": "yarn npm publish --tag preview",
+    "test": "jest && jest-it-up",
+    "test:clean": "jest --clearCache",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@ethereumjs/tx": "^5.4.0",
+    "@ethereumjs/util": "^9.1.0",
+    "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/utils": "^11.1.0",
+    "@noble/hashes": "^1.7.0",
+    "@onekeyfe/hd-core": "^1.1.1",
+    "@onekeyfe/hd-shared": "^1.1.1",
+    "@onekeyfe/hd-transport": "^1.1.1",
+    "@onekeyfe/hd-web-sdk": "^1.1.1",
+    "bytebuffer": "^5.0.1",
+    "tslib": "^2.6.2"
+  },
+  "devDependencies": {
+    "@ethereumjs/common": "^4.4.0",
+    "@lavamoat/allow-scripts": "^3.2.1",
+    "@lavamoat/preinstall-always-fail": "^2.1.0",
+    "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/keyring-utils": "workspace:^",
+    "@ts-bridge/cli": "^0.6.3",
+    "@types/ethereumjs-tx": "^1.0.1",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.12",
+    "@types/sinon": "^17.0.3",
+    "@types/w3c-web-usb": "^1.0.6",
+    "deepmerge": "^4.2.2",
+    "depcheck": "^1.4.7",
+    "ethereumjs-tx": "^1.3.7",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-it-up": "^3.1.0",
+    "sinon": "^19.0.2",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.2",
+    "typedoc": "^0.25.13",
+    "typescript": "~5.6.3"
+  },
+  "engines": {
+    "node": "^18.18 || >=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "@lavamoat/preinstall-always-fail": false,
+      "ethereumjs-tx>ethereumjs-util>keccak": false,
+      "ethereumjs-tx>ethereumjs-util>secp256k1": false,
+      "hdkey>secp256k1": false,
+      "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>secp256k1": false,
+      "@onekeyfe/hd-core>@onekeyfe/hd-transport>protobufjs": false,
+      "@onekeyfe/hd-web-sdk>@onekeyfe/hd-core>@onekeyfe/hd-transport>protobufjs": false
+    }
+  }
+}

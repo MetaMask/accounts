@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "exactOptionalPropertyTypes": false,
+    // circumvent missing types in @trezor/connect-web, please see https://github.com/trezor/trezor-suite/issues/10389
+    "skipLibCheck": true,
+    "lib": ["ES2020"],
+    "target": "es2017"
+  },
+  "references": [{ "path": "../keyring-utils" }],
+  "include": ["./src"],
+  "exclude": ["./dist/**/*"]
+}
