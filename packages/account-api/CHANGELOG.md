@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** Rename `getGroupIndexFromMultichainAccountId` to `getGroupIndexFromMultichainAccountGroupId` ([#336](https://github.com/MetaMask/accounts/pull/336))
+  - This function was not following the same naming convention (this is an oversight from previous release).
+
 ## [0.6.0]
 
 ### Changed
