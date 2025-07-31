@@ -95,7 +95,7 @@ export function isMultichainAccountGroupId(
  * @param id - Multichain account ID.
  * @returns The multichain account index if extractable, undefined otherwise.
  */
-export function getGroupIndexFromMultichainAccountId(
+export function getGroupIndexFromMultichainAccountGroupId(
   id: MultichainAccountGroupId,
 ): number {
   const matched = id.match(MULTICHAIN_ACCOUNT_GROUP_ID_REGEX);

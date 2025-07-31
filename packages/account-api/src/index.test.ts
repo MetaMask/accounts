@@ -15,7 +15,7 @@ import {
   toAccountGroupId,
   toAccountWalletId,
   toDefaultAccountGroupId,
-  getGroupIndexFromMultichainAccountId,
+  getGroupIndexFromMultichainAccountGroupId,
   isBip44Account,
   toMultichainAccountWalletId,
   toMultichainAccountGroupId,
@@ -163,7 +163,9 @@ describe('index', () => {
         const walletId = toMultichainAccountWalletId('test');
         const groupId = toMultichainAccountGroupId(walletId, groupIndex);
 
-        expect(getGroupIndexFromMultichainAccountId(groupId)).toBe(groupIndex);
+        expect(getGroupIndexFromMultichainAccountGroupId(groupId)).toBe(
+          groupIndex,
+        );
       });
 
       it('throws if it cannot extract group index', () => {
@@ -171,7 +173,7 @@ describe('index', () => {
         const groupId = toAccountGroupId(walletId, 'test');
 
         expect(() =>
-          getGroupIndexFromMultichainAccountId(
+          getGroupIndexFromMultichainAccountGroupId(
             // Force the error case even though, type wise, this should not
             // be possible!
             groupId as unknown as MultichainAccountGroupId,
