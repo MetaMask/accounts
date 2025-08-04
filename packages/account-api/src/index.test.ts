@@ -20,6 +20,7 @@ import {
   toMultichainAccountWalletId,
   toMultichainAccountGroupId,
   isMultichainAccountGroupId,
+  assertIsBip44Account,
 } from './api';
 
 type MockedAccount = Bip44Account<InternalAccount>;
@@ -74,6 +75,7 @@ describe('index', () => {
     describe('isBip44Account', () => {
       it('returns true if the account is BIP-44 compatible', () => {
         expect(isBip44Account(mockEvmAccount)).toBe(true);
+        expect(() => assertIsBip44Account(mockEvmAccount)).not.toThrow();
       });
 
       it.each([
@@ -134,6 +136,9 @@ describe('index', () => {
           };
 
           expect(isBip44Account(account)).toBe(false);
+          expect(() => assertIsBip44Account(account)).toThrow(
+            'Account is not BIP-44 compatible',
+          );
         },
       );
     });

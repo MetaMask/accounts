@@ -31,3 +31,17 @@ export function isBip44Account<Account extends KeyringAccount>(
     KeyringAccountEntropyMnemonicOptionsStruct,
   );
 }
+
+/**
+ * Asserts a keyring account is BIP-44 compatible.
+ *
+ * @param account - Keyring account to check.
+ * @throws If the keyring account is not compatible.
+ */
+export function assertIsBip44Account<Account extends KeyringAccount>(
+  account: Account,
+): asserts account is Bip44Account<Account> {
+  if (!isBip44Account(account)) {
+    throw new Error('Account is not BIP-44 compatible');
+  }
+}
