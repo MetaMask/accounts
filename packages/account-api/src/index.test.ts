@@ -156,7 +156,7 @@ describe('index', () => {
       });
     });
 
-    describe('getGroupIndexFromMultichainAccountId', () => {
+    describe('getGroupIndexFromMultichainAccountGroupId', () => {
       it('extracts the group index from its group id', () => {
         const groupIndex = 2;
 
