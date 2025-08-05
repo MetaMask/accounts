@@ -16,7 +16,7 @@ import {
   isMultichainAccountGroupId,
   assertIsBip44Account,
 } from './api';
-import { MOCK_HD_ACCOUNT_1 } from './tests/accounts';
+import { MOCK_HD_ACCOUNT_1 } from './mocks/accounts';
 
 const mockEntropySource = 'mock-entropy-source';
 

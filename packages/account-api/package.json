@@ -26,14 +26,14 @@
         "default": "./dist/index.cjs"
       }
     },
-    "./tests": {
+    "./mocks": {
       "import": {
-        "types": "./dist/tests/index.d.mts",
-        "default": "./dist/tests/index.mjs"
+        "types": "./dist/mocks/index.d.mts",
+        "default": "./dist/mocks/index.mjs"
       },
       "require": {
-        "types": "./dist/tests/index.d.cts",
-        "default": "./dist/tests/index.cjs"
+        "types": "./dist/mocks/index.d.cts",
+        "default": "./dist/mocks/index.cjs"
       }
     }
   },
