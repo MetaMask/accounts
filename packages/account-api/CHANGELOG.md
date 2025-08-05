@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING:** Rename `MultichainAccountGroup.index` to `MultichainAccountGroup.groupIndex` ([#344](https://github.com/MetaMask/accounts/pull/344))
+- **BREAKING:** Move `get` and `select` methods to the `AccountGroup` type ([#343](https://github.com/MetaMask/accounts/pull/343))
 
 ## [0.7.0]
 
