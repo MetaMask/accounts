@@ -1,15 +1,9 @@
 /* eslint-disable jsdoc/require-jsdoc */
 
 import type { KeyringAccountEntropyMnemonicOptions } from '@metamask/keyring-api';
-import {
-  EthAccountType,
-  EthMethod,
-  EthScope,
-  KeyringAccountEntropyTypeOption,
-} from '@metamask/keyring-api';
-import type { InternalAccount } from '@metamask/keyring-internal-api';
+import { KeyringAccountEntropyTypeOption } from '@metamask/keyring-api';
 
-import type { MultichainAccountGroupId, Bip44Account } from './api';
+import type { MultichainAccountGroupId } from './api';
 import {
   AccountWalletType,
   toAccountGroupId,
@@ -22,35 +16,9 @@ import {
   isMultichainAccountGroupId,
   assertIsBip44Account,
 } from './api';
-
-type MockedAccount = Bip44Account<InternalAccount>;
+import { MOCK_HD_ACCOUNT_1 } from './mocks/accounts';
 
 const mockEntropySource = 'mock-entropy-source';
-
-const mockAccountOptions: MockedAccount['options'] = {
-  entropy: {
-    type: KeyringAccountEntropyTypeOption.Mnemonic,
-    id: mockEntropySource,
-    groupIndex: 0,
-    derivationPath: '',
-  },
-} as const;
-
-const mockEvmAccount: MockedAccount = {
-  id: '4b660336-b935-44cc-bdc4-642648279ac7',
-  type: EthAccountType.Eoa,
-  methods: [EthMethod.SignTransaction, EthMethod.PersonalSign],
-  address: '0x2A38B198895f358c3232BB6c661aA4eFB1d2e2fc',
-  options: mockAccountOptions,
-  scopes: [EthScope.Eoa],
-  metadata: {
-    name: 'Account 1',
-    importTime: 0,
-    keyring: {
-      type: 'HD Keyring',
-    },
-  },
-} as const;
 
 describe('index', () => {
   describe('toAccountGroupId', () => {
@@ -74,8 +42,8 @@ describe('index', () => {
   describe('bip44', () => {
     describe('isBip44Account', () => {
       it('returns true if the account is BIP-44 compatible', () => {
-        expect(isBip44Account(mockEvmAccount)).toBe(true);
-        expect(() => assertIsBip44Account(mockEvmAccount)).not.toThrow();
+        expect(isBip44Account(MOCK_HD_ACCOUNT_1)).toBe(true);
+        expect(() => assertIsBip44Account(MOCK_HD_ACCOUNT_1)).not.toThrow();
       });
 
       it.each([
@@ -127,7 +95,7 @@ describe('index', () => {
         'returns false if the account is not BIP-44 compatible with: $tc',
         ({ options }) => {
           const account = {
-            ...mockEvmAccount,
+            ...MOCK_HD_ACCOUNT_1,
             options: {
               entropy:
                 // Force the error case here.
