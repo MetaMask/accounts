@@ -244,7 +244,7 @@ describe('index', () => {
         },
       ])(
         'gets internal account from selector: $tc',
-        async ({ selector, expected }) => {
+        ({ selector, expected }) => {
           expect(selectOne(accounts, selector)).toStrictEqual(expected);
         },
       );
@@ -275,14 +275,33 @@ describe('index', () => {
       ] as {
         tc: string;
         selector: AccountSelector<Bip44Account<KeyringAccount>>;
-      }[])(
-        'gets undefined if not matching selector: $tc',
-        async ({ selector }) => {
-          expect(selectOne(accounts, selector)).toBeUndefined();
-        },
-      );
+      }[])('gets undefined if not matching selector: $tc', ({ selector }) => {
+        expect(selectOne(accounts, selector)).toBeUndefined();
+      });
 
-      it('throws if multiple candidates are found', async () => {
+      it('matches account when using empty scopes', () => {
+        const mockAccountWithNoScopes = {
+          ...MOCK_WALLET_1_EVM_ACCOUNT,
+          scopes: [],
+        };
+
+        expect(
+          selectOne([mockAccountWithNoScopes], { scopes: [] }),
+        ).toStrictEqual(mockAccountWithNoScopes);
+      });
+
+      it('matches account when using empty methods', () => {
+        const mockAccountWithNoMethods = {
+          ...MOCK_WALLET_1_EVM_ACCOUNT,
+          methods: [],
+        };
+
+        expect(
+          selectOne([mockAccountWithNoMethods], { methods: [] }),
+        ).toStrictEqual(mockAccountWithNoMethods);
+      });
+
+      it('throws if multiple candidates are found', () => {
         const selector = {
           scopes: [EthScope.Mainnet, SolScope.Mainnet],
         };
@@ -397,7 +416,7 @@ describe('index', () => {
         expected: Bip44Account<KeyringAccount>[];
       }[])(
         'selects internal accounts from selector: $tc',
-        async ({ selector, expected }) => {
+        ({ selector, expected }) => {
           expect(select(accounts, selector)).toStrictEqual(expected);
         },
       );

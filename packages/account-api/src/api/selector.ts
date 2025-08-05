@@ -2,6 +2,17 @@ import type { KeyringAccount } from '@metamask/keyring-api';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
 /**
+ * Utility functions to check that both arrays are empty, and thus, identical.
+ *
+ * @param a - First array.
+ * @param b - Second array.
+ * @returns True if both arrays are empty, false otherwise.
+ */
+function areBothEmpty<Value>(a: Value[], b: Value[]): boolean {
+  return a.length === 0 && b.length === 0;
+}
+
+/**
  * Selector to query a specific account based on some criteria.
  */
 export type AccountSelector<Account extends KeyringAccount> = {
@@ -82,17 +93,19 @@ export function select<Account extends KeyringAccount>(
       selected &&= account.type === selector.type;
     }
     if (selector.methods !== undefined) {
-      selected &&= selector.methods.some((method) =>
-        account.methods.includes(method),
-      );
+      selected &&=
+        areBothEmpty(selector.methods, account.methods) ||
+        selector.methods.some((method) => account.methods.includes(method));
     }
     if (selector.scopes !== undefined) {
-      selected &&= selector.scopes.some((scope) => {
-        return (
-          // This will cover specific EVM EOA scopes as well.
-          isScopeEqualToAny(scope, account.scopes)
-        );
-      });
+      selected &&=
+        areBothEmpty(selector.scopes, account.scopes) ||
+        selector.scopes.some((scope) => {
+          return (
+            // This will cover specific EVM EOA scopes as well.
+            isScopeEqualToAny(scope, account.scopes)
+          );
+        });
     }
 
     return selected;
