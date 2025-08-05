@@ -2,7 +2,7 @@ import type { KeyringAccount } from '@metamask/keyring-api';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
 /**
- * Utility functions to check that both arrays are empty, and thus, identical.
+ * Checks that both arrays are empty, and thus, identical.
  *
  * @param a - First array.
  * @param b - Second array.
