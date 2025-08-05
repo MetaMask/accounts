@@ -1,3 +1,5 @@
+// istanbul ignore file
+
 import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 import {
   BtcAccountType,
