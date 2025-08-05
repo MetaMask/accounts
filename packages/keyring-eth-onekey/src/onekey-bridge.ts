@@ -9,7 +9,6 @@ import type {
   EVMSignMessageParams,
   EVMSignTypedDataParams,
   EVMGetPublicKeyParams,
-  Features,
 } from '@onekeyfe/hd-core';
 import type { EthereumMessageSignature } from '@onekeyfe/hd-transport';
 
@@ -39,17 +38,11 @@ export type OneKeyBridge = {
 
   updateTransportMethod(transportType: string): Promise<void>;
 
-  getDeviceFeatures(): Response<Features>;
-
   // OneKeySdk.getPublicKey has two overloads
   // It is not possible to extract them from the library using utility types
   getPublicKey(
     params: Params<EVMGetPublicKeyParams>,
   ): Response<{ publicKey: string; chainCode: string }>;
-
-  batchGetPublicKey(
-    params: Params<any> & { bundle: EVMGetPublicKeyParams[] },
-  ): Response<{ pub: string }[]>;
 
   getPassphraseState(): Response<string | undefined>;
 
