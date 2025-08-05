@@ -9,7 +9,6 @@ import type {
   ConnectSettings,
   EthereumSignTypedDataMessage,
   EthereumSignTypedDataTypes,
-  EVMGetPublicKeyParams,
   EVMSignedTx,
   EVMSignTransactionParams,
 } from '@onekeyfe/hd-core';
@@ -17,6 +16,7 @@ import type {
 import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import { EventEmitter } from 'events';
+import HDKey from 'hdkey';
 
 import { ONEKEY_HARDWARE_UI_EVENT } from './constants';
 import type { OneKeyBridge } from './onekey-bridge';
@@ -129,6 +129,8 @@ export class OneKeyKeyring extends EventEmitter {
 
   unlockedAccount = 0;
 
+  hdk = new HDKey();
+
   accounts: readonly string[] = [];
 
   accountDetails: Record<string, AccountDetails> = {};
@@ -194,16 +196,17 @@ export class OneKeyKeyring extends EventEmitter {
     this.hdPath = hdPath;
   }
 
+  lock(): void {
+    this.hdk = new HDKey();
+  }
+
   isUnlocked(): boolean {
-    return false;
+    return Boolean(this.hdk?.publicKey);
   }
 
   async unlock(): Promise<string> {
-    const features = await this.bridge.getDeviceFeatures();
-    if (features.success) {
-      if (features.payload.unlocked) {
-        return 'already unlocked';
-      }
+    if (this.isUnlocked()) {
+      return 'already unlocked';
     }
 
     return new Promise((resolve, reject) => {
@@ -219,7 +222,24 @@ export class OneKeyKeyring extends EventEmitter {
             return;
           }
           this.passphraseState = passphraseResponse.payload;
-          resolve('just unlocked');
+
+          // eslint-disable-next-line no-void
+          void this.bridge
+            .getPublicKey({
+              showOnOneKey: false,
+              chainId: 1,
+              path: this.#getBasePath(),
+              passphraseState: this.passphraseState,
+            })
+            .then(async (res) => {
+              if (res.success) {
+                this.hdk.publicKey = Buffer.from(res.payload.publicKey, 'hex');
+                this.hdk.chainCode = Buffer.from(res.payload.chainCode, 'hex');
+                resolve('just unlocked');
+              } else {
+                reject(new Error('getPublicKey failed'));
+              }
+            });
         })
         .catch((error) => {
           reject(new Error(error?.toString() || 'Unknown error'));
@@ -237,41 +257,32 @@ export class OneKeyKeyring extends EventEmitter {
       const to = from + numberOfAccounts;
       const newAccounts: string[] = [];
 
-      const paths: string[] = [];
-      for (let i = from; i < to; i++) {
-        paths.push(this.#getPathForIndex(i));
-      }
-
-      // eslint-disable-next-line no-void
-      void this.#batchGetAddress(paths, this.passphraseState)
-        .then((addresses) => {
-          if (addresses.length !== paths.length) {
+      try {
+        for (let i = from; i < to; i++) {
+          const address = this.#addressFromIndex(i);
+          const hdPath = this.#getPathForIndex(i);
+          if (typeof address === 'undefined') {
             throw new Error('Unknown error');
           }
-
-          for (let i = 0; i < paths.length; i++) {
-            const address = addresses[i];
-            if (typeof address === 'undefined') {
-              throw new Error('Unknown error');
-            }
-            if (!this.accounts.includes(address)) {
-              this.accounts = [...this.accounts, address];
-              newAccounts.push(address);
-            }
-            if (!this.accountDetails[address]) {
-              this.accountDetails[address] = {
-                index: i,
-                hdPath: paths[i] ?? '',
-                passphraseState: this.passphraseState,
-              };
-            }
-            this.page = 0;
+          if (!this.accounts.includes(address)) {
+            this.accounts = [...this.accounts, address];
+            newAccounts.push(address);
           }
-          resolve(newAccounts);
-        })
-        .catch((error: Error) => {
-          reject(error);
-        });
+          if (!this.accountDetails[address]) {
+            this.accountDetails[address] = {
+              index: from + i,
+              hdPath,
+              passphraseState: this.passphraseState,
+            };
+          }
+          this.page = 0;
+        }
+
+        resolve(newAccounts);
+      } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
+        reject(error);
+      }
     });
   }
 
@@ -565,29 +576,15 @@ export class OneKeyKeyring extends EventEmitter {
 
       this.unlock()
         .then(async () => {
-          const paths = [];
           for (let i = from; i < to; i++) {
-            paths.push(this.#getPathForIndex(i));
-          }
-
-          // this.passphraseState = passphraseState;
-          const addresses = await this.#batchGetAddress(
-            paths,
-            this.passphraseState,
-          );
-
-          if (addresses.length !== paths.length) {
-            throw new Error('Unknown error');
-          }
-          for (let i = 0; i < paths.length; i++) {
-            const address = addresses[i];
+            const address = this.#addressFromIndex(i);
             if (typeof address === 'undefined') {
               throw new Error('Unknown error');
             }
             accounts.push({
+              index: from + i,
               address,
               balance: null,
-              index: from + i,
             });
           }
           resolve(accounts);
@@ -599,36 +596,6 @@ export class OneKeyKeyring extends EventEmitter {
     });
   }
 
-  async #batchGetAddress(
-    paths: string[],
-    passphraseState: string | undefined,
-  ): Promise<string[]> {
-    const batchParams: EVMGetPublicKeyParams[] = paths.map((path) => ({
-      path,
-      showOnOneKey: false,
-    }));
-
-    const response = await this.bridge.batchGetPublicKey({
-      bundle: batchParams,
-      useBatch: true,
-      passphraseState,
-      useEmptyPassphrase: isEmptyPassphrase(passphraseState),
-      skipPassphraseCheck: true,
-    });
-    if (response.success) {
-      return response.payload.map((item) => {
-        const address = ethUtil.publicToAddress(
-          Buffer.from(item.pub, 'hex'),
-          true,
-        );
-        return ethUtil.toChecksumAddress(
-          addHexPrefix(Buffer.from(address).toString('hex')),
-        );
-      });
-    }
-    throw new Error(response.payload?.error || 'Unknown error');
-  }
-
   #accountDetailsFromAddress(address: string): AccountDetails {
     const checksummedAddress = ethUtil.toChecksumAddress(address);
     const accountDetails = this.accountDetails[checksummedAddress];
@@ -636,6 +603,34 @@ export class OneKeyKeyring extends EventEmitter {
       throw new Error('Unknown address');
     }
     return accountDetails;
+  }
+
+  #addressFromIndex(i: number): string {
+    const dkey = this.hdk.derive(this.#getDerivePath(i));
+    const address = ethUtil.bytesToHex(
+      ethUtil.publicToAddress(dkey.publicKey, true),
+    );
+    return ethUtil.toChecksumAddress(address);
+  }
+
+  #getDerivePath(index: number): string {
+    if (this.#isLedgerLiveHdPath()) {
+      throw new Error('Ledger Live is not supported');
+    }
+    if (this.#isLedgerLegacyHdPath()) {
+      return `${pathBase}/${index}`;
+    }
+    if (this.#isStandardBip44HdPath()) {
+      return `${pathBase}/0/${index}`;
+    }
+    return `${pathBase}/${index}`;
+  }
+
+  #getBasePath(): string {
+    if (this.#isLedgerLiveHdPath()) {
+      throw new Error('Ledger Live is not supported');
+    }
+    return "m/44'/60'/0'";
   }
 
   #getPathForIndex(index: number): string {

@@ -5,7 +5,6 @@ import { UI_REQUEST, UI_RESPONSE } from '@onekeyfe/hd-core';
 import type {
   ConnectSettings,
   CoreApi,
-  EVMGetPublicKeyParams,
   EVMSignedTx,
   EVMSignMessageParams,
   EVMSignTransactionParams,
@@ -15,10 +14,7 @@ import type {
   Unsuccessful,
 } from '@onekeyfe/hd-core';
 import { HardwareErrorCode } from '@onekeyfe/hd-shared';
-import type {
-  EthereumMessageSignature,
-  Features,
-} from '@onekeyfe/hd-transport';
+import type { EthereumMessageSignature } from '@onekeyfe/hd-transport';
 
 import { ONEKEY_HARDWARE_UI_EVENT } from './constants';
 import { OneKeyBridge } from './onekey-bridge';
@@ -130,25 +126,6 @@ export class OneKeyWebBridge implements OneKeyBridge {
     return this.model;
   }
 
-  async getDeviceFeatures(): Promise<
-    | {
-        success: true;
-        payload: Features;
-      }
-    | {
-        success: false;
-        payload: { error: string; code?: string | number };
-      }
-  > {
-    if (!this.sdk) {
-      return {
-        success: false,
-        payload: { error: 'SDK not initialized', code: 800 },
-      };
-    }
-    return await this.sdk.getFeatures();
-  }
-
   async getPublicKey(params: {
     path: string;
     coin: string;
@@ -183,47 +160,6 @@ export class OneKeyWebBridge implements OneKeyBridge {
               typeof result?.payload?.code === 'number'
                 ? result?.payload?.code
                 : undefined,
-          },
-        };
-      });
-  }
-
-  async batchGetPublicKey(
-    params: Params<any> & { bundle: EVMGetPublicKeyParams[] },
-  ): Promise<
-    | { success: false; payload: { error: string; code?: string | number } }
-    | { success: true; payload: { pub: string }[] }
-  > {
-    if (!this.sdk) {
-      return {
-        success: false,
-        payload: { error: 'SDK not initialized', code: 800 },
-      };
-    }
-    return await this.sdk
-      .evmGetPublicKey('', '', {
-        ...params,
-        skipPassphraseCheck: true,
-      })
-      .then((result) => {
-        if (result?.success) {
-          if (Array.isArray(result.payload)) {
-            return {
-              success: true,
-              payload: result.payload.map((item) => ({ pub: item.pub })),
-            };
-          }
-          return {
-            success: false,
-            payload: { error: 'No public key found', code: 800 },
-          };
-        }
-        this.handleBlockErrorEvent(result);
-        return {
-          success: false,
-          payload: {
-            error: result?.payload.error ?? '',
-            code: result?.payload.code ?? undefined,
           },
         };
       });
