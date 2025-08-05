@@ -6,7 +6,6 @@ import type {
 } from './wallet';
 import type { Bip44Account } from '../bip44';
 import type { AccountGroup, AccountGroupType } from '../group';
-import type { AccountSelector } from '../selector';
 import { AccountWalletType } from '../wallet';
 
 const MULTICHAIN_ACCOUNT_GROUP_ID_REGEX = new RegExp(
@@ -44,23 +43,6 @@ export type MultichainAccountGroup<
    * Multichain account group index.
    */
   get index(): number;
-
-  /**
-   * Query an account matching the selector.
-   *
-   * @param selector - Query selector.
-   * @returns The account matching the selector or undefined if not matching.
-   * @throws If multiple accounts match the selector.
-   */
-  get(selector: AccountSelector<Account>): Account | undefined;
-
-  /**
-   * Query accounts matching the selector.
-   *
-   * @param selector - Query selector.
-   * @returns The accounts matching the selector.
-   */
-  select(selector: AccountSelector<Account>): Account[];
 };
 
 /**

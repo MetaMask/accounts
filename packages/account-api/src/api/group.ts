@@ -1,6 +1,7 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 
 // Circular import are allowed when using `import type`.
+import type { AccountSelector } from './selector';
 import type {
   AccountWallet,
   AccountWalletId,
@@ -67,6 +68,23 @@ export type AccountGroup<Account extends KeyringAccount> = {
    * @returns The account or undefined if not found.
    */
   getAccount(id: Account['id']): Account | undefined;
+
+  /**
+   * Query an account matching the selector.
+   *
+   * @param selector - Query selector.
+   * @returns The account matching the selector or undefined if not matching.
+   * @throws If multiple accounts match the selector.
+   */
+  get(selector: AccountSelector<Account>): Account | undefined;
+
+  /**
+   * Query accounts matching the selector.
+   *
+   * @param selector - Query selector.
+   * @returns The accounts matching the selector.
+   */
+  select(selector: AccountSelector<Account>): Account[];
 };
 
 /**
