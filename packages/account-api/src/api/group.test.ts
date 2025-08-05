@@ -1,4 +1,4 @@
-import { toAccountGroupId, toDefaultAccountGroupId } from './group';
+import { DEFAULT_ACCOUNT_GROUP_UNIQUE_ID, toAccountGroupId, toDefaultAccountGroupId } from './group';
 import { AccountWalletType, toAccountWalletId } from './wallet';
 
 describe('group', () => {
@@ -7,7 +7,8 @@ describe('group', () => {
       const walletId = toAccountWalletId(AccountWalletType.Keyring, 'test');
       const groupId = toAccountGroupId(walletId, 'test');
 
-      expect(groupId).toContain(walletId);
+      expect(groupId.startsWith(walletId)).toBe(true);
+      expect(groupId.endsWith('/test')).toBe(true);
     });
   });
 
@@ -16,7 +17,8 @@ describe('group', () => {
       const walletId = toAccountWalletId(AccountWalletType.Keyring, 'test');
       const groupId = toDefaultAccountGroupId(walletId);
 
-      expect(groupId).toContain(walletId);
+      expect(groupId.startsWith(walletId)).toBe(true);
+      expect(groupId.endsWith(`/${DEFAULT_ACCOUNT_GROUP_UNIQUE_ID}`)).toBe(true);
     });
   });
 });

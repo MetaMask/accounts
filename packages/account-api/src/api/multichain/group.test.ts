@@ -18,6 +18,7 @@ describe('multichain', () => {
         const walletId = toMultichainAccountWalletId(MOCK_ENTROPY_SOURCE_1);
         const groupId = toMultichainAccountGroupId(walletId, groupIndex);
 
+        expect(groupId.startsWith(walletId)).toBe(true);
         expect(groupId.endsWith(`/${groupIndex}`)).toBe(true);
       });
     });

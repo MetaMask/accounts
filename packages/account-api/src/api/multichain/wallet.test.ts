@@ -4,10 +4,10 @@ import { MOCK_ENTROPY_SOURCE_1 } from '../../mocks';
 describe('multichain', () => {
   describe('wallet', () => {
     describe('toMultichainAccountWalletId', () => {
-      it('returns true if a group id is a multichain group id', () => {
+      it('computes a multichain account wallet id with an entropy source', () => {
         const walletId = toMultichainAccountWalletId(MOCK_ENTROPY_SOURCE_1);
 
-        expect(walletId).toContain(MOCK_ENTROPY_SOURCE_1);
+        expect(walletId.endsWith(`:${MOCK_ENTROPY_SOURCE_1}`)).toBe(true);
       });
     });
   });
