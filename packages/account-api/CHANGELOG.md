@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `assertIsBip44Account` ([#339](https://github.com/MetaMask/accounts/pull/339))
 
+### Changed
+
+- **BREAKING:** Move `get` and `select` methods to the `AccountGroup` type ([#343](https://github.com/MetaMask/accounts/pull/343))
+
 ## [0.7.0]
 
 ### Added
