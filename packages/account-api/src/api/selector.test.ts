@@ -121,6 +121,28 @@ describe('selector', () => {
       },
     );
 
+    it('matches account when using empty scopes', () => {
+      const mockAccountWithNoScopes = {
+        ...MOCK_WALLET_1_EVM_ACCOUNT,
+        scopes: [],
+      };
+
+      expect(
+        selectOne([mockAccountWithNoScopes], { scopes: [] }),
+      ).toStrictEqual(mockAccountWithNoScopes);
+    });
+
+    it('matches account when using empty methods', () => {
+      const mockAccountWithNoMethods = {
+        ...MOCK_WALLET_1_EVM_ACCOUNT,
+        methods: [],
+      };
+
+      expect(
+        selectOne([mockAccountWithNoMethods], { methods: [] }),
+      ).toStrictEqual(mockAccountWithNoMethods);
+    });
+
     it('throws if multiple candidates are found', async () => {
       const selector = {
         scopes: [EthScope.Mainnet, SolScope.Mainnet],
