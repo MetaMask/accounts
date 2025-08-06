@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0]
+
 ### Added
 
 - Add `selectOne` and `select` selectors functions ([#342](https://github.com/MetaMask/accounts/pull/342))
   - Those functions can be used to filter a list of accounts using an `AccountSelector` object.
+- Add common mock account definitions + `MockAccountBuilder` ([#341](https://github.com/MetaMask/accounts/pull/341))
+  - You can now import/use them with `@metamask/account-api/mocks`.
 - Add `assertIsBip44Account` ([#339](https://github.com/MetaMask/accounts/pull/339))
 
 ### Changed
@@ -90,7 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `AccountGroup` and `AccountWallet` ([#307](https://github.com/MetaMask/accounts/pull/307))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.7.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.8.0...HEAD
+[0.8.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.7.0...@metamask/account-api@0.8.0
 [0.7.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.6.0...@metamask/account-api@0.7.0
 [0.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.5.0...@metamask/account-api@0.6.0
 [0.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.4.0...@metamask/account-api@0.5.0
