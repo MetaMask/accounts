@@ -1,16 +1,7 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
-/**
- * Checks that both arrays are empty, and thus, identical.
- *
- * @param a - First array.
- * @param b - Second array.
- * @returns True if both arrays are empty, false otherwise.
- */
-function areBothEmpty<Value>(a: Value[], b: Value[]): boolean {
-  return a.length === 0 && b.length === 0;
-}
+import { areBothEmpty } from './internal';
 
 /**
  * Selector to query a specific account based on some criteria.

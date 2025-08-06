@@ -4,3 +4,5 @@ export * from './wallet';
 export type * from './provider';
 export * from './selector';
 export * from './multichain';
+
+// NOTE: Do not export the `internal` sub-path.
