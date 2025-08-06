@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** Bump `@metamask/keyring-api` from `^19.0.0` to `^20.0.0` ([#347](https://github.com/MetaMask/accounts/pull/347))
   - Add generic account type.
+- **BREAKING:** Bump `@metamask/keyring-snap-client` from `^6.0.0` to `^7.0.0` ([#347](https://github.com/MetaMask/accounts/pull/347))
+  - Add generic account type.
+- **BREAKING:** Bump `@metamask/keyring-internal-api` from `^7.0.0` to `^8.0.0` ([#347](https://github.com/MetaMask/accounts/pull/347))
+  - Add generic account type.
 
 ## [5.0.0]
 
