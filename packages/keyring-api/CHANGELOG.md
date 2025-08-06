@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [20.0.0]
 
+### Changed
+
+- **BREAKING:** Add generic account type ([#323](https://github.com/metamask/accounts/pull/323))
+  - This change was not properly reported as breaking on the `19.1.0`.
+  - The `KeyringAccountType` union now has a new member type `any:account`.
+
 ## [19.1.0]
 
 ### Added

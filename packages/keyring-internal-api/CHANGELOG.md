@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.0.0]
 
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^19.1.0` to `^20.0.0` ([#347](https://github.com/MetaMask/accounts/pull/347))
+  - This change was not properly reported as breaking on the `7.1.0`.
+  - Add generic account type.
+
 ## [7.1.0]
 
 ### Changed
