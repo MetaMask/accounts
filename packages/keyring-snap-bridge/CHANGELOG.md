@@ -12,9 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING:** Bump `@metamask/keyring-api` from `^19.0.0` to `^20.0.0` ([#347](https://github.com/MetaMask/accounts/pull/347))
-  - This is similar to version `15.0.0`, but since the `@metamask/keyring-api` was not versionned as a new major, we have to re-bump it here again.
+  - This is similar to version `15.0.0`, but since the `@metamask/keyring-api` was not versioned as a new major, we have to re-bump it here again.
 - **BREAKING:** Bump `@metamask/keyring-internal-api` from `^7.0.0` to `^8.0.0` ([#347](https://github.com/MetaMask/accounts/pull/347))
-  - This is similar to version `15.0.0`, but since the `@metamask/keyring-internal-api` was not versionned as a new major, we have to re-bump it here again.
+  - This is similar to version `15.0.0`, but since the `@metamask/keyring-internal-api` was not versioned as a new major, we have to re-bump it here again.
 
 ## [15.0.0]
 
