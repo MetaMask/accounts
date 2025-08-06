@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `selectOne` and `select` selectors functions ([#342](https://github.com/MetaMask/accounts/pull/342))
+  - Those functions can be used to filter a list of accounts using an `AccountSelector` object.
 - Add `assertIsBip44Account` ([#339](https://github.com/MetaMask/accounts/pull/339))
 
 ### Changed
