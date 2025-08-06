@@ -42,7 +42,7 @@ export type MultichainAccountGroup<
   /**
    * Multichain account group index.
    */
-  get index(): number;
+  get groupIndex(): number;
 };
 
 /**
