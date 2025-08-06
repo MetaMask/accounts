@@ -9,16 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.0]
 
-### Uncategorized
-
-- refactor(account-api): split tests ([#345](https://github.com/MetaMask/accounts/pull/345))
-- feat(account-api/mocks): add common mock account definitions + `MockAccountBuilder` ([#341](https://github.com/MetaMask/accounts/pull/341))
-- test: fix describe text ([#340](https://github.com/MetaMask/accounts/pull/340))
-
 ### Added
 
 - Add `selectOne` and `select` selectors functions ([#342](https://github.com/MetaMask/accounts/pull/342))
   - Those functions can be used to filter a list of accounts using an `AccountSelector` object.
+- Add common mock account definitions + `MockAccountBuilder` ([#341](https://github.com/MetaMask/accounts/pull/341))
+  - You can now import/use them with `@metamask/account-api/mocks`.
 - Add `assertIsBip44Account` ([#339](https://github.com/MetaMask/accounts/pull/339))
 
 ### Changed
