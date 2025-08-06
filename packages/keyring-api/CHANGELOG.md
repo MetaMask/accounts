@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [20.0.0]
+
+### Changed
+
+- **BREAKING:** Add generic account type ([#323](https://github.com/metamask/accounts/pull/323))
+  - This change was not properly reported as breaking on the `19.1.0`.
+  - The `KeyringAccountType` union now has a new member type `any:account`.
+
 ## [19.1.0]
 
 ### Added
@@ -598,7 +606,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@19.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@20.0.0...HEAD
+[20.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@19.1.0...@metamask/keyring-api@20.0.0
 [19.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@19.0.0...@metamask/keyring-api@19.1.0
 [19.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@18.0.0...@metamask/keyring-api@19.0.0
 [18.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@17.6.0...@metamask/keyring-api@18.0.0
