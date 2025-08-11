@@ -1,18 +1,18 @@
 export {
   QrKeyringScannerBridge,
-  QrKeyringScannerBridgeOptions,
+  type QrKeyringScannerBridgeOptions,
 } from './qr-keyring-scanner-bridge';
 export {
   QrKeyringDeferredPromiseBridge,
-  QrKeyringDeferredPromiseBridgeOptions,
+  type QrKeyringDeferredPromiseBridgeOptions,
 } from './qr-keyring-deferred-promise-bridge';
 export {
   QrKeyring,
-  QrScanRequest,
-  QrKeyringBridge,
-  QrKeyringOptions,
-  QrSignatureRequest,
-  QrScanRequestType,
-  SerializedQrKeyringState,
   QR_KEYRING_TYPE,
+  QrScanRequestType,
+  type QrScanRequest,
+  type QrKeyringBridge,
+  type QrKeyringOptions,
+  type QrSignatureRequest,
+  type SerializedQrKeyringState,
 } from './qr-keyring';
