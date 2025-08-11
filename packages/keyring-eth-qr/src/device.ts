@@ -3,7 +3,6 @@ import {
   type TypedTransaction,
   TransactionType,
   type TypedTxData,
-  type FeeMarketEIP1559Transaction,
   TransactionFactory,
 } from '@ethereumjs/tx';
 import { publicToAddress } from '@ethereumjs/util';
