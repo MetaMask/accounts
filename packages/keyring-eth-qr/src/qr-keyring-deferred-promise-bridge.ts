@@ -7,7 +7,7 @@ import type {
   SerializedUR,
 } from './qr-keyring';
 
-export type QrKeyringScannerOptions = {
+export type QrKeyringDeferredPromiseBridgeOptions = {
   /**
    * Callback invoked when a scan request is made.
    * This can be used to trigger the actual scanning process.
@@ -44,7 +44,7 @@ export class QrKeyringDeferredPromiseBridge implements QrKeyringBridge {
     onScanRequested,
     onScanResolved,
     onScanRejected,
-  }: QrKeyringScannerOptions = {}) {
+  }: QrKeyringDeferredPromiseBridgeOptions = {}) {
     this.#onScanRequested = onScanRequested;
     this.#onScanResolved = onScanResolved;
     this.#onScanRejected = onScanRejected;
