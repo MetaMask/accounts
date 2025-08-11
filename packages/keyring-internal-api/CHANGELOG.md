@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.0.0]
+
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^19.1.0` to `^20.0.0` ([#347](https://github.com/MetaMask/accounts/pull/347))
+  - This change was not properly reported as breaking on the `7.1.0`.
+  - Add generic account type.
+
+## [7.1.0]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^19.0.0` to `^19.1.0` ([#323](https://github.com/MetaMask/accounts/pull/323))
+  - Add generic account type.
+
+## [7.0.0]
+
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^18.0.0` to `^19.0.0` ([#317](https://github.com/MetaMask/accounts/pull/317))
+  - The `KeyringAccount.options` field is now partially typed.
+
 ## [6.2.0]
 
 ### Added
@@ -111,7 +133,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@8.0.0...HEAD
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@7.1.0...@metamask/keyring-internal-api@8.0.0
+[7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@7.0.0...@metamask/keyring-internal-api@7.1.0
+[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.2.0...@metamask/keyring-internal-api@7.0.0
 [6.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.1.0...@metamask/keyring-internal-api@6.2.0
 [6.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.0.1...@metamask/keyring-internal-api@6.1.0
 [6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.0.0...@metamask/keyring-internal-api@6.0.1

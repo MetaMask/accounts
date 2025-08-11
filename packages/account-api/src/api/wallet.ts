@@ -3,30 +3,26 @@ import type { KeyringAccount } from '@metamask/keyring-api';
 // Circular import are allowed when using `import type`.
 import type { AccountGroup, AccountGroupId } from './group';
 
-export enum AccountWalletCategory {
-  /**
-   * Category for wallets that group accounts based on their
-   * entropy source.
-   */
+/**
+ * Wallet type.
+ *
+ * Each wallet types groups accounts using different criterias.
+ */
+export enum AccountWalletType {
+  /** Wallet grouping accounts based on their entropy source. */
   Entropy = 'entropy',
 
-  /**
-   * Category for wallets that group accounts based on their
-   * keyring's type.
-   */
+  /** Wallet grouping accounts based on their keyring's type. */
   Keyring = 'keyring',
 
-  /**
-   * Category for wallets that group accounts associated with an
-   * account management Snap.
-   */
+  /** Wallet grouping accounts associated with an account management Snap. */
   Snap = 'snap',
 }
 
 /**
  * Account wallet ID.
  */
-export type AccountWalletId = `${AccountWalletCategory}:${string}`;
+export type AccountWalletId = `${AccountWalletType}:${string}`;
 
 /**
  * Account wallet that can hold multiple account groups.
@@ -38,13 +34,14 @@ export type AccountWallet<Account extends KeyringAccount> = {
   get id(): AccountWalletId;
 
   /**
-   * Account wallet category.
+   * Account wallet type.
    */
-  get category(): AccountWalletCategory;
+  get type(): AccountWalletType;
 
   /**
    * Gets account group for a given ID.
    *
+   * @param id - Account group ID.
    * @returns Account group.
    */
   getAccountGroup(id: AccountGroupId): AccountGroup<Account> | undefined;
@@ -58,15 +55,22 @@ export type AccountWallet<Account extends KeyringAccount> = {
 };
 
 /**
- * Convert a unique ID to a wallet ID for a given category.
+ * Type utility to compute a constrained {@link AccountWalletId} type given a
+ * specifc {@link AccountWalletType}.
+ */
+export type AccountWalletIdOf<WalletType extends AccountWalletType> =
+  `${WalletType}:${string}`;
+
+/**
+ * Convert a unique ID to a wallet ID for a given type.
  *
- * @param category - A wallet category.
+ * @param type - A wallet type.
  * @param id - A unique ID.
  * @returns A wallet ID.
  */
-export function toAccountWalletId(
-  category: AccountWalletCategory,
+export function toAccountWalletId<WalletType extends AccountWalletType>(
+  type: WalletType,
   id: string,
-): AccountWalletId {
-  return `${category}:${id}`;
+): AccountWalletIdOf<WalletType> {
+  return `${type}:${id}`;
 }

@@ -4,12 +4,12 @@
 *                                       @MetaMask/accounts-engineers
 
 # Included for release purposes
-/package.json                           @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
-/yarn.lock                              @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
-/README.md                              @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
+/package.json                           @MetaMask/accounts-engineers @MetaMask/core-platform
+/yarn.lock                              @MetaMask/accounts-engineers @MetaMask/core-platform
+/README.md                              @MetaMask/accounts-engineers @MetaMask/core-platform
 
-/packages/keyring-eth-hd                @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
-/packages/keyring-eth-ledger-bridge     @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
-/packages/keyring-eth-simple            @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
-/packages/keyring-eth-trezor            @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
-/packages/keyring-utils                 @MetaMask/accounts-engineers @MetaMask/wallet-framework-engineers
+/packages/keyring-eth-hd                @MetaMask/accounts-engineers @MetaMask/core-platform
+/packages/keyring-eth-ledger-bridge     @MetaMask/accounts-engineers @MetaMask/core-platform
+/packages/keyring-eth-simple            @MetaMask/accounts-engineers @MetaMask/core-platform
+/packages/keyring-eth-trezor            @MetaMask/accounts-engineers @MetaMask/core-platform
+/packages/keyring-utils                 @MetaMask/accounts-engineers @MetaMask/core-platform

@@ -1,8 +1,13 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
-import type { AccountId } from '@metamask/keyring-utils';
 
 // Circular import are allowed when using `import type`.
-import type { AccountWallet, AccountWalletId } from './wallet';
+import type { AccountSelector } from './selector';
+import type {
+  AccountWallet,
+  AccountWalletId,
+  AccountWalletIdOf,
+  AccountWalletType,
+} from './wallet';
 
 /**
  * Default account group unique ID.
@@ -11,6 +16,19 @@ import type { AccountWallet, AccountWalletId } from './wallet';
  * an account wallet.
  */
 export const DEFAULT_ACCOUNT_GROUP_UNIQUE_ID: string = 'default';
+
+/**
+ * Account group object.
+ *
+ * Each group types groups accounts using different criterias.
+ */
+export enum AccountGroupType {
+  /** Group that represents a multichain account. */
+  MultichainAccount = 'multichain-account',
+
+  /** Group that represents a single account. */
+  SingleAccount = 'single-account',
+}
 
 /**
  * Account group ID.
@@ -27,26 +45,54 @@ export type AccountGroup<Account extends KeyringAccount> = {
   get id(): AccountGroupId;
 
   /**
+   * Account group type.
+   */
+  get type(): AccountGroupType;
+
+  /**
    * Account wallet (parent).
    */
   get wallet(): AccountWallet<Account>;
 
   /**
-   * Gets the "blockchain" accounts for this account group.
+   * Gets the accounts for this account group.
    *
-   * @param id - Account ID.
-   * @returns The "blockchain" accounts.
+   * @returns The accounts.
    */
   getAccounts(): Account[];
 
   /**
-   * Gets the "blockchain" account for a given account ID.
+   * Gets the account for a given account ID.
    *
    * @param id - Account ID.
-   * @returns The "blockchain" account or undefined if not found.
+   * @returns The account or undefined if not found.
    */
-  getAccount(id: AccountId): Account | undefined;
+  getAccount(id: Account['id']): Account | undefined;
+
+  /**
+   * Query an account matching the selector.
+   *
+   * @param selector - Query selector.
+   * @returns The account matching the selector or undefined if not matching.
+   * @throws If multiple accounts match the selector.
+   */
+  get(selector: AccountSelector<Account>): Account | undefined;
+
+  /**
+   * Query accounts matching the selector.
+   *
+   * @param selector - Query selector.
+   * @returns The accounts matching the selector.
+   */
+  select(selector: AccountSelector<Account>): Account[];
 };
+
+/**
+ * Type utility to compute a constrained {@link AccountGroupId} type given a
+ * specifc {@link AccountWalletType}.
+ */
+export type AccountGroupIdOf<WalletType extends AccountWalletType> =
+  `${AccountWalletIdOf<WalletType>}/${string}`;
 
 /**
  * Convert a wallet ID and a unique ID, to a group ID.
@@ -55,10 +101,10 @@ export type AccountGroup<Account extends KeyringAccount> = {
  * @param id - A unique ID.
  * @returns A group ID.
  */
-export function toAccountGroupId(
-  walletId: AccountWalletId,
+export function toAccountGroupId<WalletType extends AccountWalletType>(
+  walletId: AccountWalletIdOf<WalletType>,
   id: string,
-): AccountGroupId {
+): AccountGroupIdOf<WalletType> {
   return `${walletId}/${id}`;
 }
 
@@ -68,8 +114,11 @@ export function toAccountGroupId(
  * @param walletId - A wallet ID.
  * @returns The default group ID.
  */
-export function toDefaultAccountGroupId(
-  walletId: AccountWalletId,
-): AccountGroupId {
-  return toAccountGroupId(walletId, DEFAULT_ACCOUNT_GROUP_UNIQUE_ID);
+export function toDefaultAccountGroupId<WalletType extends AccountWalletType>(
+  walletId: AccountWalletIdOf<WalletType>,
+): AccountGroupIdOf<WalletType> {
+  return toAccountGroupId<WalletType>(
+    walletId,
+    DEFAULT_ACCOUNT_GROUP_UNIQUE_ID,
+  );
 }

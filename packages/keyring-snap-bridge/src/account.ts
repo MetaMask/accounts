@@ -8,6 +8,7 @@ import {
   EthAccountType,
   EthEoaAccountStruct,
   EthErc4337AccountStruct,
+  AnyAccountType,
   KeyringAccountStruct,
   SolAccountType,
   SolDataAccountStruct,
@@ -63,6 +64,10 @@ export function assertKeyringAccount<
     }
     case EthAccountType.Eoa: {
       assert(account, EthEoaAccountStruct);
+      return account;
+    }
+    case AnyAccountType.Account: {
+      assert(account, KeyringAccountStruct);
       return account;
     }
     default: {

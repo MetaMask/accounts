@@ -31,6 +31,7 @@ import {
   AccountAssetListUpdatedEventStruct,
   AccountBalancesUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
+  AnyAccountType,
 } from '@metamask/keyring-api';
 import {
   KeyringVersion,
@@ -200,16 +201,30 @@ export class SnapKeyring extends EventEmitter {
   readonly #callbacks: SnapKeyringCallbacks;
 
   /**
+   * Whether to allow the creation and update of generic accounts.
+   *
+   * Account deletion is not affected by this flag and is always allowed.
+   */
+  readonly #isAnyAccountTypeAllowed: boolean;
+
+  /**
    * Create a new Snap keyring.
    *
-   * @param messenger - Snap keyring messenger.
-   * @param callbacks - Callbacks used to interact with other components.
+   * @param options - Constructor options.
+   * @param options.messenger - Snap keyring messenger.
+   * @param options.callbacks - Callbacks used to interact with other components.
+   * @param options.isAnyAccountTypeAllowed - Whether to allow the `AnyAccountType` generic account type.
    * @returns A new Snap keyring.
    */
-  constructor(
-    messenger: SnapKeyringMessenger,
-    callbacks: SnapKeyringCallbacks,
-  ) {
+  constructor({
+    messenger,
+    callbacks,
+    isAnyAccountTypeAllowed = false,
+  }: {
+    messenger: SnapKeyringMessenger;
+    callbacks: SnapKeyringCallbacks;
+    isAnyAccountTypeAllowed?: boolean;
+  }) {
     super();
     this.type = SnapKeyring.type;
     this.#messenger = messenger;
@@ -218,6 +233,7 @@ export class SnapKeyring extends EventEmitter {
     this.#accounts = new SnapIdMap();
     this.#options = new SnapIdMap();
     this.#callbacks = callbacks;
+    this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
   }
 
   /**
@@ -298,6 +314,15 @@ export class SnapKeyring extends EventEmitter {
 
     // Potentially migrate the account.
     const account = transformAccount(newAccountFromEvent);
+
+    // The `AnyAccountType.Account` generic account type is allowed only during
+    // development, so we check whether it's allowed before continuing.
+    if (
+      !this.#isAnyAccountTypeAllowed &&
+      account.type === AnyAccountType.Account
+    ) {
+      throw new Error(`Cannot create generic account '${account.id}'`);
+    }
 
     // The UI still uses the account address to identify accounts, so we need
     // to block the creation of duplicate accounts for now to prevent accounts
@@ -402,6 +427,19 @@ export class SnapKeyring extends EventEmitter {
 
     // Potentially migrate the account.
     const newAccount = transformAccount(newAccountFromEvent);
+
+    // The `AnyAccountType.Account` generic account type is allowed only during
+    // development, so we check whether it's allowed before continuing.
+    //
+    // An account cannot be updated if the `isAnyAccountTypeAllowed` flag is
+    // set to `false` and the new or old account is a generic account.
+    const isGenericAccountInvolved =
+      newAccount.type === AnyAccountType.Account ||
+      oldAccount.type === AnyAccountType.Account;
+
+    if (!this.#isAnyAccountTypeAllowed && isGenericAccountInvolved) {
+      throw new Error(`Cannot update generic account '${newAccount.id}'`);
+    }
 
     // The address of the account cannot be changed. In the future, we will
     // support changing the address of an account since it will be required to
@@ -689,6 +727,7 @@ export class SnapKeyring extends EventEmitter {
 
     // Running Snap keyring migrations. We might have some accounts that have a
     // different "version" than the one we expect.
+    //
     // In this case, we "transform" then directly when deserializing to convert
     // them in the final account version.
     const accounts: KeyringState['accounts'] = {};
