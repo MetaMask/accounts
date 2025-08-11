@@ -341,15 +341,14 @@ export class Device {
         ? DataType.transaction
         : DataType.typedTransaction;
 
-    const messageToSign = Buffer.from(
-      transaction.type === TransactionType.Legacy
-        ? RLP.encode(transaction.getMessageToSign())
-        : (transaction as FeeMarketEIP1559Transaction).getMessageToSign(),
+    const messageToSign = transaction.getMessageToSign();
+    const rawTransaction = Buffer.from(
+      Array.isArray(messageToSign) ? RLP.encode(messageToSign) : messageToSign,
     );
 
     const requestId = uuidv4();
     const ethSignRequestUR = EthSignRequest.constructETHRequest(
-      messageToSign,
+      rawTransaction,
       dataType,
       this.pathFromAddress(address),
       this.#pairedDevice.xfp,
