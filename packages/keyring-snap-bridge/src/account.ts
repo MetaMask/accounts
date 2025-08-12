@@ -12,6 +12,8 @@ import {
   KeyringAccountStruct,
   SolAccountType,
   SolDataAccountStruct,
+  TrxAccountType,
+  TrxEoaAccountStruct,
 } from '@metamask/keyring-api';
 import { assert, omit, type Infer } from '@metamask/superstruct';
 
@@ -66,6 +68,10 @@ export function assertKeyringAccount<
       assert(account, EthEoaAccountStruct);
       return account;
     }
+    case TrxAccountType.Eoa: {
+      assert(account, TrxEoaAccountStruct);
+      return account;
+    }
     case AnyAccountType.Account: {
       assert(account, KeyringAccountStruct);
       return account;
@@ -95,5 +101,5 @@ export function transformAccount(
     : accountToTransform;
 
   // We still assert that the converted account is valid according to their account's type.
-  return assertKeyringAccount(account);
+  return assertKeyringAccount(account as { type: KeyringAccountType });
 }

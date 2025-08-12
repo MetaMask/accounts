@@ -31,6 +31,13 @@ export enum SolAccountType {
 }
 
 /**
+ * Supported Tron account types.
+ */
+export enum TrxAccountType {
+  Eoa = 'tron:eoa',
+}
+
+/**
  * A generic account type. It can be used to represent any account type that is
  * not covered by the other account types. It only applies to non-EVM chains.
  */
@@ -49,6 +56,7 @@ export type KeyringAccountType =
   | `${BtcAccountType.P2wpkh}`
   | `${BtcAccountType.P2tr}`
   | `${SolAccountType.DataAccount}`
+  | `${TrxAccountType.Eoa}`
   | `${AnyAccountType.Account}`;
 
 /**
@@ -75,6 +83,7 @@ export const KeyringAccountStruct = object({
     `${BtcAccountType.P2wpkh}`,
     `${BtcAccountType.P2tr}`,
     `${SolAccountType.DataAccount}`,
+    `${TrxAccountType.Eoa}`,
     `${AnyAccountType.Account}`,
   ]),
 
