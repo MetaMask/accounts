@@ -5,8 +5,10 @@ import {
   BtcScope,
   EthScope,
   SolScope,
+  TrxScope,
+  TrxAccountType,
 } from '@metamask/keyring-api';
-import type { CaipChainId, KeyringAccount } from '@metamask/keyring-api';
+import type { CaipChainId, KeyringAccount, KeyringAccountType } from '@metamask/keyring-api';
 import { isBtcMainnetAddress } from '@metamask/keyring-utils';
 import { is } from '@metamask/superstruct';
 
@@ -69,6 +71,10 @@ export function getScopesForAccountV1(
       // Solana account supports multiple chains.
       return [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet];
     }
+    case TrxAccountType.Eoa: {
+      // TRON account supports multiple chains.
+      return [TrxScope.Mainnet, TrxScope.Nile, TrxScope.Shasta];
+    }
     default:
       // We re-use EOA scopes if we don't know what to do for now.
       return [EthScope.Eoa];
@@ -102,7 +108,7 @@ export function transformAccountV1(
 
   // For all other non-EVM and ERC4337 Snap accounts, the `scopes` is required, and
   // each `*AccountStruct` should assert that automatically.
-  return assertKeyringAccount(accountV1);
+  return assertKeyringAccount(accountV1 as { type: KeyringAccountType });
 }
 
 /**
