@@ -8,11 +8,7 @@ import {
   TrxScope,
   TrxAccountType,
 } from '@metamask/keyring-api';
-import type {
-  CaipChainId,
-  KeyringAccount,
-  KeyringAccountType,
-} from '@metamask/keyring-api';
+import type { CaipChainId, KeyringAccount } from '@metamask/keyring-api';
 import { isBtcMainnetAddress } from '@metamask/keyring-utils';
 import { is } from '@metamask/superstruct';
 
