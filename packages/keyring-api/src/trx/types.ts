@@ -15,7 +15,7 @@ import {
  */
 export const TrxAddressStruct = definePattern(
   'TrxAddress',
-  /^T[1-9A-HJ-NP-Za-km-z]{33}$/iu,
+  /^T[0-9A-HJ-NP-Za-km-z]{33}$/iu,
 );
 
 /**

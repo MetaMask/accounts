@@ -4,7 +4,7 @@ describe('types', () => {
   describe('TrxAddressStruct', () => {
     it.each([
       'TRjE1H8dxypKM1NZRdysbs9wo7huR4bdNz',
-      'TPAe77oEGDLXuNjJhTyYeo5vMqLYdE3GN8U',
+      'TGFCAXqwaBofiLZPWEp5rnin5LKDTKYpct',
     ])('is valid address: %s', (address) => {
       expect(() => TrxAddressStruct.assert(address)).not.toThrow();
     });
