@@ -101,5 +101,5 @@ export function transformAccount(
     : accountToTransform;
 
   // We still assert that the converted account is valid according to their account's type.
-  return assertKeyringAccount(account as { type: KeyringAccountType });
+  return assertKeyringAccount(account);
 }

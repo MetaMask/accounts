@@ -112,7 +112,7 @@ export function transformAccountV1(
 
   // For all other non-EVM and ERC4337 Snap accounts, the `scopes` is required, and
   // each `*AccountStruct` should assert that automatically.
-  return assertKeyringAccount(accountV1 as { type: KeyringAccountType });
+  return assertKeyringAccount(accountV1);
 }
 
 /**
