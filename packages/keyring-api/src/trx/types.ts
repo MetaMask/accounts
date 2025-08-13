@@ -21,7 +21,7 @@ export const TrxAddressStruct = definePattern(
 /**
  * Supported TRON methods.
  */
-export declare enum TrxMethod {
+export enum TrxMethod {
   SignMessageV2 = 'signMessageV2',
   VerifyMessageV2 = 'verifyMessageV2',
 }
