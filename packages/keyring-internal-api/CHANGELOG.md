@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.1.0]
+
+### Added
+
+- Add Tron support ([#349](https://github.com/MetaMask/accounts/pull/349))
+
 ## [8.0.0]
 
 ### Changed
@@ -133,7 +139,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@8.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@8.1.0...HEAD
+[8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@8.0.0...@metamask/keyring-internal-api@8.1.0
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@7.1.0...@metamask/keyring-internal-api@8.0.0
 [7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@7.0.0...@metamask/keyring-internal-api@7.1.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@6.2.0...@metamask/keyring-internal-api@7.0.0
