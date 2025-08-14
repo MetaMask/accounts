@@ -1742,49 +1742,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/eth-onekey-keyring@workspace:packages/keyring-eth-onekey":
-  version: 0.0.0-use.local
-  resolution: "@metamask/eth-onekey-keyring@workspace:packages/keyring-eth-onekey"
-  dependencies:
-    "@ethereumjs/common": "npm:^4.4.0"
-    "@ethereumjs/tx": "npm:^5.4.0"
-    "@ethereumjs/util": "npm:^9.1.0"
-    "@lavamoat/allow-scripts": "npm:^3.2.1"
-    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/auto-changelog": "npm:^3.4.4"
-    "@metamask/eth-sig-util": "npm:^8.2.0"
-    "@metamask/keyring-utils": "workspace:^"
-    "@metamask/utils": "npm:^11.1.0"
-    "@noble/hashes": "npm:^1.7.0"
-    "@onekeyfe/hd-core": "npm:^1.1.1"
-    "@onekeyfe/hd-shared": "npm:^1.1.1"
-    "@onekeyfe/hd-transport": "npm:^1.1.1"
-    "@onekeyfe/hd-web-sdk": "npm:^1.1.1"
-    "@ts-bridge/cli": "npm:^0.6.3"
-    "@types/ethereumjs-tx": "npm:^1.0.1"
-    "@types/hdkey": "npm:^2.0.1"
-    "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
-    "@types/sinon": "npm:^17.0.3"
-    "@types/w3c-web-usb": "npm:^1.0.6"
-    bytebuffer: "npm:^5.0.1"
-    deepmerge: "npm:^4.2.2"
-    depcheck: "npm:^1.4.7"
-    ethereumjs-tx: "npm:^1.3.7"
-    hdkey: "npm:^2.1.0"
-    jest: "npm:^29.5.0"
-    jest-environment-jsdom: "npm:^29.7.0"
-    jest-it-up: "npm:^3.1.0"
-    ripple-address-codec: "npm:^5.0.0"
-    sinon: "npm:^19.0.2"
-    ts-jest: "npm:^29.0.5"
-    ts-node: "npm:^10.9.2"
-    tslib: "npm:^2.6.2"
-    typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.6.3"
-  languageName: unknown
-  linkType: soft
-
 "@metamask/eth-qr-keyring@workspace:packages/keyring-eth-qr":
   version: 0.0.0-use.local
   resolution: "@metamask/eth-qr-keyring@workspace:packages/keyring-eth-qr"
@@ -2736,12 +2693,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@onekeyfe/hd-core@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@onekeyfe/hd-core@npm:1.1.1"
+"@onekeyfe/hd-core@npm:1.1.6, @onekeyfe/hd-core@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "@onekeyfe/hd-core@npm:1.1.6"
   dependencies:
-    "@onekeyfe/hd-shared": "npm:^1.1.1"
-    "@onekeyfe/hd-transport": "npm:^1.1.1"
+    "@onekeyfe/hd-shared": "npm:1.1.6"
+    "@onekeyfe/hd-transport": "npm:1.1.6"
     axios: "npm:^0.27.2"
     bignumber.js: "npm:^9.0.2"
     bytebuffer: "npm:^5.0.1"
@@ -2750,61 +2707,61 @@ __metadata:
     semver: "npm:^7.3.7"
   peerDependencies:
     "@noble/hashes": ^1.1.3
-    ripple-keypairs: ^1.1.4
-  checksum: 10/449ded7bbcafec0eea68931adf8a5ead3851d2cad55f4bbf9ed35fe6c9617d3ce1064fa3ec875de6589afd6b040ce8757334552deda09d47da3691e01b489360
+    ripple-keypairs: ^1.3.1
+  checksum: 10/949d41f133a4bd726a43a81a047c3c6b339f57042e7a84b76cc21855bdbf95c3b3453e1f8daeddb538c8390d882c6ddaeb10c243ecdb229c9ef33deb02a0361a
   languageName: node
   linkType: hard
 
-"@onekeyfe/hd-shared@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@onekeyfe/hd-shared@npm:1.1.1"
-  checksum: 10/30bfe13b2ff9070bc81cff389a6c6fceddb1cc0d4efce07ea7d79e29d3021d169768817dbb432fb97eee850a5ad51ae749bed69d2d1119ee0bde32b48fd34cb9
+"@onekeyfe/hd-shared@npm:1.1.6, @onekeyfe/hd-shared@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "@onekeyfe/hd-shared@npm:1.1.6"
+  checksum: 10/8e2b9b75ebec80a9703dfddb245b503bba219a90edc072e8c82337ebbb593ce028de561cfdb23d32c5afa310de7efa6d9e1476fff6a9a838f8df4f08a851ce4b
   languageName: node
   linkType: hard
 
-"@onekeyfe/hd-transport-http@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@onekeyfe/hd-transport-http@npm:1.1.1"
+"@onekeyfe/hd-transport-http@npm:1.1.6":
+  version: 1.1.6
+  resolution: "@onekeyfe/hd-transport-http@npm:1.1.6"
   dependencies:
-    "@onekeyfe/hd-shared": "npm:^1.1.1"
-    "@onekeyfe/hd-transport": "npm:^1.1.1"
+    "@onekeyfe/hd-shared": "npm:1.1.6"
+    "@onekeyfe/hd-transport": "npm:1.1.6"
     axios: "npm:^0.27.2"
     secure-json-parse: "npm:^4.0.0"
-  checksum: 10/4dc2f40449c08580ee2cf5b2bcb948521cc37dee130896c263210e3b537019b3036e1a892140895c448f1c91564ffe3a71e83b2dec4f5032103d4cc76d953fec
+  checksum: 10/e56b74c897207e9f4444257cb74a1b9f96a8a08f0353710e7c1ff015bca6274bfd606b85e053180b17065ce6020bbe0964bed46c19766f4cffec430d1566acaf
   languageName: node
   linkType: hard
 
-"@onekeyfe/hd-transport-web-device@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@onekeyfe/hd-transport-web-device@npm:1.1.1"
+"@onekeyfe/hd-transport-web-device@npm:1.1.6":
+  version: 1.1.6
+  resolution: "@onekeyfe/hd-transport-web-device@npm:1.1.6"
   dependencies:
-    "@onekeyfe/hd-shared": "npm:^1.1.1"
-    "@onekeyfe/hd-transport": "npm:^1.1.1"
-  checksum: 10/85badca8d1cda62caedf287e2c8f11c94afe9d9433d04f3e669db93045324b0fbc632728b39516b87e63865f8aa5dadf1dde09a92eff9ba8d11863d347caac2e
+    "@onekeyfe/hd-shared": "npm:1.1.6"
+    "@onekeyfe/hd-transport": "npm:1.1.6"
+  checksum: 10/085b64b433fe4482cdbd7bf6a397bb57b0b77a0a0c7dab5a5401da2ea778df4fb1fea924317127f4b707489f210b7d792923025af47c9c26883c3f29a3f34562
   languageName: node
   linkType: hard
 
-"@onekeyfe/hd-transport@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@onekeyfe/hd-transport@npm:1.1.1"
+"@onekeyfe/hd-transport@npm:1.1.6, @onekeyfe/hd-transport@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "@onekeyfe/hd-transport@npm:1.1.6"
   dependencies:
     bytebuffer: "npm:^5.0.1"
     long: "npm:^4.0.0"
     protobufjs: "npm:^6.11.2"
-  checksum: 10/65c494c0797265029b08934ac9e394f87774090ac6fa2e09e56a3635cd8e9d010f139b9425d243aca09bfcf771f0e287277959f1c753503f9cd28beb1504a733
+  checksum: 10/6de5653ec1ed00354267b6b593ebe7d2c3d2ba58e5970da145b905ada7df6155189966a5ee482b799feadd9350244c7a80766bc656fd38c5f8d93726bd019211
   languageName: node
   linkType: hard
 
-"@onekeyfe/hd-web-sdk@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@onekeyfe/hd-web-sdk@npm:1.1.1"
+"@onekeyfe/hd-web-sdk@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "@onekeyfe/hd-web-sdk@npm:1.1.6"
   dependencies:
     "@onekeyfe/cross-inpage-provider-core": "npm:^0.0.17"
-    "@onekeyfe/hd-core": "npm:^1.1.1"
-    "@onekeyfe/hd-shared": "npm:^1.1.1"
-    "@onekeyfe/hd-transport-http": "npm:^1.1.1"
-    "@onekeyfe/hd-transport-web-device": "npm:^1.1.1"
-  checksum: 10/483eb8ec0a68b176836d16e50b98ae07220292e15217efd98327055f29dc6daec98a2c3400274f110d023cbffed843c6658f65c5496d542ce58de05801f105c6
+    "@onekeyfe/hd-core": "npm:1.1.6"
+    "@onekeyfe/hd-shared": "npm:1.1.6"
+    "@onekeyfe/hd-transport-http": "npm:1.1.6"
+    "@onekeyfe/hd-transport-web-device": "npm:1.1.6"
+  checksum: 10/f4ba39fc8cded85fc3091163798454fa7355a0419efcbc127cd842a81007f10799c2d41dd8b5766ca2f0cf947ff020696f89a1a02f5fee5d8bf1051243854d10
   languageName: node
   linkType: hard
 
@@ -6879,6 +6836,49 @@ __metadata:
   checksum: 10/098c04378b0b998191b4bcd2f1a59be976946bbb80cea7bc2a6d1df3a035e061b2fd120b16bf41558c4beb2dd846433742058b091b20195e4b0e1fc64b67979f
   languageName: node
   linkType: hard
+
+"eth-onekey-bridge-keyring@workspace:packages/keyring-eth-onekey":
+  version: 0.0.0-use.local
+  resolution: "eth-onekey-bridge-keyring@workspace:packages/keyring-eth-onekey"
+  dependencies:
+    "@ethereumjs/common": "npm:^4.4.0"
+    "@ethereumjs/tx": "npm:^5.4.0"
+    "@ethereumjs/util": "npm:^9.1.0"
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/eth-sig-util": "npm:^8.2.0"
+    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/utils": "npm:^11.1.0"
+    "@noble/hashes": "npm:^1.7.0"
+    "@onekeyfe/hd-core": "npm:^1.1.6"
+    "@onekeyfe/hd-shared": "npm:^1.1.6"
+    "@onekeyfe/hd-transport": "npm:^1.1.6"
+    "@onekeyfe/hd-web-sdk": "npm:^1.1.6"
+    "@ts-bridge/cli": "npm:^0.6.3"
+    "@types/ethereumjs-tx": "npm:^1.0.1"
+    "@types/hdkey": "npm:^2.0.1"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.12.12"
+    "@types/sinon": "npm:^17.0.3"
+    "@types/w3c-web-usb": "npm:^1.0.6"
+    bytebuffer: "npm:^5.0.1"
+    deepmerge: "npm:^4.2.2"
+    depcheck: "npm:^1.4.7"
+    ethereumjs-tx: "npm:^1.3.7"
+    hdkey: "npm:^2.1.0"
+    jest: "npm:^29.5.0"
+    jest-environment-jsdom: "npm:^29.7.0"
+    jest-it-up: "npm:^3.1.0"
+    ripple-address-codec: "npm:^5.0.0"
+    sinon: "npm:^19.0.2"
+    ts-jest: "npm:^29.0.5"
+    ts-node: "npm:^10.9.2"
+    tslib: "npm:^2.6.2"
+    typedoc: "npm:^0.25.13"
+    typescript: "npm:~5.6.3"
+  languageName: unknown
+  linkType: soft
 
 "eth-sig-util@npm:^3.0.1":
   version: 3.0.1
