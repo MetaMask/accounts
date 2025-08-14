@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [16.1.0]
+
 ### Uncategorized
 
 - feat: adds Tron support ([#349](https://github.com/MetaMask/accounts/pull/349))
@@ -553,7 +555,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@16.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@16.1.0...HEAD
+[16.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@16.0.0...@metamask/eth-snap-keyring@16.1.0
 [16.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@15.0.0...@metamask/eth-snap-keyring@16.0.0
 [15.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@14.0.0...@metamask/eth-snap-keyring@15.0.0
 [14.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@13.0.0...@metamask/eth-snap-keyring@14.0.0

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [20.1.0]
+
 ### Uncategorized
 
 - feat: adds Tron support ([#349](https://github.com/MetaMask/accounts/pull/349))
@@ -610,7 +612,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@20.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@20.1.0...HEAD
+[20.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@20.0.0...@metamask/keyring-api@20.1.0
 [20.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@19.1.0...@metamask/keyring-api@20.0.0
 [19.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@19.0.0...@metamask/keyring-api@19.1.0
 [19.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@18.0.0...@metamask/keyring-api@19.0.0
