@@ -1,6 +1,6 @@
 {
   "name": "eth-onekey-bridge-keyring",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "A MetaMask compatible keyring, for onekey hardware wallets",
   "keywords": [
     "ethereum",
@@ -51,10 +51,10 @@
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/utils": "^11.1.0",
     "@noble/hashes": "^1.7.0",
-    "@onekeyfe/hd-core": "^1.1.6",
-    "@onekeyfe/hd-shared": "^1.1.6",
-    "@onekeyfe/hd-transport": "^1.1.6",
-    "@onekeyfe/hd-web-sdk": "^1.1.6",
+    "@onekeyfe/hd-core": "^1.1.6-patch.1",
+    "@onekeyfe/hd-shared": "^1.1.6-patch.1",
+    "@onekeyfe/hd-transport": "^1.1.6-patch.1",
+    "@onekeyfe/hd-web-sdk": "^1.1.6-patch.1",
     "bytebuffer": "^5.0.1",
     "hdkey": "^2.1.0",
     "ripple-address-codec": "^5.0.0",
