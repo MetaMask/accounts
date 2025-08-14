@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: adds Tron support ([#349](https://github.com/MetaMask/accounts/pull/349))
+
 ## [20.0.0]
 
 ### Changed
