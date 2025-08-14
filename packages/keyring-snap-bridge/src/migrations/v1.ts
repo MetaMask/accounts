@@ -5,6 +5,8 @@ import {
   BtcScope,
   EthScope,
   SolScope,
+  TrxScope,
+  TrxAccountType,
 } from '@metamask/keyring-api';
 import type { CaipChainId, KeyringAccount } from '@metamask/keyring-api';
 import { isBtcMainnetAddress } from '@metamask/keyring-utils';
@@ -68,6 +70,10 @@ export function getScopesForAccountV1(
     case SolAccountType.DataAccount: {
       // Solana account supports multiple chains.
       return [SolScope.Mainnet, SolScope.Testnet, SolScope.Devnet];
+    }
+    case TrxAccountType.Eoa: {
+      // TRON account supports multiple chains.
+      return [TrxScope.Mainnet, TrxScope.Nile, TrxScope.Shasta];
     }
     default:
       // We re-use EOA scopes if we don't know what to do for now.
