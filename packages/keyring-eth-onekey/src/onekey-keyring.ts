@@ -35,7 +35,7 @@ enum NetworkApiUrls {
 export type AccountDetails = {
   index?: number;
   hdPath: string;
-  passphraseState?: string;
+  passphraseState?: string | undefined;
 };
 
 export type AccountPageEntry = {
@@ -229,7 +229,7 @@ export class OneKeyKeyring extends EventEmitter {
               showOnOneKey: false,
               chainId: 1,
               path: this.#getBasePath(),
-              passphraseState: this.passphraseState,
+              passphraseState: this.passphraseState ?? '',
             })
             .then(async (res) => {
               if (res.success) {
@@ -418,14 +418,14 @@ export class OneKeyKeyring extends EventEmitter {
         ...tx.toJSON(),
         chainId,
         to: this.#normalize(Buffer.from(tx.to?.bytes ?? [])),
-      } as EVMSignTransactionParams['transaction'];
+      } as unknown as EVMSignTransactionParams['transaction'];
     }
 
     try {
       const details = this.#accountDetailsFromAddress(address);
       const response = await this.bridge.ethereumSignTransaction({
         path: details.hdPath,
-        passphraseState: details.passphraseState,
+        passphraseState: details.passphraseState ?? '',
         useEmptyPassphrase: isEmptyPassphrase(details.passphraseState),
         transaction,
       });
@@ -464,7 +464,7 @@ export class OneKeyKeyring extends EventEmitter {
       this.bridge
         .ethereumSignMessage({
           path: details.hdPath,
-          passphraseState: details.passphraseState,
+          passphraseState: details.passphraseState ?? '',
           useEmptyPassphrase: isEmptyPassphrase(details.passphraseState),
           messageHex: ethUtil.stripHexPrefix(message),
         })
@@ -517,7 +517,7 @@ export class OneKeyKeyring extends EventEmitter {
     const details = this.#accountDetailsFromAddress(address);
     const response = await this.bridge.ethereumSignTypedData({
       path: details.hdPath,
-      passphraseState: details.passphraseState,
+      passphraseState: details.passphraseState ?? '',
       useEmptyPassphrase: isEmptyPassphrase(details.passphraseState),
       data: data as EthereumSignTypedDataMessage<EthereumSignTypedDataTypes>,
       domainHash,

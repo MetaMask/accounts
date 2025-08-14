@@ -1,6 +1,6 @@
 {
   "name": "eth-onekey-bridge-keyring",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "A MetaMask compatible keyring, for onekey hardware wallets",
   "keywords": [
     "ethereum",
@@ -41,6 +41,7 @@
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-trezor-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-trezor-keyring",
     "publish:preview": "yarn npm publish --tag preview",
+    "publish": "yarn npm publish",
     "test": "jest && jest-it-up",
     "test:clean": "jest --clearCache",
     "test:watch": "jest --watch"
@@ -67,6 +68,7 @@
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/keyring-utils": "workspace:^",
     "@ts-bridge/cli": "^0.6.3",
+    "@types/bytebuffer": "^5.0.49",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",
     "@types/jest": "^29.5.12",
@@ -103,6 +105,7 @@
       "hdkey>secp256k1": false,
       "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>keccak": false,
       "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>secp256k1": false,
+      "@onekeyfe/hd-transport>protobufjs": false,
       "@onekeyfe/hd-core>@onekeyfe/hd-transport>protobufjs": false,
       "@onekeyfe/hd-web-sdk>@onekeyfe/hd-core>@onekeyfe/hd-transport>protobufjs": false
     }
