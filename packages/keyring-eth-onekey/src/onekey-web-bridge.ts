@@ -54,6 +54,7 @@ export class OneKeyWebBridge implements OneKeyBridge {
       HardwareErrorCode.CallMethodNeedUpgradeFirmware,
       HardwareErrorCode.DeviceCheckPassphraseStateError,
       HardwareErrorCode.DeviceCheckUnlockTypeError,
+      HardwareErrorCode.SelectDevice,
     ];
 
     if (code && typeof code === 'number' && errorCodes.includes(code)) {
