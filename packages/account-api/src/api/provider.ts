@@ -13,7 +13,7 @@ export type AccountProvider<Account extends KeyringAccount> = {
   /**
    * The type of the provider.
    */
-  providerType: string;
+  providerType: AccountProviderType;
   /**
    * Gets an account for a given ID.
    *
