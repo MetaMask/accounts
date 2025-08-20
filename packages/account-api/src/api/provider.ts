@@ -5,6 +5,10 @@ import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
  */
 export type AccountProvider<Account extends KeyringAccount> = {
   /**
+   * The type of the provider.
+   */
+  providerType: string;
+  /**
    * Gets an account for a given ID.
    *
    * @returns An account, or undefined if not found.
@@ -45,6 +49,5 @@ export type AccountProvider<Account extends KeyringAccount> = {
    */
   discoverAndCreateAccounts: (options: {
     entropySource: EntropySourceId;
-    groupIndex: number;
   }) => Promise<Account[]>;
 };
