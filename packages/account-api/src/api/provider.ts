@@ -1,5 +1,11 @@
 import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 
+export enum AccountProviderType {
+  Evm = 'Evm',
+  Solana = 'Solana',
+  Btc = 'Btc',
+};
+
 /**
  * An account provider is reponsible of providing accounts to an account group.
  */
