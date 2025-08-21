@@ -30,10 +30,6 @@ export class OneKeyWebBridge implements OneKeyBridge {
 
   eventListeners: Map<string, (event: any) => void> = new Map();
 
-  constructor() {
-    console.log('OneKeyWebBridge constructor');
-  }
-
   model?: string | undefined;
 
   on(_event: string, callback: (event: any) => void): void {
