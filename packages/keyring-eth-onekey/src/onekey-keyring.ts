@@ -25,6 +25,15 @@ const pathBase = 'm';
 const defaultHdPath = `${pathBase}/44'/60'/0'/0`;
 const keyringType = 'OneKey Hardware';
 
+const hdPathString = `m/44'/60'/0'/0/x`;
+const ledgerLegacyHdPathString = `m/44'/60'/0'/x`;
+
+const ALLOWED_HD_PATHS: Record<string, boolean> = {
+  [defaultHdPath]: true,
+  [hdPathString]: true,
+  [ledgerLegacyHdPathString]: true,
+} as const;
+
 enum NetworkApiUrls {
   Ropsten = 'https://api-ropsten.etherscan.io',
   Kovan = 'https://api-kovan.etherscan.io',
@@ -193,6 +202,19 @@ export class OneKeyKeyring extends EventEmitter {
   }
 
   setHdPath(hdPath: string): void {
+    if (!ALLOWED_HD_PATHS[hdPath]) {
+      throw new Error('Unknown HD path');
+    }
+
+    // Reset HDKey if the path changes
+    if (!this.#isSameHdPath(hdPath)) {
+      this.hdk = new HDKey();
+      this.accounts = [];
+      this.page = 0;
+      this.perPage = 5;
+      this.unlockedAccount = 0;
+      this.accountDetails = {};
+    }
     this.hdPath = hdPath;
   }
 
@@ -540,6 +562,7 @@ export class OneKeyKeyring extends EventEmitter {
   }
 
   forgetDevice(): void {
+    this.hdk = new HDKey();
     this.accounts = [];
     this.page = 0;
     this.unlockedAccount = 0;
@@ -617,12 +640,6 @@ export class OneKeyKeyring extends EventEmitter {
     if (this.#isLedgerLiveHdPath()) {
       throw new Error('Ledger Live is not supported');
     }
-    if (this.#isLedgerLegacyHdPath()) {
-      return `${pathBase}/${index}`;
-    }
-    if (this.#isStandardBip44HdPath()) {
-      return `${pathBase}/0/${index}`;
-    }
     return `${pathBase}/${index}`;
   }
 
@@ -660,8 +677,20 @@ export class OneKeyKeyring extends EventEmitter {
   }
 
   #isStandardBip44HdPath(): boolean {
-    return (
-      this.hdPath === `m/44'/60'/0'/0/x` || this.hdPath === `m/44'/60'/0'/0`
-    );
+    return this.hdPath === `m/44'/60'/0'/0/x` || this.hdPath === defaultHdPath;
+  }
+
+  #isSameHdPath(newHdPath: string): boolean {
+    if (this.#isLedgerLiveHdPath()) {
+      return newHdPath === `m/44'/60'/x'/0/0`;
+    }
+    if (this.#isLedgerLegacyHdPath()) {
+      return newHdPath === `m/44'/60'/0'/x`;
+    }
+    if (this.#isStandardBip44HdPath()) {
+      return newHdPath === `m/44'/60'/0'/0/x` || newHdPath === defaultHdPath;
+    }
+
+    return this.hdPath === newHdPath;
   }
 }
