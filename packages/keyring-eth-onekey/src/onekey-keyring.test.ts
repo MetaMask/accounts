@@ -20,25 +20,25 @@ import { OneKeyWebBridge } from './onekey-web-bridge';
 
 const CONNECT_SRC = 'https://jssdk.onekey.so/1.1.5/';
 const fakeAccounts = [
-  '0xF30952A1c534CDE7bC471380065726fa8686dfB3',
-  '0x44fe3Cf56CaF651C4bD34Ae6dbcffa34e9e3b84B',
-  '0x8Ee3374Fa705C1F939715871faf91d4348D5b906',
-  '0xEF69e24dE9CdEe93C4736FE29791E45d5D4CFd6A',
-  '0xC668a5116A045e9162902795021907Cb15aa2620',
-  '0xbF519F7a6D8E72266825D770C60dbac55a3baeb9',
-  '0x0258632Fe2F91011e06375eB0E6f8673C0463204',
-  '0x4fC1700C0C61980aef0Fb9bDBA67D8a25B5d4335',
-  '0xeEC5D417152aE295c047FB0B0eBd7c7090dDedEb',
-  '0xd3f978B9eEEdB68A38CF252B3779afbeb3623fDf',
-  '0xd819fE2beD53f44825F66873a159B687736d3092',
-  '0xE761dA62f053ad9eE221d325657535991Ab659bD',
-  '0xd4F1686961642340a80334b5171d85Bbd390c691',
-  '0x6772C4B1E841b295960Bb4662dceD9bb71726357',
-  '0x41bEAD6585eCA6c79B553Ca136f0DFA78A006899',
+  '0x73d0385F4d8E00C5e6504C6030F47BF6212736A8',
+  '0xFA01a39f8Abaeb660c3137f14A310d0b414b2A15',
+  '0x574BbB36871bA6b78E27f4B4dCFb76eA0091880B',
+  '0xba98D6a5ac827632E3457De7512d211e4ff7e8bD',
+  '0x1f815D67006163E502b8eD4947C91ad0A62De24e',
+  '0xf69619a3dCAA63757A6BA0AF3628f5F6C42c50d2',
+  '0xA8664Df3D5E74BE57c19fC7005BBcd0F5328041e',
+  '0xf2252f414e727d652d5a488fE4BFf7e64478737F',
+  '0x5708Ae081b48ad7bA8c50ca3D4fa0238d544D6FA',
+  '0x12eF7dfb86f6D5E3e0521b72472ca02D2a3814F4',
+  '0x9115Fa64b8B9864D6545Fc00d62B6A9Cbb876be7',
+  '0x8B6cF2eA1A54E054EFC35E4244Ac507c479bb5F6',
+  '0x6C480ba4409dd5FF29Cbd3ED67152B791750a708',
+  '0x5f2E5ddEd3DBD431deCc406Ae999F277B625Ba25',
+  '0x8a143C4CCed2ce826DE598Dbbf7C706cD6DB0Ccd',
 ] as const;
 
 const fakeXPubKey =
-  'xpub6FnCn6nSzZAw5Tw7cgR9bi15UV96gLZhjDstkXXxvCLsUXBGXPdSnLFbdpq8p9HmGsApME5hQTZ3emM2rnY5agb9rXpVGyy3bdW6EEgAtqt';
+  'xpub6CNFa58kEQJu2hwMVoofpDEKVVSg6gfwqBqE2zHAianaUnQkrJzJJ42iLDp7Dmg2aP88qCKoFZ4jidk3tECdQuF4567NGHDfe7iBRwHxgke';
 const fakeHdKey = HDKey.fromExtendedKey(fakeXPubKey);
 const fakeTx = new EthereumTx({
   nonce: '0x00',
@@ -1143,12 +1143,7 @@ describe('OneKeyKeyring', function () {
         const unlockResult = 'unlocked';
         const unlockSpy = sinon.stub(keyring, 'unlock').resolves(unlockResult);
 
-        // Mock bridge methods to avoid actual hardware calls (33-byte public key)
-        keyring.hdk.publicKey = Buffer.from(`02${'0'.repeat(64)}`, 'hex'); // 33 bytes
-        keyring.hdk.chainCode = Buffer.from(
-          '123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01',
-          'hex',
-        ); // 32 bytes
+        keyring.hdk = fakeHdKey;
 
         const accounts = await keyring.addAccounts(1);
         expect(accounts).toHaveLength(1);
@@ -1164,11 +1159,7 @@ describe('OneKeyKeyring', function () {
         const unlockResult = 'unlocked';
         const unlockSpy = sinon.stub(keyring, 'unlock').resolves(unlockResult);
 
-        keyring.hdk.publicKey = Buffer.from(`02${'0'.repeat(64)}`, 'hex'); // 33 bytes
-        keyring.hdk.chainCode = Buffer.from(
-          '123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01',
-          'hex',
-        ); // 32 bytes
+        keyring.hdk = fakeHdKey;
 
         const accounts = await keyring.addAccounts(1);
         expect(accounts).toHaveLength(1);
@@ -1191,11 +1182,7 @@ describe('OneKeyKeyring', function () {
         keyring.hdPath = "m/44'/60'/x'/0/0"; // Ledger Live path (not in ALLOWED_HD_PATHS but we set directly)
 
         const unlockSpy = sinon.stub(keyring, 'unlock').resolves('unlocked');
-        keyring.hdk.publicKey = Buffer.from(`02${'0'.repeat(64)}`, 'hex');
-        keyring.hdk.chainCode = Buffer.from(
-          '123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01',
-          'hex',
-        );
+        keyring.hdk = fakeHdKey;
 
         // This should trigger the Ledger Live error paths during addAccounts
         try {

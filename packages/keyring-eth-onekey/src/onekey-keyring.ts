@@ -640,6 +640,9 @@ export class OneKeyKeyring extends EventEmitter {
     if (this.#isLedgerLiveHdPath()) {
       throw new Error('Ledger Live is not supported');
     }
+    if (this.#isStandardBip44HdPath()) {
+      return `${pathBase}/0/${index}`;
+    }
     return `${pathBase}/${index}`;
   }
 
