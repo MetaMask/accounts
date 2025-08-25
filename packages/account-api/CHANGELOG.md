@@ -7,13 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.10.0]
-
-### Uncategorized
-
-- feat: add all bitcoin methods ([#354](https://github.com/MetaMask/accounts/pull/354))
-- feat: update provider type ([#352](https://github.com/MetaMask/accounts/pull/352))
-
 ## [0.9.0]
 
 ### Changed
@@ -107,8 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `AccountGroup` and `AccountWallet` ([#307](https://github.com/MetaMask/accounts/pull/307))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.10.0...HEAD
-[0.10.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.9.0...@metamask/account-api@0.10.0
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.9.0...HEAD
 [0.9.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.8.0...@metamask/account-api@0.9.0
 [0.8.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.7.0...@metamask/account-api@0.8.0
 [0.7.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.6.0...@metamask/account-api@0.7.0
