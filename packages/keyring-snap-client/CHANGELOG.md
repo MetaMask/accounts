@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.0.1]
+
 ### Uncategorized
 
 - feat: add all bitcoin methods ([#354](https://github.com/MetaMask/accounts/pull/354))
@@ -118,7 +120,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@7.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@7.0.1...HEAD
+[7.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@7.0.0...@metamask/keyring-snap-client@7.0.1
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@6.0.0...@metamask/keyring-snap-client@7.0.0
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@5.0.0...@metamask/keyring-snap-client@6.0.0
 [5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.1.0...@metamask/keyring-snap-client@5.0.0
