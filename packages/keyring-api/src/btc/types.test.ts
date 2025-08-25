@@ -29,7 +29,7 @@ const BTC_P2TR_TESTNET_ADDRESS =
 describe('types', () => {
   const mockAccount = {
     id: '55583f38-d81b-48f8-8494-fc543c2b5c95',
-    methods: [BtcMethod.SendBitcoin],
+    methods: Object.values(BtcMethod),
     options: {},
     scopes: [BtcScope.Mainnet],
   };
