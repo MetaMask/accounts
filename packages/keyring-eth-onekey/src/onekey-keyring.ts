@@ -261,6 +261,9 @@ export class OneKeyKeyring extends EventEmitter {
               } else {
                 reject(new Error('getPublicKey failed'));
               }
+            })
+            .catch((error) => {
+              reject(new Error(error?.toString() || 'Unknown error'));
             });
         })
         .catch((error) => {
