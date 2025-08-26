@@ -292,7 +292,7 @@ export class OneKeyKeyring extends EventEmitter {
           }
           if (!this.accountDetails[address]) {
             this.accountDetails[address] = {
-              index: from + i,
+              index: i,
               hdPath,
               passphraseState: this.passphraseState,
             };
@@ -605,7 +605,7 @@ export class OneKeyKeyring extends EventEmitter {
               throw new Error('Unknown error');
             }
             accounts.push({
-              index: from + i,
+              index: i,
               address,
               balance: null,
             });
