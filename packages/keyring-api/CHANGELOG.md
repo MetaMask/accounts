@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [21.0.0]
 
+### Added
+
+- **BREAKING:** Add new bitcoin methods to `BtcMethod` enum ([#355](https://github.com/metamask/accounts/pull/355)), ([#356](https://github.com/metamask/accounts/pull/356))
+  - This change was not properly reported as breaking on the `20.1.1`.
+
+### Removed
+
+- **BREAKING:** Remove `BtcMethod.SendBitcoin` method ([#355](https://github.com/metamask/accounts/pull/355))
+  - This change was not properly reported as breaking on the `20.1.1`.
+
 ## [20.1.1]
 
 ### Added
