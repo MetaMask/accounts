@@ -144,7 +144,7 @@ export type DeviceOptions = {
 function getFingerprintFromSource(source: CryptoAccount | CryptoHDKey): string {
   return source instanceof CryptoAccount
     ? source.getMasterFingerprint()?.toString('hex')
-    : source.getParentFingerprint()?.toString('hex');
+    : source.getOrigin()?.getSourceFingerprint()?.toString('hex');
 }
 
 /**
