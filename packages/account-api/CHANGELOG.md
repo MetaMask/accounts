@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: add all bitcoin methods ([#354](https://github.com/MetaMask/accounts/pull/354))
+- feat: update provider type ([#352](https://github.com/MetaMask/accounts/pull/352))
+
 ## [0.9.0]
 
 ### Changed
