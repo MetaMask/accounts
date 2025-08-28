@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Export `SerializedUR` type ([#358](https://github.com/MetaMask/accounts/pull/358))
 
+### Fixed
+
+- Fix fingerprint derivation for some QR devices ([#357](https://github.com/MetaMask/accounts/pull/357))
+
 ## [1.0.0]
 
 ### Added
