@@ -25,6 +25,20 @@ export enum AccountWalletType {
 export type AccountWalletId = `${AccountWalletType}:${string}`;
 
 /**
+ * Regex to validate a valid account wallet ID.
+ */
+export const ACCOUNT_WALLET_ID_REGEX =
+  /^(?<walletType>entropy|keyring|snap):(?<walletSubId>.+)$/u;
+
+/**
+ * Parsed account wallet ID with its wallet type and sub-ID.
+ */
+export type ParsedAccountWalletId = {
+  type: AccountWalletType;
+  subId: string;
+};
+
+/**
  * Account wallet that can hold multiple account groups.
  */
 export type AccountWallet<Account extends KeyringAccount> = {
@@ -73,4 +87,24 @@ export function toAccountWalletId<WalletType extends AccountWalletType>(
   id: string,
 ): AccountWalletIdOf<WalletType> {
   return `${type}:${id}`;
+}
+
+/**
+ * Parse a account wallet ID to an object containing a parsed wallet ID information
+ * and parsed account wallet ID information.
+ * This validates the account wallet ID before parsing it.
+ *
+ * @param walletId - The account wallet ID to validate and parse.
+ * @returns The parsed account wallet ID.
+ */
+export function parseAccountWalletId(walletId: string): ParsedAccountWalletId {
+  const match = ACCOUNT_WALLET_ID_REGEX.exec(walletId);
+  if (!match?.groups) {
+    throw new Error('Invalid account wallet ID.');
+  }
+
+  return {
+    type: match.groups.walletType as AccountWalletType,
+    subId: match.groups.walletSubId as string,
+  };
 }

@@ -7,6 +7,7 @@ import type {
   AccountWalletId,
   AccountWalletIdOf,
   AccountWalletType,
+  ParsedAccountWalletId,
 } from './wallet';
 
 /**
@@ -34,6 +35,20 @@ export enum AccountGroupType {
  * Account group ID.
  */
 export type AccountGroupId = `${AccountWalletId}/${string}`;
+
+/**
+ * Regex to validate a valid account group ID.
+ */
+export const ACCOUNT_GROUP_ID_REGEX =
+  /^(?<walletType>entropy|snap|keyring):(?<walletSubId>.+)\/(?<groupSubId>[^/]+)$/u;
+
+/**
+ * Parsed account group ID with its parsed wallet component and its sub-ID.
+ */
+export type ParsedAccountGroupId = {
+  wallet: ParsedAccountWalletId;
+  subId: string;
+};
 
 /**
  * Account group that can hold multiple accounts.
@@ -121,4 +136,27 @@ export function toDefaultAccountGroupId<WalletType extends AccountWalletType>(
     walletId,
     DEFAULT_ACCOUNT_GROUP_UNIQUE_ID,
   );
+}
+
+/**
+ * Parse a account group ID to an object containing a parsed wallet ID information
+ * and parsed account group ID information.
+ * This validates the account group ID before parsing it.
+ *
+ * @param groupId - The account group ID to validate and parse.
+ * @returns The parsed account group ID.
+ */
+export function parseAccountGroupId(groupId: string): ParsedAccountGroupId {
+  const match = ACCOUNT_GROUP_ID_REGEX.exec(groupId);
+  if (!match?.groups) {
+    throw new Error('Invalid account group ID.');
+  }
+
+  return {
+    wallet: {
+      type: match.groups.walletType as AccountWalletType,
+      subId: match.groups.walletSubId as string,
+    },
+    subId: match.groups.groupSubId as string,
+  };
 }
