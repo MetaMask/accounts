@@ -4,6 +4,7 @@
     { "path": "./packages/keyring-internal-api/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-ledger-bridge/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-qr/tsconfig.build.json" },
+    { "path": "./packages/keyring-eth-onekey/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-simple/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-trezor/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-hd/tsconfig.build.json" },
