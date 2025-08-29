@@ -35,12 +35,14 @@ export type AccountProvider<Account extends KeyringAccount> = {
   }) => Promise<Account[]>;
 
   /**
-   * Discover accounts for a given entropy source.
+   * Discover accounts for a given entropy source and a given group
+   * index.
    *
    * NOTE: This method needs to also create the discovered accounts.
    *
    * @param options - Options.
    * @param options.entropySource - Entropy source to use.
+   * @param options.groupIndex - Group index to use.
    * @returns The list of discovered and created accounts.
    */
   discoverAndCreateAccounts: (options: {
