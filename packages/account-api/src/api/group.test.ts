@@ -1,8 +1,7 @@
 import {
   DEFAULT_ACCOUNT_GROUP_UNIQUE_ID,
-  getAccountGroupSubId,
-  getAccountGroupWalletId,
   parseAccountGroupId,
+  stripAccountWalletId,
   toAccountGroupId,
   toDefaultAccountGroupId,
 } from './group';
@@ -10,16 +9,12 @@ import { AccountWalletType, toAccountWalletId } from './wallet';
 import {
   MOCK_ENTROPY_GROUP_ID,
   MOCK_ENTROPY_SOURCE_1,
-  MOCK_ENTROPY_WALLET_ID,
   MOCK_KEYRING_GROUP_ID,
-  MOCK_KEYRING_WALLET_ID,
   MOCK_PRIVATE_KEY_KEYRING_TYPE,
   MOCK_SNAP_1,
   MOCK_SNAP_2,
   MOCK_SNAP_LOCAL_GROUP_ID,
-  MOCK_SNAP_LOCAL_WALLET_ID,
   MOCK_SNAP_NPM_GROUP_ID,
-  MOCK_SNAP_NPM_WALLET_ID,
 } from '../mocks';
 
 const MOCK_INVALID_GROUP_IDS = [
@@ -57,6 +52,10 @@ describe('group', () => {
         id: MOCK_ENTROPY_GROUP_ID,
         parsed: {
           wallet: {
+            id: toAccountWalletId(
+              AccountWalletType.Entropy,
+              MOCK_ENTROPY_SOURCE_1,
+            ),
             type: AccountWalletType.Entropy,
             subId: MOCK_ENTROPY_SOURCE_1,
           },
@@ -67,6 +66,7 @@ describe('group', () => {
         id: MOCK_SNAP_LOCAL_GROUP_ID,
         parsed: {
           wallet: {
+            id: toAccountWalletId(AccountWalletType.Snap, MOCK_SNAP_1.id),
             type: AccountWalletType.Snap,
             subId: MOCK_SNAP_1.id,
           },
@@ -77,6 +77,7 @@ describe('group', () => {
         id: MOCK_SNAP_NPM_GROUP_ID,
         parsed: {
           wallet: {
+            id: toAccountWalletId(AccountWalletType.Snap, MOCK_SNAP_2.id),
             type: AccountWalletType.Snap,
             subId: MOCK_SNAP_2.id,
           },
@@ -87,6 +88,10 @@ describe('group', () => {
         id: MOCK_KEYRING_GROUP_ID,
         parsed: {
           wallet: {
+            id: toAccountWalletId(
+              AccountWalletType.Keyring,
+              MOCK_PRIVATE_KEY_KEYRING_TYPE,
+            ),
             type: AccountWalletType.Keyring,
             subId: MOCK_PRIVATE_KEY_KEYRING_TYPE,
           },
@@ -107,49 +112,33 @@ describe('group', () => {
     );
   });
 
-  describe('getAccountGroupWalletId', () => {
+  describe('stripAccountWalletId', () => {
     it.each([
       {
         id: MOCK_ENTROPY_GROUP_ID,
-        walletId: MOCK_ENTROPY_WALLET_ID,
+        stripped: '0',
       },
       {
         id: MOCK_SNAP_LOCAL_GROUP_ID,
-        walletId: MOCK_SNAP_LOCAL_WALLET_ID,
+        stripped: '0x123',
       },
       {
         id: MOCK_SNAP_NPM_GROUP_ID,
-        walletId: MOCK_SNAP_NPM_WALLET_ID,
+        stripped: '0x456',
       },
       {
         id: MOCK_KEYRING_GROUP_ID,
-        walletId: MOCK_KEYRING_WALLET_ID,
+        stripped: '0x789',
       },
-    ])('get account group wallet ID for: %s', ({ id, walletId }) => {
-      expect(getAccountGroupWalletId(id)).toStrictEqual(walletId);
+    ])('get account group sub-ID for: %s', ({ id, stripped }) => {
+      expect(stripAccountWalletId(id)).toStrictEqual(stripped);
     });
-  });
 
-  describe('getAccountGroupSubId', () => {
-    it.each([
-      {
-        id: MOCK_ENTROPY_GROUP_ID,
-        subId: '0',
+    it.each(MOCK_INVALID_GROUP_IDS)(
+      'returns the input if not valid for: %s',
+      (id) => {
+        expect(stripAccountWalletId(id)).toStrictEqual(id);
       },
-      {
-        id: MOCK_SNAP_LOCAL_GROUP_ID,
-        subId: '0x123',
-      },
-      {
-        id: MOCK_SNAP_NPM_GROUP_ID,
-        subId: '0x456',
-      },
-      {
-        id: MOCK_KEYRING_GROUP_ID,
-        subId: '0x789',
-      },
-    ])('get account group sub-ID for: %s', ({ id, subId }) => {
-      expect(getAccountGroupSubId(id)).toStrictEqual(subId);
-    });
+    );
   });
 });

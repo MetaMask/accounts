@@ -8,7 +8,6 @@ import {
   type AccountWalletId,
   type AccountWalletIdOf,
   type AccountWalletType,
-  type ParsedAccountWalletId,
 } from './wallet';
 
 /**
@@ -47,7 +46,11 @@ export const ACCOUNT_GROUP_ID_REGEX =
  * Parsed account group ID with its parsed wallet component and its sub-ID.
  */
 export type ParsedAccountGroupId = {
-  wallet: ParsedAccountWalletId;
+  wallet: {
+    id: AccountWalletId;
+    type: AccountWalletType;
+    subId: string;
+  };
   subId: string;
 };
 
@@ -153,33 +156,29 @@ export function parseAccountGroupId(groupId: string): ParsedAccountGroupId {
     throw new Error('Invalid account group ID.');
   }
 
+  const walletType = match.groups.walletType as AccountWalletType;
+  const walletSubId = match.groups.walletSubId as string;
+
   return {
     wallet: {
-      type: match.groups.walletType as AccountWalletType,
-      subId: match.groups.walletSubId as string,
+      id: toAccountWalletId(walletType, walletSubId),
+      type: walletType,
+      subId: walletSubId,
     },
     subId: match.groups.groupSubId as string,
   };
 }
 
 /**
- * Get account wallet ID from an account group ID.
- *
- * @param groupId - Account group ID.
- * @returns Associated account wallet ID to this account group ID.
- */
-export function getAccountGroupWalletId(groupId: string): AccountWalletId {
-  const { type, subId } = parseAccountGroupId(groupId).wallet;
-
-  return toAccountWalletId(type, subId);
-}
-
-/**
- * Get the account group sub-ID from an account group ID.
+ * Strip the account wallet ID from an account group ID.
  *
  * @param groupId - Account group ID.
  * @returns Stripped ID.
  */
-export function getAccountGroupSubId(groupId: string): string {
-  return parseAccountGroupId(groupId).subId;
+export function stripAccountWalletId(groupId: string): string {
+  try {
+    return parseAccountGroupId(groupId).subId;
+  } catch {
+    return groupId;
+  }
 }

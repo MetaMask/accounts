@@ -1,21 +1,19 @@
 import {
   AccountWalletType,
-  getAccountWalletSubId,
-  getAccountWalletType,
+  stripAccountWalletType,
   parseAccountWalletId,
   toAccountWalletId,
 } from './wallet';
 import {
   MOCK_ENTROPY_SOURCE_1,
+  MOCK_ENTROPY_WALLET_ID,
+  MOCK_KEYRING_WALLET_ID,
   MOCK_PRIVATE_KEY_KEYRING_TYPE,
   MOCK_SNAP_1,
   MOCK_SNAP_2,
+  MOCK_SNAP_LOCAL_WALLET_ID,
+  MOCK_SNAP_NPM_WALLET_ID,
 } from '../mocks';
-
-const MOCK_ENTROPY_WALLET_ID = `${AccountWalletType.Entropy}:${MOCK_ENTROPY_SOURCE_1}`;
-const MOCK_SNAP_LOCAL_WALLET_ID = `${AccountWalletType.Snap}:${MOCK_SNAP_1.id}`;
-const MOCK_SNAP_NPM_WALLET_ID = `${AccountWalletType.Snap}:${MOCK_SNAP_2.id}`;
-const MOCK_KEYRING_WALLET_ID = `${AccountWalletType.Keyring}:${MOCK_PRIVATE_KEY_KEYRING_TYPE}`;
 
 const MOCK_INVALID_WALLET_IDS = [
   'invalid-id',
@@ -81,49 +79,33 @@ describe('wallet', () => {
     );
   });
 
-  describe('getAccountWalletType', () => {
+  describe('stripAccountWalletType', () => {
     it.each([
       {
         id: MOCK_ENTROPY_WALLET_ID,
-        type: AccountWalletType.Entropy,
+        stripped: MOCK_ENTROPY_SOURCE_1,
       },
       {
         id: MOCK_SNAP_LOCAL_WALLET_ID,
-        type: AccountWalletType.Snap,
+        stripped: MOCK_SNAP_1.id,
       },
       {
         id: MOCK_SNAP_NPM_WALLET_ID,
-        type: AccountWalletType.Snap,
+        stripped: MOCK_SNAP_2.id,
       },
       {
         id: MOCK_KEYRING_WALLET_ID,
-        type: AccountWalletType.Keyring,
+        stripped: MOCK_PRIVATE_KEY_KEYRING_TYPE,
       },
-    ])('get account wallet type for: %s', ({ id, type }) => {
-      expect(getAccountWalletType(id)).toStrictEqual(type);
+    ])('get account wallet sub-ID for: %s', ({ id, stripped }) => {
+      expect(stripAccountWalletType(id)).toStrictEqual(stripped);
     });
-  });
 
-  describe('getAccountWalletSubId', () => {
-    it.each([
-      {
-        id: MOCK_ENTROPY_WALLET_ID,
-        subId: MOCK_ENTROPY_SOURCE_1,
+    it.each(MOCK_INVALID_WALLET_IDS)(
+      'returns the input if not valid for: %s',
+      (id) => {
+        expect(stripAccountWalletType(id)).toStrictEqual(id);
       },
-      {
-        id: MOCK_SNAP_LOCAL_WALLET_ID,
-        subId: MOCK_SNAP_1.id,
-      },
-      {
-        id: MOCK_SNAP_NPM_WALLET_ID,
-        subId: MOCK_SNAP_2.id,
-      },
-      {
-        id: MOCK_KEYRING_WALLET_ID,
-        subId: MOCK_PRIVATE_KEY_KEYRING_TYPE,
-      },
-    ])('get account wallet sub-ID for: %s', ({ id, subId }) => {
-      expect(getAccountWalletSubId(id)).toStrictEqual(subId);
-    });
+    );
   });
 });
