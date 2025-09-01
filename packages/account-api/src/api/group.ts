@@ -2,12 +2,13 @@ import type { KeyringAccount } from '@metamask/keyring-api';
 
 // Circular import are allowed when using `import type`.
 import type { AccountSelector } from './selector';
-import type {
-  AccountWallet,
-  AccountWalletId,
-  AccountWalletIdOf,
-  AccountWalletType,
-  ParsedAccountWalletId,
+import {
+  toAccountWalletId,
+  type AccountWallet,
+  type AccountWalletId,
+  type AccountWalletIdOf,
+  type AccountWalletType,
+  type ParsedAccountWalletId,
 } from './wallet';
 
 /**
@@ -40,7 +41,7 @@ export type AccountGroupId = `${AccountWalletId}/${string}`;
  * Regex to validate a valid account group ID.
  */
 export const ACCOUNT_GROUP_ID_REGEX =
-  /^(?<walletType>entropy|snap|keyring):(?<walletSubId>.+)\/(?<groupSubId>[^/]+)$/u;
+  /^(?<walletId>(?<walletType>entropy|snap|keyring):(?<walletSubId>.+))\/(?<groupSubId>[^/]+)$/u;
 
 /**
  * Parsed account group ID with its parsed wallet component and its sub-ID.
@@ -159,4 +160,26 @@ export function parseAccountGroupId(groupId: string): ParsedAccountGroupId {
     },
     subId: match.groups.groupSubId as string,
   };
+}
+
+/**
+ * Get account wallet ID from an account group ID.
+ *
+ * @param groupId - Account group ID.
+ * @returns Associated account wallet ID to this account group ID.
+ */
+export function getAccountGroupWalletId(groupId: string): AccountWalletId {
+  const { type, subId } = parseAccountGroupId(groupId).wallet;
+
+  return toAccountWalletId(type, subId);
+}
+
+/**
+ * Get the account group sub-ID from an account group ID.
+ *
+ * @param groupId - Account group ID.
+ * @returns Stripped ID.
+ */
+export function getAccountGroupSubId(groupId: string): string {
+  return parseAccountGroupId(groupId).subId;
 }

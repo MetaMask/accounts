@@ -38,7 +38,7 @@ export const MOCK_SNAP_1 = {
 };
 
 export const MOCK_SNAP_2 = {
-  id: 'local:mock-snap-id-2',
+  id: 'npm:@metamask/mock-snap-id-2',
   name: 'Mock Snap 2',
   enabled: true,
   manifest: {
@@ -48,6 +48,8 @@ export const MOCK_SNAP_2 = {
 
 export const MOCK_ENTROPY_SOURCE_1 = 'mock-keyring-id-1';
 export const MOCK_ENTROPY_SOURCE_2 = 'mock-keyring-id-2';
+
+export const MOCK_PRIVATE_KEY_KEYRING_TYPE = 'Simple Key Pair';
 
 export const MOCK_HD_ACCOUNT_1: Bip44Account<KeyringAccount> = {
   id: 'mock-id-1',
