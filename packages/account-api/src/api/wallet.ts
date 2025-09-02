@@ -25,7 +25,7 @@ export enum AccountWalletType {
 export type AccountWalletId = `${AccountWalletType}:${string}`;
 
 /**
- * Regex to validate a valid account wallet ID.
+ * Regex to validate an account wallet ID.
  */
 export const ACCOUNT_WALLET_ID_REGEX =
   /^(?<walletType>entropy|keyring|snap):(?<walletSubId>.+)$/u;

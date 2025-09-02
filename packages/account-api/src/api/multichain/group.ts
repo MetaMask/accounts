@@ -91,7 +91,7 @@ export function isMultichainAccountGroupId(
  *
  * @param groupId - The multichain account group ID to validate and parse.
  * @returns The parsed multichain account group ID.
- * @throws If unable to validate multichain group ID.
+ * @throws {Error} When the provided groupId doesn't match the expected format.
  */
 export function parseMultichainAccountGroupId(
   groupId: string,
@@ -120,7 +120,7 @@ export function parseMultichainAccountGroupId(
  *
  * @param id - Multichain account ID.
  * @returns The multichain account index if extractable, undefined otherwise.
- * @throws If unable to validate multichain group ID.
+ * @throws {Error} When the multichain account group ID is invalid.
  */
 export function getGroupIndexFromMultichainAccountGroupId(
   id: MultichainAccountGroupId,
