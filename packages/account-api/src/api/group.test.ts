@@ -156,7 +156,7 @@ describe('group', () => {
     it.each(MOCK_INVALID_GROUP_IDS)(
       'fails to parse invalid account group ID',
       (id) => {
-        expect(() => parseAccountGroupId(id)).toThrow(
+        expect(() => stripAccountWalletId(id)).toThrow(
           `Invalid account group ID: "${id}"`,
         );
       },

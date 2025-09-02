@@ -123,7 +123,7 @@ describe('wallet', () => {
     it.each(MOCK_INVALID_WALLET_IDS)(
       'fails to parse invalid account wallet ID',
       (id) => {
-        expect(() => parseAccountWalletId(id)).toThrow(
+        expect(() => stripAccountWalletType(id)).toThrow(
           `Invalid account wallet ID: "${id}"`,
         );
       },
