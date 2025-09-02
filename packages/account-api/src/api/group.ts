@@ -3,7 +3,6 @@ import type { KeyringAccount } from '@metamask/keyring-api';
 // Circular import are allowed when using `import type`.
 import type { AccountSelector } from './selector';
 import {
-  toAccountWalletId,
   type AccountWallet,
   type AccountWalletId,
   type AccountWalletIdOf,
@@ -143,25 +142,37 @@ export function toDefaultAccountGroupId<WalletType extends AccountWalletType>(
 }
 
 /**
+ * Checks if the given value is {@link AccountGroupId}.
+ *
+ * @param value - The value to check.
+ * @returns Whether the value is a {@link AccountGroupId}.
+ */
+export function isAccountGroupId(value: string): value is AccountGroupId {
+  return ACCOUNT_GROUP_ID_REGEX.test(value);
+}
+
+/**
  * Parse a account group ID to an object containing a parsed wallet ID information
  * and parsed account group ID information.
  * This validates the account group ID before parsing it.
  *
  * @param groupId - The account group ID to validate and parse.
  * @returns The parsed account group ID.
+ * @throws If unable to validate group ID.
  */
 export function parseAccountGroupId(groupId: string): ParsedAccountGroupId {
   const match = ACCOUNT_GROUP_ID_REGEX.exec(groupId);
   if (!match?.groups) {
-    throw new Error('Invalid account group ID.');
+    throw new Error('Invalid account group ID');
   }
 
+  const walletId = match.groups.walletId as AccountWalletId;
   const walletType = match.groups.walletType as AccountWalletType;
   const walletSubId = match.groups.walletSubId as string;
 
   return {
     wallet: {
-      id: toAccountWalletId(walletType, walletSubId),
+      id: walletId,
       type: walletType,
       subId: walletSubId,
     },

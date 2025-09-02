@@ -90,6 +90,16 @@ export function toAccountWalletId<WalletType extends AccountWalletType>(
 }
 
 /**
+ * Checks if the given value is {@link AccountWalletId}.
+ *
+ * @param value - The value to check.
+ * @returns Whether the value is a {@link AccountWalletId}.
+ */
+export function isAccountWalletId(value: string): value is AccountWalletId {
+  return ACCOUNT_WALLET_ID_REGEX.test(value);
+}
+
+/**
  * Parse a account wallet ID to an object containing a parsed wallet ID information
  * and parsed account wallet ID information.
  * This validates the account wallet ID before parsing it.
@@ -100,7 +110,7 @@ export function toAccountWalletId<WalletType extends AccountWalletType>(
 export function parseAccountWalletId(walletId: string): ParsedAccountWalletId {
   const match = ACCOUNT_WALLET_ID_REGEX.exec(walletId);
   if (!match?.groups) {
-    throw new Error('Invalid account wallet ID.');
+    throw new Error('Invalid account wallet ID');
   }
 
   return {

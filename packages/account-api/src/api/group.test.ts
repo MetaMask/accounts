@@ -1,5 +1,6 @@
 import {
   DEFAULT_ACCOUNT_GROUP_UNIQUE_ID,
+  isAccountGroupId,
   parseAccountGroupId,
   stripAccountWalletId,
   toAccountGroupId,
@@ -44,6 +45,24 @@ describe('group', () => {
         true,
       );
     });
+  });
+
+  describe('isAccountGroupId', () => {
+    it.each([
+      MOCK_ENTROPY_GROUP_ID,
+      MOCK_SNAP_LOCAL_GROUP_ID,
+      MOCK_SNAP_NPM_GROUP_ID,
+      MOCK_KEYRING_GROUP_ID,
+    ])('returns true if ID is valid: %s', (id) => {
+      expect(isAccountGroupId(id)).toBe(true);
+    });
+
+    it.each(MOCK_INVALID_GROUP_IDS)(
+      'returns false if ID is valid: %s',
+      (id) => {
+        expect(isAccountGroupId(id)).toBe(false);
+      },
+    );
   });
 
   describe('parseAccountGroupId', () => {
@@ -106,7 +125,7 @@ describe('group', () => {
       'fails to parse invalid account group ID',
       (id) => {
         expect(() => parseAccountGroupId(id)).toThrow(
-          'Invalid account group ID.',
+          'Invalid account group ID',
         );
       },
     );

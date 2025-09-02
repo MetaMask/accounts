@@ -3,6 +3,7 @@ import {
   stripAccountWalletType,
   parseAccountWalletId,
   toAccountWalletId,
+  isAccountWalletId,
 } from './wallet';
 import {
   MOCK_ENTROPY_SOURCE_1,
@@ -31,6 +32,24 @@ describe('wallet', () => {
 
         expect(walletId.startsWith(type)).toBe(true);
         expect(walletId.endsWith(':test')).toBe(true);
+      },
+    );
+  });
+
+  describe('isAccountWalletId', () => {
+    it.each([
+      MOCK_ENTROPY_WALLET_ID,
+      MOCK_SNAP_LOCAL_WALLET_ID,
+      MOCK_SNAP_NPM_WALLET_ID,
+      MOCK_KEYRING_WALLET_ID,
+    ])('returns true if ID is valid: %s', (id) => {
+      expect(isAccountWalletId(id)).toBe(true);
+    });
+
+    it.each(MOCK_INVALID_WALLET_IDS)(
+      'returns false if ID is valid: %s',
+      (id) => {
+        expect(isAccountWalletId(id)).toBe(false);
       },
     );
   });
@@ -73,7 +92,7 @@ describe('wallet', () => {
       'fails to parse invalid account wallet ID',
       (id) => {
         expect(() => parseAccountWalletId(id)).toThrow(
-          'Invalid account wallet ID.',
+          'Invalid account wallet ID',
         );
       },
     );

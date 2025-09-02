@@ -66,7 +66,7 @@ describe('multichain group', () => {
           // be possible!
           groupId as unknown as MultichainAccountGroupId,
         ),
-      ).toThrow('Unable to extract group index');
+      ).toThrow('Invalid multichain account group ID');
     });
   });
 });
