@@ -15,7 +15,7 @@ describe('multichain wallet', () => {
     });
   });
 
-  describe('isMultichainAccountGroupId', () => {
+  describe('isMultichainAccountWalletId', () => {
     it('returns true if a account wallet id is a multichain account wallet id', () => {
       const walletId = toMultichainAccountWalletId(MOCK_ENTROPY_SOURCE_1);
 
