@@ -240,8 +240,9 @@ export class OneKeyKeyring extends EventEmitter {
             this.passphraseState = passphraseResponse.payload;
           }
           if (!passphraseResponse.success) {
-            reject(new Error('getPassphraseState failed'));
-            return;
+            throw new Error(
+              passphraseResponse.payload?.error || 'Unknown error',
+            );
           }
           this.passphraseState = passphraseResponse.payload;
 
