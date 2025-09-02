@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(account-api): add group/wallet id parsing support ([#360](https://github.com/MetaMask/accounts/pull/360))
+- feat: revert changes to `AccountProvider` and add `Bip44AccountProvider` type alias ([#361](https://github.com/MetaMask/accounts/pull/361))
+- feat: add all bitcoin methods ([#354](https://github.com/MetaMask/accounts/pull/354))
+- feat: update provider type ([#352](https://github.com/MetaMask/accounts/pull/352))
+
 ## [0.9.0]
 
 ### Changed
