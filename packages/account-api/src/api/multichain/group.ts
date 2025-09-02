@@ -6,7 +6,7 @@ import type {
 } from './wallet';
 import type { Bip44Account } from '../bip44';
 import type { AccountGroup, AccountGroupType } from '../group';
-import { AccountWalletType } from '../wallet';
+import type { AccountWalletType } from '../wallet';
 
 /**
  * Multichain account ID.

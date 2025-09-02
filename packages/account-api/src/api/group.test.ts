@@ -58,7 +58,7 @@ describe('group', () => {
     });
 
     it.each(MOCK_INVALID_GROUP_IDS)(
-      'returns false if ID is valid: %s',
+      'returns false if ID is invalid: %s',
       (id) => {
         expect(isAccountGroupId(id)).toBe(false);
       },

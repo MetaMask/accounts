@@ -47,7 +47,7 @@ describe('wallet', () => {
     });
 
     it.each(MOCK_INVALID_WALLET_IDS)(
-      'returns false if ID is valid: %s',
+      'returns false if ID is invalid: %s',
       (id) => {
         expect(isAccountWalletId(id)).toBe(false);
       },

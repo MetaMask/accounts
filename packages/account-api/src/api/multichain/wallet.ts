@@ -15,6 +15,12 @@ export type MultichainAccountWalletId =
   `${AccountWalletType.Entropy}:${EntropySourceId}`;
 
 /**
+ * Regex to validate a valid multichain account wallet ID.
+ */
+export const MULTICHAIN_ACCOUNT_WALLET_ID_REGEX =
+  /^(?<walletId>(?<walletType>entropy):(?<walletSubId>.+))$/u;
+
+/**
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per
  * group index).
  */
@@ -64,4 +70,16 @@ export function toMultichainAccountWalletId(
   entropySource: EntropySourceId,
 ): MultichainAccountWalletId {
   return `${AccountWalletType.Entropy}:${entropySource}`;
+}
+
+/**
+ * Checks if the given value is {@link MultichainAccountWalletId}.
+ *
+ * @param value - The value to check.
+ * @returns Whether the value is a {@link MultichainAccountWalletId}.
+ */
+export function isMultichainAccountWalletId(
+  value: string,
+): value is MultichainAccountWalletId {
+  return MULTICHAIN_ACCOUNT_WALLET_ID_REGEX.test(value);
 }
