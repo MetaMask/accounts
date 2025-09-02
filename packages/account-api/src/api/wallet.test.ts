@@ -121,9 +121,11 @@ describe('wallet', () => {
     });
 
     it.each(MOCK_INVALID_WALLET_IDS)(
-      'returns the input if not valid for: %s',
+      'fails to parse invalid account wallet ID',
       (id) => {
-        expect(stripAccountWalletType(id)).toStrictEqual(id);
+        expect(() => parseAccountWalletId(id)).toThrow(
+          `Invalid account wallet ID: "${id}"`,
+        );
       },
     );
   });

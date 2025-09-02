@@ -183,15 +183,10 @@ export function parseAccountGroupId(groupId: string): ParsedAccountGroupId {
 /**
  * Strip the account wallet ID from an account group ID.
  *
- * Note: This function will return the input as-is if the input is not a valid.
- *
  * @param groupId - Account group ID.
- * @returns Stripped ID.
+ * @returns Account group sub-ID.
+ * @throws When the group ID format is invalid.
  */
 export function stripAccountWalletId(groupId: string): string {
-  try {
-    return parseAccountGroupId(groupId).subId;
-  } catch {
-    return groupId;
-  }
+  return parseAccountGroupId(groupId).subId;
 }

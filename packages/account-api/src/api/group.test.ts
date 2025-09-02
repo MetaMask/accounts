@@ -154,9 +154,11 @@ describe('group', () => {
     });
 
     it.each(MOCK_INVALID_GROUP_IDS)(
-      'returns the input if not valid for: %s',
+      'fails to parse invalid account group ID',
       (id) => {
-        expect(stripAccountWalletId(id)).toStrictEqual(id);
+        expect(() => parseAccountGroupId(id)).toThrow(
+          `Invalid account group ID: "${id}"`,
+        );
       },
     );
   });

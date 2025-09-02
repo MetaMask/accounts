@@ -122,15 +122,10 @@ export function parseAccountWalletId(walletId: string): ParsedAccountWalletId {
 /**
  * Strip the account wallet type from an account wallet ID.
  *
- * Note: This function will return the input as-is if the input is not a valid.
- *
  * @param walletId - Account wallet ID.
- * @returns Stripped ID.
+ * @returns Account wallet sub-ID.
+ * @throws When the wallet ID format is invalid.
  */
 export function stripAccountWalletType(walletId: string): string {
-  try {
-    return parseAccountWalletId(walletId).subId;
-  } catch {
-    return walletId;
-  }
+  return parseAccountWalletId(walletId).subId;
 }
