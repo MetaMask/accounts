@@ -100,17 +100,17 @@ export function isAccountWalletId(value: string): value is AccountWalletId {
 }
 
 /**
- * Parse a account wallet ID to an object containing a parsed wallet ID information
- * and parsed account wallet ID information.
- * This validates the account wallet ID before parsing it.
+ * Parse an account wallet ID to an object containing a wallet ID information
+ * (wallet type and wallet sub-ID).
  *
  * @param walletId - The account wallet ID to validate and parse.
  * @returns The parsed account wallet ID.
+ * @throws When the wallet ID format is invalid.
  */
 export function parseAccountWalletId(walletId: string): ParsedAccountWalletId {
   const match = ACCOUNT_WALLET_ID_REGEX.exec(walletId);
   if (!match?.groups) {
-    throw new Error('Invalid account wallet ID');
+    throw new Error(`Invalid account wallet ID: "${walletId}"`);
   }
 
   return {

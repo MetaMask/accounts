@@ -152,18 +152,18 @@ export function isAccountGroupId(value: string): value is AccountGroupId {
 }
 
 /**
- * Parse a account group ID to an object containing a parsed wallet ID information
- * and parsed account group ID information.
- * This validates the account group ID before parsing it.
+ * Parse a multichain account group ID to an object containing a wallet ID
+ * information (wallet type and wallet sub-ID), as well as account group ID
+ * information (group sub-ID).
  *
  * @param groupId - The account group ID to validate and parse.
  * @returns The parsed account group ID.
- * @throws If unable to validate group ID.
+ * @throws When the group ID format is invalid.
  */
 export function parseAccountGroupId(groupId: string): ParsedAccountGroupId {
   const match = ACCOUNT_GROUP_ID_REGEX.exec(groupId);
   if (!match?.groups) {
-    throw new Error('Invalid account group ID');
+    throw new Error(`Invalid account group ID: "${groupId}"`);
   }
 
   const walletId = match.groups.walletId as AccountWalletId;

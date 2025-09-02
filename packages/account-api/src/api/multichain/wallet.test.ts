@@ -1,5 +1,6 @@
 import {
   isMultichainAccountWalletId,
+  parseMultichainAccountWalletId,
   toMultichainAccountWalletId,
 } from './wallet';
 import { MOCK_ENTROPY_SOURCE_1 } from '../../mocks';
@@ -28,6 +29,28 @@ describe('multichain wallet', () => {
       );
 
       expect(isMultichainAccountWalletId(walletId)).toBe(false);
+    });
+  });
+
+  describe('parseAccountWalletId', () => {
+    it('parses multichain account wallet id', () => {
+      const walletId = toMultichainAccountWalletId(MOCK_ENTROPY_SOURCE_1);
+
+      expect(parseMultichainAccountWalletId(walletId)).toStrictEqual({
+        type: AccountWalletType.Entropy,
+        subId: MOCK_ENTROPY_SOURCE_1,
+      });
+    });
+
+    it('fails to parse invalid account wallet id', () => {
+      const walletId = toAccountWalletId(
+        AccountWalletType.Keyring,
+        MOCK_ENTROPY_SOURCE_1,
+      );
+
+      expect(() => parseMultichainAccountWalletId(walletId)).toThrow(
+        `Invalid account wallet ID: "${walletId}"`,
+      );
     });
   });
 });

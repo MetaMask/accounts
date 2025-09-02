@@ -125,7 +125,7 @@ describe('group', () => {
       'fails to parse invalid account group ID',
       (id) => {
         expect(() => parseAccountGroupId(id)).toThrow(
-          'Invalid account group ID',
+          `Invalid account group ID: "${id}"`,
         );
       },
     );

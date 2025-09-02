@@ -92,7 +92,7 @@ describe('wallet', () => {
       'fails to parse invalid account wallet ID',
       (id) => {
         expect(() => parseAccountWalletId(id)).toThrow(
-          'Invalid account wallet ID',
+          `Invalid account wallet ID: "${id}"`,
         );
       },
     );

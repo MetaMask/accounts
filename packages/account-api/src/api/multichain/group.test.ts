@@ -66,7 +66,7 @@ describe('multichain group', () => {
           // be possible!
           groupId as unknown as MultichainAccountGroupId,
         ),
-      ).toThrow('Invalid multichain account group ID');
+      ).toThrow(`Invalid multichain account group ID: "${groupId}"`);
     });
   });
 });
