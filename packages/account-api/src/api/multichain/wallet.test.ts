@@ -49,7 +49,7 @@ describe('multichain wallet', () => {
       );
 
       expect(() => parseMultichainAccountWalletId(walletId)).toThrow(
-        `Invalid account wallet ID: "${walletId}"`,
+        `Invalid multichain account wallet ID: "${walletId}"`,
       );
     });
   });

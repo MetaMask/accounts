@@ -105,7 +105,7 @@ export function parseMultichainAccountWalletId(
 ): ParsedMultichainAccountWalletId {
   const match = MULTICHAIN_ACCOUNT_WALLET_ID_REGEX.exec(walletId);
   if (!match?.groups) {
-    throw new Error(`Invalid account wallet ID: "${walletId}"`);
+    throw new Error(`Invalid multichain account wallet ID: "${walletId}"`);
   }
 
   return {
