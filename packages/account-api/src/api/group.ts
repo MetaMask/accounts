@@ -2,11 +2,11 @@ import type { KeyringAccount } from '@metamask/keyring-api';
 
 // Circular import are allowed when using `import type`.
 import type { AccountSelector } from './selector';
-import type {
-  AccountWallet,
-  AccountWalletId,
-  AccountWalletIdOf,
-  AccountWalletType,
+import {
+  type AccountWallet,
+  type AccountWalletId,
+  type AccountWalletIdOf,
+  type AccountWalletType,
 } from './wallet';
 
 /**
@@ -34,6 +34,24 @@ export enum AccountGroupType {
  * Account group ID.
  */
 export type AccountGroupId = `${AccountWalletId}/${string}`;
+
+/**
+ * Regex to validate a valid account group ID.
+ */
+export const ACCOUNT_GROUP_ID_REGEX =
+  /^(?<walletId>(?<walletType>entropy|snap|keyring):(?<walletSubId>.+))\/(?<groupSubId>[^/]+)$/u;
+
+/**
+ * Parsed account group ID with its parsed wallet component and its sub-ID.
+ */
+export type ParsedAccountGroupId = {
+  wallet: {
+    id: AccountWalletId;
+    type: AccountWalletType;
+    subId: string;
+  };
+  subId: string;
+};
 
 /**
  * Account group that can hold multiple accounts.
@@ -121,4 +139,54 @@ export function toDefaultAccountGroupId<WalletType extends AccountWalletType>(
     walletId,
     DEFAULT_ACCOUNT_GROUP_UNIQUE_ID,
   );
+}
+
+/**
+ * Checks if the given value is {@link AccountGroupId}.
+ *
+ * @param value - The value to check.
+ * @returns Whether the value is a {@link AccountGroupId}.
+ */
+export function isAccountGroupId(value: string): value is AccountGroupId {
+  return ACCOUNT_GROUP_ID_REGEX.test(value);
+}
+
+/**
+ * Parse a multichain account group ID to an object containing a wallet ID
+ * information (wallet type and wallet sub-ID), as well as account group ID
+ * information (group sub-ID).
+ *
+ * @param groupId - The account group ID to validate and parse.
+ * @returns The parsed account group ID.
+ * @throws When the group ID format is invalid.
+ */
+export function parseAccountGroupId(groupId: string): ParsedAccountGroupId {
+  const match = ACCOUNT_GROUP_ID_REGEX.exec(groupId);
+  if (!match?.groups) {
+    throw new Error(`Invalid account group ID: "${groupId}"`);
+  }
+
+  const walletId = match.groups.walletId as AccountWalletId;
+  const walletType = match.groups.walletType as AccountWalletType;
+  const walletSubId = match.groups.walletSubId as string;
+
+  return {
+    wallet: {
+      id: walletId,
+      type: walletType,
+      subId: walletSubId,
+    },
+    subId: match.groups.groupSubId as string,
+  };
+}
+
+/**
+ * Strip the account wallet ID from an account group ID.
+ *
+ * @param groupId - Account group ID.
+ * @returns Account group sub-ID.
+ * @throws When the group ID format is invalid.
+ */
+export function stripAccountWalletId(groupId: string): string {
+  return parseAccountGroupId(groupId).subId;
 }

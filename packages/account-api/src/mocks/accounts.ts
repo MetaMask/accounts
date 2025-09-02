@@ -15,6 +15,7 @@ import {
 } from '@metamask/keyring-api';
 import { v4 as uuid } from 'uuid';
 
+import { MOCK_ENTROPY_SOURCE_1, MOCK_ENTROPY_SOURCE_2 } from './keyrings';
 import { isBip44Account, type Bip44Account } from '../api';
 
 const ETH_EOA_METHODS = [
@@ -27,27 +28,6 @@ const ETH_EOA_METHODS = [
 ] as const;
 
 const SOL_METHODS = Object.values(SolMethod);
-
-export const MOCK_SNAP_1 = {
-  id: 'local:mock-snap-id-1',
-  name: 'Mock Snap 1',
-  enabled: true,
-  manifest: {
-    proposedName: 'Mock Snap 1',
-  },
-};
-
-export const MOCK_SNAP_2 = {
-  id: 'local:mock-snap-id-2',
-  name: 'Mock Snap 2',
-  enabled: true,
-  manifest: {
-    proposedName: 'Mock Snap 2',
-  },
-};
-
-export const MOCK_ENTROPY_SOURCE_1 = 'mock-keyring-id-1';
-export const MOCK_ENTROPY_SOURCE_2 = 'mock-keyring-id-2';
 
 export const MOCK_HD_ACCOUNT_1: Bip44Account<KeyringAccount> = {
   id: 'mock-id-1',
