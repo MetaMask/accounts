@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add group/wallet ID parsing/validation support ([#360](https://github.com/MetaMask/accounts/pull/360))
 - Add `Bip44AccountProvider` type alias ([#361](https://github.com/MetaMask/accounts/pull/361))
 
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` to `^21.0.0` ([#362](https://github.com/MetaMask/accounts/pull/362))
+
 ## [0.9.0]
 
 ### Changed
