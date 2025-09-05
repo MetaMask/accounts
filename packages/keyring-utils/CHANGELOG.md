@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add mnemonic utils that can be used across various MetaMask packages ([#366](https://github.com/MetaMask/accounts/pull/366))
+
 ## [3.1.0]
 
 ### Added
