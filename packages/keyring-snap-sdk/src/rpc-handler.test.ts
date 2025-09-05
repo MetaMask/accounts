@@ -255,7 +255,7 @@ describe('handleKeyringRequest', () => {
     const signingRequest = {
       id: '71621d8d-62a4-4bf4-97cc-fb8f243679b0',
       jsonrpc: '2.0',
-      method: BtcMethod.SendBitcoin,
+      method: BtcMethod.SendTransfer,
       params: {
         recipients: {
           address: '0.1',
@@ -290,7 +290,7 @@ describe('handleKeyringRequest', () => {
     const signingRequest = {
       id: '71621d8d-62a4-4bf4-97cc-fb8f243679b0',
       jsonrpc: '2.0',
-      method: BtcMethod.SendBitcoin,
+      method: BtcMethod.SendTransfer,
       params: {
         recipients: {
           address: '0.1',

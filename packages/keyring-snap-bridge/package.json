@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-snap-keyring",
-  "version": "16.1.0",
+  "version": "17.0.0",
   "description": "Snaps keyring bridge.",
   "repository": {
     "type": "git",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@ethereumjs/tx": "^5.4.0",
-    "@metamask/base-controller": "^7.1.1",
+    "@metamask/base-controller": "^8.3.0",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-internal-api": "workspace:^",

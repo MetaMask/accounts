@@ -15,6 +15,20 @@ export type MultichainAccountWalletId =
   `${AccountWalletType.Entropy}:${EntropySourceId}`;
 
 /**
+ * Regex to validate a valid multichain account wallet ID.
+ */
+export const MULTICHAIN_ACCOUNT_WALLET_ID_REGEX =
+  /^(?<walletId>(?<walletType>entropy):(?<walletSubId>.+))$/u;
+
+/**
+ * Parsed multichain account wallet ID with its wallet type and sub-ID.
+ */
+export type ParsedMultichainAccountWalletId = {
+  type: AccountWalletType.Entropy;
+  subId: string;
+};
+
+/**
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per
  * group index).
  */
@@ -64,4 +78,38 @@ export function toMultichainAccountWalletId(
   entropySource: EntropySourceId,
 ): MultichainAccountWalletId {
   return `${AccountWalletType.Entropy}:${entropySource}`;
+}
+
+/**
+ * Checks if the given value is {@link MultichainAccountWalletId}.
+ *
+ * @param value - The value to check.
+ * @returns Whether the value is a {@link MultichainAccountWalletId}.
+ */
+export function isMultichainAccountWalletId(
+  value: string,
+): value is MultichainAccountWalletId {
+  return MULTICHAIN_ACCOUNT_WALLET_ID_REGEX.test(value);
+}
+
+/**
+ * Parse a multichain account wallet ID to an object containing wallet ID
+ * information (wallet type and sub-ID).
+ *
+ * @param walletId - The account wallet ID to validate and parse.
+ * @returns The parsed account wallet ID.
+ * @throws When the wallet ID format is invalid.
+ */
+export function parseMultichainAccountWalletId(
+  walletId: string,
+): ParsedMultichainAccountWalletId {
+  const match = MULTICHAIN_ACCOUNT_WALLET_ID_REGEX.exec(walletId);
+  if (!match?.groups) {
+    throw new Error(`Invalid multichain account wallet ID: "${walletId}"`);
+  }
+
+  return {
+    type: match.groups.walletType as AccountWalletType.Entropy,
+    subId: match.groups.walletSubId as string,
+  };
 }
