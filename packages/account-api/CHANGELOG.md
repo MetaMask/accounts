@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- chore(account-api): fixup changelog ([#363](https://github.com/MetaMask/accounts/pull/363))
-
 ## [0.10.0]
 
 ### Added
