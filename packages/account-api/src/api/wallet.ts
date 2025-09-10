@@ -74,7 +74,7 @@ export type BaseAccountWallet<Account extends KeyringAccount> = {
   /**
    * Account wallet status.
    */
-  get status(): AccountWalletStatus;
+  get status(): string; // Has to be refined by the type extending this base type.
 
   /**
    * Gets account group for a given ID.
@@ -101,6 +101,11 @@ export type KeyringAccountWallet<Account extends KeyringAccount> =
      * Keyring account wallet type, which is always {@link AccountWalletType.Keyring}.
      */
     get type(): AccountWalletType.Keyring;
+
+    /**
+     * Account wallet status.
+     */
+    get status(): AccountWalletStatus;
   };
 
 /**
@@ -112,6 +117,11 @@ export type SnapAccountWallet<Account extends KeyringAccount> =
      * Snap account wallet type, which is always {@link AccountWalletType.Snap}.
      */
     get type(): AccountWalletType.Snap;
+
+    /**
+     * Account wallet status.
+     */
+    get status(): AccountWalletStatus;
   };
 
 /**

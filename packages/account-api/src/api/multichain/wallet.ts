@@ -5,6 +5,7 @@ import {
 
 import type { MultichainAccountGroup } from './group';
 import type { Bip44Account } from '../bip44';
+import type { AccountGroup, AccountGroupId } from '../group';
 import type { AccountWalletStatus, BaseAccountWallet } from '../wallet';
 import { AccountWalletType } from '../wallet';
 
@@ -79,6 +80,21 @@ export type MultichainAccountWallet<
    * Multichain account wallet status.
    */
   get status(): MultichainAccountWalletStatus;
+
+  /**
+   * Gets account group for a given ID.
+   *
+   * @param id - Account group ID.
+   * @returns Account group.
+   */
+  getAccountGroup(id: AccountGroupId): AccountGroup<Account> | undefined;
+
+  /**
+   * Gets all account groups.
+   *
+   * @returns Account groups.
+   */
+  getAccountGroups(): AccountGroup<Account>[];
 
   /**
    * Gets multichain account for a given index.
