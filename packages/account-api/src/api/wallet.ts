@@ -31,6 +31,24 @@ export const ACCOUNT_WALLET_ID_REGEX =
   /^(?<walletType>entropy|keyring|snap):(?<walletSubId>.+)$/u;
 
 /**
+ * Wallet status.
+ *
+ * Those status are used to report in which "state" the wallet is currently
+ * in. All of those operations cannot run concurrently, thus, the wallet
+ * cannot have multiple status at once.
+ */
+export const AccountWalletStatus = {
+  /**
+   * The wallet is not initialized yet.
+   */
+  Uninitialized: 'uninitialized',
+  /**
+   * The wallet is ready to run any operation.
+   */
+  Ready: 'ready',
+} as const;
+
+/**
  * Parsed account wallet ID with its wallet type and sub-ID.
  */
 export type ParsedAccountWalletId = {
@@ -51,6 +69,11 @@ export type AccountWallet<Account extends KeyringAccount> = {
    * Account wallet type.
    */
   get type(): AccountWalletType;
+
+  /**
+   * Account wallet status.
+   */
+  get status(): (typeof AccountWalletStatus)[keyof typeof AccountWalletStatus];
 
   /**
    * Gets account group for a given ID.
