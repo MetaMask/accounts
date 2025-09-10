@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Make `isBip44Account` faster ([#369](https://github.com/MetaMask/accounts/pull/369))
+  - We mainly rely on the `options.entropy.type` now and no longer use `superstruct` for this function.
+
 ## [0.10.0]
 
 ### Added
