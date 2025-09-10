@@ -41,20 +41,18 @@ export type MultichainAccountWalletStatus =
    * Discovery is in progress for this wallet. New account groups will be
    * automatically added based on the account provider discovery result.
    */
-  | (
-      | 'discovery-in-progress'
-      /**
-       * Alignment is in progress for this wallet. Account groups will be
-       * automatically updated based on the active account providers.
-       */
-      | 'alignment-in-progress'
-      /**
-       * An on-going operation (creating/deleting) is in progress for this
-       * wallet. Account groups will either be created or deleted during
-       * this operation.
-       */
-      | 'operation-in-progress'
-    );
+  | 'discovery-in-progress'
+  /**
+   * Alignment is in progress for this wallet. Account groups will be
+   * automatically updated based on the active account providers.
+   */
+  | 'alignment-in-progress'
+  /**
+   * An on-going operation (creating/deleting) is in progress for this
+   * wallet. Account groups will either be created or deleted during
+   * this operation.
+   */
+  | 'operation-in-progress';
 
 /**
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per
