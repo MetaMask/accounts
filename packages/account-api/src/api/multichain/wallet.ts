@@ -5,7 +5,7 @@ import {
 
 import type { MultichainAccountGroup } from './group';
 import type { Bip44Account } from '../bip44';
-import type { AccountWallet, AccountWalletStatus } from '../wallet';
+import type { AccountWallet, BaseAccountWalletStatus } from '../wallet';
 import { AccountWalletType } from '../wallet';
 
 /**
@@ -36,23 +36,23 @@ export type ParsedMultichainAccountWalletId = {
  * cannot have multiple status at once.
  */
 export type MultichainAccountWalletStatus =
-  | AccountWalletStatus
+  | BaseAccountWalletStatus
   /**
    * Discovery is in progress for this wallet. New account groups will be
    * automatically added based on the account provider discovery result.
    */
-  | 'discovery-in-progress'
+  | 'in-progress:discovery'
   /**
    * Alignment is in progress for this wallet. Account groups will be
    * automatically updated based on the active account providers.
    */
-  | 'alignment-in-progress'
+  | 'in-progress:alignment'
   /**
    * An on-going operation (creating/deleting) is in progress for this
    * wallet. Account groups will either be created or deleted during
    * this operation.
    */
-  | 'operation-in-progress';
+  | 'in-progress:operation';
 
 /**
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per

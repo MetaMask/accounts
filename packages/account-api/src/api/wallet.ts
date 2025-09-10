@@ -37,7 +37,7 @@ export const ACCOUNT_WALLET_ID_REGEX =
  * in. All of those operations cannot run concurrently, thus, the wallet
  * cannot have multiple status at once.
  */
-export type AccountWalletStatus =
+export type BaseAccountWalletStatus =
   /**
    * The wallet is not initialized yet.
    */
@@ -46,6 +46,20 @@ export type AccountWalletStatus =
    * The wallet is ready to run any operation.
    */
   | 'ready';
+
+/**
+ * Wallet status.
+ *
+ * Those status are used to report in which "state" the wallet is currently
+ * in. All of those operations cannot run concurrently, thus, the wallet
+ * cannot have multiple status at once.
+ */
+export type AccountWalletStatus =
+  | BaseAccountWalletStatus
+  /**
+   * The wallet is running an operation.
+   */
+  | `in-progress:${string}`;
 
 /**
  * Parsed account wallet ID with its wallet type and sub-ID.
