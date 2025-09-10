@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **BREAKING:** Add `MultichainAccountWallet.{align,discover}Accounts` methods ([#368](https://github.com/MetaMask/accounts/pull/368))
 - Add wallet `status` ([#367](https://github.com/MetaMask/accounts/pull/367))
 
 ### Changed

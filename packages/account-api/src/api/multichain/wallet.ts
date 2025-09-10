@@ -112,6 +112,18 @@ export type MultichainAccountWallet<
    * @returns The multichain accounts.
    */
   getMultichainAccountGroups(): MultichainAccountGroup<Account>[];
+
+  /**
+   * Discover and create accounts.
+   *
+   * @returns The discovered accounts.
+   */
+  discoverAccounts(): Promise<Account[]>;
+
+  /**
+   * Align all accounts accross existing multichain account groups.
+   */
+  alignAccounts(): Promise<void>;
 };
 
 /**
