@@ -67,7 +67,7 @@ export type BaseAccountWallet<Account extends KeyringAccount> = {
   get id(): AccountWalletId;
 
   /**
-   * Keyring account wallet type.
+   * Account wallet type.
    */
   get type(): AccountWalletType;
 
@@ -98,7 +98,7 @@ export type BaseAccountWallet<Account extends KeyringAccount> = {
 export type KeyringAccountWallet<Account extends KeyringAccount> =
   BaseAccountWallet<Account> & {
     /**
-     * Keyring account wallet type.
+     * Keyring account wallet type, which is always {@link AccountWalletType.Keyring}.
      */
     get type(): AccountWalletType.Keyring;
   };
@@ -109,7 +109,7 @@ export type KeyringAccountWallet<Account extends KeyringAccount> =
 export type SnapAccountWallet<Account extends KeyringAccount> =
   BaseAccountWallet<Account> & {
     /**
-     * Snap account wallet type.
+     * Snap account wallet type, which is always {@link AccountWalletType.Snap}.
      */
     get type(): AccountWalletType.Snap;
   };
@@ -120,9 +120,7 @@ export type SnapAccountWallet<Account extends KeyringAccount> =
  * to `never`.
  */
 type IsAccountWallet<
-  Wallet extends BaseAccountWallet<Account> & {
-    get type(): AccountWalletType;
-  },
+  Wallet extends BaseAccountWallet<Account>,
   Account extends KeyringAccount,
 > = Wallet;
 
