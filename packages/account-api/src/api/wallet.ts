@@ -1,7 +1,9 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 
 // Circular import are allowed when using `import type`.
+import type { Bip44Account } from './bip44';
 import type { AccountGroup, AccountGroupId } from './group';
+import type { MultichainAccountWallet } from './multichain';
 
 /**
  * Wallet type.
@@ -37,7 +39,7 @@ export const ACCOUNT_WALLET_ID_REGEX =
  * in. All of those operations cannot run concurrently, thus, the wallet
  * cannot have multiple status at once.
  */
-export type BaseAccountWalletStatus =
+export type AccountWalletStatus =
   /**
    * The wallet is not initialized yet.
    */
@@ -48,20 +50,6 @@ export type BaseAccountWalletStatus =
   | 'ready';
 
 /**
- * Wallet status.
- *
- * Those status are used to report in which "state" the wallet is currently
- * in. All of those operations cannot run concurrently, thus, the wallet
- * cannot have multiple status at once.
- */
-export type AccountWalletStatus =
-  | BaseAccountWalletStatus
-  /**
-   * The wallet is running an operation.
-   */
-  | `in-progress:${string}`;
-
-/**
  * Parsed account wallet ID with its wallet type and sub-ID.
  */
 export type ParsedAccountWalletId = {
@@ -70,16 +58,16 @@ export type ParsedAccountWalletId = {
 };
 
 /**
- * Account wallet that can hold multiple account groups.
+ * Keyring account wallet that can hold multiple account groups.
  */
-export type AccountWallet<Account extends KeyringAccount> = {
+export type BaseAccountWallet<Account extends KeyringAccount> = {
   /**
    * Account wallet ID.
    */
   get id(): AccountWalletId;
 
   /**
-   * Account wallet type.
+   * Keyring account wallet type.
    */
   get type(): AccountWalletType;
 
@@ -103,6 +91,50 @@ export type AccountWallet<Account extends KeyringAccount> = {
    */
   getAccountGroups(): AccountGroup<Account>[];
 };
+
+/**
+ * Keyring account wallet that can hold multiple account groups.
+ */
+export type KeyringAccountWallet<Account extends KeyringAccount> =
+  BaseAccountWallet<Account> & {
+    /**
+     * Keyring account wallet type.
+     */
+    get type(): AccountWalletType.Keyring;
+  };
+
+/**
+ * Snap keyring account wallet that can hold multiple account groups.
+ */
+export type SnapAccountWallet<Account extends KeyringAccount> =
+  BaseAccountWallet<Account> & {
+    /**
+     * Snap account wallet type.
+     */
+    get type(): AccountWalletType.Snap;
+  };
+
+/**
+ * Type constraint for a {@link AccountGroupObject}. If one of its union-members
+ * does not match this contraint, {@link AccountGroupObject} will resolve
+ * to `never`.
+ */
+type IsAccountWallet<
+  Wallet extends BaseAccountWallet<Account> & {
+    get type(): AccountWalletType;
+  },
+  Account extends KeyringAccount,
+> = Wallet;
+
+/**
+ * Account wallet that can hold multiple account groups.
+ */
+export type AccountWallet<Account extends KeyringAccount> = IsAccountWallet<
+  | KeyringAccountWallet<Account>
+  | SnapAccountWallet<Account>
+  | MultichainAccountWallet<Bip44Account<Account>>,
+  Account
+>;
 
 /**
  * Type utility to compute a constrained {@link AccountWalletId} type given a

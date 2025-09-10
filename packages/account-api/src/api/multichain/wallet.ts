@@ -5,7 +5,7 @@ import {
 
 import type { MultichainAccountGroup } from './group';
 import type { Bip44Account } from '../bip44';
-import type { AccountWallet, BaseAccountWalletStatus } from '../wallet';
+import type { AccountWalletStatus, BaseAccountWallet } from '../wallet';
 import { AccountWalletType } from '../wallet';
 
 /**
@@ -36,7 +36,7 @@ export type ParsedMultichainAccountWalletId = {
  * cannot have multiple status at once.
  */
 export type MultichainAccountWalletStatus =
-  | BaseAccountWalletStatus
+  | AccountWalletStatus
   /**
    * Discovery is in progress for this wallet. New account groups will be
    * automatically added based on the account provider discovery result.
@@ -60,7 +60,7 @@ export type MultichainAccountWalletStatus =
  */
 export type MultichainAccountWallet<
   Account extends Bip44Account<KeyringAccount>,
-> = AccountWallet<Account> & {
+> = BaseAccountWallet<Account> & {
   /**
    * Multichain account wallet ID.
    */
