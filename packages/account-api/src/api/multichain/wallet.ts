@@ -5,8 +5,8 @@ import {
 
 import type { MultichainAccountGroup } from './group';
 import type { Bip44Account } from '../bip44';
-import type { AccountWallet } from '../wallet';
-import { AccountWalletStatus, AccountWalletType } from '../wallet';
+import type { AccountWallet, AccountWalletStatus } from '../wallet';
+import { AccountWalletType } from '../wallet';
 
 /**
  * Multichain account wallet ID.
@@ -35,26 +35,26 @@ export type ParsedMultichainAccountWalletId = {
  * in. All of those operations cannot run concurrently, thus, the wallet
  * cannot have multiple status at once.
  */
-export const MultichainAccountWalletStatus = {
-  ...AccountWalletStatus,
-
+export type MultichainAccountWalletStatus =
+  | AccountWalletStatus
   /**
    * Discovery is in progress for this wallet. New account groups will be
    * automatically added based on the account provider discovery result.
    */
-  DiscoveryInProgress: 'discovery-in-progress',
-  /**
-   * Alignment is in progress for this wallet. Account groups will be
-   * automatically updated based on the active account providers.
-   */
-  AlignmentInProgress: 'alignment-in-progress',
-  /**
-   * An on-going operation (creating/deleting) is in progress for this
-   * wallet. Account groups will either be created or deleted during
-   * this operation.
-   */
-  OperationInProgress: 'operation-in-progress',
-} as const;
+  | (
+      | 'discovery-in-progress'
+      /**
+       * Alignment is in progress for this wallet. Account groups will be
+       * automatically updated based on the active account providers.
+       */
+      | 'alignment-in-progress'
+      /**
+       * An on-going operation (creating/deleting) is in progress for this
+       * wallet. Account groups will either be created or deleted during
+       * this operation.
+       */
+      | 'operation-in-progress'
+    );
 
 /**
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per
@@ -81,7 +81,7 @@ export type MultichainAccountWallet<
   /**
    * Multichain account wallet status.
    */
-  get status(): (typeof MultichainAccountWalletStatus)[keyof typeof MultichainAccountWalletStatus];
+  get status(): MultichainAccountWalletStatus;
 
   /**
    * Gets multichain account for a given index.

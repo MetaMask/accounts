@@ -37,16 +37,15 @@ export const ACCOUNT_WALLET_ID_REGEX =
  * in. All of those operations cannot run concurrently, thus, the wallet
  * cannot have multiple status at once.
  */
-export const AccountWalletStatus = {
+export type AccountWalletStatus =
   /**
    * The wallet is not initialized yet.
    */
-  Uninitialized: 'uninitialized',
+  | 'uninitialized'
   /**
    * The wallet is ready to run any operation.
    */
-  Ready: 'ready',
-} as const;
+  | 'ready';
 
 /**
  * Parsed account wallet ID with its wallet type and sub-ID.
@@ -73,7 +72,7 @@ export type AccountWallet<Account extends KeyringAccount> = {
   /**
    * Account wallet status.
    */
-  get status(): (typeof AccountWalletStatus)[keyof typeof AccountWalletStatus];
+  get status(): AccountWalletStatus;
 
   /**
    * Gets account group for a given ID.
