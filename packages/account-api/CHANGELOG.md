@@ -9,14 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.0]
 
-### Uncategorized
-
-- chore(account-api): fixup changelog ([#363](https://github.com/MetaMask/accounts/pull/363))
-
 ### Added
 
 - **BREAKING:** Add `MultichainAccountWallet.{align,discover}Accounts` methods ([#368](https://github.com/MetaMask/accounts/pull/368))
-- Add wallet `status` ([#367](https://github.com/MetaMask/accounts/pull/367))
+- **BREAKING:** Add `{Multichain,}AccountWallet.status` getter ([#367](https://github.com/MetaMask/accounts/pull/367))
 
 ### Changed
 
