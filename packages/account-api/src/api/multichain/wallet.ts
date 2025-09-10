@@ -48,11 +48,10 @@ export type MultichainAccountWalletStatus =
    */
   | 'in-progress:alignment'
   /**
-   * An on-going operation (creating/deleting) is in progress for this
-   * wallet. Account groups will either be created or deleted during
-   * this operation.
+   * The wallet is creating new accounts. New account groups will be
+   * added to the wallet automatically.
    */
-  | 'in-progress:operation';
+  | 'in-progress:create-accounts';
 
 /**
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per
