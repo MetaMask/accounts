@@ -25,11 +25,9 @@ export type Bip44Account<Account extends KeyringAccount> = Account & {
 export function isBip44Account<Account extends KeyringAccount>(
   account: Account,
 ): account is Bip44Account<Account> {
-  // To be BIP-44 compatible, you just need to use this set of options:
-  return is(
-    account.options.entropy,
-    KeyringAccountEntropyMnemonicOptionsStruct,
-  );
+  // To be BIP-44 compatible, we just check for the entropy type (the
+  // the `entropy` shape will be inferred automatically).
+  return account.options.entropy?.type === 'mnemonic';
 }
 
 /**
