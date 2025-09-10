@@ -2,8 +2,6 @@ import type {
   KeyringAccount,
   KeyringAccountEntropyMnemonicOptions,
 } from '@metamask/keyring-api';
-import { KeyringAccountEntropyMnemonicOptionsStruct } from '@metamask/keyring-api';
-import { is } from '@metamask/superstruct';
 
 /**
  * BIP-44 compatible account type.
