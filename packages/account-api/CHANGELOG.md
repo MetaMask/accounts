@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add wallet `status` ([#367](https://github.com/MetaMask/accounts/pull/367))
+
 ### Changed
 
 - Make `isBip44Account` faster ([#369](https://github.com/MetaMask/accounts/pull/369))

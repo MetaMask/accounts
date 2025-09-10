@@ -5,7 +5,8 @@ import {
 
 import type { MultichainAccountGroup } from './group';
 import type { Bip44Account } from '../bip44';
-import type { AccountWallet } from '../wallet';
+import type { AccountGroup, AccountGroupId } from '../group';
+import type { AccountWalletStatus, BaseAccountWallet } from '../wallet';
 import { AccountWalletType } from '../wallet';
 
 /**
@@ -29,12 +30,37 @@ export type ParsedMultichainAccountWalletId = {
 };
 
 /**
+ * Wallet status.
+ *
+ * Those status are used to report in which "state" the wallet is currently
+ * in. All of those operations cannot run concurrently, thus, the wallet
+ * cannot have multiple status at once.
+ */
+export type MultichainAccountWalletStatus =
+  | AccountWalletStatus
+  /**
+   * Discovery is in progress for this wallet. New account groups will be
+   * automatically added based on the account provider discovery result.
+   */
+  | 'in-progress:discovery'
+  /**
+   * Alignment is in progress for this wallet. Account groups will be
+   * automatically updated based on the active account providers.
+   */
+  | 'in-progress:alignment'
+  /**
+   * The wallet is creating new accounts. New account groups will be
+   * added to the wallet automatically.
+   */
+  | 'in-progress:create-accounts';
+
+/**
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per
  * group index).
  */
 export type MultichainAccountWallet<
   Account extends Bip44Account<KeyringAccount>,
-> = AccountWallet<Account> & {
+> = BaseAccountWallet<Account> & {
   /**
    * Multichain account wallet ID.
    */
@@ -49,6 +75,26 @@ export type MultichainAccountWallet<
    * Multichain account wallet entropy source.
    */
   get entropySource(): EntropySourceId;
+
+  /**
+   * Multichain account wallet status.
+   */
+  get status(): MultichainAccountWalletStatus;
+
+  /**
+   * Gets account group for a given ID.
+   *
+   * @param id - Account group ID.
+   * @returns Account group.
+   */
+  getAccountGroup(id: AccountGroupId): AccountGroup<Account> | undefined;
+
+  /**
+   * Gets all account groups.
+   *
+   * @returns Account groups.
+   */
+  getAccountGroups(): AccountGroup<Account>[];
 
   /**
    * Gets multichain account for a given index.
