@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0]
+
 ### Added
 
 - **BREAKING:** Add `MultichainAccountWallet.{align,discover}Accounts` methods ([#368](https://github.com/MetaMask/accounts/pull/368))
-- Add wallet `status` ([#367](https://github.com/MetaMask/accounts/pull/367))
+- **BREAKING:** Add `{Multichain,}AccountWallet.status` getter ([#367](https://github.com/MetaMask/accounts/pull/367))
 
 ### Changed
 
@@ -121,7 +123,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `AccountGroup` and `AccountWallet` ([#307](https://github.com/MetaMask/accounts/pull/307))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.10.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.11.0...HEAD
+[0.11.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.10.0...@metamask/account-api@0.11.0
 [0.10.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.9.0...@metamask/account-api@0.10.0
 [0.9.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.8.0...@metamask/account-api@0.9.0
 [0.8.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.7.0...@metamask/account-api@0.8.0
