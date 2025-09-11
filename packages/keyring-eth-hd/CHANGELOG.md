@@ -21,8 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The `deserialize` method does not accept `Buffer` mnemonic anymore
   - The options argument to `deserialize` is no longer optional
   - `getAccounts` is now `async`
-- Use map to store wallets ([#374](https://github.com/metamask/accounts/pull/374))
-- Store computed account address ([#373](https://github.com/metamask/accounts/pull/373))
+- Switched to using a `Map` for wallet storage ([#374](https://github.com/metamask/accounts/pull/374))
+  - Improves performance of account lookup and removal to constant time
+- Cache derived account addresses ([#373](https://github.com/metamask/accounts/pull/373))
+  - Avoids recomputing addresses from public keys on every `getAccounts()` call
 
 ### Removed
 
