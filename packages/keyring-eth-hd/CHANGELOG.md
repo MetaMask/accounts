@@ -9,11 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [12.1.1]
 
-### Uncategorized
-
-- perf(keyring-eth-hd): use map to store wallets ([#374](https://github.com/metamask/accounts/pull/374))
-- perf(keyring-eth-hd): store computed account address ([#373](https://github.com/metamask/accounts/pull/373))
-
 ### Added
 
 - Export types `SerializedHDKeyringState` and `DeserializableHDKeyringState` ([#255](https://github.com/MetaMask/accounts/pull/255))
@@ -26,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The `deserialize` method does not accept `Buffer` mnemonic anymore
   - The options argument to `deserialize` is no longer optional
   - `getAccounts` is now `async`
+- Use map to store wallets ([#374](https://github.com/metamask/accounts/pull/374))
+- Store computed account address ([#373](https://github.com/metamask/accounts/pull/373))
 
 ### Removed
 
