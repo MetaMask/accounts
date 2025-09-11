@@ -213,7 +213,7 @@ export class HdKeyring implements Keyring {
       const hdKey = this.root.deriveChild(i);
       assert(hdKey.publicKey, 'Expected public key to be set');
 
-      const address = this.#addressfromPublicKey(hdKey.publicKey);
+      const address = this.#addressFromPublicKey(hdKey.publicKey);
       const walletData: WalletData = {
         hdKey,
         address,
@@ -633,7 +633,7 @@ export class HdKeyring implements Keyring {
    * @param publicKey - The public key of the account.
    * @returns The address of the account.
    */
-  #addressfromPublicKey(publicKey: Uint8Array): Hex {
+  #addressFromPublicKey(publicKey: Uint8Array): Hex {
     return add0x(
       bytesToHex(publicToAddress(Buffer.from(publicKey), true)).toLowerCase(),
     );
