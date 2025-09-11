@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** Rename `AccountsProvider.discoverAndCreateAccounts` to `AccountsProvider.discoverAccounts` ([#371](https://github.com/MetaMask/accounts/pull/371))
+  - This aligns the method name with `MultichainAccountWallet.discoverAccounts`.
+
 ## [0.11.0]
 
 ### Added
