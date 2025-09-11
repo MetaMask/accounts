@@ -122,7 +122,7 @@ export class HdKeyring implements Keyring {
 
   hdPath: string = hdPathString;
 
-  #wallets: WalletData[] = [];
+  readonly #walletMap = new Map<Hex, WalletData>();
 
   readonly #cryptographicFunctions?: CryptographicFunctions;
 
@@ -155,7 +155,7 @@ export class HdKeyring implements Keyring {
 
     return {
       mnemonic,
-      numberOfAccounts: this.#wallets.length,
+      numberOfAccounts: this.#walletMap.size,
       hdPath: this.hdPath,
     };
   }
@@ -180,7 +180,8 @@ export class HdKeyring implements Keyring {
         'Eth-Hd-Keyring: Secret recovery phrase already provided',
       );
     }
-    this.#wallets = [];
+
+    this.#walletMap.clear();
     this.mnemonic = null;
     this.seed = null;
     this.root = null;
@@ -207,8 +208,8 @@ export class HdKeyring implements Keyring {
       throw new Error('Eth-Hd-Keyring: No secret recovery phrase provided');
     }
 
-    const oldLen = this.#wallets.length;
-    const newWallets: WalletData[] = [];
+    const oldLen = this.#walletMap.size;
+    const newAddresses: Hex[] = [];
     for (let i = oldLen; i < numberOfAccounts + oldLen; i++) {
       const hdKey = this.root.deriveChild(i);
       assert(hdKey.publicKey, 'Expected public key to be set');
@@ -219,11 +220,11 @@ export class HdKeyring implements Keyring {
         address,
       };
 
-      newWallets.push(walletData);
-      this.#wallets.push(walletData);
+      this.#walletMap.set(address, walletData);
+      newAddresses.push(address);
     }
-    const hexWallets = newWallets.map((walletData) => walletData.address);
-    return Promise.resolve(hexWallets);
+
+    return Promise.resolve(newAddresses);
   }
 
   /**
@@ -232,7 +233,7 @@ export class HdKeyring implements Keyring {
    * @returns The addresses of all accounts in the keyring.
    */
   async getAccounts(): Promise<Hex[]> {
-    return this.#wallets.map((walletData) => walletData.address);
+    return Array.from(this.#walletMap.keys());
   }
 
   /**
@@ -424,17 +425,12 @@ export class HdKeyring implements Keyring {
    */
   removeAccount(account: Hex): void {
     const address = this.#normalizeAddress(account);
-    if (
-      !this.#wallets
-        .map(({ address: walletAddress }) => walletAddress)
-        .includes(address)
-    ) {
+
+    if (!this.#walletMap.has(address)) {
       throw new Error(`Address ${address} not found in this keyring`);
     }
 
-    this.#wallets = this.#wallets.filter(
-      ({ address: walletAddress }) => walletAddress !== address,
-    );
+    this.#walletMap.delete(address);
   }
 
   /**
@@ -579,9 +575,7 @@ export class HdKeyring implements Keyring {
     { withAppKeyOrigin }: HDKeyringAccountSelectionOptions = {},
   ): HDKey | { privateKey: Buffer; publicKey: Buffer } {
     const address = this.#normalizeAddress(account);
-    const walletData = this.#wallets.find(({ address: walletAddress }) => {
-      return walletAddress === address;
-    });
+    const walletData = this.#walletMap.get(address);
     if (!walletData) {
       throw new Error('HD Keyring - Unable to find matching address.');
     }
