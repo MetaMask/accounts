@@ -45,7 +45,7 @@ export type AccountProvider<Account extends KeyringAccount> = {
    * @param options.groupIndex - Group index to use.
    * @returns The list of discovered and created accounts.
    */
-  discoverAndCreateAccounts: (options: {
+  discoverAccounts: (options: {
     entropySource: EntropySourceId;
     groupIndex: number;
   }) => Promise<Account[]>;
