@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- perf(keyring-eth-hd): use map to store wallets ([#374](https://github.com/metamask/accounts/pull/374))
+- perf(keyring-eth-hd): store computed account address ([#373](https://github.com/metamask/accounts/pull/373))
+
 ### Added
 
 - Export types `SerializedHDKeyringState` and `DeserializableHDKeyringState` ([#255](https://github.com/MetaMask/accounts/pull/255))
@@ -215,25 +220,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.1.0...HEAD
-[12.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.0.0...@metamask/eth-hd-keyring@12.1.0
-[12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@11.0.0...@metamask/eth-hd-keyring@12.0.0
-[11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@10.0.1...@metamask/eth-hd-keyring@11.0.0
-[10.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@10.0.0...@metamask/eth-hd-keyring@10.0.1
-[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@9.0.1...@metamask/eth-hd-keyring@10.0.0
-[9.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@9.0.0...@metamask/eth-hd-keyring@9.0.1
-[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@8.0.0...@metamask/eth-hd-keyring@9.0.0
-[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.4...@metamask/eth-hd-keyring@8.0.0
-[7.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.3...@metamask/eth-hd-keyring@7.0.4
-[7.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.2...@metamask/eth-hd-keyring@7.0.3
-[7.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.1...@metamask/eth-hd-keyring@7.0.2
-[7.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@7.0.0...@metamask/eth-hd-keyring@7.0.1
-[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@6.0.2...@metamask/eth-hd-keyring@7.0.0
-[6.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@6.0.1...@metamask/eth-hd-keyring@6.0.2
-[6.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@6.0.0...@metamask/eth-hd-keyring@6.0.1
-[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@5.0.1...@metamask/eth-hd-keyring@6.0.0
-[5.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@5.0.0...@metamask/eth-hd-keyring@5.0.1
-[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@4.0.2...@metamask/eth-hd-keyring@5.0.0
-[4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@4.0.1...@metamask/eth-hd-keyring@4.0.2
-[4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@4.0.0...@metamask/eth-hd-keyring@4.0.1
-[4.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-hd-keyring@4.0.0
+[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@12.1.0...HEAD
+[12.1.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@12.0.0...@metamask/eth-hd-keyring@12.1.0
+[12.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@11.0.0...@metamask/eth-hd-keyring@12.0.0
+[11.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@10.0.1...@metamask/eth-hd-keyring@11.0.0
+[10.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@10.0.0...@metamask/eth-hd-keyring@10.0.1
+[10.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@9.0.1...@metamask/eth-hd-keyring@10.0.0
+[9.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@9.0.0...@metamask/eth-hd-keyring@9.0.1
+[9.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@8.0.0...@metamask/eth-hd-keyring@9.0.0
+[8.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.4...@metamask/eth-hd-keyring@8.0.0
+[7.0.4]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.3...@metamask/eth-hd-keyring@7.0.4
+[7.0.3]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.2...@metamask/eth-hd-keyring@7.0.3
+[7.0.2]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.1...@metamask/eth-hd-keyring@7.0.2
+[7.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@7.0.0...@metamask/eth-hd-keyring@7.0.1
+[7.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@6.0.2...@metamask/eth-hd-keyring@7.0.0
+[6.0.2]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@6.0.1...@metamask/eth-hd-keyring@6.0.2
+[6.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@6.0.0...@metamask/eth-hd-keyring@6.0.1
+[6.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@5.0.1...@metamask/eth-hd-keyring@6.0.0
+[5.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@5.0.0...@metamask/eth-hd-keyring@5.0.1
+[5.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@4.0.2...@metamask/eth-hd-keyring@5.0.0
+[4.0.2]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@4.0.1...@metamask/eth-hd-keyring@4.0.2
+[4.0.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@4.0.0...@metamask/eth-hd-keyring@4.0.1
+[4.0.0]: https://github.com/metamask/accounts/releases/tag/@metamask/eth-hd-keyring@4.0.0
