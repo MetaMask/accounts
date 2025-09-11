@@ -82,6 +82,14 @@ export type HDKeyringAccountSelectionOptions = {
 type SerializedBuffer = ReturnType<Buffer['toJSON']>;
 
 /**
+ * Wallet storage object that contains both the HDKey and pre-computed address.
+ */
+type WalletData = {
+  hdKey: HDKey;
+  address: Hex;
+};
+
+/**
  * Checks if the given value is a valid serialized Buffer compatible with
  * the return type of `Buffer.toJSON`.
  *
@@ -114,7 +122,7 @@ export class HdKeyring implements Keyring {
 
   hdPath: string = hdPathString;
 
-  #wallets: HDKey[] = [];
+  #wallets: WalletData[] = [];
 
   readonly #cryptographicFunctions?: CryptographicFunctions;
 
@@ -200,16 +208,21 @@ export class HdKeyring implements Keyring {
     }
 
     const oldLen = this.#wallets.length;
-    const newWallets: HDKey[] = [];
+    const newWallets: WalletData[] = [];
     for (let i = oldLen; i < numberOfAccounts + oldLen; i++) {
-      const wallet = this.root.deriveChild(i);
-      newWallets.push(wallet);
-      this.#wallets.push(wallet);
+      const hdKey = this.root.deriveChild(i);
+      assert(hdKey.publicKey, 'Expected public key to be set');
+
+      const address = this.#addressfromPublicKey(hdKey.publicKey);
+      const walletData: WalletData = {
+        hdKey,
+        address,
+      };
+
+      newWallets.push(walletData);
+      this.#wallets.push(walletData);
     }
-    const hexWallets = newWallets.map((wallet) => {
-      assert(wallet.publicKey, 'Expected public key to be set');
-      return this.#addressfromPublicKey(wallet.publicKey);
-    });
+    const hexWallets = newWallets.map((walletData) => walletData.address);
     return Promise.resolve(hexWallets);
   }
 
@@ -219,10 +232,7 @@ export class HdKeyring implements Keyring {
    * @returns The addresses of all accounts in the keyring.
    */
   async getAccounts(): Promise<Hex[]> {
-    return this.#wallets.map((wallet) => {
-      assert(wallet.publicKey, 'Expected public key to be set');
-      return this.#addressfromPublicKey(wallet.publicKey);
-    });
+    return this.#wallets.map((walletData) => walletData.address);
   }
 
   /**
@@ -416,17 +426,14 @@ export class HdKeyring implements Keyring {
     const address = this.#normalizeAddress(account);
     if (
       !this.#wallets
-        .map(
-          ({ publicKey }) => publicKey && this.#addressfromPublicKey(publicKey),
-        )
+        .map(({ address: walletAddress }) => walletAddress)
         .includes(address)
     ) {
       throw new Error(`Address ${address} not found in this keyring`);
     }
 
     this.#wallets = this.#wallets.filter(
-      ({ publicKey }) =>
-        publicKey && this.#addressfromPublicKey(publicKey) !== address,
+      ({ address: walletAddress }) => walletAddress !== address,
     );
   }
 
@@ -572,15 +579,15 @@ export class HdKeyring implements Keyring {
     { withAppKeyOrigin }: HDKeyringAccountSelectionOptions = {},
   ): HDKey | { privateKey: Buffer; publicKey: Buffer } {
     const address = this.#normalizeAddress(account);
-    const wallet = this.#wallets.find(({ publicKey }) => {
-      return publicKey && this.#addressfromPublicKey(publicKey) === address;
+    const walletData = this.#wallets.find(({ address: walletAddress }) => {
+      return walletAddress === address;
     });
-    if (!wallet) {
+    if (!walletData) {
       throw new Error('HD Keyring - Unable to find matching address.');
     }
 
     if (withAppKeyOrigin) {
-      const { privateKey } = wallet;
+      const { privateKey } = walletData.hdKey;
       assert(privateKey, 'Expected private key to be set');
       const appKeyOriginBuffer = Buffer.from(withAppKeyOrigin, 'utf8');
       const appKeyBuffer = Buffer.concat([privateKey, appKeyOriginBuffer]);
@@ -589,7 +596,7 @@ export class HdKeyring implements Keyring {
       return { privateKey: appKeyPrivateKey, publicKey: appKeyPublicKey };
     }
 
-    return wallet;
+    return walletData.hdKey;
   }
 
   /**
