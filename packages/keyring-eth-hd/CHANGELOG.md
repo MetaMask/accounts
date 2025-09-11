@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [12.1.1]
+
 ### Uncategorized
 
 - perf(keyring-eth-hd): use map to store wallets ([#374](https://github.com/metamask/accounts/pull/374))
@@ -220,7 +222,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@12.1.0...HEAD
+[Unreleased]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@12.1.1...HEAD
+[12.1.1]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@12.1.0...@metamask/eth-hd-keyring@12.1.1
 [12.1.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@12.0.0...@metamask/eth-hd-keyring@12.1.0
 [12.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@11.0.0...@metamask/eth-hd-keyring@12.0.0
 [11.0.0]: https://github.com/metamask/accounts/compare/@metamask/eth-hd-keyring@10.0.1...@metamask/eth-hd-keyring@11.0.0
