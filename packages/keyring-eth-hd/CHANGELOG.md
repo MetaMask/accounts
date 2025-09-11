@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.0.0]
+
 ### Added
 
 - Export types `SerializedHDKeyringState` and `DeserializableHDKeyringState` ([#255](https://github.com/MetaMask/accounts/pull/255))
@@ -19,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The `deserialize` method does not accept `Buffer` mnemonic anymore
   - The options argument to `deserialize` is no longer optional
   - `getAccounts` is now `async`
+- Switched to using a `Map` for wallet storage ([#374](https://github.com/metamask/accounts/pull/374))
+  - Improves performance of account lookup and removal to constant time
+- Cache derived account addresses ([#373](https://github.com/metamask/accounts/pull/373))
+  - Avoids recomputing addresses from public keys on every `getAccounts()` call
 
 ### Removed
 
@@ -215,7 +221,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@13.0.0...HEAD
+[13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.1.0...@metamask/eth-hd-keyring@13.0.0
 [12.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.0.0...@metamask/eth-hd-keyring@12.1.0
 [12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@11.0.0...@metamask/eth-hd-keyring@12.0.0
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@10.0.1...@metamask/eth-hd-keyring@11.0.0
