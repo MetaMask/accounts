@@ -225,8 +225,8 @@ describe('QrKeyring', () => {
         // @ts-expect-error QrKeyring types are stricter than Keystone ones
         await keyring.deserialize(await keystoneKeyring.serialize());
 
-        expect(keystoneKeyring.getAccounts()).toStrictEqual(
-          keystoneKeyring.getAccounts(),
+        expect(await keystoneKeyring.getAccounts()).toStrictEqual(
+          keyring.getAccounts(),
         );
         expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
           await getXPUBFromKeyring(keystoneKeyring),
