@@ -232,7 +232,7 @@ export class HdKeyring implements Keyring {
    *
    * @returns The addresses of all accounts in the keyring.
    */
-  async getAccounts(): Promise<Hex[]> {
+  getAccounts(): Hex[] {
     return Array.from(this.#walletMap.keys());
   }
 

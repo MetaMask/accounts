@@ -134,7 +134,7 @@ describe('LedgerKeyring', function () {
       });
       expect(typeof ledgerKeyring).toBe('object');
 
-      const accounts = await ledgerKeyring.getAccounts();
+      const accounts = ledgerKeyring.getAccounts();
       expect(Array.isArray(accounts)).toBe(true);
     });
 
@@ -441,7 +441,7 @@ describe('LedgerKeyring', function () {
           keyring.setAccountToUnlock(1);
           const secondBatch = await keyring.addAccounts(1);
 
-          expect(await keyring.getAccounts()).toHaveLength(2);
+          expect(keyring.getAccounts()).toHaveLength(2);
           expect(firstBatch).toStrictEqual([fakeAccounts[0]]);
           expect(secondBatch).toStrictEqual([fakeAccounts[1]]);
         });
@@ -455,7 +455,7 @@ describe('LedgerKeyring', function () {
           const accounts = await keyring.addAccounts(1);
           expect(accounts).toHaveLength(1);
           keyring.removeAccount(fakeAccounts[0]);
-          const accountsAfterRemoval = await keyring.getAccounts();
+          const accountsAfterRemoval = keyring.getAccounts();
           expect(accountsAfterRemoval).toHaveLength(0);
         });
       });
@@ -546,7 +546,7 @@ describe('LedgerKeyring', function () {
       beforeEach(async function () {
         keyring.setAccountToUnlock(accountIndex);
         await keyring.addAccounts(1);
-        accounts = await keyring.getAccounts();
+        accounts = keyring.getAccounts();
       });
 
       it('returns an array of accounts', function () {
@@ -569,7 +569,7 @@ describe('LedgerKeyring', function () {
         // Wipe the keyring
         keyring.forgetDevice();
 
-        const accounts = await keyring.getAccounts();
+        const accounts = keyring.getAccounts();
 
         expect(keyring.isUnlocked()).toBe(false);
         expect(accounts).toHaveLength(0);

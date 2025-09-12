@@ -263,8 +263,8 @@ export class TrezorKeyring implements Keyring {
     });
   }
 
-  async getAccounts(): Promise<Hex[]> {
-    return Promise.resolve(this.accounts.slice());
+  getAccounts(): Hex[] {
+    return this.accounts.slice();
   }
 
   removeAccount(address: string): void {

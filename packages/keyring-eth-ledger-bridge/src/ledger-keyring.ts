@@ -304,8 +304,8 @@ export class LedgerKeyring implements Keyring {
     return this.#getPage(-1);
   }
 
-  async getAccounts(): Promise<Hex[]> {
-    return Promise.resolve(this.accounts.slice());
+  getAccounts(): Hex[] {
+    return this.accounts.slice();
   }
 
   removeAccount(address: string): void {

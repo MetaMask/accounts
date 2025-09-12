@@ -195,7 +195,7 @@ describe('QrKeyring', () => {
 
         await keyring.deserialize({});
 
-        expect(await keyring.getAccounts()).toStrictEqual([]);
+        expect(keyring.getAccounts()).toStrictEqual([]);
         expect(await getXPUBFromKeyring(keyring)).toBeUndefined();
       });
     });
@@ -208,7 +208,7 @@ describe('QrKeyring', () => {
 
         await keyring.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS);
 
-        expect(await keyring.getAccounts()).toStrictEqual([]);
+        expect(keyring.getAccounts()).toStrictEqual([]);
         expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
           HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS.xpub,
         );
@@ -225,8 +225,8 @@ describe('QrKeyring', () => {
         // @ts-expect-error QrKeyring types are stricter than Keystone ones
         await keyring.deserialize(await keystoneKeyring.serialize());
 
-        expect(await keystoneKeyring.getAccounts()).toStrictEqual(
-          await keystoneKeyring.getAccounts(),
+        expect(keystoneKeyring.getAccounts()).toStrictEqual(
+          keystoneKeyring.getAccounts(),
         );
         expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
           await getXPUBFromKeyring(keystoneKeyring),
@@ -270,7 +270,7 @@ describe('QrKeyring', () => {
 
           expect(firstAddition).toStrictEqual(expectedAccounts.slice(0, 1));
           expect(secondAddition).toStrictEqual([]);
-          expect(await keyring.getAccounts()).toStrictEqual(
+          expect(keyring.getAccounts()).toStrictEqual(
             expectedAccounts.slice(0, 1),
           );
         });
@@ -328,7 +328,7 @@ describe('QrKeyring', () => {
           bridge: getMockBridge(),
           ur: KNOWN_HDKEY_UR,
         });
-        expect(await keyring.getAccounts()).toStrictEqual([]);
+        expect(keyring.getAccounts()).toStrictEqual([]);
       });
     });
 
@@ -342,7 +342,7 @@ describe('QrKeyring', () => {
 
         const accounts = await keyring.addAccounts(numberOfAccountsToAdd);
 
-        expect(await keyring.getAccounts()).toStrictEqual(
+        expect(keyring.getAccounts()).toStrictEqual(
           EXPECTED_ACCOUNTS.slice(0, numberOfAccountsToAdd),
         );
         expect(accounts).toStrictEqual(
@@ -362,7 +362,7 @@ describe('QrKeyring', () => {
 
       keyring.removeAccount(EXPECTED_ACCOUNTS[1]);
 
-      expect(await keyring.getAccounts()).toStrictEqual([
+      expect(keyring.getAccounts()).toStrictEqual([
         EXPECTED_ACCOUNTS[0],
         EXPECTED_ACCOUNTS[2],
       ]);
@@ -374,12 +374,12 @@ describe('QrKeyring', () => {
         ur: KNOWN_HDKEY_UR,
       });
       await keyring.addAccounts(1);
-      const initialAccounts = await keyring.getAccounts();
+      const initialAccounts = keyring.getAccounts();
 
       expect(() =>
         keyring.removeAccount('0x0000000000000000000000000000000000000000'),
       ).not.toThrow();
-      expect(await keyring.getAccounts()).toStrictEqual(initialAccounts);
+      expect(keyring.getAccounts()).toStrictEqual(initialAccounts);
     });
   });
 
@@ -617,7 +617,7 @@ describe('QrKeyring', () => {
       });
       await keyring.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS);
       // let's make sure we have an xpub set
-      expect(await keyring.getAccounts()).toStrictEqual(
+      expect(keyring.getAccounts()).toStrictEqual(
         HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS.accounts,
       );
       expect(await getXPUBFromKeyring(keyring)).toStrictEqual(
@@ -626,7 +626,7 @@ describe('QrKeyring', () => {
 
       await keyring.forgetDevice();
 
-      expect(await keyring.getAccounts()).toStrictEqual([]);
+      expect(keyring.getAccounts()).toStrictEqual([]);
       expect(await getXPUBFromKeyring(keyring)).toBeUndefined();
     });
   });

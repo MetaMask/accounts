@@ -53,7 +53,7 @@ export type Keyring = {
    *
    * @returns A list of the account addresses for this keyring
    */
-  getAccounts(): Promise<Hex[]>;
+  getAccounts(): Hex[];
 
   /**
    * Add an account to the keyring.

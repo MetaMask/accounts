@@ -94,7 +94,7 @@ describe('simple-keyring', function () {
   describe('#constructor with a private key', function () {
     it('has the correct addresses', async function () {
       const newKeyring = new SimpleKeyring([testAccount.key]);
-      const accounts = await newKeyring.getAccounts();
+      const accounts = newKeyring.getAccounts();
       expect(accounts).toStrictEqual([testAccount.address]);
     });
   });
@@ -181,7 +181,7 @@ describe('simple-keyring', function () {
       const msgHashHex = bytesToHex(keccak256(Buffer.from(localMessage)));
 
       await keyring.addAccounts(9);
-      const addresses = await keyring.getAccounts();
+      const addresses = keyring.getAccounts();
       const signatures = await Promise.all(
         addresses.map(async (accountAddress: Hex) => {
           return await keyring.signMessage(accountAddress, msgHashHex);
@@ -261,7 +261,7 @@ describe('simple-keyring', function () {
       // Push a mock wallet
       await keyring.deserialize([testAccount.key]);
 
-      const output = await keyring.getAccounts();
+      const output = keyring.getAccounts();
       expect(output).toHaveLength(1);
       expect(output[0]).toBe(testAccount.address);
     });
@@ -271,10 +271,10 @@ describe('simple-keyring', function () {
     describe('if the account exists', function () {
       it('should remove that account', async function () {
         await keyring.addAccounts();
-        const address = (await keyring.getAccounts())[0];
+        const address = keyring.getAccounts()[0];
         assert(address, 'address is undefined');
         keyring.removeAccount(address);
-        const addressesAfterRemoval = await keyring.getAccounts();
+        const addressesAfterRemoval = keyring.getAccounts();
         expect(addressesAfterRemoval).toHaveLength(0);
       });
     });
@@ -503,7 +503,7 @@ describe('simple-keyring', function () {
       };
 
       await keyring.deserialize([privKeyHex]);
-      const address = (await keyring.getAccounts())[0];
+      const address = keyring.getAccounts()[0];
       assert(address, 'address is undefined');
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V3,
@@ -723,7 +723,7 @@ describe('simple-keyring', function () {
 
       await keyring.deserialize([privKeyHex]);
 
-      const address = (await keyring.getAccounts())[0];
+      const address = keyring.getAccounts()[0];
       assert(address, 'address is undefined');
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V4,

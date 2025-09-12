@@ -191,7 +191,7 @@ export class QrKeyring implements Keyring {
    *
    * @returns The accounts in the QrKeyring
    */
-  async getAccounts(): Promise<Hex[]> {
+  getAccounts(): Hex[] {
     return this.#accounts.slice();
   }
 

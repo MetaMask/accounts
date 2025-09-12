@@ -1171,7 +1171,7 @@ describe('SnapKeyring', () => {
           method: KeyringEvent.AccountDeleted,
           params: { id: ethEoaAccount1.id },
         });
-        expect(await keyring.getAccounts()).toStrictEqual([
+        expect(keyring.getAccounts()).toStrictEqual([
           ethEoaAccount2.address.toLowerCase(),
           ethEoaAccount3.address.toLowerCase(),
           ethErc4337Account.address.toLowerCase(),
@@ -1190,7 +1190,7 @@ describe('SnapKeyring', () => {
           method: KeyringEvent.AccountDeleted,
           params: { id: ethEoaAccount1.id },
         });
-        expect(await keyring.getAccounts()).toStrictEqual([
+        expect(keyring.getAccounts()).toStrictEqual([
           ethEoaAccount1.address.toLowerCase(),
           ethEoaAccount2.address.toLowerCase(),
           ethEoaAccount3.address.toLowerCase(),
@@ -1370,7 +1370,7 @@ describe('SnapKeyring', () => {
 
   describe('getAccounts', () => {
     it('returns all account addresses', async () => {
-      const addresses = await keyring.getAccounts();
+      const addresses = keyring.getAccounts();
       expect(addresses).toStrictEqual([
         ethEoaAccount1.address.toLowerCase(),
         ethEoaAccount2.address.toLowerCase(),
@@ -1419,7 +1419,7 @@ describe('SnapKeyring', () => {
       };
       const expectedAddresses = [ethEoaAccount1.address];
       await keyring.deserialize(state as unknown as KeyringState);
-      const addresses = await keyring.getAccounts();
+      const addresses = keyring.getAccounts();
       expect(addresses).toStrictEqual(expectedAddresses);
     });
 
@@ -1430,7 +1430,7 @@ describe('SnapKeyring', () => {
         callbacks: mockCallbacks,
       });
       await keyring.deserialize(undefined as unknown as KeyringState);
-      expect(await keyring.getAccounts()).toStrictEqual([]);
+      expect(keyring.getAccounts()).toStrictEqual([]);
     });
 
     it('fails to restore an empty state', async () => {
@@ -1442,7 +1442,7 @@ describe('SnapKeyring', () => {
       await expect(
         keyring.deserialize({} as unknown as KeyringState),
       ).rejects.toThrow('Cannot convert undefined or null to object');
-      expect(await keyring.getAccounts()).toStrictEqual([]);
+      expect(keyring.getAccounts()).toStrictEqual([]);
     });
 
     it.each([
@@ -2127,7 +2127,7 @@ describe('SnapKeyring', () => {
     it('removes an account', async () => {
       mockMessenger.handleRequest.mockResolvedValue(null);
       await keyring.removeAccount(ethEoaAccount1.address);
-      expect(await keyring.getAccounts()).toStrictEqual([
+      expect(keyring.getAccounts()).toStrictEqual([
         accounts[1].address,
         accounts[2].address,
         accounts[3].address,
@@ -2145,7 +2145,7 @@ describe('SnapKeyring', () => {
       const spy = jest.spyOn(console, 'error').mockImplementation();
       mockMessenger.handleRequest.mockRejectedValue('some error');
       await keyring.removeAccount(ethEoaAccount1.address);
-      expect(await keyring.getAccounts()).toStrictEqual([
+      expect(keyring.getAccounts()).toStrictEqual([
         accounts[1].address,
         accounts[2].address,
         accounts[3].address,

@@ -45,11 +45,8 @@ const sampleMnemonicSeed = mnemonicToSeedSync(sampleMnemonic);
 
 const notKeyringAddress = '0xbD20F6F5F1616947a39E11926E78ec94817B3931';
 
-const getAddressAtIndex = async (
-  keyring: HdKeyring,
-  index: number,
-): Promise<Hex> => {
-  const accounts = await keyring.getAccounts();
+const getAddressAtIndex = (keyring: HdKeyring, index: number): Hex => {
+  const accounts = keyring.getAccounts();
   assert(accounts[index], `Account not found at index ${index}`);
   return accounts[index];
 };
@@ -78,7 +75,7 @@ describe('hd-keyring', () => {
               mnemonic,
               numberOfAccounts: 3,
             });
-            const newAccounts = await newHDKeyring.getAccounts();
+            const newAccounts = newHDKeyring.getAccounts();
             const oldAccounts = await oldHDKeyring.getAccounts();
             expect(newAccounts[0]).toStrictEqual(oldAccounts[0]);
 
@@ -181,7 +178,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 2,
       });
 
-      const accounts = await keyring.getAccounts();
+      const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
       expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
@@ -196,7 +193,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 2,
       });
 
-      const accounts = await keyring.getAccounts();
+      const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
       expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
@@ -242,7 +239,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 2,
       });
 
-      const accounts = await keyring.getAccounts();
+      const accounts = keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
       expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
@@ -281,11 +278,11 @@ describe('hd-keyring', () => {
         mnemonic: sampleMnemonic,
         numberOfAccounts: 1,
       });
-      const accountsFirstCheck = await keyring.getAccounts();
+      const accountsFirstCheck = keyring.getAccounts();
 
       expect(accountsFirstCheck).toHaveLength(1);
       await keyring.addAccounts(1);
-      const accountsSecondCheck = await keyring.getAccounts();
+      const accountsSecondCheck = keyring.getAccounts();
       expect(accountsSecondCheck[0]).toStrictEqual(firstAcct);
       expect(accountsSecondCheck[1]).toStrictEqual(secondAcct);
       expect(accountsSecondCheck).toHaveLength(2);
@@ -303,7 +300,7 @@ describe('hd-keyring', () => {
         await keyring.deserialize({});
         await keyring.generateRandomMnemonic();
         await keyring.addAccounts();
-        const accounts = await keyring.getAccounts();
+        const accounts = keyring.getAccounts();
         expect(accounts).toHaveLength(1);
       });
 
@@ -321,7 +318,7 @@ describe('hd-keyring', () => {
         await keyring.deserialize({});
         await keyring.generateRandomMnemonic();
         await keyring.addAccounts(3);
-        const accounts = await keyring.getAccounts();
+        const accounts = keyring.getAccounts();
         expect(accounts).toHaveLength(3);
       });
     });
@@ -364,7 +361,7 @@ describe('hd-keyring', () => {
       await keyring.deserialize({});
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
-      const address = await getAddressAtIndex(keyring, 0);
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData);
       const restored = recoverTypedSignature({
         data: typedData,
@@ -389,7 +386,7 @@ describe('hd-keyring', () => {
       await keyring.deserialize({});
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
-      const address = await getAddressAtIndex(keyring, 0);
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V1,
       });
@@ -418,7 +415,7 @@ describe('hd-keyring', () => {
         mnemonic: sampleMnemonic,
         numberOfAccounts: 1,
       });
-      const address = await getAddressAtIndex(keyring, 0);
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V3,
       });
@@ -475,7 +472,7 @@ describe('hd-keyring', () => {
       await keyring.deserialize({});
       await keyring.generateRandomMnemonic();
       await keyring.addAccounts(1);
-      const address = await getAddressAtIndex(keyring, 0);
+      const address = getAddressAtIndex(keyring, 0);
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V3,
       });
@@ -497,7 +494,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
         hdPath: hdPathString,
       });
-      const addresses = await keyring.getAccounts();
+      const addresses = keyring.getAccounts();
       expect(addresses[0]).toStrictEqual(firstAcct);
       const serialized = await keyring.serialize();
       expect(serialized.hdPath).toStrictEqual(hdPathString);
@@ -511,7 +508,7 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
         hdPath: hdPathString,
       });
-      const addresses = await keyring.getAccounts();
+      const addresses = keyring.getAccounts();
       expect(addresses[0]).not.toBe(firstAcct);
       const serialized = await keyring.serialize();
       expect(serialized.hdPath).toStrictEqual(hdPathString);
@@ -640,7 +637,7 @@ describe('hd-keyring', () => {
         Buffer.from(keccak256(Buffer.from(localMessage))),
       );
       await keyring.addAccounts(9);
-      const addresses = await keyring.getAccounts();
+      const addresses = keyring.getAccounts();
       const signatures = await Promise.all(
         addresses.map(async (accountAddress) => {
           return await keyring.signMessage(accountAddress, msgHashHex);
@@ -767,10 +764,10 @@ describe('hd-keyring', () => {
 
     describe('if the account exists', function () {
       it('should remove that account', async function () {
-        const addresses = await keyring.getAccounts();
+        const addresses = keyring.getAccounts();
         expect(addresses).toHaveLength(1);
-        keyring.removeAccount(await getAddressAtIndex(keyring, 0));
-        const addressesAfterRemoval = await keyring.getAccounts();
+        keyring.removeAccount(getAddressAtIndex(keyring, 0));
+        const addressesAfterRemoval = keyring.getAccounts();
         expect(addressesAfterRemoval).toHaveLength(0);
       });
     });
@@ -979,7 +976,7 @@ describe('hd-keyring', () => {
         },
       };
 
-      const address = await getAddressAtIndex(keyring, 0);
+      const address = getAddressAtIndex(keyring, 0);
 
       const signature = await keyring.signTypedData(address, typedData, {
         version: SignTypedDataVersion.V4,

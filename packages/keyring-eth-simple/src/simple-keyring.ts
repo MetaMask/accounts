@@ -88,7 +88,7 @@ export default class SimpleKeyring implements Keyring {
     return hexWallets;
   }
 
-  async getAccounts(): Promise<Hex[]> {
+  getAccounts(): Hex[] {
     return this.#wallets.map(({ publicKey }) =>
       add0x(bytesToHex(publicToAddress(publicKey))),
     );

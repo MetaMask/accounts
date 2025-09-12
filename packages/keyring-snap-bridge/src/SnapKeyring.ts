@@ -772,7 +772,7 @@ export class SnapKeyring extends EventEmitter {
    *
    * @returns The addresses of the accounts in this keyring.
    */
-  async getAccounts(): Promise<string[]> {
+  getAccounts(): string[] {
     return unique(
       [...this.#accounts.values()].map(({ account }) =>
         normalizeAccountAddress(account),

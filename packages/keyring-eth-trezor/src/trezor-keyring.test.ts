@@ -119,7 +119,7 @@ describe('TrezorKeyring', function () {
     it('constructs', async function () {
       const keyringInstance = new TrezorKeyring({ bridge });
       expect(typeof keyringInstance).toBe('object');
-      const accounts = await keyringInstance.getAccounts();
+      const accounts = keyringInstance.getAccounts();
       expect(Array.isArray(accounts)).toBe(true);
     });
 
@@ -239,7 +239,7 @@ describe('TrezorKeyring', function () {
         keyring.setAccountToUnlock(2);
         await keyring.addAccounts(1);
 
-        const accounts = await keyring.getAccounts();
+        const accounts = keyring.getAccounts();
         expect(accounts[0]).toBe(fakeAccounts[0]);
         expect(accounts[1]).toBe(fakeAccounts[2]);
       });
@@ -279,7 +279,7 @@ describe('TrezorKeyring', function () {
         const accounts = await keyring.addAccounts(1);
         expect(accounts).toHaveLength(1);
         keyring.removeAccount(fakeAccounts[0]);
-        const accountsAfterRemoval = await keyring.getAccounts();
+        const accountsAfterRemoval = keyring.getAccounts();
         expect(accountsAfterRemoval).toHaveLength(0);
       });
 
@@ -289,11 +289,11 @@ describe('TrezorKeyring', function () {
         keyring.setAccountToUnlock(1);
         await keyring.addAccounts(1);
 
-        let accounts = await keyring.getAccounts();
+        let accounts = keyring.getAccounts();
         expect(accounts).toHaveLength(2);
 
         keyring.removeAccount(fakeAccounts[0]);
-        accounts = await keyring.getAccounts();
+        accounts = keyring.getAccounts();
 
         expect(accounts).toHaveLength(1);
         expect(accounts[0]).toBe(fakeAccounts[1]);
@@ -387,7 +387,7 @@ describe('TrezorKeyring', function () {
     beforeEach(async function () {
       keyring.setAccountToUnlock(accountIndex);
       await keyring.addAccounts(1);
-      accounts = await keyring.getAccounts();
+      accounts = keyring.getAccounts();
     });
 
     it('returns an array of accounts', function () {
@@ -670,7 +670,7 @@ describe('TrezorKeyring', function () {
       // Wipe the keyring
       keyring.forgetDevice();
 
-      const accounts = await keyring.getAccounts();
+      const accounts = keyring.getAccounts();
 
       expect(keyring.isUnlocked()).toBe(false);
       expect(accounts).toHaveLength(0);
