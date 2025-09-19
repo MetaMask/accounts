@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `name` and `state` properties to `SnapKeyring` to allow modular initialisation in the clients ([#379](https://github.com/MetaMask/accounts/pull/379))
 
-### Changed 
+### Changed
 
 - `SnapKeyring` no longer extend `EventEmitter` ([#379](https://github.com/MetaMask/accounts/pull/379))
 
