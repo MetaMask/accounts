@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [17.2.0]
+
 ### Added
 
 - Add `name` and `state` properties to `SnapKeyring` to allow modular initialisation in the clients ([#379](https://github.com/MetaMask/accounts/pull/379))
@@ -575,7 +577,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@17.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@17.2.0...HEAD
+[17.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@17.1.0...@metamask/eth-snap-keyring@17.2.0
 [17.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@17.0.0...@metamask/eth-snap-keyring@17.1.0
 [17.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@16.1.0...@metamask/eth-snap-keyring@17.0.0
 [16.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@16.0.0...@metamask/eth-snap-keyring@16.1.0
