@@ -51,7 +51,6 @@ import {
   KnownCaipNamespace,
   toCaipChainId,
 } from '@metamask/utils';
-import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
 import { transformAccount } from './account';
@@ -74,6 +73,7 @@ import type {
   SnapKeyringEvents,
   SnapKeyringMessenger,
 } from './SnapKeyringMessenger';
+import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
 import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
@@ -154,10 +154,15 @@ function normalizeAccountAddress(account: KeyringAccount): string {
 /**
  * Keyring bridge implementation to support Snaps.
  */
-export class SnapKeyring extends EventEmitter {
+export class SnapKeyring {
   static type: string = SNAP_KEYRING_TYPE;
 
   type: string;
+
+  // Name and state are required for modular initialisation.
+  name: typeof SNAP_KEYRING_NAME = SNAP_KEYRING_NAME;
+
+  state = null;
 
   /**
    * Messenger to dispatch requests to the Snaps controller.
@@ -225,7 +230,6 @@ export class SnapKeyring extends EventEmitter {
     callbacks: SnapKeyringCallbacks;
     isAnyAccountTypeAllowed?: boolean;
   }) {
-    super();
     this.type = SnapKeyring.type;
     this.#messenger = messenger;
     this.#snapClient = new KeyringInternalSnapClient({ messenger });

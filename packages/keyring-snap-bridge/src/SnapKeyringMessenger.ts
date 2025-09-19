@@ -40,8 +40,10 @@ export type SnapKeyringAllowedActions =
   | SnapControllerGetSnap
   | SnapControllerIsMinimumPlatformVersion;
 
+export const SNAP_KEYRING_NAME = 'SnapKeyring';
+
 export type SnapKeyringMessenger = RestrictedMessenger<
-  'SnapKeyring',
+  typeof SNAP_KEYRING_NAME,
   SnapKeyringAllowedActions,
   SnapKeyringEvents,
   SnapKeyringAllowedActions['type'],
