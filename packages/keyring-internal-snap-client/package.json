@@ -45,11 +45,12 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/base-controller": "^8.3.0",
+    "@metamask/base-controller": "^8.4.0",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-internal-api": "workspace:^",
     "@metamask/keyring-snap-client": "workspace:^",
-    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/keyring-utils": "workspace:^",
+    "@metamask/messenger": "^0.3.0"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
