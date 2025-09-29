@@ -4,7 +4,6 @@
 
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
-import type { ExtractEventPayload } from '@metamask/base-controller';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
@@ -41,6 +40,7 @@ import {
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
+import type { ExtractEventPayload } from '@metamask/messenger';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';

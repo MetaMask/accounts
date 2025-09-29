@@ -45,7 +45,6 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/base-controller": "^8.4.0",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-internal-api": "workspace:^",
     "@metamask/keyring-snap-client": "workspace:^",

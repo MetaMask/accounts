@@ -38,7 +38,6 @@
   },
   "dependencies": {
     "@ethereumjs/tx": "^5.4.0",
-    "@metamask/base-controller": "^8.4.0",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-internal-api": "workspace:^",
