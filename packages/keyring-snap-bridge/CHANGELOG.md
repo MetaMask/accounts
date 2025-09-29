@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** Migrate `SnapKeyringMessenger` to new `Messenger` type from `@metamask/messenger` ([#6444](https://github.com/MetaMask/accounts/pull/0000))
+
 ## [17.2.0]
 
 ### Added

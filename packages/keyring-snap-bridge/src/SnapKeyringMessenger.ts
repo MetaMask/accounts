@@ -1,9 +1,9 @@
-import type { RestrictedMessenger } from '@metamask/base-controller';
 import type {
   AccountAssetListUpdatedEventPayload,
   AccountBalancesUpdatedEventPayload,
   AccountTransactionsUpdatedEventPayload,
 } from '@metamask/keyring-api';
+import type { Messenger } from '@metamask/messenger';
 import type {
   HandleSnapRequest as SnapControllerHandleSnapRequest,
   GetSnap as SnapControllerGetSnap,
@@ -42,10 +42,8 @@ export type SnapKeyringAllowedActions =
 
 export const SNAP_KEYRING_NAME = 'SnapKeyring';
 
-export type SnapKeyringMessenger = RestrictedMessenger<
+export type SnapKeyringMessenger = Messenger<
   typeof SNAP_KEYRING_NAME,
   SnapKeyringAllowedActions,
-  SnapKeyringEvents,
-  SnapKeyringAllowedActions['type'],
-  never
+  SnapKeyringEvents
 >;
