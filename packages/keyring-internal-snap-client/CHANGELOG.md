@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Migrate `KeyringInternalSnapClientMessenger` to new `Messenger` type from `@metamask/messenger` ([#6444](https://github.com/MetaMask/accounts/pull/0000))
+- **BREAKING:** Migrate `KeyringInternalSnapClientMessenger` to new `Messenger` type from `@metamask/messenger` ([#383](https://github.com/MetaMask/accounts/pull/383))
 
 ## [7.1.0]
 
