@@ -146,26 +146,6 @@ describe('OneKeyKeyring', function () {
     });
   });
 
-  describe('init', function () {
-    it('initialises the bridge', async function () {
-      const initStub = sinon.stub().resolves();
-      bridge.init = initStub;
-
-      await keyring.init({
-        fetchConfig: true,
-        connectSrc: CONNECT_SRC,
-        env: 'web',
-      });
-
-      expect(initStub.calledOnce).toBe(true);
-      sinon.assert.calledWithExactly(initStub, {
-        fetchConfig: true,
-        connectSrc: CONNECT_SRC,
-        env: 'web',
-      });
-    });
-  });
-
   describe('destroy', function () {
     it('calls dispose on bridge', async function () {
       const disposeStub = sinon.stub().resolves();
@@ -447,14 +427,16 @@ describe('OneKeyKeyring', function () {
           Buffer.from(Address.fromString(fakeAccounts[0]).bytes),
         );
 
+      // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
       const returnedTx = await keyring.signTransaction(fakeAccounts[0], fakeTx);
       // assert that the v,r,s values got assigned to tx.
       expect(returnedTx.v).toBeDefined();
       expect(returnedTx.r).toBeDefined();
       expect(returnedTx.s).toBeDefined();
       // ensure we get a older version transaction back
+      // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
       expect((returnedTx as EthereumTx).getChainId()).toBe(1);
-      expect((returnedTx as TypedTransaction).common).toBeUndefined();
+      expect(returnedTx.common).toBeUndefined();
       expect(ethereumSignTransactionStub.calledOnce).toBe(true);
     });
 
@@ -482,11 +464,10 @@ describe('OneKeyKeyring', function () {
         newFakeTx,
       );
       // ensure we get a new version transaction back
+      // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect((returnedTx as EthereumTx).getChainId).toBeUndefined();
-      expect(
-        (returnedTx as TypedTransaction).common.chainId().toString(16),
-      ).toBe('1');
+      expect(returnedTx.common.chainId().toString(16)).toBe('1');
       expect(ethereumSignTransactionStub.calledOnce).toBe(true);
     });
 
@@ -517,11 +498,10 @@ describe('OneKeyKeyring', function () {
         contractDeploymentFakeTx,
       );
       // ensure we get a new version transaction back
+      // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect((returnedTx as EthereumTx).getChainId).toBeUndefined();
-      expect(
-        (returnedTx as TypedTransaction).common.chainId().toString(16),
-      ).toBe('1');
+      expect(returnedTx.common.chainId().toString(16)).toBe('1');
       expect(ethereumSignTransactionStub.calledOnce).toBe(true);
       expect(ethereumSignTransactionStub.getCall(0).args[0]).toStrictEqual({
         passphraseState: '',
@@ -771,6 +751,7 @@ describe('OneKeyKeyring', function () {
       bridge.ethereumSignTransaction = sinon.stub().resolves(errorResponse);
 
       try {
+        // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
         await keyring.signTransaction(fakeAccounts[0], fakeTx);
         throw new Error('Expected error was not thrown');
       } catch (error) {
@@ -911,6 +892,7 @@ describe('OneKeyKeyring', function () {
       // @ts-expect-error - for testing purposes
       fakeTx.to = null;
 
+      // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
       const result = await keyring.signTransaction(fakeAccounts[0], fakeTx);
       expect(result).toBeDefined();
 
@@ -1006,7 +988,7 @@ describe('OneKeyKeyring', function () {
     it('should handle init bridge method', async function () {
       const initSpy = sinon.stub(bridge, 'init').resolves();
 
-      await keyring.init({ debug: true });
+      await keyring.init();
       expect(initSpy.calledOnce).toBe(true);
 
       // Test destroy method by calling keyring destroy
@@ -1052,6 +1034,7 @@ describe('OneKeyKeyring', function () {
           Buffer.from(Address.fromString(fakeAccounts[0]).bytes),
         );
 
+      // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
       const result = await keyring.signTransaction(fakeAccounts[0], fakeTx);
       expect(result).toBeDefined();
       expect(result.v).toBeDefined();
@@ -1084,13 +1067,6 @@ describe('OneKeyKeyring', function () {
         // eslint-disable-next-line no-new
         new OneKeyKeyring({ bridge: undefined as unknown as OneKeyBridge });
       }).toThrow('Bridge is a required dependency for the keyring');
-    });
-
-    it('should handle event emission from bridge', function () {
-      const eventSpy = sinon.stub(keyring, 'emit');
-
-      expect(keyring.bridge).toBe(bridge);
-      expect(eventSpy.called).toBe(false);
     });
 
     describe('HD path variations', function () {
