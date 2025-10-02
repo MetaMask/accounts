@@ -1753,6 +1753,8 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
+    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/utils": "npm:^11.1.0"
     "@noble/hashes": "npm:^1.7.0"
     "@onekeyfe/hd-core": "npm:1.1.6-patch.4"
     "@onekeyfe/hd-shared": "npm:1.1.6-patch.4"

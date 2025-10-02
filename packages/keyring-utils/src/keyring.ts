@@ -77,7 +77,6 @@ export type Keyring = {
    * @param state - A JSON-serializable representation of the keyring state.
    */
   deserialize(state: Json): Promise<void>;
-
   /**
    * Method to include asynchronous configuration.
    */

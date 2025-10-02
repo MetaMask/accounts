@@ -5,6 +5,8 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
+import type { Keyring } from '@metamask/keyring-utils';
+import type { Hex, Json } from '@metamask/utils';
 import type {
   ConnectSettings,
   EthereumSignTypedDataMessage,
@@ -57,7 +59,7 @@ export type AccountPage = AccountPageEntry[];
 
 export type OneKeyControllerOptions = {
   hdPath?: string;
-  accounts?: string[];
+  accounts?: Hex[];
   accountDetails?: Readonly<Record<string, AccountDetails>>;
   page?: number;
   passphraseState?: string;
@@ -65,8 +67,8 @@ export type OneKeyControllerOptions = {
 
 export type OneKeyControllerState = {
   hdPath: string;
-  accounts: readonly string[];
-  accountDetails: Readonly<Record<string, AccountDetails>>;
+  accounts: string[];
+  accountDetails: Record<string, AccountDetails>;
   page: number;
   passphraseState?: string;
 };
@@ -127,7 +129,7 @@ function isEmptyPassphrase(passphraseState: string | undefined): boolean {
   );
 }
 
-export class OneKeyKeyring extends EventEmitter {
+export class OneKeyKeyring implements Keyring {
   readonly type: string = keyringType;
 
   static type: string = keyringType;
@@ -140,7 +142,7 @@ export class OneKeyKeyring extends EventEmitter {
 
   hdk = new HDKey();
 
-  accounts: readonly string[] = [];
+  accounts: readonly Hex[] = [];
 
   accountDetails: Record<string, AccountDetails> = {};
 
@@ -154,21 +156,23 @@ export class OneKeyKeyring extends EventEmitter {
 
   bridge: OneKeyBridge;
 
-  constructor({ bridge }: { bridge: OneKeyBridge }) {
-    super();
+  eventEmitter: EventEmitter;
 
+  constructor({ bridge }: { bridge: OneKeyBridge }) {
     if (!bridge) {
       throw new Error('Bridge is a required dependency for the keyring');
     }
 
+    this.eventEmitter = new EventEmitter();
+
     this.bridge = bridge;
     this.bridge.on(ONEKEY_HARDWARE_UI_EVENT, (_event: any) => {
-      this.emit(ONEKEY_HARDWARE_UI_EVENT, _event);
+      this.eventEmitter.emit(ONEKEY_HARDWARE_UI_EVENT, _event);
     });
   }
 
-  async init(settings: Partial<ConnectSettings>): Promise<void> {
-    return this.bridge.init(settings);
+  async init(): Promise<void> {
+    return this.bridge.init();
   }
 
   async destroy(): Promise<void> {
@@ -176,21 +180,29 @@ export class OneKeyKeyring extends EventEmitter {
     return this.bridge.dispose();
   }
 
-  async serialize(): Promise<OneKeyControllerState> {
-    return Promise.resolve({
-      hdPath: this.hdPath,
-      accounts: this.accounts,
-      accountDetails: this.accountDetails,
-      page: this.page,
-    });
+  on(event: string, callback: (event: any) => void): void {
+    this.eventEmitter.on(event, callback);
   }
 
-  async deserialize(opts: OneKeyControllerOptions = {}): Promise<void> {
+  off(event: string, callback: (event: any) => void): void {
+    this.eventEmitter.off(event, callback);
+  }
+
+  async serialize(): Promise<OneKeyControllerState> {
+    return {
+      hdPath: this.hdPath,
+      accounts: [...this.accounts],
+      accountDetails: { ...this.accountDetails },
+      page: this.page,
+    };
+  }
+
+  async deserialize(state: Json): Promise<void> {
+    const opts = state as OneKeyControllerOptions;
     this.hdPath = opts.hdPath ?? defaultHdPath;
     this.accounts = opts.accounts ?? [];
     this.accountDetails = opts.accountDetails ?? {};
     this.page = opts.page ?? 0;
-    return Promise.resolve();
   }
 
   getModel(): string | undefined {
@@ -273,7 +285,7 @@ export class OneKeyKeyring extends EventEmitter {
     });
   }
 
-  async addAccounts(numberOfAccounts = 1): Promise<readonly string[]> {
+  async addAccounts(numberOfAccounts = 1): Promise<Hex[]> {
     await this.unlock().catch((error) => {
       throw new Error(error?.toString() || 'Unknown error');
     });
@@ -281,7 +293,7 @@ export class OneKeyKeyring extends EventEmitter {
     return new Promise((resolve, reject) => {
       const from = this.unlockedAccount;
       const to = from + numberOfAccounts;
-      const newAccounts: string[] = [];
+      const newAccounts: Hex[] = [];
 
       try {
         for (let i = from; i < to; i++) {
@@ -329,7 +341,7 @@ export class OneKeyKeyring extends EventEmitter {
     return this.#getPage(-1);
   }
 
-  async getAccounts(): Promise<readonly string[]> {
+  async getAccounts(): Promise<Hex[]> {
     return Promise.resolve(this.accounts.slice());
   }
 
@@ -353,7 +365,7 @@ export class OneKeyKeyring extends EventEmitter {
   }
 
   #normalize(buffer: Buffer): string {
-    return ethUtil.bytesToHex(buffer);
+    return ethUtil.bytesToHex(new Uint8Array(buffer));
   }
 
   /**
@@ -368,15 +380,16 @@ export class OneKeyKeyring extends EventEmitter {
    * ethereumjs transaction.
    */
   async signTransaction(
-    address: string,
-    tx: TypedTransaction | OldEthJsTransaction,
-  ): Promise<TypedTransaction | OldEthJsTransaction> {
+    address: Hex,
+    tx: TypedTransaction,
+  ): Promise<TypedTransaction> {
     if (isOldStyleEthereumjsTx(tx)) {
       // In this version of ethereumjs-tx we must add the chainId in hex format
       // to the initial v value. The chainId must be included in the serialized
       // transaction which is only communicated to ethereumjs-tx in this
       // value. In newer versions the chainId is communicated via the 'Common'
       // object.
+      // @ts-expect-error - support old transactions
       return this.#signTransaction(
         address,
         // @types/ethereumjs-tx and old ethereumjs-tx versions document
@@ -386,10 +399,11 @@ export class OneKeyKeyring extends EventEmitter {
         tx.getChainId() as unknown as number,
         tx,
         (payload) => {
-          tx.v = Buffer.from(payload.v, 'hex');
-          tx.r = Buffer.from(payload.r, 'hex');
-          tx.s = Buffer.from(payload.s, 'hex');
-          return tx;
+          const newTx = tx as OldEthJsTransaction;
+          newTx.v = Buffer.from(payload.v, 'hex');
+          newTx.r = Buffer.from(payload.r, 'hex');
+          newTx.s = Buffer.from(payload.s, 'hex');
+          return newTx;
         },
       );
     }
@@ -632,10 +646,10 @@ export class OneKeyKeyring extends EventEmitter {
     return accountDetails;
   }
 
-  #addressFromIndex(i: number): string {
+  #addressFromIndex(i: number): Hex {
     const dkey = this.hdk.derive(this.#getDerivePath(i));
     const address = ethUtil.bytesToHex(
-      ethUtil.publicToAddress(dkey.publicKey, true),
+      ethUtil.publicToAddress(new Uint8Array(dkey.publicKey), true),
     );
     return ethUtil.toChecksumAddress(address);
   }

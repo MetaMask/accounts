@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/naming-convention */
 import type {
-  ConnectSettings,
   Params,
   EVMSignedTx,
   EVMSignTransactionParams,
@@ -32,7 +31,7 @@ export type OneKeyBridge = {
 
   off(event: string): void;
 
-  init(settings: Partial<ConnectSettings>): Promise<void>;
+  init(): Promise<void>;
 
   dispose(): Promise<void>;
 
