@@ -1,4 +1,8 @@
-import type { Keyring } from '@metamask/keyring-api';
+import type {
+  Keyring,
+  BatchRequest,
+  BatchResponse,
+} from '@metamask/keyring-api';
 import {
   KeyringRpcMethod,
   GetAccountRequestStruct,
@@ -11,13 +15,14 @@ import {
   RejectRequestRequestStruct,
   SubmitRequestRequestStruct,
   UpdateAccountRequestStruct,
-  FilterAccountChainsStruct,
+  FilterAccountChainsRequestStruct,
   ListAccountsRequestStruct,
   ListRequestsRequestStruct,
   GetAccountBalancesRequestStruct,
   ListAccountAssetsRequestStruct,
   ResolveAccountAddressRequestStruct,
   DiscoverAccountsRequestStruct,
+  BatchRequestStruct,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
@@ -39,11 +44,13 @@ export class MethodNotSupportedError extends Error {
  *
  * @param keyring - Keyring instance.
  * @param request - Keyring JSON-RPC request.
+ * @param handleBatch - Batched requests handler.
  * @returns A promise that resolves to the keyring response.
  */
 async function dispatchRequest(
   keyring: Keyring,
   request: JsonRpcRequest,
+  handleBatch?: (batched: BatchRequest) => BatchResponse,
 ): Promise<Json | void> {
   // We first have to make sure that the request is a valid JSON-RPC request so
   // we can check its method name.
@@ -119,7 +126,7 @@ async function dispatchRequest(
     }
 
     case `${KeyringRpcMethod.FilterAccountChains}`: {
-      assert(request, FilterAccountChainsStruct);
+      assert(request, FilterAccountChainsRequestStruct);
       return keyring.filterAccountChains(
         request.params.id,
         request.params.chains,
@@ -181,6 +188,36 @@ async function dispatchRequest(
       return keyring.rejectRequest(request.params.id);
     }
 
+    case `${KeyringRpcMethod.Batch}`: {
+      assert(request, BatchRequestStruct);
+
+      if (handleBatch) {
+        return handleBatch(request);
+      }
+
+      // If there's no custom handler for batched requests, we just fallback by executing them 1
+      // by 1.
+      const responses: Json = await Promise.all(
+        request.params.requests.map(async (subRequest) => {
+          try {
+            let response = await dispatchRequest(keyring, subRequest);
+
+            // For batch responses, we "convert" any `void` return type to null so it can
+            // be casted to a normal `Json` type.
+            if (response === undefined) {
+              response = null;
+            }
+
+            return { response };
+          } catch (error) {
+            return { error: (error as Error).message };
+          }
+        }),
+      );
+
+      return responses;
+    }
+
     default: {
       throw new MethodNotSupportedError(request.method);
     }
@@ -195,6 +232,7 @@ async function dispatchRequest(
  *
  * @param keyring - Keyring instance.
  * @param request - Keyring JSON-RPC request.
+ * @param handleBatch - Batched requests handler.
  * @returns A promise that resolves to the keyring response.
  * @example
  * ```ts
@@ -209,9 +247,10 @@ async function dispatchRequest(
 export async function handleKeyringRequest(
   keyring: Keyring,
   request: JsonRpcRequest,
+  handleBatch?: (batched: BatchRequest) => BatchResponse,
 ): Promise<Json | void> {
   try {
-    return await dispatchRequest(keyring, request);
+    return await dispatchRequest(keyring, request, handleBatch);
   } catch (error) {
     const message =
       error instanceof Error && typeof error.message === 'string'

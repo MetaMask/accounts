@@ -17,9 +17,9 @@ import {
   KeyringRpcMethod,
   ResolveAccountAddressResponseStruct,
   DiscoverAccountsResponseStruct,
+  BatchResponseStruct,
 } from '@metamask/keyring-api';
 import type {
-  Keyring,
   KeyringAccount,
   KeyringRequest,
   KeyringAccountData,
@@ -33,6 +33,9 @@ import type {
   CaipAssetTypeOrId,
   EntropySourceId,
   DiscoveredAccount,
+  KeyringRpc,
+  BatchRequestRequest,
+  BatchResponse,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
@@ -44,7 +47,7 @@ export type Sender = {
   send(request: JsonRpcRequest): Promise<Json>;
 };
 
-export class KeyringClient implements Keyring {
+export class KeyringClient implements KeyringRpc {
   readonly #sender: Sender;
 
   /**
@@ -257,6 +260,16 @@ export class KeyringClient implements Keyring {
         params: { id },
       }),
       RejectRequestResponseStruct,
+    );
+  }
+
+  async batch(requests: BatchRequestRequest[]): Promise<BatchResponse> {
+    return strictMask(
+      await this.send({
+        method: KeyringRpcMethod.Batch,
+        params: { requests },
+      }),
+      BatchResponseStruct,
     );
   }
 }
