@@ -1,4 +1,6 @@
 import type {
+  BatchRequestRequest,
+  BatchResponse,
   KeyringAccount,
   KeyringAccountData,
   KeyringRequest,
@@ -35,6 +37,7 @@ export const KeyringPublicRpcMethod = [
   KeyringRpcMethod.ApproveRequest,
   KeyringRpcMethod.RejectRequest,
   KeyringRpcMethod.ListRequests,
+  KeyringRpcMethod.Batch,
 ] as const;
 
 /**
@@ -104,5 +107,9 @@ export class KeyringPublicClient
 
   async exportAccount(id: string): Promise<KeyringAccountData> {
     return this.#client.exportAccount(id);
+  }
+
+  async batch(requests: BatchRequestRequest[]): Promise<BatchResponse> {
+    return this.#client.batch(requests);
   }
 }

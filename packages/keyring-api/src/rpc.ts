@@ -1,11 +1,8 @@
-import {
-  object,
-  UuidStruct,
-  JsonRpcRequestStruct,
-} from '@metamask/keyring-utils';
+import { UuidStruct, JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   array,
+  object,
   literal,
   nullable,
   number,
@@ -15,6 +12,7 @@ import {
 } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
+import type { Keyring } from './api';
 import {
   CaipAssetTypeStruct,
   CaipAssetTypeOrIdStruct,
@@ -51,6 +49,7 @@ export enum KeyringRpcMethod {
   SubmitRequest = 'keyring_submitRequest',
   ApproveRequest = 'keyring_approveRequest',
   RejectRequest = 'keyring_rejectRequest',
+  Batch = 'keyring_batch',
 }
 
 /**
@@ -62,6 +61,19 @@ export enum KeyringRpcMethod {
 export function isKeyringRpcMethod(method: string): boolean {
   return Object.values(KeyringRpcMethod).includes(method as KeyringRpcMethod);
 }
+
+/**
+ * Keyring RPC interface.
+ */
+export type KeyringRpc = Keyring & {
+  /**
+   * Batch keyring RPC requests.
+   *
+   * @returns A promise that resolves to an array of results or errors for each
+   * keyring RPC requests.
+   */
+  batch(requests: BatchRequestRequest[]): Promise<BatchResponse>;
+};
 
 // ----------------------------------------------------------------------------
 
@@ -238,7 +250,7 @@ export type ResolveAccountAddressResponse = Infer<
 // ----------------------------------------------------------------------------
 // Filter account chains
 
-export const FilterAccountChainsStruct = object({
+export const FilterAccountChainsRequestStruct = object({
   ...CommonHeader,
   method: literal('keyring_filterAccountChains'),
   params: object({
@@ -248,7 +260,7 @@ export const FilterAccountChainsStruct = object({
 });
 
 export type FilterAccountChainsRequest = Infer<
-  typeof FilterAccountChainsStruct
+  typeof FilterAccountChainsRequestStruct
 >;
 
 export const FilterAccountChainsResponseStruct = array(string());
@@ -388,3 +400,77 @@ export type RejectRequestRequest = Infer<typeof RejectRequestRequestStruct>;
 export const RejectRequestResponseStruct = literal(null);
 
 export type RejectRequestResponse = Infer<typeof RejectRequestResponseStruct>;
+
+// ----------------------------------------------------------------------------
+// Batch RPC requests
+
+export const BatchRequestRequestStruct = union([
+  ListAccountsRequestStruct,
+  GetAccountRequestStruct,
+  CreateAccountRequestStruct,
+  DiscoverAccountsRequestStruct,
+  ListAccountAssetsRequestStruct,
+  ListAccountTransactionsRequestStruct,
+  GetAccountBalancesRequestStruct,
+  ResolveAccountAddressRequestStruct,
+  FilterAccountChainsRequestStruct,
+  UpdateAccountRequestStruct,
+  DeleteAccountRequestStruct,
+  ExportAccountRequestStruct,
+  ListRequestsRequestStruct,
+  GetRequestRequestStruct,
+  SubmitRequestRequestStruct,
+  ApproveRequestRequestStruct,
+  RejectRequestRequestStruct,
+]);
+
+export type BatchRequestRequest = Infer<typeof BatchRequestRequestStruct>;
+
+export const BatchRequestResponseStruct = union([
+  ListAccountsResponseStruct,
+  ListAccountsResponseStruct,
+  GetAccountResponseStruct,
+  CreateAccountResponseStruct,
+  DiscoverAccountsResponseStruct,
+  ListAccountAssetsResponseStruct,
+  ListAccountTransactionsResponseStruct,
+  GetAccountBalancesResponseStruct,
+  ResolveAccountAddressResponseStruct,
+  FilterAccountChainsResponseStruct,
+  UpdateAccountResponseStruct,
+  DeleteAccountResponseStruct,
+  ExportAccountResponseStruct,
+  ListRequestsResponseStruct,
+  GetRequestResponseStruct,
+  SubmitRequestResponseStruct,
+  ApproveRequestResponseStruct,
+  RejectRequestResponseStruct,
+]);
+
+export type BatchRequestResponse = Infer<typeof BatchRequestResponseStruct>;
+
+export const BatchRequestStruct = object({
+  ...CommonHeader,
+  method: literal('keyring_batch'),
+  params: object({
+    id: UuidStruct,
+    requests: array(BatchRequestRequestStruct),
+  }),
+});
+
+export type BatchRequest = Infer<typeof BatchRequestStruct>;
+
+export const BatchResponseStruct = array(
+  union([
+    object({
+      response: BatchRequestResponseStruct,
+    }),
+    object({
+      error: string(),
+    }),
+  ]),
+);
+
+export type BatchResponse = Infer<typeof BatchResponseStruct>;
+
+export type BatchResponseOne = BatchResponse[number];
