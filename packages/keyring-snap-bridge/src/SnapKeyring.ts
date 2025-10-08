@@ -1529,7 +1529,7 @@ export class SnapKeyring {
   /**
    * Construct a map of selected accounts by Snap ID.
    *
-   * This method also updated the in-memory selected accounts map.
+   * This method also updates the in-memory selected accounts map.
    *
    * @param accounts - The accounts to construct the map from.
    * @returns A map of selected accounts by Snap ID.
