@@ -248,6 +248,7 @@ export class SnapKeyring {
     this.#options = new SnapIdMap();
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
+    this.#selectedAccounts = {};
   }
 
   /**
