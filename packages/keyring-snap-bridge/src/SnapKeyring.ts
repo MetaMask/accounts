@@ -1556,13 +1556,21 @@ export class SnapKeyring {
    */
   async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
     const accountsMap = this.#constructAndUpdateSelectedAccountsMap(accounts);
-    await Promise.allSettled(
-      Object.entries(accountsMap).map(([snapId, accountIds]) =>
+    const entries = Object.entries(accountsMap);
+    const results = await Promise.allSettled(
+      entries.map(([snapId, accountIds]) =>
         this.#snapClient
           .withSnapId(snapId as SnapId)
           .setSelectedAccounts(accountIds),
       ),
     );
+    results.forEach((result, idx) => {
+      if (result.status === 'rejected') {
+        console.error(
+          `Failed to set selected accounts for ${entries[idx]?.[0]} snap: '${result.reason.message}'`,
+        );
+      }
+    });
   }
 
   /**
