@@ -14,8 +14,8 @@ export const GetSelectedAccountsRequestStruct = object({
   method: literal(SnapManageAccountsMethod.GetSelectedAccounts),
 });
 
-export const GetSelectedAccountsReponseStruct = array(string());
+export const GetSelectedAccountsResponseStruct = array(string());
 
 export type GetSelectedAccountsResponse = Infer<
-  typeof GetSelectedAccountsReponseStruct
+  typeof GetSelectedAccountsResponseStruct
 >;

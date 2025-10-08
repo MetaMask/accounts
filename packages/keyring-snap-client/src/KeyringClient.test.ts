@@ -671,6 +671,19 @@ describe('KeyringClient', () => {
     });
   });
 
+  describe('setSelectedAccounts', () => {
+    it('sends SetSelectedAccounts and masks null response', async () => {
+      mockSender.send.mockResolvedValue(null);
+      await client.setSelectedAccounts(['acc-1', 'acc-2']);
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_setSelectedAccounts',
+        params: { accounts: ['acc-1', 'acc-2'] },
+      });
+    });
+  });
+
   describe('submitRequest', () => {
     it('should send a request to submit a request', async () => {
       const request: KeyringRequest = {

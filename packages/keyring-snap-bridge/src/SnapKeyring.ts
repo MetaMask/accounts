@@ -191,7 +191,7 @@ export class SnapKeyring {
   /**
    * Mapping between Snap IDs and the selected accounts.
    */
-  #selectedAccounts: Record<SnapId, AccountId[]>;
+  readonly #selectedAccounts: Map<SnapId, AccountId[]>;
 
   /**
    * Mapping between request IDs and their deferred promises.
@@ -248,7 +248,7 @@ export class SnapKeyring {
     this.#options = new SnapIdMap();
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
-    this.#selectedAccounts = {};
+    this.#selectedAccounts = new Map();
   }
 
   /**
@@ -520,7 +520,7 @@ export class SnapKeyring {
     message: SnapMessage,
   ): Promise<GetSelectedAccountsResponse> {
     assert(message, GetSelectedAccountsRequestStruct);
-    return this.#selectedAccounts[snapId] ?? [];
+    return this.#selectedAccounts.get(snapId) ?? [];
   }
 
   /**
@@ -1528,25 +1528,22 @@ export class SnapKeyring {
   }
 
   /**
-   * Construct a map of selected accounts by Snap ID and update the in-memory selected accounts map.
+   * Update the in-memory selected accounts map.
    *
-   * @param accounts - The accounts to construct the map from.
-   * @returns A map of selected accounts by Snap ID.
+   * @param accounts - The accounts to update the map with.
    */
-  #constructAndUpdateSelectedAccountsMap(
-    accounts: AccountId[],
-  ): Record<SnapId, AccountId[]> {
-    const map = accounts.reduce<Record<SnapId, AccountId[]>>((acc, account) => {
+  #updateSelectedAccountsMap(accounts: AccountId[]): void {
+    const selectedAccounts = this.#selectedAccounts;
+    selectedAccounts.clear();
+    for (const account of accounts) {
       const snapId = this.#accounts.getSnapId(account);
       if (!snapId) {
-        return acc;
+        continue;
       }
-      acc[snapId] = acc[snapId] ?? [];
-      acc[snapId].push(account);
-      return acc;
-    }, {});
-    this.#selectedAccounts = map;
-    return map;
+      const snapAccounts = selectedAccounts.get(snapId) ?? [];
+      snapAccounts.push(account);
+      selectedAccounts.set(snapId, snapAccounts);
+    }
   }
 
   /**
@@ -1555,22 +1552,21 @@ export class SnapKeyring {
    * @param accounts - The accounts to set as selected.
    */
   async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
-    const accountsMap = this.#constructAndUpdateSelectedAccountsMap(accounts);
-    const entries = Object.entries(accountsMap);
-    const results = await Promise.allSettled(
-      entries.map(([snapId, accountIds]) =>
-        this.#snapClient
-          .withSnapId(snapId as SnapId)
-          .setSelectedAccounts(accountIds),
-      ),
+    this.#updateSelectedAccountsMap(accounts);
+    const entries = [...this.#selectedAccounts.entries()];
+    await Promise.all(
+      entries.map(async ([snapId, accountIds]) => {
+        try {
+          await this.#snapClient
+            .withSnapId(snapId)
+            .setSelectedAccounts(accountIds);
+        } catch (error: any) {
+          console.error(
+            `Failed to set selected accounts for ${snapId} snap: '${error.message}'`,
+          );
+        }
+      }),
     );
-    results.forEach((result, idx) => {
-      if (result.status === 'rejected') {
-        console.error(
-          `Failed to set selected accounts for ${entries[idx]?.[0]} snap: '${result.reason.message}'`,
-        );
-      }
-    });
   }
 
   /**

@@ -169,8 +169,8 @@ export class KeyringClient implements Keyring {
     );
   }
 
-  async setSelectedAccounts(accounts: AccountId[]): Promise<null> {
-    return strictMask(
+  async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
+    strictMask(
       await this.send({
         method: KeyringRpcMethod.SetSelectedAccounts,
         params: { accounts },

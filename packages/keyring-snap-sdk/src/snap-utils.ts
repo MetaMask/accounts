@@ -7,7 +7,7 @@ import { assert } from '@metamask/superstruct';
 
 import {
   type GetSelectedAccountsResponse,
-  GetSelectedAccountsReponseStruct,
+  GetSelectedAccountsResponseStruct,
   SnapManageAccountsMethod,
 } from './methods';
 
@@ -47,6 +47,6 @@ export async function getSelectedAccounts(
       method: SnapManageAccountsMethod.GetSelectedAccounts,
     },
   });
-  assert(response, GetSelectedAccountsReponseStruct);
+  assert(response, GetSelectedAccountsResponseStruct);
   return response;
 }

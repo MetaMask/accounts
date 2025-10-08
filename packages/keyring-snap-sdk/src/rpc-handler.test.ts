@@ -317,6 +317,38 @@ describe('handleKeyringRequest', () => {
     );
   });
 
+  it('calls `keyring_setSelectedAccounts`', async () => {
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: 'keyring_setSelectedAccounts',
+      params: { accounts: ['4f983fa2-4f53-4c63-a7c2-f9a5ed750041'] },
+    };
+
+    keyring.setSelectedAccounts.mockResolvedValue(null);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.setSelectedAccounts).toHaveBeenCalledWith([
+      '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+    ]);
+    expect(result).toBeNull();
+  });
+
+  it('throws an error if `keyring_setSelectedAccounts` is not implemented', async () => {
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: 'keyring_setSelectedAccounts',
+      params: { accounts: ['4f983fa2-4f53-4c63-a7c2-f9a5ed750041'] },
+    };
+    const partialKeyring: Keyring = { ...keyring };
+    delete partialKeyring.setSelectedAccounts;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      'Method not supported: keyring_setSelectedAccounts',
+    );
+  });
+
   it('calls `keyring_filterAccountChains`', async () => {
     const request: JsonRpcRequest = {
       jsonrpc: '2.0',

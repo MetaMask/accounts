@@ -164,7 +164,7 @@ export type Keyring = {
    *
    * @param accounts - The accounts to set as selected.
    */
-  setSelectedAccounts?(accounts: AccountId[]): Promise<null>;
+  setSelectedAccounts?(accounts: AccountId[]): Promise<void>;
 
   /**
    * Filter supported chains for a given account.
