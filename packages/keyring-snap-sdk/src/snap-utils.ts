@@ -8,7 +8,7 @@ import { assert } from '@metamask/superstruct';
 import {
   type GetSelectedAccountsResponse,
   GetSelectedAccountsReponseStruct,
-  KeyringMethod,
+  SnapManageAccountsMethod,
 } from './methods';
 
 /**
@@ -44,7 +44,7 @@ export async function getSelectedAccounts(
   const response = await snap.request({
     method: 'snap_manageAccounts',
     params: {
-      method: KeyringMethod.GetSelectedAccounts,
+      method: SnapManageAccountsMethod.GetSelectedAccounts,
     },
   });
   assert(response, GetSelectedAccountsReponseStruct);
