@@ -43,6 +43,7 @@
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-internal-api": "workspace:^",
     "@metamask/keyring-internal-snap-client": "workspace:^",
+    "@metamask/keyring-snap-sdk": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^11.1.0",
