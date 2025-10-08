@@ -6,12 +6,12 @@ import {
   type Infer,
 } from '@metamask/superstruct';
 
-export enum KeyringMethod {
+export enum SnapManageAccountsMethod {
   GetSelectedAccounts = 'getSelectedAccounts',
 }
 
 export const GetSelectedAccountsRequestStruct = object({
-  method: literal(KeyringMethod.GetSelectedAccounts),
+  method: literal(SnapManageAccountsMethod.GetSelectedAccounts),
 });
 
 export const GetSelectedAccountsReponseStruct = array(string());

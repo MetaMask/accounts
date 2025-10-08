@@ -133,10 +133,10 @@ export class SnapIdMap<Value extends { snapId: SnapId }> {
   }
 
   /**
-   * Gets a snap ID that's associated with the given key from the map.
+   * Gets a Snap ID that's associated with the given key from the map.
    *
    * @param key - Key of the element to get.
-   * @returns The value associated with the given key.
+   * @returns The Snap ID associated with the given key.
    */
   getSnapId(key: string): SnapId | undefined {
     return this.#map.get(key)?.snapId;

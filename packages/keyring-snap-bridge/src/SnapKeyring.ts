@@ -42,7 +42,7 @@ import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-clien
 import {
   type GetSelectedAccountsResponse,
   GetSelectedAccountsRequestStruct,
-  KeyringMethod,
+  SnapManageAccountsMethod,
 } from '@metamask/keyring-snap-sdk';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
@@ -727,7 +727,7 @@ export class SnapKeyring {
         return this.#handleAccountTransactionsUpdated(snapId, message);
       }
 
-      case `${KeyringMethod.GetSelectedAccounts}`: {
+      case `${SnapManageAccountsMethod.GetSelectedAccounts}`: {
         return this.#handleGetSelectedAccounts(snapId, message);
       }
 
@@ -1528,22 +1528,21 @@ export class SnapKeyring {
   }
 
   /**
-   * Construct a map of selected accounts by Snap ID.
-   *
-   * This method also updates the in-memory selected accounts map.
+   * Construct a map of selected accounts by Snap ID and update the in-memory selected accounts map.
    *
    * @param accounts - The accounts to construct the map from.
    * @returns A map of selected accounts by Snap ID.
    */
-  #constructSelectedAccountsMap(
+  #constructAndUpdateSelectedAccountsMap(
     accounts: AccountId[],
   ): Record<SnapId, AccountId[]> {
     const map = accounts.reduce<Record<SnapId, AccountId[]>>((acc, account) => {
       const snapId = this.#accounts.getSnapId(account);
       if (!snapId) {
-        throw new Error(`Account '${account}' not found`);
+        return acc;
       }
-      acc[snapId] = [...(acc[snapId] ?? []), account];
+      acc[snapId] = acc[snapId] ?? [];
+      acc[snapId].push(account);
       return acc;
     }, {});
     this.#selectedAccounts = map;
@@ -1556,8 +1555,8 @@ export class SnapKeyring {
    * @param accounts - The accounts to set as selected.
    */
   async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
-    const accountsMap = this.#constructSelectedAccountsMap(accounts);
-    await Promise.all(
+    const accountsMap = this.#constructAndUpdateSelectedAccountsMap(accounts);
+    await Promise.allSettled(
       Object.entries(accountsMap).map(([snapId, accountIds]) =>
         this.#snapClient
           .withSnapId(snapId as SnapId)
