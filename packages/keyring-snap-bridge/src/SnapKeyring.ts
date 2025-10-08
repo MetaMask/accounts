@@ -508,7 +508,7 @@ export class SnapKeyring {
   }
 
   /**
-   * Handle an Get Selected Accounts method call from a Snap.
+   * Handle a Get Selected Accounts method call from a Snap.
    *
    * @param snapId - Snap ID.
    * @param message - Method call message.
