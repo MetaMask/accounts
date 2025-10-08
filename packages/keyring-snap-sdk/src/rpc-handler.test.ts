@@ -28,6 +28,7 @@ describe('handleKeyringRequest', () => {
     submitRequest: jest.fn(),
     approveRequest: jest.fn(),
     rejectRequest: jest.fn(),
+    setSelectedAccounts: jest.fn(),
   };
 
   afterEach(() => {
