@@ -18,6 +18,7 @@ import {
   ListAccountAssetsRequestStruct,
   ResolveAccountAddressRequestStruct,
   DiscoverAccountsRequestStruct,
+  SetSelectedAccountsRequestStruct,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
@@ -116,6 +117,14 @@ async function dispatchRequest(
         request.params.scope,
         request.params.request,
       );
+    }
+
+    case `${KeyringRpcMethod.SetSelectedAccounts}`: {
+      if (keyring.setSelectedAccounts === undefined) {
+        throw new MethodNotSupportedError(request.method);
+      }
+      assert(request, SetSelectedAccountsRequestStruct);
+      return keyring.setSelectedAccounts(request.params.accounts);
     }
 
     case `${KeyringRpcMethod.FilterAccountChains}`: {
