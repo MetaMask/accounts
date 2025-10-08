@@ -20,7 +20,6 @@ import type {
   MetaMaskOptions,
   KeyringRequest,
   KeyringResponse,
-  GetSelectedAccountsResponse,
 } from '@metamask/keyring-api';
 import {
   EthBytesStruct,
@@ -33,8 +32,6 @@ import {
   AccountBalancesUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
   AnyAccountType,
-  KeyringMethod,
-  GetSelectedAccountsRequestStruct,
 } from '@metamask/keyring-api';
 import {
   KeyringVersion,
@@ -42,6 +39,11 @@ import {
   type InternalAccount,
 } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
+import {
+  type GetSelectedAccountsResponse,
+  GetSelectedAccountsRequestStruct,
+  KeyringMethod,
+} from '@metamask/keyring-snap-sdk';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -129,8 +131,6 @@ export type SnapKeyringCallbacks = {
     handleUserInput: (accepted: boolean) => Promise<void>,
   ): Promise<void>;
 
-  getSelectedAccounts(snapId: SnapId): Promise<GetSelectedAccountsResponse>;
-
   redirectUser(snapId: SnapId, url: string, message: string): Promise<void>;
 };
 
@@ -187,6 +187,11 @@ export class SnapKeyring {
     account: KeyringAccount;
     snapId: SnapId;
   }>;
+
+  /**
+   * Mapping between Snap IDs and the selected accounts.
+   */
+  #selectedAccounts: Record<SnapId, AccountId[]>;
 
   /**
    * Mapping between request IDs and their deferred promises.
@@ -514,7 +519,7 @@ export class SnapKeyring {
     message: SnapMessage,
   ): Promise<GetSelectedAccountsResponse> {
     assert(message, GetSelectedAccountsRequestStruct);
-    return this.#callbacks.getSelectedAccounts(snapId);
+    return this.#selectedAccounts[snapId] ?? [];
   }
 
   /**
@@ -1522,19 +1527,42 @@ export class SnapKeyring {
   }
 
   /**
+   * Construct a map of selected accounts by Snap ID.
+   *
+   * This method also updated the in-memory selected accounts map.
+   *
+   * @param accounts - The accounts to construct the map from.
+   * @returns A map of selected accounts by Snap ID.
+   */
+  #constructSelectedAccountsMap(
+    accounts: AccountId[],
+  ): Record<SnapId, AccountId[]> {
+    const map = accounts.reduce<Record<SnapId, AccountId[]>>((acc, account) => {
+      const snapId = this.#accounts.getSnapId(account);
+      if (!snapId) {
+        throw new Error(`Account '${account}' not found`);
+      }
+      acc[snapId] = [...(acc[snapId] ?? []), account];
+      return acc;
+    }, {});
+    this.#selectedAccounts = map;
+    return map;
+  }
+
+  /**
    * Set the selected accounts.
    *
    * @param accounts - The accounts to set as selected.
    */
-  async setSelectedAccounts(
-    accounts: Record<SnapId, AccountId[]>,
-  ): Promise<void> {
-    for (const [snapId, accountIds] of Object.entries(accounts) as [
-      SnapId,
-      AccountId[],
-    ][]) {
-      await this.#snapClient.withSnapId(snapId).setSelectedAccounts(accountIds);
-    }
+  async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
+    const accountsMap = this.#constructSelectedAccountsMap(accounts);
+    await Promise.all(
+      Object.entries(accountsMap).map(([snapId, accountIds]) =>
+        this.#snapClient
+          .withSnapId(snapId as SnapId)
+          .setSelectedAccounts(accountIds),
+      ),
+    );
   }
 
   /**

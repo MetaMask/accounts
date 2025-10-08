@@ -17,6 +17,7 @@ import {
   KeyringRpcMethod,
   ResolveAccountAddressResponseStruct,
   DiscoverAccountsResponseStruct,
+  SetSelectedAccountsResponseStruct,
 } from '@metamask/keyring-api';
 import type {
   Keyring,
@@ -168,11 +169,14 @@ export class KeyringClient implements Keyring {
     );
   }
 
-  async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
-    await this.send({
-      method: KeyringRpcMethod.SetSelectedAccounts,
-      params: { accounts },
-    });
+  async setSelectedAccounts(accounts: AccountId[]): Promise<null> {
+    return strictMask(
+      await this.send({
+        method: KeyringRpcMethod.SetSelectedAccounts,
+        params: { accounts },
+      }),
+      SetSelectedAccountsResponseStruct,
+    );
   }
 
   async filterAccountChains(id: string, chains: string[]): Promise<string[]> {

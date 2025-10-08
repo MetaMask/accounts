@@ -4,6 +4,6 @@
     "baseUrl": "./"
   },
   "references": [{ "path": "../keyring-utils/tsconfig.build.json" }],
-  "include": ["./src"],
+  "include": ["./src", "../keyring-snap-sdk/src/methods.ts"],
   "exclude": ["./dist/**/*"]
 }
