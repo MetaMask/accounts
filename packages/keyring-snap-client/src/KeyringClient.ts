@@ -34,7 +34,7 @@ import type {
   EntropySourceId,
   DiscoveredAccount,
 } from '@metamask/keyring-api';
-import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
@@ -166,6 +166,13 @@ export class KeyringClient implements Keyring {
       }),
       ResolveAccountAddressResponseStruct,
     );
+  }
+
+  async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
+    await this.send({
+      method: KeyringRpcMethod.SetSelectedAccounts,
+      params: { accounts },
+    });
   }
 
   async filterAccountChains(id: string, chains: string[]): Promise<string[]> {

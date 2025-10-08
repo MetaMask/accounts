@@ -6,3 +6,4 @@ export * from './trx';
 export type * from './contexts';
 export * from './rpc';
 export * from './events';
+export * from './methods';

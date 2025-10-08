@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 // This rule seems to be triggering a false positive on the `KeyringAccount`.
 
-import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
 import type { KeyringAccount } from './account';
@@ -158,6 +158,13 @@ export type Keyring = {
     scope: CaipChainId,
     request: JsonRpcRequest,
   ): Promise<ResolvedAccountAddress | null>;
+
+  /**
+   * Set the selected accounts.
+   *
+   * @param accounts - The accounts to set as selected.
+   */
+  setSelectedAccounts(accounts: AccountId[]): Promise<void>;
 
   /**
    * Filter supported chains for a given account.

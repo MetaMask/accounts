@@ -51,6 +51,7 @@ export enum KeyringRpcMethod {
   SubmitRequest = 'keyring_submitRequest',
   ApproveRequest = 'keyring_approveRequest',
   RejectRequest = 'keyring_rejectRequest',
+  SetSelectedAccounts = 'keyring_setSelectedAccounts',
 }
 
 /**

@@ -20,6 +20,7 @@ import type {
   MetaMaskOptions,
   KeyringRequest,
   KeyringResponse,
+  GetSelectedAccountsResponse,
 } from '@metamask/keyring-api';
 import {
   EthBytesStruct,
@@ -32,6 +33,8 @@ import {
   AccountBalancesUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
   AnyAccountType,
+  KeyringMethod,
+  GetSelectedAccountsRequestStruct,
 } from '@metamask/keyring-api';
 import {
   KeyringVersion,
@@ -125,6 +128,8 @@ export type SnapKeyringCallbacks = {
     snapId: SnapId,
     handleUserInput: (accepted: boolean) => Promise<void>,
   ): Promise<void>;
+
+  getSelectedAccounts(snapId: SnapId): Promise<GetSelectedAccountsResponse>;
 
   redirectUser(snapId: SnapId, url: string, message: string): Promise<void>;
 };
@@ -498,6 +503,21 @@ export class SnapKeyring {
   }
 
   /**
+   * Handle an Get Selected Accounts method call from a Snap.
+   *
+   * @param snapId - Snap ID.
+   * @param message - Method call message.
+   * @returns The selected accounts.
+   */
+  async #handleGetSelectedAccounts(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<GetSelectedAccountsResponse> {
+    assert(message, GetSelectedAccountsRequestStruct);
+    return this.#callbacks.getSelectedAccounts(snapId);
+  }
+
+  /**
    * Handle an Request Approved event from a Snap.
    *
    * @param snapId - Snap ID.
@@ -699,6 +719,10 @@ export class SnapKeyring {
 
       case `${KeyringEvent.AccountTransactionsUpdated}`: {
         return this.#handleAccountTransactionsUpdated(snapId, message);
+      }
+
+      case `${KeyringMethod.GetSelectedAccounts}`: {
+        return this.#handleGetSelectedAccounts(snapId, message);
       }
 
       default:
@@ -1495,6 +1519,22 @@ export class SnapKeyring {
         equalsIgnoreCase(account.address, address),
       ) ?? throwError(`Account '${address}' not found`)
     );
+  }
+
+  /**
+   * Set the selected accounts.
+   *
+   * @param accounts - The accounts to set as selected.
+   */
+  async setSelectedAccounts(
+    accounts: Record<SnapId, AccountId[]>,
+  ): Promise<void> {
+    for (const [snapId, accountIds] of Object.entries(accounts) as [
+      SnapId,
+      AccountId[],
+    ][]) {
+      await this.#snapClient.withSnapId(snapId).setSelectedAccounts(accountIds);
+    }
   }
 
   /**
