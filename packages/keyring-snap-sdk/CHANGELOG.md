@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.1.0]
+
+### Added
+
+- Add `getSelectedAccounts` helper ([#387](https://github.com/MetaMask/accounts/pull/387))
+  - This helper can be used to get the currently selected accounts for this Snap.
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.0.0` to `^21.1.0` ([#388](https://github.com/MetaMask/accounts/pull/388))
+
 ## [7.0.0]
 
 ### Changed
@@ -108,7 +119,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.1.0...HEAD
+[7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.0.0...@metamask/keyring-snap-sdk@7.1.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@6.0.0...@metamask/keyring-snap-sdk@7.0.0
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@5.0.0...@metamask/keyring-snap-sdk@6.0.0
 [5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@4.0.0...@metamask/keyring-snap-sdk@5.0.0
