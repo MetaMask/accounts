@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `SnapKeyring.setSelectedAccounts` and `snap_manageAccounts.getSelectedAccounts` support ([#387](https://github.com/MetaMask/accounts/pull/387))
-  - The `SnapKeyring.setSelectedAccounts` method can be invoked by the MetaMask client to inform which account are currently selected accounts for this Snap.
+  - The `SnapKeyring.setSelectedAccounts` method can be invoked by the MetaMask client to inform which accounts are now selected for this Snap.
   - The `snap_manageAccounts.getSelectedAccounts` RPC method can be invoked by the Snap to get the currently selected accounts for this Snap.
 
 ## [17.2.0]

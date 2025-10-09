@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `KeyringClient.setSelectedAccounts` method ([#387](https://github.com/MetaMask/accounts/pull/387))
-  - This method can be invoked by the MetaMask client to inform which account are currently selected accounts for this Snap.
+  - This method can be invoked by the MetaMask client to inform which accounts are now selected for this Snap.
 
 ## [8.0.0]
 
