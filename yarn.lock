@@ -1844,6 +1844,7 @@ __metadata:
     "@metamask/keyring-api": "workspace:^"
     "@metamask/keyring-internal-api": "workspace:^"
     "@metamask/keyring-internal-snap-client": "workspace:^"
+    "@metamask/keyring-snap-sdk": "workspace:^"
     "@metamask/keyring-utils": "workspace:^"
     "@metamask/snaps-controllers": "npm:^14.0.1"
     "@metamask/snaps-sdk": "npm:^9.0.0"
@@ -2073,7 +2074,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk":
+"@metamask/keyring-snap-sdk@workspace:^, @metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk"
   dependencies:

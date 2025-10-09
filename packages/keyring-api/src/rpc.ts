@@ -51,6 +51,7 @@ export enum KeyringRpcMethod {
   SubmitRequest = 'keyring_submitRequest',
   ApproveRequest = 'keyring_approveRequest',
   RejectRequest = 'keyring_rejectRequest',
+  SetSelectedAccounts = 'keyring_setSelectedAccounts',
 }
 
 /**
@@ -117,6 +118,27 @@ export type CreateAccountRequest = Infer<typeof CreateAccountRequestStruct>;
 export const CreateAccountResponseStruct = KeyringAccountStruct;
 
 export type CreateAccountResponse = Infer<typeof CreateAccountResponseStruct>;
+
+// ----------------------------------------------------------------------------
+// Set selected accounts
+
+export const SetSelectedAccountsRequestStruct = object({
+  ...CommonHeader,
+  method: literal('keyring_setSelectedAccounts'),
+  params: object({
+    accounts: array(string()),
+  }),
+});
+
+export type SetSelectedAccountsRequest = Infer<
+  typeof SetSelectedAccountsRequestStruct
+>;
+
+export const SetSelectedAccountsResponseStruct = literal(null);
+
+export type SetSelectedAccountsResponse = Infer<
+  typeof SetSelectedAccountsResponseStruct
+>;
 
 // ----------------------------------------------------------------------------
 // Discover accounts

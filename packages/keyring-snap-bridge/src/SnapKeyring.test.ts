@@ -30,6 +30,7 @@ import {
   TrxMethod,
   TrxAccountType,
 } from '@metamask/keyring-api';
+import { SnapManageAccountsMethod } from '@metamask/keyring-snap-sdk';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { HandleSnapRequest } from '@metamask/snaps-controllers';
 import { type SnapId } from '@metamask/snaps-sdk';
@@ -1359,6 +1360,37 @@ describe('SnapKeyring', () => {
       });
     });
 
+    describe('#handleGetSelectedAccounts', () => {
+      it('gets the selected accounts', async () => {
+        mockMessenger.handleRequest.mockResolvedValue(null);
+        await keyring.setSelectedAccounts([solDataAccount.id]);
+        const result = await keyring.handleKeyringSnapMessage(snapId, {
+          method: SnapManageAccountsMethod.GetSelectedAccounts,
+        });
+        expect(result).toStrictEqual([solDataAccount.id]);
+      });
+
+      it('returns an empty array if no accounts are selected', async () => {
+        mockMessenger.handleRequest.mockResolvedValue(null);
+        const result = await keyring.handleKeyringSnapMessage(snapId, {
+          method: SnapManageAccountsMethod.GetSelectedAccounts,
+        });
+        expect(result).toStrictEqual([]);
+      });
+
+      it('ignores an account that does not belong to a snap', async () => {
+        mockMessenger.handleRequest.mockResolvedValue(null);
+        await keyring.setSelectedAccounts([
+          unknownAccount.id,
+          ethEoaAccount1.id,
+        ]);
+        const result = await keyring.handleKeyringSnapMessage(snapId, {
+          method: SnapManageAccountsMethod.GetSelectedAccounts,
+        });
+        expect(result).toStrictEqual([ethEoaAccount1.id]);
+      });
+    });
+
     it('fails when the method is invalid', async () => {
       await expect(
         keyring.handleKeyringSnapMessage(snapId, {
@@ -1384,6 +1416,33 @@ describe('SnapKeyring', () => {
         trxEoaAccount.address,
         anyGenericAccount.address,
       ]);
+    });
+  });
+
+  describe('setSelectedAccounts', () => {
+    beforeEach(() => {
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.SetSelectedAccounts]: () => null,
+      });
+    });
+
+    it('sets the selected accounts', async () => {
+      await keyring.setSelectedAccounts([ethEoaAccount1.id]);
+      const result = await keyring.handleKeyringSnapMessage(snapId, {
+        method: SnapManageAccountsMethod.GetSelectedAccounts,
+      });
+      expect(result).toStrictEqual([ethEoaAccount1.id]);
+    });
+
+    it('logs an error if the setSelectedAccounts call for a snap fails', async () => {
+      const spy = jest.spyOn(console, 'error').mockImplementation();
+      mockMessenger.handleRequest.mockImplementation(() => {
+        throw new Error('Failed to set selected accounts');
+      });
+      await keyring.setSelectedAccounts([ethEoaAccount1.id]);
+      expect(spy).toHaveBeenCalledWith(
+        `Failed to set selected accounts for ${snapId} snap: 'Failed to set selected accounts'`,
+      );
     });
   });
 

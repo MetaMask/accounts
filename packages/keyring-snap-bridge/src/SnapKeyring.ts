@@ -39,6 +39,11 @@ import {
   type InternalAccount,
 } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
+import {
+  type GetSelectedAccountsResponse,
+  GetSelectedAccountsRequestStruct,
+  SnapManageAccountsMethod,
+} from '@metamask/keyring-snap-sdk';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -184,6 +189,11 @@ export class SnapKeyring {
   }>;
 
   /**
+   * Mapping between Snap IDs and the selected accounts.
+   */
+  readonly #selectedAccounts: Map<SnapId, AccountId[]>;
+
+  /**
    * Mapping between request IDs and their deferred promises.
    */
   readonly #requests: SnapIdMap<{
@@ -238,6 +248,7 @@ export class SnapKeyring {
     this.#options = new SnapIdMap();
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
+    this.#selectedAccounts = new Map();
   }
 
   /**
@@ -498,6 +509,21 @@ export class SnapKeyring {
   }
 
   /**
+   * Handle a Get Selected Accounts method call from a Snap.
+   *
+   * @param snapId - Snap ID.
+   * @param message - Method call message.
+   * @returns The selected accounts.
+   */
+  async #handleGetSelectedAccounts(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<GetSelectedAccountsResponse> {
+    assert(message, GetSelectedAccountsRequestStruct);
+    return this.#selectedAccounts.get(snapId) ?? [];
+  }
+
+  /**
    * Handle an Request Approved event from a Snap.
    *
    * @param snapId - Snap ID.
@@ -699,6 +725,10 @@ export class SnapKeyring {
 
       case `${KeyringEvent.AccountTransactionsUpdated}`: {
         return this.#handleAccountTransactionsUpdated(snapId, message);
+      }
+
+      case `${SnapManageAccountsMethod.GetSelectedAccounts}`: {
+        return this.#handleGetSelectedAccounts(snapId, message);
       }
 
       default:
@@ -1494,6 +1524,48 @@ export class SnapKeyring {
       [...this.#accounts.values()].find(({ account }) =>
         equalsIgnoreCase(account.address, address),
       ) ?? throwError(`Account '${address}' not found`)
+    );
+  }
+
+  /**
+   * Update the in-memory selected accounts map.
+   *
+   * @param accounts - The accounts to update the map with.
+   */
+  #updateSelectedAccountsMap(accounts: AccountId[]): void {
+    const selectedAccounts = this.#selectedAccounts;
+    selectedAccounts.clear();
+    for (const account of accounts) {
+      const snapId = this.#accounts.getSnapId(account);
+      if (!snapId) {
+        continue;
+      }
+      const snapAccounts = selectedAccounts.get(snapId) ?? [];
+      snapAccounts.push(account);
+      selectedAccounts.set(snapId, snapAccounts);
+    }
+  }
+
+  /**
+   * Set the selected accounts.
+   *
+   * @param accounts - The accounts to set as selected.
+   */
+  async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
+    this.#updateSelectedAccountsMap(accounts);
+    const entries = [...this.#selectedAccounts.entries()];
+    await Promise.all(
+      entries.map(async ([snapId, accountIds]) => {
+        try {
+          await this.#snapClient
+            .withSnapId(snapId)
+            .setSelectedAccounts(accountIds);
+        } catch (error: any) {
+          console.error(
+            `Failed to set selected accounts for ${snapId} snap: '${error.message}'`,
+          );
+        }
+      }),
     );
   }
 
