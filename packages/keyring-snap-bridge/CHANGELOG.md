@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Add dependency to `@metamask/keyring-snap-sdk` version `^7.1.0` ([#387](https://github.com/MetaMask/accounts/pull/387)), ([#388](https://github.com/MetaMask/accounts/pull/388))
 - Bump `@metamask/keyring-api` from `^21.0.0` to `^21.1.0` ([#388](https://github.com/MetaMask/accounts/pull/388))
 
 ## [17.2.0]
