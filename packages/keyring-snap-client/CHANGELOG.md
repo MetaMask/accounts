@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.1.0]
 
-### Uncategorized
+### Added
 
-- feat: add `SnapKeyring.setSelectedAccounts` and `getSelectedAccounts` support ([#387](https://github.com/MetaMask/accounts/pull/387))
+- Add `KeyringClient.setSelectedAccounts` method ([#387](https://github.com/MetaMask/accounts/pull/387))
+  - This method can be invoked by the MetaMask client to inform which account are currently selected accounts for this Snap.
 
 ## [8.0.0]
 
