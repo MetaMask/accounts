@@ -1607,6 +1607,35 @@ export class SnapKeyring {
     );
   }
 
+  #transformToInternalAccount(
+    account: KeyringAccount,
+    snapId: SnapId,
+  ): InternalAccount {
+    const snap = this.#getSnapMetadata(snapId);
+
+    return {
+      ...account,
+      // TODO: Do not convert the address to lowercase.
+      //
+      // This is a workaround to support the current UI which expects the
+      // account address to be lowercase. This workaround should be removed
+      // once we migrated the UI to use the account ID instead of the account
+      // address.
+      //
+      // NOTE: We convert the address only for EVM accounts, see
+      // `normalizeAccountAddress`.
+      address: normalizeAccountAddress(account),
+      metadata: {
+        name: '',
+        importTime: 0,
+        keyring: {
+          type: this.type,
+        },
+        ...(snap !== undefined && { snap }),
+      },
+    };
+  }
+
   /**
    * Return an internal account object for a given address.
    *
@@ -1614,41 +1643,26 @@ export class SnapKeyring {
    * @returns An internal account object for the given address.
    */
   getAccountByAddress(address: string): InternalAccount | undefined {
-    const accounts = this.listAccounts();
-    return accounts.find(({ address: accountAddress }) =>
+    const accounts = [...this.#accounts.values()];
+    const account = accounts.find(({ account: { address: accountAddress } }) =>
       equalsIgnoreCase(accountAddress, address),
     );
+
+    return account
+      ? this.#transformToInternalAccount(account.account, account.snapId)
+      : undefined;
   }
 
   /**
    * List all Snap keyring accounts.
+   * This method is expensive on mobile devices and could takes tens or hundreds of milliseconds to complete.
+   * Use with caution.
    *
    * @returns An array containing all Snap keyring accounts.
    */
   listAccounts(): InternalAccount[] {
-    return [...this.#accounts.values()].map(({ account, snapId }) => {
-      const snap = this.#getSnapMetadata(snapId);
-      return {
-        ...account,
-        // TODO: Do not convert the address to lowercase.
-        //
-        // This is a workaround to support the current UI which expects the
-        // account address to be lowercase. This workaround should be removed
-        // once we migrated the UI to use the account ID instead of the account
-        // address.
-        //
-        // NOTE: We convert the address only for EVM accounts, see
-        // `normalizeAccountAddress`.
-        address: normalizeAccountAddress(account),
-        metadata: {
-          name: '',
-          importTime: 0,
-          keyring: {
-            type: this.type,
-          },
-          ...(snap !== undefined && { snap }),
-        },
-      };
-    });
+    return [...this.#accounts.values()].map(({ account, snapId }) =>
+      this.#transformToInternalAccount(account, snapId),
+    );
   }
 }
