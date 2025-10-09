@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `getSelectedAccounts` helper ([#387](https://github.com/MetaMask/accounts/pull/387))
   - This helper can be used to get the currently selected accounts for this Snap.
 
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.0.0` to `^21.1.0` ([#388](https://github.com/MetaMask/accounts/pull/388))
+
 ## [7.0.0]
 
 ### Changed
