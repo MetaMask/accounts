@@ -2284,6 +2284,11 @@ describe('SnapKeyring', () => {
         },
       );
     });
+
+    it('returns undefined when account is not found', () => {
+      const nonExistentAddress = '0x0000000000000000000000000000000000000000';
+      expect(keyring.getAccountByAddress(nonExistentAddress)).toBeUndefined();
+    });
   });
 
   describe('createAccount', () => {
