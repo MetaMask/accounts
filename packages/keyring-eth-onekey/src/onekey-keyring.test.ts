@@ -1,6 +1,5 @@
 /* eslint-disable jest/no-conditional-expect */
 import { Common, Chain, Hardfork } from '@ethereumjs/common';
-import type { TypedTransaction } from '@ethereumjs/tx';
 import {
   TransactionFactory,
   FeeMarketEIP1559Transaction,
@@ -18,7 +17,6 @@ import type { AccountDetails } from './onekey-keyring';
 import { OneKeyKeyring } from './onekey-keyring';
 import { OneKeyWebBridge } from './onekey-web-bridge';
 
-const CONNECT_SRC = 'https://jssdk.onekey.so/1.1.5/';
 const fakeAccounts = [
   '0x73d0385F4d8E00C5e6504C6030F47BF6212736A8',
   '0xFA01a39f8Abaeb660c3137f14A310d0b414b2A15',
