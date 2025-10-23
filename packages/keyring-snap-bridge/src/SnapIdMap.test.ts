@@ -97,6 +97,21 @@ describe('SnapIdMap', () => {
     });
   });
 
+  describe('getSnapId', () => {
+    it('returns undefined when the key is not in the map', () => {
+      const map = new SnapIdMap<{ snapId: SnapId; value: number }>();
+      const snapId = map.getSnapId('foo');
+      expect(snapId).toBeUndefined();
+    });
+
+    it('returns the snapId when the key is in the map', () => {
+      const map = new SnapIdMap<{ snapId: SnapId; value: number }>();
+      map.set('foo', { snapId: SNAP_1_ID, value: 1 });
+      const snapId = map.getSnapId('foo');
+      expect(snapId).toBe(SNAP_1_ID);
+    });
+  });
+
   describe('pop', () => {
     it('returns undefined when the key is not in the map', () => {
       const map = new SnapIdMap<{ snapId: SnapId; value: number }>();
