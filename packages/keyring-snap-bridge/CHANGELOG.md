@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [18.0.0]
+
 ### Uncategorized
 
 - Revert "Release/78.0.0" ([#392](https://github.com/MetaMask/accounts/pull/392))
@@ -599,7 +601,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@17.3.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@18.0.0...HEAD
+[18.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@17.3.0...@metamask/eth-snap-keyring@18.0.0
 [17.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@17.2.0...@metamask/eth-snap-keyring@17.3.0
 [17.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@17.1.0...@metamask/eth-snap-keyring@17.2.0
 [17.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@17.0.0...@metamask/eth-snap-keyring@17.1.0
