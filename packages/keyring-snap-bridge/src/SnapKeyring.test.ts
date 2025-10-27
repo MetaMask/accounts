@@ -1,5 +1,4 @@
 import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
-import { Messenger } from '@metamask/base-controller';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
   KeyringAccount,
@@ -32,6 +31,13 @@ import {
 } from '@metamask/keyring-api';
 import { SnapManageAccountsMethod } from '@metamask/keyring-snap-sdk';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import {
+  Messenger,
+  MOCK_ANY_NAMESPACE,
+  type MessengerActions,
+  type MessengerEvents,
+  type MockAnyNamespace,
+} from '@metamask/messenger';
 import type { HandleSnapRequest } from '@metamask/snaps-controllers';
 import { type SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
@@ -44,11 +50,7 @@ import { getDefaultInternalOptions, SnapKeyring } from '.';
 import type { KeyringAccountV1 } from './account';
 import { DeferredPromise } from './DeferredPromise';
 import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
-import type {
-  SnapKeyringAllowedActions,
-  SnapKeyringEvents,
-  SnapKeyringMessenger,
-} from './SnapKeyringMessenger';
+import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 
 type SnapRpcRequest = Parameters<HandleSnapRequest['handler']>[0];
 
@@ -263,8 +265,11 @@ describe('SnapKeyring', () => {
   };
 
   // Fake the Messenger and registers all mock actions here:
-  const messenger: Messenger<SnapKeyringAllowedActions, SnapKeyringEvents> =
-    new Messenger();
+  const messenger: Messenger<
+    MockAnyNamespace,
+    MessengerActions<SnapKeyringMessenger>,
+    MessengerEvents<SnapKeyringMessenger>
+  > = new Messenger({ namespace: MOCK_ANY_NAMESPACE });
   messenger.registerActionHandler('SnapController:get', mockMessenger.get);
   messenger.registerActionHandler(
     'SnapController:handleRequest',
@@ -275,17 +280,19 @@ describe('SnapKeyring', () => {
     mockMessenger.isMinimumPlatformVersion,
   );
 
-  // Now extracts a restricted messenger for the Snap keyring only.
-  const mockSnapKeyringMessenger: SnapKeyringMessenger =
-    messenger.getRestricted({
-      name: 'SnapKeyring',
-      allowedEvents: [],
-      allowedActions: [
-        'SnapController:get',
-        'SnapController:handleRequest',
-        'SnapController:isMinimumPlatformVersion',
-      ],
-    });
+  // Now extracts a messenger for the Snap keyring only.
+  const mockSnapKeyringMessenger: SnapKeyringMessenger = new Messenger({
+    namespace: 'SnapKeyring',
+    parent: messenger,
+  });
+  messenger.delegate({
+    messenger: mockSnapKeyringMessenger,
+    actions: [
+      'SnapController:get',
+      'SnapController:handleRequest',
+      'SnapController:isMinimumPlatformVersion',
+    ],
+  });
 
   // Allow to map a mocked value for a given keyring RPC method
   const mockMessengerHandleRequest = (
