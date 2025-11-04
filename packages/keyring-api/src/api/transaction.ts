@@ -157,7 +157,7 @@ export enum TransactionType {
 
   /**
    * Represents a stake deposit transaction.
-   */ 
+   */
   StakeDeposit = 'stake:deposit',
 
   /**
