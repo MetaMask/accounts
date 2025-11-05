@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-snap-sdk",
-  "version": "7.1.1",
+  "version": "7.2.0",
   "description": "MetaMask Keyring Snap SDK",
   "keywords": [
     "metamask",
