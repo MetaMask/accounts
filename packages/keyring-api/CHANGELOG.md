@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(keyring-api): add `stake:{deposit,withdraw}` transaction types ([#394](https://github.com/MetaMask/accounts/pull/394))
+
 ## [21.1.0]
 
 ### Added
