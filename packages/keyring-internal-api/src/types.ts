@@ -32,6 +32,10 @@ export const InternalAccountMetadataStruct = object({
   metadata: object({
     name: string(),
     nameLastUpdatedAt: exactOptional(number()),
+    // We use `disabled` here instead of `enabled` since this can be optional
+    // and better match this kind of expression: !disabled (which covers both
+    // the `false` and `undefined` values.
+    disabled: exactOptional(boolean()),
     snap: exactOptional(
       object({
         id: string(),
