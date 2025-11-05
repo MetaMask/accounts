@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [21.2.0]
+
+### Added
+
+- Add `stake:{deposit,withdraw}` transaction types ([#394](https://github.com/MetaMask/accounts/pull/394))
+
 ## [21.1.0]
 
 ### Added
@@ -637,7 +643,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.2.0...HEAD
+[21.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.1.0...@metamask/keyring-api@21.2.0
 [21.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.0.0...@metamask/keyring-api@21.1.0
 [21.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@20.1.1...@metamask/keyring-api@21.0.0
 [20.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@20.1.0...@metamask/keyring-api@20.1.1
