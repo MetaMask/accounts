@@ -1,4 +1,16 @@
 import type { AccountId } from '@metamask/keyring-utils';
+import {
+  array,
+  boolean,
+  enums,
+  exactOptional,
+  literal,
+  nonempty,
+  number,
+  object,
+  string,
+  union,
+} from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
 import type { KeyringAccount, KeyringAccountType } from './account';
@@ -10,22 +22,10 @@ import {
   TrxAccountType,
 } from './account';
 import type { CaipChainId } from './caip';
-import type { KeyringRequest } from './request';
 import { CaipChainIdStruct } from './caip';
 import { DerivationPathStruct } from './derivation';
 import type { EntropySourceId } from './entropy';
-import {
-  array,
-  boolean,
-  enums,
-  exactOptional,
-  literal,
-  nonempty,
-  number,
-  object,
-  union,
-  string,
-} from '@metamask/superstruct';
+import type { KeyringRequest } from './request';
 
 /**
  * Represents the format for importing a private key into a keyring.

@@ -163,8 +163,6 @@ expectAssignable<ExportedAccount>({
 });
 
 // Test KeyringV2 interface
-declare const keyring: KeyringV2;
-
 expectAssignable<KeyringV2['type']>(KeyringType.Hd);
 expectAssignable<KeyringV2['capabilities']>({
   scopes: ['eip155:1'],
