@@ -1,23 +1,23 @@
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
+import type { KeyringV2 } from './keyring';
+import { KeyringType } from './keyring-type';
 import {
   AccountCreationType,
-  AccountExportType,
-  KeyringType,
-} from './keyring-v2';
-import type {
   CreateAccountBip44DiscoverOptions,
   CreateAccountBip44IndexOptions,
   CreateAccountBip44PathOptions,
   CreateAccountOptions,
   CreateAccountPrivateKeyOptions,
+} from './create-account';
+import {
+  AccountExportType,
   ExportAccountOptions,
   ExportedAccount,
-  ImportPrivateKeyFormat,
-  KeyringCapabilities,
   PrivateKeyExportedAccount,
-  KeyringV2,
-} from './keyring-v2';
+} from './export-account';
+import { ImportPrivateKeyFormat } from './private-key';
+import { KeyringCapabilities } from './keyring-capabilities';
 
 // Test KeyringType enum
 expectAssignable<KeyringType>(KeyringType.Hd);
