@@ -5,6 +5,7 @@ import {
   string,
   type Infer,
 } from '@metamask/superstruct';
+
 import { PrivateKeyEncodings } from '../private-key';
 
 /**

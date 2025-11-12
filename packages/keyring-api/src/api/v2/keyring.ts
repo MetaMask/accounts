@@ -1,13 +1,13 @@
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
+import type { CreateAccountOptions } from './create-account';
+import type { ExportedAccount, ExportAccountOptions } from './export-account';
+import type { KeyringCapabilities } from './keyring-capabilities';
+import type { KeyringType } from './keyring-type';
 import type { KeyringAccount } from '../account';
+import type { Keyring } from '../keyring';
 import type { KeyringRequest } from '../request';
-import { KeyringType } from './keyring-type';
-import { KeyringCapabilities } from './keyring-capabilities';
-import { CreateAccountOptions } from './create-account';
-import { ExportAccountOptions, ExportedAccount } from './export-account';
-import { Keyring } from '../keyring';
 
 /**
  * The KeyringV2 interface defines methods for managing accounts and signing

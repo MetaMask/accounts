@@ -1,4 +1,5 @@
 import { type Infer } from '@metamask/superstruct';
+
 import {
   ExportAccountPrivateKeyOptionsStruct,
   PrivateKeyExportedAccountStruct,

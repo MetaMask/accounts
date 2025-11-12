@@ -1,4 +1,5 @@
 import { union, type Infer } from '@metamask/superstruct';
+
 import {
   CreateAccountBip44DiscoverOptionsStruct,
   CreateAccountBip44IndexOptionsStruct,
