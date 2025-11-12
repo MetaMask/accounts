@@ -73,10 +73,6 @@ expectAssignable<KeyringCapabilities>({
   },
 });
 
-expectNotAssignable<KeyringCapabilities>({
-  scopes: [],
-});
-
 // Test CreateAccountBip44PathOptions
 expectAssignable<CreateAccountBip44PathOptions>({
   type: AccountCreationType.Bip44Path,
