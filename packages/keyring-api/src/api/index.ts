@@ -13,3 +13,4 @@ export * from './transaction';
 export * from './pagination';
 export * from './options';
 export type * from './keyring';
+export * from './keyring-v2';
