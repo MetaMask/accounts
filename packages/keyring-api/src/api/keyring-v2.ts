@@ -10,10 +10,11 @@ import {
   object,
   string,
   union,
+  type Infer,
 } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
-import type { KeyringAccount, KeyringAccountType } from './account';
+import type { KeyringAccount } from './account';
 import {
   AnyAccountType,
   BtcAccountType,
@@ -21,21 +22,23 @@ import {
   SolAccountType,
   TrxAccountType,
 } from './account';
-import type { CaipChainId } from './caip';
 import { CaipChainIdStruct } from './caip';
 import { DerivationPathStruct } from './derivation';
-import type { EntropySourceId } from './entropy';
 import type { KeyringRequest } from './request';
 
 /**
- * Represents the format for importing a private key into a keyring.
+ * Supported encoding formats for private keys.
  */
-export type ImportPrivateKeyFormat = {
+const PrivateKeyEncodings = ['hexadecimal', 'base58'] as const;
+
+/**
+ * Struct for {@link ImportPrivateKeyFormat}.
+ */
+export const ImportPrivateKeyFormatStruct = object({
   /**
    * Format used to encode the private key as a string.
    */
-  encoding: 'hexadecimal' | 'base58';
-
+  encoding: enums(PrivateKeyEncodings),
   /**
    * Type of the account to be created.
    *
@@ -43,14 +46,6 @@ export type ImportPrivateKeyFormat = {
    * to be created from the private key. For example, in Bitcoin, a private key
    * can be used to create multiple types of accounts, such as P2WPKH, or P2TR.
    */
-  type?: KeyringAccountType;
-};
-
-/**
- * Runtime validator for {@link ImportPrivateKeyFormat}.
- */
-export const ImportPrivateKeyFormatStruct = object({
-  encoding: enums(['hexadecimal', 'base58'] as const),
   type: exactOptional(
     enums([
       `${EthAccountType.Eoa}`,
@@ -67,15 +62,67 @@ export const ImportPrivateKeyFormatStruct = object({
 });
 
 /**
- * Represents the format for exporting a private key from a keyring.
+ * Represents the format for importing a private key into a keyring.
  */
-export type ExportPrivateKeyFormat = Omit<ImportPrivateKeyFormat, 'type'>;
+export type ImportPrivateKeyFormat = Infer<typeof ImportPrivateKeyFormatStruct>;
 
 /**
- * Runtime validator for {@link ExportPrivateKeyFormat}.
+ * Struct for {@link ExportPrivateKeyFormat}.
  */
 export const ExportPrivateKeyFormatStruct = object({
-  encoding: enums(['hexadecimal', 'base58'] as const),
+  /**
+   * Format used to encode the private key as a string.
+   */
+  encoding: enums(PrivateKeyEncodings),
+});
+
+/**
+ * Represents the format for exporting a private key from a keyring.
+ */
+export type ExportPrivateKeyFormat = Infer<typeof ExportPrivateKeyFormatStruct>;
+
+/**
+ * Struct for {@link KeyringCapabilities}.
+ */
+export const KeyringCapabilitiesStruct = object({
+  /**
+   * List of CAIP-2 chain IDs that this keyring supports.
+   */
+  scopes: nonempty(array(CaipChainIdStruct)),
+  /**
+   * BIP-44 capabilities supported by this keyring.
+   */
+  bip44: exactOptional(
+    object({
+      /**
+       * Whether the keyring supports deriving accounts from a specific BIP-44 path.
+       */
+      derivePath: boolean(),
+      /**
+       * Whether the keyring supports deriving accounts from a BIP-44 account index.
+       */
+      deriveIndex: boolean(),
+      /**
+       * Whether the keyring supports BIP-44 account discovery.
+       */
+      discover: boolean(),
+    }),
+  ),
+  /**
+   * Private key capabilities supported by this keyring.
+   */
+  privateKey: exactOptional(
+    object({
+      /**
+       * List of supported formats for importing private keys.
+       */
+      importFormats: array(ImportPrivateKeyFormatStruct),
+      /**
+       * List of supported formats for exporting private keys.
+       */
+      exportFormats: array(ExportPrivateKeyFormatStruct),
+    }),
+  ),
 });
 
 /**
@@ -105,67 +152,7 @@ export const ExportPrivateKeyFormatStruct = object({
  * };
  * ```
  */
-export type KeyringCapabilities = {
-  /**
-   * List of CAIP-2 chain IDs that this keyring supports.
-   */
-  scopes: CaipChainId[];
-
-  /**
-   * BIP-44 capabilities supported by this keyring.
-   */
-  bip44?: {
-    /**
-     * Whether the keyring supports deriving accounts from a specific BIP-44 path.
-     */
-    derivePath: boolean;
-
-    /**
-     * Whether the keyring supports deriving accounts from a BIP-44 account index.
-     */
-    deriveIndex: boolean;
-
-    /**
-     * Whether the keyring supports BIP-44 account discovery.
-     */
-    discover: boolean;
-  };
-
-  /**
-   * Private key capabilities supported by this keyring.
-   */
-  privateKey?: {
-    /**
-     * List of supported formats for importing private keys.
-     */
-    importFormats: ImportPrivateKeyFormat[];
-
-    /**
-     * List of supported formats for exporting private keys.
-     */
-    exportFormats: ExportPrivateKeyFormat[];
-  };
-};
-
-/**
- * Runtime validator for {@link KeyringCapabilities}.
- */
-export const KeyringCapabilitiesStruct = object({
-  scopes: nonempty(array(CaipChainIdStruct)),
-  bip44: exactOptional(
-    object({
-      derivePath: boolean(),
-      deriveIndex: boolean(),
-      discover: boolean(),
-    }),
-  ),
-  privateKey: exactOptional(
-    object({
-      importFormats: array(ImportPrivateKeyFormatStruct),
-      exportFormats: array(ExportPrivateKeyFormatStruct),
-    }),
-  ),
-});
+export type KeyringCapabilities = Infer<typeof KeyringCapabilitiesStruct>;
 
 /**
  * Enum representing the different types of keyrings supported.
@@ -243,32 +230,46 @@ export enum AccountCreationType {
 }
 
 /**
- * Options for creating an account using the given BIP-44 derivation path.
+ * Struct for {@link CreateAccountBip44PathOptions}.
  */
-export type CreateAccountBip44PathOptions = {
+export const CreateAccountBip44PathOptionsStruct = object({
   /**
    * Type of the options.
    */
-  type: AccountCreationType.Bip44Path;
-
+  type: literal('bip44:derive-path'),
   /**
    * ID of the entropy source to be used to derive the account.
    */
-  entropySource: EntropySourceId;
-
+  entropySource: string(),
   /**
    * BIP-44 derivation path to be used to derive the account.
    */
-  derivationPath: string;
-};
+  derivationPath: DerivationPathStruct,
+});
 
 /**
- * Runtime validator for {@link CreateAccountBip44PathOptions}.
+ * Options for creating an account using the given BIP-44 derivation path.
  */
-export const CreateAccountBip44PathOptionsStruct = object({
-  type: literal('bip44:derive-path'),
+export type CreateAccountBip44PathOptions = Infer<
+  typeof CreateAccountBip44PathOptionsStruct
+>;
+
+/**
+ * Struct for {@link CreateAccountBip44IndexOptions}.
+ */
+export const CreateAccountBip44IndexOptionsStruct = object({
+  /**
+   * The type of the options.
+   */
+  type: literal('bip44:derive-index'),
+  /**
+   * ID of the entropy source to be used to derive the account.
+   */
   entropySource: string(),
-  derivationPath: DerivationPathStruct,
+  /**
+   * The index of the account group to be derived.
+   */
+  groupIndex: number(),
 });
 
 /**
@@ -277,29 +278,25 @@ export const CreateAccountBip44PathOptionsStruct = object({
  * Note that the keyring can support non-standard BIP-44 paths for
  * compatibility with other wallets.
  */
-export type CreateAccountBip44IndexOptions = {
+export type CreateAccountBip44IndexOptions = Infer<
+  typeof CreateAccountBip44IndexOptionsStruct
+>;
+
+/**
+ * Struct for {@link CreateAccountBip44DiscoverOptions}.
+ */
+export const CreateAccountBip44DiscoverOptionsStruct = object({
   /**
    * The type of the options.
    */
-  type: AccountCreationType.Bip44Index;
-
+  type: literal('bip44:discover'),
   /**
    * ID of the entropy source to be used to derive the account.
    */
-  entropySource: EntropySourceId;
-
+  entropySource: string(),
   /**
    * The index of the account group to be derived.
    */
-  groupIndex: number;
-};
-
-/**
- * Runtime validator for {@link CreateAccountBip44IndexOptions}.
- */
-export const CreateAccountBip44IndexOptionsStruct = object({
-  type: literal('bip44:derive-index'),
-  entropySource: string(),
   groupIndex: number(),
 });
 
@@ -309,64 +306,29 @@ export const CreateAccountBip44IndexOptionsStruct = object({
  * Note that the keyring can support non-standard BIP-44 paths for
  * compatibility with other wallets.
  */
-export type CreateAccountBip44DiscoverOptions = {
+export type CreateAccountBip44DiscoverOptions = Infer<
+  typeof CreateAccountBip44DiscoverOptionsStruct
+>;
+
+/**
+ * Struct for {@link CreateAccountPrivateKeyOptions}.
+ */
+export const CreateAccountPrivateKeyOptionsStruct = object({
   /**
    * The type of the options.
    */
-  type: AccountCreationType.Bip44Discover;
-
-  /**
-   * ID of the entropy source to be used to derive the account.
-   */
-  entropySource: EntropySourceId;
-
-  /**
-   * The index of the account group to be derived.
-   */
-  groupIndex: number;
-};
-
-/**
- * Runtime validator for {@link CreateAccountBip44DiscoverOptions}.
- */
-export const CreateAccountBip44DiscoverOptionsStruct = object({
-  type: literal('bip44:discover'),
-  entropySource: string(),
-  groupIndex: number(),
-});
-
-/**
- * Options for importing an account from a private key.
- */
-export type CreateAccountPrivateKeyOptions = {
-  /**
-   * The type of the options.
-   */
-  type: AccountCreationType.PrivateKeyImport;
-
+  type: literal('private-key:import'),
   /**
    * The encoded private key to be imported.
    */
-  privateKey: string;
-
+  privateKey: string(),
   /**
    * The encoding of the private key.
    */
-  encoding: ImportPrivateKeyFormat['encoding'];
-
+  encoding: enums(PrivateKeyEncodings),
   /**
    * The account type of the imported account.
    */
-  accountType?: KeyringAccountType;
-};
-
-/**
- * Runtime validator for {@link CreateAccountPrivateKeyOptions}.
- */
-export const CreateAccountPrivateKeyOptionsStruct = object({
-  type: literal('private-key:import'),
-  privateKey: string(),
-  encoding: enums(['hexadecimal', 'base58'] as const),
   accountType: exactOptional(
     enums([
       `${EthAccountType.Eoa}`,
@@ -383,16 +345,14 @@ export const CreateAccountPrivateKeyOptionsStruct = object({
 });
 
 /**
- * Represents the available options for creating a new account.
+ * Options for importing an account from a private key.
  */
-export type CreateAccountOptions =
-  | CreateAccountBip44PathOptions
-  | CreateAccountBip44IndexOptions
-  | CreateAccountBip44DiscoverOptions
-  | CreateAccountPrivateKeyOptions;
+export type CreateAccountPrivateKeyOptions = Infer<
+  typeof CreateAccountPrivateKeyOptionsStruct
+>;
 
 /**
- * Runtime validator for {@link CreateAccountOptions}.
+ * Struct for {@link CreateAccountOptions}.
  */
 export const CreateAccountOptionsStruct = union([
   CreateAccountBip44PathOptionsStruct,
@@ -400,6 +360,11 @@ export const CreateAccountOptionsStruct = union([
   CreateAccountBip44DiscoverOptionsStruct,
   CreateAccountPrivateKeyOptionsStruct,
 ]);
+
+/**
+ * Represents the available options for creating a new account.
+ */
+export type CreateAccountOptions = Infer<typeof CreateAccountOptionsStruct>;
 
 /**
  * Enum representing the different types of account export methods.
@@ -412,81 +377,75 @@ export enum AccountExportType {
 }
 
 /**
- * Represents an account that has been exported using a private key.
+ * Struct for {@link PrivateKeyExportedAccount}.
  */
-export type PrivateKeyExportedAccount = {
+export const PrivateKeyExportedAccountStruct = object({
   /**
    * The type of the account export.
    */
-  type: AccountExportType.PrivateKey;
-
+  type: literal('private-key'),
   /**
    * The private key of the exported account.
    */
-  privateKey: string;
-
+  privateKey: string(),
   /**
    * The encoding of the exported private key.
    */
-  encoding: ExportPrivateKeyFormat['encoding'];
-};
+  encoding: enums(PrivateKeyEncodings),
+});
 
 /**
- * Runtime validator for {@link PrivateKeyExportedAccount}.
+ * Represents an account that has been exported using a private key.
  */
-export const PrivateKeyExportedAccountStruct = object({
+export type PrivateKeyExportedAccount = Infer<
+  typeof PrivateKeyExportedAccountStruct
+>;
+
+/**
+ * Struct for {@link ExportAccountPrivateKeyOptions}.
+ */
+export const ExportAccountPrivateKeyOptionsStruct = object({
+  /**
+   * The type of the account export.
+   */
   type: literal('private-key'),
-  privateKey: string(),
-  encoding: enums(['hexadecimal', 'base58'] as const),
+  /**
+   * The encoding of the exported private key.
+   */
+  encoding: enums(PrivateKeyEncodings),
 });
 
 /**
  * Options for exporting an account's private key.
  */
-export type ExportAccountPrivateKeyOptions = {
-  /**
-   * The type of the account export.
-   */
-  type: AccountExportType.PrivateKey;
-
-  /**
-   * The encoding of the exported private key.
-   */
-  encoding: ExportPrivateKeyFormat['encoding'];
-};
+export type ExportAccountPrivateKeyOptions = Infer<
+  typeof ExportAccountPrivateKeyOptionsStruct
+>;
 
 /**
- * Runtime validator for {@link ExportAccountPrivateKeyOptions}.
- */
-export const ExportAccountPrivateKeyOptionsStruct = object({
-  type: literal('private-key'),
-  encoding: enums(['hexadecimal', 'base58'] as const),
-});
-
-/**
- * Represents the options for exporting an account.
- */
-export type ExportAccountOptions = ExportAccountPrivateKeyOptions;
-
-/**
- * Runtime validator for {@link ExportAccountOptions}.
+ * Struct for {@link ExportAccountOptions}.
  */
 export const ExportAccountOptionsStruct = ExportAccountPrivateKeyOptionsStruct;
 
 /**
- * Represents an account that has been exported.
+ * Represents the options for exporting an account.
  */
-export type ExportedAccount = PrivateKeyExportedAccount;
+export type ExportAccountOptions = Infer<typeof ExportAccountOptionsStruct>;
 
 /**
- * Runtime validator for {@link ExportedAccount}.
+ * Struct for {@link ExportedAccount}.
  */
 export const ExportedAccountStruct = PrivateKeyExportedAccountStruct;
 
 /**
+ * Represents an account that has been exported.
+ */
+export type ExportedAccount = Infer<typeof ExportedAccountStruct>;
+
+/**
  * The KeyringV2 interface defines methods for managing accounts and signing
  * requests. This interface unifies the existing EVM and Snap keyring interfaces
- * to provide a consistent API for all keyring types.
+ * to provide a consistent API for all keyring type.
  *
  * This interface supports both EVM and non-EVM chains, and includes
  * account metadata needed for features like Multi-SRP and Backup and Sync.
