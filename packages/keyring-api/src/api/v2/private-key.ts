@@ -5,18 +5,30 @@ import {
   type Infer,
 } from '@metamask/superstruct';
 
-import {
-  AnyAccountType,
-  BtcAccountType,
-  EthAccountType,
-  SolAccountType,
-  TrxAccountType,
-} from '../account';
+import { KeyringAccountTypeStruct } from '../account';
 
 /**
  * Supported encoding formats for private keys.
  */
-export const PrivateKeyEncodings = ['hexadecimal', 'base58'] as const;
+export enum PrivateKeyEncoding {
+  /**
+   * Hexadecimal encoding format.
+   */
+  Hexadecimal = 'hexadecimal',
+
+  /**
+   * Base58 encoding format.
+   */
+  Base58 = 'base58',
+}
+
+/**
+ * Struct for {@link PrivateKeyEncoding}.
+ */
+export const PrivateKeyEncodingStruct = enums([
+  `${PrivateKeyEncoding.Hexadecimal}`,
+  `${PrivateKeyEncoding.Base58}`,
+]);
 
 /**
  * Struct for {@link ImportPrivateKeyFormat}.
@@ -25,7 +37,8 @@ export const ImportPrivateKeyFormatStruct = object({
   /**
    * Format used to encode the private key as a string.
    */
-  encoding: enums(PrivateKeyEncodings),
+  encoding: PrivateKeyEncodingStruct,
+
   /**
    * Type of the account to be created.
    *
@@ -33,19 +46,7 @@ export const ImportPrivateKeyFormatStruct = object({
    * to be created from the private key. For example, in Bitcoin, a private key
    * can be used to create multiple types of accounts, such as P2WPKH, or P2TR.
    */
-  type: exactOptional(
-    enums([
-      `${EthAccountType.Eoa}`,
-      `${EthAccountType.Erc4337}`,
-      `${BtcAccountType.P2pkh}`,
-      `${BtcAccountType.P2sh}`,
-      `${BtcAccountType.P2wpkh}`,
-      `${BtcAccountType.P2tr}`,
-      `${SolAccountType.DataAccount}`,
-      `${TrxAccountType.Eoa}`,
-      `${AnyAccountType.Account}`,
-    ] as const),
-  ),
+  type: exactOptional(KeyringAccountTypeStruct),
 });
 
 /**
@@ -60,7 +61,7 @@ export const ExportPrivateKeyFormatStruct = object({
   /**
    * Format used to encode the private key as a string.
    */
-  encoding: enums(PrivateKeyEncodings),
+  encoding: PrivateKeyEncodingStruct,
 });
 
 /**

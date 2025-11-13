@@ -9,9 +9,9 @@ import {
 import { DerivationPathStruct } from '../../derivation';
 
 /**
- * Struct for {@link CreateAccountBip44PathOptions}.
+ * Struct for {@link CreateAccountBip44DerivePathOptions}.
  */
-export const CreateAccountBip44PathOptionsStruct = object({
+export const CreateAccountBip44DerivePathOptionsStruct = object({
   /**
    * Type of the options.
    */
@@ -29,14 +29,14 @@ export const CreateAccountBip44PathOptionsStruct = object({
 /**
  * Options for creating an account using the given BIP-44 derivation path.
  */
-export type CreateAccountBip44PathOptions = Infer<
-  typeof CreateAccountBip44PathOptionsStruct
+export type CreateAccountBip44DerivePathOptions = Infer<
+  typeof CreateAccountBip44DerivePathOptionsStruct
 >;
 
 /**
- * Struct for {@link CreateAccountBip44IndexOptions}.
+ * Struct for {@link CreateAccountBip44DeriveIndexOptions}.
  */
-export const CreateAccountBip44IndexOptionsStruct = object({
+export const CreateAccountBip44DeriveIndexOptionsStruct = object({
   /**
    * The type of the options.
    */
@@ -57,8 +57,8 @@ export const CreateAccountBip44IndexOptionsStruct = object({
  * Note that the keyring can support non-standard BIP-44 paths for
  * compatibility with other wallets.
  */
-export type CreateAccountBip44IndexOptions = Infer<
-  typeof CreateAccountBip44IndexOptionsStruct
+export type CreateAccountBip44DeriveIndexOptions = Infer<
+  typeof CreateAccountBip44DeriveIndexOptionsStruct
 >;
 
 /**

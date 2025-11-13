@@ -6,7 +6,6 @@ import type { ExportedAccount, ExportAccountOptions } from './export-account';
 import type { KeyringCapabilities } from './keyring-capabilities';
 import type { KeyringType } from './keyring-type';
 import type { KeyringAccount } from '../account';
-import type { Keyring } from '../keyring';
 import type { KeyringRequest } from '../request';
 
 /**
@@ -17,11 +16,11 @@ import type { KeyringRequest } from '../request';
  * This interface supports both EVM and non-EVM chains, and includes
  * account metadata needed for features like Multi-SRP and Backup and Sync.
  */
-export type KeyringV2 = Keyring & {
+export type KeyringV2 = {
   /**
    * Type of the keyring.
    */
-  type: KeyringType;
+  type: `${KeyringType}`;
 
   /**
    * List of capabilities supported by the keyring.

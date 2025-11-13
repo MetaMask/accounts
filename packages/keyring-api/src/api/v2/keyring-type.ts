@@ -38,4 +38,9 @@ export enum KeyringType {
    * Represents keyring backed by a Trezor hardware wallet.
    */
   Trezor = 'trezor',
+
+  /**
+   * Represents keyring backed by a OneKey hardware wallet.
+   */
+  OneKey = 'onekey',
 }

@@ -1,5 +1,4 @@
 import {
-  enums,
   exactOptional,
   literal,
   object,
@@ -7,14 +6,8 @@ import {
   type Infer,
 } from '@metamask/superstruct';
 
-import {
-  AnyAccountType,
-  BtcAccountType,
-  EthAccountType,
-  SolAccountType,
-  TrxAccountType,
-} from '../../account';
-import { PrivateKeyEncodings } from '../private-key';
+import { KeyringAccountTypeStruct } from '../../account';
+import { PrivateKeyEncodingStruct } from '../private-key';
 
 /**
  * Struct for {@link CreateAccountPrivateKeyOptions}.
@@ -31,23 +24,11 @@ export const CreateAccountPrivateKeyOptionsStruct = object({
   /**
    * The encoding of the private key.
    */
-  encoding: enums(PrivateKeyEncodings),
+  encoding: PrivateKeyEncodingStruct,
   /**
    * The account type of the imported account.
    */
-  accountType: exactOptional(
-    enums([
-      `${EthAccountType.Eoa}`,
-      `${EthAccountType.Erc4337}`,
-      `${BtcAccountType.P2pkh}`,
-      `${BtcAccountType.P2sh}`,
-      `${BtcAccountType.P2wpkh}`,
-      `${BtcAccountType.P2tr}`,
-      `${SolAccountType.DataAccount}`,
-      `${TrxAccountType.Eoa}`,
-      `${AnyAccountType.Account}`,
-    ] as const),
-  ),
+  accountType: exactOptional(KeyringAccountTypeStruct),
 });
 
 /**

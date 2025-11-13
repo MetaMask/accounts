@@ -1,12 +1,6 @@
-import {
-  enums,
-  literal,
-  object,
-  string,
-  type Infer,
-} from '@metamask/superstruct';
+import { literal, object, string, type Infer } from '@metamask/superstruct';
 
-import { PrivateKeyEncodings } from '../private-key';
+import { PrivateKeyEncodingStruct } from '../private-key';
 
 /**
  * Struct for {@link PrivateKeyExportedAccount}.
@@ -23,7 +17,7 @@ export const PrivateKeyExportedAccountStruct = object({
   /**
    * The encoding of the exported private key.
    */
-  encoding: enums(PrivateKeyEncodings),
+  encoding: PrivateKeyEncodingStruct,
 });
 
 /**
@@ -44,7 +38,7 @@ export const ExportAccountPrivateKeyOptionsStruct = object({
   /**
    * The encoding of the exported private key.
    */
-  encoding: enums(PrivateKeyEncodings),
+  encoding: PrivateKeyEncodingStruct,
 });
 
 /**

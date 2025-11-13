@@ -48,11 +48,11 @@ export const KeyringCapabilitiesStruct = object({
       /**
        * List of supported formats for importing private keys.
        */
-      importFormats: array(ImportPrivateKeyFormatStruct),
+      importFormats: exactOptional(array(ImportPrivateKeyFormatStruct)),
       /**
        * List of supported formats for exporting private keys.
        */
-      exportFormats: array(ExportPrivateKeyFormatStruct),
+      exportFormats: exactOptional(array(ExportPrivateKeyFormatStruct)),
     }),
   ),
 });

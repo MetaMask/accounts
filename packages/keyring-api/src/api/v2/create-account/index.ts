@@ -1,9 +1,10 @@
-import { union, type Infer } from '@metamask/superstruct';
+import { selectiveUnion } from '@metamask/keyring-utils';
+import { type Infer } from '@metamask/superstruct';
 
 import {
   CreateAccountBip44DiscoverOptionsStruct,
-  CreateAccountBip44IndexOptionsStruct,
-  CreateAccountBip44PathOptionsStruct,
+  CreateAccountBip44DeriveIndexOptionsStruct,
+  CreateAccountBip44DerivePathOptionsStruct,
 } from './bip44';
 import { CreateAccountPrivateKeyOptionsStruct } from './private-key';
 
@@ -46,12 +47,24 @@ export enum AccountCreationType {
 /**
  * Struct for {@link CreateAccountOptions}.
  */
-export const CreateAccountOptionsStruct = union([
-  CreateAccountBip44PathOptionsStruct,
-  CreateAccountBip44IndexOptionsStruct,
-  CreateAccountBip44DiscoverOptionsStruct,
-  CreateAccountPrivateKeyOptionsStruct,
-]);
+export const CreateAccountOptionsStruct = selectiveUnion(
+  (accountCreationType: AccountCreationType) => {
+    switch (accountCreationType) {
+      case AccountCreationType.Bip44Path:
+        return CreateAccountBip44DerivePathOptionsStruct;
+      case AccountCreationType.Bip44Index:
+        return CreateAccountBip44DeriveIndexOptionsStruct;
+      case AccountCreationType.Bip44Discover:
+        return CreateAccountBip44DiscoverOptionsStruct;
+      case AccountCreationType.PrivateKeyImport:
+        return CreateAccountPrivateKeyOptionsStruct;
+      default:
+        throw new Error(
+          `Unsupported account creation type: ${String(accountCreationType)}`,
+        );
+    }
+  },
+);
 
 /**
  * Represents the available options for creating a new account.
