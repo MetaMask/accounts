@@ -18,7 +18,7 @@ export enum AccountCreationType {
   /**
    * Represents an account created using a BIP-44 derivation path.
    */
-  Bip44Path = 'bip44:derive-path',
+  Bip44DerivePath = 'bip44:derive-path',
 
   /**
    * Represents accounts created using a BIP-44 account index.
@@ -27,7 +27,7 @@ export enum AccountCreationType {
    * multiple account types (e.g., P2PKH, P2TR, P2WPKH) for the same account
    * index.
    */
-  Bip44Index = 'bip44:derive-index',
+  Bip44DeriveIndex = 'bip44:derive-index',
 
   /**
    * Represents accounts created through BIP-44 account discovery.
@@ -50,18 +50,17 @@ export enum AccountCreationType {
 export const CreateAccountOptionsStruct = selectiveUnion((value: any) => {
   const accountCreationType = value?.type as AccountCreationType;
   switch (accountCreationType) {
-    case AccountCreationType.Bip44Path:
+    case AccountCreationType.Bip44DerivePath:
       return CreateAccountBip44DerivePathOptionsStruct;
-    case AccountCreationType.Bip44Index:
+    case AccountCreationType.Bip44DeriveIndex:
       return CreateAccountBip44DeriveIndexOptionsStruct;
     case AccountCreationType.Bip44Discover:
       return CreateAccountBip44DiscoverOptionsStruct;
     case AccountCreationType.PrivateKeyImport:
       return CreateAccountPrivateKeyOptionsStruct;
     default:
-      throw new Error(
-        `Unsupported account creation type: ${String(accountCreationType)}`,
-      );
+      // Return first struct as fallback - validation will fail with proper error indicating the type mismatch
+      return CreateAccountBip44DerivePathOptionsStruct;
   }
 });
 

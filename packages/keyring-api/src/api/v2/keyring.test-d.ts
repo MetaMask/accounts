@@ -29,8 +29,8 @@ expectAssignable<KeyringType>(KeyringType.Lattice);
 expectAssignable<KeyringType>(KeyringType.Trezor);
 
 // Test AccountCreationType enum
-expectAssignable<AccountCreationType>(AccountCreationType.Bip44Path);
-expectAssignable<AccountCreationType>(AccountCreationType.Bip44Index);
+expectAssignable<AccountCreationType>(AccountCreationType.Bip44DerivePath);
+expectAssignable<AccountCreationType>(AccountCreationType.Bip44DeriveIndex);
 expectAssignable<AccountCreationType>(AccountCreationType.Bip44Discover);
 expectAssignable<AccountCreationType>(AccountCreationType.PrivateKeyImport);
 
@@ -75,20 +75,20 @@ expectAssignable<KeyringCapabilities>({
 
 // Test CreateAccountBip44DerivePathOptions
 expectAssignable<CreateAccountBip44DerivePathOptions>({
-  type: AccountCreationType.Bip44Path,
+  type: AccountCreationType.Bip44DerivePath,
   entropySource: '01K0BX6VDR5DPDPGGNA8PZVBVB',
   derivationPath: "m/44'/60'/0'/0/0",
 });
 
 expectNotAssignable<CreateAccountBip44DerivePathOptions>({
-  type: AccountCreationType.Bip44Path,
+  type: AccountCreationType.Bip44DerivePath,
   entropySource: '01K0BX6VDR5DPDPGGNA8PZVBVB',
   // missing derivationPath
 });
 
 // Test CreateAccountBip44DeriveIndexOptions
 expectAssignable<CreateAccountBip44DeriveIndexOptions>({
-  type: AccountCreationType.Bip44Index,
+  type: AccountCreationType.Bip44DeriveIndex,
   entropySource: '01K0BX6VDR5DPDPGGNA8PZVBVB',
   groupIndex: 0,
 });
@@ -116,13 +116,13 @@ expectAssignable<CreateAccountPrivateKeyOptions>({
 
 // Test CreateAccountOptions union
 expectAssignable<CreateAccountOptions>({
-  type: AccountCreationType.Bip44Path,
+  type: AccountCreationType.Bip44DerivePath,
   entropySource: '01K0BX6VDR5DPDPGGNA8PZVBVB',
   derivationPath: "m/44'/60'/0'/0/0",
 });
 
 expectAssignable<CreateAccountOptions>({
-  type: AccountCreationType.Bip44Index,
+  type: AccountCreationType.Bip44DeriveIndex,
   entropySource: '01K0BX6VDR5DPDPGGNA8PZVBVB',
   groupIndex: 0,
 });
