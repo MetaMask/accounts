@@ -228,7 +228,7 @@ these instruction assume that you are already familiar with the process of
 A unified keyring interface, designed to work for both native (EVM) keyrings and Snap keyrings, and to support non‑EVM chains and new features like backup & sync.
 
 - Interface name: `KeyringV2`
-- Location: `@metamask/keyring-api/src/api/keyring-v2.ts`
+- Location: `@metamask/keyring-api/src/api/v2/keyring.ts`
 
 ## Migrating from 0.1.x to 0.2.x
 
