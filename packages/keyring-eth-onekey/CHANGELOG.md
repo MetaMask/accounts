@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump axios
-- Init Project
+- Add initial implementation of the OneKey keyring ([#353](https://github.com/MetaMask/accounts/pull/353))
 
 [Unreleased]: https://github.com/MetaMask/accounts/

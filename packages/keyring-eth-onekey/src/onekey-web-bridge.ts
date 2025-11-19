@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/consistent-type-imports */
 import { UI_REQUEST, UI_RESPONSE } from '@onekeyfe/hd-core';
 import type {
   ConnectSettings,
@@ -15,9 +12,9 @@ import type {
 } from '@onekeyfe/hd-core';
 import { HardwareErrorCode } from '@onekeyfe/hd-shared';
 import type { EthereumMessageSignature } from '@onekeyfe/hd-transport';
+import hardwareWebSdk from '@onekeyfe/hd-web-sdk';
 
-import { ONEKEY_HARDWARE_UI_EVENT } from './constants';
-import { OneKeyBridge } from './onekey-bridge';
+import type { OneKeyBridge } from './onekey-bridge';
 
 export type OneKeyIframeBridgeOptions = {
   bridgeUrl: string;
@@ -28,19 +25,11 @@ export class OneKeyWebBridge implements OneKeyBridge {
 
   sdk: CoreApi | undefined = undefined;
 
-  eventListeners: Map<string, (event: any) => void> = new Map();
-
   model?: string | undefined;
 
-  on(_event: string, callback: (event: any) => void): void {
-    this.eventListeners.set(_event, callback);
-  }
+  #onUIEvent?: ((event: Unsuccessful['payload']) => void) | undefined;
 
-  off(_event: string): void {
-    this.eventListeners.delete(_event);
-  }
-
-  handleBlockErrorEvent(payload: Unsuccessful): void {
+  #handleBlockErrorEvent(payload: Unsuccessful): void {
     const { code } = payload.payload;
     const errorCodes: number[] = [
       HardwareErrorCode.WebDeviceNotFoundOrNeedsPermission,
@@ -54,7 +43,7 @@ export class OneKeyWebBridge implements OneKeyBridge {
     ];
 
     if (code && typeof code === 'number' && errorCodes.includes(code)) {
-      this.eventListeners.get(ONEKEY_HARDWARE_UI_EVENT)?.(payload.payload);
+      this.#onUIEvent?.(payload.payload);
     }
   }
 
@@ -67,26 +56,30 @@ export class OneKeyWebBridge implements OneKeyBridge {
     await this.sdk.switchTransport(transportType);
   }
 
+  setUiEventCallback(callback: (event: Unsuccessful['payload']) => void): void {
+    this.#onUIEvent = callback;
+  }
+
   async init(): Promise<void> {
     if (this.isSDKInitialized) {
       return;
     }
-    const sdkLib = await import('@onekeyfe/hd-web-sdk');
-    const { HardwareWebSdk, HardwareSDKLowLevel } = sdkLib as any;
+
     const settings: Partial<ConnectSettings> = {
-      debug: true,
+      debug: false,
       fetchConfig: false,
       connectSrc: 'https://jssdk.onekey.so/1.1.0/',
       env: 'webusb',
     };
     try {
-      await HardwareWebSdk.init(settings, HardwareSDKLowLevel);
+      await hardwareWebSdk.HardwareWebSdk.init(
+        settings,
+        hardwareWebSdk.HardwareSDKLowLevel,
+      );
       this.isSDKInitialized = true;
-      this.sdk = HardwareWebSdk as unknown as CoreApi;
+      this.sdk = hardwareWebSdk.HardwareWebSdk;
 
-      // eslint-disable-next-line id-length
-      this.sdk?.on('UI_EVENT', (e: any) => {
-        const originEvent = e as UiEvent;
+      this.sdk?.on('UI_EVENT', (originEvent: UiEvent) => {
         if (originEvent.type === UI_REQUEST.REQUEST_PIN) {
           this.sdk?.uiResponse({
             type: UI_RESPONSE.RECEIVE_PIN,
@@ -133,7 +126,10 @@ export class OneKeyWebBridge implements OneKeyBridge {
     if (!this.sdk) {
       return {
         success: false,
-        payload: { error: 'SDK not initialized', code: 800 },
+        payload: {
+          error: 'SDK not initialized',
+          code: HardwareErrorCode.NotInitialized,
+        },
       };
     }
     return await this.sdk
@@ -148,7 +144,7 @@ export class OneKeyWebBridge implements OneKeyBridge {
             },
           };
         }
-        this.handleBlockErrorEvent(result);
+        this.#handleBlockErrorEvent(result);
         return {
           success: false,
           payload: {
@@ -174,7 +170,7 @@ export class OneKeyWebBridge implements OneKeyBridge {
     }
     return await this.sdk.getPassphraseState('').then((result) => {
       if (!result?.success) {
-        this.handleBlockErrorEvent(result);
+        this.#handleBlockErrorEvent(result);
       }
       return result;
     });
@@ -199,7 +195,7 @@ export class OneKeyWebBridge implements OneKeyBridge {
       })
       .then((result) => {
         if (!result?.success) {
-          this.handleBlockErrorEvent(result);
+          this.#handleBlockErrorEvent(result);
         }
         return result;
       });
@@ -224,7 +220,7 @@ export class OneKeyWebBridge implements OneKeyBridge {
       })
       .then((result) => {
         if (!result?.success) {
-          this.handleBlockErrorEvent(result);
+          this.#handleBlockErrorEvent(result);
         }
         return result;
       });
@@ -249,7 +245,7 @@ export class OneKeyWebBridge implements OneKeyBridge {
       })
       .then((result) => {
         if (!result?.success) {
-          this.handleBlockErrorEvent(result);
+          this.#handleBlockErrorEvent(result);
         }
         return result;
       });

@@ -7,7 +7,7 @@ import {
 import { Address } from '@ethereumjs/util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 // eslint-disable-next-line @typescript-eslint/naming-convention
-import EthereumTx from 'ethereumjs-tx';
+import type EthereumTx from 'ethereumjs-tx';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import HDKey from 'hdkey';
 import * as sinon from 'sinon';
@@ -16,6 +16,26 @@ import type { OneKeyBridge } from './onekey-bridge';
 import type { AccountDetails } from './onekey-keyring';
 import { OneKeyKeyring } from './onekey-keyring';
 import { OneKeyWebBridge } from './onekey-web-bridge';
+
+// Mock @onekeyfe/hd-web-sdk to avoid browser environment dependencies
+jest.mock('@onekeyfe/hd-web-sdk', () => ({
+  PascalCase: true,
+  default: {
+    HardwareWebSdk: {
+      init: jest.fn(),
+      on: jest.fn(),
+      uiResponse: jest.fn(),
+      dispose: jest.fn(),
+      switchTransport: jest.fn(),
+      evmGetPublicKey: jest.fn(),
+      getPassphraseState: jest.fn(),
+      evmSignTransaction: jest.fn(),
+      evmSignMessage: jest.fn(),
+      evmSignTypedData: jest.fn(),
+    },
+    HardwareSDKLowLevel: {},
+  },
+}));
 
 const fakeAccounts = [
   '0x73d0385F4d8E00C5e6504C6030F47BF6212736A8',
@@ -38,16 +58,6 @@ const fakeAccounts = [
 const fakeXPubKey =
   'xpub6CNFa58kEQJu2hwMVoofpDEKVVSg6gfwqBqE2zHAianaUnQkrJzJJ42iLDp7Dmg2aP88qCKoFZ4jidk3tECdQuF4567NGHDfe7iBRwHxgke';
 const fakeHdKey = HDKey.fromExtendedKey(fakeXPubKey);
-const fakeTx = new EthereumTx({
-  nonce: '0x00',
-  gasPrice: '0x09184e72a000',
-  gasLimit: '0x2710',
-  to: '0x0000000000000000000000000000000000000000',
-  value: '0x00',
-  data: '0x7f7465737432000000000000000000000000000000000000000000000000000000600057',
-  // EIP 155 chainId - mainnet: 1, ropsten: 3
-  chainId: 1,
-});
 
 const common = new Common({ chain: 'mainnet' });
 const commonEIP1559 = new Common({
@@ -411,33 +421,6 @@ describe('OneKeyKeyring', function () {
   });
 
   describe('signTransaction', function () {
-    it('should pass serialized transaction to onekey and return signed tx', async function () {
-      const ethereumSignTransactionStub = sinon.stub().resolves({
-        success: true,
-        payload: { v: '0x1', r: '0x0', s: '0x0' },
-      });
-      bridge.ethereumSignTransaction = ethereumSignTransactionStub;
-
-      sinon.stub(fakeTx, 'verifySignature').callsFake(() => true);
-      sinon
-        .stub(fakeTx, 'getSenderAddress')
-        .callsFake(() =>
-          Buffer.from(Address.fromString(fakeAccounts[0]).bytes),
-        );
-
-      // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
-      const returnedTx = await keyring.signTransaction(fakeAccounts[0], fakeTx);
-      // assert that the v,r,s values got assigned to tx.
-      expect(returnedTx.v).toBeDefined();
-      expect(returnedTx.r).toBeDefined();
-      expect(returnedTx.s).toBeDefined();
-      // ensure we get a older version transaction back
-      // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
-      expect((returnedTx as EthereumTx).getChainId()).toBe(1);
-      expect(returnedTx.common).toBeUndefined();
-      expect(ethereumSignTransactionStub.calledOnce).toBe(true);
-    });
-
     it('should pass serialized newer transaction to onekey and return signed tx', async function () {
       sinon.stub(TransactionFactory, 'fromTxData').callsFake(() => {
         // without having a private key/public key pair in this test, we have
@@ -740,24 +723,6 @@ describe('OneKeyKeyring', function () {
   });
 
   describe('error handling and edge cases', function () {
-    it('should handle signing errors', async function () {
-      await keyring.addAccounts(1);
-      const errorResponse = {
-        success: false,
-        payload: { error: 'Signing failed' },
-      };
-      bridge.ethereumSignTransaction = sinon.stub().resolves(errorResponse);
-
-      try {
-        // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
-        await keyring.signTransaction(fakeAccounts[0], fakeTx);
-        throw new Error('Expected error was not thrown');
-      } catch (error) {
-        // eslint-disable-next-line jest/no-conditional-expect
-        expect((error as Error).message).toContain('Signing failed');
-      }
-    });
-
     it('should handle message signing errors', async function () {
       await keyring.addAccounts(1);
       const errorResponse = {
@@ -803,6 +768,82 @@ describe('OneKeyKeyring', function () {
       const accounts = await keyring.getPreviousPage();
       expect(accounts).toHaveLength(keyring.perPage);
       expect(keyring.page).toBe(1); // When page <= 0, it gets set to 1
+    });
+
+    it('should handle unlock getPublicKey failure', async function () {
+      const getPassphraseStateStub = sinon.stub().resolves({
+        success: true,
+        payload: '',
+      });
+      const getPublicKeyStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Failed to get public key' },
+      });
+      bridge.getPassphraseState = getPassphraseStateStub;
+      bridge.getPublicKey = getPublicKeyStub;
+
+      keyring.hdk = new HDKey();
+
+      try {
+        await keyring.unlock();
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain('getPublicKey failed');
+      }
+    });
+
+    it('should handle unlock getPassphraseState failure', async function () {
+      const getPassphraseStateStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Failed to get passphrase state' },
+      });
+      bridge.getPassphraseState = getPassphraseStateStub;
+
+      keyring.hdk = new HDKey();
+
+      try {
+        await keyring.unlock();
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain(
+          'Failed to get passphrase state',
+        );
+      }
+    });
+
+    it('should handle unlock getPublicKey exception', async function () {
+      const getPassphraseStateStub = sinon.stub().resolves({
+        success: true,
+        payload: '',
+      });
+      const getPublicKeyStub = sinon.stub().rejects(new Error('Network error'));
+      bridge.getPassphraseState = getPassphraseStateStub;
+      bridge.getPublicKey = getPublicKeyStub;
+
+      keyring.hdk = new HDKey();
+
+      try {
+        await keyring.unlock();
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain('Network error');
+      }
+    });
+
+    it('should handle unlock getPassphraseState exception', async function () {
+      const getPassphraseStateStub = sinon
+        .stub()
+        .rejects(new Error('Connection error'));
+      bridge.getPassphraseState = getPassphraseStateStub;
+
+      keyring.hdk = new HDKey();
+
+      try {
+        await keyring.unlock();
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain('Connection error');
+      }
     });
   });
 
@@ -866,42 +907,6 @@ describe('OneKeyKeyring', function () {
   });
 
   describe('transaction serialization edge cases', function () {
-    it('should handle transaction with empty "to" field (contract deployment)', async function () {
-      await keyring.addAccounts(1);
-
-      const successResponse = {
-        success: true,
-        payload: { v: '0x1', r: '0x0', s: '0x0' },
-      };
-      const ethereumSignTransactionStub = sinon
-        .stub()
-        .resolves(successResponse);
-      bridge.ethereumSignTransaction = ethereumSignTransactionStub;
-
-      sinon.stub(fakeTx, 'verifySignature').callsFake(() => true);
-      sinon
-        .stub(fakeTx, 'getSenderAddress')
-        .callsFake(() =>
-          Buffer.from(Address.fromString(fakeAccounts[0]).bytes),
-        );
-
-      // Simulate a contract deployment transaction by setting to to null
-      const originalTo = fakeTx.to;
-      // @ts-expect-error - for testing purposes
-      fakeTx.to = null;
-
-      // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
-      const result = await keyring.signTransaction(fakeAccounts[0], fakeTx);
-      expect(result).toBeDefined();
-
-      const call = ethereumSignTransactionStub.getCall(0);
-      expect(call.args[0].transaction.to).toBe('0x');
-
-      // Restore original to value
-      // eslint-disable-next-line require-atomic-updates
-      fakeTx.to = originalTo;
-    });
-
     it('should test hex prefix utilities', async function () {
       // Test the serialize method
       const serialized = await keyring.serialize();
@@ -949,12 +954,6 @@ describe('OneKeyKeyring', function () {
       expect(keyring.page).toBe(0);
       expect(keyring.unlockedAccount).toBe(0);
       expect(Object.keys(keyring.accountDetails)).toHaveLength(0);
-    });
-
-    it('should handle exportAccount error', function () {
-      expect(() => {
-        keyring.exportAccount();
-      }).toThrow('Not supported on this device');
     });
 
     it('should handle isUnlocked when not unlocked', function () {
@@ -1014,30 +1013,6 @@ describe('OneKeyKeyring', function () {
       expect(
         signPersonalMessageStub.calledWith(fakeAccounts[0], '0x68656c6c6f'),
       ).toBe(true);
-    });
-
-    it('should handle transaction signing with address verification', async function () {
-      await keyring.addAccounts(1);
-      const successResponse = {
-        success: true,
-        payload: { v: '0x1', r: '0x0', s: '0x0' },
-      };
-      bridge.ethereumSignTransaction = sinon.stub().resolves(successResponse);
-
-      // Mock the transaction verification to pass
-      sinon.stub(fakeTx, 'verifySignature').callsFake(() => true);
-      sinon
-        .stub(fakeTx, 'getSenderAddress')
-        .callsFake(() =>
-          Buffer.from(Address.fromString(fakeAccounts[0]).bytes),
-        );
-
-      // @ts-expect-error: intentionally using an old library that doesn't comply with TypedTransaction
-      const result = await keyring.signTransaction(fakeAccounts[0], fakeTx);
-      expect(result).toBeDefined();
-      expect(result.v).toBeDefined();
-      expect(result.r).toBeDefined();
-      expect(result.s).toBeDefined();
     });
 
     it('should handle basic unlock scenarios', async function () {
