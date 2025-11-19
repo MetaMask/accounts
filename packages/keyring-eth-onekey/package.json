@@ -1,7 +1,7 @@
 {
   "name": "@metamask/eth-onekey-keyring",
   "version": "0.1.0",
-  "description": "A MetaMask compatible keyring, for onekey hardware wallets",
+  "description": "A MetaMask compatible keyring, for OneKey hardware wallets",
   "keywords": [
     "ethereum",
     "keyring",
@@ -52,10 +52,10 @@
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/utils": "^11.1.0",
     "@noble/hashes": "^1.7.0",
-    "@onekeyfe/hd-core": "1.1.6-patch.4",
-    "@onekeyfe/hd-shared": "1.1.6-patch.4",
-    "@onekeyfe/hd-transport": "1.1.6-patch.4",
-    "@onekeyfe/hd-web-sdk": "1.1.6-patch.4",
+    "@onekeyfe/hd-core": "1.1.17-patch.1",
+    "@onekeyfe/hd-shared": "1.1.17-patch.1",
+    "@onekeyfe/hd-transport": "1.1.17-patch.1",
+    "@onekeyfe/hd-web-sdk": "1.1.17-patch.1",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {

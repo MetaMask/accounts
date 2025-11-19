@@ -24,12 +24,16 @@ type Success<T> = {
 };
 type Response<T> = Promise<Success<T> | Unsuccessful>;
 
+/**
+ * Hardware UI event payload
+ */
+export type HardwareUIEvent = {
+  error: string;
+  code?: string | number;
+};
+
 export type OneKeyBridge = {
   model?: string;
-
-  on(event: string, callback: (event: any) => void): void;
-
-  off(event: string): void;
 
   init(): Promise<void>;
 
