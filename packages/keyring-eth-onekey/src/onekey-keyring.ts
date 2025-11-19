@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
-import type { Hex, Json } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
 import type {
   ConnectSettings,
   EthereumSignTypedDataMessage,
@@ -16,11 +14,9 @@ import type {
 } from '@onekeyfe/hd-core';
 // eslint-disable-next-line @typescript-eslint/no-shadow, n/prefer-global/buffer
 import { Buffer } from 'buffer';
-import type OldEthJsTransaction from 'ethereumjs-tx';
-import { EventEmitter } from 'events';
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import HDKey from 'hdkey';
 
-import { ONEKEY_HARDWARE_UI_EVENT } from './constants';
 import type { OneKeyBridge } from './onekey-bridge';
 
 const pathBase = 'm';
@@ -35,13 +31,6 @@ const ALLOWED_HD_PATHS: Record<string, boolean> = {
   [hdPathString]: true,
   [ledgerLegacyHdPathString]: true,
 } as const;
-
-enum NetworkApiUrls {
-  Ropsten = 'https://api-ropsten.etherscan.io',
-  Kovan = 'https://api-kovan.etherscan.io',
-  Rinkeby = 'https://api-rinkeby.etherscan.io',
-  Mainnet = `https://api.etherscan.io`,
-}
 
 export type AccountDetails = {
   index?: number;
@@ -63,6 +52,7 @@ export type OneKeyControllerOptions = {
   accountDetails?: Readonly<Record<string, AccountDetails>>;
   page?: number;
   passphraseState?: string;
+  // onUIEvent?: (event: HardwareUIEvent) => void;
 };
 
 export type OneKeyControllerState = {
@@ -72,25 +62,6 @@ export type OneKeyControllerState = {
   page: number;
   passphraseState?: string;
 };
-
-/**
- * Check if the given transaction is made with ethereumjs-tx or @ethereumjs/tx
- *
- * Transactions built with older versions of ethereumjs-tx have a
- * getChainId method that newer versions do not.
- * Older versions are mutable
- * while newer versions default to being immutable.
- * Expected shape and type
- * of data for v, r and s differ (Buffer (old) vs BN (new)).
- *
- * @param tx - Transaction to check, instance of either ethereumjs-tx or @ethereumjs/tx.
- * @returns Returns `true` if tx is an old-style ethereumjs-tx transaction.
- */
-function isOldStyleEthereumjsTx(
-  tx: TypedTransaction | OldEthJsTransaction,
-): tx is OldEthJsTransaction {
-  return 'getChainId' in tx && typeof tx.getChainId === 'function';
-}
 
 /**
  * Check if the given value has a hex prefix.
@@ -150,25 +121,14 @@ export class OneKeyKeyring implements Keyring {
 
   hdPath = defaultHdPath;
 
-  network: NetworkApiUrls = NetworkApiUrls.Mainnet;
-
-  implementFullBIP44 = false;
-
-  bridge: OneKeyBridge;
-
-  eventEmitter: EventEmitter;
+  readonly bridge: OneKeyBridge;
 
   constructor({ bridge }: { bridge: OneKeyBridge }) {
     if (!bridge) {
       throw new Error('Bridge is a required dependency for the keyring');
     }
 
-    this.eventEmitter = new EventEmitter();
-
     this.bridge = bridge;
-    this.bridge.on(ONEKEY_HARDWARE_UI_EVENT, (_event: any) => {
-      this.eventEmitter.emit(ONEKEY_HARDWARE_UI_EVENT, _event);
-    });
   }
 
   async init(): Promise<void> {
@@ -176,16 +136,7 @@ export class OneKeyKeyring implements Keyring {
   }
 
   async destroy(): Promise<void> {
-    this.bridge.off(ONEKEY_HARDWARE_UI_EVENT);
     return this.bridge.dispose();
-  }
-
-  on(event: string, callback: (event: any) => void): void {
-    this.eventEmitter.on(event, callback);
-  }
-
-  off(event: string, callback: (event: any) => void): void {
-    this.eventEmitter.off(event, callback);
   }
 
   async serialize(): Promise<OneKeyControllerState> {
@@ -197,12 +148,11 @@ export class OneKeyKeyring implements Keyring {
     };
   }
 
-  async deserialize(state: Json): Promise<void> {
-    const opts = state as OneKeyControllerOptions;
-    this.hdPath = opts.hdPath ?? defaultHdPath;
-    this.accounts = opts.accounts ?? [];
-    this.accountDetails = opts.accountDetails ?? {};
-    this.page = opts.page ?? 0;
+  async deserialize(state: OneKeyControllerOptions): Promise<void> {
+    this.hdPath = state.hdPath ?? defaultHdPath;
+    this.accounts = state.accounts ?? [];
+    this.accountDetails = state.accountDetails ?? {};
+    this.page = state.page ?? 0;
   }
 
   getModel(): string | undefined {
@@ -248,9 +198,6 @@ export class OneKeyKeyring implements Keyring {
       void this.bridge
         .getPassphraseState()
         .then((passphraseResponse) => {
-          if (passphraseResponse.success) {
-            this.passphraseState = passphraseResponse.payload;
-          }
           if (!passphraseResponse.success) {
             throw new Error(
               passphraseResponse.payload?.error || 'Unknown error',
@@ -286,42 +233,33 @@ export class OneKeyKeyring implements Keyring {
   }
 
   async addAccounts(numberOfAccounts = 1): Promise<Hex[]> {
-    await this.unlock().catch((error) => {
-      throw new Error(error?.toString() || 'Unknown error');
-    });
+    await this.unlock();
 
-    return new Promise((resolve, reject) => {
-      const from = this.unlockedAccount;
-      const to = from + numberOfAccounts;
-      const newAccounts: Hex[] = [];
+    const from = this.unlockedAccount;
+    const to = from + numberOfAccounts;
+    const newAccounts: Hex[] = [];
 
-      try {
-        for (let i = from; i < to; i++) {
-          const address = this.#addressFromIndex(i);
-          const hdPath = this.#getPathForIndex(i);
-          if (typeof address === 'undefined') {
-            throw new Error('Unknown error');
-          }
-          if (!this.accounts.includes(address)) {
-            this.accounts = [...this.accounts, address];
-            newAccounts.push(address);
-          }
-          if (!this.accountDetails[address]) {
-            this.accountDetails[address] = {
-              index: i,
-              hdPath,
-              passphraseState: this.passphraseState,
-            };
-          }
-          this.page = 0;
-        }
-
-        resolve(newAccounts);
-      } catch (error) {
-        // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
-        reject(error);
+    for (let i = from; i < to; i++) {
+      const address = this.#addressFromIndex(i);
+      const hdPath = this.#getPathForIndex(i);
+      if (typeof address === 'undefined') {
+        throw new Error('Unknown error');
       }
-    });
+      if (!this.accounts.includes(address)) {
+        this.accounts = [...this.accounts, address];
+        newAccounts.push(address);
+      }
+      if (!this.accountDetails[address]) {
+        this.accountDetails[address] = {
+          index: i,
+          hdPath,
+          passphraseState: this.passphraseState,
+        };
+      }
+      this.page = 0;
+    }
+
+    return newAccounts;
   }
 
   getName(): string {
@@ -383,30 +321,6 @@ export class OneKeyKeyring implements Keyring {
     address: Hex,
     tx: TypedTransaction,
   ): Promise<TypedTransaction> {
-    if (isOldStyleEthereumjsTx(tx)) {
-      // In this version of ethereumjs-tx we must add the chainId in hex format
-      // to the initial v value. The chainId must be included in the serialized
-      // transaction which is only communicated to ethereumjs-tx in this
-      // value. In newer versions the chainId is communicated via the 'Common'
-      // object.
-      // @ts-expect-error - support old transactions
-      return this.#signTransaction(
-        address,
-        // @types/ethereumjs-tx and old ethereumjs-tx versions document
-        // this function return value as Buffer, but the actual
-        // Transaction._chainId will always be a number.
-        // See https://github.com/ethereumjs/ethereumjs-tx/blob/v1.3.7/index.js#L126
-        tx.getChainId() as unknown as number,
-        tx,
-        (payload) => {
-          const newTx = tx as OldEthJsTransaction;
-          newTx.v = Buffer.from(payload.v, 'hex');
-          newTx.r = Buffer.from(payload.r, 'hex');
-          newTx.s = Buffer.from(payload.s, 'hex');
-          return newTx;
-        },
-      );
-    }
     return this.#signTransaction(
       address,
       Number(tx.common.chainId()),
@@ -432,34 +346,19 @@ export class OneKeyKeyring implements Keyring {
     );
   }
 
-  async #signTransaction<T extends TypedTransaction | OldEthJsTransaction>(
+  async #signTransaction<TXData extends TypedTransaction>(
     address: string,
     chainId: number,
-    tx: T,
-    handleSigning: (tx: EVMSignedTx) => T,
-  ): Promise<T> {
-    let transaction: EVMSignTransactionParams['transaction'];
-    if (isOldStyleEthereumjsTx(tx)) {
-      // legacy transaction from ethereumjs-tx package has no .toJSON() function,
-      // so we need to convert to hex-strings manually manually
-      transaction = {
-        to: this.#normalize(tx.to),
-        value: this.#normalize(tx.value),
-        data: this.#normalize(tx.data),
-        chainId,
-        nonce: this.#normalize(tx.nonce),
-        gasLimit: this.#normalize(tx.gasLimit),
-        gasPrice: this.#normalize(tx.gasPrice),
-      };
-    } else {
-      // new-style transaction from @ethereumjs/tx package
-      // we can just copy tx.toJSON() for everything except chainId, which must be a number
-      transaction = {
-        ...tx.toJSON(),
-        chainId,
-        to: this.#normalize(Buffer.from(tx.to?.bytes ?? [])),
-      } as unknown as EVMSignTransactionParams['transaction'];
-    }
+    tx: TXData,
+    handleSigning: (tx: EVMSignedTx) => TXData,
+  ): Promise<TXData> {
+    // new-style transaction from @ethereumjs/tx package
+    // we can just copy tx.toJSON() for everything except chainId, which must be a number
+    const transaction: EVMSignTransactionParams['transaction'] = {
+      ...tx.toJSON(),
+      chainId,
+      to: this.#normalize(Buffer.from(tx.to?.bytes ?? [])),
+    } as unknown as EVMSignTransactionParams['transaction'];
 
     try {
       const details = this.#accountDetailsFromAddress(address);
@@ -473,9 +372,7 @@ export class OneKeyKeyring implements Keyring {
         const newOrMutatedTx = handleSigning(response.payload);
 
         const addressSignedWith = ethUtil.toChecksumAddress(
-          ethUtil.addHexPrefix(
-            newOrMutatedTx.getSenderAddress().toString('hex'),
-          ),
+          ethUtil.addHexPrefix(newOrMutatedTx.getSenderAddress().toString()),
         );
         const correctAddress = ethUtil.toChecksumAddress(address);
         if (addressSignedWith !== correctAddress) {
@@ -530,9 +427,9 @@ export class OneKeyKeyring implements Keyring {
   }
 
   // EIP-712 Sign Typed Data
-  async signTypedData<T extends MessageTypes>(
+  async signTypedData<Types extends MessageTypes>(
     address: string,
-    data: TypedMessage<T>,
+    data: TypedMessage<Types>,
     { version }: { version?: SignTypedDataVersion },
   ): Promise<string> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
@@ -575,10 +472,6 @@ export class OneKeyKeyring implements Keyring {
     throw new Error(response.payload?.error || 'Unknown error');
   }
 
-  exportAccount(): never {
-    throw new Error('Not supported on this device');
-  }
-
   forgetDevice(): void {
     this.hdk = new HDKey();
     this.accounts = [];
@@ -586,14 +479,6 @@ export class OneKeyKeyring implements Keyring {
     this.unlockedAccount = 0;
     this.accountDetails = {};
     this.passphraseState = undefined;
-  }
-
-  async getPassphraseState(
-    _index: number,
-    _hdPath: string,
-  ): Promise<string | undefined> {
-    // TODO: implement
-    return Promise.resolve(undefined);
   }
 
   async #getPage(
