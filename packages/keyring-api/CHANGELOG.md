@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `KeyringWrapper` helper to adapt legacy keyrings to `KeyringV2` ([#XXX](https://github.com/MetaMask/accounts/pull/XXX))
+- Add unified `KeyringV2` interface ([#397](https://github.com/MetaMask/accounts/pull/397))
+
 ## [21.2.0]
 
 ### Added
