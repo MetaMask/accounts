@@ -27,8 +27,9 @@ export type KeyringAddressResolver = {
  * intended for controller-managed lifecycles where wrappers live in memory.
  */
 export class InMemoryKeyringAddressResolver implements KeyringAddressResolver {
-  #idByAddress = new Map<string, AccountId>();
-  #addressById = new Map<AccountId, string>();
+  readonly #idByAddress = new Map<string, AccountId>();
+
+  readonly #addressById = new Map<AccountId, string>();
 
   getAddress(accountId: AccountId): string | undefined {
     return this.#addressById.get(accountId);
@@ -44,9 +45,11 @@ export class InMemoryKeyringAddressResolver implements KeyringAddressResolver {
     if (existing) {
       return existing;
     }
-    const id = uuidv4() as AccountId;
+    const id = uuidv4();
+
     this.#idByAddress.set(normalized, id);
     this.#addressById.set(id, normalized);
+
     return id;
   }
 }

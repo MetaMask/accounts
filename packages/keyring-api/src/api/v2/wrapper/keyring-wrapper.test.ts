@@ -1,27 +1,29 @@
-import type { Keyring } from '@metamask/keyring-utils';
-import type { AccountId } from '@metamask/keyring-utils';
-import type { Hex } from '@metamask/utils';
-import type { Json } from '@metamask/utils';
+import type { Keyring, AccountId } from '@metamask/keyring-utils';
+import type { Hex, Json } from '@metamask/utils';
 import { v4 as uuidv4 } from 'uuid';
 
-import type { KeyringAccount } from '../../account';
-import { KeyringType } from '../keyring-type';
-import type { KeyringCapabilities } from '../keyring-capabilities';
-import { KeyringWrapper } from './keyring-wrapper';
 import { InMemoryKeyringAddressResolver } from './keyring-address-resolver';
+import { KeyringWrapper } from './keyring-wrapper';
+import type { KeyringAccount } from '../../account';
+import type { KeyringCapabilities } from '../keyring-capabilities';
+import { KeyringType } from '../keyring-type';
 
 class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
-  async createAccounts() {
+  public deletedAccountIds: AccountId[] = [];
+
+  async createAccounts(): Promise<KeyringAccount[]> {
     return this.getAccounts();
   }
 
-  async deleteAccount(_accountId: AccountId) {}
+  async deleteAccount(accountId: AccountId): Promise<void> {
+    this.deletedAccountIds.push(accountId);
+  }
 
   async exportAccount(): Promise<any> {
     return {};
   }
 
-  async submitRequest() {
+  async submitRequest(): Promise<any> {
     return {};
   }
 }
@@ -31,16 +33,16 @@ class TestKeyring implements Keyring {
 
   public type = TestKeyring.type;
 
-  private readonly accounts: Hex[];
+  readonly #accounts: Hex[];
 
   public lastDeserializedState: Json | undefined;
 
   constructor(addresses: Hex[] = []) {
-    this.accounts = addresses;
+    this.#accounts = addresses;
   }
 
   async serialize(): Promise<Json> {
-    return { accounts: this.accounts };
+    return { accounts: this.#accounts };
   }
 
   async deserialize(state: Json): Promise<void> {
@@ -48,11 +50,11 @@ class TestKeyring implements Keyring {
   }
 
   async getAccounts(): Promise<Hex[]> {
-    return this.accounts;
+    return this.#accounts;
   }
 
   async addAccounts(_numberOfAccounts = 1): Promise<Hex[]> {
-    return this.accounts;
+    return this.#accounts;
   }
 }
 
@@ -70,10 +72,10 @@ describe('KeyringWrapper', () => {
     });
 
     const state = await wrapper.serialize();
-    expect(state).toEqual({ accounts: ['0x1'] });
+    expect(state).toStrictEqual({ accounts: ['0x1'] });
 
     await wrapper.deserialize(state);
-    expect(inner.lastDeserializedState).toEqual(state);
+    expect(inner.lastDeserializedState).toStrictEqual(state);
   });
 
   it('returns accounts with stable IDs and correct addresses', async () => {
@@ -93,9 +95,9 @@ describe('KeyringWrapper', () => {
     accounts.forEach((account: KeyringAccount, index) => {
       expect(account.address).toBe(addresses[index]);
       expect(account.type).toBe('eip155:eoa');
-      expect(account.scopes).toEqual(['eip155:1']);
-      expect(account.options).toEqual({});
-      expect(account.methods).toEqual([]);
+      expect(account.scopes).toStrictEqual(['eip155:1']);
+      expect(account.options).toStrictEqual({});
+      expect(account.methods).toStrictEqual([]);
 
       ids.add(account.id);
     });
@@ -104,7 +106,11 @@ describe('KeyringWrapper', () => {
     expect(ids.size).toBe(addresses.length);
 
     // getAccount should resolve by ID
-    const firstAccount = accounts[0]!;
+    const [firstAccount] = accounts;
+    expect(firstAccount).toBeDefined();
+    if (!firstAccount) {
+      throw new Error('Expected at least one account from the wrapper');
+    }
     const resolved = await wrapper.getAccount(firstAccount.id);
     expect(resolved.address).toBe(firstAccount.address);
   });

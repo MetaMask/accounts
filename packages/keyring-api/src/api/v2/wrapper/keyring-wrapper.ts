@@ -1,21 +1,20 @@
-import type { Keyring } from '@metamask/keyring-utils';
-import type { AccountId } from '@metamask/keyring-utils';
-
-import type { KeyringAccount } from '../../account';
-import type { KeyringRequest } from '../../request';
+import type { Keyring, AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
-import type { KeyringV2 } from '../keyring';
-import { KeyringType } from '../keyring-type';
-import type {
-  CreateAccountOptions,
-  ExportAccountOptions,
-  ExportedAccount,
-} from '../index';
-import type { KeyringCapabilities } from '../keyring-capabilities';
+
 import {
   InMemoryKeyringAddressResolver,
   type KeyringAddressResolver,
 } from './keyring-address-resolver';
+import type {
+  CreateAccountOptions,
+  ExportAccountOptions,
+  ExportedAccount,
+} from '..';
+import type { KeyringAccount } from '../../account';
+import type { KeyringRequest } from '../../request';
+import type { KeyringV2 } from '../keyring';
+import type { KeyringCapabilities } from '../keyring-capabilities';
+import type { KeyringType } from '../keyring-type';
 
 /**
  * Basic options for constructing a {@link KeyringWrapper}.
@@ -76,6 +75,8 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
    *
    * This simply delegates to the legacy keyring's {@link Keyring.serialize}
    * implementation.
+   *
+   * @returns The serialized keyring state.
    */
   async serialize(): Promise<Json> {
     return this.inner.serialize();
@@ -86,6 +87,8 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
    *
    * This simply delegates to the legacy keyring's {@link Keyring.deserialize}
    * implementation.
+   *
+   * @param state - The serialized keyring state.
    */
   async deserialize(state: Json): Promise<void> {
     await this.inner.deserialize(state);
@@ -99,6 +102,8 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
    * address as an `eip155:eoa` account with the `eip155:1` (Ethereum mainnet)
    * scope. Concrete adapters may override this method if they need to provide
    * different account types, scopes, or options.
+   *
+   * @returns The list of managed accounts.
    */
   async getAccounts(): Promise<KeyringAccount[]> {
     const addresses = await this.inner.getAccounts();
@@ -125,6 +130,9 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
    * This method calls {@link getAccounts} and returns the matching
    * {@link KeyringAccount} by ID, or throws if the ID is unknown in the
    * current account set.
+   *
+   * @param accountId - The AccountId to look up.
+   * @returns The matching KeyringAccount.
    */
   async getAccount(accountId: AccountId): Promise<KeyringAccount> {
     const accounts = await this.getAccounts();
