@@ -99,14 +99,17 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
    *
    * This generic implementation establishes the account ID/address mapping
    * using the configured {@link KeyringAddressResolver} and exposes each
-   * address as an `eip155:eoa` account with the `eip155:1` (Ethereum mainnet)
-   * scope. Concrete adapters may override this method if they need to provide
-   * different account types, scopes, or options.
+   * address as a KeyringAccount, with type defaulting to 'eip155:eoa' and
+   * scopes derived from the keyring capabilities.
+   * Concrete adapters may override this method if they need to
+   * provide different account types, scopes, or options.
    *
    * @returns The list of managed accounts.
    */
   async getAccounts(): Promise<KeyringAccount[]> {
     const addresses = await this.inner.getAccounts();
+
+    const scopes = this.capabilities.scopes ?? ['eip155:1'];
 
     return addresses.map((address) => {
       const id = this.resolver.register(address);
@@ -115,7 +118,7 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
         id,
         type: 'eip155:eoa',
         address,
-        scopes: ['eip155:1'],
+        scopes,
         options: {},
         methods: [],
       };

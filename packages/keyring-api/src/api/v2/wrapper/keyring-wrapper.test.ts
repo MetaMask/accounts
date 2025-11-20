@@ -59,7 +59,7 @@ class TestKeyring implements Keyring {
 }
 
 const capabilities: KeyringCapabilities = {
-  scopes: ['eip155:1'],
+  scopes: ['eip155:10'],
 };
 
 describe('KeyringWrapper', () => {
@@ -95,7 +95,7 @@ describe('KeyringWrapper', () => {
     accounts.forEach((account: KeyringAccount, index) => {
       expect(account.address).toBe(addresses[index]);
       expect(account.type).toBe('eip155:eoa');
-      expect(account.scopes).toStrictEqual(['eip155:1']);
+      expect(account.scopes).toStrictEqual(capabilities.scopes);
       expect(account.options).toStrictEqual({});
       expect(account.methods).toStrictEqual([]);
 
@@ -159,5 +159,21 @@ describe('KeyringWrapper', () => {
     await expect(inconsistentWrapper.getAccount(accountId)).rejects.toThrow(
       'Account not found for id',
     );
+  });
+
+  it('falls back to mainnet scope when capabilities.scopes is not set', async () => {
+    const addresses = ['0x1' as const];
+    const inner = new TestKeyring(addresses);
+    const wrapper = new TestKeyringWrapper({
+      inner,
+      type: KeyringType.Hd,
+      // Explicitly omit scopes to exercise the default fallback.
+      capabilities: {} as KeyringCapabilities,
+    });
+
+    const accounts = await wrapper.getAccounts();
+
+    expect(accounts).toHaveLength(1);
+    expect(accounts[0]?.scopes).toStrictEqual(['eip155:1']);
   });
 });
