@@ -9,8 +9,8 @@ describe('InMemoryKeyringAddressResolver', () => {
 
     expect(typeof id).toBe('string');
 
-      const resolvedAddress = resolver.getAddress(id);
-      expect(resolvedAddress).toBe(address);
+    const resolvedAddress = resolver.getAddress(id);
+    expect(resolvedAddress).toBe(address);
 
     const resolvedId = resolver.getAccountId(address);
     expect(resolvedId).toBe(id);
