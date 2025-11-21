@@ -9,6 +9,25 @@ import type { KeyringCapabilities } from '../keyring-capabilities';
 import { KeyringType } from '../keyring-type';
 
 class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
+  async getAccounts(): Promise<KeyringAccount[]> {
+    const addresses = await this.inner.getAccounts();
+    const scopes = this.capabilities.scopes ?? ['eip155:1'];
+
+    return addresses.map((address) => {
+      const id = this.resolver.register(address);
+
+      const account: KeyringAccount = {
+        id,
+        type: 'eip155:eoa',
+        address,
+        scopes,
+        options: {},
+        methods: [],
+      };
+
+      return account;
+    });
+  }
   public deletedAccountIds: AccountId[] = [];
 
   async createAccounts(): Promise<KeyringAccount[]> {
