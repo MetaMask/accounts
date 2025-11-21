@@ -9,8 +9,8 @@ describe('InMemoryKeyringAddressResolver', () => {
 
     expect(typeof id).toBe('string');
 
-    const resolvedAddress = resolver.getAddress(id);
-    expect(resolvedAddress).toBe(address.toLowerCase());
+      const resolvedAddress = resolver.getAddress(id);
+      expect(resolvedAddress).toBe(address);
 
     const resolvedId = resolver.getAccountId(address);
     expect(resolvedId).toBe(id);
@@ -21,7 +21,7 @@ describe('InMemoryKeyringAddressResolver', () => {
 
     const address = '0xaBc';
     const firstId = resolver.register(address);
-    const secondId = resolver.register(address.toUpperCase());
+    const secondId = resolver.register(address);
 
     expect(firstId).toBe(secondId);
   });

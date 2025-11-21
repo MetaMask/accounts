@@ -36,19 +36,18 @@ export class InMemoryKeyringAddressResolver implements KeyringAddressResolver {
   }
 
   getAccountId(address: string): AccountId | undefined {
-    return this.#idByAddress.get(address.toLowerCase());
+    return this.#idByAddress.get(address);
   }
 
   register(address: string): AccountId {
-    const normalized = address.toLowerCase();
-    const existing = this.#idByAddress.get(normalized);
+    const existing = this.#idByAddress.get(address);
     if (existing) {
       return existing;
     }
     const id = uuidv4();
 
-    this.#idByAddress.set(normalized, id);
-    this.#addressById.set(id, normalized);
+    this.#idByAddress.set(address, id);
+    this.#addressById.set(id, address);
 
     return id;
   }
