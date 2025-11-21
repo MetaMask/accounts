@@ -36,6 +36,11 @@ export type KeyringWrapperOptions<TInnerKeyring extends Keyring> = {
   capabilities: KeyringCapabilities;
 
   /**
+   * Identifier for the entropy source associated with this keyring.
+   */
+  entropySourceId: string;
+
+  /**
    * Resolver used to map between AccountId and underlying addresses. If not
    * provided, an in-memory resolver will be used.
    */
@@ -63,11 +68,14 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
 
   protected readonly resolver: KeyringAddressResolver;
 
+  protected readonly entropySourceId: string;
+
   constructor(options: KeyringWrapperOptions<TInnerKeyring>) {
     this.inner = options.inner;
     this.type = `${options.type}`;
     this.capabilities = options.capabilities;
     this.resolver = options.resolver ?? new InMemoryKeyringAddressResolver();
+    this.entropySourceId = options.entropySourceId;
   }
 
   /**
