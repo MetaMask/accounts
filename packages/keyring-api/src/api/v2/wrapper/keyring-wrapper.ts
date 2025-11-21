@@ -174,11 +174,11 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
    * Export the secrets associated with the given account in a format
    * described by {@link ExportAccountOptions}.
    *
-   * Implementations should enforce the capabilities of the underlying
-   * keyring (for example whether private-key export is allowed) and wrap
-   * the result into an {@link ExportedAccount} structure.
+   * This method is optional, and concrete adapters should only
+   * implement it if the underlying keyring supports exporting
+   * accounts.
    */
-  abstract exportAccount(
+  exportAccount?(
     accountId: AccountId,
     options?: ExportAccountOptions,
   ): Promise<ExportedAccount>;

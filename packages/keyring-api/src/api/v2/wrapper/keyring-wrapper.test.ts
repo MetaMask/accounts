@@ -19,10 +19,6 @@ class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
     this.deletedAccountIds.push(accountId);
   }
 
-  async exportAccount(): Promise<any> {
-    return {};
-  }
-
   async submitRequest(): Promise<any> {
     return {};
   }
