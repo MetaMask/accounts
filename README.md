@@ -56,6 +56,7 @@ linkStyle default opacity:0.5
   eth_hd_keyring --> keyring_utils;
   eth_ledger_bridge_keyring --> keyring_utils;
   eth_qr_keyring --> keyring_utils;
+  eth_simple_keyring --> keyring_api;
   eth_simple_keyring --> keyring_utils;
   eth_trezor_keyring --> keyring_utils;
   keyring_internal_api --> keyring_api;
