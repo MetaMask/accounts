@@ -1,3 +1,4 @@
+import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
 import {
   EthAccountType,
   EthMethod,
@@ -530,10 +531,24 @@ describe('HdKeyringV2', () => {
 
     describe('eth_signTransaction', () => {
       it('signs a transaction', async () => {
-        // Note: Transaction signing requires a proper transaction object
-        // This test is skipped because it requires @ethereumjs/tx setup
-        // In real usage, the transaction would be properly formatted
-        expect(true).toBe(true);
+        const txParams: TypedTxData = {
+          nonce: '0x00',
+          gasPrice: '0x09184e72a000',
+          gasLimit: '0x2710',
+          to: '0x0000000000000000000000000000000000000001',
+          value: '0x1000',
+        };
+        const tx = TransactionFactory.fromTxData(txParams);
+
+        const request = createMockRequest(
+          accountId,
+          EthMethod.SignTransaction,
+          [tx as unknown as Json],
+        );
+
+        const result = await wrapper.submitRequest(request);
+        expect(result).toBeDefined();
+        expect(typeof result).toBe('object');
       });
 
       it('throws error for missing params', async () => {
