@@ -1,14 +1,12 @@
-import type { AccountId } from '@metamask/keyring-utils';
-import type { Json, Hex } from '@metamask/utils';
 import type { TypedTransaction } from '@ethereumjs/tx';
-import {
-  type EthEncryptedData,
-  type EIP7702Authorization,
-  type MessageTypes,
-  SignTypedDataVersion,
-  type TypedDataV1,
-  type TypedMessage,
+import type {
+  EIP7702Authorization,
+  EthEncryptedData,
+  MessageTypes,
+  TypedDataV1,
+  TypedMessage,
 } from '@metamask/eth-sig-util';
+import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
   type CreateAccountOptions,
   EthAccountType,
@@ -17,15 +15,17 @@ import {
   type ExportAccountOptions,
   type ExportedAccount,
   type KeyringAccount,
-  KeyringCapabilities,
+  type KeyringCapabilities,
   type KeyringRequest,
   KeyringType,
   type KeyringV2,
   KeyringWrapper,
   PrivateKeyEncoding,
 } from '@metamask/keyring-api';
+import type { AccountId } from '@metamask/keyring-utils';
+import type { Hex, Json } from '@metamask/utils';
 
-import type { HdKeyring } from './hd-keyring';
+import type { DeserializableHDKeyringState, HdKeyring } from './hd-keyring';
 
 /**
  * Additional Ethereum methods supported by HD keyring that are not in the standard EthMethod enum.
@@ -158,7 +158,9 @@ export class HdKeyringV2
     this.#accountsCache.clear();
 
     // Deserialize the legacy keyring
-    await this.inner.deserialize(state as any);
+    await this.inner.deserialize(
+      state as Partial<DeserializableHDKeyringState>,
+    );
 
     // Rebuild the cache by populating it with all accounts
     // We call getAccounts() which will repopulate the cache as a side effect
@@ -296,7 +298,7 @@ export class HdKeyringV2
     }
 
     switch (method) {
-      case EthMethod.SignTransaction: {
+      case `${EthMethod.SignTransaction}`: {
         if (params.length < 1) {
           throw new Error('Invalid params for eth_signTransaction');
         }
@@ -307,7 +309,7 @@ export class HdKeyringV2
         ) as unknown as Json;
       }
 
-      case EthMethod.Sign: {
+      case `${EthMethod.Sign}`: {
         if (params.length < 2) {
           throw new Error('Invalid params for eth_sign');
         }
@@ -315,7 +317,7 @@ export class HdKeyringV2
         return this.inner.signMessage(hexAddress, data as string);
       }
 
-      case EthMethod.PersonalSign: {
+      case `${EthMethod.PersonalSign}`: {
         if (params.length < 1) {
           throw new Error('Invalid params for personal_sign');
         }
@@ -323,19 +325,21 @@ export class HdKeyringV2
         return this.inner.signPersonalMessage(hexAddress, data as string);
       }
 
-      case EthMethod.SignTypedDataV1:
-      case EthMethod.SignTypedDataV3:
-      case EthMethod.SignTypedDataV4: {
+      case `${EthMethod.SignTypedDataV1}`:
+      case `${EthMethod.SignTypedDataV3}`:
+      case `${EthMethod.SignTypedDataV4}`: {
         if (params.length < 2) {
           throw new Error(`Invalid params for ${method}`);
         }
         const [, data] = params;
-        const version =
-          method === EthMethod.SignTypedDataV4
-            ? SignTypedDataVersion.V4
-            : method === EthMethod.SignTypedDataV3
-            ? SignTypedDataVersion.V3
-            : SignTypedDataVersion.V1;
+        let version: SignTypedDataVersion;
+        if (method === EthMethod.SignTypedDataV4) {
+          version = SignTypedDataVersion.V4;
+        } else if (method === EthMethod.SignTypedDataV3) {
+          version = SignTypedDataVersion.V3;
+        } else {
+          version = SignTypedDataVersion.V1;
+        }
 
         return this.inner.signTypedData(
           hexAddress,
@@ -346,7 +350,7 @@ export class HdKeyringV2
         );
       }
 
-      case HdKeyringEthMethod.Decrypt: {
+      case `${HdKeyringEthMethod.Decrypt}`: {
         if (params.length < 1) {
           throw new Error('Invalid params for eth_decrypt');
         }
@@ -357,11 +361,11 @@ export class HdKeyringV2
         );
       }
 
-      case HdKeyringEthMethod.GetEncryptionPublicKey: {
+      case `${HdKeyringEthMethod.GetEncryptionPublicKey}`: {
         return this.inner.getEncryptionPublicKey(hexAddress);
       }
 
-      case HdKeyringEthMethod.GetAppKeyAddress: {
+      case `${HdKeyringEthMethod.GetAppKeyAddress}`: {
         if (params.length < 1) {
           throw new Error('Invalid params for eth_getAppKeyAddress');
         }
@@ -369,7 +373,7 @@ export class HdKeyringV2
         return this.inner.getAppKeyAddress(hexAddress, origin as string);
       }
 
-      case HdKeyringEthMethod.SignEip7702Authorization: {
+      case `${HdKeyringEthMethod.SignEip7702Authorization}`: {
         if (params.length < 1) {
           throw new Error('Invalid params for eth_signEip7702Authorization');
         }

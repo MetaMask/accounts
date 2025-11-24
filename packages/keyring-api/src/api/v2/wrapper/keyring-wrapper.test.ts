@@ -77,6 +77,8 @@ const capabilities: KeyringCapabilities = {
   scopes: ['eip155:10'],
 };
 
+const entropySourceId = 'test-entropy-source';
+
 describe('KeyringWrapper', () => {
   it('serializes and deserializes via the inner keyring', async () => {
     const inner = new TestKeyring(['0x1']);
@@ -84,6 +86,7 @@ describe('KeyringWrapper', () => {
       inner,
       type: KeyringType.Hd,
       capabilities,
+      entropySourceId,
     });
 
     const state = await wrapper.serialize();
@@ -100,6 +103,7 @@ describe('KeyringWrapper', () => {
       inner,
       type: KeyringType.Hd,
       capabilities,
+      entropySourceId,
     });
 
     const accounts = await wrapper.getAccounts();
@@ -136,6 +140,7 @@ describe('KeyringWrapper', () => {
       inner,
       type: KeyringType.Hd,
       capabilities,
+      entropySourceId,
     });
 
     await expect(wrapper.getAccount(uuidv4())).rejects.toThrow(
@@ -152,6 +157,7 @@ describe('KeyringWrapper', () => {
       type: KeyringType.Hd,
       capabilities,
       resolver,
+      entropySourceId,
     });
 
     // Prime the resolver by calling getAccounts once
@@ -165,6 +171,7 @@ describe('KeyringWrapper', () => {
       type: KeyringType.Hd,
       capabilities,
       resolver,
+      entropySourceId,
     });
 
     const accountId = resolver.getAccountId(
@@ -182,6 +189,7 @@ describe('KeyringWrapper', () => {
     const wrapper = new TestKeyringWrapper({
       inner,
       type: KeyringType.Hd,
+      entropySourceId,
       // Explicitly omit scopes to exercise the default fallback.
       capabilities: {} as KeyringCapabilities,
     });

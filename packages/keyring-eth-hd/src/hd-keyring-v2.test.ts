@@ -1,6 +1,3 @@
-import { HdKeyring } from './hd-keyring';
-import { HdKeyringV2 } from './hd-keyring-v2';
-import type { AccountId } from '@metamask/keyring-utils';
 import {
   EthAccountType,
   EthMethod,
@@ -9,6 +6,11 @@ import {
   KeyringType,
   PrivateKeyEncoding,
 } from '@metamask/keyring-api';
+import type { AccountId } from '@metamask/keyring-utils';
+import type { Json } from '@metamask/utils';
+
+import { HdKeyring } from './hd-keyring';
+import { HdKeyringV2 } from './hd-keyring-v2';
 
 const TEST_MNEMONIC =
   'test test test test test test test test test test test junk';
@@ -16,11 +18,16 @@ const TEST_ENTROPY_SOURCE_ID = 'test-entropy-source-id';
 
 /**
  * Helper function to create a minimal KeyringRequest for testing.
+ *
+ * @param accountId - The account ID to use in the request.
+ * @param method - The method name for the request.
+ * @param params - Optional array of parameters for the request.
+ * @returns A KeyringRequest object for testing.
  */
 function createMockRequest(
   accountId: AccountId,
   method: string,
-  params: any[] = [],
+  params: Json[] = [],
 ): KeyringRequest {
   return {
     id: '00000000-0000-0000-0000-000000000000',
@@ -55,7 +62,7 @@ describe('HdKeyringV2', () => {
   describe('constructor', () => {
     it('creates a wrapper with correct type and capabilities', () => {
       expect(wrapper.type).toBe(KeyringType.Hd);
-      expect(wrapper.capabilities.scopes).toEqual([EthScope.Eoa]);
+      expect(wrapper.capabilities.scopes).toStrictEqual([EthScope.Eoa]);
       expect(wrapper.capabilities.bip44?.deriveIndex).toBe(true);
       expect(wrapper.capabilities.bip44?.derivePath).toBe(false);
       expect(wrapper.capabilities.bip44?.discover).toBe(false);
@@ -75,24 +82,38 @@ describe('HdKeyringV2', () => {
 
     it('creates KeyringAccount objects with correct structure', async () => {
       const accounts = await wrapper.getAccounts();
-      const account = accounts[0]!;
 
-      expect(account.id).toBeDefined();
-      expect(account.address).toMatch(/^0x[0-9a-fA-F]{40}$/u);
-      expect(account.type).toBe(EthAccountType.Eoa);
-      expect(account.scopes).toEqual([EthScope.Eoa]);
-      expect(account.methods).toContain(EthMethod.PersonalSign);
-      expect(account.methods).toContain(EthMethod.SignTransaction);
-      expect(account.methods).toContain('eth_decrypt');
-      expect(account.options?.entropy?.type).toBe('mnemonic');
+      expect(accounts.length).toBeGreaterThan(0);
+      const account = accounts[0];
+      expect(account).toBeDefined();
+      expect(account?.id).toBeDefined();
+      expect(account?.address).toMatch(/^0x[0-9a-fA-F]{40}$/u);
+      expect(account?.type).toBe(EthAccountType.Eoa);
+      expect(account?.scopes).toStrictEqual([EthScope.Eoa]);
+      expect(account?.methods).toContain(EthMethod.PersonalSign);
+      expect(account?.methods).toContain(EthMethod.SignTransaction);
+      expect(account?.methods).toContain('eth_decrypt');
+      expect(account?.options?.entropy?.type).toBe('mnemonic');
 
-      // Type guard to check mnemonic entropy
-      const entropy = account.options?.entropy;
-      if (entropy && 'id' in entropy) {
-        expect(entropy.id).toBe(TEST_ENTROPY_SOURCE_ID);
-        expect(entropy.groupIndex).toBe(0);
-        expect(entropy.derivationPath).toBe("m/44'/60'/0'/0/0");
-      }
+      // Verify mnemonic entropy properties
+      const entropy = account?.options?.entropy;
+      expect(entropy).toBeDefined();
+      expect('id' in (entropy ?? {})).toBe(true);
+      expect('groupIndex' in (entropy ?? {})).toBe(true);
+      expect('derivationPath' in (entropy ?? {})).toBe(true);
+
+      // Assert on specific values only after type narrowing
+      expect(entropy && 'id' in entropy ? entropy.id : undefined).toBe(
+        TEST_ENTROPY_SOURCE_ID,
+      );
+      expect(
+        entropy && 'groupIndex' in entropy ? entropy.groupIndex : undefined,
+      ).toBe(0);
+      expect(
+        entropy && 'derivationPath' in entropy
+          ? entropy.derivationPath
+          : undefined,
+      ).toBe("m/44'/60'/0'/0/0");
     });
 
     it('caches KeyringAccount objects', async () => {
@@ -108,12 +129,32 @@ describe('HdKeyringV2', () => {
       await inner.addAccounts(3);
       const accounts = await wrapper.getAccounts();
 
-      for (let i = 0; i < 5; i++) {
-        const entropy = accounts[i]!.options?.entropy;
-        if (entropy && 'groupIndex' in entropy) {
-          expect(entropy.groupIndex).toBe(i);
-        }
-      }
+      expect(accounts).toHaveLength(5);
+
+      const entropy0 = accounts[0]?.options?.entropy;
+      expect(
+        entropy0 && 'groupIndex' in entropy0 ? entropy0.groupIndex : undefined,
+      ).toBe(0);
+
+      const entropy1 = accounts[1]?.options?.entropy;
+      expect(
+        entropy1 && 'groupIndex' in entropy1 ? entropy1.groupIndex : undefined,
+      ).toBe(1);
+
+      const entropy2 = accounts[2]?.options?.entropy;
+      expect(
+        entropy2 && 'groupIndex' in entropy2 ? entropy2.groupIndex : undefined,
+      ).toBe(2);
+
+      const entropy3 = accounts[3]?.options?.entropy;
+      expect(
+        entropy3 && 'groupIndex' in entropy3 ? entropy3.groupIndex : undefined,
+      ).toBe(3);
+
+      const entropy4 = accounts[4]?.options?.entropy;
+      expect(
+        entropy4 && 'groupIndex' in entropy4 ? entropy4.groupIndex : undefined,
+      ).toBe(4);
     });
   });
 
@@ -141,18 +182,18 @@ describe('HdKeyringV2', () => {
 
       // Create a new inner keyring for re-deserialization
       const newInner = new HdKeyring();
-      wrapper = new HdKeyringV2({
+      const newWrapper = new HdKeyringV2({
         legacyKeyring: newInner,
         entropySourceId: TEST_ENTROPY_SOURCE_ID,
       });
 
-      await wrapper.deserialize({
+      await newWrapper.deserialize({
         mnemonic: Array.from(Buffer.from(TEST_MNEMONIC, 'utf8')),
         numberOfAccounts: 1,
         hdPath: "m/44'/60'/0'/0",
       });
 
-      const accounts2 = await wrapper.getAccounts();
+      const accounts2 = await newWrapper.getAccounts();
       expect(accounts2).toHaveLength(1);
       // Should be a different instance after deserialize
       expect(accounts2[0]).not.toBe(accounts1[0]);
@@ -169,10 +210,11 @@ describe('HdKeyringV2', () => {
 
       expect(created).toHaveLength(1);
 
-      const entropy = created[0]!.options?.entropy;
-      if (entropy && 'groupIndex' in entropy) {
-        expect(entropy.groupIndex).toBe(0);
-      }
+      const account = created[0];
+      const entropy = account?.options?.entropy;
+      expect(
+        entropy && 'groupIndex' in entropy ? entropy.groupIndex : undefined,
+      ).toBe(0);
 
       const allAccounts = await wrapper.getAccounts();
       expect(allAccounts).toHaveLength(1);
@@ -187,10 +229,11 @@ describe('HdKeyringV2', () => {
 
       expect(created).toHaveLength(1);
 
-      const entropy = created[0]!.options?.entropy;
-      if (entropy && 'groupIndex' in entropy) {
-        expect(entropy.groupIndex).toBe(3);
-      }
+      const account = created[0];
+      const entropy = account?.options?.entropy;
+      expect(
+        entropy && 'groupIndex' in entropy ? entropy.groupIndex : undefined,
+      ).toBe(3);
 
       // Should have created intermediate accounts 0, 1, 2, 3
       const allAccounts = await wrapper.getAccounts();
@@ -207,12 +250,20 @@ describe('HdKeyringV2', () => {
       const allAccounts = await wrapper.getAccounts();
       expect(allAccounts).toHaveLength(3);
 
-      for (let i = 0; i < 3; i++) {
-        const entropy = allAccounts[i]!.options?.entropy;
-        if (entropy && 'groupIndex' in entropy) {
-          expect(entropy.groupIndex).toBe(i);
-        }
-      }
+      const entropy0 = allAccounts[0]?.options?.entropy;
+      expect(
+        entropy0 && 'groupIndex' in entropy0 ? entropy0.groupIndex : undefined,
+      ).toBe(0);
+
+      const entropy1 = allAccounts[1]?.options?.entropy;
+      expect(
+        entropy1 && 'groupIndex' in entropy1 ? entropy1.groupIndex : undefined,
+      ).toBe(1);
+
+      const entropy2 = allAccounts[2]?.options?.entropy;
+      expect(
+        entropy2 && 'groupIndex' in entropy2 ? entropy2.groupIndex : undefined,
+      ).toBe(2);
     });
 
     it('returns existing account if groupIndex already exists', async () => {
@@ -298,10 +349,11 @@ describe('HdKeyringV2', () => {
 
       expect(created).toHaveLength(1);
 
-      const entropy = created[0]!.options?.entropy;
-      if (entropy && 'groupIndex' in entropy) {
-        expect(entropy.groupIndex).toBe(3);
-      }
+      const account = created[0];
+      const entropy = account?.options?.entropy;
+      expect(
+        entropy && 'groupIndex' in entropy ? entropy.groupIndex : undefined,
+      ).toBe(3);
 
       // Should have 4 accounts total (0, 1, 2, 3)
       const allAccounts = await wrapper.getAccounts();
@@ -320,30 +372,45 @@ describe('HdKeyringV2', () => {
 
     it('removes an account from the keyring', async () => {
       const accounts = await wrapper.getAccounts();
-      const toDelete = accounts[0]!;
+      expect(accounts.length).toBeGreaterThan(0);
+      const toDelete = accounts[0];
+      expect(toDelete).toBeDefined();
+      expect(toDelete?.id).toBeDefined();
 
-      await wrapper.deleteAccount(toDelete.id as AccountId);
+      if (toDelete?.id) {
+        await wrapper.deleteAccount(toDelete.id);
+      }
 
       const remaining = await wrapper.getAccounts();
       expect(remaining).toHaveLength(2);
-      expect(remaining.find((a) => a.id === toDelete.id)).toBeUndefined();
+      expect(remaining.find((a) => a.id === toDelete?.id)).toBeUndefined();
     });
 
     it('removes the account from the cache', async () => {
       const accounts = await wrapper.getAccounts();
-      const toDelete = accounts[1]!;
+      expect(accounts.length).toBeGreaterThanOrEqual(2);
+      const toDelete = accounts[1];
+      expect(toDelete).toBeDefined();
+      expect(toDelete?.id).toBeDefined();
 
-      await wrapper.deleteAccount(toDelete.id as AccountId);
+      if (toDelete?.id) {
+        await wrapper.deleteAccount(toDelete.id);
+      }
 
       const remaining = await wrapper.getAccounts();
-      expect(remaining.find((a) => a.id === toDelete.id)).toBeUndefined();
+      expect(remaining.find((a) => a.id === toDelete?.id)).toBeUndefined();
     });
 
     it('handles deleting middle account', async () => {
       const accounts = await wrapper.getAccounts();
-      const middleAccount = accounts[1]!;
+      expect(accounts.length).toBeGreaterThanOrEqual(2);
+      const middleAccount = accounts[1];
+      expect(middleAccount).toBeDefined();
+      expect(middleAccount?.id).toBeDefined();
 
-      await wrapper.deleteAccount(middleAccount.id as AccountId);
+      if (middleAccount?.id) {
+        await wrapper.deleteAccount(middleAccount.id);
+      }
 
       const remaining = await wrapper.getAccounts();
       expect(remaining).toHaveLength(2);
@@ -354,15 +421,27 @@ describe('HdKeyringV2', () => {
       expect(accounts).toHaveLength(3);
 
       // Remove an account directly via legacy keyring (simulating external modification)
-      const firstAddress = (await inner.getAccounts())[0]!;
-      inner.removeAccount(firstAddress);
+      const innerAccounts = await inner.getAccounts();
+      expect(innerAccounts.length).toBeGreaterThan(0);
+      const firstAddress = innerAccounts[0];
+      expect(firstAddress).toBeDefined();
+
+      // Type assertion safe here because we verified it exists
+      if (firstAddress) {
+        inner.removeAccount(firstAddress);
+      }
 
       // Now delete another account via wrapper
       // This should detect the external change and sync properly
       const remainingAccounts = await wrapper.getAccounts();
-      const toDelete = remainingAccounts[0]!;
+      expect(remainingAccounts.length).toBeGreaterThan(0);
+      const toDelete = remainingAccounts[0];
+      expect(toDelete).toBeDefined();
+      expect(toDelete?.id).toBeDefined();
 
-      await wrapper.deleteAccount(toDelete.id as AccountId);
+      if (toDelete?.id) {
+        await wrapper.deleteAccount(toDelete.id);
+      }
 
       const final = await wrapper.getAccounts();
       // Should have 1 account left (started with 3, removed 1 via legacy, removed 1 via wrapper)
@@ -381,9 +460,17 @@ describe('HdKeyringV2', () => {
 
     it('exports an account as private key in hexadecimal encoding', async () => {
       const accounts = await wrapper.getAccounts();
-      const account = accounts[0]!;
+      const account = accounts[0];
 
-      const exported = await wrapper.exportAccount(account.id as AccountId);
+      // Assert account exists using a type-safe approach
+      expect(account).toBeDefined();
+
+      // TypeScript knows account could be undefined, but we've asserted it exists
+      // Use a safe access pattern
+      const accountId = account?.id ?? '';
+      expect(accountId).not.toBe('');
+
+      const exported = await wrapper.exportAccount(accountId);
 
       expect(exported.type).toBe('private-key');
       expect(exported.privateKey).toMatch(/^0x[0-9a-fA-F]{64}$/u);
@@ -392,9 +479,14 @@ describe('HdKeyringV2', () => {
 
     it('accepts explicit hexadecimal encoding option', async () => {
       const accounts = await wrapper.getAccounts();
-      const account = accounts[0]!;
+      const account = accounts[0];
 
-      const exported = await wrapper.exportAccount(account.id as AccountId, {
+      expect(account).toBeDefined();
+
+      const accountId = account?.id ?? '';
+      expect(accountId).not.toBe('');
+
+      const exported = await wrapper.exportAccount(accountId, {
         type: 'private-key',
         encoding: PrivateKeyEncoding.Hexadecimal,
       });
@@ -405,10 +497,15 @@ describe('HdKeyringV2', () => {
 
     it('throws error for unsupported encoding', async () => {
       const accounts = await wrapper.getAccounts();
-      const account = accounts[0]!;
+      const account = accounts[0];
+
+      expect(account).toBeDefined();
+
+      const accountId = account?.id ?? '';
+      expect(accountId).not.toBe('');
 
       await expect(
-        wrapper.exportAccount(account.id as AccountId, {
+        wrapper.exportAccount(accountId, {
           type: 'private-key',
           encoding: 'base58',
         }),
@@ -425,7 +522,10 @@ describe('HdKeyringV2', () => {
         entropySource: TEST_ENTROPY_SOURCE_ID,
         groupIndex: 0,
       });
-      accountId = created[0]!.id as AccountId;
+
+      const account = created[0];
+      // Use a safe fallback that will cause tests to fail if account doesn't exist
+      accountId = account?.id ?? ('' as AccountId);
     });
 
     describe('eth_signTransaction', () => {
@@ -629,7 +729,7 @@ describe('HdKeyringV2', () => {
         const encryptedData = {
           version: 'x25519-xsalsa20-poly1305',
           nonce: 'test-nonce',
-          ephemPublicKey: pubKey as string,
+          ephemPublicKey: String(pubKey),
           ciphertext: 'test-ciphertext',
         };
 
@@ -637,8 +737,10 @@ describe('HdKeyringV2', () => {
           encryptedData,
         ]);
 
-        // This will fail with actual decryption but should validate params
-        await expect(wrapper.submitRequest(decryptRequest)).rejects.toThrow();
+        // This will fail with actual decryption due to invalid encrypted data
+        await expect(wrapper.submitRequest(decryptRequest)).rejects.toThrow(
+          'Invalid padding: string should have whole number of bytes',
+        );
       });
 
       it('throws error for missing params', async () => {
@@ -724,7 +826,7 @@ describe('HdKeyringV2', () => {
           origin: 'http://localhost',
           request: {
             method: EthMethod.PersonalSign,
-            params: 'invalid' as any,
+            params: 'invalid' as unknown as Json[],
           },
         };
 
