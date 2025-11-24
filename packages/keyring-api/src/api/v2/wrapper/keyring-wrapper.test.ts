@@ -28,6 +28,7 @@ class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
       return account;
     });
   }
+
   public deletedAccountIds: AccountId[] = [];
 
   async createAccounts(): Promise<KeyringAccount[]> {
