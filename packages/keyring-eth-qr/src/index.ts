@@ -17,3 +17,4 @@ export {
   type SerializedQrKeyringState,
   type SerializedUR,
 } from './qr-keyring';
+export { QrKeyringV2, type QrKeyringV2Options } from './qr-keyring-v2';

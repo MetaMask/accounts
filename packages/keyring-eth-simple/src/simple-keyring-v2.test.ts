@@ -3,6 +3,7 @@ import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
   EthMethod,
   EthScope,
+  KeyringAccountEntropyTypeOption,
   KeyringType,
   PrivateKeyEncoding,
   type ExportAccountOptions,
@@ -55,6 +56,15 @@ describe('SimpleKeyringV2', () => {
   it('constructs with expected type and capabilities', () => {
     expect(wrapper.type).toBe(KeyringType.PrivateKey);
     expect(wrapper.capabilities.scopes).toStrictEqual([EthScope.Eoa]);
+    expect(wrapper.capabilities.privateKey).toBeDefined();
+    expect(wrapper.capabilities.privateKey?.importFormats).toHaveLength(1);
+    expect(wrapper.capabilities.privateKey?.importFormats?.[0]).toEqual({
+      encoding: PrivateKeyEncoding.Hexadecimal,
+    });
+    expect(wrapper.capabilities.privateKey?.exportFormats).toHaveLength(1);
+    expect(wrapper.capabilities.privateKey?.exportFormats?.[0]).toEqual({
+      encoding: PrivateKeyEncoding.Hexadecimal,
+    });
   });
 
   it('deserializes via the inner keyring and rebuilds the cache', async () => {
@@ -79,6 +89,18 @@ describe('SimpleKeyringV2', () => {
       expect(a1).toHaveLength(2);
       expect(a1[0]).toBe(a2[0]);
       expect(a1[1]).toBe(a2[1]);
+    });
+
+    it('sets entropy options as private-key type', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(2);
+
+      for (const account of accounts) {
+        expect(account.options.entropy).toBeDefined();
+        expect(account.options.entropy?.type).toBe(
+          KeyringAccountEntropyTypeOption.PrivateKey,
+        );
+      }
     });
   });
 

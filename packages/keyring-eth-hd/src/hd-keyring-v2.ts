@@ -15,6 +15,7 @@ import {
   type ExportAccountOptions,
   type ExportedAccount,
   type KeyringAccount,
+  KeyringAccountEntropyTypeOption,
   type KeyringCapabilities,
   type KeyringRequest,
   KeyringType,
@@ -127,7 +128,7 @@ export class HdKeyringV2
           derivationPath: `${this.inner.hdPath}/${addressIndex}`,
           groupIndex: addressIndex,
           id: this.entropySourceId,
-          type: 'mnemonic',
+          type: KeyringAccountEntropyTypeOption.Mnemonic,
         },
       },
     };
