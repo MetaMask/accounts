@@ -58,11 +58,11 @@ describe('SimpleKeyringV2', () => {
     expect(wrapper.capabilities.scopes).toStrictEqual([EthScope.Eoa]);
     expect(wrapper.capabilities.privateKey).toBeDefined();
     expect(wrapper.capabilities.privateKey?.importFormats).toHaveLength(1);
-    expect(wrapper.capabilities.privateKey?.importFormats?.[0]).toEqual({
+    expect(wrapper.capabilities.privateKey?.importFormats?.[0]).toStrictEqual({
       encoding: PrivateKeyEncoding.Hexadecimal,
     });
     expect(wrapper.capabilities.privateKey?.exportFormats).toHaveLength(1);
-    expect(wrapper.capabilities.privateKey?.exportFormats?.[0]).toEqual({
+    expect(wrapper.capabilities.privateKey?.exportFormats?.[0]).toStrictEqual({
       encoding: PrivateKeyEncoding.Hexadecimal,
     });
   });
