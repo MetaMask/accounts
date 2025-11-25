@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [18.0.2]
 
-### Uncategorized
+### Fixed
 
-- fix: make SnapKeyring :accountCreated idempotent ([#399](https://github.com/MetaMask/accounts/pull/399))
+- Make `notify:accountCreated` event idempotent ([#399](https://github.com/MetaMask/accounts/pull/399))
 
 ## [18.0.1]
 
