@@ -49,6 +49,7 @@
     "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/keyring-api": "workspace:^",
     "@metamask/utils": "^11.1.0",
     "@trezor/connect-plugin-ethereum": "^9.0.5",
     "@trezor/connect-web": "^9.6.0",

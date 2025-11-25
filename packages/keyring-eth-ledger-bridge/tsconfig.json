@@ -5,7 +5,7 @@
     "exactOptionalPropertyTypes": false,
     "target": "es2017"
   },
-  "references": [{ "path": "../keyring-utils" }],
+  "references": [{ "path": "../keyring-utils" }, { "path": "../keyring-api" }],
   "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }
