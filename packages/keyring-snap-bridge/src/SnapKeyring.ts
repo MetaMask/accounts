@@ -329,6 +329,7 @@ export class SnapKeyring {
 
     // Potentially migrate the account.
     const account = transformAccount(newAccountFromEvent);
+    const address = normalizeAccountAddress(account);
 
     // The `AnyAccountType.Account` generic account type is allowed only during
     // development, so we check whether it's allowed before continuing.
@@ -339,10 +340,21 @@ export class SnapKeyring {
       throw new Error(`Cannot create generic account '${account.id}'`);
     }
 
+    // This is idempotent, so we need to check whether the account already exists
+    // and that the right Snap is trying to "create" it again.
+    const accountEntry = this.#accounts.get(snapId, account.id);
+    if (
+      accountEntry &&
+      normalizeAccountAddress(accountEntry.account) === address
+    ) {
+      // NOTE: We are not checking account object equality here. If a Snap
+      // re-send this event with different account data, we will ignore it.
+      return null;
+    }
+
     // The UI still uses the account address to identify accounts, so we need
     // to block the creation of duplicate accounts for now to prevent accounts
     // from being overwritten.
-    const address = normalizeAccountAddress(account);
     if (await this.#callbacks.addressExists(address)) {
       throw new Error(`Account address '${address}' already exists`);
     }

@@ -42,6 +42,7 @@ import type { HandleSnapRequest } from '@metamask/snaps-controllers';
 import { type SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 import { assert } from '@metamask/superstruct';
+import type { Json } from '@metamask/utils';
 import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
@@ -430,6 +431,38 @@ describe('SnapKeyring', () => {
         );
       });
 
+      it('is idempotent', async () => {
+        const account = {
+          ...newEthEoaAccount,
+          // Even checksummed address will be lower-cased by the bridge.
+          address: '0x6431726EEE67570BF6f0Cf892aE0a3988F03903F',
+        };
+
+        const createAccount = async (): Promise<Json> =>
+          await keyring.handleKeyringSnapMessage(snapId, {
+            method: KeyringEvent.AccountCreated,
+            params: {
+              account: {
+                ...(account as unknown as KeyringAccount),
+                id: '56189183-9b89-4ae6-90d9-99d167b28520',
+              },
+            },
+          });
+
+        // Initial creation which will call `addAccount`.
+        await createAccount();
+
+        // Another mock to check if `addAccount` is called again.
+        const mockAddAccount = jest.fn();
+        // NOTE: It's ok to change the implementation here because we should not call
+        // the `addAccount` callback again anyway.
+        mockCallbacks.addAccount.mockImplementation(() => mockAddAccount());
+
+        // Trying to create the same account again will not call `addAccount` (noop).
+        await createAccount();
+        expect(mockAddAccount).not.toHaveBeenCalled();
+      });
+
       it('cannot add an account that already exists (address)', async () => {
         mockCallbacks.addressExists.mockResolvedValue(true);
         await expect(
@@ -438,7 +471,9 @@ describe('SnapKeyring', () => {
             params: {
               account: {
                 ...(ethEoaAccount1 as unknown as KeyringAccount),
-                id: 'c6697bcf-5710-4751-a1cb-340e4b50617a',
+                // Use a non-registered ID but an existing address to avoid triggering
+                // idempotency logic.
+                id: '7d82d1ff-a070-4554-b4a6-2f0c937d058b',
               },
             },
           }),
