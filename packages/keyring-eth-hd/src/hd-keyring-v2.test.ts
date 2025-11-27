@@ -222,6 +222,23 @@ describe('HdKeyringV2', () => {
     });
 
     it('creates an account at a specific index', async () => {
+      // Create accounts sequentially
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 0,
+      });
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 1,
+      });
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 2,
+      });
+
       const created = await wrapper.createAccounts({
         type: 'bip44:derive-index',
         entropySource: TEST_ENTROPY_SOURCE_ID,
@@ -236,12 +253,23 @@ describe('HdKeyringV2', () => {
         entropy && 'groupIndex' in entropy ? entropy.groupIndex : undefined,
       ).toBe(3);
 
-      // Should have created intermediate accounts 0, 1, 2, 3
+      // Should have created accounts 0, 1, 2, 3
       const allAccounts = await wrapper.getAccounts();
       expect(allAccounts).toHaveLength(4);
     });
 
     it('caches intermediate accounts when creating at higher index', async () => {
+      // Create accounts sequentially
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 0,
+      });
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 1,
+      });
       await wrapper.createAccounts({
         type: 'bip44:derive-index',
         entropySource: TEST_ENTROPY_SOURCE_ID,
@@ -360,10 +388,59 @@ describe('HdKeyringV2', () => {
       const allAccounts = await wrapper.getAccounts();
       expect(allAccounts).toHaveLength(4);
     });
+
+    it('caches intermediate accounts when wrapper creates after inner adds multiple', async () => {
+      // Add multiple accounts directly via inner keyring (e.g., 0, 1, 2)
+      await inner.addAccounts(3);
+
+      // Now create account at index 3 via wrapper
+      // The wrapper should cache all the intermediate accounts (0, 1, 2) that were added by inner
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 3,
+      });
+
+      const allAccounts = await wrapper.getAccounts();
+      expect(allAccounts).toHaveLength(4);
+
+      // Verify all accounts are cached with correct groupIndex
+      const groupIndices = allAccounts
+        .map((a) => {
+          const ent = a.options.entropy;
+          return ent && 'groupIndex' in ent ? ent.groupIndex : -1;
+        })
+        .sort((a, b) => a - b);
+
+      expect(groupIndices).toStrictEqual([0, 1, 2, 3]);
+
+      // Verify the accounts at indices 0, 1, 2 are in the cache
+      for (let i = 0; i < 3; i++) {
+        const account = allAccounts[i];
+        expect(account).toBeDefined();
+        if (account) {
+          // Access the account again to verify it's cached
+          const cachedAccount = await wrapper.getAccount(account.id);
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(cachedAccount).toBe(account);
+        }
+      }
+    });
   });
 
   describe('deleteAccount', () => {
     beforeEach(async () => {
+      // Create accounts sequentially at indices 0, 1, 2
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 0,
+      });
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 1,
+      });
       await wrapper.createAccounts({
         type: 'bip44:derive-index',
         entropySource: TEST_ENTROPY_SOURCE_ID,
@@ -502,6 +579,61 @@ describe('HdKeyringV2', () => {
       expect(result[0]?.address).toBe(account2?.address);
 
       // Should still have 2 accounts total
+      const final = await wrapper.getAccounts();
+      expect(final).toHaveLength(2);
+    });
+
+    it('rejects creating account at non-sequential groupIndex after deletion', async () => {
+      // Create accounts at indices 0, 1, 2
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      const account1 = accounts.find(
+        (a) =>
+          a.options.entropy &&
+          'groupIndex' in a.options.entropy &&
+          a.options.entropy.groupIndex === 1,
+      );
+
+      expect(account1).toBeDefined();
+
+      // Delete account at groupIndex 1
+      if (account1?.id) {
+        await wrapper.deleteAccount(account1.id);
+      }
+
+      // After deletion, we have accounts with groupIndex 0 and 2 (inner size is 2)
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(2);
+
+      // Now try to create an account at groupIndex 3 (higher than inner size of 2)
+      // This should fail because the inner keyring only supports sequential creation at index 2
+      await expect(
+        wrapper.createAccounts({
+          type: 'bip44:derive-index',
+          entropySource: TEST_ENTROPY_SOURCE_ID,
+          groupIndex: 3,
+        }),
+      ).rejects.toThrow(
+        'Cannot create account at group index 3: inner keyring only supports sequential creation at index 2',
+      );
+
+      // Verify we can still create at the next sequential index (2)
+      // But this already exists, so it should return the existing account
+      const result = await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 2,
+      });
+
+      expect(result).toHaveLength(1);
+      const newAccount = result[0];
+      const entropy = newAccount?.options.entropy;
+      expect(
+        entropy && 'groupIndex' in entropy ? entropy.groupIndex : undefined,
+      ).toBe(2);
+
+      // Should still have 2 accounts total (the account at index 2 already existed)
       const final = await wrapper.getAccounts();
       expect(final).toHaveLength(2);
     });

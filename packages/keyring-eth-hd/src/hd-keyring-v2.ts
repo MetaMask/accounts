@@ -205,6 +205,21 @@ export class HdKeyringV2
       return [existingAccount];
     }
 
+    // The inner HD keyring only supports sequential account creation starting from
+    // walletMap.size. It does NOT support creating accounts at arbitrary derivation
+    // indices. After account deletion, those derivation indices are permanently lost.
+    //
+    // We enforce this limitation: reject requests for groupIndex values that would
+    // require the inner keyring to skip indices (i.e., when there are gaps from deletions).
+    const innerSize = (await this.inner.getAccounts()).length;
+    if (targetIndex !== innerSize) {
+      throw new Error(
+        `Cannot create account at group index ${targetIndex}: ` +
+          `inner keyring only supports sequential creation at index ${innerSize}. ` +
+          `Account deletion creates permanent gaps in the derivation index sequence.`,
+      );
+    }
+
     // Calculate how many accounts we need to add to reach the target index
     const accountsToAdd = targetIndex - currentCount + 1;
 
@@ -222,16 +237,6 @@ export class HdKeyringV2
 
     // Create and cache the KeyringAccount for the target address
     const newAccount = this.#createKeyringAccount(targetAddress, targetIndex);
-
-    // Also create and cache any intermediate accounts that were added
-    if (accountsToAdd > 1) {
-      for (let i = currentCount; i < targetIndex; i++) {
-        const address = updatedAddresses[i];
-        if (address && !this.#accountsCache.has(address)) {
-          this.#createKeyringAccount(address, i);
-        }
-      }
-    }
 
     return [newAccount];
   }
