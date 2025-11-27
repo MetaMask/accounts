@@ -22,8 +22,8 @@ export const TrxAddressStruct = definePattern(
  * Supported TRON methods.
  */
 export enum TrxMethod {
-  SignMessageV2 = 'signMessageV2',
-  VerifyMessageV2 = 'verifyMessageV2',
+  SignMessage = 'signMessage',
+  SignTransaction = 'signTransaction',
 }
 
 export const TrxEoaAccountStruct = object({
