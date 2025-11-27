@@ -191,14 +191,17 @@ export class HdKeyringV2
     const currentCount = currentAccounts.length;
     const targetIndex = options.groupIndex;
 
-    // If the requested groupIndex is less than current count, the account already exists
-    if (targetIndex < currentCount) {
-      const existingAccount = currentAccounts[targetIndex];
+    // Check if an account with this groupIndex already exists
+    // We need to search by groupIndex value, not array position, because after
+    // account deletion the array indices don't match the groupIndex values
+    const existingAccount = currentAccounts.find(
+      (account) =>
+        account.options.entropy &&
+        'groupIndex' in account.options.entropy &&
+        account.options.entropy.groupIndex === targetIndex,
+    );
 
-      if (!existingAccount) {
-        throw new Error(`No address found at index ${targetIndex}`);
-      }
-
+    if (existingAccount) {
       return [existingAccount];
     }
 

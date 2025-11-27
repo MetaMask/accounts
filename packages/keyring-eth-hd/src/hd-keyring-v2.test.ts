@@ -448,6 +448,63 @@ describe('HdKeyringV2', () => {
       // Should have 1 account left (started with 3, removed 1 via legacy, removed 1 via wrapper)
       expect(final).toHaveLength(1);
     });
+
+    it('returns correct account by groupIndex after deletion', async () => {
+      // Create accounts at indices 0, 1, 2
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      const account0 = accounts.find(
+        (a) =>
+          a.options.entropy &&
+          'groupIndex' in a.options.entropy &&
+          a.options.entropy.groupIndex === 0,
+      );
+      const account1 = accounts.find(
+        (a) =>
+          a.options.entropy &&
+          'groupIndex' in a.options.entropy &&
+          a.options.entropy.groupIndex === 1,
+      );
+      const account2 = accounts.find(
+        (a) =>
+          a.options.entropy &&
+          'groupIndex' in a.options.entropy &&
+          a.options.entropy.groupIndex === 2,
+      );
+
+      expect(account0).toBeDefined();
+      expect(account1).toBeDefined();
+      expect(account2).toBeDefined();
+
+      // Delete account at groupIndex 1
+      if (account1?.id) {
+        await wrapper.deleteAccount(account1.id);
+      }
+
+      // After deletion, we should have accounts with groupIndex 0 and 2
+      // but they'll be at array positions 0 and 1
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(2);
+
+      // Now try to create an account at groupIndex 1 again
+      // This should return the EXISTING account at groupIndex 2, NOT create a new one
+      // The bug was that it would use array position [1] which is the account with groupIndex 2
+      const result = await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 2,
+      });
+
+      // Should return the existing account with groupIndex 2
+      expect(result).toHaveLength(1);
+      expect(result[0]?.id).toBe(account2?.id);
+      expect(result[0]?.address).toBe(account2?.address);
+
+      // Should still have 2 accounts total
+      const final = await wrapper.getAccounts();
+      expect(final).toHaveLength(2);
+    });
   });
 
   describe('exportAccount', () => {

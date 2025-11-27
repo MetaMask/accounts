@@ -9,6 +9,7 @@ import {
   EthAccountType,
   EthMethod,
   EthScope,
+  type CreateAccountOptions,
   type ExportAccountOptions,
   type ExportedAccount,
   type KeyringAccount,
@@ -109,7 +110,41 @@ export class SimpleKeyringV2
     await this.getAccounts();
   }
 
-  async createAccounts(): Promise<KeyringAccount[]> {
+  async createAccounts(
+    options?: CreateAccountOptions,
+  ): Promise<KeyringAccount[]> {
+    // Handle private key import
+    if (options?.type === 'private-key:import') {
+      const { privateKey, encoding } = options;
+
+      // Validate encoding
+      if (encoding !== PrivateKeyEncoding.Hexadecimal) {
+        throw new Error(
+          `Unsupported encoding for Simple keyring: ${encoding}. Only '${PrivateKeyEncoding.Hexadecimal}' is supported.`,
+        );
+      }
+
+      // Get current accounts to preserve them
+      const currentAccounts = await this.inner.serialize();
+
+      // Import the new private key by deserializing with all accounts
+      await this.inner.deserialize([...currentAccounts, privateKey]);
+
+      // Get the newly added account (last one)
+      const addresses = await this.inner.getAccounts();
+      const newAddress = addresses[addresses.length - 1];
+
+      if (!newAddress) {
+        throw new Error('Failed to import private key');
+      }
+
+      const hexAddress = this.#toHexAddress(newAddress);
+      const account = this.#createKeyringAccount(hexAddress);
+
+      return [account];
+    }
+
+    // Handle random account creation (default behavior when no options provided)
     const [address] = await this.inner.addAccounts(1);
 
     if (!address) {

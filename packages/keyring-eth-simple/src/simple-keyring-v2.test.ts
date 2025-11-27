@@ -123,6 +123,78 @@ describe('SimpleKeyringV2', () => {
         'Failed to create simple keyring account',
       );
     });
+
+    it('imports a private key when options are provided', async () => {
+      const privateKey =
+        '0x4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0';
+
+      const created = await wrapper.createAccounts({
+        type: 'private-key:import',
+        privateKey,
+        encoding: PrivateKeyEncoding.Hexadecimal,
+      });
+
+      expect(created).toHaveLength(1);
+      expect(created[0]?.address).toBeDefined();
+
+      const all = await wrapper.getAccounts();
+      expect(all).toHaveLength(1);
+      expect(all[0]?.address).toBe(created[0]?.address);
+    });
+
+    it('throws when importing with unsupported encoding', async () => {
+      const privateKey =
+        '0x4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0';
+
+      await expect(
+        wrapper.createAccounts({
+          type: 'private-key:import',
+          privateKey,
+          encoding: 'base58' as PrivateKeyEncoding,
+        }),
+      ).rejects.toThrow(
+        "Unsupported encoding for Simple keyring: base58. Only 'hexadecimal' is supported.",
+      );
+    });
+
+    it('preserves existing accounts when importing a new private key', async () => {
+      // Create a random account first
+      const firstAccount = await wrapper.createAccounts();
+      expect(firstAccount).toHaveLength(1);
+
+      // Import a specific private key
+      const privateKey =
+        '0x4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0';
+
+      const importedAccount = await wrapper.createAccounts({
+        type: 'private-key:import',
+        privateKey,
+        encoding: PrivateKeyEncoding.Hexadecimal,
+      });
+
+      expect(importedAccount).toHaveLength(1);
+
+      // Both accounts should exist
+      const all = await wrapper.getAccounts();
+      expect(all).toHaveLength(2);
+      expect(all.map((a) => a.address)).toContain(firstAccount[0]?.address);
+      expect(all.map((a) => a.address)).toContain(importedAccount[0]?.address);
+    });
+
+    it('throws when import fails to add an account', async () => {
+      const privateKey =
+        '0x4af1bceebf7f3634ec3cff8a2c38e51178d5d4ce585c52d6043e5e2cc3418bb0';
+
+      jest.spyOn(inner, 'getAccounts').mockResolvedValueOnce([]);
+
+      await expect(
+        wrapper.createAccounts({
+          type: 'private-key:import',
+          privateKey,
+          encoding: PrivateKeyEncoding.Hexadecimal,
+        }),
+      ).rejects.toThrow('Failed to import private key');
+    });
   });
 
   describe('deleteAccount', () => {
