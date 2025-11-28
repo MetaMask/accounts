@@ -10,7 +10,10 @@
     "lib": ["ES2020"],
     "target": "es2017"
   },
-  "references": [{ "path": "../keyring-utils/tsconfig.build.json" }],
+  "references": [
+    { "path": "../keyring-utils/tsconfig.build.json" },
+    { "path": "../keyring-api/tsconfig.build.json" }
+  ],
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/**/*.test.ts"]
 }

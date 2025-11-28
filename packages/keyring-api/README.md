@@ -230,6 +230,10 @@ A unified keyring interface, designed to work for both native (EVM) keyrings and
 - Interface name: `KeyringV2`
 - Location: `@metamask/keyring-api/src/api/v2/keyring.ts`
 
+### Keyring wrapper
+
+The `KeyringWrapper` helper adapts existing keyrings that implement the legacy `Keyring` interface to the new `KeyringV2` interface. It is intended to be subclassed in concrete keyrings, overriding the account management and request-handling methods to delegate to the underlying implementation.
+
 ## Migrating from 0.1.x to 0.2.x
 
 The following changes were made to the API, which may require changes to your

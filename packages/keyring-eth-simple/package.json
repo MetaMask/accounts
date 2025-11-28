@@ -46,6 +46,7 @@
   "dependencies": {
     "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/keyring-api": "workspace:^",
     "@metamask/utils": "^11.1.0",
     "ethereum-cryptography": "^2.1.2",
     "randombytes": "^2.1.0"
