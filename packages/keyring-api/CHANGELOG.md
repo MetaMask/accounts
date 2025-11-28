@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: update Tron methods to match Snap methods ([#401](https://github.com/MetaMask/accounts/pull/401))
+- feat(keyring-api): add initial keyring v2 interface ([#397](https://github.com/MetaMask/accounts/pull/397))
+
 ## [21.2.0]
 
 ### Added
