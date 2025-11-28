@@ -5,4 +5,4 @@ export type {
   HDKeyringOptions,
   HDKeyringAccountSelectionOptions,
 } from './hd-keyring';
-export { HdKeyringV2, HdKeyringV2Options } from './hd-keyring-v2';
+export { HdKeyringV2, type HdKeyringV2Options } from './hd-keyring-v2';
