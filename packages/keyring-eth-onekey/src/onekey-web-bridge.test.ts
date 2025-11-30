@@ -4,30 +4,58 @@ import { HardwareErrorCode } from '@onekeyfe/hd-shared';
 
 import { OneKeyWebBridge } from './onekey-web-bridge';
 
-// Mock must be defined before the import
-const mockHardwareWebSdk = {
-  init: jest.fn(),
-  on: jest.fn(),
-  uiResponse: jest.fn(),
-  dispose: jest.fn(),
-  switchTransport: jest.fn(),
-  evmGetPublicKey: jest.fn(),
-  getPassphraseState: jest.fn(),
-  evmSignTransaction: jest.fn(),
-  evmSignMessage: jest.fn(),
-  evmSignTypedData: jest.fn(),
+// Mock the static import at module level
+jest.mock('@onekeyfe/hd-web-sdk', () => {
+  const mockHardwareWebSdk = {
+    init: jest.fn(),
+    on: jest.fn(),
+    uiResponse: jest.fn(),
+    dispose: jest.fn(),
+    switchTransport: jest.fn(),
+    evmGetPublicKey: jest.fn(),
+    getPassphraseState: jest.fn(),
+    evmSignTransaction: jest.fn(),
+    evmSignMessage: jest.fn(),
+    evmSignTypedData: jest.fn(),
+  };
+
+  const mockHardwareSDKLowLevel = {};
+
+  return {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    __esModule: true,
+    PascalCase: true,
+    default: {
+      HardwareWebSdk: mockHardwareWebSdk,
+      HardwareSDKLowLevel: mockHardwareSDKLowLevel,
+    },
+  };
+});
+
+type MockHardwareWebSdk = {
+  init: jest.Mock;
+  on: jest.Mock;
+  uiResponse: jest.Mock;
+  dispose: jest.Mock;
+  switchTransport: jest.Mock;
+  evmGetPublicKey: jest.Mock;
+  getPassphraseState: jest.Mock;
+  evmSignTransaction: jest.Mock;
+  evmSignMessage: jest.Mock;
+  evmSignTypedData: jest.Mock;
 };
 
-const mockHardwareSDKLowLevel = {};
+const mockedModule = jest.requireMock('@onekeyfe/hd-web-sdk').default as {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  HardwareWebSdk: MockHardwareWebSdk;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  HardwareSDKLowLevel: Record<string, unknown>;
+};
 
-// Mock the static import at module level
-jest.mock('@onekeyfe/hd-web-sdk', () => ({
-  PascalCase: true,
-  default: {
-    HardwareWebSdk: mockHardwareWebSdk,
-    HardwareSDKLowLevel: mockHardwareSDKLowLevel,
-  },
-}));
+const {
+  HardwareWebSdk: mockHardwareWebSdk,
+  HardwareSDKLowLevel: mockHardwareSDKLowLevel,
+} = mockedModule;
 
 describe('OneKeyWebBridge', function () {
   let bridge: OneKeyWebBridge;
@@ -275,7 +303,7 @@ describe('OneKeyWebBridge', function () {
         success: false,
         payload: {
           error: 'SDK not initialized',
-          code: 800,
+          code: HardwareErrorCode.NotInitialized,
         },
       });
     });
@@ -337,7 +365,7 @@ describe('OneKeyWebBridge', function () {
         success: false,
         payload: {
           error: 'SDK not initialized',
-          code: 800,
+          code: HardwareErrorCode.NotInitialized,
         },
       });
     });
@@ -379,7 +407,7 @@ describe('OneKeyWebBridge', function () {
         success: false,
         payload: {
           error: 'SDK not initialized',
-          code: 800,
+          code: HardwareErrorCode.NotInitialized,
         },
       });
     });
@@ -437,7 +465,7 @@ describe('OneKeyWebBridge', function () {
         success: false,
         payload: {
           error: 'SDK not initialized',
-          code: 800,
+          code: HardwareErrorCode.NotInitialized,
         },
       });
     });

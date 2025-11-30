@@ -6,6 +6,7 @@ import {
 } from '@ethereumjs/tx';
 import { Address } from '@ethereumjs/util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
+import * as ethSigUtil from '@metamask/eth-sig-util';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import type EthereumTx from 'ethereumjs-tx';
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -37,6 +38,21 @@ jest.mock('@onekeyfe/hd-web-sdk', () => ({
   },
 }));
 
+jest.mock('@metamask/eth-sig-util', () => {
+  const actual = jest.requireActual('@metamask/eth-sig-util');
+  return {
+    ...actual,
+    recoverPersonalSignature: jest.fn(
+      (...args: Parameters<typeof actual.recoverPersonalSignature>) =>
+        actual.recoverPersonalSignature(...args),
+    ),
+    recoverTypedSignature: jest.fn(
+      (...args: Parameters<typeof actual.recoverTypedSignature>) =>
+        actual.recoverTypedSignature(...args),
+    ),
+  };
+});
+
 const fakeAccounts = [
   '0x73d0385F4d8E00C5e6504C6030F47BF6212736A8',
   '0xFA01a39f8Abaeb660c3137f14A310d0b414b2A15',
@@ -58,6 +74,15 @@ const fakeAccounts = [
 const fakeXPubKey =
   'xpub6CNFa58kEQJu2hwMVoofpDEKVVSg6gfwqBqE2zHAianaUnQkrJzJJ42iLDp7Dmg2aP88qCKoFZ4jidk3tECdQuF4567NGHDfe7iBRwHxgke';
 const fakeHdKey = HDKey.fromExtendedKey(fakeXPubKey);
+
+const recoverPersonalSignatureMock =
+  ethSigUtil.recoverPersonalSignature as jest.MockedFunction<
+    typeof ethSigUtil.recoverPersonalSignature
+  >;
+const recoverTypedSignatureMock =
+  ethSigUtil.recoverTypedSignature as jest.MockedFunction<
+    typeof ethSigUtil.recoverTypedSignature
+  >;
 
 const common = new Common({ chain: 'mainnet' });
 const commonEIP1559 = new Common({
@@ -121,6 +146,7 @@ describe('OneKeyKeyring', function () {
 
   afterEach(function () {
     sinon.restore();
+    jest.clearAllMocks();
   });
 
   describe('Keyring.type', function () {
@@ -552,6 +578,59 @@ describe('OneKeyKeyring', function () {
         ...expectedRSV,
       });
     });
+
+    it('should throw when transaction is signed with the wrong address', async function () {
+      sinon.stub(TransactionFactory, 'fromTxData').callsFake(() => newFakeTx);
+      const ethereumSignTransactionStub = sinon.stub().resolves({
+        success: true,
+        payload: { v: '0x1', r: '0x2', s: '0x3' },
+      });
+      bridge.ethereumSignTransaction = ethereumSignTransactionStub;
+      sinon
+        .stub(newFakeTx, 'getSenderAddress')
+        .callsFake(() => Address.fromString(fakeAccounts[1]));
+      sinon.stub(newFakeTx, 'verifySignature').callsFake(() => true);
+
+      try {
+        await keyring.signTransaction(fakeAccounts[0], newFakeTx);
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain(
+          "signature doesn't match the right address",
+        );
+      }
+    });
+
+    it('should throw when the hardware returns an error during signing', async function () {
+      sinon.stub(TransactionFactory, 'fromTxData').callsFake(() => newFakeTx);
+      const ethereumSignTransactionStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Transaction failed' },
+      });
+      bridge.ethereumSignTransaction = ethereumSignTransactionStub;
+
+      try {
+        await keyring.signTransaction(fakeAccounts[0], newFakeTx);
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain('Transaction failed');
+      }
+    });
+
+    it('should surface transport rejection errors during signing', async function () {
+      sinon.stub(TransactionFactory, 'fromTxData').callsFake(() => newFakeTx);
+      const ethereumSignTransactionStub = sinon
+        .stub()
+        .rejects(new Error('Transport down'));
+      bridge.ethereumSignTransaction = ethereumSignTransactionStub;
+
+      try {
+        await keyring.signTransaction(fakeAccounts[0], newFakeTx);
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain('Transport down');
+      }
+    });
   });
 
   describe('signMessage', function () {
@@ -588,9 +667,10 @@ describe('OneKeyKeyring', function () {
 
   describe('signTypedData', function () {
     it('should call onekeyConnect.ethereumSignTypedData', async function () {
+      recoverTypedSignatureMock.mockImplementationOnce(() => fakeAccounts[0]);
       const ethereumSignTypedDataStub = sinon.stub().resolves({
         success: true,
-        payload: { signature: '0x00', address: fakeAccounts[0] },
+        payload: { signature: '00', address: fakeAccounts[0] },
       });
       bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
 
@@ -628,6 +708,82 @@ describe('OneKeyKeyring', function () {
         messageHash:
           'c9e71eb57cf9fa86ec670283b58cb15326bb6933c8d8e2ecb2c0849021b3ef42',
       });
+    });
+
+    it('should throw when typed data signing fails', async function () {
+      const ethereumSignTypedDataStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Typed data failed' },
+      });
+      bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
+
+      try {
+        await keyring.signTypedData(
+          fakeAccounts[0],
+          {
+            types: { EIP712Domain: [], EmptyMessage: [] },
+            primaryType: 'EmptyMessage',
+            domain: {},
+            message: {},
+          },
+          { version: SignTypedDataVersion.V4 },
+        );
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain('Typed data failed');
+      }
+    });
+
+    it('should throw when typed data address mismatches', async function () {
+      recoverTypedSignatureMock.mockImplementationOnce(() => fakeAccounts[1]);
+      const ethereumSignTypedDataStub = sinon.stub().resolves({
+        success: true,
+        payload: {
+          signature: '1122',
+          address: fakeAccounts[1],
+        },
+      });
+      bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
+
+      try {
+        await keyring.signTypedData(
+          fakeAccounts[0],
+          {
+            types: { EIP712Domain: [], EmptyMessage: [] },
+            primaryType: 'EmptyMessage',
+            domain: {},
+            message: {},
+          },
+          { version: SignTypedDataVersion.V4 },
+        );
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain(
+          'signature doesnt match the right address',
+        );
+      }
+    });
+  });
+
+  describe('misc utility coverage', function () {
+    it('should expose model info and reset HDKey on lock', function () {
+      bridge.model = 'OneKey Pro';
+      expect(keyring.getModel()).toBe('OneKey Pro');
+
+      keyring.hdk.publicKey = fakeHdKey.publicKey;
+      expect(keyring.isUnlocked()).toBe(true);
+      keyring.lock();
+      expect(keyring.isUnlocked()).toBe(false);
+    });
+
+    it('should delegate updateTransportMethod to the bridge', async function () {
+      const updateStub = sinon.stub().resolves();
+      bridge.updateTransportMethod = updateStub;
+
+      await keyring.updateTransportMethod('webusb');
+
+      expect(updateStub.calledOnce).toBe(true);
+      sinon.assert.calledWithExactly(updateStub, 'webusb');
     });
   });
 
@@ -742,9 +898,12 @@ describe('OneKeyKeyring', function () {
     it('should handle address verification mismatch in signing', async function () {
       await keyring.addAccounts(1);
       const wrongAddress = '0x1234567890123456789012345678901234567890';
+      recoverPersonalSignatureMock.mockImplementationOnce(() => wrongAddress);
       const successResponse = {
         success: true,
         payload: {
+          signature:
+            '0xda70d2075651160d9171f4a1a3bd9723871282e17be7a8e870556027c98c74f75fe69d0e897e7c5b5d1cde915e885002b62e2dfc80c9e9142b6d3b2070778d2d1c',
           v: '0x1',
           r: '0x0',
           s: '0x0',
@@ -760,6 +919,29 @@ describe('OneKeyKeyring', function () {
         expect((error as Error).message).toContain(
           'signature doesnt match the right address',
         );
+      }
+    });
+
+    it('should propagate transport rejection when signing personal messages', async function () {
+      await keyring.addAccounts(1);
+      bridge.ethereumSignMessage = sinon
+        .stub()
+        .rejects(new Error('transport failed'));
+
+      try {
+        await keyring.signPersonalMessage(fakeAccounts[0], '0x68656c6c6f');
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain('transport failed');
+      }
+    });
+
+    it('should throw when account details are missing', async function () {
+      try {
+        await keyring.signPersonalMessage(fakeAccounts[1], '0x68656c6c6f');
+        throw new Error('Expected error was not thrown');
+      } catch (error) {
+        expect((error as Error).message).toContain('Unknown address');
       }
     });
 

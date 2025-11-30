@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/naming-convention */
 import type {
   Params,
   EVMSignedTx,
@@ -18,11 +15,11 @@ type Unsuccessful = {
     code?: string | number;
   };
 };
-type Success<T> = {
+type Success<TData> = {
   success: true;
-  payload: T;
+  payload: TData;
 };
-type Response<T> = Promise<Success<T> | Unsuccessful>;
+type Response<TData> = Promise<Success<TData> | Unsuccessful>;
 
 /**
  * Hardware UI event payload
