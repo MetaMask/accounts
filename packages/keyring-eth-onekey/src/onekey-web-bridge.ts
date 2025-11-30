@@ -165,7 +165,10 @@ export class OneKeyWebBridge implements OneKeyBridge {
     if (!this.sdk) {
       return {
         success: false,
-        payload: { error: 'SDK not initialized', code: 800 },
+        payload: {
+          error: 'SDK not initialized',
+          code: HardwareErrorCode.NotInitialized,
+        },
       };
     }
     return await this.sdk.getPassphraseState('').then((result) => {
@@ -185,7 +188,10 @@ export class OneKeyWebBridge implements OneKeyBridge {
     if (!this.sdk) {
       return {
         success: false,
-        payload: { error: 'SDK not initialized', code: 800 },
+        payload: {
+          error: 'SDK not initialized',
+          code: HardwareErrorCode.NotInitialized,
+        },
       };
     }
     return await this.sdk
@@ -210,7 +216,10 @@ export class OneKeyWebBridge implements OneKeyBridge {
     if (!this.sdk) {
       return {
         success: false,
-        payload: { error: 'SDK not initialized', code: 800 },
+        payload: {
+          error: 'SDK not initialized',
+          code: HardwareErrorCode.NotInitialized,
+        },
       };
     }
     return await this.sdk
@@ -235,7 +244,10 @@ export class OneKeyWebBridge implements OneKeyBridge {
     if (!this.sdk) {
       return {
         success: false,
-        payload: { error: 'SDK not initialized', code: 800 },
+        payload: {
+          error: 'SDK not initialized',
+          code: HardwareErrorCode.NotInitialized,
+        },
       };
     }
     return await this.sdk

@@ -2,7 +2,12 @@ import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
-import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
+import {
+  SignTypedDataVersion,
+  TypedDataUtils,
+  recoverPersonalSignature,
+  recoverTypedSignature,
+} from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 import type {
@@ -407,13 +412,17 @@ export class OneKeyKeyring implements Keyring {
         })
         .then((response) => {
           if (response.success) {
+            const signature = addHexPrefix(response.payload.signature);
+            const addressSignedWith = recoverPersonalSignature({
+              data: message,
+              signature,
+            });
             if (
-              response.payload.address !==
+              ethUtil.toChecksumAddress(addressSignedWith) !==
               ethUtil.toChecksumAddress(withAccount)
             ) {
               reject(new Error('signature doesnt match the right address'));
             }
-            const signature = addHexPrefix(response.payload.signature);
             // eslint-disable-next-line promise/no-multiple-resolved
             resolve(signature);
           } else {
@@ -463,10 +472,19 @@ export class OneKeyKeyring implements Keyring {
     });
 
     if (response.success) {
-      if (ethUtil.toChecksumAddress(address) !== response.payload.address) {
+      const signature = addHexPrefix(response.payload.signature);
+      const addressSignedWith = recoverTypedSignature({
+        data: typedData,
+        signature,
+        version: dataVersion,
+      });
+      if (
+        ethUtil.toChecksumAddress(addressSignedWith) !==
+        ethUtil.toChecksumAddress(address)
+      ) {
         throw new Error('signature doesnt match the right address');
       }
-      return addHexPrefix(response.payload.signature);
+      return signature;
     }
 
     throw new Error(response.payload?.error || 'Unknown error');
