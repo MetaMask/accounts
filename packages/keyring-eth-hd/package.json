@@ -44,7 +44,6 @@
   },
   "dependencies": {
     "@ethereumjs/util": "^9.1.0",
-    "@metamask/account-api": "workspace:^",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/key-tree": "^10.0.2",
     "@metamask/keyring-api": "workspace:^",
@@ -58,6 +57,7 @@
     "@ethereumjs/tx": "^5.4.0",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
+    "@metamask/account-api": "workspace:^",
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/bip39": "^4.0.0",
     "@ts-bridge/cli": "^0.6.3",
