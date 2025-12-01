@@ -211,7 +211,38 @@ describe('KeyringWrapper', () => {
     expect(cachedAccount).toBe(firstAccount);
   });
 
-  it('uses fallback path when account not in registry cache', async () => {
+  it('populates registry and returns account when not initially cached', async () => {
+    const addresses = ['0x1' as const];
+    const inner = new TestKeyring(addresses);
+    const wrapper = new TestKeyringWrapper({
+      inner,
+      type: KeyringType.Hd,
+      capabilities,
+      entropySourceId,
+    });
+
+    // Manually register an address to get a consistent account ID
+    // but DON'T call registry.set() to store the full account
+    const address = addresses[0];
+    // eslint-disable-next-line jest/no-if
+    if (!address) {
+      throw new Error('Expected at least one address');
+    }
+    // eslint-disable-next-line dot-notation
+    const accountId = wrapper['registry'].register(address);
+
+    // Now getAccount should:
+    // 1. Not find the account in cache (line 131-133 fails)
+    // 2. Call getAccounts() to prime (line 136)
+    // 3. Find the account in cache after priming (line 139-142)
+    // 4. Return the cached result (line 144)
+    const resolvedAccount = await wrapper.getAccount(accountId);
+
+    expect(resolvedAccount.address).toBe(address);
+    expect(resolvedAccount.id).toBe(accountId);
+  });
+
+  it('throws when getAccounts does not populate the registry', async () => {
     const addresses = ['0x1' as const];
     const inner = new TestKeyring(addresses);
     const wrapper = new NoCacheTestKeyringWrapper({
@@ -226,10 +257,11 @@ describe('KeyringWrapper', () => {
     const firstAccount = accounts[0];
     expect(firstAccount).toBeDefined();
 
-    // The NoCacheTestKeyringWrapper doesn't cache accounts, so getAccount
-    // will miss the cache, call getAccounts(), and use the fallback .find() path
-    const resolved = await wrapper.getAccount(firstAccount?.id as AccountId);
-    expect(resolved.address).toBe('0x1');
+    // The NoCacheTestKeyringWrapper doesn't cache accounts via registry.set(),
+    // so getAccount will fail because the registry doesn't have the full account
+    await expect(
+      wrapper.getAccount(firstAccount?.id as AccountId),
+    ).rejects.toThrow('Account not found for id');
   });
 
   it('throws when requesting an unknown account', async () => {

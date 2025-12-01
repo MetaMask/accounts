@@ -1,4 +1,4 @@
-import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
+import type { TypedTxData } from '@ethereumjs/tx';
 import {
   EthAccountType,
   EthMethod,
@@ -333,6 +333,19 @@ describe('HdKeyringV2', () => {
       ).rejects.toThrow('Entropy source mismatch');
     });
 
+    it('throws error when inner keyring fails to create account', async () => {
+      // Mock addAccounts to return an empty array
+      jest.spyOn(inner, 'addAccounts').mockResolvedValueOnce([]);
+
+      await expect(
+        wrapper.createAccounts({
+          type: 'bip44:derive-index',
+          entropySource: TEST_ENTROPY_SOURCE_ID,
+          groupIndex: 0,
+        }),
+      ).rejects.toThrow('Failed to create new account');
+    });
+
     it('creates multiple accounts sequentially', async () => {
       await wrapper.createAccounts({
         type: 'bip44:derive-index',
@@ -356,32 +369,20 @@ describe('HdKeyringV2', () => {
       expect(accounts).toHaveLength(3);
     });
 
-    it('creates all accounts up to the target index', async () => {
-      // Request account at index 3, which should create accounts 0, 1, 2, 3
-      const created = await wrapper.createAccounts({
-        type: 'bip44:derive-index',
-        entropySource: TEST_ENTROPY_SOURCE_ID,
-        groupIndex: 3,
-      });
-
-      // Should return all 4 newly created accounts
-      expect(created).toHaveLength(4);
-
-      const accounts = await wrapper.getAccounts();
-      expect(accounts).toHaveLength(4);
-
-      // Verify all accounts have correct groupIndex
-      const groupIndices = accounts
-        .map((a) => {
-          const ent = a.options.entropy;
-          return ent && 'groupIndex' in ent ? ent.groupIndex : -1;
-        })
-        .sort((a, b) => a - b);
-
-      expect(groupIndices).toStrictEqual([0, 1, 2, 3]);
+    it('throws when trying to skip indices', async () => {
+      // Request account at index 3 without creating 0, 1, 2 first
+      await expect(
+        wrapper.createAccounts({
+          type: 'bip44:derive-index',
+          entropySource: TEST_ENTROPY_SOURCE_ID,
+          groupIndex: 3,
+        }),
+      ).rejects.toThrow(
+        'Can only create the next account in sequence. Expected groupIndex 0, got 3.',
+      );
     });
 
-    it('creates remaining accounts when some already exist', async () => {
+    it('throws when trying to skip indices with existing accounts', async () => {
       // Create account at index 0
       await wrapper.createAccounts({
         type: 'bip44:derive-index',
@@ -391,18 +392,19 @@ describe('HdKeyringV2', () => {
 
       expect(await wrapper.getAccounts()).toHaveLength(1);
 
-      // Now request account at index 3, which should create accounts 1, 2, 3
-      const created = await wrapper.createAccounts({
-        type: 'bip44:derive-index',
-        entropySource: TEST_ENTROPY_SOURCE_ID,
-        groupIndex: 3,
-      });
+      // Now request account at index 3, which should fail
+      await expect(
+        wrapper.createAccounts({
+          type: 'bip44:derive-index',
+          entropySource: TEST_ENTROPY_SOURCE_ID,
+          groupIndex: 3,
+        }),
+      ).rejects.toThrow(
+        'Can only create the next account in sequence. Expected groupIndex 1, got 3.',
+      );
 
-      // Should return the 3 newly created accounts
-      expect(created).toHaveLength(3);
-
-      const accounts = await wrapper.getAccounts();
-      expect(accounts).toHaveLength(4);
+      // Should still have only 1 account
+      expect(await wrapper.getAccounts()).toHaveLength(1);
     });
 
     it('syncs cache when legacy keyring adds accounts directly', async () => {
@@ -722,12 +724,11 @@ describe('HdKeyringV2', () => {
           to: '0x0000000000000000000000000000000000000001',
           value: '0x1000',
         };
-        const tx = TransactionFactory.fromTxData(txParams);
 
         const request = createMockRequest(
           accountId,
           EthMethod.SignTransaction,
-          [tx as unknown as Json],
+          [txParams as unknown as Json],
         );
 
         const result = await wrapper.submitRequest(request);
@@ -742,9 +743,7 @@ describe('HdKeyringV2', () => {
           [],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          'Invalid params for eth_signTransaction',
-        );
+        await expect(wrapper.submitRequest(request)).rejects.toThrow();
       });
     });
 
@@ -765,9 +764,7 @@ describe('HdKeyringV2', () => {
           '0x0000000000000000000000000000000000000000',
         ]);
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          'Invalid params for eth_sign',
-        );
+        await expect(wrapper.submitRequest(request)).rejects.toThrow();
       });
     });
 
@@ -789,9 +786,7 @@ describe('HdKeyringV2', () => {
           [],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          'Invalid params for personal_sign',
-        );
+        await expect(wrapper.submitRequest(request)).rejects.toThrow();
       });
     });
 
@@ -822,9 +817,7 @@ describe('HdKeyringV2', () => {
           ['0x0000000000000000000000000000000000000000'],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          'Invalid params for eth_signTypedData_v1',
-        );
+        await expect(wrapper.submitRequest(request)).rejects.toThrow();
       });
     });
 
@@ -945,9 +938,7 @@ describe('HdKeyringV2', () => {
       it('throws error for missing params', async () => {
         const request = createMockRequest(accountId, 'eth_decrypt', []);
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          'Invalid params for eth_decrypt',
-        );
+        await expect(wrapper.submitRequest(request)).rejects.toThrow();
       });
     });
 
@@ -968,9 +959,7 @@ describe('HdKeyringV2', () => {
           [],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          'Invalid params for eth_getAppKeyAddress',
-        );
+        await expect(wrapper.submitRequest(request)).rejects.toThrow();
       });
     });
 
@@ -1000,9 +989,7 @@ describe('HdKeyringV2', () => {
           [],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          'Invalid params for eth_signEip7702Authorization',
-        );
+        await expect(wrapper.submitRequest(request)).rejects.toThrow();
       });
     });
 

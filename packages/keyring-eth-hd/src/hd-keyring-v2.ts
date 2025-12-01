@@ -1,7 +1,7 @@
-import type { TypedTransaction } from '@ethereumjs/tx';
+import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
+import type { Bip44Account } from '@metamask/account-api';
 import type {
   EIP7702Authorization,
-  EthEncryptedData,
   MessageTypes,
   TypedDataV1,
   TypedMessage,
@@ -22,8 +22,17 @@ import {
   type KeyringV2,
   KeyringWrapper,
   PrivateKeyEncoding,
+  EthDecryptParamsStruct,
+  EthGetAppKeyAddressParamsStruct,
+  EthPersonalSignParamsStruct,
+  EthSignEip7702AuthorizationParamsStruct,
+  EthSignParamsStruct,
+  EthSignTransactionParamsStruct,
+  EthSignTypedDataParamsStruct,
+  EthSignTypedDataV1ParamsStruct,
 } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
+import { assert } from '@metamask/superstruct';
 import type { Hex, Json } from '@metamask/utils';
 
 import type { DeserializableHDKeyringState, HdKeyring } from './hd-keyring';
@@ -77,7 +86,7 @@ export type HdKeyringV2Options = {
 };
 
 export class HdKeyringV2
-  extends KeyringWrapper<HdKeyring>
+  extends KeyringWrapper<HdKeyring, Bip44Account<KeyringAccount>>
   implements KeyringV2
 {
   constructor(options: HdKeyringV2Options) {
@@ -122,10 +131,13 @@ export class HdKeyringV2
    * @param addressIndex - The account index in the HD path.
    * @returns The created KeyringAccount.
    */
-  #createKeyringAccount(address: Hex, addressIndex: number): KeyringAccount {
+  #createKeyringAccount(
+    address: Hex,
+    addressIndex: number,
+  ): Bip44Account<KeyringAccount> {
     const id = this.registry.register(address);
 
-    const account: KeyringAccount = {
+    const account: Bip44Account<KeyringAccount> = {
       id,
       type: EthAccountType.Eoa,
       address,
@@ -147,7 +159,7 @@ export class HdKeyringV2
     return account;
   }
 
-  async getAccounts(): Promise<KeyringAccount[]> {
+  async getAccounts(): Promise<Bip44Account<KeyringAccount>[]> {
     const addresses = await this.inner.getAccounts();
 
     return addresses.map((address, addressIndex) => {
@@ -181,7 +193,7 @@ export class HdKeyringV2
 
   async createAccounts(
     options: CreateAccountOptions,
-  ): Promise<KeyringAccount[]> {
+  ): Promise<Bip44Account<KeyringAccount>[]> {
     // For HD keyring, we only support BIP-44 derive index
     if (options.type !== 'bip44:derive-index') {
       throw new Error(
@@ -209,25 +221,25 @@ export class HdKeyringV2
       return [existingAccount];
     }
 
-    // Cannot create accounts at indices lower than current count
-    if (targetIndex < currentCount) {
+    // Only allow derivation of the next account in sequence
+    if (targetIndex !== currentCount) {
       throw new Error(
-        `Cannot create account at group index ${targetIndex}: ` +
-          `index is below current account count ${currentCount}.`,
+        `Can only create the next account in sequence. ` +
+          `Expected groupIndex ${currentCount}, got ${targetIndex}.`,
       );
     }
 
-    // Add accounts up to and including the target index
-    const accountsToAdd = targetIndex - currentCount + 1;
-    const newAddresses = await this.inner.addAccounts(accountsToAdd);
+    // Add the next account
+    const newAddresses = await this.inner.addAccounts(1);
+    const newAddress = newAddresses[0];
 
-    // Create and cache KeyringAccount objects for all newly added accounts
-    const newAccounts: KeyringAccount[] = newAddresses.map((address, index) => {
-      const groupIndex = currentCount + index;
-      return this.#createKeyringAccount(address, groupIndex);
-    });
+    if (!newAddress) {
+      throw new Error('Failed to create new account');
+    }
 
-    return newAccounts;
+    const newAccount = this.#createKeyringAccount(newAddress, targetIndex);
+
+    return [newAccount];
   }
 
   /**
@@ -307,66 +319,61 @@ export class HdKeyringV2
 
     switch (method) {
       case `${EthMethod.SignTransaction}`: {
-        if (params.length < 1) {
-          throw new Error('Invalid params for eth_signTransaction');
-        }
-        const [tx] = params;
-        return this.inner.signTransaction(
-          hexAddress,
-          tx as unknown as TypedTransaction,
-        ) as unknown as Json;
+        assert(params, EthSignTransactionParamsStruct);
+        const [txData] = params;
+        // Convert validated transaction data to TypedTransaction
+        const tx = TransactionFactory.fromTxData(txData as TypedTxData);
+        return this.inner.signTransaction(hexAddress, tx) as unknown as Json;
       }
 
       case `${EthMethod.Sign}`: {
-        if (params.length < 2) {
-          throw new Error('Invalid params for eth_sign');
-        }
+        assert(params, EthSignParamsStruct);
         const [, data] = params;
-        return this.inner.signMessage(hexAddress, data as string);
+        return this.inner.signMessage(hexAddress, data);
       }
 
       case `${EthMethod.PersonalSign}`: {
-        if (params.length < 1) {
-          throw new Error('Invalid params for personal_sign');
-        }
+        assert(params, EthPersonalSignParamsStruct);
         const [data] = params;
-        return this.inner.signPersonalMessage(hexAddress, data as string);
+        return this.inner.signPersonalMessage(hexAddress, data);
       }
 
-      case `${EthMethod.SignTypedDataV1}`:
-      case `${EthMethod.SignTypedDataV3}`:
-      case `${EthMethod.SignTypedDataV4}`: {
-        if (params.length < 2) {
-          throw new Error(`Invalid params for ${method}`);
-        }
+      case `${EthMethod.SignTypedDataV1}`: {
+        assert(params, EthSignTypedDataV1ParamsStruct);
         const [, data] = params;
-        let version: SignTypedDataVersion;
-        if (method === EthMethod.SignTypedDataV4) {
-          version = SignTypedDataVersion.V4;
-        } else if (method === EthMethod.SignTypedDataV3) {
-          version = SignTypedDataVersion.V3;
-        } else {
-          version = SignTypedDataVersion.V1;
-        }
+        return this.inner.signTypedData(hexAddress, data as TypedDataV1, {
+          version: SignTypedDataVersion.V1,
+        });
+      }
 
+      case `${EthMethod.SignTypedDataV3}`: {
+        assert(params, EthSignTypedDataParamsStruct);
+        const [, data] = params;
         return this.inner.signTypedData(
           hexAddress,
-          data as unknown as TypedDataV1 | TypedMessage<MessageTypes>,
+          data as TypedMessage<MessageTypes>,
           {
-            version,
+            version: SignTypedDataVersion.V3,
+          },
+        );
+      }
+
+      case `${EthMethod.SignTypedDataV4}`: {
+        assert(params, EthSignTypedDataParamsStruct);
+        const [, data] = params;
+        return this.inner.signTypedData(
+          hexAddress,
+          data as TypedMessage<MessageTypes>,
+          {
+            version: SignTypedDataVersion.V4,
           },
         );
       }
 
       case `${HdKeyringEthMethod.Decrypt}`: {
-        if (params.length < 1) {
-          throw new Error('Invalid params for eth_decrypt');
-        }
+        assert(params, EthDecryptParamsStruct);
         const [encryptedData] = params;
-        return this.inner.decryptMessage(
-          hexAddress,
-          encryptedData as unknown as EthEncryptedData,
-        );
+        return this.inner.decryptMessage(hexAddress, encryptedData);
       }
 
       case `${HdKeyringEthMethod.GetEncryptionPublicKey}`: {
@@ -374,21 +381,17 @@ export class HdKeyringV2
       }
 
       case `${HdKeyringEthMethod.GetAppKeyAddress}`: {
-        if (params.length < 1) {
-          throw new Error('Invalid params for eth_getAppKeyAddress');
-        }
+        assert(params, EthGetAppKeyAddressParamsStruct);
         const [origin] = params;
-        return this.inner.getAppKeyAddress(hexAddress, origin as string);
+        return this.inner.getAppKeyAddress(hexAddress, origin);
       }
 
       case `${HdKeyringEthMethod.SignEip7702Authorization}`: {
-        if (params.length < 1) {
-          throw new Error('Invalid params for eth_signEip7702Authorization');
-        }
+        assert(params, EthSignEip7702AuthorizationParamsStruct);
         const [authorization] = params;
         return this.inner.signEip7702Authorization(
           hexAddress,
-          authorization as unknown as EIP7702Authorization,
+          authorization as EIP7702Authorization,
         );
       }
 

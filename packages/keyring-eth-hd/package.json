@@ -44,11 +44,13 @@
   },
   "dependencies": {
     "@ethereumjs/util": "^9.1.0",
+    "@metamask/account-api": "workspace:^",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/key-tree": "^10.0.2",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/scure-bip39": "^2.1.1",
+    "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^11.1.0",
     "ethereum-cryptography": "^2.1.2"
   },

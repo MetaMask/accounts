@@ -9,8 +9,10 @@ import type { KeyringAccount } from '../../account';
  * Provides O(1) lookups by AccountId or address, and stores the full
  * KeyringAccount objects for efficient retrieval.
  */
-export class KeyringAccountRegistry {
-  readonly #accountById = new Map<AccountId, KeyringAccount>();
+export class KeyringAccountRegistry<
+  KeyringAccountType extends KeyringAccount = KeyringAccount,
+> {
+  readonly #accountById = new Map<AccountId, KeyringAccountType>();
 
   readonly #idByAddress = new Map<string, AccountId>();
 
@@ -20,7 +22,8 @@ export class KeyringAccountRegistry {
    * @param accountId - The AccountId to look up.
    * @returns The KeyringAccount, or undefined if not found.
    */
-  get(accountId: AccountId): KeyringAccount | undefined {
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  get(accountId: AccountId): KeyringAccountType | undefined {
     return this.#accountById.get(accountId);
   }
 
@@ -40,6 +43,7 @@ export class KeyringAccountRegistry {
    * @param address - The address to look up.
    * @returns The AccountId, or undefined if not found.
    */
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   getAccountId(address: string): AccountId | undefined {
     return this.#idByAddress.get(address);
   }
@@ -67,7 +71,7 @@ export class KeyringAccountRegistry {
    *
    * @param account - The KeyringAccount to cache.
    */
-  set(account: KeyringAccount): void {
+  set(account: KeyringAccountType): void {
     this.#accountById.set(account.id, account);
     this.#idByAddress.set(account.address, account.id);
   }
@@ -96,9 +100,9 @@ export class KeyringAccountRegistry {
   /**
    * Get all cached accounts as an array.
    *
-   * @returns Array of all KeyringAccount objects in the registry.
+   * @returns Array of all KeyringAccountType objects in the registry.
    */
-  values(): KeyringAccount[] {
+  values(): KeyringAccountType[] {
     return Array.from(this.#accountById.values());
   }
 

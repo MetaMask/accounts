@@ -48,14 +48,16 @@ export type KeyringWrapperOptions<InnerKeyring extends Keyring> = {
  * the common mechanics required by all adapters: state serialization,
  * account-ID/address mapping and basic account management.
  */
-export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
-  implements KeyringV2
+export abstract class KeyringWrapper<
+  InnerKeyring extends Keyring,
+  KeyringAccountType extends KeyringAccount = KeyringAccount,
+> implements KeyringV2
 {
   readonly type: `${KeyringType}`;
 
   readonly capabilities: KeyringCapabilities;
 
-  protected readonly inner: TInnerKeyring;
+  protected readonly inner: InnerKeyring;
 
   protected readonly entropySourceId: string;
 
@@ -66,9 +68,10 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
    * Subclasses should use this registry when creating accounts and
    * clear/update it when deleting accounts or deserializing state.
    */
-  protected readonly registry = new KeyringAccountRegistry();
+  protected readonly registry =
+    new KeyringAccountRegistry<KeyringAccountType>();
 
-  constructor(options: KeyringWrapperOptions<TInnerKeyring>) {
+  constructor(options: KeyringWrapperOptions<InnerKeyring>) {
     this.inner = options.inner;
     this.type = `${options.type}`;
     this.capabilities = options.capabilities;
@@ -105,7 +108,7 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
    * Concrete adapters are responsible for mapping the underlying keyring's
    * notion of accounts (typically addresses returned by
    * {@link Keyring.getAccounts}) into {@link KeyringAccount} objects.
-   * Implementations should use the configured {@link KeyringAddressResolver}
+   * Implementations should use the configured {@link KeyringAccountRegistry}
    * to establish the account ID/address mapping so that
    * {@link getAccount} works as expected.
    *
@@ -124,18 +127,21 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
    * @returns The matching KeyringAccount.
    */
   async getAccount(accountId: AccountId): Promise<KeyringAccount> {
-    const cached = this.registry.get(accountId);
+    let cached = this.registry.get(accountId);
     if (cached) {
       return cached;
     }
 
-    const accounts = await this.getAccounts();
-    const account = accounts.find((item) => item.id === accountId);
-    if (!account) {
+    // Prime the registry by calling getAccounts
+    await this.getAccounts();
+
+    // Try registry again after priming
+    cached = this.registry.get(accountId);
+    if (!cached) {
       throw new Error(`Account not found for id: ${accountId}`);
     }
 
-    return account;
+    return cached;
   }
 
   /**
