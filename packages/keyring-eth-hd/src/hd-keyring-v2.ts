@@ -80,12 +80,6 @@ export class HdKeyringV2
   extends KeyringWrapper<HdKeyring>
   implements KeyringV2
 {
-  /**
-   * In-memory cache of KeyringAccount objects.
-   * Maps address (as Hex) to KeyringAccount.
-   */
-  readonly #accountsCache = new Map<Hex, KeyringAccount>();
-
   constructor(options: HdKeyringV2Options) {
     super({
       type: KeyringType.Hd,
@@ -95,9 +89,9 @@ export class HdKeyringV2
     });
   }
 
-  #isLastAccount(address: Hex): boolean {
-    const accounts = Array.from(this.#accountsCache.keys());
-    return accounts[accounts.length - 1] === address;
+  #isLastAccount(accountId: AccountId): boolean {
+    const accountIds = this.registry.keys();
+    return accountIds[accountIds.length - 1] === accountId;
   }
 
   /**
@@ -120,7 +114,7 @@ export class HdKeyringV2
    * @returns The created KeyringAccount.
    */
   #createKeyringAccount(address: Hex, addressIndex: number): KeyringAccount {
-    const id = this.resolver.register(address);
+    const id = this.registry.register(address);
 
     const account: KeyringAccount = {
       id,
@@ -138,8 +132,8 @@ export class HdKeyringV2
       },
     };
 
-    // Cache the account
-    this.#accountsCache.set(address, account);
+    // Add the account to the registry
+    this.registry.set(account);
 
     return account;
   }
@@ -148,28 +142,31 @@ export class HdKeyringV2
     const addresses = await this.inner.getAccounts();
 
     return addresses.map((address, addressIndex) => {
-      // Check if we already have this account cached
-      const cached = this.#accountsCache.get(address);
-      if (cached) {
-        return cached;
+      // Check if we already have this account in the registry
+      const existingId = this.registry.getAccountId(address);
+      if (existingId) {
+        const cached = this.registry.get(existingId);
+        if (cached) {
+          return cached;
+        }
       }
 
-      // Create and cache the account if not already cached
+      // Create and register the account if not already cached
       return this.#createKeyringAccount(address, addressIndex);
     });
   }
 
   async deserialize(state: Json): Promise<void> {
-    // Clear the cache when deserializing
-    this.#accountsCache.clear();
+    // Clear the registry when deserializing
+    this.registry.clear();
 
     // Deserialize the legacy keyring
     await this.inner.deserialize(
       state as Partial<DeserializableHDKeyringState>,
     );
 
-    // Rebuild the cache by populating it with all accounts
-    // We call getAccounts() which will repopulate the cache as a side effect
+    // Rebuild the registry by populating it with all accounts
+    // We call getAccounts() which will repopulate the registry as a side effect
     await this.getAccounts();
   }
 
@@ -233,13 +230,13 @@ export class HdKeyringV2
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
     // Sync with the inner keyring state in case it was modified externally
-    // This ensures our cache is up-to-date before we make changes
+    // This ensures our registry is up-to-date before we make changes
     await this.getAccounts();
     const keyringAccount = await this.getAccount(accountId);
     const hexAddress = this.#toHexAddress(keyringAccount.address);
 
     // Assert that the account to delete is the last one
-    if (!this.#isLastAccount(hexAddress)) {
+    if (!this.#isLastAccount(accountId)) {
       throw new Error(
         'Can only delete the last account in the HD keyring due to derivation index constraints.',
       );
@@ -248,8 +245,8 @@ export class HdKeyringV2
     // Remove from the legacy keyring
     this.inner.removeAccount(hexAddress);
 
-    // Remove from the cache
-    this.#accountsCache.delete(hexAddress);
+    // Remove from the registry
+    this.registry.delete(accountId);
   }
 
   async exportAccount(

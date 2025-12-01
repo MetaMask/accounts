@@ -1,10 +1,7 @@
 import type { Keyring, AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
-import {
-  InMemoryKeyringAddressResolver,
-  type KeyringAddressResolver,
-} from './keyring-address-resolver';
+import { KeyringAccountRegistry } from './keyring-account-registry';
 import type {
   CreateAccountOptions,
   ExportAccountOptions,
@@ -19,11 +16,11 @@ import type { KeyringType } from '../keyring-type';
 /**
  * Basic options for constructing a {@link KeyringWrapper}.
  */
-export type KeyringWrapperOptions<TInnerKeyring extends Keyring> = {
+export type KeyringWrapperOptions<InnerKeyring extends Keyring> = {
   /**
    * The underlying "old" keyring instance that this wrapper adapts.
    */
-  inner: TInnerKeyring;
+  inner: InnerKeyring;
 
   /**
    * The concrete keyring type exposed through the V2 interface.
@@ -39,12 +36,6 @@ export type KeyringWrapperOptions<TInnerKeyring extends Keyring> = {
    * Identifier for the entropy source associated with this keyring.
    */
   entropySourceId: string;
-
-  /**
-   * Resolver used to map between AccountId and underlying addresses. If not
-   * provided, an in-memory resolver will be used.
-   */
-  resolver?: KeyringAddressResolver;
 };
 
 /**
@@ -66,15 +57,21 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
 
   protected readonly inner: TInnerKeyring;
 
-  protected readonly resolver: KeyringAddressResolver;
-
   protected readonly entropySourceId: string;
+
+  /**
+   * Registry for KeyringAccount objects.
+   * Provides O(1) lookups by AccountId or address.
+   *
+   * Subclasses should use this registry when creating accounts and
+   * clear/update it when deleting accounts or deserializing state.
+   */
+  protected readonly registry = new KeyringAccountRegistry();
 
   constructor(options: KeyringWrapperOptions<TInnerKeyring>) {
     this.inner = options.inner;
     this.type = `${options.type}`;
     this.capabilities = options.capabilities;
-    this.resolver = options.resolver ?? new InMemoryKeyringAddressResolver();
     this.entropySourceId = options.entropySourceId;
   }
 
@@ -119,14 +116,19 @@ export abstract class KeyringWrapper<TInnerKeyring extends Keyring>
   /**
    * Look up a single account by its {@link AccountId}.
    *
-   * This method calls {@link getAccounts} and returns the matching
-   * {@link KeyringAccount} by ID, or throws if the ID is unknown in the
-   * current account set.
+   * This method first checks the registry for O(1) lookup.
+   * If not found, it falls back to calling {@link getAccounts} which
+   * should populate the registry as a side effect.
    *
    * @param accountId - The AccountId to look up.
    * @returns The matching KeyringAccount.
    */
   async getAccount(accountId: AccountId): Promise<KeyringAccount> {
+    const cached = this.registry.get(accountId);
+    if (cached) {
+      return cached;
+    }
+
     const accounts = await this.getAccounts();
     const account = accounts.find((item) => item.id === accountId);
     if (!account) {

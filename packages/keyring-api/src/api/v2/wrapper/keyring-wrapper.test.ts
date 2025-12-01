@@ -2,7 +2,6 @@ import type { Keyring, AccountId } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 import { v4 as uuidv4 } from 'uuid';
 
-import { InMemoryKeyringAddressResolver } from './keyring-address-resolver';
 import { KeyringWrapper } from './keyring-wrapper';
 import type { KeyringAccount } from '../../account';
 import type { KeyringCapabilities } from '../keyring-capabilities';
@@ -14,7 +13,16 @@ class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
     const scopes = this.capabilities.scopes ?? ['eip155:1'];
 
     return addresses.map((address) => {
-      const id = this.resolver.register(address);
+      // Check if already in registry
+      const existingId = this.registry.getAccountId(address);
+      if (existingId) {
+        const cached = this.registry.get(existingId);
+        if (cached) {
+          return cached;
+        }
+      }
+
+      const id = this.registry.register(address);
 
       const account: KeyringAccount = {
         id,
@@ -24,6 +32,8 @@ class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
         options: {},
         methods: [],
       };
+
+      this.registry.set(account);
 
       return account;
     });
@@ -37,6 +47,48 @@ class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
 
   async deleteAccount(accountId: AccountId): Promise<void> {
     this.deletedAccountIds.push(accountId);
+    this.registry.delete(accountId);
+  }
+
+  async submitRequest(): Promise<any> {
+    return {};
+  }
+}
+
+/**
+ * A test wrapper that does NOT cache accounts in getAccounts().
+ * This is used to test the fallback path in KeyringWrapper.getAccount().
+ */
+class NoCacheTestKeyringWrapper extends KeyringWrapper<TestKeyring> {
+  async getAccounts(): Promise<KeyringAccount[]> {
+    const addresses = await this.inner.getAccounts();
+    const scopes = this.capabilities.scopes ?? ['eip155:1'];
+
+    return addresses.map((address) => {
+      const id = this.registry.register(address);
+
+      const account: KeyringAccount = {
+        id,
+        type: 'eip155:eoa',
+        address,
+        scopes,
+        options: {},
+        methods: [],
+      };
+
+      // NOTE: We intentionally do NOT call this.registry.set(account) here
+      // to test the fallback path in KeyringWrapper.getAccount()
+
+      return account;
+    });
+  }
+
+  async createAccounts(): Promise<KeyringAccount[]> {
+    return this.getAccounts();
+  }
+
+  async deleteAccount(): Promise<void> {
+    // no-op
   }
 
   async submitRequest(): Promise<any> {
@@ -133,6 +185,51 @@ describe('KeyringWrapper', () => {
     }
     const resolved = await wrapper.getAccount(firstAccount.id);
     expect(resolved.address).toBe(firstAccount.address);
+    // Should return the exact same object from cache
+    expect(resolved).toBe(firstAccount);
+  });
+
+  it('returns cached account on subsequent getAccount calls (O(1) lookup)', async () => {
+    const addresses = ['0x1' as const];
+    const inner = new TestKeyring(addresses);
+    const wrapper = new TestKeyringWrapper({
+      inner,
+      type: KeyringType.Hd,
+      capabilities,
+      entropySourceId,
+    });
+
+    // First call populates the registry
+    const accounts = await wrapper.getAccounts();
+    const firstAccount = accounts[0];
+    expect(firstAccount).toBeDefined();
+
+    // Second call should hit the cache and return the same object
+    const cachedAccount = await wrapper.getAccount(
+      firstAccount?.id as AccountId,
+    );
+    expect(cachedAccount).toBe(firstAccount);
+  });
+
+  it('uses fallback path when account not in registry cache', async () => {
+    const addresses = ['0x1' as const];
+    const inner = new TestKeyring(addresses);
+    const wrapper = new NoCacheTestKeyringWrapper({
+      inner,
+      type: KeyringType.Hd,
+      capabilities,
+      entropySourceId,
+    });
+
+    // Get account by calling getAccounts first to know the ID
+    const accounts = await wrapper.getAccounts();
+    const firstAccount = accounts[0];
+    expect(firstAccount).toBeDefined();
+
+    // The NoCacheTestKeyringWrapper doesn't cache accounts, so getAccount
+    // will miss the cache, call getAccounts(), and use the fallback .find() path
+    const resolved = await wrapper.getAccount(firstAccount?.id as AccountId);
+    expect(resolved.address).toBe('0x1');
   });
 
   it('throws when requesting an unknown account', async () => {
@@ -152,36 +249,32 @@ describe('KeyringWrapper', () => {
   it('throws when account mapping exists but account object cannot be found', async () => {
     const addresses = ['0x1' as const];
     const inner = new TestKeyring(addresses);
-    const resolver = new InMemoryKeyringAddressResolver();
     const wrapper = new TestKeyringWrapper({
       inner,
       type: KeyringType.Hd,
       capabilities,
-      resolver,
       entropySourceId,
     });
 
-    // Prime the resolver by calling getAccounts once
-    await wrapper.getAccounts();
+    // Prime the registry by calling getAccounts once
+    const accounts = await wrapper.getAccounts();
+    const firstAccount = accounts[0];
+    expect(firstAccount).toBeDefined();
 
-    // Now, simulate a missing account object by clearing the underlying
-    // accounts of the inner keyring.
+    // Now, simulate a missing account by creating a new wrapper with empty inner
+    // but the registry won't have any accounts since it's a new instance
     const emptyInner = new TestKeyring([] as Hex[]);
     const inconsistentWrapper = new TestKeyringWrapper({
       inner: emptyInner,
       type: KeyringType.Hd,
       capabilities,
-      resolver,
       entropySourceId,
     });
 
-    const accountId = resolver.getAccountId(
-      addresses[0] as string,
-    ) as AccountId;
-
-    await expect(inconsistentWrapper.getAccount(accountId)).rejects.toThrow(
-      'Account not found for id',
-    );
+    // Use the account ID from the first wrapper - the new wrapper won't have it
+    await expect(
+      inconsistentWrapper.getAccount(firstAccount?.id as AccountId),
+    ).rejects.toThrow('Account not found for id');
   });
 
   it('falls back to mainnet scope when capabilities.scopes is not set', async () => {

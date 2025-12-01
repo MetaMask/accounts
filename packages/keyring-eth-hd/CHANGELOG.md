@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `HdKeyringV2` class implementing KeyringV2 interface ([#398](https://github.com/MetaMask/accounts/pull/398))
-  - Wraps legacy `HdKeyring` to expose accounts via the unified KeyringV2 API and the `KeyringAccount` type.
+- Add `HdKeyringV2` class implementing `KeyringV2` interface ([#398](https://github.com/MetaMask/accounts/pull/398))
+  - Wraps legacy `HdKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
 
 ## [13.0.0]
 

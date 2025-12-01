@@ -1,2 +1,2 @@
 export * from './keyring-wrapper';
-export * from './keyring-address-resolver';
+export * from './keyring-account-registry';
