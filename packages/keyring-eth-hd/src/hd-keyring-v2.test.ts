@@ -743,7 +743,9 @@ describe('HdKeyringV2', () => {
           [],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow();
+        await expect(wrapper.submitRequest(request)).rejects.toThrow(
+          expect.any(Error),
+        );
       });
     });
 
@@ -764,7 +766,9 @@ describe('HdKeyringV2', () => {
           '0x0000000000000000000000000000000000000000',
         ]);
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow();
+        await expect(wrapper.submitRequest(request)).rejects.toThrow(
+          expect.any(Error),
+        );
       });
     });
 
@@ -786,7 +790,9 @@ describe('HdKeyringV2', () => {
           [],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow();
+        await expect(wrapper.submitRequest(request)).rejects.toThrow(
+          expect.any(Error),
+        );
       });
     });
 
@@ -817,7 +823,9 @@ describe('HdKeyringV2', () => {
           ['0x0000000000000000000000000000000000000000'],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow();
+        await expect(wrapper.submitRequest(request)).rejects.toThrow(
+          expect.any(Error),
+        );
       });
     });
 
@@ -938,7 +946,9 @@ describe('HdKeyringV2', () => {
       it('throws error for missing params', async () => {
         const request = createMockRequest(accountId, 'eth_decrypt', []);
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow();
+        await expect(wrapper.submitRequest(request)).rejects.toThrow(
+          expect.any(Error),
+        );
       });
     });
 
@@ -959,7 +969,9 @@ describe('HdKeyringV2', () => {
           [],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow();
+        await expect(wrapper.submitRequest(request)).rejects.toThrow(
+          expect.any(Error),
+        );
       });
     });
 
@@ -989,7 +1001,9 @@ describe('HdKeyringV2', () => {
           [],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow();
+        await expect(wrapper.submitRequest(request)).rejects.toThrow(
+          expect.any(Error),
+        );
       });
     });
 

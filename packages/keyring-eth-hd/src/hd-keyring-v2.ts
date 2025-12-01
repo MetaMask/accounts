@@ -106,7 +106,7 @@ export class HdKeyringV2
    * @param address - The address to check.
    * @returns True if this is the last account in the inner keyring.
    */
-  async #isLastAccount(address: Hex): Promise<boolean> {
+  async #isLastAccount(address: string): Promise<boolean> {
     const innerAddresses = await this.inner.getAccounts();
     const lastAddress = innerAddresses[innerAddresses.length - 1];
     return address === lastAddress;
@@ -251,12 +251,12 @@ export class HdKeyringV2
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
     // Get the account first, before any registry operations
-    const keyringAccount = await this.getAccount(accountId);
-    const hexAddress = this.#toHexAddress(keyringAccount.address);
+    const { address } = await this.getAccount(accountId);
+    const hexAddress = this.#toHexAddress(address);
 
     // Assert that the account to delete is the last one in the inner keyring
     // We check against the inner keyring directly to avoid stale registry issues
-    if (!(await this.#isLastAccount(hexAddress))) {
+    if (!(await this.#isLastAccount(address))) {
       throw new Error(
         'Can only delete the last account in the HD keyring due to derivation index constraints.',
       );
