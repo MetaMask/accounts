@@ -141,8 +141,8 @@ export class HdKeyringV2
       id,
       type: EthAccountType.Eoa,
       address,
-      scopes: this.capabilities.scopes,
-      methods: HD_KEYRING_EOA_METHODS,
+      scopes: [...this.capabilities.scopes],
+      methods: [...HD_KEYRING_EOA_METHODS],
       options: {
         entropy: {
           type: KeyringAccountEntropyTypeOption.Mnemonic,
