@@ -1011,7 +1011,16 @@ describe('HdKeyringV2', () => {
         const request = createMockRequest(accountId, 'unsupported_method', []);
 
         await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          'Unsupported method for HdKeyringWrapper',
+          `Account ${accountId} cannot handle method: unsupported_method`,
+        );
+      });
+
+      it('throws error when account cannot handle the method', async () => {
+        // eth_sendTransaction is a valid Ethereum method but not in HD_KEYRING_EOA_METHODS
+        const request = createMockRequest(accountId, 'eth_sendTransaction', []);
+
+        await expect(wrapper.submitRequest(request)).rejects.toThrow(
+          `Account ${accountId} cannot handle method: eth_sendTransaction`,
         );
       });
     });

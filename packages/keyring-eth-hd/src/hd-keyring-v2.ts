@@ -124,10 +124,10 @@ export class HdKeyringV2
       methods: HD_KEYRING_EOA_METHODS,
       options: {
         entropy: {
-          derivationPath: `${this.inner.hdPath}/${addressIndex}`,
-          groupIndex: addressIndex,
-          id: this.entropySourceId,
           type: KeyringAccountEntropyTypeOption.Mnemonic,
+          id: this.entropySourceId,
+          groupIndex: addressIndex,
+          derivationPath: `${this.inner.hdPath}/${addressIndex}`,
         },
       },
     };
@@ -282,8 +282,15 @@ export class HdKeyringV2
   async submitRequest(request: KeyringRequest): Promise<Json> {
     const { method, params = [] } = request.request;
 
-    const { address } = await this.getAccount(request.account);
+    const { address, methods } = await this.getAccount(request.account);
     const hexAddress = this.#toHexAddress(address);
+
+    // Validate account can handle the method
+    if (!methods.includes(method)) {
+      throw new Error(
+        `Account ${request.account} cannot handle method: ${method}`,
+      );
+    }
 
     // Validate params is an array
     if (!Array.isArray(params)) {
@@ -378,7 +385,7 @@ export class HdKeyringV2
       }
 
       default:
-        throw new Error(`Unsupported method for HdKeyringWrapper: ${method}`);
+        throw new Error(`Unsupported method for HdKeyringV2: ${method}`);
     }
   }
 }
