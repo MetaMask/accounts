@@ -3,6 +3,7 @@ import {
   EthAccountType,
   EthMethod,
   EthScope,
+  type KeyringAccount,
   type KeyringRequest,
   KeyringType,
   PrivateKeyEncoding,
@@ -355,6 +356,55 @@ describe('HdKeyringV2', () => {
       expect(accounts).toHaveLength(3);
     });
 
+    it('creates all accounts up to the target index', async () => {
+      // Request account at index 3, which should create accounts 0, 1, 2, 3
+      const created = await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 3,
+      });
+
+      // Should return all 4 newly created accounts
+      expect(created).toHaveLength(4);
+
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(4);
+
+      // Verify all accounts have correct groupIndex
+      const groupIndices = accounts
+        .map((a) => {
+          const ent = a.options.entropy;
+          return ent && 'groupIndex' in ent ? ent.groupIndex : -1;
+        })
+        .sort((a, b) => a - b);
+
+      expect(groupIndices).toStrictEqual([0, 1, 2, 3]);
+    });
+
+    it('creates remaining accounts when some already exist', async () => {
+      // Create account at index 0
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 0,
+      });
+
+      expect(await wrapper.getAccounts()).toHaveLength(1);
+
+      // Now request account at index 3, which should create accounts 1, 2, 3
+      const created = await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 3,
+      });
+
+      // Should return the 3 newly created accounts
+      expect(created).toHaveLength(3);
+
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(4);
+    });
+
     it('syncs cache when legacy keyring adds accounts directly', async () => {
       // Create first account via wrapper
       await wrapper.createAccounts({
@@ -448,182 +498,128 @@ describe('HdKeyringV2', () => {
       });
     });
 
-    it('removes an account from the keyring', async () => {
+    it('removes the last account from the keyring', async () => {
       const accounts = await wrapper.getAccounts();
-      expect(accounts.length).toBeGreaterThan(0);
-      const toDelete = accounts[0];
-      expect(toDelete).toBeDefined();
-      expect(toDelete?.id).toBeDefined();
+      expect(accounts).toHaveLength(3);
+      const lastAccount = accounts[2];
+      expect(lastAccount).toBeDefined();
+      expect(lastAccount?.id).toBeDefined();
 
-      if (toDelete?.id) {
-        await wrapper.deleteAccount(toDelete.id);
+      if (lastAccount?.id) {
+        await wrapper.deleteAccount(lastAccount.id);
       }
 
       const remaining = await wrapper.getAccounts();
       expect(remaining).toHaveLength(2);
-      expect(remaining.find((a) => a.id === toDelete?.id)).toBeUndefined();
+      expect(remaining.find((a) => a.id === lastAccount?.id)).toBeUndefined();
     });
 
     it('removes the account from the cache', async () => {
       const accounts = await wrapper.getAccounts();
-      expect(accounts.length).toBeGreaterThanOrEqual(2);
-      const toDelete = accounts[1];
-      expect(toDelete).toBeDefined();
-      expect(toDelete?.id).toBeDefined();
+      expect(accounts).toHaveLength(3);
+      const lastAccount = accounts[2];
+      expect(lastAccount).toBeDefined();
+      expect(lastAccount?.id).toBeDefined();
 
-      if (toDelete?.id) {
-        await wrapper.deleteAccount(toDelete.id);
+      if (lastAccount?.id) {
+        await wrapper.deleteAccount(lastAccount.id);
       }
 
       const remaining = await wrapper.getAccounts();
-      expect(remaining.find((a) => a.id === toDelete?.id)).toBeUndefined();
+      expect(remaining.find((a) => a.id === lastAccount?.id)).toBeUndefined();
     });
 
-    it('handles deleting middle account', async () => {
+    it('throws when trying to delete a non-last account', async () => {
       const accounts = await wrapper.getAccounts();
-      expect(accounts.length).toBeGreaterThanOrEqual(2);
+      expect(accounts).toHaveLength(3);
       const middleAccount = accounts[1];
       expect(middleAccount).toBeDefined();
-      expect(middleAccount?.id).toBeDefined();
 
-      if (middleAccount?.id) {
-        await wrapper.deleteAccount(middleAccount.id);
-      }
+      const middleAccountId = middleAccount?.id;
+      expect(middleAccountId).toBeDefined();
 
-      const remaining = await wrapper.getAccounts();
-      expect(remaining).toHaveLength(2);
-    });
-
-    it('syncs cache when legacy keyring removes accounts directly', async () => {
-      const accounts = await wrapper.getAccounts();
-      expect(accounts).toHaveLength(3);
-
-      // Remove an account directly via legacy keyring (simulating external modification)
-      const innerAccounts = await inner.getAccounts();
-      expect(innerAccounts.length).toBeGreaterThan(0);
-      const firstAddress = innerAccounts[0];
-      expect(firstAddress).toBeDefined();
-
-      // Type assertion safe here because we verified it exists
-      if (firstAddress) {
-        inner.removeAccount(firstAddress);
-      }
-
-      // Now delete another account via wrapper
-      // This should detect the external change and sync properly
-      const remainingAccounts = await wrapper.getAccounts();
-      expect(remainingAccounts.length).toBeGreaterThan(0);
-      const toDelete = remainingAccounts[0];
-      expect(toDelete).toBeDefined();
-      expect(toDelete?.id).toBeDefined();
-
-      if (toDelete?.id) {
-        await wrapper.deleteAccount(toDelete.id);
-      }
-
-      const final = await wrapper.getAccounts();
-      // Should have 1 account left (started with 3, removed 1 via legacy, removed 1 via wrapper)
-      expect(final).toHaveLength(1);
-    });
-
-    it('returns correct account by groupIndex after deletion', async () => {
-      // Create accounts at indices 0, 1, 2
-      const accounts = await wrapper.getAccounts();
-      expect(accounts).toHaveLength(3);
-
-      const account0 = accounts.find(
-        (a) =>
-          a.options.entropy &&
-          'groupIndex' in a.options.entropy &&
-          a.options.entropy.groupIndex === 0,
-      );
-      const account1 = accounts.find(
-        (a) =>
-          a.options.entropy &&
-          'groupIndex' in a.options.entropy &&
-          a.options.entropy.groupIndex === 1,
-      );
-      const account2 = accounts.find(
-        (a) =>
-          a.options.entropy &&
-          'groupIndex' in a.options.entropy &&
-          a.options.entropy.groupIndex === 2,
-      );
-
-      expect(account0).toBeDefined();
-      expect(account1).toBeDefined();
-      expect(account2).toBeDefined();
-
-      // Delete account at groupIndex 1
-      if (account1?.id) {
-        await wrapper.deleteAccount(account1.id);
-      }
-
-      // After deletion, we should have accounts with groupIndex 0 and 2
-      // but they'll be at array positions 0 and 1
-      const remaining = await wrapper.getAccounts();
-      expect(remaining).toHaveLength(2);
-
-      // Now try to create an account at groupIndex 1 again
-      // This should return the EXISTING account at groupIndex 2, NOT create a new one
-      // The bug was that it would use array position [1] which is the account with groupIndex 2
-      const result = await wrapper.createAccounts({
-        type: 'bip44:derive-index',
-        entropySource: TEST_ENTROPY_SOURCE_ID,
-        groupIndex: 2,
-      });
-
-      // Should return the existing account with groupIndex 2
-      expect(result).toHaveLength(1);
-      expect(result[0]?.id).toBe(account2?.id);
-      expect(result[0]?.address).toBe(account2?.address);
-
-      // Should still have 2 accounts total
-      const final = await wrapper.getAccounts();
-      expect(final).toHaveLength(2);
-    });
-
-    it('rejects creating account at non-sequential groupIndex after deletion', async () => {
-      // Create accounts at indices 0, 1, 2
-      const accounts = await wrapper.getAccounts();
-      expect(accounts).toHaveLength(3);
-
-      const account1 = accounts.find(
-        (a) =>
-          a.options.entropy &&
-          'groupIndex' in a.options.entropy &&
-          a.options.entropy.groupIndex === 1,
-      );
-
-      expect(account1).toBeDefined();
-
-      // Delete account at groupIndex 1
-      if (account1?.id) {
-        await wrapper.deleteAccount(account1.id);
-      }
-
-      // After deletion, we have accounts with groupIndex 0 and 2 (inner size is 2)
-      const remaining = await wrapper.getAccounts();
-      expect(remaining).toHaveLength(2);
-
-      // Now try to create an account at groupIndex 3 (higher than inner size of 2)
-      // This should fail because the inner keyring only supports sequential creation at index 2
       await expect(
-        wrapper.createAccounts({
-          type: 'bip44:derive-index',
-          entropySource: TEST_ENTROPY_SOURCE_ID,
-          groupIndex: 3,
-        }),
+        wrapper.deleteAccount(middleAccountId as string),
       ).rejects.toThrow(
-        'Cannot create account at group index 3: inner keyring only supports sequential creation at index 2',
+        'Can only delete the last account in the HD keyring due to derivation index constraints.',
       );
 
-      // Verify we can still create at the next sequential index (2)
-      // But this already exists, so it should return the existing account
+      // All accounts should still be present
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(3);
+    });
+
+    it('throws when trying to delete the first account', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+      const firstAccount = accounts[0];
+      expect(firstAccount).toBeDefined();
+
+      const firstAccountId = firstAccount?.id;
+      expect(firstAccountId).toBeDefined();
+
+      await expect(
+        wrapper.deleteAccount(firstAccountId as string),
+      ).rejects.toThrow(
+        'Can only delete the last account in the HD keyring due to derivation index constraints.',
+      );
+
+      // All accounts should still be present
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(3);
+    });
+
+    it('allows deleting the only remaining account', async () => {
+      // Delete accounts from last to first
+      let accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      // Delete last account (index 2)
+      const account2 = accounts[2];
+      expect(account2).toBeDefined();
+      await wrapper.deleteAccount((account2 as KeyringAccount).id);
+      accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(2);
+
+      // Delete last account (index 1)
+      const account1 = accounts[1];
+      expect(account1).toBeDefined();
+      await wrapper.deleteAccount((account1 as KeyringAccount).id);
+      accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(1);
+
+      // Delete last remaining account (index 0)
+      const account0 = accounts[0];
+      expect(account0).toBeDefined();
+      await wrapper.deleteAccount((account0 as KeyringAccount).id);
+      accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(0);
+    });
+
+    it('can re-create accounts after deleting all', async () => {
+      // Delete all accounts from last to first
+      let accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      const accountToDelete2 = accounts[2];
+      const accountToDelete1 = accounts[1];
+      const accountToDelete0 = accounts[0];
+      expect(accountToDelete2).toBeDefined();
+      expect(accountToDelete1).toBeDefined();
+      expect(accountToDelete0).toBeDefined();
+
+      await wrapper.deleteAccount((accountToDelete2 as KeyringAccount).id);
+      await wrapper.deleteAccount((accountToDelete1 as KeyringAccount).id);
+      await wrapper.deleteAccount((accountToDelete0 as KeyringAccount).id);
+
+      accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(0);
+
+      // Now we can create accounts again starting from index 0
       const result = await wrapper.createAccounts({
         type: 'bip44:derive-index',
         entropySource: TEST_ENTROPY_SOURCE_ID,
-        groupIndex: 2,
+        groupIndex: 0,
       });
 
       expect(result).toHaveLength(1);
@@ -631,11 +627,10 @@ describe('HdKeyringV2', () => {
       const entropy = newAccount?.options.entropy;
       expect(
         entropy && 'groupIndex' in entropy ? entropy.groupIndex : undefined,
-      ).toBe(2);
+      ).toBe(0);
 
-      // Should still have 2 accounts total (the account at index 2 already existed)
       const final = await wrapper.getAccounts();
-      expect(final).toHaveLength(2);
+      expect(final).toHaveLength(1);
     });
   });
 

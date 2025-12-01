@@ -95,6 +95,11 @@ export class HdKeyringV2
     });
   }
 
+  #isLastAccount(address: Hex): boolean {
+    const accounts = Array.from(this.#accountsCache.keys());
+    return accounts[accounts.length - 1] === address;
+  }
+
   /**
    * Helper method to safely cast a KeyringAccount address to Hex type.
    * The KeyringAccount.address is typed as string, but for Ethereum accounts
@@ -191,62 +196,38 @@ export class HdKeyringV2
     const currentCount = currentAccounts.length;
     const targetIndex = options.groupIndex;
 
-    // Check if an account with this groupIndex already exists
-    // We need to search by groupIndex value, not array position, because after
-    // account deletion the array indices don't match the groupIndex values
-    const existingAccount = currentAccounts.find(
-      (account) =>
-        account.options.entropy &&
-        'groupIndex' in account.options.entropy &&
-        account.options.entropy.groupIndex === targetIndex,
-    );
-
+    // Check if an account at this index already exists
+    // Since only the last account can be deleted, array position always equals groupIndex
+    const existingAccount = currentAccounts[targetIndex];
     if (existingAccount) {
       return [existingAccount];
     }
 
-    // The inner HD keyring only supports sequential account creation starting from
-    // walletMap.size. It does NOT support creating accounts at arbitrary derivation
-    // indices. After account deletion, those derivation indices are permanently lost.
-    //
-    // We enforce this limitation: reject requests for groupIndex values that would
-    // require the inner keyring to skip indices (i.e., when there are gaps from deletions).
-    const innerSize = (await this.inner.getAccounts()).length;
-    if (targetIndex !== innerSize) {
+    // Cannot create accounts at indices lower than current count
+    if (targetIndex < currentCount) {
       throw new Error(
         `Cannot create account at group index ${targetIndex}: ` +
-          `inner keyring only supports sequential creation at index ${innerSize}. ` +
-          `Account deletion creates permanent gaps in the derivation index sequence.`,
+          `index is below current account count ${currentCount}.`,
       );
     }
 
-    // Calculate how many accounts we need to add to reach the target index
+    // Add accounts up to and including the target index
     const accountsToAdd = targetIndex - currentCount + 1;
+    const newAddresses = await this.inner.addAccounts(accountsToAdd);
 
-    if (accountsToAdd > 0) {
-      await this.inner.addAccounts(accountsToAdd);
-    }
+    // Create and cache KeyringAccount objects for all newly added accounts
+    const newAccounts: KeyringAccount[] = newAddresses.map((address, index) => {
+      const groupIndex = currentCount + index;
+      return this.#createKeyringAccount(address, groupIndex);
+    });
 
-    // Get the updated addresses after adding new accounts
-    const updatedAddresses = await this.inner.getAccounts();
-    const targetAddress = updatedAddresses[targetIndex];
-
-    if (!targetAddress) {
-      throw new Error(`Failed to create account at group index ${targetIndex}`);
-    }
-
-    // Create and cache the KeyringAccount for the target address
-    const newAccount = this.#createKeyringAccount(targetAddress, targetIndex);
-
-    return [newAccount];
+    return newAccounts;
   }
 
   /**
    * Delete an account from the keyring.
    *
-   * ⚠️ Warning: Deleting accounts may invalidate the groupIndex values stored
-   * in cached KeyringAccount objects, since the legacy keyring uses array
-   * indices. Consider clearing the cache if account order consistency is critical.
+   * ⚠️ Warning: Only deleting the last account is possible.
    *
    * @param accountId - The account ID to delete.
    */
@@ -254,14 +235,20 @@ export class HdKeyringV2
     // Sync with the inner keyring state in case it was modified externally
     // This ensures our cache is up-to-date before we make changes
     await this.getAccounts();
+    const keyringAccount = await this.getAccount(accountId);
+    const hexAddress = this.#toHexAddress(keyringAccount.address);
 
-    const account = await this.getAccount(accountId);
-    const hexAddress = this.#toHexAddress(account.address);
+    // Assert that the account to delete is the last one
+    if (!this.#isLastAccount(hexAddress)) {
+      throw new Error(
+        'Can only delete the last account in the HD keyring due to derivation index constraints.',
+      );
+    }
 
     // Remove from the legacy keyring
     this.inner.removeAccount(hexAddress);
 
-    // Remove from our cache
+    // Remove from the cache
     this.#accountsCache.delete(hexAddress);
   }
 
