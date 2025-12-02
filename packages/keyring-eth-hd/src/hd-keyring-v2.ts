@@ -2,6 +2,7 @@ import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
 import type { Bip44Account } from '@metamask/account-api';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
+import { Mutex } from 'async-mutex';
 import {
   type CreateAccountOptions,
   EthAccountType,
@@ -86,6 +87,8 @@ export class HdKeyringV2
   implements KeyringV2
 {
   protected readonly entropySource: EntropySourceId;
+
+  readonly #lock = new Mutex();
 
   constructor(options: HdKeyringV2Options) {
     super({
@@ -192,51 +195,53 @@ export class HdKeyringV2
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<Bip44Account<KeyringAccount>[]> {
-    // For HD keyring, we only support BIP-44 derive index
-    if (options.type !== 'bip44:derive-index') {
-      throw new Error(
-        `Unsupported account creation type for HdKeyring: ${options.type}`,
-      );
-    }
+    return this.#lock.runExclusive(async () => {
+      // For HD keyring, we only support BIP-44 derive index
+      if (options.type !== 'bip44:derive-index') {
+        throw new Error(
+          `Unsupported account creation type for HdKeyring: ${options.type}`,
+        );
+      }
 
-    // Validate that the entropy source matches this keyring's entropy source
-    if (options.entropySource !== this.entropySource) {
-      throw new Error(
-        `Entropy source mismatch: expected '${this.entropySource}', got '${options.entropySource}'`,
-      );
-    }
+      // Validate that the entropy source matches this keyring's entropy source
+      if (options.entropySource !== this.entropySource) {
+        throw new Error(
+          `Entropy source mismatch: expected '${this.entropySource}', got '${options.entropySource}'`,
+        );
+      }
 
-    // Sync with the inner keyring state in case it was modified externally
-    // This ensures our cache is up-to-date before we make changes
-    const currentAccounts = await this.getAccounts();
-    const currentCount = currentAccounts.length;
-    const targetIndex = options.groupIndex;
+      // Sync with the inner keyring state in case it was modified externally
+      // This ensures our cache is up-to-date before we make changes
+      const currentAccounts = await this.getAccounts();
+      const currentCount = currentAccounts.length;
+      const targetIndex = options.groupIndex;
 
-    // Check if an account at this index already exists
-    // Since only the last account can be deleted, array position always equals groupIndex
-    const existingAccount = currentAccounts[targetIndex];
-    if (existingAccount) {
-      return [existingAccount];
-    }
+      // Check if an account at this index already exists
+      // Since only the last account can be deleted, array position always equals groupIndex
+      const existingAccount = currentAccounts[targetIndex];
+      if (existingAccount) {
+        return [existingAccount];
+      }
 
-    // Only allow derivation of the next account in sequence
-    if (targetIndex !== currentCount) {
-      throw new Error(
-        `Can only create the next account in sequence. ` +
-          `Expected groupIndex ${currentCount}, got ${targetIndex}.`,
-      );
-    }
+      // Only allow derivation of the next account in sequence
+      if (targetIndex !== currentCount) {
+        throw new Error(
+          `Can only create the next account in sequence. ` +
+            `Expected groupIndex ${currentCount}, got ${targetIndex}.`,
+        );
+      }
 
-    // Add the next account
-    const [newAddress] = await this.inner.addAccounts(1);
+      // Add the next account
+      const [newAddress] = await this.inner.addAccounts(1);
 
-    if (!newAddress) {
-      throw new Error('Failed to create new account');
-    }
+      if (!newAddress) {
+        throw new Error('Failed to create new account');
+      }
 
-    const newAccount = this.#createKeyringAccount(newAddress, targetIndex);
+      const newAccount = this.#createKeyringAccount(newAddress, targetIndex);
 
-    return [newAccount];
+      return [newAccount];
+    });
   }
 
   /**
