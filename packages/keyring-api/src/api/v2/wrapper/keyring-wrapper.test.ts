@@ -130,8 +130,6 @@ const capabilities: KeyringCapabilities = {
   scopes: ['eip155:10'],
 };
 
-const entropySourceId = 'test-entropy-source';
-
 describe('KeyringWrapper', () => {
   it('serializes and deserializes via the inner keyring', async () => {
     const inner = new TestKeyring(['0x1']);
@@ -139,7 +137,6 @@ describe('KeyringWrapper', () => {
       inner,
       type: KeyringType.Hd,
       capabilities,
-      entropySourceId,
     });
 
     const state = await wrapper.serialize();
@@ -156,7 +153,6 @@ describe('KeyringWrapper', () => {
       inner,
       type: KeyringType.Hd,
       capabilities,
-      entropySourceId,
     });
 
     const accounts = await wrapper.getAccounts();
@@ -196,7 +192,6 @@ describe('KeyringWrapper', () => {
       inner,
       type: KeyringType.Hd,
       capabilities,
-      entropySourceId,
     });
 
     // First call populates the registry
@@ -218,7 +213,6 @@ describe('KeyringWrapper', () => {
       inner,
       type: KeyringType.Hd,
       capabilities,
-      entropySourceId,
     });
 
     // Manually register an address to get a consistent account ID
@@ -249,7 +243,6 @@ describe('KeyringWrapper', () => {
       inner,
       type: KeyringType.Hd,
       capabilities,
-      entropySourceId,
     });
 
     // Get account by calling getAccounts first to know the ID
@@ -270,7 +263,6 @@ describe('KeyringWrapper', () => {
       inner,
       type: KeyringType.Hd,
       capabilities,
-      entropySourceId,
     });
 
     await expect(wrapper.getAccount(uuidv4())).rejects.toThrow(
@@ -285,7 +277,6 @@ describe('KeyringWrapper', () => {
       inner,
       type: KeyringType.Hd,
       capabilities,
-      entropySourceId,
     });
 
     // Prime the registry by calling getAccounts once
@@ -300,7 +291,6 @@ describe('KeyringWrapper', () => {
       inner: emptyInner,
       type: KeyringType.Hd,
       capabilities,
-      entropySourceId,
     });
 
     // Use the account ID from the first wrapper - the new wrapper won't have it
@@ -315,7 +305,6 @@ describe('KeyringWrapper', () => {
     const wrapper = new TestKeyringWrapper({
       inner,
       type: KeyringType.Hd,
-      entropySourceId,
       // Explicitly omit scopes to exercise the default fallback.
       capabilities: {} as KeyringCapabilities,
     });

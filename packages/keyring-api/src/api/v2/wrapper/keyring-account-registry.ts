@@ -6,7 +6,7 @@ import type { KeyringAccount } from '../../account';
 /**
  * In-memory registry for KeyringAccount objects.
  *
- * Provides O(1) lookups by AccountId or address, and stores the full
+ * Provides O(1) lookups by account ID or address, and stores the full
  * KeyringAccount objects for efficient retrieval.
  */
 export class KeyringAccountRegistry<
@@ -17,9 +17,9 @@ export class KeyringAccountRegistry<
   readonly #idByAddress = new Map<string, AccountId>();
 
   /**
-   * Get an account by its AccountId.
+   * Get an account by its account ID.
    *
-   * @param accountId - The AccountId to look up.
+   * @param accountId - The account ID to look up.
    * @returns The KeyringAccount, or undefined if not found.
    */
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
@@ -28,9 +28,9 @@ export class KeyringAccountRegistry<
   }
 
   /**
-   * Get an account's address by its AccountId.
+   * Get an account's address by its account ID.
    *
-   * @param accountId - The AccountId to look up.
+   * @param accountId - The account ID to look up.
    * @returns The address, or undefined if not found.
    */
   getAddress(accountId: AccountId): string | undefined {
@@ -38,10 +38,10 @@ export class KeyringAccountRegistry<
   }
 
   /**
-   * Get an AccountId by the underlying address.
+   * Get an account ID by the underlying address.
    *
    * @param address - The address to look up.
-   * @returns The AccountId, or undefined if not found.
+   * @returns The account ID, or undefined if not found.
    */
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   getAccountId(address: string): AccountId | undefined {
@@ -49,11 +49,11 @@ export class KeyringAccountRegistry<
   }
 
   /**
-   * Register a new address and generate an AccountId for it.
-   * If the address is already registered, returns the existing AccountId.
+   * Register a new address and generate an account ID for it.
+   * If the address is already registered, returns the existing account ID.
    *
    * @param address - The address to register.
-   * @returns The AccountId for this address.
+   * @returns The account ID for this address.
    */
   register(address: string): AccountId {
     const existing = this.#idByAddress.get(address);
@@ -67,7 +67,12 @@ export class KeyringAccountRegistry<
 
   /**
    * Add an account to the registry.
-   * Also registers the address → AccountId mapping.
+   * Also registers the address → account ID mapping.
+   *
+   * ⚠️ If an address was previously registered via `register()` with a
+   * different account ID, calling `set()` with an account that has a new ID for
+   * the same address will overwrite the address → ID mapping. The old ID
+   * becomes "dangling" (i.e., `get(oldId)` will return undefined).
    *
    * @param account - The KeyringAccount to cache.
    */
@@ -79,7 +84,7 @@ export class KeyringAccountRegistry<
   /**
    * Remove an account from the registry.
    *
-   * @param accountId - The AccountId to remove.
+   * @param accountId - The account ID to remove.
    */
   delete(accountId: AccountId): void {
     const account = this.#accountById.get(accountId);
@@ -107,9 +112,9 @@ export class KeyringAccountRegistry<
   }
 
   /**
-   * Get all AccountIds in the registry.
+   * Get all account IDs in the registry.
    *
-   * @returns Array of all AccountIds.
+   * @returns Array of all account IDs.
    */
   keys(): AccountId[] {
     return Array.from(this.#accountById.keys());
@@ -118,7 +123,7 @@ export class KeyringAccountRegistry<
   /**
    * Check if an account exists in the registry.
    *
-   * @param accountId - The AccountId to check.
+   * @param accountId - The account ID to check.
    * @returns True if the account exists.
    */
   has(accountId: AccountId): boolean {

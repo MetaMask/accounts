@@ -1025,24 +1025,5 @@ describe('HdKeyringV2', () => {
         );
       });
     });
-
-    describe('params validation', () => {
-      it('throws error when params is not an array', async () => {
-        const request = {
-          id: '00000000-0000-0000-0000-000000000000',
-          scope: EthScope.Eoa,
-          account: accountId,
-          origin: 'http://localhost',
-          request: {
-            method: EthMethod.PersonalSign,
-            params: 'invalid' as unknown as Json[],
-          },
-        };
-
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          'Expected params to be an array',
-        );
-      });
-    });
   });
 });

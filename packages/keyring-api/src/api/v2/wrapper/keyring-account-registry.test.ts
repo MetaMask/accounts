@@ -23,7 +23,7 @@ function createMockAccount(id: AccountId, address: string): KeyringAccount {
 
 describe('KeyringAccountRegistry', () => {
   describe('register', () => {
-    it('registers an address and returns an AccountId', () => {
+    it('registers an address and returns an account ID', () => {
       const registry = new KeyringAccountRegistry();
       const address = '0xaBc';
       const id = registry.register(address);
@@ -54,7 +54,7 @@ describe('KeyringAccountRegistry', () => {
       expect(registry.get(id)).toBe(account);
     });
 
-    it('returns undefined for unknown AccountId', () => {
+    it('returns undefined for unknown account ID', () => {
       const registry = new KeyringAccountRegistry();
 
       expect(registry.get('unknown-id' as AccountId)).toBeUndefined();
@@ -84,7 +84,7 @@ describe('KeyringAccountRegistry', () => {
       expect(registry.getAddress(id)).toBe(address);
     });
 
-    it('returns undefined for unknown AccountId', () => {
+    it('returns undefined for unknown account ID', () => {
       const registry = new KeyringAccountRegistry();
 
       expect(registry.getAddress('unknown-id' as AccountId)).toBeUndefined();
@@ -92,7 +92,7 @@ describe('KeyringAccountRegistry', () => {
   });
 
   describe('getAccountId', () => {
-    it('returns AccountId for a registered address', () => {
+    it('returns account ID for a registered address', () => {
       const registry = new KeyringAccountRegistry();
       const address = '0xaBc';
       const id = registry.register(address);
@@ -123,7 +123,7 @@ describe('KeyringAccountRegistry', () => {
       expect(registry.getAccountId(address)).toBeUndefined();
     });
 
-    it('does nothing when deleting unknown AccountId', () => {
+    it('does nothing when deleting unknown account ID', () => {
       const registry = new KeyringAccountRegistry();
 
       expect(() => registry.delete('unknown-id' as AccountId)).not.toThrow();
@@ -173,13 +173,17 @@ describe('KeyringAccountRegistry', () => {
   });
 
   describe('keys', () => {
-    it('returns all AccountIds as an array', () => {
+    it('returns all account IDs as an array', () => {
       const registry = new KeyringAccountRegistry();
-      const id1 = registry.register('0xaBc');
-      const id2 = registry.register('0xDeF');
 
-      registry.set(createMockAccount(id1, '0xaBc'));
-      registry.set(createMockAccount(id2, '0xDeF'));
+      const address1 = '0xaBc';
+      const address2 = '0xDeF';
+
+      const id1 = registry.register(address1);
+      const id2 = registry.register(address2);
+
+      registry.set(createMockAccount(id1, address1));
+      registry.set(createMockAccount(id2, address2));
 
       const keys = registry.keys();
 
@@ -192,9 +196,12 @@ describe('KeyringAccountRegistry', () => {
   describe('has', () => {
     it('returns true for existing account', () => {
       const registry = new KeyringAccountRegistry();
-      const id = registry.register('0xaBc');
 
-      registry.set(createMockAccount(id, '0xaBc'));
+      const address = '0xaBc';
+
+      const id = registry.register(address);
+
+      registry.set(createMockAccount(id, address));
 
       expect(registry.has(id)).toBe(true);
     });
@@ -212,13 +219,19 @@ describe('KeyringAccountRegistry', () => {
 
       expect(registry.size).toBe(0);
 
-      const id1 = registry.register('0xaBc');
-      registry.set(createMockAccount(id1, '0xaBc'));
+      const address1 = '0xaBc';
+
+      const id1 = registry.register(address1);
+
+      registry.set(createMockAccount(id1, address1));
 
       expect(registry.size).toBe(1);
 
-      const id2 = registry.register('0xDeF');
-      registry.set(createMockAccount(id2, '0xDeF'));
+      const address2 = '0xDeF';
+
+      const id2 = registry.register(address2);
+
+      registry.set(createMockAccount(id2, address2));
 
       expect(registry.size).toBe(2);
     });

@@ -30,10 +30,11 @@ import {
   EthSignTransactionParamsStruct,
   EthSignTypedDataParamsStruct,
   EthSignTypedDataV1ParamsStruct,
+  type EntropySourceId,
 } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
-import type { Hex, Json } from '@metamask/utils';
+import { add0x, type Hex, type Json } from '@metamask/utils';
 
 import type { DeserializableHDKeyringState, HdKeyring } from './hd-keyring';
 
@@ -82,20 +83,22 @@ const HD_KEYRING_EOA_METHODS = [
  */
 export type HdKeyringV2Options = {
   legacyKeyring: HdKeyring;
-  entropySourceId: string;
+  entropySourceId: EntropySourceId;
 };
 
 export class HdKeyringV2
   extends KeyringWrapper<HdKeyring, Bip44Account<KeyringAccount>>
   implements KeyringV2
 {
+  protected readonly entropySourceId: EntropySourceId;
+
   constructor(options: HdKeyringV2Options) {
     super({
       type: KeyringType.Hd,
       inner: options.legacyKeyring,
       capabilities: hdKeyringV2Capabilities,
-      entropySourceId: options.entropySourceId,
     });
+    this.entropySourceId = options.entropySourceId;
   }
 
   /**
@@ -121,7 +124,7 @@ export class HdKeyringV2
    * @returns The address as Hex type.
    */
   #toHexAddress(address: string): Hex {
-    return address as Hex;
+    return add0x(address);
   }
 
   /**
@@ -230,8 +233,7 @@ export class HdKeyringV2
     }
 
     // Add the next account
-    const newAddresses = await this.inner.addAccounts(1);
-    const newAddress = newAddresses[0];
+    const [newAddress] = await this.inner.addAccounts(1);
 
     if (!newAddress) {
       throw new Error('Failed to create new account');
@@ -286,13 +288,14 @@ export class HdKeyringV2
     }
 
     // The legacy HdKeyring returns a hex string without 0x prefix.
-    const privateKeyHex = await this.inner.exportAccount(
+    const privateKeyWithout0x = await this.inner.exportAccount(
       this.#toHexAddress(account.address),
     );
+    const privateKey = add0x(privateKeyWithout0x);
 
     const exported: ExportedAccount = {
       type: 'private-key',
-      privateKey: `0x${privateKeyHex}`,
+      privateKey,
       encoding: PrivateKeyEncoding.Hexadecimal,
     };
 
@@ -310,11 +313,6 @@ export class HdKeyringV2
       throw new Error(
         `Account ${request.account} cannot handle method: ${method}`,
       );
-    }
-
-    // Validate params is an array
-    if (!Array.isArray(params)) {
-      throw new Error('Expected params to be an array');
     }
 
     switch (method) {

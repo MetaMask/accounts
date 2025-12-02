@@ -31,11 +31,6 @@ export type KeyringWrapperOptions<InnerKeyring extends Keyring> = {
    * Capabilities of the underlying keyring.
    */
   capabilities: KeyringCapabilities;
-
-  /**
-   * Identifier for the entropy source associated with this keyring.
-   */
-  entropySourceId: string;
 };
 
 /**
@@ -59,8 +54,6 @@ export abstract class KeyringWrapper<
 
   protected readonly inner: InnerKeyring;
 
-  protected readonly entropySourceId: string;
-
   /**
    * Registry for KeyringAccount objects.
    * Provides O(1) lookups by AccountId or address.
@@ -75,7 +68,6 @@ export abstract class KeyringWrapper<
     this.inner = options.inner;
     this.type = `${options.type}`;
     this.capabilities = options.capabilities;
-    this.entropySourceId = options.entropySourceId;
   }
 
   /**
