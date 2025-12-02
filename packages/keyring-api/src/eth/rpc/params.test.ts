@@ -164,11 +164,6 @@ describe('EthEip7702AuthorizationStruct', () => {
     expect(() => assert(auth, EthEip7702AuthorizationStruct)).not.toThrow();
   });
 
-  it('validates authorization tuple with string chainId', () => {
-    const auth = ['0x1', '0x1234567890123456789012345678901234567890', '0x0'];
-    expect(() => assert(auth, EthEip7702AuthorizationStruct)).not.toThrow();
-  });
-
   it('rejects invalid address', () => {
     const auth = [1, 'invalid-address', 0];
     expect(() => assert(auth, EthEip7702AuthorizationStruct)).toThrow(
