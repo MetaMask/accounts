@@ -2,7 +2,6 @@ import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
 import type { Bip44Account } from '@metamask/account-api';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
-import { Mutex } from 'async-mutex';
 import {
   type CreateAccountOptions,
   EthAccountType,
@@ -31,6 +30,7 @@ import {
 import type { AccountId } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import { add0x, type Hex, type Json } from '@metamask/utils';
+import { Mutex } from 'async-mutex';
 
 import type { DeserializableHDKeyringState, HdKeyring } from './hd-keyring';
 
