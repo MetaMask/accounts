@@ -20,6 +20,7 @@ import {
   tuple,
   type,
   union,
+  unknown,
 } from '@metamask/superstruct';
 
 import { EthAddressStruct, EthBytesStruct } from '../types';
@@ -64,7 +65,7 @@ export const EthTypedDataV1Struct = array(
   object({
     type: string(),
     name: string(),
-    value: any(),
+    value: unknown(),
   }),
 );
 
@@ -116,9 +117,9 @@ export type EthEncryptedData = Infer<typeof EthEncryptedDataStruct>;
  * Format: [chainId, address, nonce]
  */
 export const EthEip7702AuthorizationStruct = tuple([
-  union([number(), string()]), // chainId
+  number(), // chainId
   EthAddressStruct, // address (contract to delegate to)
-  union([number(), string()]), // nonce
+  number(), // nonce
 ]);
 
 export type EthEip7702Authorization = Infer<

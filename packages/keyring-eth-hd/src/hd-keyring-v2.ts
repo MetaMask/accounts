@@ -83,14 +83,14 @@ const HD_KEYRING_EOA_METHODS = [
  */
 export type HdKeyringV2Options = {
   legacyKeyring: HdKeyring;
-  entropySourceId: EntropySourceId;
+  entropySource: EntropySourceId;
 };
 
 export class HdKeyringV2
   extends KeyringWrapper<HdKeyring, Bip44Account<KeyringAccount>>
   implements KeyringV2
 {
-  protected readonly entropySourceId: EntropySourceId;
+  protected readonly entropySource: EntropySourceId;
 
   constructor(options: HdKeyringV2Options) {
     super({
@@ -98,7 +98,7 @@ export class HdKeyringV2
       inner: options.legacyKeyring,
       capabilities: hdKeyringV2Capabilities,
     });
-    this.entropySourceId = options.entropySourceId;
+    this.entropySource = options.entropySource;
   }
 
   /**
@@ -149,7 +149,7 @@ export class HdKeyringV2
       options: {
         entropy: {
           type: KeyringAccountEntropyTypeOption.Mnemonic,
-          id: this.entropySourceId,
+          id: this.entropySource,
           groupIndex: addressIndex,
           derivationPath: `${this.inner.hdPath}/${addressIndex}`,
         },
@@ -205,9 +205,9 @@ export class HdKeyringV2
     }
 
     // Validate that the entropy source matches this keyring's entropy source
-    if (options.entropySource !== this.entropySourceId) {
+    if (options.entropySource !== this.entropySource) {
       throw new Error(
-        `Entropy source mismatch: expected '${this.entropySourceId}', got '${options.entropySource}'`,
+        `Entropy source mismatch: expected '${this.entropySource}', got '${options.entropySource}'`,
       );
     }
 
@@ -320,8 +320,13 @@ export class HdKeyringV2
         assert(params, EthSignTransactionParamsStruct);
         const [txData] = params;
         // Convert validated transaction data to TypedTransaction
+        // TODO: Improve typing to ensure txData matches TypedTxData
         const tx = TransactionFactory.fromTxData(txData as TypedTxData);
-        return this.inner.signTransaction(hexAddress, tx) as unknown as Json;
+        // Note: Bigints are not directly representable in JSON
+        return (await this.inner.signTransaction(
+          hexAddress,
+          tx,
+        )) as unknown as Json;
       }
 
       case `${EthMethod.Sign}`: {
@@ -339,7 +344,7 @@ export class HdKeyringV2
       case `${EthMethod.SignTypedDataV1}`: {
         assert(params, EthSignTypedDataV1ParamsStruct);
         const [, data] = params;
-        return this.inner.signTypedData(hexAddress, data as TypedDataV1, {
+        return this.inner.signTypedData(hexAddress, data, {
           version: SignTypedDataVersion.V1,
         });
       }
@@ -349,6 +354,7 @@ export class HdKeyringV2
         const [, data] = params;
         return this.inner.signTypedData(
           hexAddress,
+          // TODO: Improve typing to ensure data matches MessageTypes
           data as TypedMessage<MessageTypes>,
           {
             version: SignTypedDataVersion.V3,
@@ -361,6 +367,7 @@ export class HdKeyringV2
         const [, data] = params;
         return this.inner.signTypedData(
           hexAddress,
+          // TODO: Improve typing to ensure data matches MessageTypes
           data as TypedMessage<MessageTypes>,
           {
             version: SignTypedDataVersion.V4,
@@ -387,10 +394,7 @@ export class HdKeyringV2
       case `${HdKeyringEthMethod.SignEip7702Authorization}`: {
         assert(params, EthSignEip7702AuthorizationParamsStruct);
         const [authorization] = params;
-        return this.inner.signEip7702Authorization(
-          hexAddress,
-          authorization as EIP7702Authorization,
-        );
+        return this.inner.signEip7702Authorization(hexAddress, authorization);
       }
 
       default:

@@ -57,7 +57,7 @@ describe('HdKeyringV2', () => {
 
     wrapper = new HdKeyringV2({
       legacyKeyring: inner,
-      entropySourceId: TEST_ENTROPY_SOURCE_ID,
+      entropySource: TEST_ENTROPY_SOURCE_ID,
     });
   });
 
@@ -165,7 +165,7 @@ describe('HdKeyringV2', () => {
       const newInner = new HdKeyring();
       const newWrapper = new HdKeyringV2({
         legacyKeyring: newInner,
-        entropySourceId: TEST_ENTROPY_SOURCE_ID,
+        entropySource: TEST_ENTROPY_SOURCE_ID,
       });
 
       await newWrapper.deserialize({
@@ -186,7 +186,7 @@ describe('HdKeyringV2', () => {
       const newInner = new HdKeyring();
       const newWrapper = new HdKeyringV2({
         legacyKeyring: newInner,
-        entropySourceId: TEST_ENTROPY_SOURCE_ID,
+        entropySource: TEST_ENTROPY_SOURCE_ID,
       });
 
       await newWrapper.deserialize({
