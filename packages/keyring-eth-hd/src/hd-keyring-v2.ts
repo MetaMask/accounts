@@ -52,6 +52,9 @@ const hdKeyringV2Capabilities: KeyringCapabilities = {
     derivePath: false,
     discover: false,
   },
+  privateKey: {
+    exportFormats: [{ encoding: PrivateKeyEncoding.Hexadecimal }],
+  },
 };
 
 /**
