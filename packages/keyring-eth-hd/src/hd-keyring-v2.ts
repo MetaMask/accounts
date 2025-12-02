@@ -1,11 +1,6 @@
 import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
 import type { Bip44Account } from '@metamask/account-api';
-import type {
-  EIP7702Authorization,
-  MessageTypes,
-  TypedDataV1,
-  TypedMessage,
-} from '@metamask/eth-sig-util';
+import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
   type CreateAccountOptions,
