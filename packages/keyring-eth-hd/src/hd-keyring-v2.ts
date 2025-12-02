@@ -326,7 +326,7 @@ export class HdKeyringV2
         return (await this.inner.signTransaction(
           hexAddress,
           tx,
-        )) as unknown as Json;
+        )) as unknown as Json; // FIXME: Should return type be unknown?
       }
 
       case `${EthMethod.Sign}`: {
