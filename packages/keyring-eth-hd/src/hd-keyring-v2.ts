@@ -252,23 +252,25 @@ export class HdKeyringV2
    * @param accountId - The account ID to delete.
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
-    // Get the account first, before any registry operations
-    const { address } = await this.getAccount(accountId);
-    const hexAddress = this.#toHexAddress(address);
+    await this.#lock.runExclusive(async () => {
+      // Get the account first, before any registry operations
+      const { address } = await this.getAccount(accountId);
+      const hexAddress = this.#toHexAddress(address);
 
-    // Assert that the account to delete is the last one in the inner keyring
-    // We check against the inner keyring directly to avoid stale registry issues
-    if (!(await this.#isLastAccount(address))) {
-      throw new Error(
-        'Can only delete the last account in the HD keyring due to derivation index constraints.',
-      );
-    }
+      // Assert that the account to delete is the last one in the inner keyring
+      // We check against the inner keyring directly to avoid stale registry issues
+      if (!(await this.#isLastAccount(address))) {
+        throw new Error(
+          'Can only delete the last account in the HD keyring due to derivation index constraints.',
+        );
+      }
 
-    // Remove from the legacy keyring
-    this.inner.removeAccount(hexAddress);
+      // Remove from the legacy keyring
+      this.inner.removeAccount(hexAddress);
 
-    // Remove from the registry
-    this.registry.delete(accountId);
+      // Remove from the registry
+      this.registry.delete(accountId);
+    });
   }
 
   async exportAccount(
