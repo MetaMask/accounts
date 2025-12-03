@@ -1433,7 +1433,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/account-api@workspace:packages/account-api":
+"@metamask/account-api@workspace:^, @metamask/account-api@workspace:packages/account-api":
   version: 0.0.0-use.local
   resolution: "@metamask/account-api@workspace:packages/account-api"
   dependencies:
@@ -1678,15 +1678,19 @@ __metadata:
     "@ethereumjs/util": "npm:^9.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/account-api": "workspace:^"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/bip39": "npm:^4.0.0"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/key-tree": "npm:^10.0.2"
+    "@metamask/keyring-api": "workspace:^"
     "@metamask/keyring-utils": "workspace:^"
     "@metamask/scure-bip39": "npm:^2.1.1"
+    "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^11.1.0"
     "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
+    async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     ethereum-cryptography: "npm:^2.1.2"
     jest: "npm:^29.5.0"
@@ -1969,6 +1973,7 @@ __metadata:
     "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
+    "@types/uuid": "npm:^9.0.8"
     "@types/webextension-polyfill": "npm:^0.12.1"
     bitcoin-address-validation: "npm:^2.2.3"
     deepmerge: "npm:^4.2.2"
@@ -1980,6 +1985,7 @@ __metadata:
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.6.3"
+    uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
 

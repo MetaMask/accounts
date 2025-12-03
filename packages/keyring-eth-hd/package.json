@@ -43,18 +43,22 @@
     "test:clean": "jest --clearCache"
   },
   "dependencies": {
+    "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/key-tree": "^10.0.2",
+    "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/scure-bip39": "^2.1.1",
+    "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^11.1.0",
+    "async-mutex": "^0.5.0",
     "ethereum-cryptography": "^2.1.2"
   },
   "devDependencies": {
-    "@ethereumjs/tx": "^5.4.0",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
+    "@metamask/account-api": "workspace:^",
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/bip39": "^4.0.0",
     "@ts-bridge/cli": "^0.6.3",
