@@ -142,7 +142,7 @@ export abstract class KeyringWrapper<
    * Implementations are responsible for interpreting the
    * {@link CreateAccountOptions} (for example BIP-44 derivation or
    * private-key import) and returning the resulting {@link KeyringAccount}
-   * objects. Implementors should also ensure that the resolver is updated so
+   * objects. Implementors should also ensure that the registry is updated so
    * that {@link getAccount} works for newly created accounts.
    */
   abstract createAccounts(
@@ -154,7 +154,7 @@ export abstract class KeyringWrapper<
    * keyring.
    *
    * Implementations are expected to translate the ID to an underlying
-   * address (typically via the resolver) and then invoke the appropriate
+   * address (typically via the registry) and then invoke the appropriate
    * removal mechanism on the legacy keyring.
    */
   abstract deleteAccount(accountId: AccountId): Promise<void>;
