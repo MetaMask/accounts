@@ -119,16 +119,13 @@ class TestEthKeyringWrapperWithUnsupportedMethod extends TestEthKeyringWrapper {
  * @param params - Optional array of parameters.
  * @returns A KeyringRequest object.
  */
-function createMockRequest(
-  method: string,
-  params: Json[] = [],
-): KeyringRequest {
+function createMockRequest(method: string, params?: Json[]): KeyringRequest {
   return {
     id: '00000000-0000-0000-0000-000000000000',
     scope: EthScope.Eoa,
     account: MOCK_ACCOUNT_ID,
     origin: 'https://example.com',
-    request: { method, params },
+    request: { method, ...(params ? { params } : {}) },
   };
 }
 
@@ -534,6 +531,18 @@ describe('EthKeyringWrapper', () => {
         ).rejects.toThrow(
           'Unsupported method for EthKeyringWrapper: eth_unsupported',
         );
+      });
+
+      it('defaults params to empty array when not provided', async () => {
+        const wrapper = new TestEthKeyringWrapper(
+          createMockKeyring({ signTransaction: jest.fn() }),
+        );
+
+        // Should throw validation error (empty params) rather than runtime error
+        // This confirms params defaults to [] instead of undefined
+        await expect(
+          wrapper.submitRequest(createMockRequest(EthMethod.SignTransaction)),
+        ).rejects.toThrow(expect.any(Error));
       });
     });
   });
