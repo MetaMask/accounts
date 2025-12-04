@@ -126,6 +126,14 @@ export type EthEip7702Authorization = Infer<
   typeof EthEip7702AuthorizationStruct
 >;
 
+/**
+ * A struct for getEncryptionPublicKey options.
+ */
+export const EthGetEncryptionPublicKeyOptionsStruct = record(
+  string(),
+  unknown(),
+);
+
 // ============================================================================
 // RPC Method Parameter Structs
 // ============================================================================
@@ -214,3 +222,11 @@ export const EthSignEip7702AuthorizationParamsStruct = tuple([
 export type EthSignEip7702AuthorizationParams = Infer<
   typeof EthSignEip7702AuthorizationParamsStruct
 >;
+
+/**
+ * Parameters for `eth_getEncryptionPublicKey`.
+ */
+export const EthGetEncryptionPublicKeyParamsStruct = tuple([
+  EthAddressStruct, // address
+  optional(EthGetEncryptionPublicKeyOptionsStruct), // options
+]);

@@ -906,7 +906,7 @@ describe('HdKeyringV2', () => {
         const request = createMockRequest(
           accountId,
           'eth_getEncryptionPublicKey',
-          [],
+          ['0x0000000000000000000000000000000000000000'],
         );
 
         const result = await wrapper.submitRequest(request);
@@ -920,7 +920,7 @@ describe('HdKeyringV2', () => {
         const pubKeyRequest = createMockRequest(
           accountId,
           'eth_getEncryptionPublicKey',
-          [],
+          ['0x0000000000000000000000000000000000000000', {}],
         );
 
         const pubKey = await wrapper.submitRequest(pubKeyRequest);
