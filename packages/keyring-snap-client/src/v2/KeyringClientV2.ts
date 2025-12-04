@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-
 import {
   CreateAccountsV2ResponseStruct,
   DeleteAccountV2ResponseStruct,
