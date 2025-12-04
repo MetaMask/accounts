@@ -47,12 +47,12 @@ const CommonHeader = {
 // ----------------------------------------------------------------------------
 // Get accounts
 
-export const GetAccountsV2Struct = object({
+export const GetAccountsV2RequestStruct = object({
   ...CommonHeader,
   method: literal(`${KeyringRpcV2Method.GetAccounts}`),
 });
 
-export type GetAccountsV2Request = Infer<typeof GetAccountsV2Struct>;
+export type GetAccountsV2Request = Infer<typeof GetAccountsV2RequestStruct>;
 
 export const GetAccountsV2ResponseStruct = array(KeyringAccountStruct);
 
@@ -61,7 +61,7 @@ export type GetAccountsV2Response = Infer<typeof GetAccountsV2ResponseStruct>;
 // ----------------------------------------------------------------------------
 // Get account
 
-export const GetAccountV2Struct = object({
+export const GetAccountV2RequestStruct = object({
   ...CommonHeader,
   method: literal(`${KeyringRpcV2Method.GetAccount}`),
   params: object({
@@ -69,7 +69,7 @@ export const GetAccountV2Struct = object({
   }),
 });
 
-export type GetAccountV2Request = Infer<typeof GetAccountV2Struct>;
+export type GetAccountV2Request = Infer<typeof GetAccountV2RequestStruct>;
 
 export const GetAccountV2ResponseStruct = KeyringAccountStruct;
 
@@ -78,13 +78,15 @@ export type GetAccountV2Response = Infer<typeof GetAccountV2ResponseStruct>;
 // ----------------------------------------------------------------------------
 // Create accounts
 
-export const CreateAccountsV2Struct = object({
+export const CreateAccountsV2RequestStruct = object({
   ...CommonHeader,
   method: literal(`${KeyringRpcV2Method.CreateAccounts}`),
   params: CreateAccountOptionsStruct,
 });
 
-export type CreateAccountsV2Request = Infer<typeof CreateAccountsV2Struct>;
+export type CreateAccountsV2Request = Infer<
+  typeof CreateAccountsV2RequestStruct
+>;
 
 export const CreateAccountsV2ResponseStruct = array(KeyringAccountStruct);
 
