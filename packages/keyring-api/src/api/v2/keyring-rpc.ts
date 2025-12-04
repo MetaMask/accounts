@@ -3,6 +3,7 @@ import type { Infer } from '@metamask/superstruct';
 import { array, literal, number, string, union } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
+import { CreateAccountOptionsStruct } from './create-account';
 import {
   ExportAccountOptionsStruct,
   PrivateKeyExportedAccountStruct,
@@ -80,9 +81,7 @@ export type GetAccountV2Response = Infer<typeof GetAccountV2ResponseStruct>;
 export const CreateAccountsV2Struct = object({
   ...CommonHeader,
   method: literal(`${KeyringRpcV2Method.CreateAccounts}`),
-  params: object({
-    // TODO
-  }),
+  params: CreateAccountOptionsStruct,
 });
 
 export type CreateAccountsV2Request = Infer<typeof CreateAccountsV2Struct>;
