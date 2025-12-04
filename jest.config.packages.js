@@ -87,6 +87,7 @@ module.exports = {
   // NOTE: This must be synchronized with the `paths` option in `tsconfig.packages.json`.
   moduleNameMapper: {
     '^@metamask/(.+)$': [
+      '<rootDir>/packages/$1/src',
       '<rootDir>/../$1/src',
       // Some @metamask/* packages we are referencing aren't in this monorepo,
       // so in that case use their published versions
