@@ -28,8 +28,11 @@
      * `jest.config.packages.js`.
      */
     "paths": {
-      // While still unclear why, adding "./packages/*/src" seems to fix the @typescript-eslint/no-redundant-type-constituents errors throughout the monorepo
-      "@metamask/*": ["./packages/*/src", "../*/src"]
+      "@metamask/*": [
+        "../*/src",
+        // While still unclear why, adding "./packages/*/src" seems to fix the @typescript-eslint/no-redundant-type-constituents errors throughout the monorepo
+        "./packages/*/src"
+      ]
     }
   }
 }
