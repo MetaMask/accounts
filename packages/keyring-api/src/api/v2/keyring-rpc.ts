@@ -36,18 +36,6 @@ export enum KeyringRpcV2Method {
   SubmitRequest = 'keyring_v2_submitRequest',
 }
 
-/**
- * Check if a method is a keyring RPC method.
- *
- * @param method - Method to check.
- * @returns Whether the method is a keyring RPC method.
- */
-export function isKeyringRpcV2Method(method: string): boolean {
-  return Object.values(KeyringRpcV2Method).includes(
-    method as KeyringRpcV2Method,
-  );
-}
-
 // ----------------------------------------------------------------------------
 
 const CommonHeader = {
