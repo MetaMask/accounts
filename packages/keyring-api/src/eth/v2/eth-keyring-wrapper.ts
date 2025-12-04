@@ -80,7 +80,7 @@ export abstract class EthKeyringWrapper<
    * @returns The result of the signing operation.
    */
   async submitRequest(request: KeyringRequest): Promise<Json> {
-    const { method, params } = request.request;
+    const { method, params = [] } = request.request;
 
     const { address, methods } = await this.getAccount(request.account);
     const hexAddress = this.toHexAddress(address);
