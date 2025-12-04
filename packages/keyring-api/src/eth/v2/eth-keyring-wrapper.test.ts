@@ -419,10 +419,16 @@ describe('EthKeyringWrapper', () => {
         );
 
         const result = await wrapper.submitRequest(
-          createMockRequest(EthKeyringMethod.GetEncryptionPublicKey, []),
+          createMockRequest(EthKeyringMethod.GetEncryptionPublicKey, [
+            MOCK_ADDRESS,
+            {}, // options
+          ]),
         );
 
-        expect(mockGetEncryptionPublicKey).toHaveBeenCalledWith(MOCK_ADDRESS);
+        expect(mockGetEncryptionPublicKey).toHaveBeenCalledWith(
+          MOCK_ADDRESS,
+          {},
+        );
         expect(result).toBe('pubkey');
       });
 
@@ -434,28 +440,6 @@ describe('EthKeyringWrapper', () => {
             createMockRequest(EthKeyringMethod.GetEncryptionPublicKey, []),
           ),
         ).rejects.toThrow('Keyring does not support getEncryptionPublicKey');
-      });
-
-      it('handles request with undefined params', async () => {
-        const mockGetEncryptionPublicKey = jest
-          .fn()
-          .mockResolvedValue('pubkey');
-        const wrapper = new TestEthKeyringWrapper(
-          createMockKeyring({
-            getEncryptionPublicKey: mockGetEncryptionPublicKey,
-          }),
-        );
-
-        const request: KeyringRequest = {
-          id: '00000000-0000-0000-0000-000000000000',
-          scope: EthScope.Eoa,
-          account: MOCK_ACCOUNT_ID,
-          origin: 'https://example.com',
-          request: { method: EthKeyringMethod.GetEncryptionPublicKey },
-        };
-
-        const result = await wrapper.submitRequest(request);
-        expect(result).toBe('pubkey');
       });
     });
 

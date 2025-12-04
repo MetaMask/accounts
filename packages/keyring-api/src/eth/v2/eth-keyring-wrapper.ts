@@ -14,6 +14,7 @@ import {
 import {
   EthDecryptParamsStruct,
   EthGetAppKeyAddressParamsStruct,
+  EthGetEncryptionPublicKeyParamsStruct,
   EthPersonalSignParamsStruct,
   EthSignEip7702AuthorizationParamsStruct,
   EthSignParamsStruct,
@@ -79,7 +80,7 @@ export abstract class EthKeyringWrapper<
    * @returns The result of the signing operation.
    */
   async submitRequest(request: KeyringRequest): Promise<Json> {
-    const { method, params = [] } = request.request;
+    const { method, params } = request.request;
 
     const { address, methods } = await this.getAccount(request.account);
     const hexAddress = this.toHexAddress(address);
@@ -182,7 +183,9 @@ export abstract class EthKeyringWrapper<
         if (!this.inner.getEncryptionPublicKey) {
           throw new Error('Keyring does not support getEncryptionPublicKey');
         }
-        return this.inner.getEncryptionPublicKey(hexAddress);
+        assert(params, EthGetEncryptionPublicKeyParamsStruct);
+        const [, options] = params;
+        return this.inner.getEncryptionPublicKey(hexAddress, options);
       }
 
       case `${EthKeyringMethod.GetAppKeyAddress}`: {
@@ -200,10 +203,7 @@ export abstract class EthKeyringWrapper<
         }
         assert(params, EthSignEip7702AuthorizationParamsStruct);
         const [authorization] = params;
-        return this.inner.signEip7702Authorization(
-          hexAddress,
-          authorization as [number, Hex, number],
-        );
+        return this.inner.signEip7702Authorization(hexAddress, authorization);
       }
 
       default:
