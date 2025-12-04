@@ -87,8 +87,9 @@ module.exports = {
   // NOTE: This must be synchronized with the `paths` option in `tsconfig.packages.json`.
   moduleNameMapper: {
     '^@metamask/(.+)$': [
-      '<rootDir>/packages/$1/src',
       '<rootDir>/../$1/src',
+      // While still unclear why, adding the line below seems to fix the @typescript-eslint/no-redundant-type-constituents errors throughout the monorepo
+      '<rootDir>/packages/$1/src',
       // Some @metamask/* packages we are referencing aren't in this monorepo,
       // so in that case use their published versions
       '<rootDir>/../../node_modules/@metamask/$1',
