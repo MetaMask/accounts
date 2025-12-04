@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "baseUrl": "./"
+  },
+  "references": [{ "path": "../keyring-utils/tsconfig.build.json" }],
+  "include": ["./src"],
+  "exclude": ["./dist/**/*"]
+}
