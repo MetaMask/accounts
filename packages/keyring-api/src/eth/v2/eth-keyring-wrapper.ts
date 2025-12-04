@@ -1,7 +1,7 @@
 import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
-import type { Keyring } from '@metamask/keyring-utils';
+import type { EthKeyring } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import { add0x, type Hex, type Json } from '@metamask/utils';
 
@@ -37,7 +37,7 @@ export enum EthKeyringMethod {
 /**
  * Options for constructing an EthKeyringWrapper.
  */
-export type EthKeyringWrapperOptions<InnerKeyring extends Keyring> =
+export type EthKeyringWrapperOptions<InnerKeyring extends EthKeyring> =
   KeyringWrapperOptions<InnerKeyring>;
 
 /**
@@ -54,7 +54,7 @@ export type EthKeyringWrapperOptions<InnerKeyring extends Keyring> =
  * - `exportAccount()` (optional): Export private key in specified format
  */
 export abstract class EthKeyringWrapper<
-  InnerKeyring extends Keyring,
+  InnerKeyring extends EthKeyring,
   KeyringAccountType extends KeyringAccount = KeyringAccount,
 > extends KeyringWrapper<InnerKeyring, KeyringAccountType> {
   /**
