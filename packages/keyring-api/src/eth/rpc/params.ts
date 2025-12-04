@@ -129,8 +129,9 @@ export type EthEip7702Authorization = Infer<
 /**
  * A struct for getEncryptionPublicKey options.
  */
-export const EthGetEncryptionPublicKeyOptionsStruct = optional(
-  record(string(), unknown()),
+export const EthGetEncryptionPublicKeyOptionsStruct = record(
+  string(),
+  unknown(),
 );
 
 // ============================================================================
@@ -227,5 +228,5 @@ export type EthSignEip7702AuthorizationParams = Infer<
  */
 export const EthGetEncryptionPublicKeyParamsStruct = tuple([
   EthAddressStruct, // address
-  EthGetEncryptionPublicKeyOptionsStruct, // options
+  optional(EthGetEncryptionPublicKeyOptionsStruct), // options
 ]);

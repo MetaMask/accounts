@@ -421,13 +421,12 @@ describe('EthKeyringWrapper', () => {
         const result = await wrapper.submitRequest(
           createMockRequest(EthKeyringMethod.GetEncryptionPublicKey, [
             MOCK_ADDRESS,
-            {}, // options
           ]),
         );
 
         expect(mockGetEncryptionPublicKey).toHaveBeenCalledWith(
           MOCK_ADDRESS,
-          {},
+          undefined,
         );
         expect(result).toBe('pubkey');
       });
