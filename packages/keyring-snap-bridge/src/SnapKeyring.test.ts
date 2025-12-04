@@ -42,7 +42,7 @@ import type { HandleSnapRequest } from '@metamask/snaps-controllers';
 import { type SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 import { assert } from '@metamask/superstruct';
-import type { Json } from '@metamask/utils';
+import type { Hex, Json } from '@metamask/utils';
 import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
@@ -154,7 +154,7 @@ describe('SnapKeyring', () => {
   };
   const ethErc4337Account = {
     id: 'fc926fff-f515-4eb5-9952-720bbd9b9849',
-    address: '0x2f15b30952aebe0ed5fdbfe5bf16fb9ecdb31d9a'.toLowerCase(),
+    address: '0x2f15b30952aebe0ed5fdbfe5bf16fb9ecdb31d9a'.toLowerCase() as Hex,
     options: {},
     methods: ETH_4337_METHODS,
     scopes: [EthScope.Testnet],
@@ -1976,12 +1976,12 @@ describe('SnapKeyring', () => {
     it('calls eth_prepareUserOperation', async () => {
       const baseTxs = [
         {
-          to: '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb',
+          to: '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb' as Hex,
           value: '0x0',
           data: '0x',
         },
         {
-          to: '0x660265edc169bab511a40c0e049cc1e33774443d',
+          to: '0x660265edc169bab511a40c0e049cc1e33774443d' as Hex,
           value: '0x0',
           data: '0x619a309f',
         },
@@ -2751,7 +2751,7 @@ describe('SnapKeyring', () => {
   describe('prepareUserOperation', () => {
     const mockIntents = [
       {
-        to: '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb',
+        to: '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb' as Hex,
         value: '0x0',
         data: '0x',
       },
