@@ -8,6 +8,7 @@ import {
   ExportAccountV2ResponseStruct,
 } from '@metamask/keyring-api';
 import type {
+  CreateAccountOptions,
   ExportAccountOptions,
   ExportedAccount,
   KeyringAccount,
@@ -73,14 +74,14 @@ export class KeyringClientV2 implements KeyringRpcV2 {
   }
 
   async createAccounts(
-    options: Record<string, Json> = {},
+    params: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
     return strictMask(
       await this.send({
         jsonrpc: '2.0',
         id: uuid(),
         method: KeyringRpcV2Method.CreateAccounts,
-        params: { options },
+        params,
       }),
       CreateAccountsV2ResponseStruct,
     );

@@ -81,13 +81,19 @@ describe('KeyringClient', () => {
           },
         ];
 
+        const createAccountOptions = {
+          type: 'bip44:derive-index',
+          entropySource: 'mock-entropy-source',
+          groupIndex: 0,
+        } as const;
+
         mockSender.send.mockResolvedValue(expectedResponse);
-        const account = await client.createAccounts();
+        const account = await client.createAccounts(createAccountOptions);
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
           method: `${KeyringRpcV2Method.CreateAccounts}`,
-          params: { options: {} },
+          params: createAccountOptions,
         });
         expect(account).toStrictEqual(expectedResponse);
       });
