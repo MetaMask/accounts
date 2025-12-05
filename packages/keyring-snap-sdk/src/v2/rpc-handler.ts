@@ -79,9 +79,9 @@ async function dispatchKeyringRequestV2(
 }
 
 /**
- * Handles a keyring JSON-RPC request.
+ * Handles a keyring (v2) JSON-RPC request.
  *
- * This function is meant to be used as a handler for Keyring JSON-RPC requests
+ * This function is meant to be used as a handler for Keyring (v2) JSON-RPC requests
  * in an Accounts Snap.
  *
  * @param keyring - Keyring instance.
@@ -93,7 +93,7 @@ async function dispatchKeyringRequestV2(
  *   origin,
  *   request,
  * }) => {
- *   return await handleKeyringRequest(keyring, request);
+ *   return await handleKeyringRequestV2(keyring, request);
  * };
  * ```
  */
@@ -107,7 +107,7 @@ export async function handleKeyringRequestV2(
     const message =
       error instanceof Error && typeof error.message === 'string'
         ? error.message
-        : 'An unknown error occurred while handling the keyring request (v2)';
+        : 'An unknown error occurred while handling the keyring (v2) request';
 
     throw new Error(message);
   }
