@@ -236,7 +236,7 @@ describe('handleKeyringRequestV2', () => {
     error.message = 1 as unknown as string;
     keyring.getAccounts.mockRejectedValue(error);
     await expect(handleKeyringRequestV2(keyring, request)).rejects.toThrow(
-      'An unknown error occurred while handling the keyring request',
+      'An unknown error occurred while handling the keyring (v2) request',
     );
   });
 });
