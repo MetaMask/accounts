@@ -1,6 +1,5 @@
 import type { KeyringV2 } from '@metamask/keyring-api';
 import {
-  KeyringRpcMethod,
   KeyringRpcV2Method,
   GetAccountsV2RequestStruct,
   GetAccountV2RequestStruct,
