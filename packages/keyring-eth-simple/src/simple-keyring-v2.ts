@@ -118,6 +118,61 @@ export class SimpleKeyringV2
     await this.inner.deserialize(privateKeys);
   }
 
+  /**
+   * Executes a transactional update on the inner keyring state.
+   * If the callback throws, the state is automatically rolled back.
+   *
+   * @param callback - A function that receives the current private keys and performs the update.
+   * Should return the result on success, or throw to trigger rollback.
+   * @returns The result of the callback.
+   * @throws Error if the callback throws (after rollback).
+   */
+  async #withRollback<Result>(
+    callback: (currentPrivateKeys: string[]) => Promise<Result>,
+  ): Promise<Result> {
+    const originalPrivateKeys = await this.#getPrivateKeys();
+
+    try {
+      return await callback(originalPrivateKeys);
+    } catch (error) {
+      // Rollback on error
+      await this.#setPrivateKeys(originalPrivateKeys);
+      throw error;
+    }
+  }
+
+  /**
+   * Import a private key and return the new address.
+   * If the import fails (no new address added), rolls back to the original state.
+   *
+   * @param privateKey - The private key to import in hexadecimal format.
+   * @returns The address of the newly imported account.
+   * @throws Error if the import fails or no new address is added.
+   */
+  async #importPrivateKeyOrRollback(privateKey: string): Promise<Hex> {
+    return this.#withRollback(async (currentPrivateKeys) => {
+      // Get current addresses before import
+      const addressesBefore = new Set(await this.inner.getAccounts());
+
+      // Import the new private key
+      await this.#setPrivateKeys([...currentPrivateKeys, privateKey]);
+
+      // Get addresses after import and find the newly added one
+      const addressesAfter = await this.inner.getAccounts();
+
+      // Find the new address by diffing the two sets
+      const newAddresses = addressesAfter.filter(
+        (addr) => !addressesBefore.has(addr),
+      );
+
+      if (newAddresses.length !== 1 || !newAddresses[0]) {
+        throw new Error('Failed to import private key');
+      }
+
+      return newAddresses[0];
+    });
+  }
+
   async getAccounts(): Promise<KeyringAccount[]> {
     const addresses = await this.inner.getAccounts();
 
@@ -175,30 +230,8 @@ export class SimpleKeyringV2
         );
       }
 
-      // Get current addresses before import
-      const addressesBefore = new Set(await this.inner.getAccounts());
-
-      // Get current accounts to preserve them (also used for rollback)
-      const currentAccounts = await this.#getPrivateKeys();
-
-      // Import the new private key by deserializing with all accounts
-      await this.#setPrivateKeys([...currentAccounts, privateKey]);
-
-      // Get addresses after import and find the newly added one
-      const addressesAfter = await this.inner.getAccounts();
-
-      // Find the new address by diffing the two sets
-      const newAddresses = addressesAfter.filter(
-        (addr) => !addressesBefore.has(addr),
-      );
-
-      if (newAddresses.length !== 1 || !newAddresses[0]) {
-        // Rollback the inner keyring state to prevent corruption
-        await this.#setPrivateKeys(currentAccounts);
-        throw new Error('Failed to import private key');
-      }
-
-      const newAddress = newAddresses[0];
+      // Import the private key (with automatic rollback on failure)
+      const newAddress = await this.#importPrivateKeyOrRollback(privateKey);
 
       // Create and return the new KeyringAccount
       const newAccount = this.#createKeyringAccount(newAddress);
