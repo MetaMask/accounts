@@ -192,15 +192,17 @@ export class SimpleKeyringV2
   }
 
   async deserialize(state: Json): Promise<void> {
-    // Clear the registry when deserializing
-    this.registry.clear();
+    await this.#lock.runExclusive(async () => {
+      // Clear the registry when deserializing
+      this.registry.clear();
 
-    // Deserialize the legacy keyring
-    await this.inner.deserialize(state as string[]);
+      // Deserialize the legacy keyring
+      await this.inner.deserialize(state as string[]);
 
-    // Rebuild the registry by populating it with all accounts
-    // We call getAccounts() which will repopulate the registry as a side effect
-    await this.getAccounts();
+      // Rebuild the registry by populating it with all accounts
+      // We call getAccounts() which will repopulate the registry as a side effect
+      await this.getAccounts();
+    });
   }
 
   async createAccounts(
