@@ -158,8 +158,7 @@ export class SimpleKeyringV2
       }
 
       // Get current addresses before import
-      const addressesBefore = await this.inner.getAccounts();
-      const addressSetBefore = new Set(addressesBefore);
+      const addressesBefore = new Set(await this.inner.getAccounts());
 
       // Get current accounts to preserve them (also used for rollback)
       const currentAccounts = await this.inner.serialize();
@@ -172,7 +171,7 @@ export class SimpleKeyringV2
 
       // Find the new address by diffing the two sets
       const newAddresses = addressesAfter.filter(
-        (addr) => !addressSetBefore.has(addr),
+        (addr) => !addressesBefore.has(addr),
       );
 
       if (newAddresses.length !== 1 || !newAddresses[0]) {
