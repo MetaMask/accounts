@@ -126,9 +126,9 @@ describe('SimpleKeyringV2', () => {
         legacyKeyring: newInner,
       });
 
-      await newInner.deserialize([TEST_PRIVATE_KEY_1, TEST_PRIVATE_KEY_2]);
+      await newWrapper.deserialize([TEST_PRIVATE_KEY_1, TEST_PRIVATE_KEY_2]);
 
-      const accounts = await newWrapper.getAccounts();
+      const accounts = await newInner.getAccounts();
       expect(accounts).toHaveLength(2);
     });
 
@@ -227,7 +227,8 @@ describe('SimpleKeyringV2', () => {
     it('throws error for unsupported account creation type', async () => {
       await expect(
         wrapper.createAccounts({
-          type: 'private-key:generate' as any,
+          // @ts-expect-error Testing invalid type
+          type: 'private-key:generate',
           accountType: EthAccountType.Eoa,
           encoding: PrivateKeyEncoding.Hexadecimal,
           privateKey: TEST_PRIVATE_KEY_1,
@@ -613,7 +614,7 @@ describe('SimpleKeyringV2', () => {
       await expect(
         wrapper.exportAccount(accountId, {
           type: 'private-key',
-          encoding: 'base58' as any,
+          encoding: PrivateKeyEncoding.Base58,
         }),
       ).rejects.toThrow('Unsupported encoding for SimpleKeyring: base58. Only');
     });
