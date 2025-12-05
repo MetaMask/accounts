@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./"
   },
-  "references": [{ "path": "../keyring-utils" }],
+  "references": [{ "path": "../keyring-utils" }, { "path": "../keyring-api" }],
   "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }
