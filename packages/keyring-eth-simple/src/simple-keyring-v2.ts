@@ -100,10 +100,20 @@ export class SimpleKeyringV2
     return account;
   }
 
+  /**
+   * Get all private keys from the inner SimpleKeyring.
+   *
+   * @returns An array of private keys in hexadecimal format.
+   */
   async #getPrivateKeys(): Promise<string[]> {
     return await this.inner.serialize();
   }
 
+  /**
+   * Set private keys in the inner SimpleKeyring.
+   *
+   * @param privateKeys - An array of private keys in hexadecimal format.
+   */
   async #setPrivateKeys(privateKeys: string[]): Promise<void> {
     await this.inner.deserialize(privateKeys);
   }
