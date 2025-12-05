@@ -1,22 +1,15 @@
-import { KeyringRpcMethod } from '@metamask/keyring-api';
-import type {
-  KeyringRequestV1,
-  KeyringResponseV1,
-} from '@metamask/keyring-internal-api';
-import { SubmitRequestResponseV1Struct } from '@metamask/keyring-internal-api';
-import { KeyringClient } from '@metamask/keyring-snap-client';
-import { strictMask } from '@metamask/keyring-utils';
+import { KeyringClientV2 } from '@metamask/keyring-snap-client';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 
-import type { KeyringInternalSnapClientMessenger } from './KeyringInternalSnapClientMessenger';
-import { SnapControllerMessengerSender } from './SnapControllerMessengerSender';
+import type { KeyringInternalSnapClientMessenger } from '../KeyringInternalSnapClientMessenger';
+import { SnapControllerMessengerSender } from '../SnapControllerMessengerSender';
 
 /**
  * A `KeyringClient` that allows the communication with a Snap through a
  * `Messenger`.
  */
-export class KeyringInternalSnapClient extends KeyringClient {
+export class KeyringInternalSnapClientV2 extends KeyringClientV2 {
   readonly #messenger: KeyringInternalSnapClientMessenger;
 
   /**
@@ -57,26 +50,10 @@ export class KeyringInternalSnapClient extends KeyringClient {
    * @returns A new instance of `KeyringInternalSnapClient` with the
    * specified Snap ID.
    */
-  withSnapId(snapId: SnapId): KeyringInternalSnapClient {
-    return new KeyringInternalSnapClient({
+  withSnapId(snapId: SnapId): KeyringInternalSnapClientV2 {
+    return new KeyringInternalSnapClientV2({
       messenger: this.#messenger,
       snapId,
     });
-  }
-
-  /**
-   * Submit a keyring request v1 (with no `origin`).
-   *
-   * @param request - Keyring request.
-   * @returns Keyring request's response.
-   */
-  async submitRequestV1(request: KeyringRequestV1): Promise<KeyringResponseV1> {
-    return strictMask(
-      await this.send({
-        method: KeyringRpcMethod.SubmitRequest,
-        params: request,
-      }),
-      SubmitRequestResponseV1Struct,
-    );
   }
 }
