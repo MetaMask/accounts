@@ -1,3 +1,9 @@
+import type { Sender } from '@metamask/keyring-snap-client';
+import type { Json, JsonRpcRequest, SnapId } from '@metamask/snaps-sdk';
+import type { HandlerType } from '@metamask/snaps-utils';
+
+import type { KeyringInternalSnapClientMessenger } from './KeyringInternalSnapClientMessenger';
+
 /**
  * Implementation of the `Sender` interface that can be used to send requests
  * to a Snap through a `Messenger`.
