@@ -126,7 +126,7 @@ describe('SimpleKeyringV2', () => {
         legacyKeyring: newInner,
       });
 
-      await newWrapper.deserialize([TEST_PRIVATE_KEY_1, TEST_PRIVATE_KEY_2]);
+      await newInner.deserialize([TEST_PRIVATE_KEY_1, TEST_PRIVATE_KEY_2]);
 
       const accounts = await newWrapper.getAccounts();
       expect(accounts).toHaveLength(2);
@@ -227,11 +227,11 @@ describe('SimpleKeyringV2', () => {
     it('throws error for unsupported account creation type', async () => {
       await expect(
         wrapper.createAccounts({
-          type: 'private-key:generate',
+          type: 'private-key:generate' as any,
           accountType: EthAccountType.Eoa,
           encoding: PrivateKeyEncoding.Hexadecimal,
           privateKey: TEST_PRIVATE_KEY_1,
-        } as any),
+        }),
       ).rejects.toThrow(
         'Unsupported account creation type for SimpleKeyring: private-key:generate',
       );
@@ -241,12 +241,12 @@ describe('SimpleKeyringV2', () => {
       await expect(
         wrapper.createAccounts({
           type: 'private-key:import',
-          accountType: 'eip155:contract' as any,
+          accountType: EthAccountType.Erc4337,
           encoding: PrivateKeyEncoding.Hexadecimal,
           privateKey: TEST_PRIVATE_KEY_1,
         }),
       ).rejects.toThrow(
-        `Unsupported account type for SimpleKeyring: eip155:contract. Only '${EthAccountType.Eoa}' is supported.`,
+        `Unsupported account type for SimpleKeyring: ${EthAccountType.Erc4337}. Only '${EthAccountType.Eoa}' is supported.`,
       );
     });
 
@@ -255,7 +255,7 @@ describe('SimpleKeyringV2', () => {
         wrapper.createAccounts({
           type: 'private-key:import',
           accountType: EthAccountType.Eoa,
-          encoding: 'base58' as any,
+          encoding: PrivateKeyEncoding.Base58,
           privateKey: TEST_PRIVATE_KEY_1,
         }),
       ).rejects.toThrow(
@@ -443,13 +443,13 @@ describe('SimpleKeyringV2', () => {
       expect(lastAccount).toBeDefined();
       expect(lastAccount?.id).toBeDefined();
 
-      if (lastAccount?.id) {
-        await wrapper.deleteAccount(lastAccount.id);
-      }
+      await wrapper.deleteAccount((lastAccount as KeyringAccount).id);
 
       const remaining = await wrapper.getAccounts();
       expect(remaining).toHaveLength(2);
-      expect(remaining.find((a) => a.id === lastAccount?.id)).toBeUndefined();
+      expect(
+        remaining.find((a) => a.id === (lastAccount as KeyringAccount).id),
+      ).toBeUndefined();
     });
 
     it('removes the account from the cache', async () => {
@@ -575,10 +575,8 @@ describe('SimpleKeyringV2', () => {
       const accounts = await wrapper.getAccounts();
       const account = accounts[0];
 
-      expect(account).toBeDefined();
-
-      const accountId = account?.id ?? '';
-      expect(accountId).not.toBe('');
+      expect(account?.id).toBeDefined();
+      const accountId = (account as KeyringAccount).id;
 
       const exported = await wrapper.exportAccount(accountId);
 
@@ -593,8 +591,7 @@ describe('SimpleKeyringV2', () => {
 
       expect(account).toBeDefined();
 
-      const accountId = account?.id ?? '';
-      expect(accountId).not.toBe('');
+      const accountId = (account as KeyringAccount).id;
 
       const exported = await wrapper.exportAccount(accountId, {
         type: 'private-key',
@@ -611,8 +608,7 @@ describe('SimpleKeyringV2', () => {
 
       expect(account).toBeDefined();
 
-      const accountId = account?.id ?? '';
-      expect(accountId).not.toBe('');
+      const accountId = (account as KeyringAccount).id;
 
       await expect(
         wrapper.exportAccount(accountId, {
@@ -628,7 +624,7 @@ describe('SimpleKeyringV2', () => {
 
       expect(account).toBeDefined();
 
-      const accountId = account?.id ?? '';
+      const accountId = (account as KeyringAccount).id;
       const exported = await wrapper.exportAccount(accountId);
 
       // The exported key should be a valid hex string
@@ -646,8 +642,12 @@ describe('SimpleKeyringV2', () => {
       const accounts = await wrapper.getAccounts();
       expect(accounts).toHaveLength(2);
 
-      const exported1 = await wrapper.exportAccount(accounts[0]?.id ?? '');
-      const exported2 = await wrapper.exportAccount(accounts[1]?.id ?? '');
+      const exported1 = await wrapper.exportAccount(
+        (accounts[0] as KeyringAccount).id,
+      );
+      const exported2 = await wrapper.exportAccount(
+        (accounts[1] as KeyringAccount).id,
+      );
 
       // Different accounts should export different keys
       expect(exported1.privateKey).not.toBe(exported2.privateKey);
@@ -666,7 +666,7 @@ describe('SimpleKeyringV2', () => {
       });
 
       const account = created[0];
-      accountId = account?.id ?? ('' as AccountId);
+      accountId = (account as KeyringAccount).id;
     });
 
     describe('eth_signTransaction', () => {
@@ -986,7 +986,9 @@ describe('SimpleKeyringV2', () => {
       const account = accounts[0];
       expect(account).toBeDefined();
 
-      const retrieved = await wrapper.getAccount(account?.id ?? '');
+      const retrieved = await wrapper.getAccount(
+        (account as KeyringAccount).id,
+      );
       expect(retrieved).toBeDefined();
       expect(retrieved.id).toBe(account?.id);
       expect(retrieved.address).toBe(account?.address);
