@@ -1,6 +1,7 @@
 import {
   type CreateAccountOptions,
   EthAccountType,
+  EthKeyringMethod,
   EthKeyringWrapper,
   EthMethod,
   EthScope,
@@ -22,7 +23,7 @@ import type SimpleKeyring from './simple-keyring';
 
 /**
  * Methods supported by SimpleKeyring EOA accounts.
- * SimpleKeyring supports all standard signing methods.
+ * SimpleKeyring supports all standard signing methods plus encryption and app keys.
  */
 const SIMPLE_KEYRING_METHODS = [
   EthMethod.SignTransaction,
@@ -31,6 +32,10 @@ const SIMPLE_KEYRING_METHODS = [
   EthMethod.SignTypedDataV1,
   EthMethod.SignTypedDataV3,
   EthMethod.SignTypedDataV4,
+  EthKeyringMethod.Decrypt,
+  EthKeyringMethod.GetEncryptionPublicKey,
+  EthKeyringMethod.GetAppKeyAddress,
+  EthKeyringMethod.SignEip7702Authorization,
 ];
 
 const simpleKeyringV2Capabilities: KeyringCapabilities = {
@@ -54,7 +59,7 @@ export type SimpleKeyringV2Options = {
 };
 
 export class SimpleKeyringV2
-  extends EthKeyringWrapper<SimpleKeyring, KeyringAccount>
+  extends EthKeyringWrapper<SimpleKeyring>
   implements KeyringV2
 {
   readonly #lock = new Mutex();

@@ -817,16 +817,15 @@ describe('SimpleKeyringV2', () => {
     });
 
     describe('eth_getEncryptionPublicKey', () => {
-      it('throws error when method is not supported', async () => {
+      it('gets encryption public key', async () => {
         const request = createMockRequest(
           accountId,
           'eth_getEncryptionPublicKey',
-          [],
+          ['0x0000000000000000000000000000000000000000'],
         );
 
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          `Account ${accountId} cannot handle method: eth_getEncryptionPublicKey`,
-        );
+        const result = await wrapper.submitRequest(request);
+        expect(typeof result).toBe('string');
       });
     });
 
@@ -859,7 +858,16 @@ describe('SimpleKeyringV2', () => {
     });
 
     describe('eth_getAppKeyAddress', () => {
-      it('throws error when method is not supported', async () => {
+      it('gets app key address', async () => {
+        const request = createMockRequest(accountId, 'eth_getAppKeyAddress', [
+          'https://example.com',
+        ]);
+
+        const result = await wrapper.submitRequest(request);
+        expect(typeof result).toBe('string');
+      });
+
+      it('throws error for missing params', async () => {
         const request = createMockRequest(
           accountId,
           'eth_getAppKeyAddress',
@@ -867,13 +875,31 @@ describe('SimpleKeyringV2', () => {
         );
 
         await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          `Account ${accountId} cannot handle method: eth_getAppKeyAddress`,
+          expect.any(Error),
         );
       });
     });
 
     describe('eth_signEip7702Authorization', () => {
-      it('throws error when method is not supported', async () => {
+      it('signs EIP-7702 authorization', async () => {
+        // EIP-7702 authorization format
+        const authorization = [
+          1, // chainId
+          '0x0000000000000000000000000000000000000001', // address
+          0, // nonce
+        ];
+
+        const request = createMockRequest(
+          accountId,
+          'eth_signEip7702Authorization',
+          [authorization],
+        );
+
+        const result = await wrapper.submitRequest(request);
+        expect(result).toBeDefined();
+      });
+
+      it('throws error for missing params', async () => {
         const request = createMockRequest(
           accountId,
           'eth_signEip7702Authorization',
@@ -881,7 +907,7 @@ describe('SimpleKeyringV2', () => {
         );
 
         await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          `Account ${accountId} cannot handle method: eth_signEip7702Authorization`,
+          expect.any(Error),
         );
       });
     });
