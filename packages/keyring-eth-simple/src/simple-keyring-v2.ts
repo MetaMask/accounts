@@ -100,6 +100,14 @@ export class SimpleKeyringV2
     return account;
   }
 
+  async #getPrivateKeys(): Promise<string[]> {
+    return await this.inner.serialize();
+  }
+
+  async #setPrivateKeys(privateKeys: string[]): Promise<void> {
+    await this.inner.deserialize(privateKeys);
+  }
+
   async getAccounts(): Promise<KeyringAccount[]> {
     const addresses = await this.inner.getAccounts();
 
@@ -161,10 +169,10 @@ export class SimpleKeyringV2
       const addressesBefore = new Set(await this.inner.getAccounts());
 
       // Get current accounts to preserve them (also used for rollback)
-      const currentAccounts = await this.inner.serialize();
+      const currentAccounts = await this.#getPrivateKeys();
 
       // Import the new private key by deserializing with all accounts
-      await this.inner.deserialize([...currentAccounts, privateKey]);
+      await this.#setPrivateKeys([...currentAccounts, privateKey]);
 
       // Get addresses after import and find the newly added one
       const addressesAfter = await this.inner.getAccounts();
@@ -176,7 +184,7 @@ export class SimpleKeyringV2
 
       if (newAddresses.length !== 1 || !newAddresses[0]) {
         // Rollback the inner keyring state to prevent corruption
-        await this.inner.deserialize(currentAccounts);
+        await this.#setPrivateKeys(currentAccounts);
         throw new Error('Failed to import private key');
       }
 
