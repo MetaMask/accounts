@@ -161,7 +161,7 @@ export class SimpleKeyringV2
       const addressesBefore = await this.inner.getAccounts();
       const addressSetBefore = new Set(addressesBefore);
 
-      // Get current accounts to preserve them
+      // Get current accounts to preserve them (also used for rollback)
       const currentAccounts = await this.inner.serialize();
 
       // Import the new private key by deserializing with all accounts
@@ -176,6 +176,8 @@ export class SimpleKeyringV2
       );
 
       if (newAddresses.length !== 1 || !newAddresses[0]) {
+        // Rollback the inner keyring state to prevent corruption
+        await this.inner.deserialize(currentAccounts);
         throw new Error('Failed to import private key');
       }
 

@@ -347,6 +347,45 @@ describe('SimpleKeyringV2', () => {
       ).rejects.toThrow('Failed to import private key');
     });
 
+    it('rolls back inner keyring state on failed import', async () => {
+      // Create first account
+      await wrapper.createAccounts({
+        type: 'private-key:import',
+        accountType: EthAccountType.Eoa,
+        encoding: PrivateKeyEncoding.Hexadecimal,
+        privateKey: TEST_PRIVATE_KEY_1,
+      });
+
+      const accountsBefore = await wrapper.getAccounts();
+      expect(accountsBefore).toHaveLength(1);
+
+      const serializedBefore = await inner.serialize();
+      expect(serializedBefore).toHaveLength(1);
+
+      const existingAddresses = await inner.getAccounts();
+
+      // Mock getAccounts to simulate a failed import (no new address added)
+      jest
+        .spyOn(inner, 'getAccounts')
+        .mockResolvedValueOnce(existingAddresses) // First call (before import)
+        .mockResolvedValueOnce(existingAddresses); // Second call (after import) - same addresses
+
+      // Attempt to import should fail
+      await expect(
+        wrapper.createAccounts({
+          type: 'private-key:import',
+          accountType: EthAccountType.Eoa,
+          encoding: PrivateKeyEncoding.Hexadecimal,
+          privateKey: TEST_PRIVATE_KEY_2,
+        }),
+      ).rejects.toThrow('Failed to import private key');
+
+      // Verify rollback: inner keyring should still have only 1 account
+      const serializedAfter = await inner.serialize();
+      expect(serializedAfter).toHaveLength(1);
+      expect(serializedAfter).toStrictEqual(serializedBefore);
+    });
+
     it('handles concurrent account creations with mutex', async () => {
       // Create multiple accounts concurrently
       const promises = [
