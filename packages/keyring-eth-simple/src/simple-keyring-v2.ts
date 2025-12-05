@@ -14,7 +14,7 @@ import {
   PrivateKeyEncoding,
 } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
-import type { Hex, Json } from '@metamask/utils';
+import { add0x, type Hex, type Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -37,7 +37,7 @@ const simpleKeyringV2Capabilities: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   privateKey: {
     importFormats: [
-      { encoding: PrivateKeyEncoding.Hexadecimal, type: 'eip155:eoa' },
+      { encoding: PrivateKeyEncoding.Hexadecimal, type: EthAccountType.Eoa },
     ],
     exportFormats: [{ encoding: PrivateKeyEncoding.Hexadecimal }],
   },
@@ -152,19 +152,29 @@ export class SimpleKeyringV2
         );
       }
 
+      // Get current addresses before import
+      const addressesBefore = await this.inner.getAccounts();
+      const addressSetBefore = new Set(addressesBefore);
+
       // Get current accounts to preserve them
       const currentAccounts = await this.inner.serialize();
 
       // Import the new private key by deserializing with all accounts
       await this.inner.deserialize([...currentAccounts, privateKey]);
 
-      // Get the address of the newly added account
-      const allAddresses = await this.inner.getAccounts();
-      const newAddress = allAddresses[allAddresses.length - 1];
+      // Get addresses after import and find the newly added one
+      const addressesAfter = await this.inner.getAccounts();
 
-      if (!newAddress) {
+      // Find the new address by diffing the two sets
+      const newAddresses = addressesAfter.filter(
+        (addr) => !addressSetBefore.has(addr),
+      );
+
+      if (newAddresses.length !== 1 || !newAddresses[0]) {
         throw new Error('Failed to import private key');
       }
+
+      const newAddress = newAddresses[0];
 
       // Create and return the new KeyringAccount
       const newAccount = this.#createKeyringAccount(newAddress);
@@ -214,10 +224,12 @@ export class SimpleKeyringV2
     const privateKeyHex = await this.inner.exportAccount(
       this.toHexAddress(account.address),
     );
+    // Sanitize private key format
+    const privateKey = add0x(privateKeyHex);
 
     const exported: ExportedAccount = {
       type: 'private-key',
-      privateKey: `0x${privateKeyHex}`,
+      privateKey,
       encoding: PrivateKeyEncoding.Hexadecimal,
     };
 

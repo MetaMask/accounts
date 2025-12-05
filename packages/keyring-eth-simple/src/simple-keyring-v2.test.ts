@@ -319,7 +319,7 @@ describe('SimpleKeyringV2', () => {
       ).rejects.toThrow('Invalid key');
     });
 
-    it('throws error when getAccounts returns fewer addresses after import', async () => {
+    it('throws error when no new address is added after import', async () => {
       // Create first account
       await wrapper.createAccounts({
         type: 'private-key:import',
@@ -328,8 +328,14 @@ describe('SimpleKeyringV2', () => {
         privateKey: TEST_PRIVATE_KEY_1,
       });
 
-      // Mock getAccounts to return empty array (simulating the key didn't get added)
-      jest.spyOn(inner, 'getAccounts').mockResolvedValueOnce([]);
+      const existingAddresses = await inner.getAccounts();
+
+      // Mock getAccounts to return the same addresses before and after import
+      // (simulating the key didn't get added)
+      jest
+        .spyOn(inner, 'getAccounts')
+        .mockResolvedValueOnce(existingAddresses) // First call (before import)
+        .mockResolvedValueOnce(existingAddresses); // Second call (after import) - same addresses
 
       await expect(
         wrapper.createAccounts({
