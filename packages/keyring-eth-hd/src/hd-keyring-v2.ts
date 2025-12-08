@@ -17,10 +17,9 @@ import {
   type EntropySourceId,
 } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
-import { add0x, type Hex, type Json } from '@metamask/utils';
-import { Mutex } from 'async-mutex';
+import { add0x, type Hex } from '@metamask/utils';
 
-import type { DeserializableHDKeyringState, HdKeyring } from './hd-keyring';
+import type { HdKeyring } from './hd-keyring';
 
 /**
  * Methods supported by HD keyring EOA accounts.
@@ -67,8 +66,6 @@ export class HdKeyringV2
   implements KeyringV2
 {
   protected readonly entropySource: EntropySourceId;
-
-  readonly #lock = new Mutex();
 
   constructor(options: HdKeyringV2Options) {
     super({
@@ -146,24 +143,10 @@ export class HdKeyringV2
     });
   }
 
-  async deserialize(state: Json): Promise<void> {
-    // Clear the registry when deserializing
-    this.registry.clear();
-
-    // Deserialize the legacy keyring
-    await this.inner.deserialize(
-      state as Partial<DeserializableHDKeyringState>,
-    );
-
-    // Rebuild the registry by populating it with all accounts
-    // We call getAccounts() which will repopulate the registry as a side effect
-    await this.getAccounts();
-  }
-
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<Bip44Account<KeyringAccount>[]> {
-    return this.#lock.runExclusive(async () => {
+    return this.withInnerKeyring(async () => {
       // For HD keyring, we only support BIP-44 derive index
       if (options.type !== 'bip44:derive-index') {
         throw new Error(
@@ -220,7 +203,7 @@ export class HdKeyringV2
    * @param accountId - The account ID to delete.
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
-    await this.#lock.runExclusive(async () => {
+    await this.withInnerKeyring(async () => {
       // Get the account first, before any registry operations
       const { address } = await this.getAccount(accountId);
       const hexAddress = this.toHexAddress(address);
