@@ -68,7 +68,7 @@ export class OneKeyWebBridge implements OneKeyBridge {
     const settings: Partial<ConnectSettings> = {
       debug: false,
       fetchConfig: false,
-      connectSrc: 'https://jssdk.onekey.so/1.1.0/',
+      connectSrc: 'https://jssdk.onekey.so/1.1.17/',
       env: 'webusb',
     };
     try {
@@ -132,30 +132,32 @@ export class OneKeyWebBridge implements OneKeyBridge {
         },
       };
     }
-    return await this.sdk
-      .evmGetPublicKey('', '', { ...params, skipPassphraseCheck: true })
-      .then((result) => {
-        if (result?.success) {
-          return {
-            success: true,
-            payload: {
-              publicKey: result.payload.pub,
-              chainCode: result.payload.node.chain_code,
-            },
-          };
-        }
-        this.#handleBlockErrorEvent(result);
-        return {
-          success: false,
-          payload: {
-            error: result?.payload.error ?? '',
-            code:
-              typeof result?.payload?.code === 'number'
-                ? result?.payload?.code
-                : undefined,
-          },
-        };
-      });
+    const result = await this.sdk.evmGetPublicKey('', '', {
+      ...params,
+      skipPassphraseCheck: true,
+    });
+
+    if (result?.success) {
+      return {
+        success: true,
+        payload: {
+          publicKey: result.payload.pub,
+          chainCode: result.payload.node.chain_code,
+        },
+      };
+    }
+
+    this.#handleBlockErrorEvent(result);
+    return {
+      success: false,
+      payload: {
+        error: result?.payload.error ?? '',
+        code:
+          typeof result?.payload?.code === 'number'
+            ? result?.payload?.code
+            : undefined,
+      },
+    };
   }
 
   async getPassphraseState(): Promise<
@@ -171,12 +173,12 @@ export class OneKeyWebBridge implements OneKeyBridge {
         },
       };
     }
-    return await this.sdk.getPassphraseState('').then((result) => {
-      if (!result?.success) {
-        this.#handleBlockErrorEvent(result);
-      }
-      return result;
-    });
+
+    const result = await this.sdk.getPassphraseState('');
+    if (!result?.success) {
+      this.#handleBlockErrorEvent(result);
+    }
+    return result;
   }
 
   async ethereumSignTransaction(
@@ -194,17 +196,14 @@ export class OneKeyWebBridge implements OneKeyBridge {
         },
       };
     }
-    return await this.sdk
-      .evmSignTransaction('', '', {
-        ...params,
-        skipPassphraseCheck: true,
-      })
-      .then((result) => {
-        if (!result?.success) {
-          this.#handleBlockErrorEvent(result);
-        }
-        return result;
-      });
+    const result = await this.sdk.evmSignTransaction('', '', {
+      ...params,
+      skipPassphraseCheck: true,
+    });
+    if (!result?.success) {
+      this.#handleBlockErrorEvent(result);
+    }
+    return result;
   }
 
   async ethereumSignMessage(
@@ -222,17 +221,14 @@ export class OneKeyWebBridge implements OneKeyBridge {
         },
       };
     }
-    return await this.sdk
-      .evmSignMessage('', '', {
-        ...params,
-        skipPassphraseCheck: true,
-      })
-      .then((result) => {
-        if (!result?.success) {
-          this.#handleBlockErrorEvent(result);
-        }
-        return result;
-      });
+    const result = await this.sdk.evmSignMessage('', '', {
+      ...params,
+      skipPassphraseCheck: true,
+    });
+    if (!result?.success) {
+      this.#handleBlockErrorEvent(result);
+    }
+    return result;
   }
 
   async ethereumSignTypedData(
@@ -250,16 +246,13 @@ export class OneKeyWebBridge implements OneKeyBridge {
         },
       };
     }
-    return await this.sdk
-      .evmSignTypedData('', '', {
-        ...params,
-        skipPassphraseCheck: true,
-      })
-      .then((result) => {
-        if (!result?.success) {
-          this.#handleBlockErrorEvent(result);
-        }
-        return result;
-      });
+    const result = await this.sdk.evmSignTypedData('', '', {
+      ...params,
+      skipPassphraseCheck: true,
+    });
+    if (!result?.success) {
+      this.#handleBlockErrorEvent(result);
+    }
+    return result;
   }
 }
