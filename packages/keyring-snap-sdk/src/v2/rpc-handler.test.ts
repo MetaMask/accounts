@@ -75,9 +75,7 @@ describe('handleKeyringRequestV2', () => {
     keyring.getAccount.mockResolvedValue(mockedResult);
     const result = await handleKeyringRequestV2(keyring, request);
 
-    expect(keyring.getAccount).toHaveBeenCalledWith(
-      '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
-    );
+    expect(keyring.getAccount).toHaveBeenCalledWith(request.params.id);
     expect(result).toBe(mockedResult);
   });
 
@@ -140,9 +138,7 @@ describe('handleKeyringRequestV2', () => {
     keyring.deleteAccount.mockResolvedValue(mockedResult);
     const result = await handleKeyringRequestV2(keyring, request);
 
-    expect(keyring.deleteAccount).toHaveBeenCalledWith(
-      '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
-    );
+    expect(keyring.deleteAccount).toHaveBeenCalledWith(request.params.id);
     expect(result).toBe(mockedResult);
   });
 
