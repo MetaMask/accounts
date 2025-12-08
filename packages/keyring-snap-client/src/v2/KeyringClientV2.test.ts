@@ -8,7 +8,7 @@ import type { Json } from '@metamask/utils';
 
 import { KeyringClientV2 } from './KeyringClientV2';
 
-describe('KeyringClient', () => {
+describe('KeyringClientV2', () => {
   const mockSender = {
     send: jest.fn(),
   };

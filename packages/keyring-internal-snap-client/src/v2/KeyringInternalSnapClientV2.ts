@@ -13,7 +13,7 @@ export class KeyringInternalSnapClientV2 extends KeyringClientV2 {
   readonly #messenger: KeyringInternalSnapClientMessenger;
 
   /**
-   * Create a new instance of `KeyringInternalSnapClient`.
+   * Create a new instance of `KeyringInternalSnapClientV2`.
    *
    * The `handlerType` argument has a hard-coded default `string` value instead
    * of a `HandlerType` value to prevent the `@metamask/snaps-utils` module
@@ -43,11 +43,11 @@ export class KeyringInternalSnapClientV2 extends KeyringClientV2 {
   }
 
   /**
-   * Create a new instance of `KeyringInternalSnapClient` with the specified
+   * Create a new instance of `KeyringInternalSnapClientV2` with the specified
    * `snapId`.
    *
    * @param snapId - The ID of the Snap to use in the new instance.
-   * @returns A new instance of `KeyringInternalSnapClient` with the
+   * @returns A new instance of `KeyringInternalSnapClientV2` with the
    * specified Snap ID.
    */
   withSnapId(snapId: SnapId): KeyringInternalSnapClientV2 {
