@@ -13,14 +13,7 @@ import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
-/**
- * Error thrown when a keyring JSON-RPC method is not supported.
- */
-export class MethodNotSupportedError extends Error {
-  constructor(method: string) {
-    super(`Method not supported: ${method}`);
-  }
-}
+import { MethodNotSupportedError } from '../rpc-handler';
 
 /**
  * Inner function that dispatches JSON-RPC request to the associated Keyring
