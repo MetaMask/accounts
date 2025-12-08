@@ -21,8 +21,8 @@ export type KeyringRpcV2 = {
   getAccount: KeyringV2['getAccount'];
   createAccounts: KeyringV2['createAccounts'];
   deleteAccount: KeyringV2['deleteAccount'];
-  exportAccount: KeyringV2['exportAccount'];
   submitRequest: KeyringV2['submitRequest'];
+  exportAccount?: KeyringV2['exportAccount'];
 };
 
 /**
