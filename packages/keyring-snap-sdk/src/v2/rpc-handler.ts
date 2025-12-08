@@ -64,7 +64,7 @@ async function dispatchKeyringRequestV2(
         throw new MethodNotSupportedError(request.method);
       }
       assert(request, ExportAccountV2RequestStruct);
-      return keyring.exportAccount(request.params.id);
+      return keyring.exportAccount(request.params.id, request.params.options);
     }
 
     case `${KeyringRpcV2Method.SubmitRequest}`: {

@@ -1,4 +1,4 @@
-import { KeyringRpcV2Method } from '@metamask/keyring-api';
+import { KeyringRpcV2Method, PrivateKeyEncoding } from '@metamask/keyring-api';
 import type {
   KeyringType,
   CreateAccountsV2Request,
@@ -146,7 +146,7 @@ describe('handleKeyringRequestV2', () => {
     expect(result).toBe(mockedResult);
   });
 
-  it('calls `keyring_v2_exportAccount`', async () => {
+  it('calls `keyring_v2_exportAccount` (without options)', async () => {
     const request: ExportAccountV2Request = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
@@ -161,7 +161,35 @@ describe('handleKeyringRequestV2', () => {
     const result = await handleKeyringRequestV2(keyring, request);
 
     expect(keyring.exportAccount).toHaveBeenCalledWith(
-      '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+      request.params.id,
+      undefined,
+    );
+    expect(result).toStrictEqual(mockedResult);
+  });
+
+  it('calls `keyring_v2_exportAccount` (with options)', async () => {
+    const request: ExportAccountV2Request = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringRpcV2Method.ExportAccount}`,
+      params: {
+        id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+        options: {
+          type: 'private-key',
+          encoding: PrivateKeyEncoding.Hexadecimal,
+        },
+      },
+    };
+
+    const mockedResult = {
+      privateKey: '0x0123',
+    };
+    keyring.exportAccount.mockResolvedValue(mockedResult);
+    const result = await handleKeyringRequestV2(keyring, request);
+
+    expect(keyring.exportAccount).toHaveBeenCalledWith(
+      request.params.id,
+      request.params.options,
     );
     expect(result).toStrictEqual(mockedResult);
   });
