@@ -82,16 +82,18 @@ export abstract class KeyringWrapper<
    *
    * This method ensures thread-safety for operations that read or mutate
    * the inner keyring state. All operations that modify the keyring
-   * (createAccounts, deleteAccount...) should use this method
+   * (createAccounts, deleteAccount, deserialize) should use this method
    * to prevent race conditions.
    *
-   * @param callback - A function that receives the inner keyring and performs the operation.
+   * Within the callback, use `this.inner` to access the inner keyring.
+   *
+   * @param callback - A function that performs the operation.
    * @returns The result of the callback.
    */
-  protected async withInnerKeyring<Result>(
-    callback: (inner: InnerKeyring) => Promise<Result>,
+  protected async withLock<Result>(
+    callback: () => Promise<Result>,
   ): Promise<Result> {
-    return this.#lock.runExclusive(async () => callback(this.inner));
+    return this.#lock.runExclusive(callback);
   }
 
   /**
@@ -116,7 +118,7 @@ export abstract class KeyringWrapper<
    * @param state - The serialized keyring state.
    */
   async deserialize(state: Json): Promise<void> {
-    await this.withInnerKeyring(async () => {
+    await this.withLock(async () => {
       // Clear the registry when deserializing
       this.registry.clear();
 

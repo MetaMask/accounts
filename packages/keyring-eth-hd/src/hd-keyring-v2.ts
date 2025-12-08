@@ -146,7 +146,7 @@ export class HdKeyringV2
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<Bip44Account<KeyringAccount>[]> {
-    return this.withInnerKeyring(async () => {
+    return this.withLock(async () => {
       // For HD keyring, we only support BIP-44 derive index
       if (options.type !== 'bip44:derive-index') {
         throw new Error(
@@ -203,7 +203,7 @@ export class HdKeyringV2
    * @param accountId - The account ID to delete.
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
-    await this.withInnerKeyring(async () => {
+    await this.withLock(async () => {
       // Get the account first, before any registry operations
       const { address } = await this.getAccount(accountId);
       const hexAddress = this.toHexAddress(address);

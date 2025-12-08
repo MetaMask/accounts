@@ -191,7 +191,7 @@ export class SimpleKeyringV2
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
-    return this.withInnerKeyring(async () => {
+    return this.withLock(async () => {
       // For SimpleKeyring, we only support private key import
       if (options.type !== 'private-key:import') {
         throw new Error(
@@ -230,7 +230,7 @@ export class SimpleKeyringV2
    * @param accountId - The account ID to delete.
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
-    await this.withInnerKeyring(async () => {
+    await this.withLock(async () => {
       const account = await this.getAccount(accountId);
 
       // Remove from the legacy keyring
