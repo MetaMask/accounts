@@ -1,5 +1,6 @@
 import type { Keyring, AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
+import { Mutex } from 'async-mutex';
 
 import { KeyringAccountRegistry } from './keyring-account-registry';
 import type {
@@ -55,6 +56,12 @@ export abstract class KeyringWrapper<
   protected readonly inner: InnerKeyring;
 
   /**
+   * Mutex to ensure exclusive access to the inner keyring during
+   * operations that mutate its state.
+   */
+  readonly #lock = new Mutex();
+
+  /**
    * Registry for KeyringAccount objects.
    * Provides O(1) lookups by AccountId or address.
    *
@@ -68,6 +75,25 @@ export abstract class KeyringWrapper<
     this.inner = options.inner;
     this.type = `${options.type}`;
     this.capabilities = options.capabilities;
+  }
+
+  /**
+   * Execute an operation with exclusive access to the inner keyring.
+   *
+   * This method ensures thread-safety for operations that read or mutate
+   * the inner keyring state. All operations that modify the keyring
+   * (createAccounts, deleteAccount, deserialize) should use this method
+   * to prevent race conditions.
+   *
+   * Within the callback, use `this.inner` to access the inner keyring.
+   *
+   * @param callback - A function that performs the operation.
+   * @returns The result of the callback.
+   */
+  protected async withLock<Result>(
+    callback: () => Promise<Result>,
+  ): Promise<Result> {
+    return this.#lock.runExclusive(callback);
   }
 
   /**
@@ -85,13 +111,25 @@ export abstract class KeyringWrapper<
   /**
    * Hydrate the underlying keyring from a previously serialized state.
    *
-   * This simply delegates to the legacy keyring's {@link Keyring.deserialize}
-   * implementation.
+   * This clears the registry, delegates to the legacy keyring's
+   * {@link Keyring.deserialize} implementation, and rebuilds the registry
+   * by calling {@link getAccounts}.
    *
    * @param state - The serialized keyring state.
    */
   async deserialize(state: Json): Promise<void> {
-    await this.inner.deserialize(state);
+    await this.withLock(async () => {
+      // Clear the registry when deserializing
+      this.registry.clear();
+
+      // Deserialize the legacy keyring
+      await this.inner.deserialize(state);
+
+      // Rebuild the registry by calling getAccounts().
+      // Subclass implementations of getAccounts() should populate the registry
+      // as a side effect (see the abstract method's documentation).
+      await this.getAccounts();
+    });
   }
 
   /**

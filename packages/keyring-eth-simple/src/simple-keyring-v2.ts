@@ -15,8 +15,7 @@ import {
   PrivateKeyEncoding,
 } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
-import { add0x, type Hex, type Json } from '@metamask/utils';
-import { Mutex } from 'async-mutex';
+import { add0x, type Hex } from '@metamask/utils';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import type SimpleKeyring from './simple-keyring';
@@ -62,8 +61,6 @@ export class SimpleKeyringV2
   extends EthKeyringWrapper<SimpleKeyring>
   implements KeyringV2
 {
-  readonly #lock = new Mutex();
-
   constructor(options: SimpleKeyringV2Options) {
     super({
       type: KeyringType.PrivateKey,
@@ -191,24 +188,10 @@ export class SimpleKeyringV2
     });
   }
 
-  async deserialize(state: Json): Promise<void> {
-    await this.#lock.runExclusive(async () => {
-      // Clear the registry when deserializing
-      this.registry.clear();
-
-      // Deserialize the legacy keyring
-      await this.inner.deserialize(state as string[]);
-
-      // Rebuild the registry by populating it with all accounts
-      // We call getAccounts() which will repopulate the registry as a side effect
-      await this.getAccounts();
-    });
-  }
-
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
-    return this.#lock.runExclusive(async () => {
+    return this.withLock(async () => {
       // For SimpleKeyring, we only support private key import
       if (options.type !== 'private-key:import') {
         throw new Error(
@@ -247,7 +230,7 @@ export class SimpleKeyringV2
    * @param accountId - The account ID to delete.
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
-    await this.#lock.runExclusive(async () => {
+    await this.withLock(async () => {
       const account = await this.getAccount(accountId);
 
       // Remove from the legacy keyring
