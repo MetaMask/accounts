@@ -134,12 +134,10 @@ describe('handleKeyringRequestV2', () => {
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
-    const mockedResult = 'DeleteAccount result';
-    keyring.deleteAccount.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    keyring.deleteAccount.mockResolvedValue(undefined);
+    await handleKeyringRequestV2(keyring, request);
 
     expect(keyring.deleteAccount).toHaveBeenCalledWith(request.params.id);
-    expect(result).toBe(mockedResult);
   });
 
   it('calls `keyring_v2_exportAccount` (without options)', async () => {
