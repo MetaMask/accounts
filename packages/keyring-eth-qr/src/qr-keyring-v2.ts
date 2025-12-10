@@ -10,7 +10,7 @@ import {
   type KeyringCapabilities,
   type KeyringV2,
   KeyringType,
-  EntropySourceId,
+  type EntropySourceId,
 } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';

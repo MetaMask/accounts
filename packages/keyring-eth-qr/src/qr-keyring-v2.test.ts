@@ -20,7 +20,48 @@ import {
   KNOWN_HDKEY_UR,
 } from '../test/fixtures';
 
+/**
+ * Type alias for QR keyring accounts (always BIP-44 derived).
+ */
+type QrAccount = Bip44Account<KeyringAccount>;
+
+/**
+ * Get the first account from an array, throwing if empty.
+ *
+ * @param accounts - The accounts array.
+ * @returns The first account.
+ */
+function getFirstAccount(accounts: QrAccount[]): QrAccount {
+  if (accounts.length === 0) {
+    throw new Error('Expected at least one account');
+  }
+  return accounts[0] as QrAccount;
+}
+
+/**
+ * Get an account at a specific index, throwing if not present.
+ *
+ * @param accounts - The accounts array.
+ * @param index - The index to retrieve.
+ * @returns The account at the index.
+ */
+function getAccountAt(accounts: QrAccount[], index: number): QrAccount {
+  if (accounts.length <= index) {
+    throw new Error(`Expected account at index ${index}`);
+  }
+  return accounts[index] as QrAccount;
+}
+
 const entropySource = HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS.xfp;
+
+/**
+ * Expected methods supported by QR keyring accounts.
+ */
+const EXPECTED_METHODS = [
+  EthMethod.SignTransaction,
+  EthMethod.PersonalSign,
+  EthMethod.SignTypedDataV4,
+];
 
 /**
  * Get a mock bridge for the QrKeyring.
@@ -34,6 +75,18 @@ function getMockBridge(): QrKeyringBridge {
 }
 
 /**
+ * Create a fresh QrKeyring with HD mode device.
+ *
+ * @returns The inner keyring.
+ */
+function createInnerKeyring(): QrKeyring {
+  return new QrKeyring({
+    bridge: getMockBridge(),
+    ur: KNOWN_HDKEY_UR,
+  });
+}
+
+/**
  * Create a QrKeyringV2 wrapper with a paired HD mode device and accounts.
  *
  * @param accountCount - Number of accounts to add.
@@ -43,24 +96,50 @@ async function createWrapperWithAccounts(accountCount = 3): Promise<{
   wrapper: QrKeyringV2;
   inner: QrKeyring;
 }> {
-  const inner = new QrKeyring({
-    bridge: getMockBridge(),
-    ur: KNOWN_HDKEY_UR,
-  });
+  const inner = createInnerKeyring();
   await inner.addAccounts(accountCount);
 
   const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
 
+/**
+ * Create a QrKeyringV2 wrapper without any accounts.
+ *
+ * @returns The wrapper and inner keyring.
+ */
+function createEmptyWrapper(): { wrapper: QrKeyringV2; inner: QrKeyring } {
+  const inner = createInnerKeyring();
+  const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+  return { wrapper, inner };
+}
+
+/**
+ * Helper to create account options for bip44:derive-index.
+ *
+ * @param groupIndex - The group index to derive.
+ * @param source - Optional entropy source override.
+ * @returns The create account options.
+ */
+function deriveIndexOptions(
+  groupIndex: number,
+  source: string = entropySource,
+): {
+  type: 'bip44:derive-index';
+  entropySource: string;
+  groupIndex: number;
+} {
+  return {
+    type: 'bip44:derive-index' as const,
+    entropySource: source,
+    groupIndex,
+  };
+}
+
 describe('QrKeyringV2', () => {
   describe('constructor', () => {
     it('creates a wrapper with correct type and capabilities', () => {
-      const inner = new QrKeyring({
-        bridge: getMockBridge(),
-        ur: KNOWN_HDKEY_UR,
-      });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const { wrapper } = createEmptyWrapper();
 
       expect(wrapper.type).toBe(KeyringType.Qr);
       expect(wrapper.capabilities).toStrictEqual({
@@ -90,33 +169,26 @@ describe('QrKeyringV2', () => {
       const accounts = await wrapper.getAccounts();
 
       expect(accounts).toHaveLength(3);
-      expect(accounts.map((a) => a.address)).toStrictEqual([
-        EXPECTED_ACCOUNTS[0],
-        EXPECTED_ACCOUNTS[1],
-        EXPECTED_ACCOUNTS[2],
-      ]);
+      expect(accounts.map((a) => a.address)).toStrictEqual(
+        EXPECTED_ACCOUNTS.slice(0, 3),
+      );
     });
 
     it('creates KeyringAccount objects with correct structure', async () => {
       const { wrapper } = await createWrapperWithAccounts(1);
 
       const accounts = await wrapper.getAccounts();
+      const account = getFirstAccount(accounts);
 
-      expect(accounts).toHaveLength(1);
-      const account = accounts[0] as Bip44Account<KeyringAccount>;
       expect(account).toMatchObject({
         type: EthAccountType.Eoa,
         address: EXPECTED_ACCOUNTS[0],
         scopes: [EthScope.Eoa],
-        methods: [
-          EthMethod.SignTransaction,
-          EthMethod.PersonalSign,
-          EthMethod.SignTypedDataV4,
-        ],
+        methods: EXPECTED_METHODS,
         options: {
           entropy: {
             type: KeyringAccountEntropyTypeOption.Mnemonic,
-            id: HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS.xfp,
+            id: entropySource,
             groupIndex: 0,
             derivationPath: `m/44'/60'/0'/0/0`,
           },
@@ -139,30 +211,15 @@ describe('QrKeyringV2', () => {
 
       const accounts = await wrapper.getAccounts();
 
-      expect(
-        (accounts[0] as Bip44Account<KeyringAccount>).options.entropy
-          ?.groupIndex,
-      ).toBe(0);
-      expect(
-        (accounts[1] as Bip44Account<KeyringAccount>).options.entropy
-          ?.groupIndex,
-      ).toBe(1);
-      expect(
-        (accounts[2] as Bip44Account<KeyringAccount>).options.entropy
-          ?.groupIndex,
-      ).toBe(2);
+      accounts.forEach((account, index) => {
+        expect(account.options.entropy.groupIndex).toBe(index);
+      });
     });
 
     it('throws error in HD mode when address is not in indexes map', async () => {
-      const inner = new QrKeyring({
-        bridge: getMockBridge(),
-        ur: KNOWN_HDKEY_UR,
-      });
-      await inner.addAccounts(1);
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const { wrapper, inner } = await createWrapperWithAccounts(1);
 
       // Mock serialize to return an inconsistent state
-      // where the keyring mode is HD but the indexes map is empty
       jest.spyOn(inner, 'serialize').mockResolvedValue({
         ...HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS,
         indexes: {}, // Empty indexes - inconsistent with accounts
@@ -174,23 +231,14 @@ describe('QrKeyringV2', () => {
     });
 
     it('uses empty string for derivationPath when getPathFromAddress returns undefined', async () => {
-      const inner = new QrKeyring({
-        bridge: getMockBridge(),
-        ur: KNOWN_HDKEY_UR,
-      });
-      await inner.addAccounts(1);
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const { wrapper, inner } = await createWrapperWithAccounts(1);
 
-      // Mock getPathFromAddress to return undefined
       jest.spyOn(inner, 'getPathFromAddress').mockReturnValue(undefined);
 
       const accounts = await wrapper.getAccounts();
+      const account = getFirstAccount(accounts);
 
-      expect(accounts).toHaveLength(1);
-      expect(
-        (accounts[0] as Bip44Account<KeyringAccount>).options.entropy
-          .derivationPath,
-      ).toBe('');
+      expect(account.options.entropy.derivationPath).toBe('');
     });
   });
 
@@ -203,25 +251,21 @@ describe('QrKeyringV2', () => {
 
       const accounts = await wrapper.getAccounts();
       expect(accounts).toHaveLength(3);
-      expect(accounts.map((a) => a.address)).toStrictEqual([
-        EXPECTED_ACCOUNTS[0],
-        EXPECTED_ACCOUNTS[1],
-        EXPECTED_ACCOUNTS[2],
-      ]);
+      expect(accounts.map((a) => a.address)).toStrictEqual(
+        EXPECTED_ACCOUNTS.slice(0, 3),
+      );
     });
 
     it('clears the cache and rebuilds it', async () => {
-      const { wrapper, inner } = await createWrapperWithAccounts(2);
+      const { wrapper } = await createWrapperWithAccounts(2);
 
       const accountsBefore = await wrapper.getAccounts();
       expect(accountsBefore).toHaveLength(2);
 
-      // Deserialize with more accounts
       await wrapper.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS);
 
       const accountsAfter = await wrapper.getAccounts();
       expect(accountsAfter).toHaveLength(3);
-
       // The accounts should be new objects (cache was cleared)
       expect(accountsAfter[0]).not.toBe(accountsBefore[0]);
     });
@@ -229,47 +273,32 @@ describe('QrKeyringV2', () => {
 
   describe('createAccounts', () => {
     it('creates the first account at index 0', async () => {
-      const inner = new QrKeyring({
-        bridge: getMockBridge(),
-        ur: KNOWN_HDKEY_UR,
-      });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const { wrapper } = createEmptyWrapper();
 
-      const newAccounts = await wrapper.createAccounts({
-        type: 'bip44:derive-index',
-        entropySource,
-        groupIndex: 0,
-      });
+      const newAccounts = await wrapper.createAccounts(deriveIndexOptions(0));
+      const account = getFirstAccount(newAccounts);
 
-      expect(newAccounts).toHaveLength(1);
-      expect(newAccounts[0]?.address).toBe(EXPECTED_ACCOUNTS[0]);
+      expect(account.address).toBe(EXPECTED_ACCOUNTS[0]);
     });
 
     it('creates an account at a specific index', async () => {
       const { wrapper } = await createWrapperWithAccounts(2);
 
-      const newAccounts = await wrapper.createAccounts({
-        type: 'bip44:derive-index',
-        entropySource,
-        groupIndex: 2,
-      });
+      const newAccounts = await wrapper.createAccounts(deriveIndexOptions(2));
+      const account = getFirstAccount(newAccounts);
 
-      expect(newAccounts).toHaveLength(1);
-      expect(newAccounts[0]?.address).toBe(EXPECTED_ACCOUNTS[2]);
+      expect(account.address).toBe(EXPECTED_ACCOUNTS[2]);
     });
 
     it('returns existing account if groupIndex already exists', async () => {
       const { wrapper } = await createWrapperWithAccounts(2);
 
       const existingAccounts = await wrapper.getAccounts();
-      const newAccounts = await wrapper.createAccounts({
-        type: 'bip44:derive-index',
-        entropySource,
-        groupIndex: 0,
-      });
+      const existingAccount = getFirstAccount(existingAccounts);
+      const newAccounts = await wrapper.createAccounts(deriveIndexOptions(0));
+      const returnedAccount = getFirstAccount(newAccounts);
 
-      expect(newAccounts).toHaveLength(1);
-      expect(newAccounts[0]).toBe(existingAccounts[0]);
+      expect(returnedAccount).toBe(existingAccount);
     });
 
     it('throws error for unsupported account creation type', async () => {
@@ -291,11 +320,7 @@ describe('QrKeyringV2', () => {
       const { wrapper } = await createWrapperWithAccounts(0);
 
       await expect(
-        wrapper.createAccounts({
-          type: 'bip44:derive-index',
-          entropySource: 'wrong-entropy',
-          groupIndex: 0,
-        }),
+        wrapper.createAccounts(deriveIndexOptions(0, 'wrong-entropy')),
       ).rejects.toThrow(/Entropy source mismatch/u);
     });
 
@@ -304,80 +329,42 @@ describe('QrKeyringV2', () => {
       const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
 
       await expect(
-        wrapper.createAccounts({
-          type: 'bip44:derive-index',
-          entropySource: 'some-entropy',
-          groupIndex: 0,
-        }),
+        wrapper.createAccounts(deriveIndexOptions(0, 'some-entropy')),
       ).rejects.toThrow('No device paired. Cannot create accounts.');
     });
 
     it('allows deriving accounts at any index (non-sequential)', async () => {
-      const inner = new QrKeyring({
-        bridge: getMockBridge(),
-        ur: KNOWN_HDKEY_UR,
-      });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const { wrapper } = createEmptyWrapper();
 
-      // Skip index 0 and go directly to index 5
-      const accounts = await wrapper.createAccounts({
-        type: 'bip44:derive-index',
-        entropySource,
-        groupIndex: 5,
-      });
+      const newAccounts = await wrapper.createAccounts(deriveIndexOptions(5));
+      const account = getFirstAccount(newAccounts);
 
-      expect(accounts).toHaveLength(1);
-      expect(accounts[0]?.address).toBe(EXPECTED_ACCOUNTS[5]);
-      expect(
-        (accounts[0] as Bip44Account<KeyringAccount>).options.entropy
-          .groupIndex,
-      ).toBe(5);
+      expect(account.address).toBe(EXPECTED_ACCOUNTS[5]);
+      expect(account.options.entropy.groupIndex).toBe(5);
     });
 
     it('creates multiple accounts sequentially', async () => {
-      const inner = new QrKeyring({
-        bridge: getMockBridge(),
-        ur: KNOWN_HDKEY_UR,
-      });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const { wrapper } = createEmptyWrapper();
 
-      const account1 = await wrapper.createAccounts({
-        type: 'bip44:derive-index',
-        entropySource,
-        groupIndex: 0,
-      });
-      const account2 = await wrapper.createAccounts({
-        type: 'bip44:derive-index',
-        entropySource,
-        groupIndex: 1,
-      });
-      const account3 = await wrapper.createAccounts({
-        type: 'bip44:derive-index',
-        entropySource,
-        groupIndex: 2,
-      });
+      const results = await Promise.all([
+        wrapper.createAccounts(deriveIndexOptions(0)),
+        wrapper.createAccounts(deriveIndexOptions(1)),
+        wrapper.createAccounts(deriveIndexOptions(2)),
+      ]);
 
-      expect(account1[0]?.address).toBe(EXPECTED_ACCOUNTS[0]);
-      expect(account2[0]?.address).toBe(EXPECTED_ACCOUNTS[1]);
-      expect(account3[0]?.address).toBe(EXPECTED_ACCOUNTS[2]);
+      results.forEach((accounts, index) => {
+        const account = getFirstAccount(accounts);
+        expect(account.address).toBe(EXPECTED_ACCOUNTS[index]);
+      });
     });
 
     it('throws error when inner keyring fails to create account', async () => {
-      const inner = new QrKeyring({
-        bridge: getMockBridge(),
-        ur: KNOWN_HDKEY_UR,
-      });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const { wrapper, inner } = createEmptyWrapper();
 
-      // Mock addAccounts to return empty array
       jest.spyOn(inner, 'addAccounts').mockResolvedValueOnce([]);
 
       await expect(
-        wrapper.createAccounts({
-          type: 'bip44:derive-index',
-          entropySource,
-          groupIndex: 0,
-        }),
+        wrapper.createAccounts(deriveIndexOptions(0)),
       ).rejects.toThrow('Failed to create new account');
     });
   });
@@ -387,15 +374,14 @@ describe('QrKeyringV2', () => {
       const { wrapper } = await createWrapperWithAccounts(3);
 
       const accountsBefore = await wrapper.getAccounts();
-      expect(accountsBefore).toHaveLength(3);
+      const accountToDelete = getAccountAt(accountsBefore, 1);
 
-      const accountToDelete = accountsBefore[1];
-      await wrapper.deleteAccount(accountToDelete!.id);
+      await wrapper.deleteAccount(accountToDelete.id);
 
       const accountsAfter = await wrapper.getAccounts();
       expect(accountsAfter).toHaveLength(2);
       expect(accountsAfter.map((a) => a.address)).not.toContain(
-        accountToDelete!.address,
+        accountToDelete.address,
       );
     });
 
@@ -403,12 +389,11 @@ describe('QrKeyringV2', () => {
       const { wrapper } = await createWrapperWithAccounts(2);
 
       const accounts = await wrapper.getAccounts();
-      const accountToDelete = accounts[0];
+      const accountToDelete = getFirstAccount(accounts);
 
-      await wrapper.deleteAccount(accountToDelete!.id);
+      await wrapper.deleteAccount(accountToDelete.id);
 
-      // The account should not be found by ID
-      await expect(wrapper.getAccount(accountToDelete!.id)).rejects.toThrow(
+      await expect(wrapper.getAccount(accountToDelete.id)).rejects.toThrow(
         /Account not found/u,
       );
     });
@@ -427,9 +412,10 @@ describe('QrKeyringV2', () => {
       const { wrapper } = await createWrapperWithAccounts(2);
 
       const accounts = await wrapper.getAccounts();
-      const account = await wrapper.getAccount(accounts[0]!.id);
+      const expectedAccount = getFirstAccount(accounts);
+      const account = await wrapper.getAccount(expectedAccount.id);
 
-      expect(account).toBe(accounts[0]);
+      expect(account).toBe(expectedAccount);
     });
 
     it('throws error for non-existent account', async () => {
@@ -487,16 +473,14 @@ describe('QrKeyringV2', () => {
         const { wrapper } = await createAccountModeWrapper();
 
         const accounts = await wrapper.getAccounts();
+        const account = getFirstAccount(accounts);
 
-        expect(accounts).toHaveLength(1);
-        expect(accounts[0]?.address).toBe(accountModeAddress);
-
-        const account = accounts[0] as Bip44Account<KeyringAccount>;
-        expect(account.options.entropy.type).toBe(
-          KeyringAccountEntropyTypeOption.Mnemonic,
-        );
-        expect(account.options.entropy.id).toBe(accountModeEntropySource);
-        expect(account.options.entropy.groupIndex).toBe(0);
+        expect(account.address).toBe(accountModeAddress);
+        expect(account.options.entropy).toMatchObject({
+          type: KeyringAccountEntropyTypeOption.Mnemonic,
+          id: accountModeEntropySource,
+          groupIndex: 0,
+        });
         expect(account.options.entropy.derivationPath).toBeDefined();
       });
     });
@@ -506,9 +490,9 @@ describe('QrKeyringV2', () => {
         const { wrapper, inner } = await createAccountModeWrapper();
 
         const accounts = await wrapper.getAccounts();
-        expect(accounts).toHaveLength(1);
+        const account = getFirstAccount(accounts);
 
-        await wrapper.deleteAccount(accounts[0]!.id);
+        await wrapper.deleteAccount(account.id);
 
         const remainingAddresses = await inner.getAccounts();
         expect(remainingAddresses).toHaveLength(0);
