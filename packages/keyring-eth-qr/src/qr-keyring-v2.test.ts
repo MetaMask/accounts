@@ -7,7 +7,6 @@ import {
   KeyringAccountEntropyTypeOption,
   KeyringType,
 } from '@metamask/keyring-api';
-import type { Hex } from '@metamask/utils';
 
 import type { QrKeyringBridge } from '.';
 import { QrKeyring } from '.';
@@ -20,6 +19,8 @@ import {
   KNOWN_CRYPTO_ACCOUNT_UR,
   KNOWN_HDKEY_UR,
 } from '../test/fixtures';
+
+const entropySource = HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS.xfp;
 
 /**
  * Get a mock bridge for the QrKeyring.
@@ -48,7 +49,7 @@ async function createWrapperWithAccounts(accountCount = 3): Promise<{
   });
   await inner.addAccounts(accountCount);
 
-  const wrapper = new QrKeyringV2({ legacyKeyring: inner });
+  const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
 
@@ -59,7 +60,7 @@ describe('QrKeyringV2', () => {
         bridge: getMockBridge(),
         ur: KNOWN_HDKEY_UR,
       });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner });
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
 
       expect(wrapper.type).toBe(KeyringType.Qr);
       expect(wrapper.capabilities).toStrictEqual({
@@ -76,7 +77,7 @@ describe('QrKeyringV2', () => {
   describe('getAccounts', () => {
     it('returns empty array when no device is paired', async () => {
       const inner = new QrKeyring({ bridge: getMockBridge() });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner });
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
 
       const accounts = await wrapper.getAccounts();
 
@@ -151,12 +152,52 @@ describe('QrKeyringV2', () => {
           ?.groupIndex,
       ).toBe(2);
     });
+
+    it('throws error in HD mode when address is not in indexes map', async () => {
+      const inner = new QrKeyring({
+        bridge: getMockBridge(),
+        ur: KNOWN_HDKEY_UR,
+      });
+      await inner.addAccounts(1);
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+
+      // Mock serialize to return an inconsistent state
+      // where the keyring mode is HD but the indexes map is empty
+      jest.spyOn(inner, 'serialize').mockResolvedValue({
+        ...HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS,
+        indexes: {}, // Empty indexes - inconsistent with accounts
+      });
+
+      await expect(wrapper.getAccounts()).rejects.toThrow(
+        /not found in device indexes/u,
+      );
+    });
+
+    it('uses empty string for derivationPath when getPathFromAddress returns undefined', async () => {
+      const inner = new QrKeyring({
+        bridge: getMockBridge(),
+        ur: KNOWN_HDKEY_UR,
+      });
+      await inner.addAccounts(1);
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+
+      // Mock getPathFromAddress to return undefined
+      jest.spyOn(inner, 'getPathFromAddress').mockReturnValue(undefined);
+
+      const accounts = await wrapper.getAccounts();
+
+      expect(accounts).toHaveLength(1);
+      expect(
+        (accounts[0] as Bip44Account<KeyringAccount>).options.entropy
+          .derivationPath,
+      ).toBe('');
+    });
   });
 
   describe('deserialize', () => {
     it('deserializes the legacy keyring state', async () => {
       const inner = new QrKeyring({ bridge: getMockBridge() });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner });
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
 
       await wrapper.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS);
 
@@ -187,14 +228,12 @@ describe('QrKeyringV2', () => {
   });
 
   describe('createAccounts', () => {
-    const entropySource = HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS.xfp;
-
     it('creates the first account at index 0', async () => {
       const inner = new QrKeyring({
         bridge: getMockBridge(),
         ur: KNOWN_HDKEY_UR,
       });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner });
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
 
       const newAccounts = await wrapper.createAccounts({
         type: 'bip44:derive-index',
@@ -244,7 +283,7 @@ describe('QrKeyringV2', () => {
           privateKey: '0xabc',
         }),
       ).rejects.toThrow(
-        'Unsupported account creation type for QrKeyring in HD mode: private-key:import',
+        'Unsupported account creation type for QrKeyring: private-key:import',
       );
     });
 
@@ -262,7 +301,7 @@ describe('QrKeyringV2', () => {
 
     it('throws error when no device is paired', async () => {
       const inner = new QrKeyring({ bridge: getMockBridge() });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner });
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
 
       await expect(
         wrapper.createAccounts({
@@ -273,18 +312,26 @@ describe('QrKeyringV2', () => {
       ).rejects.toThrow('No device paired. Cannot create accounts.');
     });
 
-    it('throws when trying to skip indices', async () => {
-      const { wrapper } = await createWrapperWithAccounts(0);
+    it('allows deriving accounts at any index (non-sequential)', async () => {
+      const inner = new QrKeyring({
+        bridge: getMockBridge(),
+        ur: KNOWN_HDKEY_UR,
+      });
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
 
-      await expect(
-        wrapper.createAccounts({
-          type: 'bip44:derive-index',
-          entropySource,
-          groupIndex: 5,
-        }),
-      ).rejects.toThrow(
-        'Can only create the next account in sequence. Expected groupIndex 0, got 5.',
-      );
+      // Skip index 0 and go directly to index 5
+      const accounts = await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource,
+        groupIndex: 5,
+      });
+
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0]?.address).toBe(EXPECTED_ACCOUNTS[5]);
+      expect(
+        (accounts[0] as Bip44Account<KeyringAccount>).options.entropy
+          .groupIndex,
+      ).toBe(5);
     });
 
     it('creates multiple accounts sequentially', async () => {
@@ -292,7 +339,7 @@ describe('QrKeyringV2', () => {
         bridge: getMockBridge(),
         ur: KNOWN_HDKEY_UR,
       });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner });
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
 
       const account1 = await wrapper.createAccounts({
         type: 'bip44:derive-index',
@@ -320,7 +367,7 @@ describe('QrKeyringV2', () => {
         bridge: getMockBridge(),
         ur: KNOWN_HDKEY_UR,
       });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner });
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
 
       // Mock addAccounts to return empty array
       jest.spyOn(inner, 'addAccounts').mockResolvedValueOnce([]);
@@ -406,9 +453,8 @@ describe('QrKeyringV2', () => {
   });
 
   describe('Account Mode (CryptoAccount)', () => {
-    const accountModeAddress =
-      '0x2043858DA83bCD92Ae342C1bAaD4D5F5B5C328B3' as Hex;
-    const accountModeEntropySourceId =
+    const accountModeAddress = '0x2043858DA83bCD92Ae342C1bAaD4D5F5B5C328B3';
+    const accountModeEntropySource =
       ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp;
 
     /**
@@ -429,52 +475,29 @@ describe('QrKeyringV2', () => {
         await inner.addAccounts(1);
       }
 
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner });
+      const wrapper = new QrKeyringV2({
+        legacyKeyring: inner,
+        entropySource: accountModeEntropySource,
+      });
       return { wrapper, inner };
     }
 
     describe('getAccounts', () => {
-      it('returns accounts with PrivateKey entropy type', async () => {
+      it('returns accounts with Mnemonic entropy type (BIP-44 derived)', async () => {
         const { wrapper } = await createAccountModeWrapper();
 
         const accounts = await wrapper.getAccounts();
 
         expect(accounts).toHaveLength(1);
         expect(accounts[0]?.address).toBe(accountModeAddress);
-        expect(accounts[0]?.options?.entropy).toStrictEqual({
-          type: KeyringAccountEntropyTypeOption.PrivateKey,
-        });
-      });
 
-      it('does not include BIP-44 derivation fields', async () => {
-        const { wrapper } = await createAccountModeWrapper();
-
-        const accounts = await wrapper.getAccounts();
-        const entropy = accounts[0]?.options?.entropy as Record<
-          string,
-          unknown
-        >;
-
-        // Account mode accounts should NOT have these BIP-44 fields
-        expect(entropy).not.toHaveProperty('id');
-        expect(entropy).not.toHaveProperty('groupIndex');
-        expect(entropy).not.toHaveProperty('derivationPath');
-      });
-    });
-
-    describe('createAccounts', () => {
-      it('throws error when trying to create accounts in Account mode', async () => {
-        const { wrapper } = await createAccountModeWrapper(false);
-
-        await expect(
-          wrapper.createAccounts({
-            type: 'bip44:derive-index',
-            entropySource: accountModeEntropySourceId,
-            groupIndex: 0,
-          }),
-        ).rejects.toThrow(
-          'Cannot create accounts in Account mode. Accounts are pre-defined by the device.',
+        const account = accounts[0] as Bip44Account<KeyringAccount>;
+        expect(account.options.entropy.type).toBe(
+          KeyringAccountEntropyTypeOption.Mnemonic,
         );
+        expect(account.options.entropy.id).toBe(accountModeEntropySource);
+        expect(account.options.entropy.groupIndex).toBe(0);
+        expect(account.options.entropy.derivationPath).toBeDefined();
       });
     });
 
