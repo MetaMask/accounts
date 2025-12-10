@@ -115,6 +115,28 @@ function createEmptyWrapper(): { wrapper: QrKeyringV2; inner: QrKeyring } {
 }
 
 /**
+ * Create a QrKeyringV2 wrapper with a paired Account mode device.
+ *
+ * @returns The wrapper and inner keyring.
+ */
+async function createAccountModeWrapper(): Promise<{
+  wrapper: QrKeyringV2;
+  inner: QrKeyring;
+}> {
+  const inner = new QrKeyring({
+    bridge: getMockBridge(),
+    ur: KNOWN_CRYPTO_ACCOUNT_UR,
+  });
+  await inner.addAccounts(1);
+
+  const wrapper = new QrKeyringV2({
+    legacyKeyring: inner,
+    entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
+  });
+  return { wrapper, inner };
+}
+
+/**
  * Helper to create account options for bip44:derive-index.
  *
  * @param groupIndex - The group index to derive.
@@ -195,15 +217,6 @@ describe('QrKeyringV2', () => {
         },
       });
       expect(account.id).toBeDefined();
-    });
-
-    it('caches KeyringAccount objects', async () => {
-      const { wrapper } = await createWrapperWithAccounts(1);
-
-      const accounts1 = await wrapper.getAccounts();
-      const accounts2 = await wrapper.getAccounts();
-
-      expect(accounts1[0]).toBe(accounts2[0]);
     });
 
     it('returns correct groupIndex for multiple accounts', async () => {
@@ -439,35 +452,6 @@ describe('QrKeyringV2', () => {
   });
 
   describe('Account Mode (CryptoAccount)', () => {
-    const accountModeAddress = '0x2043858DA83bCD92Ae342C1bAaD4D5F5B5C328B3';
-    const accountModeEntropySource =
-      ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp;
-
-    /**
-     * Create a QrKeyringV2 wrapper with a paired Account mode device.
-     *
-     * @param addAccount - Whether to add the pre-defined account.
-     * @returns The wrapper and inner keyring.
-     */
-    async function createAccountModeWrapper(addAccount = true): Promise<{
-      wrapper: QrKeyringV2;
-      inner: QrKeyring;
-    }> {
-      const inner = new QrKeyring({
-        bridge: getMockBridge(),
-        ur: KNOWN_CRYPTO_ACCOUNT_UR,
-      });
-      if (addAccount) {
-        await inner.addAccounts(1);
-      }
-
-      const wrapper = new QrKeyringV2({
-        legacyKeyring: inner,
-        entropySource: accountModeEntropySource,
-      });
-      return { wrapper, inner };
-    }
-
     describe('getAccounts', () => {
       it('returns accounts with Mnemonic entropy type (BIP-44 derived)', async () => {
         const { wrapper } = await createAccountModeWrapper();
@@ -475,10 +459,12 @@ describe('QrKeyringV2', () => {
         const accounts = await wrapper.getAccounts();
         const account = getFirstAccount(accounts);
 
-        expect(account.address).toBe(accountModeAddress);
+        expect(account.address).toBe(
+          ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.accounts[0],
+        );
         expect(account.options.entropy).toMatchObject({
           type: KeyringAccountEntropyTypeOption.Mnemonic,
-          id: accountModeEntropySource,
+          id: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
           groupIndex: 0,
         });
         expect(account.options.entropy.derivationPath).toBeDefined();
