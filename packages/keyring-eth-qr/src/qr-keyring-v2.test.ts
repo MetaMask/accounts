@@ -243,15 +243,14 @@ describe('QrKeyringV2', () => {
       );
     });
 
-    it('uses empty string for derivationPath when getPathFromAddress returns undefined', async () => {
+    it('throws error when getPathFromAddress returns undefined', async () => {
       const { wrapper, inner } = await createWrapperWithAccounts(1);
 
       jest.spyOn(inner, 'getPathFromAddress').mockReturnValue(undefined);
 
-      const accounts = await wrapper.getAccounts();
-      const account = getFirstAccount(accounts);
-
-      expect(account.options.entropy.derivationPath).toBe('');
+      await expect(wrapper.getAccounts()).rejects.toThrow(
+        /derivation path not found in keyring/u,
+      );
     });
   });
 

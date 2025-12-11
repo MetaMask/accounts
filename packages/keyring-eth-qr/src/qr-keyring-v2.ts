@@ -93,11 +93,19 @@ export class QrKeyringV2
    * @param addressIndex - The account index in the derivation path.
    * @returns The created Bip44Account.
    */
-  #createAccount(
+  #createKeyringAccount(
     address: Hex,
     addressIndex: number,
   ): Bip44Account<KeyringAccount> {
     const id = this.registry.register(address);
+
+    const derivationPath = this.inner.getPathFromAddress(address);
+
+    if (!derivationPath) {
+      throw new Error(
+        `Cannot create account for address ${address}: derivation path not found in keyring.`,
+      );
+    }
 
     const account: Bip44Account<KeyringAccount> = {
       id,
@@ -110,7 +118,7 @@ export class QrKeyringV2
           type: KeyringAccountEntropyTypeOption.Mnemonic,
           id: this.entropySource,
           groupIndex: addressIndex,
-          derivationPath: this.inner.getPathFromAddress(address) ?? '',
+          derivationPath,
         },
       },
     };
@@ -155,7 +163,7 @@ export class QrKeyringV2
         addressIndex = arrayIndex;
       }
 
-      return this.#createAccount(address, addressIndex);
+      return this.#createKeyringAccount(address, addressIndex);
     });
   }
 
@@ -202,7 +210,7 @@ export class QrKeyringV2
         throw new Error('Failed to create new account');
       }
 
-      const newAccount = this.#createAccount(newAddress, targetIndex);
+      const newAccount = this.#createKeyringAccount(newAddress, targetIndex);
 
       return [newAccount];
     });

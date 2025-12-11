@@ -116,7 +116,6 @@ export class HdKeyringV2
           groupIndex: addressIndex,
           derivationPath: `${this.inner.hdPath}/${addressIndex}`,
         },
-        exportable: true,
       },
     };
 

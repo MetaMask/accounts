@@ -88,7 +88,6 @@ export class SimpleKeyringV2
         entropy: {
           type: KeyringAccountEntropyTypeOption.PrivateKey,
         },
-        exportable: true,
       },
     };
 
