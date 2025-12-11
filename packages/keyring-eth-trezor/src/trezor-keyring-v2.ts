@@ -48,6 +48,7 @@ const trezorKeyringV2Capabilities: KeyringCapabilities = {
 export type TrezorKeyringV2Options = {
   legacyKeyring: TrezorKeyring;
   entropySource: EntropySourceId;
+  type?: KeyringType.Trezor | KeyringType.OneKey;
 };
 
 export class TrezorKeyringV2
@@ -58,7 +59,7 @@ export class TrezorKeyringV2
 
   constructor(options: TrezorKeyringV2Options) {
     super({
-      type: KeyringType.Trezor,
+      type: options.type ?? KeyringType.Trezor,
       inner: options.legacyKeyring,
       capabilities: trezorKeyringV2Capabilities,
     });
