@@ -218,7 +218,7 @@ describe('selector', () => {
       },
       {
         tc: 'using method',
-        selector: { methods: [BtcMethod.SendBitcoin] },
+        selector: { methods: [BtcMethod.SendTransfer] },
         expected: [
           MOCK_WALLET_1_BTC_P2WPKH_ACCOUNT,
           MOCK_WALLET_1_BTC_P2TR_ACCOUNT,

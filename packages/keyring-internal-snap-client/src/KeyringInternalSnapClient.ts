@@ -1,4 +1,3 @@
-import type { RestrictedMessenger } from '@metamask/base-controller';
 import { KeyringRpcMethod } from '@metamask/keyring-api';
 import type {
   KeyringRequestV1,
@@ -7,6 +6,7 @@ import type {
 import { SubmitRequestResponseV1Struct } from '@metamask/keyring-internal-api';
 import { KeyringClient, type Sender } from '@metamask/keyring-snap-client';
 import { strictMask, type JsonRpcRequest } from '@metamask/keyring-utils';
+import type { Messenger } from '@metamask/messenger';
 import type { HandleSnapRequest } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
@@ -19,12 +19,9 @@ type AllowedActions = HandleSnapRequest;
  * A restricted-`Messenger` used by `KeyringInternalSnapClient` to dispatch
  * internal Snap requests.
  */
-export type KeyringInternalSnapClientMessenger = RestrictedMessenger<
+export type KeyringInternalSnapClientMessenger = Messenger<
   'KeyringInternalSnapClient',
-  AllowedActions,
-  never,
-  AllowedActions['type'],
-  never
+  AllowedActions
 >;
 
 /**

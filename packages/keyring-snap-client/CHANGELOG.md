@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.1.0` to `^21.2.0` ([#395](https://github.com/MetaMask/accounts/pull/395))
+
+## [8.1.0]
+
+### Added
+
+- Add `KeyringClient.setSelectedAccounts` method ([#387](https://github.com/MetaMask/accounts/pull/387))
+  - This method can be invoked by the MetaMask client to inform which accounts are now selected for this Snap.
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.0.0` to `^21.1.0` ([#388](https://github.com/MetaMask/accounts/pull/388))
+
+## [8.0.0]
+
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^20.0.0` to `^21.0.0` ([#355](https://github.com/MetaMask/accounts/pull/355)), ([#356](https://github.com/MetaMask/accounts/pull/356))
+
 ## [7.0.0]
 
 ### Changed
@@ -114,7 +137,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@7.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.1...HEAD
+[8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.0...@metamask/keyring-snap-client@8.1.1
+[8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.0.0...@metamask/keyring-snap-client@8.1.0
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@7.0.0...@metamask/keyring-snap-client@8.0.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@6.0.0...@metamask/keyring-snap-client@7.0.0
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@5.0.0...@metamask/keyring-snap-client@6.0.0
 [5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.1.0...@metamask/keyring-snap-client@5.0.0
