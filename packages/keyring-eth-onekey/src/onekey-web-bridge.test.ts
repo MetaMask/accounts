@@ -76,7 +76,7 @@ describe('OneKeyWebBridge', function () {
         {
           debug: false,
           fetchConfig: false,
-          connectSrc: 'https://jssdk.onekey.so/1.1.0/',
+          connectSrc: 'https://jssdk.onekey.so/1.1.17/',
           env: 'webusb',
         },
         mockHardwareSDKLowLevel,
