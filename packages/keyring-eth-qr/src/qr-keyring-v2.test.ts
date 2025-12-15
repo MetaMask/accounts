@@ -21,9 +21,9 @@ import {
 } from '../test/fixtures';
 
 /**
- * Type alias for QR keyring accounts (always BIP-44 derived).
+ * Type alias for QR keyring HD mode accounts (BIP-44 derived).
  */
-type QrAccount = Bip44Account<KeyringAccount>;
+type QrHdAccount = Bip44Account<KeyringAccount>;
 
 /**
  * Get the first account from an array, throwing if empty.
@@ -31,11 +31,24 @@ type QrAccount = Bip44Account<KeyringAccount>;
  * @param accounts - The accounts array.
  * @returns The first account.
  */
-function getFirstAccount(accounts: QrAccount[]): QrAccount {
+function getFirstAccount(accounts: KeyringAccount[]): KeyringAccount {
   if (accounts.length === 0) {
     throw new Error('Expected at least one account');
   }
-  return accounts[0] as QrAccount;
+  return accounts[0] as KeyringAccount;
+}
+
+/**
+ * Get the first HD mode account from an array, throwing if empty.
+ *
+ * @param accounts - The accounts array.
+ * @returns The first account cast as QrHdAccount.
+ */
+function getFirstHdAccount(accounts: KeyringAccount[]): QrHdAccount {
+  if (accounts.length === 0) {
+    throw new Error('Expected at least one account');
+  }
+  return accounts[0] as QrHdAccount;
 }
 
 /**
@@ -45,11 +58,14 @@ function getFirstAccount(accounts: QrAccount[]): QrAccount {
  * @param index - The index to retrieve.
  * @returns The account at the index.
  */
-function getAccountAt(accounts: QrAccount[], index: number): QrAccount {
+function getAccountAt(
+  accounts: KeyringAccount[],
+  index: number,
+): KeyringAccount {
   if (accounts.length <= index) {
     throw new Error(`Expected account at index ${index}`);
   }
-  return accounts[index] as QrAccount;
+  return accounts[index] as KeyringAccount;
 }
 
 const entropySource = HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS.xfp;
@@ -225,7 +241,7 @@ describe('QrKeyringV2', () => {
       const accounts = await wrapper.getAccounts();
 
       accounts.forEach((account, index) => {
-        expect(account.options.entropy.groupIndex).toBe(index);
+        expect((account as QrHdAccount).options.entropy.groupIndex).toBe(index);
       });
     });
 
@@ -349,7 +365,7 @@ describe('QrKeyringV2', () => {
       const { wrapper } = createEmptyWrapper();
 
       const newAccounts = await wrapper.createAccounts(deriveIndexOptions(5));
-      const account = getFirstAccount(newAccounts);
+      const account = getFirstHdAccount(newAccounts);
 
       expect(account.address).toBe(EXPECTED_ACCOUNTS[5]);
       expect(account.options.entropy.groupIndex).toBe(5);
@@ -452,7 +468,7 @@ describe('QrKeyringV2', () => {
 
   describe('Account Mode (CryptoAccount)', () => {
     describe('getAccounts', () => {
-      it('returns accounts with Mnemonic entropy type (BIP-44 derived)', async () => {
+      it('returns accounts with PrivateKey entropy type (pre-defined addresses)', async () => {
         const { wrapper } = await createAccountModeWrapper();
 
         const accounts = await wrapper.getAccounts();
@@ -461,12 +477,25 @@ describe('QrKeyringV2', () => {
         expect(account.address).toBe(
           ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.accounts[0],
         );
-        expect(account.options.entropy).toMatchObject({
-          type: KeyringAccountEntropyTypeOption.Mnemonic,
-          id: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
-          groupIndex: 0,
+        expect(account.options.entropy).toStrictEqual({
+          type: KeyringAccountEntropyTypeOption.PrivateKey,
         });
-        expect(account.options.entropy.derivationPath).toBeDefined();
+      });
+    });
+
+    describe('createAccounts', () => {
+      it('throws error when trying to derive by index', async () => {
+        const { wrapper } = await createAccountModeWrapper();
+
+        await expect(
+          wrapper.createAccounts({
+            type: 'bip44:derive-index',
+            entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
+            groupIndex: 0,
+          }),
+        ).rejects.toThrow(
+          'Cannot create accounts by index for Account mode devices',
+        );
       });
     });
 
