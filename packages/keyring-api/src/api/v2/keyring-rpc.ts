@@ -1,7 +1,7 @@
 import { object, exactOptional, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, literal, number, string, union } from '@metamask/superstruct';
-import { JsonStruct } from '@metamask/utils';
+import { JsonRpcRequest, JsonStruct } from '@metamask/utils';
 
 import { CreateAccountOptionsStruct } from './create-account';
 import {
@@ -9,6 +9,7 @@ import {
   PrivateKeyExportedAccountStruct,
 } from './export-account';
 import type { KeyringV2 } from './keyring';
+import { KeyringRpcMethod } from '../../rpc';
 import { KeyringAccountStruct } from '../account';
 import { KeyringRequestStruct } from '../request';
 
@@ -17,8 +18,8 @@ import { KeyringRequestStruct } from '../request';
  * RPC calls.
  */
 export type KeyringRpcV2 = {
-  getAccounts: KeyringV2['getAccounts'];
   getAccount: KeyringV2['getAccount'];
+  getAccounts: KeyringV2['getAccounts'];
   createAccounts: KeyringV2['createAccounts'];
   deleteAccount: KeyringV2['deleteAccount'];
   submitRequest: KeyringV2['submitRequest'];
@@ -26,15 +27,21 @@ export type KeyringRpcV2 = {
 };
 
 /**
+ * Keyring RPC version identifier.
+ */
+export const KEYRING_RPC_V2 = 'v2';
+const V2 = KEYRING_RPC_V2; // Local alias for easier usage.
+
+/**
  * Keyring RPC methods used by the API.
  */
 export enum KeyringRpcV2Method {
-  GetAccounts = 'keyring_v2_getAccounts',
-  GetAccount = 'keyring_v2_getAccount',
-  CreateAccounts = 'keyring_v2_createAccounts',
-  DeleteAccount = 'keyring_v2_deleteAccount',
-  ExportAccount = 'keyring_v2_exportAccount',
-  SubmitRequest = 'keyring_v2_submitRequest',
+  GetAccount = `${KeyringRpcMethod.GetAccount}.${V2}`,
+  GetAccounts = `keyring_getAccounts.${V2}`,
+  CreateAccounts = `keyring_createAccounts.${V2}`,
+  DeleteAccount = `${KeyringRpcMethod.DeleteAccount}.${V2}`,
+  ExportAccount = `${KeyringRpcMethod.ExportAccount}.${V2}`,
+  SubmitRequest = `${KeyringRpcMethod.SubmitRequest}.${V2}`,
 }
 
 /**
