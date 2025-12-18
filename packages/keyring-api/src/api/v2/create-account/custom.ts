@@ -18,7 +18,8 @@ export const CreateAccountCustomOptionsStruct = object({
  * should declare `custom.createAccounts: true` in their capabilities.
  *
  * The actual options accepted by the keyring are implementation-specific
- * and not validated by this struct beyond the `type` field.
+ * and not validated by this struct beyond the `type` field. Adaptors should
+ * handle any additional options as needed and add type intersections as necessary.
  */
 export type CreateAccountCustomOptions = Infer<
   typeof CreateAccountCustomOptionsStruct
