@@ -329,6 +329,20 @@ export class LedgerKeyring implements Keyring {
     return this.bridge.updateTransportMethod(transportType);
   }
 
+  async getAppNameAndVersion(): Promise<{
+    appName: string;
+    version: string;
+  }> {
+    try {
+      return await this.bridge.getAppNameAndVersion();
+    } catch (error: unknown) {
+      return handleLedgerTransportError(
+        error,
+        'Ledger: Unknown error while getting app name and version',
+      );
+    }
+  }
+
   // tx is an instance of the ethereumjs-transaction class.
   async signTransaction(
     address: Hex,
