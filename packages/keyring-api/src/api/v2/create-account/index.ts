@@ -6,9 +6,11 @@ import {
   CreateAccountBip44DeriveIndexOptionsStruct,
   CreateAccountBip44DerivePathOptionsStruct,
 } from './bip44';
+import { CreateAccountCustomOptionsStruct } from './custom';
 import { CreateAccountPrivateKeyOptionsStruct } from './private-key';
 
 export * from './bip44';
+export * from './custom';
 export * from './private-key';
 
 /**
@@ -42,6 +44,14 @@ export enum AccountCreationType {
    * Represents an account imported from a private key.
    */
   PrivateKeyImport = 'private-key:import',
+
+  /**
+   * Represents an account created using a custom, keyring-specific method.
+   *
+   * This is used by keyrings that have non-standard account creation flows
+   * and declare `custom.createAccounts: true` in their capabilities.
+   */
+  Custom = 'custom',
 }
 
 /**
@@ -58,6 +68,8 @@ export const CreateAccountOptionsStruct = selectiveUnion((value: any) => {
       return CreateAccountBip44DiscoverOptionsStruct;
     case AccountCreationType.PrivateKeyImport:
       return CreateAccountPrivateKeyOptionsStruct;
+    case AccountCreationType.Custom:
+      return CreateAccountCustomOptionsStruct;
     default:
       // Return first struct as fallback - validation will fail with proper error indicating the type mismatch
       return CreateAccountBip44DerivePathOptionsStruct;
