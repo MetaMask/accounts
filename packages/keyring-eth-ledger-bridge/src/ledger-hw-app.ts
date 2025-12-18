@@ -1,7 +1,7 @@
 import LedgerHwAppEth from '@ledgerhq/hw-app-eth';
 import { Buffer } from 'buffer';
 
-import { GetAppNameAndVersionResponse } from './type';
+import type { GetAppNameAndVersionResponse } from './ledger-bridge';
 
 export class MetaMaskLedgerHwAppEth
   extends LedgerHwAppEth

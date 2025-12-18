@@ -801,7 +801,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('User rejected action on device');
       });
 
       it('throws blind signing error when TransportStatusError with code 27264 is thrown', async function () {
@@ -819,7 +819,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow('Ledger: Blind signing must be enabled');
+        ).rejects.toThrow('Invalid data received');
       });
 
       it('re-throws TransportStatusError with unknown status code', async function () {
@@ -837,7 +837,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
       });
     });
 
@@ -928,7 +928,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('User rejected action on device');
       });
 
       it('re-throws TransportStatusError with unknown status code in signPersonalMessage', async function () {
@@ -945,7 +945,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
       });
     });
 
@@ -1312,7 +1312,7 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('User rejected action on device');
       });
 
       it('throws blind signing error when TransportStatusError with code 27264 is thrown in signTypedData', async function () {
@@ -1330,7 +1330,7 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow('Ledger: Blind signing must be enabled');
+        ).rejects.toThrow('Invalid data received');
       });
 
       it('re-throws TransportStatusError with unknown status code in signTypedData', async function () {
@@ -1348,7 +1348,7 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
       });
     });
 
