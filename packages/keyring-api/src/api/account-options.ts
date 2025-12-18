@@ -24,6 +24,12 @@ export enum KeyringAccountEntropyTypeOption {
    * Indicates that the account was imported from a private key.
    */
   PrivateKey = 'private-key',
+
+  /**
+   * Indicates that the account was created with custom, keyring-specific entropy.
+   * This is an opaque type where the entropy source is managed internally by the keyring.
+   */
+  Custom = 'custom',
 }
 
 /**
@@ -79,14 +85,43 @@ export type KeyringAccountEntropyPrivateKeyOptions = Infer<
 >;
 
 /**
+ * Keyring account options struct for custom entropy.
+ *
+ * This is an opaque type where the entropy source is managed internally by the keyring.
+ * It behaves similarly to a private key import but allows keyrings to define their own
+ * entropy management strategy.
+ */
+export const KeyringAccountEntropyCustomOptionsStruct = object({
+  /**
+   * Indicates that the account was created with custom, keyring-specific entropy.
+   */
+  type: literal(`${KeyringAccountEntropyTypeOption.Custom}`),
+});
+
+/**
+ * Keyring account options for custom entropy {@link KeyringAccountEntropyCustomOptionsStruct}.
+ */
+export type KeyringAccountEntropyCustomOptions = Infer<
+  typeof KeyringAccountEntropyCustomOptionsStruct
+>;
+
+/**
  * Keyring account entropy options struct.
  */
 export const KeyringAccountEntropyOptionsStruct = selectiveUnion(
   (value: any) => {
-    return isPlainObject(value) &&
-      value.type === KeyringAccountEntropyTypeOption.PrivateKey
-      ? KeyringAccountEntropyPrivateKeyOptionsStruct
-      : KeyringAccountEntropyMnemonicOptionsStruct;
+    if (!isPlainObject(value)) {
+      return KeyringAccountEntropyMnemonicOptionsStruct;
+    }
+
+    switch (value.type) {
+      case KeyringAccountEntropyTypeOption.PrivateKey:
+        return KeyringAccountEntropyPrivateKeyOptionsStruct;
+      case KeyringAccountEntropyTypeOption.Custom:
+        return KeyringAccountEntropyCustomOptionsStruct;
+      default:
+        return KeyringAccountEntropyMnemonicOptionsStruct;
+    }
   },
 );
 
@@ -100,8 +135,9 @@ export type KeyringAccountEntropyOptions = Infer<
 /**
  * Keyring options struct. This represents various options for a Keyring account object.
  *
- * See {@link KeyringAccountEntropyMnemonicOptionsStruct} and
- * {@link KeyringAccountEntropyPrivateKeyOptionsStruct}.
+ * See {@link KeyringAccountEntropyMnemonicOptionsStruct},
+ * {@link KeyringAccountEntropyPrivateKeyOptionsStruct}, and
+ * {@link KeyringAccountEntropyCustomOptionsStruct}.
  *
  * @example
  * ```ts
@@ -122,6 +158,15 @@ export type KeyringAccountEntropyOptions = Infer<
  *     type: 'private-key',
  *   },
  *   exportable: true,
+ * }
+ * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *   entropy: {
+ *     type: 'custom',
+ *   },
  * }
  * ```
  *

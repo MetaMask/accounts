@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `custom` capability to `KeyringCapabilities` for keyrings with non-standard method options ([#TBD](https://github.com/MetaMask/accounts/pull/TBD))
+- Add `KeyringAccountEntropyTypeOption.Custom` for custom/opaque entropy sources ([#TBD](https://github.com/MetaMask/accounts/pull/TBD))
+- Add `AccountCreationType.Custom` and `CreateAccountCustomOptions` for custom account creation flows ([#TBD](https://github.com/MetaMask/accounts/pull/TBD))
 - Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
   - Provides common Ethereum signing method routing (`submitRequest`) for all Ethereum-based keyrings.
 - Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)), ([#410](https://github.com/MetaMask/accounts/pull/410))

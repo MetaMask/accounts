@@ -4,6 +4,7 @@ import {
   exactOptional,
   nonempty,
   object,
+  partial,
   type Infer,
 } from '@metamask/superstruct';
 
@@ -54,6 +55,24 @@ export const KeyringCapabilitiesStruct = object({
        */
       exportFormats: exactOptional(array(ExportPrivateKeyFormatStruct)),
     }),
+  ),
+  /**
+   * Indicates which KeyringV2 methods accept non-standard options.
+   *
+   * When a method is set to `true`, it signals that the keyring implementation
+   * accepts custom options for that method, different from the standard API.
+   * This is a workaround for keyrings with very specific requirements.
+   */
+  custom: exactOptional(
+    partial(
+      object({
+        deserialize: boolean(),
+        getAccount: boolean(),
+        createAccounts: boolean(),
+        deleteAccount: boolean(),
+        exportAccount: boolean(),
+      }),
+    ),
   ),
 });
 

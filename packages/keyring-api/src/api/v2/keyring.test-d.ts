@@ -5,6 +5,7 @@ import {
   type CreateAccountBip44DiscoverOptions,
   type CreateAccountBip44DeriveIndexOptions,
   type CreateAccountBip44DerivePathOptions,
+  type CreateAccountCustomOptions,
   type CreateAccountOptions,
   type CreateAccountPrivateKeyOptions,
 } from './create-account';
@@ -33,6 +34,7 @@ expectAssignable<AccountCreationType>(AccountCreationType.Bip44DerivePath);
 expectAssignable<AccountCreationType>(AccountCreationType.Bip44DeriveIndex);
 expectAssignable<AccountCreationType>(AccountCreationType.Bip44Discover);
 expectAssignable<AccountCreationType>(AccountCreationType.PrivateKeyImport);
+expectAssignable<AccountCreationType>(AccountCreationType.Custom);
 
 // Test AccountExportType enum
 expectAssignable<AccountExportType>(AccountExportType.PrivateKey);
@@ -70,6 +72,21 @@ expectAssignable<KeyringCapabilities>({
   privateKey: {
     importFormats: [{ encoding: 'hexadecimal' }],
     exportFormats: [{ encoding: 'hexadecimal' }],
+  },
+});
+
+expectAssignable<KeyringCapabilities>({
+  scopes: ['eip155:1'],
+  custom: {
+    createAccounts: true,
+  },
+});
+
+expectAssignable<KeyringCapabilities>({
+  scopes: ['eip155:1'],
+  custom: {
+    createAccounts: true,
+    exportAccount: true,
   },
 });
 
@@ -114,6 +131,11 @@ expectAssignable<CreateAccountPrivateKeyOptions>({
   accountType: 'bip122:p2wpkh',
 });
 
+// Test CreateAccountCustomOptions
+expectAssignable<CreateAccountCustomOptions>({
+  type: AccountCreationType.Custom,
+});
+
 // Test CreateAccountOptions union
 expectAssignable<CreateAccountOptions>({
   type: AccountCreationType.Bip44DerivePath,
@@ -131,6 +153,10 @@ expectAssignable<CreateAccountOptions>({
   type: AccountCreationType.PrivateKeyImport,
   privateKey: '0x1234567890abcdef',
   encoding: 'hexadecimal',
+});
+
+expectAssignable<CreateAccountOptions>({
+  type: AccountCreationType.Custom,
 });
 
 // Test ExportAccountOptions
