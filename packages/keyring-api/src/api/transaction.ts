@@ -156,6 +156,15 @@ export enum TransactionType {
   BridgeReceive = 'bridge:receive',
 
   /**
+   * Represents a stake deposit transaction.
+   */
+  StakeDeposit = 'stake:deposit',
+
+  /**
+   * Represents a stake withdrawal transaction.
+   */
+  StakeWithdraw = 'stake:withdraw',
+  /**
    * The transaction type is unknown. It's not possible to determine the
    * transaction type based on the information available.
    */
@@ -282,6 +291,8 @@ export const TransactionStruct = object({
     `${TransactionType.Swap}`,
     `${TransactionType.BridgeSend}`,
     `${TransactionType.BridgeReceive}`,
+    `${TransactionType.StakeDeposit}`,
+    `${TransactionType.StakeWithdraw}`,
     `${TransactionType.Unknown}`,
   ]),
 

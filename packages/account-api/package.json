@@ -1,6 +1,6 @@
 {
   "name": "@metamask/account-api",
-  "version": "0.9.0",
+  "version": "0.12.0",
   "description": "MetaMask Account API",
   "keywords": [
     "metamask",
@@ -58,7 +58,6 @@
   "dependencies": {
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
-    "@metamask/superstruct": "^3.1.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

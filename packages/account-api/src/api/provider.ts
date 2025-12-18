@@ -1,5 +1,7 @@
 import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 
+import type { Bip44Account } from './bip44';
+
 /**
  * An account provider is reponsible of providing accounts to an account group.
  */
@@ -43,8 +45,18 @@ export type AccountProvider<Account extends KeyringAccount> = {
    * @param options.groupIndex - Group index to use.
    * @returns The list of discovered and created accounts.
    */
-  discoverAndCreateAccounts: (options: {
+  discoverAccounts: (options: {
     entropySource: EntropySourceId;
     groupIndex: number;
   }) => Promise<Account[]>;
 };
+
+/**
+ * A BIP-44 provider is a provider that can provide BIP-44 compatible accounts.
+ *
+ * Note: This is an alias for the `AccountProvider` type, but with a more specific
+ * type for the account.
+ */
+export type Bip44AccountProvider = AccountProvider<
+  Bip44Account<KeyringAccount>
+>;

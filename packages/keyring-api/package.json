@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-api",
-  "version": "20.1.0",
+  "version": "21.3.0",
   "description": "MetaMask Keyring API",
   "keywords": [
     "metamask",
@@ -46,10 +46,15 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@ethereumjs/tx": "^5.4.0",
+    "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^11.1.0",
-    "bitcoin-address-validation": "^2.2.3"
+    "@types/uuid": "^9.0.8",
+    "async-mutex": "^0.5.0",
+    "bitcoin-address-validation": "^2.2.3",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
