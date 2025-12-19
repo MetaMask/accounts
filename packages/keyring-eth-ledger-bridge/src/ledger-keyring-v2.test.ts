@@ -437,7 +437,7 @@ describe('LedgerKeyringV2', () => {
       ).rejects.toThrow('Failed to create new account');
     });
 
-    it('uses fallback derivation path when accountDetails is missing for new account', async () => {
+    it('throws error when accountDetails is missing after creating account', async () => {
       const { wrapper, inner } = createEmptyWrapper();
 
       // Mock addAccounts to add an account but not populate accountDetails at all
@@ -446,7 +446,7 @@ describe('LedgerKeyringV2', () => {
         .spyOn(inner, 'addAccounts')
         .mockImplementationOnce(async (numberOfAccounts) => {
           const addresses = await originalAddAccounts(numberOfAccounts);
-          // Remove the entire accountDetails entry to trigger the fallback
+          // Remove the entire accountDetails entry to simulate inconsistent state
           const checksumAddress = addresses[0];
           if (checksumAddress) {
             delete inner.accountDetails[checksumAddress];
@@ -454,11 +454,9 @@ describe('LedgerKeyringV2', () => {
           return addresses;
         });
 
-      const newAccounts = await wrapper.createAccounts(deriveIndexOptions(0));
-      const account = getFirstAccount(newAccounts);
-
-      // Should use the fallback path: inner.hdPath/addressIndex
-      expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/0'/0`);
+      await expect(
+        wrapper.createAccounts(deriveIndexOptions(0)),
+      ).rejects.toThrow(/No HD path found for address/u);
     });
   });
 

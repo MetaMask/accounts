@@ -133,8 +133,12 @@ export class LedgerKeyringV2
 
     const checksummedAddress = this.#getChecksumHexAddress(address);
     const details = this.inner.accountDetails[checksummedAddress];
-    const derivationPath =
-      details?.hdPath ?? `${this.inner.hdPath}/${addressIndex}`;
+
+    if (!details?.hdPath) {
+      throw new Error(
+        `No HD path found for address ${checksummedAddress}. Cannot create account.`,
+      );
+    }
 
     const account: Bip44Account<KeyringAccount> = {
       id,
@@ -147,7 +151,7 @@ export class LedgerKeyringV2
           type: KeyringAccountEntropyTypeOption.Mnemonic,
           id: this.entropySource,
           groupIndex: addressIndex,
-          derivationPath,
+          derivationPath: details.hdPath,
         },
       },
     };
