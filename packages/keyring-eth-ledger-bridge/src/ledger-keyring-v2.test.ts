@@ -251,6 +251,48 @@ describe('LedgerKeyringV2', () => {
         /not found in account details/u,
       );
     });
+
+    it('throws error when hdPath is undefined in account details', async () => {
+      const { wrapper, inner } = await createWrapperWithAccounts(1);
+
+      // Set account details without hdPath
+      inner.accountDetails[EXPECTED_ACCOUNTS[0]] = {
+        bip44: false,
+        // hdPath is intentionally omitted
+      };
+
+      await expect(wrapper.getAccounts()).rejects.toThrow(
+        /No HD path found for address/u,
+      );
+    });
+
+    it('throws error when hdPath does not match expected patterns', async () => {
+      const { wrapper, inner } = await createWrapperWithAccounts(1);
+
+      // Set account details with an invalid/unexpected hdPath format
+      inner.accountDetails[EXPECTED_ACCOUNTS[0]] = {
+        bip44: false,
+        hdPath: `m/44'/60'/0'`, // Missing the index part
+      };
+
+      await expect(wrapper.getAccounts()).rejects.toThrow(
+        /Could not extract index from HD path/u,
+      );
+    });
+
+    it('throws error when Ledger Live hdPath does not match expected pattern', async () => {
+      const { wrapper, inner } = await createWrapperWithAccounts(1);
+
+      // Set account details with an invalid Ledger Live hdPath format
+      inner.accountDetails[EXPECTED_ACCOUNTS[0]] = {
+        bip44: true,
+        hdPath: `m/44'/60'/0'`, // Invalid Ledger Live path (missing /0/0)
+      };
+
+      await expect(wrapper.getAccounts()).rejects.toThrow(
+        /Could not extract index from HD path/u,
+      );
+    });
   });
 
   describe('deserialize', () => {
@@ -393,6 +435,30 @@ describe('LedgerKeyringV2', () => {
       await expect(
         wrapper.createAccounts(deriveIndexOptions(0)),
       ).rejects.toThrow('Failed to create new account');
+    });
+
+    it('uses fallback derivation path when accountDetails is missing for new account', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+
+      // Mock addAccounts to add an account but not populate accountDetails at all
+      const originalAddAccounts = inner.addAccounts.bind(inner);
+      jest
+        .spyOn(inner, 'addAccounts')
+        .mockImplementationOnce(async (numberOfAccounts) => {
+          const addresses = await originalAddAccounts(numberOfAccounts);
+          // Remove the entire accountDetails entry to trigger the fallback
+          const checksumAddress = addresses[0];
+          if (checksumAddress) {
+            delete inner.accountDetails[checksumAddress];
+          }
+          return addresses;
+        });
+
+      const newAccounts = await wrapper.createAccounts(deriveIndexOptions(0));
+      const account = getFirstAccount(newAccounts);
+
+      // Should use the fallback path: inner.hdPath/addressIndex
+      expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/0'/0`);
     });
   });
 

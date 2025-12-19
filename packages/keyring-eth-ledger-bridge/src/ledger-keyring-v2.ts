@@ -94,7 +94,7 @@ export class LedgerKeyringV2
     // Extract index from hdPath
     // Ledger Live path: m/44'/60'/{index}'/0/0
     // Legacy path: m/44'/60'/0'/{index}
-    const hdPath = details.hdPath;
+    const { hdPath } = details;
     if (!hdPath) {
       throw new Error(`No HD path found for address ${checksummedAddress}`);
     }
