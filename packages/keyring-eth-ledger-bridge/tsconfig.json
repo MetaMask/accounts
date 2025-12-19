@@ -3,9 +3,15 @@
   "compilerOptions": {
     "baseUrl": "./",
     "exactOptionalPropertyTypes": false,
+    // Legacy LedgerKeyring returns OldEthJsTransaction which is incompatible with TypedTxData
+    "skipLibCheck": true,
     "target": "es2017"
   },
-  "references": [{ "path": "../keyring-utils" }],
+  "references": [
+    { "path": "../keyring-utils" },
+    { "path": "../keyring-api" },
+    { "path": "../account-api" }
+  ],
   "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }
