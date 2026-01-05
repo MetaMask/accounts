@@ -1,7 +1,7 @@
 import { object, exactOptional, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, literal, number, string, union } from '@metamask/superstruct';
-import { JsonRpcRequest, JsonStruct } from '@metamask/utils';
+import { JsonStruct } from '@metamask/utils';
 
 import { CreateAccountOptionsStruct } from './create-account';
 import {
