@@ -1,12 +1,10 @@
-import type {
-  ErrorCode,
-  Severity,
-  Category,
-  RetryStrategy,
-} from './hardware-errors-enums';
+import type { ErrorCode, Category } from './hardware-errors-enums';
+import { Severity, RetryStrategy } from './hardware-errors-enums';
 
 /**
  * Generates a unique error ID using timestamp and random values.
+ *
+ * @returns A unique error ID string.
  */
 function generateErrorId(): string {
   const timestamp = Date.now().toString(36);
@@ -79,27 +77,35 @@ export class HardwareWalletError extends Error {
 
   /**
    * Checks if this error can be retried based on its retry strategy.
+   *
+   * @returns True if the error can be retried, false otherwise.
    */
   isRetryable(): boolean {
-    return this.retryStrategy !== 'NO_RETRY';
+    return this.retryStrategy !== RetryStrategy.NO_RETRY;
   }
 
   /**
    * Checks if this error is critical.
+   *
+   * @returns True if the error is critical, false otherwise.
    */
   isCritical(): boolean {
-    return this.severity === 'CRITICAL';
+    return this.severity === Severity.CRITICAL;
   }
 
   /**
    * Checks if this error is a warning.
+   *
+   * @returns True if the error is a warning, false otherwise.
    */
   isWarning(): boolean {
-    return this.severity === 'WARNING';
+    return this.severity === Severity.WARNING;
   }
 
   /**
    * Checks if this error requires user action.
+   *
+   * @returns True if the error requires user action, false otherwise.
    */
   requiresUserAction(): boolean {
     return this.userActionable;
@@ -107,6 +113,8 @@ export class HardwareWalletError extends Error {
 
   /**
    * Creates a new error instance with an incremented retry count.
+   *
+   * @returns A new HardwareWalletError instance with incremented retry count.
    */
   withIncrementedRetryCount(): HardwareWalletError {
     const options: HardwareWalletErrorOptions = {
@@ -134,6 +142,9 @@ export class HardwareWalletError extends Error {
 
   /**
    * Creates a new error instance with additional metadata.
+   *
+   * @param additionalMetadata - Additional metadata to merge with existing metadata.
+   * @returns A new HardwareWalletError instance with merged metadata.
    */
   withMetadata(
     additionalMetadata: Record<string, unknown>,
@@ -162,6 +173,8 @@ export class HardwareWalletError extends Error {
   /**
    * Serializes the error to a JSON-compatible object.
    * Note: The cause property is serialized if it exists.
+   *
+   * @returns A JSON-compatible object representation of the error.
    */
   toJSON(): Record<string, unknown> {
     const json: Record<string, unknown> = {
@@ -194,6 +207,8 @@ export class HardwareWalletError extends Error {
 
   /**
    * Returns a user-friendly string representation of the error.
+   *
+   * @returns A user-friendly string representation of the error.
    */
   toString(): string {
     return `${this.name} [${this.code}]: ${this.userMessage}`;
@@ -201,6 +216,8 @@ export class HardwareWalletError extends Error {
 
   /**
    * Returns a detailed string representation for debugging.
+   *
+   * @returns A detailed string representation of the error for debugging.
    */
   toDetailedString(): string {
     const details = [

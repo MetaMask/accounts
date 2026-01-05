@@ -1,7 +1,7 @@
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 
-import { handleLedgerTransportError } from './ledger-error-handler';
 import { LedgerHardwareWalletError } from './errors';
+import { handleLedgerTransportError } from './ledger-error-handler';
 
 describe('handleLedgerTransportError', () => {
   const fallbackMessage = 'Default error message';
@@ -54,7 +54,9 @@ describe('handleLedgerTransportError', () => {
     expect((thrownError as LedgerHardwareWalletError).ledgerCode).toBe(
       expectedLedgerCode,
     );
-    expect((thrownError as LedgerHardwareWalletError).message).toBe(expectedMessage);
+    expect((thrownError as LedgerHardwareWalletError).message).toBe(
+      expectedMessage,
+    );
 
     return true;
   }
@@ -100,9 +102,9 @@ describe('handleLedgerTransportError', () => {
       'handles status code $status ($tc)',
       ({ inputMessage, status, expectedLedgerCode, expectedMessage }) => {
         const error = createTransportStatusError(inputMessage, status);
-        expect(expectLedgerError(error, expectedLedgerCode, expectedMessage)).toBe(
-          true,
-        );
+        expect(
+          expectLedgerError(error, expectedLedgerCode, expectedMessage),
+        ).toBe(true);
       },
     );
   });

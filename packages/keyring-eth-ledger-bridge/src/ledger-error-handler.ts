@@ -21,7 +21,6 @@ import {
  * @param fallbackMessage - Default error message if no specific handling is found
  * @throws LedgerHardwareWalletError with appropriate error details from mappings
  */
-// eslint-disable-next-line @typescript-eslint/no-throw-literal
 export function handleLedgerTransportError(
   error: unknown,
   fallbackMessage: string,
