@@ -12,7 +12,7 @@ import {
   KeyringType,
   type EntropySourceId,
 } from '@metamask/keyring-api';
-import type { AccountId } from '@metamask/keyring-utils';
+import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import { add0x, getChecksumAddress, type Hex } from '@metamask/utils';
 
 import type { LedgerKeyring } from './ledger-keyring';
@@ -49,8 +49,16 @@ export type LedgerKeyringV2Options = {
   entropySource: EntropySourceId;
 };
 
+// LedgerKeyring.signTransaction returns `TypedTransaction | OldEthJsTransaction` for
+// backwards compatibility with old ethereumjs-tx, but EthKeyring expects `TypedTxData`.
+// The runtime behavior is correct - we cast the type to satisfy the constraint.
+type LedgerKeyringAsEthKeyring = LedgerKeyring & EthKeyring;
+
 export class LedgerKeyringV2
-  extends EthKeyringWrapper<LedgerKeyring, Bip44Account<KeyringAccount>>
+  extends EthKeyringWrapper<
+    LedgerKeyringAsEthKeyring,
+    Bip44Account<KeyringAccount>
+  >
   implements KeyringV2
 {
   readonly entropySource: EntropySourceId;
@@ -58,7 +66,7 @@ export class LedgerKeyringV2
   constructor(options: LedgerKeyringV2Options) {
     super({
       type: KeyringType.Ledger,
-      inner: options.legacyKeyring,
+      inner: options.legacyKeyring as LedgerKeyringAsEthKeyring,
       capabilities: ledgerKeyringV2Capabilities,
     });
     this.entropySource = options.entropySource;

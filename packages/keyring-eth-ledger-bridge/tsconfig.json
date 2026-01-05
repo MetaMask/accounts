@@ -3,12 +3,6 @@
   "compilerOptions": {
     "baseUrl": "./",
     "exactOptionalPropertyTypes": false,
-    // Legacy LedgerKeyring.signTransaction returns `TypedTransaction | OldEthJsTransaction`
-    // but the Keyring interface expects `TypedTxData`. This is a backwards-compatibility
-    // requirement for old ethereumjs-tx transactions. The V2 wrapper delegates signing
-    // to the inner keyring, so runtime behavior is correct. Fixing this properly would
-    // require modifying the legacy keyring's return type which could break consumers.
-    "skipLibCheck": true,
     "target": "es2017"
   },
   "references": [
