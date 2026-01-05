@@ -92,27 +92,20 @@ export class LedgerKeyringV2
     }
 
     // Extract index from hdPath
-    // Ledger Live path: m/44'/60'/{index}'/0/0
-    // Legacy path: m/44'/60'/0'/{index}
     const { hdPath } = details;
     if (!hdPath) {
       throw new Error(`No HD path found for address ${checksummedAddress}`);
     }
 
     // For Ledger Live path (bip44: true): m/44'/60'/{index}'/0/0
-    // For Legacy path (bip44: false): {hdPath}/{index}
-    if (details.bip44) {
-      // Ledger Live path: m/44'/60'/{index}'/0/0
-      const match = hdPath.match(/^m\/44'\/60'\/(\d+)'\/0\/0$/u);
-      if (match?.[1]) {
-        return parseInt(match[1], 10);
-      }
-    } else {
-      // Legacy path: extract the last number from the path
-      const match = hdPath.match(/\/(\d+)$/u);
-      if (match?.[1]) {
-        return parseInt(match[1], 10);
-      }
+    // For Legacy path (bip44: false): m/44'/60'/0'/{index}
+    const hdPathPattern = details.bip44
+      ? /^m\/44'\/60'\/(\d+)'\/0\/0$/u
+      : /^m\/44'\/60'\/0'\/(\d+)$/u;
+
+    const match = hdPath.match(hdPathPattern);
+    if (match?.[1]) {
+      return parseInt(match[1], 10);
     }
 
     throw new Error(`Could not extract index from HD path: ${hdPath}`);
