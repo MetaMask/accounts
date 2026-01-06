@@ -271,7 +271,39 @@ describe('TrezorKeyringV2', () => {
   });
 
   describe('deserialize', () => {
-    it('deserializes the legacy keyring state', async () => {
+    it('deserializes the legacy keyring state without crashing when device is locked', async () => {
+      // Create a keyring WITHOUT pre-initializing hdk (simulating production)
+      const inner = new TrezorKeyring({ bridge: getMockBridge() });
+      const wrapper = new TrezorKeyringV2({
+        legacyKeyring: inner,
+        entropySource,
+      });
+
+      // Verify the device is locked (hdk not initialized)
+      expect(inner.isUnlocked()).toBe(false);
+
+      // Deserialize with accounts pre-set - this should NOT crash
+      // even though hdk is not initialized
+      await wrapper.deserialize({
+        hdPath: `m/44'/60'/0'/0`,
+        accounts: [
+          EXPECTED_ACCOUNTS[0],
+          EXPECTED_ACCOUNTS[1],
+          EXPECTED_ACCOUNTS[2],
+        ],
+        page: 0,
+        perPage: 5,
+      });
+
+      // The inner keyring now has accounts restored
+      const innerAccounts = await inner.getAccounts();
+      expect(innerAccounts).toHaveLength(3);
+
+      // Device is still locked
+      expect(inner.isUnlocked()).toBe(false);
+    });
+
+    it('rebuilds registry when getAccounts is called after device is unlocked', async () => {
       const inner = createInnerKeyring();
       const wrapper = new TrezorKeyringV2({
         legacyKeyring: inner,
@@ -290,10 +322,11 @@ describe('TrezorKeyringV2', () => {
         perPage: 5,
       });
 
-      // The inner keyring now has accounts, but the paths may not be populated
-      // until we call getFirstPage or getNextPage to populate the paths map
-      const innerAccounts = await inner.getAccounts();
-      expect(innerAccounts).toHaveLength(3);
+      // Since inner.hdk is pre-initialized in createInnerKeyring(),
+      // getAccounts should work and populate the registry
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+      expect(accounts[0]?.address).toBe(EXPECTED_ACCOUNTS[0]);
     });
   });
 

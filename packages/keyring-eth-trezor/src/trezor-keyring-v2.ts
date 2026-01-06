@@ -13,7 +13,7 @@ import {
   type EntropySourceId,
 } from '@metamask/keyring-api';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
-import type { Hex } from '@metamask/utils';
+import type { Hex, Json } from '@metamask/utils';
 
 import type { TrezorKeyring } from './trezor-keyring';
 
@@ -72,6 +72,35 @@ export class TrezorKeyringV2
       capabilities: trezorKeyringV2Capabilities,
     });
     this.entropySource = options.entropySource;
+  }
+
+  /**
+   * Hydrate the underlying keyring from a previously serialized state.
+   *
+   * Overrides the base class implementation to avoid calling `getAccounts()`
+   * when the Trezor device is locked. The base class calls `getAccounts()` to
+   * rebuild the registry, but for Trezor keyrings this requires the HDKey to
+   * be initialized (via `unlock()`). Since the device may not be connected
+   * during deserialization, we skip the registry rebuild here. The registry
+   * will be populated on the first call to `getAccounts()` after the device
+   * is unlocked.
+   *
+   * @param state - The serialized keyring state.
+   */
+  async deserialize(state: Json): Promise<void> {
+    await this.withLock(async () => {
+      // Clear the registry when deserializing
+      this.registry.clear();
+
+      // Deserialize the legacy keyring state only.
+      // We intentionally skip calling getAccounts() here because the Trezor
+      // device may be locked (HDKey not initialized). The TrezorKeyring's
+      // deserialize restores the accounts array, but not the paths map, so
+      // getIndexForAddress would need to derive addresses which requires an
+      // initialized HDKey. The registry will be populated lazily when
+      // getAccounts() is called after the device is unlocked.
+      await this.inner.deserialize(state);
+    });
   }
 
   /**
