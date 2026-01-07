@@ -31,10 +31,33 @@ const ledgerKeyringV2Capabilities: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   bip44: {
     deriveIndex: true,
-    derivePath: false,
+    derivePath: true,
     discover: false,
   },
 };
+
+/**
+ * Ledger Live HD path constant.
+ */
+const LEDGER_LIVE_HD_PATH = `m/44'/60'/0'/0/0`;
+
+/**
+ * BIP-44 standard HD path prefix constant for Ethereum.
+ */
+const BIP44_HD_PATH_PREFIX = `m/44'/60'/0'/0`;
+
+/**
+ * Regex pattern for validating and parsing Ledger Live derivation paths.
+ * Format: m/44'/60'/{index}'/0/0
+ */
+const LEDGER_LIVE_PATH_PATTERN = /^m\/44'\/60'\/(\d+)'\/0\/0$/u;
+
+/**
+ * Regex pattern for validating and parsing non-Ledger-Live derivation paths.
+ * Supports Legacy (m/44'/60'/0'/{index}), BIP44 (m/44'/60'/0'/0/{index}),
+ * and custom paths that follow the m/44'/60'/... pattern.
+ */
+const INDEX_AT_END_PATH_PATTERN = /^(m\/44'\/60'(?:\/\d+'?)*)\/(\d+)$/u;
 
 /**
  * Concrete {@link KeyringV2} adapter for {@link LedgerKeyring}.
@@ -83,6 +106,50 @@ export class LedgerKeyringV2
   }
 
   /**
+   * Parses a derivation path to extract the base HD path and account index.
+   *
+   * Supports two path formats:
+   * - Ledger Live: m/44'/60'/{index}'/0/0 → base: m/44'/60'/0'/0/0, index from position 3
+   * - Index at end: m/44'/60'/.../{index} → base: m/44'/60'/..., index from last segment
+   *
+   * @param derivationPath - The full derivation path.
+   * @returns The base HD path and account index.
+   * @throws If the path format is invalid.
+   */
+  #parseDerivationPath(derivationPath: string): {
+    basePath: string;
+    index: number;
+  } {
+    // Try Ledger Live format first: m/44'/60'/{index}'/0/0
+    const ledgerLiveMatch = derivationPath.match(LEDGER_LIVE_PATH_PATTERN);
+    if (ledgerLiveMatch?.[1]) {
+      return {
+        basePath: LEDGER_LIVE_HD_PATH,
+        index: parseInt(ledgerLiveMatch[1], 10),
+      };
+    }
+
+    // Try index-at-end format: m/44'/60'/.../{index}
+    const indexAtEndMatch = derivationPath.match(INDEX_AT_END_PATH_PATTERN);
+    if (indexAtEndMatch) {
+      // If the condition is true, indexAtEndMatch[1] and indexAtEndMatch[2] are defined, so
+      // we can safely cast them to string.
+      // This is necessary to get 100% code coverage.
+      const basePath = indexAtEndMatch[1] as string;
+      const index = parseInt(indexAtEndMatch[2] as string, 10);
+      return {
+        basePath,
+        index,
+      };
+    }
+
+    throw new Error(
+      `Invalid derivation path format: ${derivationPath}. ` +
+        `Expected Ledger Live (m/44'/60'/{index}'/0/0) or index-at-end (m/44'/60'/.../{index}) format.`,
+    );
+  }
+
+  /**
    * Gets the index for an address from the account details.
    *
    * @param address - The address to get the index for.
@@ -113,13 +180,18 @@ export class LedgerKeyringV2
     //   - Custom paths via setHdPath
     //
     // We use the `bip44` flag to determine which extraction pattern to use.
-    const hdPathPattern = details.bip44
-      ? /^m\/44'\/60'\/(\d+)'\/0\/0$/u
-      : /^m\/44'\/60'(?:\/\d+'?)*\/(\d+)$/u;
-
-    const match = hdPath.match(hdPathPattern);
-    if (match?.[1]) {
-      return parseInt(match[1], 10);
+    if (details.bip44) {
+      // Ledger Live format: m/44'/60'/{index}'/0/0
+      const match = hdPath.match(LEDGER_LIVE_PATH_PATTERN);
+      if (match?.[1]) {
+        return parseInt(match[1], 10);
+      }
+    } else {
+      // Index-at-end format: m/44'/60'/.../{index}
+      const match = hdPath.match(INDEX_AT_END_PATH_PATTERN);
+      if (match?.[2]) {
+        return parseInt(match[2], 10);
+      }
     }
 
     throw new Error(`Could not extract index from HD path: ${hdPath}`);
@@ -193,32 +265,58 @@ export class LedgerKeyringV2
     options: CreateAccountOptions,
   ): Promise<Bip44Account<KeyringAccount>[]> {
     return this.withLock(async () => {
-      // Only supports BIP-44 derive index
-      if (options.type !== 'bip44:derive-index') {
+      if (
+        options.type === 'bip44:derive-path' ||
+        options.type === 'bip44:derive-index'
+      ) {
+        // Validate that the entropy source matches this keyring's entropy source
+        if (options.entropySource !== this.entropySource) {
+          throw new Error(
+            `Entropy source mismatch: expected '${this.entropySource}', got '${options.entropySource}'`,
+          );
+        }
+      } else {
         throw new Error(
-          `Unsupported account creation type for LedgerKeyring: ${options.type}`,
+          `Unsupported account creation type for LedgerKeyring: ${String(
+            options.type,
+          )}`,
         );
       }
 
-      // Validate that the entropy source matches this keyring's entropy source
-      if (options.entropySource !== this.entropySource) {
-        throw new Error(
-          `Entropy source mismatch: expected '${this.entropySource}', got '${options.entropySource}'`,
-        );
-      }
-
-      const targetIndex = options.groupIndex;
-
-      // Check if an account at this index already exists
+      // Check if an account at this index already exists with the same derivation path
       const currentAccounts = await this.getAccounts();
-      const existingAccount = currentAccounts.find(
-        (account) => account.options.entropy.groupIndex === targetIndex,
-      );
+
+      let targetIndex: number;
+      let basePath: string;
+      let derivationPath: string;
+
+      if (options.type === 'bip44:derive-path') {
+        // Parse the derivation path to extract base path and index
+        const parsed = this.#parseDerivationPath(options.derivationPath);
+        targetIndex = parsed.index;
+        basePath = parsed.basePath;
+
+        derivationPath = options.derivationPath;
+      } else {
+        // derive-index uses BIP-44 standard path by default
+        targetIndex = options.groupIndex;
+        basePath = BIP44_HD_PATH_PREFIX;
+        derivationPath = `${basePath}/${targetIndex}`;
+      }
+
+      const existingAccount = currentAccounts.find((account) => {
+        return (
+          account.options.entropy.groupIndex === targetIndex &&
+          account.options.entropy.derivationPath === derivationPath
+        );
+      });
+
       if (existingAccount) {
         return [existingAccount];
       }
 
       // Derive the account at the specified index
+      this.inner.setHdPath(basePath);
       this.inner.setAccountToUnlock(targetIndex);
       const [newAddress] = await this.inner.addAccounts(1);
 

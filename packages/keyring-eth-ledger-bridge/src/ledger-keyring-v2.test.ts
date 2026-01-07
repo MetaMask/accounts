@@ -77,6 +77,11 @@ function getAccountAt(accounts: LedgerAccount[], index: number): LedgerAccount {
 }
 
 /**
+ * BIP44 HD path prefix for Ethereum.
+ */
+const BIP44_HD_PATH_PREFIX = `m/44'/60'/0'/0`;
+
+/**
  * Create a LedgerKeyring with the fake HD key (legacy path).
  *
  * @returns The inner keyring.
@@ -84,6 +89,22 @@ function getAccountAt(accounts: LedgerAccount[], index: number): LedgerAccount {
 function createInnerKeyring(): LedgerKeyring {
   const bridge = new LedgerIframeBridge();
   const inner = new LedgerKeyring({ bridge });
+  // Set up the HDKey so accounts can be derived without unlocking
+  inner.hdk = fakeHdKey;
+  return inner;
+}
+
+/**
+ * Create a LedgerKeyring with the fake HD key using BIP44 path.
+ * This is used for derive-index tests which default to BIP44.
+ *
+ * @returns The inner keyring.
+ */
+function createInnerKeyringBip44(): LedgerKeyring {
+  const bridge = new LedgerIframeBridge();
+  const inner = new LedgerKeyring({ bridge });
+  // Set BIP44 path first (before setting HDKey, as setHdPath resets it)
+  inner.setHdPath(BIP44_HD_PATH_PREFIX);
   // Set up the HDKey so accounts can be derived without unlocking
   inner.hdk = fakeHdKey;
   return inner;
@@ -127,6 +148,25 @@ async function createWrapperWithAccounts(accountCount = 3): Promise<{
 }
 
 /**
+ * Create a LedgerKeyringV2 wrapper with accounts using BIP44 path.
+ * Used for derive-index tests which default to BIP44.
+ *
+ * @param accountCount - Number of accounts to add.
+ * @returns The wrapper and inner keyring.
+ */
+async function createWrapperWithAccountsBip44(accountCount = 3): Promise<{
+  wrapper: LedgerKeyringV2;
+  inner: LedgerKeyring;
+}> {
+  const inner = createInnerKeyringBip44();
+  inner.setAccountToUnlock(0);
+  await inner.addAccounts(accountCount);
+
+  const wrapper = new LedgerKeyringV2({ legacyKeyring: inner, entropySource });
+  return { wrapper, inner };
+}
+
+/**
  * Create a LedgerKeyringV2 wrapper without any accounts.
  *
  * @returns The wrapper and inner keyring.
@@ -136,6 +176,21 @@ function createEmptyWrapper(): {
   inner: LedgerKeyring;
 } {
   const inner = createInnerKeyring();
+  const wrapper = new LedgerKeyringV2({ legacyKeyring: inner, entropySource });
+  return { wrapper, inner };
+}
+
+/**
+ * Create a LedgerKeyringV2 wrapper without any accounts using BIP44 path.
+ * Used for derive-index tests which default to BIP44.
+ *
+ * @returns The wrapper and inner keyring.
+ */
+function createEmptyWrapperBip44(): {
+  wrapper: LedgerKeyringV2;
+  inner: LedgerKeyring;
+} {
+  const inner = createInnerKeyringBip44();
   const wrapper = new LedgerKeyringV2({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
@@ -156,9 +211,31 @@ function deriveIndexOptions(
   groupIndex: number;
 } {
   return {
-    type: 'bip44:derive-index' as const,
+    type: 'bip44:derive-index',
     entropySource: source,
     groupIndex,
+  };
+}
+
+/**
+ * Helper to create account options for bip44:derive-path.
+ *
+ * @param derivationPath - The full derivation path.
+ * @param source - Optional entropy source override.
+ * @returns The create account options.
+ */
+function derivePathOptions(
+  derivationPath: `m/${string}`,
+  source: string = entropySource,
+): {
+  type: 'bip44:derive-path';
+  entropySource: string;
+  derivationPath: `m/${string}`;
+} {
+  return {
+    type: 'bip44:derive-path',
+    entropySource: source,
+    derivationPath,
   };
 }
 
@@ -172,7 +249,7 @@ describe('LedgerKeyringV2', () => {
         scopes: [EthScope.Eoa],
         bip44: {
           deriveIndex: true,
-          derivePath: false,
+          derivePath: true,
           discover: false,
         },
       });
@@ -385,7 +462,7 @@ describe('LedgerKeyringV2', () => {
 
   describe('createAccounts', () => {
     it('creates the first account at index 0', async () => {
-      const { wrapper } = createEmptyWrapper();
+      const { wrapper } = createEmptyWrapperBip44();
 
       const newAccounts = await wrapper.createAccounts(deriveIndexOptions(0));
       const account = getFirstAccount(newAccounts);
@@ -394,7 +471,7 @@ describe('LedgerKeyringV2', () => {
     });
 
     it('creates an account at a specific index', async () => {
-      const { wrapper } = await createWrapperWithAccounts(2);
+      const { wrapper } = await createWrapperWithAccountsBip44(2);
 
       const newAccounts = await wrapper.createAccounts(deriveIndexOptions(2));
       const account = getFirstAccount(newAccounts);
@@ -403,7 +480,7 @@ describe('LedgerKeyringV2', () => {
     });
 
     it('returns existing account if groupIndex already exists', async () => {
-      const { wrapper } = await createWrapperWithAccounts(2);
+      const { wrapper } = await createWrapperWithAccountsBip44(2);
 
       const existingAccounts = await wrapper.getAccounts();
       const existingAccount = getFirstAccount(existingAccounts);
@@ -437,7 +514,7 @@ describe('LedgerKeyringV2', () => {
     });
 
     it('allows deriving accounts at any index (non-sequential)', async () => {
-      const { wrapper } = createEmptyWrapper();
+      const { wrapper } = createEmptyWrapperBip44();
 
       const newAccounts = await wrapper.createAccounts(deriveIndexOptions(5));
       const account = getFirstAccount(newAccounts);
@@ -447,7 +524,7 @@ describe('LedgerKeyringV2', () => {
     });
 
     it('creates multiple accounts sequentially', async () => {
-      const { wrapper } = createEmptyWrapper();
+      const { wrapper } = createEmptyWrapperBip44();
 
       const results = await Promise.all([
         wrapper.createAccounts(deriveIndexOptions(0)),
@@ -462,7 +539,7 @@ describe('LedgerKeyringV2', () => {
     });
 
     it('throws error when inner keyring fails to create account', async () => {
-      const { wrapper, inner } = createEmptyWrapper();
+      const { wrapper, inner } = createEmptyWrapperBip44();
 
       jest.spyOn(inner, 'addAccounts').mockResolvedValueOnce([]);
 
@@ -472,7 +549,7 @@ describe('LedgerKeyringV2', () => {
     });
 
     it('throws error when accountDetails is missing after creating account', async () => {
-      const { wrapper, inner } = createEmptyWrapper();
+      const { wrapper, inner } = createEmptyWrapperBip44();
 
       // Mock addAccounts to add an account but not populate accountDetails at all
       const originalAddAccounts = inner.addAccounts.bind(inner);
@@ -491,6 +568,125 @@ describe('LedgerKeyringV2', () => {
       await expect(
         wrapper.createAccounts(deriveIndexOptions(0)),
       ).rejects.toThrow(/No HD path found for address/u);
+    });
+  });
+
+  describe('createAccounts with bip44:derive-path', () => {
+    it('creates an account with a legacy derivation path', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+
+      const newAccounts = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/5`),
+      );
+      const account = getFirstAccount(newAccounts);
+
+      expect(account.address).toBe(EXPECTED_ACCOUNTS[5]);
+      expect(account.options.entropy.groupIndex).toBe(5);
+      expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/0'/5`);
+      expect(inner.hdPath).toBe(`m/44'/60'/0'`);
+    });
+
+    it('creates an account with a BIP44 derivation path', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+
+      // Mock setHdPath to preserve the HDKey when path changes
+      jest.spyOn(inner, 'setHdPath').mockImplementation((hdPath) => {
+        inner.hdPath = hdPath;
+        // Don't reset hdk like the real implementation does
+      });
+
+      const newAccounts = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/0/3`),
+      );
+      const account = getFirstAccount(newAccounts);
+
+      expect(account.address).toBe(EXPECTED_ACCOUNTS[3]);
+      expect(account.options.entropy.groupIndex).toBe(3);
+      expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/0'/0/3`);
+      expect(inner.hdPath).toBe(`m/44'/60'/0'/0`);
+    });
+
+    it('creates an account with a Ledger Live derivation path', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+
+      // Mock unlock to return the expected address for Ledger Live path
+      jest.spyOn(inner, 'unlock').mockImplementation(async (hdPath) => {
+        // For Ledger Live, the index is embedded in the path
+        const match = hdPath?.match(/^m\/44'\/60'\/(\d+)'\/0\/0$/u);
+        if (match?.[1]) {
+          const index = parseInt(match[1], 10);
+          return EXPECTED_ACCOUNTS[index] ?? '0x0';
+        }
+        return '0x0';
+      });
+
+      const newAccounts = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/2'/0/0`),
+      );
+      const account = getFirstAccount(newAccounts);
+
+      expect(account.address).toBe(EXPECTED_ACCOUNTS[2]);
+      expect(account.options.entropy.groupIndex).toBe(2);
+      expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/2'/0/0`);
+      expect(inner.hdPath).toBe(`m/44'/60'/0'/0/0`);
+    });
+
+    it('returns existing account if path already exists', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      // Create first account
+      const firstResult = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/0`),
+      );
+      const firstAccount = getFirstAccount(firstResult);
+
+      // Try to create same path again
+      const secondResult = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/0`),
+      );
+      const secondAccount = getFirstAccount(secondResult);
+
+      expect(secondAccount).toBe(firstAccount);
+    });
+
+    it('throws error for entropy source mismatch', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      await expect(
+        wrapper.createAccounts(
+          derivePathOptions(`m/44'/60'/0'/0`, 'wrong-entropy'),
+        ),
+      ).rejects.toThrow(/Entropy source mismatch/u);
+    });
+
+    it('throws error for invalid derivation path format', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      await expect(
+        wrapper.createAccounts(derivePathOptions(`m/44'/61'/0'/0`)),
+      ).rejects.toThrow(/Invalid derivation path format/u);
+    });
+
+    it('allows switching between path types', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+
+      // Mock setHdPath to preserve the HDKey when path changes
+      jest.spyOn(inner, 'setHdPath').mockImplementation((hdPath) => {
+        inner.hdPath = hdPath;
+        // Don't reset hdk like the real implementation does
+      });
+
+      // First, create an account with legacy path
+      await wrapper.createAccounts(derivePathOptions(`m/44'/60'/0'/0`));
+      expect(inner.hdPath).toBe(`m/44'/60'/0'`);
+
+      // Then, create an account with BIP44 path
+      await wrapper.createAccounts(derivePathOptions(`m/44'/60'/0'/0/1`));
+      expect(inner.hdPath).toBe(`m/44'/60'/0'/0`);
+
+      // Verify both accounts exist with correct paths
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(2);
     });
   });
 
