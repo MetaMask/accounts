@@ -105,11 +105,17 @@ export class LedgerKeyringV2
       throw new Error(`No HD path found for address ${checksummedAddress}`);
     }
 
-    // For Ledger Live path (bip44: true): m/44'/60'/{index}'/0/0
-    // For Legacy path (bip44: false): m/44'/60'/0'/{index}
+    // Ledger supports multiple derivation path formats:
+    // - Ledger Live (bip44: true): m/44'/60'/{index}'/0/0 - index at position 3
+    // - Other paths (bip44: false): {hdPath}/{index} - index at end
+    //   - BIP44: m/44'/60'/0'/0/{index}
+    //   - Legacy: m/44'/60'/0'/{index}
+    //   - Custom paths via setHdPath
+    //
+    // We use the `bip44` flag to determine which extraction pattern to use.
     const hdPathPattern = details.bip44
       ? /^m\/44'\/60'\/(\d+)'\/0\/0$/u
-      : /^m\/44'\/60'\/0'\/(\d+)$/u;
+      : /^m\/44'\/60'(?:\/\d+'?)*\/(\d+)$/u;
 
     const match = hdPath.match(hdPathPattern);
     if (match?.[1]) {

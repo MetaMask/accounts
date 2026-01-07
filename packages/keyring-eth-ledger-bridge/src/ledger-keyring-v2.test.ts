@@ -280,6 +280,40 @@ describe('LedgerKeyringV2', () => {
       );
     });
 
+    it("extracts correct groupIndex from BIP44 path (m/44'/60'/0'/0/{index})", async () => {
+      const { wrapper, inner } = await createWrapperWithAccounts(1);
+
+      // Set account details with BIP44 path format
+      inner.accountDetails[EXPECTED_ACCOUNTS[0]] = {
+        bip44: false,
+        hdPath: `m/44'/60'/0'/0/5`, // BIP44 format with index 5
+      };
+
+      const accounts = await wrapper.getAccounts();
+      const account = getFirstAccount(accounts);
+
+      expect(account.options.entropy.groupIndex).toBe(5);
+      expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/0'/0/5`);
+    });
+
+    it('extracts correct groupIndex from custom deep path', async () => {
+      const { wrapper, inner } = await createWrapperWithAccounts(1);
+
+      // Set account details with a custom deep path
+      inner.accountDetails[EXPECTED_ACCOUNTS[0]] = {
+        bip44: false,
+        hdPath: `m/44'/60'/0'/0'/0/7`, // Custom deep path with index 7
+      };
+
+      const accounts = await wrapper.getAccounts();
+      const account = getFirstAccount(accounts);
+
+      expect(account.options.entropy.groupIndex).toBe(7);
+      expect(account.options.entropy.derivationPath).toBe(
+        `m/44'/60'/0'/0'/0/7`,
+      );
+    });
+
     it('throws error when Ledger Live hdPath does not match expected pattern', async () => {
       const { wrapper, inner } = await createWrapperWithAccounts(1);
 
