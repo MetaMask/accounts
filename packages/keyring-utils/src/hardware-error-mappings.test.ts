@@ -210,16 +210,16 @@ describe('HARDWARE_MAPPINGS', () => {
   });
 
   describe('Trezor mappings', () => {
-    const { errorMapping } = HARDWARE_MAPPINGS.trezor;
+    const { errorMappings } = HARDWARE_MAPPINGS.trezor;
 
     it('should have errorMapping object', () => {
-      expect(errorMapping).toBeDefined();
-      expect(typeof errorMapping).toBe('object');
+      expect(errorMappings).toBeDefined();
+      expect(typeof errorMappings).toBe('object');
     });
 
     describe('failure codes', () => {
       it('should map code 1 to unexpected message', () => {
-        const mapping = errorMapping['1'];
+        const mapping = errorMappings['1'];
         expect(mapping.customCode).toBe(ErrorCode.ProtoCmd003);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
@@ -227,7 +227,7 @@ describe('HARDWARE_MAPPINGS', () => {
       });
 
       it('should map code 4 to action cancelled', () => {
-        const mapping = errorMapping['4'];
+        const mapping = errorMappings['4'];
         expect(mapping.customCode).toBe(ErrorCode.UserCancel002);
         expect(mapping.category).toBe(Category.UserAction);
         expect(mapping.userActionable).toBe(true);
@@ -235,14 +235,14 @@ describe('HARDWARE_MAPPINGS', () => {
       });
 
       it('should map code 10 to insufficient funds', () => {
-        const mapping = errorMapping['10'];
+        const mapping = errorMappings['10'];
         expect(mapping.customCode).toBe(ErrorCode.TxFunds001);
         expect(mapping.category).toBe(Category.Transaction);
         expect(mapping.originalName).toBe('Failure_NotEnoughFunds');
       });
 
       it('should map code 99 to firmware error', () => {
-        const mapping = errorMapping['99'];
+        const mapping = errorMappings['99'];
         expect(mapping.customCode).toBe(ErrorCode.SysFirmware002);
         expect(mapping.severity).toBe(Severity.Critical);
         expect(mapping.originalName).toBe('Failure_FirmwareError');
@@ -251,14 +251,14 @@ describe('HARDWARE_MAPPINGS', () => {
 
     describe('PIN errors', () => {
       it('should map code 5 to PIN expected', () => {
-        const mapping = errorMapping['5'];
+        const mapping = errorMappings['5'];
         expect(mapping.customCode).toBe(ErrorCode.UserInput001);
         expect(mapping.category).toBe(Category.UserAction);
         expect(mapping.originalName).toBe('Failure_PinExpected');
       });
 
       it('should map code 7 to PIN invalid', () => {
-        const mapping = errorMapping['7'];
+        const mapping = errorMappings['7'];
         expect(mapping.customCode).toBe(ErrorCode.AuthPin001);
         expect(mapping.category).toBe(Category.Authentication);
         expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
@@ -266,7 +266,7 @@ describe('HARDWARE_MAPPINGS', () => {
       });
 
       it('should map code 12 to PIN mismatch', () => {
-        const mapping = errorMapping['12'];
+        const mapping = errorMappings['12'];
         expect(mapping.customCode).toBe(ErrorCode.AuthPin004);
         expect(mapping.originalName).toBe('Failure_PinMismatch');
       });
@@ -274,14 +274,14 @@ describe('HARDWARE_MAPPINGS', () => {
 
     describe('device state errors', () => {
       it('should map code 11 to device not initialized', () => {
-        const mapping = errorMapping['11'];
+        const mapping = errorMappings['11'];
         expect(mapping.customCode).toBe(ErrorCode.DeviceState001);
         expect(mapping.category).toBe(Category.DeviceState);
         expect(mapping.originalName).toBe('Failure_NotInitialized');
       });
 
       it('should map code 15 to device busy', () => {
-        const mapping = errorMapping['15'];
+        const mapping = errorMappings['15'];
         expect(mapping.customCode).toBe(ErrorCode.DeviceState002);
         expect(mapping.severity).toBe(Severity.Warning);
         expect(mapping.retryStrategy).toBe(RetryStrategy.ExponentialBackoff);
@@ -289,14 +289,14 @@ describe('HARDWARE_MAPPINGS', () => {
       });
 
       it('should map Device_Disconnected to device disconnected', () => {
-        const mapping = errorMapping.Device_Disconnected;
+        const mapping = errorMappings.Device_Disconnected;
         expect(mapping.customCode).toBe(ErrorCode.DeviceState003);
         expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
         expect(mapping.sdkMessage).toBe('Device disconnected');
       });
 
       it('should map Device_UsedElsewhere correctly', () => {
-        const mapping = errorMapping.Device_UsedElsewhere;
+        const mapping = errorMappings.Device_UsedElsewhere;
         expect(mapping.customCode).toBe(ErrorCode.DeviceState004);
         expect(mapping.retryStrategy).toBe(RetryStrategy.NoRetry);
         expect(mapping.userMessage).toContain('another window');
@@ -305,20 +305,20 @@ describe('HARDWARE_MAPPINGS', () => {
 
     describe('initialization errors', () => {
       it('should map Init_NotInitialized', () => {
-        const mapping = errorMapping.Init_NotInitialized;
+        const mapping = errorMappings.Init_NotInitialized;
         expect(mapping.customCode).toBe(ErrorCode.ConfigInit001);
         expect(mapping.category).toBe(Category.Configuration);
         expect(mapping.sdkMessage).toBe('TrezorConnect not initialized');
       });
 
       it('should map Init_AlreadyInitialized', () => {
-        const mapping = errorMapping.Init_AlreadyInitialized;
+        const mapping = errorMappings.Init_AlreadyInitialized;
         expect(mapping.customCode).toBe(ErrorCode.ConfigInit002);
         expect(mapping.severity).toBe(Severity.Warning);
       });
 
       it('should map Init_ManifestMissing', () => {
-        const mapping = errorMapping.Init_ManifestMissing;
+        const mapping = errorMappings.Init_ManifestMissing;
         expect(mapping.customCode).toBe(ErrorCode.ConfigInit003);
         expect(mapping.category).toBe(Category.Configuration);
       });
@@ -326,20 +326,20 @@ describe('HARDWARE_MAPPINGS', () => {
 
     describe('connection errors', () => {
       it('should map Init_IframeBlocked', () => {
-        const mapping = errorMapping.Init_IframeBlocked;
+        const mapping = errorMappings.Init_IframeBlocked;
         expect(mapping.customCode).toBe(ErrorCode.ConnBlocked001);
         expect(mapping.category).toBe(Category.Connection);
         expect(mapping.userMessage).toContain('browser settings');
       });
 
       it('should map Init_IframeTimeout', () => {
-        const mapping = errorMapping.Init_IframeTimeout;
+        const mapping = errorMappings.Init_IframeTimeout;
         expect(mapping.customCode).toBe(ErrorCode.ConnTimeout001);
         expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
 
       it('should map Transport_Missing', () => {
-        const mapping = errorMapping.Transport_Missing;
+        const mapping = errorMappings.Transport_Missing;
         expect(mapping.customCode).toBe(ErrorCode.ConnTransport001);
         expect(mapping.category).toBe(Category.Connection);
       });
@@ -347,20 +347,20 @@ describe('HARDWARE_MAPPINGS', () => {
 
     describe('method errors', () => {
       it('should map Method_InvalidParameter', () => {
-        const mapping = errorMapping.Method_InvalidParameter;
+        const mapping = errorMappings.Method_InvalidParameter;
         expect(mapping.customCode).toBe(ErrorCode.DataFormat003);
         expect(mapping.category).toBe(Category.DataValidation);
       });
 
       it('should map Method_Cancel', () => {
-        const mapping = errorMapping.Method_Cancel;
+        const mapping = errorMappings.Method_Cancel;
         expect(mapping.customCode).toBe(ErrorCode.UserCancel002);
         expect(mapping.category).toBe(Category.UserAction);
         expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
 
       it('should map Method_UnknownCoin', () => {
-        const mapping = errorMapping.Method_UnknownCoin;
+        const mapping = errorMappings.Method_UnknownCoin;
         expect(mapping.customCode).toBe(ErrorCode.DataNotfound003);
         expect(mapping.userMessage).toContain('not supported');
       });
@@ -368,13 +368,13 @@ describe('HARDWARE_MAPPINGS', () => {
 
     describe('device capability errors', () => {
       it('should map Device_MissingCapability', () => {
-        const mapping = errorMapping.Device_MissingCapability;
+        const mapping = errorMappings.Device_MissingCapability;
         expect(mapping.customCode).toBe(ErrorCode.DeviceCap001);
         expect(mapping.userMessage).toContain('firmware update');
       });
 
       it('should map Device_MissingCapabilityBtcOnly', () => {
-        const mapping = errorMapping.Device_MissingCapabilityBtcOnly;
+        const mapping = errorMappings.Device_MissingCapabilityBtcOnly;
         expect(mapping.customCode).toBe(ErrorCode.DeviceCap002);
         expect(mapping.userMessage).toContain('Bitcoin-only');
       });
@@ -382,14 +382,14 @@ describe('HARDWARE_MAPPINGS', () => {
 
     describe('special codes', () => {
       it('should have UNKNOWN fallback', () => {
-        const mapping = errorMapping.UNKNOWN;
+        const mapping = errorMappings.UNKNOWN;
         expect(mapping.customCode).toBe(ErrorCode.Unknown001);
         expect(mapping.category).toBe(Category.Unknown);
         expect(mapping.originalName).toBe('Failure_UnknownCode');
       });
 
       it('should map ENTROPY_CHECK', () => {
-        const mapping = errorMapping.ENTROPY_CHECK;
+        const mapping = errorMappings.ENTROPY_CHECK;
         expect(mapping.customCode).toBe(ErrorCode.CryptoEntropy001);
         expect(mapping.category).toBe(Category.Cryptography);
         expect(mapping.originalName).toBe('Failure_EntropyCheck');
@@ -397,7 +397,7 @@ describe('HARDWARE_MAPPINGS', () => {
     });
 
     it('should have valid structure for all mappings', () => {
-      Object.entries(errorMapping).forEach(([_code, mapping]) => {
+      Object.entries(errorMappings).forEach(([_code, mapping]) => {
         expect(mapping).toHaveProperty('customCode');
         expect(mapping).toHaveProperty('message');
         expect(mapping).toHaveProperty('severity');
@@ -415,7 +415,7 @@ describe('HARDWARE_MAPPINGS', () => {
     });
 
     it('should have valid optional fields when present', () => {
-      const mappingsWithUserMessage = Object.values(errorMapping).filter(
+      const mappingsWithUserMessage = Object.values(errorMappings).filter(
         (mapping): mapping is typeof mapping & { userMessage: string } =>
           'userMessage' in mapping &&
           typeof mapping.userMessage === 'string' &&
@@ -426,7 +426,7 @@ describe('HARDWARE_MAPPINGS', () => {
         expect(mapping.userMessage.length).toBeGreaterThan(0);
       });
 
-      const mappingsWithOriginalName = Object.values(errorMapping).filter(
+      const mappingsWithOriginalName = Object.values(errorMappings).filter(
         (mapping): mapping is typeof mapping & { originalName: string } =>
           'originalName' in mapping &&
           typeof mapping.originalName === 'string' &&
@@ -437,7 +437,7 @@ describe('HARDWARE_MAPPINGS', () => {
         expect(mapping.originalName.length).toBeGreaterThan(0);
       });
 
-      const mappingsWithSdkMessage = Object.values(errorMapping).filter(
+      const mappingsWithSdkMessage = Object.values(errorMappings).filter(
         (mapping): mapping is typeof mapping & { sdkMessage: string } =>
           'sdkMessage' in mapping &&
           typeof mapping.sdkMessage === 'string' &&
@@ -496,7 +496,7 @@ describe('HARDWARE_MAPPINGS', () => {
       );
       expect(ledgerCustomCodes.length).toBeGreaterThan(0);
 
-      const trezorCodes = Object.values(HARDWARE_MAPPINGS.trezor.errorMapping);
+      const trezorCodes = Object.values(HARDWARE_MAPPINGS.trezor.errorMappings);
       const trezorCustomCodes = trezorCodes.map(
         (mapping) => mapping.customCode,
       );
@@ -521,7 +521,7 @@ describe('HARDWARE_MAPPINGS', () => {
       });
 
       const trezorMappings = Object.values(
-        HARDWARE_MAPPINGS.trezor.errorMapping,
+        HARDWARE_MAPPINGS.trezor.errorMappings,
       ).filter(
         (mapping): mapping is typeof mapping & { userMessage: string } =>
           mapping.userActionable &&
@@ -540,7 +540,7 @@ describe('HARDWARE_MAPPINGS', () => {
     it('should use NO_RETRY for critical errors', () => {
       const allMappings = [
         ...Object.values(HARDWARE_MAPPINGS.ledger.errorMappings),
-        ...Object.values(HARDWARE_MAPPINGS.trezor.errorMapping),
+        ...Object.values(HARDWARE_MAPPINGS.trezor.errorMappings),
       ];
 
       const criticalMappings = allMappings.filter(
