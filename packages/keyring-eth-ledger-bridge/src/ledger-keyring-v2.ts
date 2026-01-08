@@ -137,8 +137,6 @@ export class LedgerKeyringV2
       // If the condition is true, indexAtEndMatch[1] and indexAtEndMatch[2] are defined, so
       // we can safely cast them to string.
       // This is necessary to get 100% code coverage.
-      const basePath = indexAtEndMatch[1] as string;
-      const index = parseInt(indexAtEndMatch[2] as string, 10);
       return {
         basePath: indexAtEndMatch[1] as string,
         index: parseInt(indexAtEndMatch[2] as string, 10),
