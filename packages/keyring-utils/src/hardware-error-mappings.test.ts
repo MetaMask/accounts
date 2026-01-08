@@ -31,10 +31,10 @@ describe('HARDWARE_MAPPINGS', () => {
       it('should map 0x9000 to success', () => {
         const mapping = errorMappings['0x9000'];
         expect(mapping).toBeDefined();
-        expect(mapping.customCode).toBe(ErrorCode.SUCCESS_000);
-        expect(mapping.severity).toBe(Severity.INFO);
-        expect(mapping.category).toBe(Category.SUCCESS);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.NO_RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.Success000);
+        expect(mapping.severity).toBe(Severity.Info);
+        expect(mapping.category).toBe(Category.Success);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.NoRetry);
         expect(mapping.userActionable).toBe(false);
       });
     });
@@ -42,113 +42,113 @@ describe('HARDWARE_MAPPINGS', () => {
     describe('authentication errors', () => {
       it('should map 0x6300 to authentication failed', () => {
         const mapping = errorMappings['0x6300'];
-        expect(mapping.customCode).toBe(ErrorCode.AUTH_SEC_001);
-        expect(mapping.severity).toBe(Severity.ERROR);
-        expect(mapping.category).toBe(Category.AUTHENTICATION);
+        expect(mapping.customCode).toBe(ErrorCode.AuthSec001);
+        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.category).toBe(Category.Authentication);
         expect(mapping.userActionable).toBe(true);
         expect(mapping.userMessage).toBeDefined();
       });
 
       it('should map 0x63c0 to PIN attempts remaining', () => {
         const mapping = errorMappings['0x63c0'];
-        expect(mapping.customCode).toBe(ErrorCode.AUTH_PIN_003);
-        expect(mapping.severity).toBe(Severity.WARNING);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.AuthPin003);
+        expect(mapping.severity).toBe(Severity.Warning);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
 
       it('should map 0x5515 to device locked', () => {
         const mapping = errorMappings['0x5515'];
-        expect(mapping.customCode).toBe(ErrorCode.AUTH_LOCK_001);
-        expect(mapping.severity).toBe(Severity.ERROR);
+        expect(mapping.customCode).toBe(ErrorCode.AuthLock001);
+        expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.userActionable).toBe(true);
         expect(mapping.userMessage).toContain('unlock');
       });
 
       it('should map 0x9840 to device blocked', () => {
         const mapping = errorMappings['0x9840'];
-        expect(mapping.customCode).toBe(ErrorCode.AUTH_LOCK_002);
-        expect(mapping.severity).toBe(Severity.CRITICAL);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.NO_RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.AuthLock002);
+        expect(mapping.severity).toBe(Severity.Critical);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.NoRetry);
       });
     });
 
     describe('user action errors', () => {
       it('should map 0x6985 to user rejected', () => {
         const mapping = errorMappings['0x6985'];
-        expect(mapping.customCode).toBe(ErrorCode.USER_CANCEL_001);
-        expect(mapping.severity).toBe(Severity.WARNING);
-        expect(mapping.category).toBe(Category.USER_ACTION);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.UserCancel001);
+        expect(mapping.severity).toBe(Severity.Warning);
+        expect(mapping.category).toBe(Category.UserAction);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
         expect(mapping.userActionable).toBe(true);
       });
 
       it('should map 0x5501 to user refused', () => {
         const mapping = errorMappings['0x5501'];
-        expect(mapping.customCode).toBe(ErrorCode.USER_CANCEL_001);
-        expect(mapping.severity).toBe(Severity.WARNING);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.UserCancel001);
+        expect(mapping.severity).toBe(Severity.Warning);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
     });
 
     describe('data validation errors', () => {
       it('should map 0x6700 to incorrect data length', () => {
         const mapping = errorMappings['0x6700'];
-        expect(mapping.customCode).toBe(ErrorCode.DATA_FORMAT_001);
-        expect(mapping.category).toBe(Category.DATA_VALIDATION);
+        expect(mapping.customCode).toBe(ErrorCode.DataFormat001);
+        expect(mapping.category).toBe(Category.DataValidation);
         expect(mapping.userActionable).toBe(false);
       });
 
       it('should map 0x6a80 to invalid data', () => {
         const mapping = errorMappings['0x6a80'];
-        expect(mapping.customCode).toBe(ErrorCode.DATA_FORMAT_002);
-        expect(mapping.category).toBe(Category.DATA_VALIDATION);
+        expect(mapping.customCode).toBe(ErrorCode.DataFormat002);
+        expect(mapping.category).toBe(Category.DataValidation);
       });
 
       it('should map 0x6b00 to invalid parameter', () => {
         const mapping = errorMappings['0x6b00'];
-        expect(mapping.customCode).toBe(ErrorCode.DATA_FORMAT_003);
-        expect(mapping.severity).toBe(Severity.ERROR);
+        expect(mapping.customCode).toBe(ErrorCode.DataFormat003);
+        expect(mapping.severity).toBe(Severity.Err);
       });
     });
 
     describe('protocol errors', () => {
       it('should map 0x6981 to command incompatible', () => {
         const mapping = errorMappings['0x6981'];
-        expect(mapping.customCode).toBe(ErrorCode.PROTO_CMD_002);
-        expect(mapping.category).toBe(Category.PROTOCOL);
+        expect(mapping.customCode).toBe(ErrorCode.ProtoCmd002);
+        expect(mapping.category).toBe(Category.Protocol);
       });
 
       it('should map 0x6d00 to instruction not supported', () => {
         const mapping = errorMappings['0x6d00'];
-        expect(mapping.customCode).toBe(ErrorCode.PROTO_CMD_001);
-        expect(mapping.category).toBe(Category.PROTOCOL);
+        expect(mapping.customCode).toBe(ErrorCode.ProtoCmd001);
+        expect(mapping.category).toBe(Category.Protocol);
       });
 
       it('should map 0x6d02 to unknown APDU command', () => {
         const mapping = errorMappings['0x6d02'];
-        expect(mapping.customCode).toBe(ErrorCode.PROTO_MSG_001);
-        expect(mapping.category).toBe(Category.PROTOCOL);
+        expect(mapping.customCode).toBe(ErrorCode.ProtoMsg001);
+        expect(mapping.category).toBe(Category.Protocol);
       });
     });
 
     describe('system errors', () => {
       it('should map 0x6f00 to internal device error', () => {
         const mapping = errorMappings['0x6f00'];
-        expect(mapping.customCode).toBe(ErrorCode.SYS_INTERNAL_001);
-        expect(mapping.severity).toBe(Severity.CRITICAL);
-        expect(mapping.category).toBe(Category.SYSTEM);
+        expect(mapping.customCode).toBe(ErrorCode.SysInternal001);
+        expect(mapping.severity).toBe(Severity.Critical);
+        expect(mapping.category).toBe(Category.System);
       });
 
       it('should map 0x6a84 to not enough memory', () => {
         const mapping = errorMappings['0x6a84'];
-        expect(mapping.customCode).toBe(ErrorCode.SYS_MEMORY_001);
-        expect(mapping.category).toBe(Category.SYSTEM);
+        expect(mapping.customCode).toBe(ErrorCode.SysMemory001);
+        expect(mapping.category).toBe(Category.System);
       });
 
       it('should map 0x6faa to device halted', () => {
         const mapping = errorMappings['0x6faa'];
-        expect(mapping.customCode).toBe(ErrorCode.SYS_INTERNAL_001);
-        expect(mapping.severity).toBe(Severity.CRITICAL);
+        expect(mapping.customCode).toBe(ErrorCode.SysInternal001);
+        expect(mapping.severity).toBe(Severity.Critical);
         expect(mapping.userMessage).toContain('disconnect and reconnect');
       });
     });
@@ -156,23 +156,23 @@ describe('HARDWARE_MAPPINGS', () => {
     describe('connection errors', () => {
       it('should map 0x650f to connection issue', () => {
         const mapping = errorMappings['0x650f'];
-        expect(mapping.customCode).toBe(ErrorCode.CONN_CLOSED_001);
-        expect(mapping.category).toBe(Category.CONNECTION);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.ConnClosed001);
+        expect(mapping.category).toBe(Category.Connection);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
     });
 
     describe('cryptographic errors', () => {
       it('should map 0x9484 to algorithm not supported', () => {
         const mapping = errorMappings['0x9484'];
-        expect(mapping.customCode).toBe(ErrorCode.CRYPTO_ALGO_001);
-        expect(mapping.category).toBe(Category.CRYPTOGRAPHY);
+        expect(mapping.customCode).toBe(ErrorCode.CryptoAlgo001);
+        expect(mapping.category).toBe(Category.Cryptography);
       });
 
       it('should map 0x9485 to invalid key check value', () => {
         const mapping = errorMappings['0x9485'];
-        expect(mapping.customCode).toBe(ErrorCode.CRYPTO_KEY_001);
-        expect(mapping.category).toBe(Category.CRYPTOGRAPHY);
+        expect(mapping.customCode).toBe(ErrorCode.CryptoKey001);
+        expect(mapping.category).toBe(Category.Cryptography);
       });
     });
 
@@ -220,31 +220,31 @@ describe('HARDWARE_MAPPINGS', () => {
     describe('failure codes', () => {
       it('should map code 1 to unexpected message', () => {
         const mapping = errorMapping['1'];
-        expect(mapping.customCode).toBe(ErrorCode.PROTO_CMD_003);
-        expect(mapping.severity).toBe(Severity.ERROR);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.ProtoCmd003);
+        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
         expect(mapping.originalName).toBe('Failure_UnexpectedMessage');
       });
 
       it('should map code 4 to action cancelled', () => {
         const mapping = errorMapping['4'];
-        expect(mapping.customCode).toBe(ErrorCode.USER_CANCEL_002);
-        expect(mapping.category).toBe(Category.USER_ACTION);
+        expect(mapping.customCode).toBe(ErrorCode.UserCancel002);
+        expect(mapping.category).toBe(Category.UserAction);
         expect(mapping.userActionable).toBe(true);
         expect(mapping.originalName).toBe('Failure_ActionCancelled');
       });
 
       it('should map code 10 to insufficient funds', () => {
         const mapping = errorMapping['10'];
-        expect(mapping.customCode).toBe(ErrorCode.TX_FUNDS_001);
-        expect(mapping.category).toBe(Category.TRANSACTION);
+        expect(mapping.customCode).toBe(ErrorCode.TxFunds001);
+        expect(mapping.category).toBe(Category.Transaction);
         expect(mapping.originalName).toBe('Failure_NotEnoughFunds');
       });
 
       it('should map code 99 to firmware error', () => {
         const mapping = errorMapping['99'];
-        expect(mapping.customCode).toBe(ErrorCode.SYS_FIRMWARE_002);
-        expect(mapping.severity).toBe(Severity.CRITICAL);
+        expect(mapping.customCode).toBe(ErrorCode.SysFirmware002);
+        expect(mapping.severity).toBe(Severity.Critical);
         expect(mapping.originalName).toBe('Failure_FirmwareError');
       });
     });
@@ -252,22 +252,22 @@ describe('HARDWARE_MAPPINGS', () => {
     describe('PIN errors', () => {
       it('should map code 5 to PIN expected', () => {
         const mapping = errorMapping['5'];
-        expect(mapping.customCode).toBe(ErrorCode.USER_INPUT_001);
-        expect(mapping.category).toBe(Category.USER_ACTION);
+        expect(mapping.customCode).toBe(ErrorCode.UserInput001);
+        expect(mapping.category).toBe(Category.UserAction);
         expect(mapping.originalName).toBe('Failure_PinExpected');
       });
 
       it('should map code 7 to PIN invalid', () => {
         const mapping = errorMapping['7'];
-        expect(mapping.customCode).toBe(ErrorCode.AUTH_PIN_001);
-        expect(mapping.category).toBe(Category.AUTHENTICATION);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.AuthPin001);
+        expect(mapping.category).toBe(Category.Authentication);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
         expect(mapping.originalName).toBe('Failure_PinInvalid');
       });
 
       it('should map code 12 to PIN mismatch', () => {
         const mapping = errorMapping['12'];
-        expect(mapping.customCode).toBe(ErrorCode.AUTH_PIN_004);
+        expect(mapping.customCode).toBe(ErrorCode.AuthPin004);
         expect(mapping.originalName).toBe('Failure_PinMismatch');
       });
     });
@@ -275,30 +275,30 @@ describe('HARDWARE_MAPPINGS', () => {
     describe('device state errors', () => {
       it('should map code 11 to device not initialized', () => {
         const mapping = errorMapping['11'];
-        expect(mapping.customCode).toBe(ErrorCode.DEVICE_STATE_001);
-        expect(mapping.category).toBe(Category.DEVICE_STATE);
+        expect(mapping.customCode).toBe(ErrorCode.DeviceState001);
+        expect(mapping.category).toBe(Category.DeviceState);
         expect(mapping.originalName).toBe('Failure_NotInitialized');
       });
 
       it('should map code 15 to device busy', () => {
         const mapping = errorMapping['15'];
-        expect(mapping.customCode).toBe(ErrorCode.DEVICE_STATE_002);
-        expect(mapping.severity).toBe(Severity.WARNING);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.EXPONENTIAL_BACKOFF);
+        expect(mapping.customCode).toBe(ErrorCode.DeviceState002);
+        expect(mapping.severity).toBe(Severity.Warning);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.ExponentialBackoff);
         expect(mapping.originalName).toBe('Failure_Busy');
       });
 
       it('should map Device_Disconnected to device disconnected', () => {
         const mapping = errorMapping.Device_Disconnected;
-        expect(mapping.customCode).toBe(ErrorCode.DEVICE_STATE_003);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.DeviceState003);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
         expect(mapping.sdkMessage).toBe('Device disconnected');
       });
 
       it('should map Device_UsedElsewhere correctly', () => {
         const mapping = errorMapping.Device_UsedElsewhere;
-        expect(mapping.customCode).toBe(ErrorCode.DEVICE_STATE_004);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.NO_RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.DeviceState004);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.NoRetry);
         expect(mapping.userMessage).toContain('another window');
       });
     });
@@ -306,62 +306,62 @@ describe('HARDWARE_MAPPINGS', () => {
     describe('initialization errors', () => {
       it('should map Init_NotInitialized', () => {
         const mapping = errorMapping.Init_NotInitialized;
-        expect(mapping.customCode).toBe(ErrorCode.CONFIG_INIT_001);
-        expect(mapping.category).toBe(Category.CONFIGURATION);
+        expect(mapping.customCode).toBe(ErrorCode.ConfigInit001);
+        expect(mapping.category).toBe(Category.Configuration);
         expect(mapping.sdkMessage).toBe('TrezorConnect not initialized');
       });
 
       it('should map Init_AlreadyInitialized', () => {
         const mapping = errorMapping.Init_AlreadyInitialized;
-        expect(mapping.customCode).toBe(ErrorCode.CONFIG_INIT_002);
-        expect(mapping.severity).toBe(Severity.WARNING);
+        expect(mapping.customCode).toBe(ErrorCode.ConfigInit002);
+        expect(mapping.severity).toBe(Severity.Warning);
       });
 
       it('should map Init_ManifestMissing', () => {
         const mapping = errorMapping.Init_ManifestMissing;
-        expect(mapping.customCode).toBe(ErrorCode.CONFIG_INIT_003);
-        expect(mapping.category).toBe(Category.CONFIGURATION);
+        expect(mapping.customCode).toBe(ErrorCode.ConfigInit003);
+        expect(mapping.category).toBe(Category.Configuration);
       });
     });
 
     describe('connection errors', () => {
       it('should map Init_IframeBlocked', () => {
         const mapping = errorMapping.Init_IframeBlocked;
-        expect(mapping.customCode).toBe(ErrorCode.CONN_BLOCKED_001);
-        expect(mapping.category).toBe(Category.CONNECTION);
+        expect(mapping.customCode).toBe(ErrorCode.ConnBlocked001);
+        expect(mapping.category).toBe(Category.Connection);
         expect(mapping.userMessage).toContain('browser settings');
       });
 
       it('should map Init_IframeTimeout', () => {
         const mapping = errorMapping.Init_IframeTimeout;
-        expect(mapping.customCode).toBe(ErrorCode.CONN_TIMEOUT_001);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.ConnTimeout001);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
 
       it('should map Transport_Missing', () => {
         const mapping = errorMapping.Transport_Missing;
-        expect(mapping.customCode).toBe(ErrorCode.CONN_TRANSPORT_001);
-        expect(mapping.category).toBe(Category.CONNECTION);
+        expect(mapping.customCode).toBe(ErrorCode.ConnTransport001);
+        expect(mapping.category).toBe(Category.Connection);
       });
     });
 
     describe('method errors', () => {
       it('should map Method_InvalidParameter', () => {
         const mapping = errorMapping.Method_InvalidParameter;
-        expect(mapping.customCode).toBe(ErrorCode.DATA_FORMAT_003);
-        expect(mapping.category).toBe(Category.DATA_VALIDATION);
+        expect(mapping.customCode).toBe(ErrorCode.DataFormat003);
+        expect(mapping.category).toBe(Category.DataValidation);
       });
 
       it('should map Method_Cancel', () => {
         const mapping = errorMapping.Method_Cancel;
-        expect(mapping.customCode).toBe(ErrorCode.USER_CANCEL_002);
-        expect(mapping.category).toBe(Category.USER_ACTION);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.RETRY);
+        expect(mapping.customCode).toBe(ErrorCode.UserCancel002);
+        expect(mapping.category).toBe(Category.UserAction);
+        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
 
       it('should map Method_UnknownCoin', () => {
         const mapping = errorMapping.Method_UnknownCoin;
-        expect(mapping.customCode).toBe(ErrorCode.DATA_NOTFOUND_003);
+        expect(mapping.customCode).toBe(ErrorCode.DataNotfound003);
         expect(mapping.userMessage).toContain('not supported');
       });
     });
@@ -369,13 +369,13 @@ describe('HARDWARE_MAPPINGS', () => {
     describe('device capability errors', () => {
       it('should map Device_MissingCapability', () => {
         const mapping = errorMapping.Device_MissingCapability;
-        expect(mapping.customCode).toBe(ErrorCode.DEVICE_CAP_001);
+        expect(mapping.customCode).toBe(ErrorCode.DeviceCap001);
         expect(mapping.userMessage).toContain('firmware update');
       });
 
       it('should map Device_MissingCapabilityBtcOnly', () => {
         const mapping = errorMapping.Device_MissingCapabilityBtcOnly;
-        expect(mapping.customCode).toBe(ErrorCode.DEVICE_CAP_002);
+        expect(mapping.customCode).toBe(ErrorCode.DeviceCap002);
         expect(mapping.userMessage).toContain('Bitcoin-only');
       });
     });
@@ -383,15 +383,15 @@ describe('HARDWARE_MAPPINGS', () => {
     describe('special codes', () => {
       it('should have UNKNOWN fallback', () => {
         const mapping = errorMapping.UNKNOWN;
-        expect(mapping.customCode).toBe(ErrorCode.UNKNOWN_001);
-        expect(mapping.category).toBe(Category.UNKNOWN);
+        expect(mapping.customCode).toBe(ErrorCode.Unknown001);
+        expect(mapping.category).toBe(Category.Unknown);
         expect(mapping.originalName).toBe('Failure_UnknownCode');
       });
 
       it('should map ENTROPY_CHECK', () => {
         const mapping = errorMapping.ENTROPY_CHECK;
-        expect(mapping.customCode).toBe(ErrorCode.CRYPTO_ENTROPY_001);
-        expect(mapping.category).toBe(Category.CRYPTOGRAPHY);
+        expect(mapping.customCode).toBe(ErrorCode.CryptoEntropy001);
+        expect(mapping.category).toBe(Category.Cryptography);
         expect(mapping.originalName).toBe('Failure_EntropyCheck');
       });
     });
@@ -454,8 +454,8 @@ describe('HARDWARE_MAPPINGS', () => {
     it('should have default error mapping', () => {
       const { default: defaultMapping } = HARDWARE_MAPPINGS.trezor;
       expect(defaultMapping).toBeDefined();
-      expect(defaultMapping.customCode).toBe(ErrorCode.UNKNOWN_001);
-      expect(defaultMapping.category).toBe(Category.UNKNOWN);
+      expect(defaultMapping.customCode).toBe(ErrorCode.Unknown001);
+      expect(defaultMapping.category).toBe(Category.Unknown);
     });
 
     it('should have error_patterns array', () => {
@@ -509,7 +509,7 @@ describe('HARDWARE_MAPPINGS', () => {
       ).filter(
         (mapping): mapping is typeof mapping & { userMessage: string } =>
           mapping.userActionable &&
-          mapping.severity !== Severity.INFO &&
+          mapping.severity !== Severity.Info &&
           'userMessage' in mapping &&
           typeof mapping.userMessage === 'string' &&
           mapping.userMessage.length > 0,
@@ -525,7 +525,7 @@ describe('HARDWARE_MAPPINGS', () => {
       ).filter(
         (mapping): mapping is typeof mapping & { userMessage: string } =>
           mapping.userActionable &&
-          mapping.severity !== Severity.INFO &&
+          mapping.severity !== Severity.Info &&
           'userMessage' in mapping &&
           typeof mapping.userMessage === 'string' &&
           mapping.userMessage.length > 0,
@@ -544,11 +544,11 @@ describe('HARDWARE_MAPPINGS', () => {
       ];
 
       const criticalMappings = allMappings.filter(
-        (mapping) => mapping.severity === Severity.CRITICAL,
+        (mapping) => mapping.severity === Severity.Critical,
       );
 
       criticalMappings.forEach((mapping) => {
-        expect([RetryStrategy.NO_RETRY, RetryStrategy.RETRY]).toContain(
+        expect([RetryStrategy.NoRetry, RetryStrategy.Retry]).toContain(
           mapping.retryStrategy,
         );
       });

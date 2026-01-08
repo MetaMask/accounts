@@ -1,121 +1,120 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 // Error Code Enum
 export enum ErrorCode {
   // Authentication & Security
-  AUTH_PIN_001 = 'AUTH_PIN_001',
-  AUTH_PIN_002 = 'AUTH_PIN_002',
-  AUTH_PIN_003 = 'AUTH_PIN_003',
-  AUTH_PIN_004 = 'AUTH_PIN_004',
-  AUTH_LOCK_001 = 'AUTH_LOCK_001',
-  AUTH_LOCK_002 = 'AUTH_LOCK_002',
-  AUTH_SEC_001 = 'AUTH_SEC_001',
-  AUTH_SEC_002 = 'AUTH_SEC_002',
-  AUTH_WIPE_001 = 'AUTH_WIPE_001',
+  AuthPin001 = 'AuthPin001',
+  AuthPin002 = 'AuthPin002',
+  AuthPin003 = 'AuthPin003',
+  AuthPin004 = 'AuthPin004',
+  AuthLock001 = 'AuthLock001',
+  AuthLock002 = 'AuthLock002',
+  AuthSec001 = 'AuthSec001',
+  AuthSec002 = 'AuthSec002',
+  AuthWipe001 = 'AuthWipe001',
 
   // User Action
-  USER_CANCEL_001 = 'USER_CANCEL_001',
-  USER_CANCEL_002 = 'USER_CANCEL_002',
-  USER_INPUT_001 = 'USER_INPUT_001',
-  USER_CONFIRM_001 = 'USER_CONFIRM_001',
+  UserCancel001 = 'UserCancel001',
+  UserCancel002 = 'UserCancel002',
+  UserInput001 = 'UserInput001',
+  UserConfirm001 = 'UserConfirm001',
 
   // Device State
-  DEVICE_STATE_001 = 'DEVICE_STATE_001',
-  DEVICE_STATE_002 = 'DEVICE_STATE_002',
-  DEVICE_STATE_003 = 'DEVICE_STATE_003',
-  DEVICE_STATE_004 = 'DEVICE_STATE_004',
-  DEVICE_STATE_005 = 'DEVICE_STATE_005',
-  DEVICE_DETECT_001 = 'DEVICE_DETECT_001',
-  DEVICE_CAP_001 = 'DEVICE_CAP_001',
-  DEVICE_CAP_002 = 'DEVICE_CAP_002',
-  DEVICE_MODE_001 = 'DEVICE_MODE_001',
+  DeviceState001 = 'DeviceState001',
+  DeviceState002 = 'DeviceState002',
+  DeviceState003 = 'DeviceState003',
+  DeviceState004 = 'DeviceState004',
+  DeviceState005 = 'DeviceState005',
+  DeviceDetect001 = 'DeviceDetect001',
+  DeviceCap001 = 'DeviceCap001',
+  DeviceCap002 = 'DeviceCap002',
+  DeviceMode001 = 'DeviceMode001',
 
   // Connection & Transport
-  CONN_TRANSPORT_001 = 'CONN_TRANSPORT_001',
-  CONN_CLOSED_001 = 'CONN_CLOSED_001',
-  CONN_IFRAME_001 = 'CONN_IFRAME_001',
-  CONN_SUITE_001 = 'CONN_SUITE_001',
-  CONN_TIMEOUT_001 = 'CONN_TIMEOUT_001',
-  CONN_BLOCKED_001 = 'CONN_BLOCKED_001',
+  ConnTransport001 = 'ConnTransport001',
+  ConnClosed001 = 'ConnClosed001',
+  ConnIframe001 = 'ConnIframe001',
+  ConnSuite001 = 'ConnSuite001',
+  ConnTimeout001 = 'ConnTimeout001',
+  ConnBlocked001 = 'ConnBlocked001',
 
   // Data & Validation
-  DATA_FORMAT_001 = 'DATA_FORMAT_001',
-  DATA_FORMAT_002 = 'DATA_FORMAT_002',
-  DATA_FORMAT_003 = 'DATA_FORMAT_003',
-  DATA_MISSING_001 = 'DATA_MISSING_001',
-  DATA_VALIDATION_001 = 'DATA_VALIDATION_001',
-  DATA_VALIDATION_002 = 'DATA_VALIDATION_002',
-  DATA_NOTFOUND_001 = 'DATA_NOTFOUND_001',
-  DATA_NOTFOUND_002 = 'DATA_NOTFOUND_002',
-  DATA_NOTFOUND_003 = 'DATA_NOTFOUND_003',
+  DataFormat001 = 'DataFormat001',
+  DataFormat002 = 'DataFormat002',
+  DataFormat003 = 'DataFormat003',
+  DataMissing001 = 'DataMissing001',
+  DataValidation001 = 'DataValidation001',
+  DataValidation002 = 'DataValidation002',
+  DataNotfound001 = 'DataNotfound001',
+  DataNotfound002 = 'DataNotfound002',
+  DataNotfound003 = 'DataNotfound003',
 
   // Cryptographic Operations
-  CRYPTO_SIGN_001 = 'CRYPTO_SIGN_001',
-  CRYPTO_ALGO_001 = 'CRYPTO_ALGO_001',
-  CRYPTO_KEY_001 = 'CRYPTO_KEY_001',
-  CRYPTO_ENTROPY_001 = 'CRYPTO_ENTROPY_001',
+  CryptoSign001 = 'CryptoSign001',
+  CryptoAlgo001 = 'CryptoAlgo001',
+  CryptoKey001 = 'CryptoKey001',
+  CryptoEntropy001 = 'CryptoEntropy001',
 
   // System & Internal
-  SYS_INTERNAL_001 = 'SYS_INTERNAL_001',
-  SYS_MEMORY_001 = 'SYS_MEMORY_001',
-  SYS_MEMORY_002 = 'SYS_MEMORY_002',
-  SYS_FILE_001 = 'SYS_FILE_001',
-  SYS_FILE_002 = 'SYS_FILE_002',
-  SYS_LICENSE_001 = 'SYS_LICENSE_001',
-  SYS_FIRMWARE_001 = 'SYS_FIRMWARE_001',
-  SYS_FIRMWARE_002 = 'SYS_FIRMWARE_002',
+  SysInternal001 = 'SysInternal001',
+  SysMemory001 = 'SysMemory001',
+  SysMemory002 = 'SysMemory002',
+  SysFile001 = 'SysFile001',
+  SysFile002 = 'SysFile002',
+  SysLicense001 = 'SysLicense001',
+  SysFirmware001 = 'SysFirmware001',
+  SysFirmware002 = 'SysFirmware002',
 
   // Command & Protocol
-  PROTO_CMD_001 = 'PROTO_CMD_001',
-  PROTO_CMD_002 = 'PROTO_CMD_002',
-  PROTO_CMD_003 = 'PROTO_CMD_003',
-  PROTO_MSG_001 = 'PROTO_MSG_001',
-  PROTO_PARAM_001 = 'PROTO_PARAM_001',
+  ProtoCmd001 = 'ProtoCmd001',
+  ProtoCmd002 = 'ProtoCmd002',
+  ProtoCmd003 = 'ProtoCmd003',
+  ProtoMsg001 = 'ProtoMsg001',
+  ProtoParam001 = 'ProtoParam001',
 
   // Configuration & Initialization
-  CONFIG_INIT_001 = 'CONFIG_INIT_001',
-  CONFIG_INIT_002 = 'CONFIG_INIT_002',
-  CONFIG_INIT_003 = 'CONFIG_INIT_003',
-  CONFIG_PERM_001 = 'CONFIG_PERM_001',
-  CONFIG_METHOD_001 = 'CONFIG_METHOD_001',
+  ConfigInit001 = 'ConfigInit001',
+  ConfigInit002 = 'ConfigInit002',
+  ConfigInit003 = 'ConfigInit003',
+  ConfigPerm001 = 'ConfigPerm001',
+  ConfigMethod001 = 'ConfigMethod001',
 
   // Transaction
-  TX_FUNDS_001 = 'TX_FUNDS_001',
-  TX_FAIL_001 = 'TX_FAIL_001',
+  TxFunds001 = 'TxFunds001',
+  TxFail001 = 'TxFail001',
 
   // Success
-  SUCCESS_000 = 'SUCCESS_000',
+  Success000 = 'Success000',
 
   // Unknown/Fallback
-  UNKNOWN_001 = 'UNKNOWN_001',
+  Unknown001 = 'Unknown001',
 }
 
 // Severity Enum
 export enum Severity {
-  INFO = 'INFO',
-  ERROR = 'ERROR',
-  WARNING = 'WARNING',
-  CRITICAL = 'CRITICAL',
+  Info = 'Info',
+  Err = 'Err',
+  Warning = 'Warning',
+  Critical = 'Critical',
 }
 
 // Category Enum
 export enum Category {
-  SUCCESS = 'SUCCESS',
-  AUTHENTICATION = 'AUTHENTICATION',
-  DATA_VALIDATION = 'DATA_VALIDATION',
-  PROTOCOL = 'PROTOCOL',
-  SYSTEM = 'SYSTEM',
-  CRYPTOGRAPHY = 'CRYPTOGRAPHY',
-  CONFIGURATION = 'CONFIGURATION',
-  CONNECTION = 'CONNECTION',
-  USER_ACTION = 'USER_ACTION',
-  DEVICE_STATE = 'DEVICE_STATE',
-  TRANSACTION = 'TRANSACTION',
-  UNKNOWN = 'UNKNOWN',
+  Success = 'Success',
+  Authentication = 'Authentication',
+  DataValidation = 'DataValidation',
+  Protocol = 'Protocol',
+  System = 'System',
+  Cryptography = 'Cryptography',
+  Configuration = 'Configuration',
+  Connection = 'Connection',
+  UserAction = 'UserAction',
+  DeviceState = 'DeviceState',
+  Transaction = 'Transaction',
+  Unknown = 'Unknown',
 }
 
 // Retry Strategy Enum
 export enum RetryStrategy {
-  NO_RETRY = 'NO_RETRY',
-  RETRY = 'RETRY',
-  EXPONENTIAL_BACKOFF = 'EXPONENTIAL_BACKOFF',
+  NoRetry = 'NoRetry',
+  Retry = 'Retry',
+  ExponentialBackoff = 'ExponentialBackoff',
 }

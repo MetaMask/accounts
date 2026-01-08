@@ -8,10 +8,10 @@ import {
 
 describe('HardwareWalletError', () => {
   const mockOptions = {
-    code: ErrorCode.USER_CANCEL_001,
-    severity: Severity.WARNING,
-    category: Category.USER_ACTION,
-    retryStrategy: RetryStrategy.RETRY,
+    code: ErrorCode.UserCancel001,
+    severity: Severity.Warning,
+    category: Category.UserAction,
+    retryStrategy: RetryStrategy.Retry,
     userActionable: true,
     userMessage: 'Transaction was rejected',
   };
@@ -22,10 +22,10 @@ describe('HardwareWalletError', () => {
 
       expect(error.message).toBe('Test error');
       expect(error.name).toBe('HardwareWalletError');
-      expect(error.code).toBe(ErrorCode.USER_CANCEL_001);
-      expect(error.severity).toBe(Severity.WARNING);
-      expect(error.category).toBe(Category.USER_ACTION);
-      expect(error.retryStrategy).toBe(RetryStrategy.RETRY);
+      expect(error.code).toBe(ErrorCode.UserCancel001);
+      expect(error.severity).toBe(Severity.Warning);
+      expect(error.category).toBe(Category.UserAction);
+      expect(error.retryStrategy).toBe(RetryStrategy.Retry);
       expect(error.userActionable).toBe(true);
       expect(error.userMessage).toBe('Transaction was rejected');
     });
@@ -76,7 +76,7 @@ describe('HardwareWalletError', () => {
     it('should return true for RETRY strategy', () => {
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
-        retryStrategy: RetryStrategy.RETRY,
+        retryStrategy: RetryStrategy.Retry,
       });
       expect(error.isRetryable()).toBe(true);
     });
@@ -84,7 +84,7 @@ describe('HardwareWalletError', () => {
     it('should return true for EXPONENTIAL_BACKOFF strategy', () => {
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
-        retryStrategy: RetryStrategy.EXPONENTIAL_BACKOFF,
+        retryStrategy: RetryStrategy.ExponentialBackoff,
       });
       expect(error.isRetryable()).toBe(true);
     });
@@ -92,7 +92,7 @@ describe('HardwareWalletError', () => {
     it('should return false for NO_RETRY strategy', () => {
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
-        retryStrategy: RetryStrategy.NO_RETRY,
+        retryStrategy: RetryStrategy.NoRetry,
       });
       expect(error.isRetryable()).toBe(false);
     });
@@ -102,13 +102,13 @@ describe('HardwareWalletError', () => {
     it('should return true for CRITICAL severity', () => {
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
-        severity: Severity.CRITICAL,
+        severity: Severity.Critical,
       });
       expect(error.isCritical()).toBe(true);
     });
 
     it('should return false for non-CRITICAL severity', () => {
-      const severities = [Severity.ERROR, Severity.WARNING, Severity.INFO];
+      const severities = [Severity.Err, Severity.Warning, Severity.Info];
       severities.forEach((severity) => {
         const error = new HardwareWalletError('Test error', {
           ...mockOptions,
@@ -123,13 +123,13 @@ describe('HardwareWalletError', () => {
     it('should return true for WARNING severity', () => {
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
-        severity: Severity.WARNING,
+        severity: Severity.Warning,
       });
       expect(error.isWarning()).toBe(true);
     });
 
     it('should return false for non-WARNING severity', () => {
-      const severities = [Severity.ERROR, Severity.CRITICAL, Severity.INFO];
+      const severities = [Severity.Err, Severity.Critical, Severity.Info];
       severities.forEach((severity) => {
         const error = new HardwareWalletError('Test error', {
           ...mockOptions,
@@ -233,10 +233,10 @@ describe('HardwareWalletError', () => {
       expect(json.id).toBe(error.id);
       expect(json.name).toBe('HardwareWalletError');
       expect(json.message).toBe('Test error');
-      expect(json.code).toBe(ErrorCode.USER_CANCEL_001);
-      expect(json.severity).toBe(Severity.WARNING);
-      expect(json.category).toBe(Category.USER_ACTION);
-      expect(json.retryStrategy).toBe(RetryStrategy.RETRY);
+      expect(json.code).toBe(ErrorCode.UserCancel001);
+      expect(json.severity).toBe(Severity.Warning);
+      expect(json.category).toBe(Category.UserAction);
+      expect(json.retryStrategy).toBe(RetryStrategy.Retry);
       expect(json.userActionable).toBe(true);
       expect(json.userMessage).toBe('Transaction was rejected');
       expect(json.timestamp).toBe(error.timestamp.toISOString());
@@ -281,20 +281,20 @@ describe('HardwareWalletError', () => {
       const result = error.toString();
 
       expect(result).toBe(
-        'HardwareWalletError [USER_CANCEL_001]: Transaction was rejected',
+        'HardwareWalletError [UserCancel001]: Transaction was rejected',
       );
     });
 
     it('should work with different error codes and messages', () => {
       const error = new HardwareWalletError('Internal error', {
         ...mockOptions,
-        code: ErrorCode.SYS_INTERNAL_001,
+        code: ErrorCode.SysInternal001,
         userMessage: 'An internal error occurred',
       });
       const result = error.toString();
 
       expect(result).toBe(
-        'HardwareWalletError [SYS_INTERNAL_001]: An internal error occurred',
+        'HardwareWalletError [SysInternal001]: An internal error occurred',
       );
     });
   });
@@ -307,12 +307,12 @@ describe('HardwareWalletError', () => {
 
       const result = error.toDetailedString();
 
-      expect(result).toContain('HardwareWalletError [USER_CANCEL_001]');
+      expect(result).toContain('HardwareWalletError [UserCancel001]');
       expect(result).toContain('Message: Test error');
       expect(result).toContain('User Message: Transaction was rejected');
-      expect(result).toContain('Severity: WARNING');
-      expect(result).toContain('Category: USER_ACTION');
-      expect(result).toContain('Retry Strategy: RETRY');
+      expect(result).toContain('Severity: Warning');
+      expect(result).toContain('Category: UserAction');
+      expect(result).toContain('Retry Strategy: Retry');
       expect(result).toContain('User Actionable: true');
       expect(result).toContain('Timestamp:');
     });
@@ -363,10 +363,10 @@ describe('HardwareWalletError', () => {
   describe('error scenarios', () => {
     it('should handle critical authentication errors', () => {
       const error = new HardwareWalletError('Device blocked', {
-        code: ErrorCode.AUTH_LOCK_002,
-        severity: Severity.CRITICAL,
-        category: Category.AUTHENTICATION,
-        retryStrategy: RetryStrategy.NO_RETRY,
+        code: ErrorCode.AuthLock002,
+        severity: Severity.Critical,
+        category: Category.Authentication,
+        retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
         userMessage: 'Device is blocked due to too many failed attempts',
       });
@@ -378,10 +378,10 @@ describe('HardwareWalletError', () => {
 
     it('should handle retryable connection errors', () => {
       const error = new HardwareWalletError('Connection timeout', {
-        code: ErrorCode.CONN_TIMEOUT_001,
-        severity: Severity.ERROR,
-        category: Category.CONNECTION,
-        retryStrategy: RetryStrategy.EXPONENTIAL_BACKOFF,
+        code: ErrorCode.ConnTimeout001,
+        severity: Severity.Err,
+        category: Category.Connection,
+        retryStrategy: RetryStrategy.ExponentialBackoff,
         userActionable: false,
         userMessage: 'Connection timed out',
       });
@@ -393,10 +393,10 @@ describe('HardwareWalletError', () => {
 
     it('should handle user action warnings', () => {
       const error = new HardwareWalletError('User confirmation required', {
-        code: ErrorCode.USER_CONFIRM_001,
-        severity: Severity.WARNING,
-        category: Category.USER_ACTION,
-        retryStrategy: RetryStrategy.RETRY,
+        code: ErrorCode.UserConfirm001,
+        severity: Severity.Warning,
+        category: Category.UserAction,
+        retryStrategy: RetryStrategy.Retry,
         userActionable: true,
         userMessage: 'Please confirm the action on your device',
       });

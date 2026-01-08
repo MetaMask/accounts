@@ -65,7 +65,7 @@ export class HardwareWalletError extends Error {
    * @returns True if the error can be retried, false otherwise.
    */
   isRetryable(): boolean {
-    return this.retryStrategy !== RetryStrategy.NO_RETRY;
+    return this.retryStrategy !== RetryStrategy.NoRetry;
   }
 
   /**
@@ -74,7 +74,7 @@ export class HardwareWalletError extends Error {
    * @returns True if the error is critical, false otherwise.
    */
   isCritical(): boolean {
-    return this.severity === Severity.CRITICAL;
+    return this.severity === Severity.Critical;
   }
 
   /**
@@ -83,7 +83,7 @@ export class HardwareWalletError extends Error {
    * @returns True if the error is a warning, false otherwise.
    */
   isWarning(): boolean {
-    return this.severity === Severity.WARNING;
+    return this.severity === Severity.Warning;
   }
 
   /**
