@@ -1,4 +1,10 @@
 import { TransportStatusError } from '@ledgerhq/hw-transport';
+import {
+  ErrorCode,
+  Severity,
+  Category,
+  RetryStrategy,
+} from '@metamask/keyring-utils';
 
 import { LedgerHardwareWalletError } from './errors';
 import { handleLedgerTransportError } from './ledger-error-handler';
@@ -144,6 +150,29 @@ describe('handleLedgerTransportError', () => {
         'Original error message',
       );
       expect((thrownError as LedgerHardwareWalletError).cause).toBe(error);
+    });
+
+    it('passes through LedgerHardwareWalletError instances', () => {
+      const ledgerError = new LedgerHardwareWalletError('Ledger error', {
+        code: ErrorCode.USER_CANCEL_001,
+        severity: Severity.ERROR,
+        category: Category.USER_ACTION,
+        retryStrategy: RetryStrategy.NO_RETRY,
+        ledgerCode: '0x6985',
+      });
+
+      expect(() =>
+        handleLedgerTransportError(ledgerError, fallbackMessage),
+      ).toThrow(ledgerError);
+
+      let thrownError: unknown;
+      try {
+        handleLedgerTransportError(ledgerError, fallbackMessage);
+      } catch (error_: unknown) {
+        thrownError = error_;
+      }
+
+      expect(thrownError).toBe(ledgerError);
     });
   });
 });

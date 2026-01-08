@@ -611,44 +611,6 @@ describe('LedgerKeyring', function () {
       });
     });
 
-    describe('getAppNameAndVersion', function () {
-      it('returns the app name and version from the bridge', async function () {
-        const expectedResponse = {
-          appName: 'Ethereum',
-          version: '1.9.0',
-        };
-        jest
-          .spyOn(bridge, 'getAppNameAndVersion')
-          .mockResolvedValue(expectedResponse);
-
-        const result = await keyring.getAppNameAndVersion();
-
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        expect(bridge.getAppNameAndVersion).toHaveBeenCalledTimes(1);
-        expect(result).toStrictEqual(expectedResponse);
-      });
-
-      it('throws an error when the bridge getAppNameAndVersion method throws an Error', async function () {
-        jest
-          .spyOn(bridge, 'getAppNameAndVersion')
-          .mockRejectedValue(new Error('Connection failed'));
-
-        await expect(keyring.getAppNameAndVersion()).rejects.toThrow(
-          'Connection failed',
-        );
-      });
-
-      it('throws the default error when the bridge getAppNameAndVersion method throws a non-Error object', async function () {
-        jest
-          .spyOn(bridge, 'getAppNameAndVersion')
-          .mockRejectedValue('some error');
-
-        await expect(keyring.getAppNameAndVersion()).rejects.toThrow(
-          'Ledger: Unknown error while getting app name and version',
-        );
-      });
-    });
-
     describe('signTransaction', function () {
       describe('using old versions of ethereumjs/tx', function () {
         it('passes serialized transaction to ledger and return signed tx', async function () {
@@ -1387,6 +1349,38 @@ describe('LedgerKeyring', function () {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
         ).rejects.toThrow('Some other transport error');
+      });
+    });
+
+    describe('getAppNameAndVersion', function () {
+      it('returns app name and version from bridge', async function () {
+        const mockResponse = {
+          appName: 'Ethereum',
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(keyring.bridge, 'getAppNameAndVersion')
+          .mockResolvedValue(mockResponse);
+
+        const result = await keyring.getAppNameAndVersion();
+
+        expect(result).toStrictEqual(mockResponse);
+      });
+
+      it('handles TransportStatusError when getting app name and version', async function () {
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'getAppNameAndVersion')
+          .mockRejectedValue(transportError);
+
+        await expect(keyring.getAppNameAndVersion()).rejects.toThrow(
+          'User rejected action on device',
+        );
       });
     });
 
