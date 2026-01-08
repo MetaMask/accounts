@@ -321,7 +321,7 @@ export const HARDWARE_MAPPINGS = {
   },
   trezor: {
     vendorName: 'Trezor',
-    errorMapping: {
+    errorMappings: {
       '1': {
         customCode: ErrorCode.ProtoCmd003,
         message: 'Unexpected message received',
