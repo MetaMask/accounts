@@ -28,7 +28,6 @@ describe('HardwareWalletError', () => {
       expect(error.retryStrategy).toBe(RetryStrategy.RETRY);
       expect(error.userActionable).toBe(true);
       expect(error.userMessage).toBe('Transaction was rejected');
-      expect(error.retryCount).toBe(0);
     });
 
     it('should generate a unique error ID', () => {
@@ -60,29 +59,16 @@ describe('HardwareWalletError', () => {
         ...mockOptions,
         cause,
         metadata,
-        retryCount: 3,
       });
 
       expect(error.cause).toBe(cause);
       expect(error.metadata).toStrictEqual(metadata);
-      expect(error.retryCount).toBe(3);
-    });
-
-    it('should default retryCount to 0 when not provided', () => {
-      const error = new HardwareWalletError('Test error', mockOptions);
-      expect(error.retryCount).toBe(0);
     });
 
     it('should work with instanceof checks', () => {
       const error = new HardwareWalletError('Test error', mockOptions);
       expect(error instanceof HardwareWalletError).toBe(true);
       expect(error instanceof Error).toBe(true);
-    });
-
-    it('should capture stack trace', () => {
-      const error = new HardwareWalletError('Test error', mockOptions);
-      expect(error.stack).toBeDefined();
-      expect(error.stack).toContain('HardwareWalletError');
     });
   });
 
@@ -172,53 +158,6 @@ describe('HardwareWalletError', () => {
     });
   });
 
-  describe('withIncrementedRetryCount', () => {
-    it('should create a new error with incremented retry count', () => {
-      const originalError = new HardwareWalletError('Test error', {
-        ...mockOptions,
-        retryCount: 2,
-      });
-
-      const newError = originalError.withIncrementedRetryCount();
-
-      expect(newError.retryCount).toBe(3);
-      expect(originalError.retryCount).toBe(2); // Original unchanged
-      expect(newError).not.toBe(originalError); // New instance
-    });
-
-    it('should preserve all other properties', () => {
-      const cause = new Error('Original error');
-      const metadata = { deviceId: '12345' };
-
-      const originalError = new HardwareWalletError('Test error', {
-        ...mockOptions,
-        cause,
-        metadata,
-      });
-
-      const newError = originalError.withIncrementedRetryCount();
-
-      expect(newError.message).toBe(originalError.message);
-      expect(newError.code).toBe(originalError.code);
-      expect(newError.severity).toBe(originalError.severity);
-      expect(newError.category).toBe(originalError.category);
-      expect(newError.retryStrategy).toBe(originalError.retryStrategy);
-      expect(newError.userActionable).toBe(originalError.userActionable);
-      expect(newError.userMessage).toBe(originalError.userMessage);
-      expect(newError.cause).toBe(originalError.cause);
-      expect(newError.metadata).toStrictEqual(originalError.metadata);
-    });
-
-    it('should work when optional properties are undefined', () => {
-      const originalError = new HardwareWalletError('Test error', mockOptions);
-      const newError = originalError.withIncrementedRetryCount();
-
-      expect(newError.retryCount).toBe(1);
-      expect(newError.cause).toBeUndefined();
-      expect(newError.metadata).toBeUndefined();
-    });
-  });
-
   describe('withMetadata', () => {
     it('should create a new error with additional metadata', () => {
       const originalMetadata = { deviceId: '12345' };
@@ -263,7 +202,6 @@ describe('HardwareWalletError', () => {
       const originalError = new HardwareWalletError('Test error', {
         ...mockOptions,
         cause,
-        retryCount: 5,
       });
 
       const newError = originalError.withMetadata({ extra: 'data' });
@@ -276,21 +214,18 @@ describe('HardwareWalletError', () => {
       expect(newError.userActionable).toBe(originalError.userActionable);
       expect(newError.userMessage).toBe(originalError.userMessage);
       expect(newError.cause).toBe(originalError.cause);
-      expect(newError.retryCount).toBe(originalError.retryCount);
     });
   });
 
   describe('toJSON', () => {
     it('should serialize all properties to JSON', () => {
       const cause = new Error('Original error');
-      cause.stack = 'Error stack trace';
       const metadata = { deviceId: '12345' };
 
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
         cause,
         metadata,
-        retryCount: 3,
       });
 
       const json = error.toJSON();
@@ -306,13 +241,10 @@ describe('HardwareWalletError', () => {
       expect(json.userMessage).toBe('Transaction was rejected');
       expect(json.timestamp).toBe(error.timestamp.toISOString());
       expect(json.metadata).toStrictEqual(metadata);
-      expect(json.retryCount).toBe(3);
-      expect(json.stack).toBeDefined();
     });
 
     it('should serialize cause when present', () => {
       const cause = new Error('Original error');
-      cause.stack = 'Error stack trace';
 
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
@@ -324,7 +256,6 @@ describe('HardwareWalletError', () => {
       expect(json.cause).toStrictEqual({
         name: 'Error',
         message: 'Original error',
-        stack: 'Error stack trace',
       });
     });
 
@@ -372,7 +303,6 @@ describe('HardwareWalletError', () => {
     it('should return a detailed string with all information', () => {
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
-        retryCount: 2,
       });
 
       const result = error.toDetailedString();
@@ -385,7 +315,6 @@ describe('HardwareWalletError', () => {
       expect(result).toContain('Retry Strategy: RETRY');
       expect(result).toContain('User Actionable: true');
       expect(result).toContain('Timestamp:');
-      expect(result).toContain('Retry Count: 2');
     });
 
     it('should include metadata when present', () => {

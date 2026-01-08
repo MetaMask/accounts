@@ -21,7 +21,6 @@ export type HardwareWalletErrorOptions = {
   userMessage: string;
   cause?: Error;
   metadata?: Record<string, unknown>;
-  retryCount?: number;
 };
 
 export class HardwareWalletError extends Error {
@@ -43,8 +42,6 @@ export class HardwareWalletError extends Error {
 
   public readonly metadata: Record<string, unknown> | undefined;
 
-  public readonly retryCount: number;
-
   public readonly cause: Error | undefined;
 
   constructor(message: string, options: HardwareWalletErrorOptions) {
@@ -59,16 +56,7 @@ export class HardwareWalletError extends Error {
     this.userMessage = options.userMessage;
     this.timestamp = new Date();
     this.metadata = options.metadata;
-    this.retryCount = options.retryCount ?? 0;
     this.cause = options.cause;
-
-    // Ensure proper prototype chain for instanceof checks
-    Object.setPrototypeOf(this, HardwareWalletError.prototype);
-
-    // Capture stack trace if available
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    }
   }
 
   /**
@@ -108,32 +96,6 @@ export class HardwareWalletError extends Error {
   }
 
   /**
-   * Creates a new error instance with an incremented retry count.
-   *
-   * @returns A new HardwareWalletError instance with incremented retry count.
-   */
-  withIncrementedRetryCount(): HardwareWalletError {
-    const options: HardwareWalletErrorOptions = {
-      code: this.code,
-      severity: this.severity,
-      category: this.category,
-      retryStrategy: this.retryStrategy,
-      userActionable: this.userActionable,
-      userMessage: this.userMessage,
-      retryCount: this.retryCount + 1,
-    };
-
-    if (this.cause !== undefined) {
-      options.cause = this.cause;
-    }
-    if (this.metadata !== undefined) {
-      options.metadata = this.metadata;
-    }
-
-    return new HardwareWalletError(this.message, options);
-  }
-
-  /**
    * Creates a new error instance with additional metadata.
    *
    * @param additionalMetadata - Additional metadata to merge with existing metadata.
@@ -150,7 +112,6 @@ export class HardwareWalletError extends Error {
       userActionable: this.userActionable,
       userMessage: this.userMessage,
       metadata: { ...(this.metadata ?? {}), ...additionalMetadata },
-      retryCount: this.retryCount,
     };
 
     if (this.cause !== undefined) {
@@ -179,15 +140,12 @@ export class HardwareWalletError extends Error {
       userMessage: this.userMessage,
       timestamp: this.timestamp.toISOString(),
       metadata: this.metadata,
-      retryCount: this.retryCount,
-      stack: this.stack,
     };
 
     if (this.cause !== undefined) {
       json.cause = {
         name: this.cause.name,
         message: this.cause.message,
-        stack: this.cause.stack,
       };
     }
 
@@ -218,7 +176,6 @@ export class HardwareWalletError extends Error {
       `Retry Strategy: ${this.retryStrategy}`,
       `User Actionable: ${this.userActionable}`,
       `Timestamp: ${this.timestamp.toISOString()}`,
-      `Retry Count: ${this.retryCount}`,
     ];
 
     if (this.metadata && Object.keys(this.metadata).length > 0) {
