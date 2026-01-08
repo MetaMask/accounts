@@ -41,10 +41,7 @@ const trezorKeyringV2Capabilities: KeyringCapabilities = {
  * Allowed HD paths for Trezor keyring.
  * These must match the keys in ALLOWED_HD_PATHS from trezor-keyring.ts.
  */
-type AllowedHdPath =
-  | `m/44'/60'/0'/0`
-  | `m/44'/60'/0'`
-  | `m/44'/1'/0'/0`;
+type AllowedHdPath = `m/44'/60'/0'/0` | `m/44'/60'/0'` | `m/44'/1'/0'/0`;
 
 /**
  * BIP-44 standard HD path prefix constant for Ethereum.
