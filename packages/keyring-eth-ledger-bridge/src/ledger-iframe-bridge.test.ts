@@ -629,6 +629,7 @@ describe('LedgerIframeBridge', function () {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
       });
+    });
   });
 
   describe('setOption', function () {
