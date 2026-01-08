@@ -32,10 +32,36 @@ const trezorKeyringV2Capabilities: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   bip44: {
     deriveIndex: true,
-    derivePath: false,
+    derivePath: true,
     discover: false,
   },
 };
+
+/**
+ * Allowed HD paths for Trezor keyring.
+ * These must match the keys in ALLOWED_HD_PATHS from trezor-keyring.ts.
+ */
+type AllowedHdPath =
+  | `m/44'/60'/0'/0`
+  | `m/44'/60'/0'`
+  | `m/44'/1'/0'/0`;
+
+/**
+ * BIP-44 standard HD path prefix constant for Ethereum.
+ * Used as default for derive-index operations.
+ */
+const BIP44_HD_PATH_PREFIX: AllowedHdPath = `m/44'/60'/0'/0`;
+
+/**
+ * Regex pattern for validating and parsing derivation paths.
+ * Only matches the allowed Trezor HD paths from the V1 implementation:
+ * - m/44'/60'/0'/0/{index} (BIP44 standard)
+ * - m/44'/60'/0'/{index} (legacy MEW)
+ * - m/44'/1'/0'/0/{index} (SLIP0044 testnet)
+ * Captures: [1] = base path, [2] = index
+ */
+const DERIVATION_PATH_PATTERN =
+  /^(m\/44'\/60'\/0'\/0|m\/44'\/60'\/0'|m\/44'\/1'\/0'\/0)\/(\d+)$/u;
 
 /**
  * Concrete {@link KeyringV2} adapter for {@link TrezorKeyring}.
@@ -104,6 +130,32 @@ export class TrezorKeyringV2
   }
 
   /**
+   * Parses a derivation path to extract the base HD path and account index.
+   *
+   * @param derivationPath - The full derivation path (e.g., m/44'/60'/0'/0/5).
+   * @returns The base HD path and account index.
+   * @throws If the path format is invalid.
+   */
+  #parseDerivationPath(derivationPath: string): {
+    basePath: AllowedHdPath;
+    index: number;
+  } {
+    const match = derivationPath.match(DERIVATION_PATH_PATTERN);
+    if (match) {
+      return {
+        basePath: match[1] as AllowedHdPath,
+        index: parseInt(match[2] as string, 10),
+      };
+    }
+
+    throw new Error(
+      `Invalid derivation path: ${derivationPath}. ` +
+        `Expected format: {base}/{index} where base is one of: ` +
+        `m/44'/60'/0'/0, m/44'/60'/0', m/44'/1'/0'/0.`,
+    );
+  }
+
+  /**
    * Creates a Bip44Account object for the given address.
    *
    * @param address - The account address.
@@ -115,6 +167,7 @@ export class TrezorKeyringV2
     addressIndex: number,
   ): Bip44Account<KeyringAccount> {
     const id = this.registry.register(address);
+    const derivationPath = `${this.inner.hdPath}/${addressIndex}`;
 
     const account: Bip44Account<KeyringAccount> = {
       id,
@@ -127,7 +180,7 @@ export class TrezorKeyringV2
           type: KeyringAccountEntropyTypeOption.Mnemonic,
           id: this.entropySource,
           groupIndex: addressIndex,
-          derivationPath: `${this.inner.hdPath}/${addressIndex}`,
+          derivationPath,
         },
       },
     };
@@ -162,32 +215,57 @@ export class TrezorKeyringV2
     options: CreateAccountOptions,
   ): Promise<Bip44Account<KeyringAccount>[]> {
     return this.withLock(async () => {
-      // Only supports BIP-44 derive index
-      if (options.type !== 'bip44:derive-index') {
+      if (
+        options.type === 'bip44:derive-path' ||
+        options.type === 'bip44:derive-index'
+      ) {
+        // Validate that the entropy source matches this keyring's entropy source
+        if (options.entropySource !== this.entropySource) {
+          throw new Error(
+            `Entropy source mismatch: expected '${this.entropySource}', got '${options.entropySource}'`,
+          );
+        }
+      } else {
         throw new Error(
-          `Unsupported account creation type for TrezorKeyring: ${options.type}`,
+          `Unsupported account creation type for TrezorKeyring: ${String(
+            options.type,
+          )}`,
         );
       }
 
-      // Validate that the entropy source matches this keyring's entropy source
-      if (options.entropySource !== this.entropySource) {
-        throw new Error(
-          `Entropy source mismatch: expected '${this.entropySource}', got '${options.entropySource}'`,
-        );
-      }
-
-      const targetIndex = options.groupIndex;
-
-      // Check if an account at this index already exists
+      // Check if an account at this index already exists with the same derivation path
       const currentAccounts = await this.getAccounts();
-      const existingAccount = currentAccounts.find(
-        (account) => account.options.entropy.groupIndex === targetIndex,
-      );
+
+      let targetIndex: number;
+      let basePath: AllowedHdPath;
+      let derivationPath: string;
+
+      if (options.type === 'bip44:derive-path') {
+        // Parse the derivation path to extract base path and index
+        const parsed = this.#parseDerivationPath(options.derivationPath);
+        targetIndex = parsed.index;
+        basePath = parsed.basePath;
+        derivationPath = options.derivationPath;
+      } else {
+        // derive-index uses BIP-44 standard path by default
+        targetIndex = options.groupIndex;
+        basePath = BIP44_HD_PATH_PREFIX;
+        derivationPath = `${basePath}/${targetIndex}`;
+      }
+
+      const existingAccount = currentAccounts.find((account) => {
+        return (
+          account.options.entropy.groupIndex === targetIndex &&
+          account.options.entropy.derivationPath === derivationPath
+        );
+      });
+
       if (existingAccount) {
         return [existingAccount];
       }
 
       // Derive the account at the specified index
+      this.inner.setHdPath(basePath);
       this.inner.setAccountToUnlock(targetIndex);
       const [newAddress] = await this.inner.addAccounts(1);
 

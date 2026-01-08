@@ -96,10 +96,15 @@ function getMockBridge(): TrezorBridge {
 /**
  * Create a TrezorKeyring with the fake HD key.
  *
+ * @param hdPath - Optional HD path to set (defaults to BIP44 standard).
  * @returns The inner keyring.
  */
-function createInnerKeyring(): TrezorKeyring {
+function createInnerKeyring(hdPath?: string): TrezorKeyring {
   const inner = new TrezorKeyring({ bridge: getMockBridge() });
+  // Set the HD path before setting HDKey (setHdPath resets HDKey)
+  if (hdPath) {
+    inner.setHdPath(hdPath as Parameters<typeof inner.setHdPath>[0]);
+  }
   // Set up the HDKey so accounts can be derived without unlocking
   inner.hdk = fakeHdKey;
   return inner;
@@ -159,6 +164,28 @@ function deriveIndexOptions(
   };
 }
 
+/**
+ * Helper to create account options for bip44:derive-path.
+ *
+ * @param derivationPath - The full derivation path.
+ * @param source - Optional entropy source override.
+ * @returns The create account options.
+ */
+function derivePathOptions(
+  derivationPath: `m/${string}`,
+  source: string = entropySource,
+): {
+  type: 'bip44:derive-path';
+  entropySource: string;
+  derivationPath: `m/${string}`;
+} {
+  return {
+    type: 'bip44:derive-path',
+    entropySource: source,
+    derivationPath,
+  };
+}
+
 describe('TrezorKeyringV2', () => {
   describe('constructor', () => {
     it('creates a wrapper with correct type and capabilities', () => {
@@ -169,7 +196,7 @@ describe('TrezorKeyringV2', () => {
         scopes: [EthScope.Eoa],
         bip44: {
           deriveIndex: true,
-          derivePath: false,
+          derivePath: true,
           discover: false,
         },
       });
@@ -416,6 +443,89 @@ describe('TrezorKeyringV2', () => {
       await expect(
         wrapper.createAccounts(deriveIndexOptions(0)),
       ).rejects.toThrow('Failed to create new account');
+    });
+  });
+
+  describe('createAccounts with bip44:derive-path', () => {
+    it('creates an account with a BIP44 derivation path', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+
+      const newAccounts = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/0/5`),
+      );
+      const account = getFirstAccount(newAccounts);
+
+      expect(account.address).toBe(EXPECTED_ACCOUNTS[5]);
+      expect(account.options.entropy.groupIndex).toBe(5);
+      expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/0'/0/5`);
+      expect(inner.hdPath).toBe(`m/44'/60'/0'/0`);
+    });
+
+    it('creates an account with legacy MEW path', async () => {
+      // Create wrapper with legacy MEW path pre-set to avoid HDKey reset
+      const inner = createInnerKeyring(`m/44'/60'/0'`);
+      const wrapper = new TrezorKeyringV2({
+        legacyKeyring: inner,
+        entropySource,
+      });
+
+      const newAccounts = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/3`),
+      );
+      const account = getFirstAccount(newAccounts);
+
+      expect(account.address).toBe(EXPECTED_ACCOUNTS[3]);
+      expect(account.options.entropy.groupIndex).toBe(3);
+      expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/0'/3`);
+      expect(inner.hdPath).toBe(`m/44'/60'/0'`);
+    });
+
+    it('returns existing account if path already exists', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      // Create first account
+      const firstResult = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/0/0`),
+      );
+      const firstAccount = getFirstAccount(firstResult);
+
+      // Try to create same path again
+      const secondResult = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/0/0`),
+      );
+      const secondAccount = getFirstAccount(secondResult);
+
+      expect(secondAccount).toBe(firstAccount);
+    });
+
+    it('throws error for invalid derivation path format', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      await expect(
+        wrapper.createAccounts(
+          // @ts-expect-error - intentionally testing invalid path
+          derivePathOptions('invalid-path'),
+        ),
+      ).rejects.toThrow(/Invalid derivation path/u);
+    });
+
+    it('throws error for unsupported HD path', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      // Valid format but unsupported base path for Trezor
+      await expect(
+        wrapper.createAccounts(derivePathOptions(`m/44'/100'/0'/0/0`)),
+      ).rejects.toThrow(/Invalid derivation path/u);
+    });
+
+    it('throws error for entropy source mismatch with derive-path', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      await expect(
+        wrapper.createAccounts(
+          derivePathOptions(`m/44'/60'/0'/0/0`, 'wrong-entropy'),
+        ),
+      ).rejects.toThrow(/Entropy source mismatch/u);
     });
   });
 
