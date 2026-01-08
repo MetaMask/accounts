@@ -24,7 +24,11 @@ import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
+import {
+  GetAppNameAndVersionResponse,
+  LedgerBridge,
+  LedgerBridgeOptions,
+} from './ledger-bridge';
 import { handleLedgerTransportError } from './ledger-error-handler';
 import { LedgerIframeBridgeOptions } from './ledger-iframe-bridge';
 
@@ -329,10 +333,7 @@ export class LedgerKeyring implements Keyring {
     return this.bridge.updateTransportMethod(transportType);
   }
 
-  async getAppNameAndVersion(): Promise<{
-    appName: string;
-    version: string;
-  }> {
+  async getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse> {
     try {
       return await this.bridge.getAppNameAndVersion();
     } catch (error: unknown) {

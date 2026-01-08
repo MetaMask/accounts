@@ -611,6 +611,44 @@ describe('LedgerKeyring', function () {
       });
     });
 
+    describe('getAppNameAndVersion', function () {
+      it('returns the app name and version from the bridge', async function () {
+        const expectedResponse = {
+          appName: 'Ethereum',
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(bridge, 'getAppNameAndVersion')
+          .mockResolvedValue(expectedResponse);
+
+        const result = await keyring.getAppNameAndVersion();
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(bridge.getAppNameAndVersion).toHaveBeenCalledTimes(1);
+        expect(result).toStrictEqual(expectedResponse);
+      });
+
+      it('throws an error when the bridge getAppNameAndVersion method throws an Error', async function () {
+        jest
+          .spyOn(bridge, 'getAppNameAndVersion')
+          .mockRejectedValue(new Error('Connection failed'));
+
+        await expect(keyring.getAppNameAndVersion()).rejects.toThrow(
+          'Connection failed',
+        );
+      });
+
+      it('throws the default error when the bridge getAppNameAndVersion method throws a non-Error object', async function () {
+        jest
+          .spyOn(bridge, 'getAppNameAndVersion')
+          .mockRejectedValue('some error');
+
+        await expect(keyring.getAppNameAndVersion()).rejects.toThrow(
+          'Ledger: Unknown error while getting app name and version',
+        );
+      });
+    });
+
     describe('signTransaction', function () {
       describe('using old versions of ethereumjs/tx', function () {
         it('passes serialized transaction to ledger and return signed tx', async function () {

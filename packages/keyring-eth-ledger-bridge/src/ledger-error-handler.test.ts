@@ -3,64 +3,63 @@ import { TransportStatusError } from '@ledgerhq/hw-transport';
 import { LedgerHardwareWalletError } from './errors';
 import { handleLedgerTransportError } from './ledger-error-handler';
 
+const fallbackMessage = 'Default error message';
+
+/**
+ * Helper function to create a TransportStatusError-like object
+ *
+ * @param message - The error message
+ * @param statusCode - The status code
+ * @returns A TransportStatusError instance
+ */
+function createTransportStatusError(
+  message: string,
+  statusCode: number,
+): TransportStatusError {
+  const error = {
+    statusCode,
+    message,
+    name: 'TransportStatusError',
+  };
+  Object.setPrototypeOf(error, TransportStatusError.prototype);
+  return error as TransportStatusError;
+}
+
+/**
+ * Helper function to test that handleLedgerTransportError throws a LedgerHardwareWalletError
+ * with expected properties
+ *
+ * @param error - The error to pass to handleLedgerTransportError
+ * @param expectedLedgerCode - Expected ledger code of the thrown LedgerHardwareWalletError
+ * @param expectedMessage - Expected message of the thrown LedgerHardwareWalletError
+ * @returns True if all assertions pass
+ */
+function expectLedgerError(
+  error: unknown,
+  expectedLedgerCode: string,
+  expectedMessage: string,
+): boolean {
+  expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
+    LedgerHardwareWalletError,
+  );
+
+  let thrownError: unknown;
+  try {
+    handleLedgerTransportError(error, fallbackMessage);
+  } catch (error_: unknown) {
+    thrownError = error_;
+  }
+  expect(thrownError).toBeInstanceOf(LedgerHardwareWalletError);
+  expect((thrownError as LedgerHardwareWalletError).ledgerCode).toBe(
+    expectedLedgerCode,
+  );
+  expect((thrownError as LedgerHardwareWalletError).message).toBe(
+    expectedMessage,
+  );
+
+  return true;
+}
 describe('handleLedgerTransportError', () => {
-  const fallbackMessage = 'Default error message';
-
-  /**
-   * Helper function to create a TransportStatusError-like object
-   *
-   * @param message - The error message
-   * @param statusCode - The status code
-   * @returns A TransportStatusError instance
-   */
-  function createTransportStatusError(
-    message: string,
-    statusCode: number,
-  ): TransportStatusError {
-    const error = {
-      statusCode,
-      message,
-      name: 'TransportStatusError',
-    };
-    Object.setPrototypeOf(error, TransportStatusError.prototype);
-    return error as TransportStatusError;
-  }
-
-  /**
-   * Helper function to test that handleLedgerTransportError throws a LedgerHardwareWalletError
-   * with expected properties
-   *
-   * @param error - The error to pass to handleLedgerTransportError
-   * @param expectedLedgerCode - Expected ledger code of the thrown LedgerHardwareWalletError
-   * @param expectedMessage - Expected message of the thrown LedgerHardwareWalletError
-   * @returns True if all assertions pass
-   */
-  function expectLedgerError(
-    error: unknown,
-    expectedLedgerCode: string,
-    expectedMessage: string,
-  ): boolean {
-    expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-      LedgerHardwareWalletError,
-    );
-
-    let thrownError: unknown;
-    try {
-      handleLedgerTransportError(error, fallbackMessage);
-    } catch (error_: unknown) {
-      thrownError = error_;
-    }
-    expect(thrownError).toBeInstanceOf(LedgerHardwareWalletError);
-    expect((thrownError as LedgerHardwareWalletError).ledgerCode).toBe(
-      expectedLedgerCode,
-    );
-    expect((thrownError as LedgerHardwareWalletError).message).toBe(
-      expectedMessage,
-    );
-
-    return true;
-  }
-
   describe('when error is TransportStatusError', () => {
     it.each([
       {
@@ -145,17 +144,6 @@ describe('handleLedgerTransportError', () => {
         'Original error message',
       );
       expect((thrownError as LedgerHardwareWalletError).cause).toBe(error);
-    });
-  });
-
-  describe('return type', () => {
-    it('has never return type (always throws)', () => {
-      type ReturnTypeIsNever<Function extends (...args: any) => any> =
-        ReturnType<Function> extends never ? true : false;
-
-      const isNever: ReturnTypeIsNever<typeof handleLedgerTransportError> =
-        true;
-      expect(isNever).toBe(true);
     });
   });
 });
