@@ -4,22 +4,19 @@ import {
   Severity as SeverityEnum,
   Category as CategoryEnum,
   RetryStrategy as RetryStrategyEnum,
+  HardwareWalletError,
 } from '@metamask/keyring-utils';
 
-import {
-  createLedgerError,
-  isKnownLedgerError,
-  LedgerHardwareWalletError,
-} from './errors';
+import { createLedgerError, isKnownLedgerError } from './errors';
 
 /**
  * Central error handler for Ledger TransportStatusError instances.
- * Converts Ledger transport errors into properly typed LedgerHardwareWalletError instances
+ * Converts Ledger transport errors into properly typed HardwareWalletError instances
  * using the error mapping system.
  *
  * @param error - The error to handle
  * @param fallbackMessage - Default error message if no specific handling is found
- * @throws LedgerHardwareWalletError with appropriate error details from mappings
+ * @throws HardwareWalletError with appropriate error details from mappings
  */
 export function handleLedgerTransportError(
   error: unknown,
@@ -34,37 +31,42 @@ export function handleLedgerTransportError(
     }
 
     // Unknown status code - create generic error with details
-    throw new LedgerHardwareWalletError(error.message, {
+    throw new HardwareWalletError(error.message, {
       code: ErrorCodeEnum.UNKNOWN_001,
       severity: SeverityEnum.ERROR,
       category: CategoryEnum.UNKNOWN,
       retryStrategy: RetryStrategyEnum.NO_RETRY,
+      userActionable: false,
+      userMessage: '',
       cause: error,
-      ledgerCode: statusCodeHex,
     });
   }
 
-  // Handle LedgerHardwareWalletError - pass through
-  if (error instanceof LedgerHardwareWalletError) {
+  // Handle HardwareWalletError - pass through
+  if (error instanceof HardwareWalletError) {
     throw error;
   }
 
   // For any other error type
   if (error instanceof Error) {
-    throw new LedgerHardwareWalletError(error.message, {
+    throw new HardwareWalletError(error.message, {
       code: ErrorCodeEnum.UNKNOWN_001,
       severity: SeverityEnum.ERROR,
       category: CategoryEnum.UNKNOWN,
       retryStrategy: RetryStrategyEnum.NO_RETRY,
+      userActionable: false,
+      userMessage: '',
       cause: error,
     });
   }
 
   // Unknown error type
-  throw new LedgerHardwareWalletError(fallbackMessage, {
+  throw new HardwareWalletError(fallbackMessage, {
     code: ErrorCodeEnum.UNKNOWN_001,
     severity: SeverityEnum.ERROR,
     category: CategoryEnum.UNKNOWN,
     retryStrategy: RetryStrategyEnum.NO_RETRY,
+    userActionable: false,
+    userMessage: '',
   });
 }

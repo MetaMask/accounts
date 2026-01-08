@@ -11,85 +11,6 @@ import {
   RetryStrategy as RetryStrategyEnum,
 } from '@metamask/keyring-utils';
 
-export type LedgerHardwareWalletErrorOptions = {
-  code: ErrorCode;
-  severity: Severity;
-  category: Category;
-  retryStrategy: RetryStrategy;
-  cause?: Error;
-  ledgerCode?: string;
-};
-
-export class LedgerHardwareWalletError extends HardwareWalletError {
-  public readonly ledgerCode?: string;
-
-  constructor(message: string, options: LedgerHardwareWalletErrorOptions) {
-    super(message, {
-      ...options,
-      userActionable: false,
-      userMessage: message,
-    });
-    this.name = 'LedgerHardwareWalletError';
-    this.ledgerCode = options.ledgerCode;
-
-    // Ensure proper prototype chain for instanceof checks
-    Object.setPrototypeOf(this, LedgerHardwareWalletError.prototype);
-  }
-
-  /**
-   * Creates a new error instance with an incremented retry count.
-   *
-   * @returns A new LedgerHardwareWalletError instance with the retry count incremented.
-   */
-  override withIncrementedRetryCount(): LedgerHardwareWalletError {
-    const errorCause =
-      'cause' in this && this.cause instanceof Error ? this.cause : undefined;
-
-    return new LedgerHardwareWalletError(this.message, {
-      code: this.code,
-      severity: this.severity,
-      category: this.category,
-      retryStrategy: this.retryStrategy,
-      cause: errorCause,
-      ledgerCode: this.ledgerCode,
-    });
-  }
-
-  /**
-   * Creates a new error instance with additional metadata.
-   *
-   * @param _additionalMetadata - Additional metadata to merge with existing metadata.
-   * @returns A new LedgerHardwareWalletError instance with the updated metadata.
-   */
-  override withMetadata(
-    _additionalMetadata: Record<string, unknown>,
-  ): LedgerHardwareWalletError {
-    const errorCause =
-      'cause' in this && this.cause instanceof Error ? this.cause : undefined;
-
-    return new LedgerHardwareWalletError(this.message, {
-      code: this.code,
-      severity: this.severity,
-      category: this.category,
-      retryStrategy: this.retryStrategy,
-      cause: errorCause,
-      ledgerCode: this.ledgerCode,
-    });
-  }
-
-  /**
-   * Serializes the error to a JSON-compatible object.
-   *
-   * @returns A JSON-compatible object representing the error.
-   */
-  override toJSON(): Record<string, unknown> {
-    return {
-      ...super.toJSON(),
-      ledgerCode: this.ledgerCode,
-    };
-  }
-}
-
 type LedgerErrorMapping = {
   customCode: ErrorCode;
   message: string;
@@ -116,7 +37,7 @@ type LedgerErrorMapping = {
 export function createLedgerError(
   ledgerErrorCode: string,
   context?: string,
-): LedgerHardwareWalletError {
+): HardwareWalletError {
   const mappings = HARDWARE_MAPPINGS.ledger.errorMappings as {
     [key: string]: LedgerErrorMapping;
   };
@@ -127,12 +48,13 @@ export function createLedgerError(
       ? `${errorMapping.message} (${context})`
       : errorMapping.message;
 
-    return new LedgerHardwareWalletError(message, {
+    return new HardwareWalletError(message, {
       code: errorMapping.customCode,
       severity: errorMapping.severity,
       category: errorMapping.category,
       retryStrategy: errorMapping.retryStrategy,
-      ledgerCode: ledgerErrorCode,
+      userActionable: errorMapping.userActionable,
+      userMessage: errorMapping.userMessage ?? '',
     });
   }
 
@@ -141,12 +63,13 @@ export function createLedgerError(
     ? `Unknown Ledger error: ${ledgerErrorCode} (${context})`
     : `Unknown Ledger error: ${ledgerErrorCode}`;
 
-  return new LedgerHardwareWalletError(fallbackMessage, {
+  return new HardwareWalletError(fallbackMessage, {
     code: ErrorCodeEnum.UNKNOWN_001,
     severity: SeverityEnum.ERROR,
     category: CategoryEnum.UNKNOWN,
     retryStrategy: RetryStrategyEnum.NO_RETRY,
-    ledgerCode: ledgerErrorCode,
+    userActionable: false,
+    userMessage: '',
   });
 }
 

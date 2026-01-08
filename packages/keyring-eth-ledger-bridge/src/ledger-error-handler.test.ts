@@ -4,9 +4,9 @@ import {
   Severity,
   Category,
   RetryStrategy,
+  HardwareWalletError,
 } from '@metamask/keyring-utils';
 
-import { LedgerHardwareWalletError } from './errors';
 import { handleLedgerTransportError } from './ledger-error-handler';
 
 const fallbackMessage = 'Default error message';
@@ -32,21 +32,16 @@ function createTransportStatusError(
 }
 
 /**
- * Helper function to test that handleLedgerTransportError throws a LedgerHardwareWalletError
+ * Helper function to test that handleLedgerTransportError throws a HardwareWalletError
  * with expected properties
  *
  * @param error - The error to pass to handleLedgerTransportError
- * @param expectedLedgerCode - Expected ledger code of the thrown LedgerHardwareWalletError
- * @param expectedMessage - Expected message of the thrown LedgerHardwareWalletError
+ * @param expectedMessage - Expected message of the thrown HardwareWalletError
  * @returns True if all assertions pass
  */
-function expectLedgerError(
-  error: unknown,
-  expectedLedgerCode: string,
-  expectedMessage: string,
-): boolean {
+function expectLedgerError(error: unknown, expectedMessage: string): boolean {
   expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-    LedgerHardwareWalletError,
+    HardwareWalletError,
   );
 
   let thrownError: unknown;
@@ -55,13 +50,8 @@ function expectLedgerError(
   } catch (error_: unknown) {
     thrownError = error_;
   }
-  expect(thrownError).toBeInstanceOf(LedgerHardwareWalletError);
-  expect((thrownError as LedgerHardwareWalletError).ledgerCode).toBe(
-    expectedLedgerCode,
-  );
-  expect((thrownError as LedgerHardwareWalletError).message).toBe(
-    expectedMessage,
-  );
+  expect(thrownError).toBeInstanceOf(HardwareWalletError);
+  expect((thrownError as HardwareWalletError).message).toBe(expectedMessage);
 
   return true;
 }
@@ -72,44 +62,37 @@ describe('handleLedgerTransportError', () => {
         tc: 'user rejection',
         inputMessage: 'User rejected',
         status: 0x6985,
-        expectedLedgerCode: '0x6985',
         expectedMessage: 'User rejected action on device',
       },
       {
         tc: 'blind signing',
         inputMessage: 'Blind signing required',
         status: 0x6a80,
-        expectedLedgerCode: '0x6a80',
         expectedMessage: 'Invalid data received',
       },
       {
         tc: 'device locked',
         inputMessage: 'Device locked',
         status: 0x5515,
-        expectedLedgerCode: '0x5515',
         expectedMessage: 'Device is locked',
       },
       {
         tc: 'app closed',
         inputMessage: 'App closed',
         status: 0x650f,
-        expectedLedgerCode: '0x650f',
         expectedMessage: 'App closed or connection issue',
       },
       {
         tc: 'unknown status codes by preserving original message',
         inputMessage: 'Unknown transport error',
         status: 0x9999,
-        expectedLedgerCode: '0x9999',
         expectedMessage: 'Unknown transport error',
       },
     ])(
       'handles status code $status ($tc)',
-      ({ inputMessage, status, expectedLedgerCode, expectedMessage }) => {
+      ({ inputMessage, status, expectedMessage }) => {
         const error = createTransportStatusError(inputMessage, status);
-        expect(
-          expectLedgerError(error, expectedLedgerCode, expectedMessage),
-        ).toBe(true);
+        expect(expectLedgerError(error, expectedMessage)).toBe(true);
       },
     );
   });
@@ -131,11 +114,11 @@ describe('handleLedgerTransportError', () => {
       expect(throwingFunction).toThrow(fallbackMessage);
     });
 
-    it('wraps Error instances in LedgerHardwareWalletError', () => {
+    it('wraps Error instances in HardwareWalletError', () => {
       const error = new Error('Original error message');
 
       expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-        LedgerHardwareWalletError,
+        HardwareWalletError,
       );
 
       let thrownError: unknown;
@@ -145,20 +128,21 @@ describe('handleLedgerTransportError', () => {
         thrownError = error_;
       }
 
-      expect(thrownError).toBeInstanceOf(LedgerHardwareWalletError);
-      expect((thrownError as LedgerHardwareWalletError).message).toBe(
+      expect(thrownError).toBeInstanceOf(HardwareWalletError);
+      expect((thrownError as HardwareWalletError).message).toBe(
         'Original error message',
       );
-      expect((thrownError as LedgerHardwareWalletError).cause).toBe(error);
+      expect((thrownError as HardwareWalletError).cause).toBe(error);
     });
 
-    it('passes through LedgerHardwareWalletError instances', () => {
-      const ledgerError = new LedgerHardwareWalletError('Ledger error', {
+    it('passes through HardwareWalletError instances', () => {
+      const ledgerError = new HardwareWalletError('Ledger error', {
         code: ErrorCode.USER_CANCEL_001,
         severity: Severity.ERROR,
         category: Category.USER_ACTION,
         retryStrategy: RetryStrategy.NO_RETRY,
-        ledgerCode: '0x6985',
+        userActionable: false,
+        userMessage: '',
       });
 
       expect(() =>
