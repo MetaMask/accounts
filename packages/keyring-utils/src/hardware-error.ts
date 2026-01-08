@@ -21,7 +21,6 @@ export type HardwareWalletErrorOptions = {
   userMessage: string;
   cause?: Error;
   metadata?: Record<string, unknown>;
-  documentationUrl?: string;
   retryCount?: number;
 };
 
@@ -44,8 +43,6 @@ export class HardwareWalletError extends Error {
 
   public readonly metadata: Record<string, unknown> | undefined;
 
-  public readonly documentationUrl: string | undefined;
-
   public readonly retryCount: number;
 
   public readonly cause: Error | undefined;
@@ -62,7 +59,6 @@ export class HardwareWalletError extends Error {
     this.userMessage = options.userMessage;
     this.timestamp = new Date();
     this.metadata = options.metadata;
-    this.documentationUrl = options.documentationUrl;
     this.retryCount = options.retryCount ?? 0;
     this.cause = options.cause;
 
@@ -133,9 +129,6 @@ export class HardwareWalletError extends Error {
     if (this.metadata !== undefined) {
       options.metadata = this.metadata;
     }
-    if (this.documentationUrl !== undefined) {
-      options.documentationUrl = this.documentationUrl;
-    }
 
     return new HardwareWalletError(this.message, options);
   }
@@ -163,9 +156,6 @@ export class HardwareWalletError extends Error {
     if (this.cause !== undefined) {
       options.cause = this.cause;
     }
-    if (this.documentationUrl !== undefined) {
-      options.documentationUrl = this.documentationUrl;
-    }
 
     return new HardwareWalletError(this.message, options);
   }
@@ -189,7 +179,6 @@ export class HardwareWalletError extends Error {
       userMessage: this.userMessage,
       timestamp: this.timestamp.toISOString(),
       metadata: this.metadata,
-      documentationUrl: this.documentationUrl,
       retryCount: this.retryCount,
       stack: this.stack,
     };
@@ -231,10 +220,6 @@ export class HardwareWalletError extends Error {
       `Timestamp: ${this.timestamp.toISOString()}`,
       `Retry Count: ${this.retryCount}`,
     ];
-
-    if (this.documentationUrl) {
-      details.push(`Documentation: ${this.documentationUrl}`);
-    }
 
     if (this.metadata && Object.keys(this.metadata).length > 0) {
       details.push(`Metadata: ${JSON.stringify(this.metadata, null, 2)}`);
