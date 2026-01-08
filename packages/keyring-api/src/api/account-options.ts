@@ -90,8 +90,10 @@ export type KeyringAccountEntropyPrivateKeyOptions = Infer<
  * This is an opaque type where the entropy source is managed internally by the keyring.
  * It behaves similarly to a private key import but allows keyrings to define their own
  * entropy management strategy.
+ *
+ * We use `type` instead of `object` here to allow extra, keyring-specific properties.
  */
-export const KeyringAccountEntropyCustomOptionsStruct = object({
+export const KeyringAccountEntropyCustomOptionsStruct = type({
   /**
    * Indicates that the account was created with custom, keyring-specific entropy.
    */

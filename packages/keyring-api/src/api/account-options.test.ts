@@ -34,7 +34,10 @@ describe('api', () => {
         exportable: true,
       },
       {
-        entropy: { type: KeyringAccountEntropyTypeOption.Custom },
+        entropy: {
+          type: KeyringAccountEntropyTypeOption.Custom,
+          customProperty: 123,
+        },
         exportable: false,
       },
       {

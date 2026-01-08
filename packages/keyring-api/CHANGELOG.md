@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add support for custom capabilities and entropy types in `KeyringV2` ([#415](https://github.com/MetaMask/accounts/pull/415))
-  - Add `custom` capability to `KeyringCapabilities` for keyrings with non-standard method options.
+  - Add `custom` capability to `KeyringCapabilities` for keyrings with non-standard `createAccounts` method.
   - Add `KeyringAccountEntropyTypeOption.Custom` for custom/opaque entropy sources.
   - Add `AccountCreationType.Custom` and `CreateAccountCustomOptions` for custom account creation flows.
 - Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
