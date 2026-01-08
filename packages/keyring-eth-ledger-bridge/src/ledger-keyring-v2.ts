@@ -138,6 +138,8 @@ export class LedgerKeyringV2
       // we can safely cast them to string.
       // This is necessary to get 100% code coverage.
       return {
+        // Here, we use a derivation path prefix for `inner.setHdPath`
+        // (prefix + index derivation mode).
         basePath: indexAtEndMatch[1] as string,
         index: parseInt(indexAtEndMatch[2] as string, 10),
       };
