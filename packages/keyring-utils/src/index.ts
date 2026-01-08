@@ -5,3 +5,7 @@ export * from './scopes';
 export * from './superstruct';
 export * from './JsonRpcRequest';
 export type * from './keyring';
+export * from './hardware-errors-enums';
+export * from './hardware-error-mappings';
+export * from './hardware-error-codes';
+export * from './hardware-error';
