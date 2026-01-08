@@ -245,6 +245,11 @@ export class TrezorKeyringV2
         derivationPath = options.derivationPath;
       } else {
         // derive-index uses BIP-44 standard path by default
+        if (options.groupIndex < 0) {
+          throw new Error(
+            `Invalid groupIndex: ${options.groupIndex}. Must be a non-negative integer.`,
+          );
+        }
         targetIndex = options.groupIndex;
         basePath = BIP44_HD_PATH_PREFIX;
         derivationPath = `${basePath}/${targetIndex}`;
@@ -261,7 +266,13 @@ export class TrezorKeyringV2
         return [existingAccount];
       }
 
-      // Derive the account at the specified index
+      // Derive the account at the specified index.
+      // Note: setHdPath resets the inner keyring's accounts array when the path changes.
+      // This mirrors the production behavior where switching HD paths (via the dropdown)
+      // resets the entire account list. The TrezorKeyring operates on a single path at
+      // a time - accounts from different paths cannot coexist. The V2 registry tracks
+      // accounts independently, but getAccounts() relies on the inner keyring's account
+      // list, so accounts from a previous path would become inaccessible after switching.
       this.inner.setHdPath(basePath);
       this.inner.setAccountToUnlock(targetIndex);
       const [newAddress] = await this.inner.addAccounts(1);

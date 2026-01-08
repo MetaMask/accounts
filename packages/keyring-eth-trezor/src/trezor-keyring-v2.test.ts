@@ -410,6 +410,16 @@ describe('TrezorKeyringV2', () => {
       ).rejects.toThrow(/Entropy source mismatch/u);
     });
 
+    it('throws error for negative groupIndex', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      await expect(
+        wrapper.createAccounts(deriveIndexOptions(-1)),
+      ).rejects.toThrow(
+        'Invalid groupIndex: -1. Must be a non-negative integer.',
+      );
+    });
+
     it('allows deriving accounts at any index (non-sequential)', async () => {
       const { wrapper } = createEmptyWrapper();
 
