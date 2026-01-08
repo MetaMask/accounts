@@ -66,11 +66,7 @@ export const KeyringCapabilitiesStruct = object({
   custom: exactOptional(
     partial(
       object({
-        deserialize: boolean(),
-        getAccount: boolean(),
         createAccounts: boolean(),
-        deleteAccount: boolean(),
-        exportAccount: boolean(),
       }),
     ),
   ),

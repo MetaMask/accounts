@@ -82,7 +82,7 @@ expectAssignable<KeyringCapabilities>({
   },
 });
 
-expectAssignable<KeyringCapabilities>({
+expectNotAssignable<KeyringCapabilities>({
   scopes: ['eip155:1'],
   custom: {
     createAccounts: true,

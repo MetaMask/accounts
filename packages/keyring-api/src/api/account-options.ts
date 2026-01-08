@@ -119,6 +119,8 @@ export const KeyringAccountEntropyOptionsStruct = selectiveUnion(
         return KeyringAccountEntropyPrivateKeyOptionsStruct;
       case KeyringAccountEntropyTypeOption.Custom:
         return KeyringAccountEntropyCustomOptionsStruct;
+      case KeyringAccountEntropyTypeOption.Mnemonic:
+        return KeyringAccountEntropyMnemonicOptionsStruct;
       default:
         return KeyringAccountEntropyMnemonicOptionsStruct;
     }

@@ -1,9 +1,9 @@
-import { literal, object, type Infer } from '@metamask/superstruct';
+import { literal, type, type Infer } from '@metamask/superstruct';
 
 /**
  * Struct for {@link CreateAccountCustomOptions}.
  */
-export const CreateAccountCustomOptionsStruct = object({
+export const CreateAccountCustomOptionsStruct = type({
   /**
    * The type of the options.
    */
