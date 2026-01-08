@@ -804,11 +804,11 @@ export const HARDWARE_MAPPINGS = {
       },
     },
     default: {
-      custom_code: ErrorCode.UNKNOWN_001,
+      customCode: ErrorCode.UNKNOWN_001,
       message: 'Unknown Trezor error',
       severity: Severity.ERROR,
       category: Category.UNKNOWN,
-      retry_strategy: RetryStrategy.NO_RETRY,
+      retryStrategy: RetryStrategy.NO_RETRY,
       userActionable: false,
       userMessage:
         'An unexpected error occurred. Please try again or contact support.',

@@ -454,7 +454,7 @@ describe('HARDWARE_MAPPINGS', () => {
     it('should have default error mapping', () => {
       const { default: defaultMapping } = HARDWARE_MAPPINGS.trezor;
       expect(defaultMapping).toBeDefined();
-      expect(defaultMapping.custom_code).toBe(ErrorCode.UNKNOWN_001);
+      expect(defaultMapping.customCode).toBe(ErrorCode.UNKNOWN_001);
       expect(defaultMapping.category).toBe(Category.UNKNOWN);
     });
 
