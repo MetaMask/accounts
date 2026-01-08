@@ -124,6 +124,8 @@ export class LedgerKeyringV2
     const ledgerLiveMatch = derivationPath.match(LEDGER_LIVE_PATH_PATTERN);
     if (ledgerLiveMatch?.[1]) {
       return {
+        // This constant is used by `inner.setHdPath` to determine which derivation
+        // mode we should use (Ledger Live derivation mode here).
         basePath: LEDGER_LIVE_HD_PATH,
         index: parseInt(ledgerLiveMatch[1], 10),
       };
@@ -138,6 +140,8 @@ export class LedgerKeyringV2
       const basePath = indexAtEndMatch[1] as string;
       const index = parseInt(indexAtEndMatch[2] as string, 10);
       return {
+        // Here, we use a derivation path prefix for `inner.setHdPath`
+        // here (prefix + index derivation mode).
         basePath,
         index,
       };
