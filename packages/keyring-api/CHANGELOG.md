@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
+  - Provides common Ethereum signing method routing (`submitRequest`) for all Ethereum-based keyrings.
+- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)), ([#410](https://github.com/MetaMask/accounts/pull/410))
+
+### Changed
+
+- Refine `EthAddressStruct` in order to make it compatible with the `Hex` type from `@metamask/utils` ([#405](https://github.com/MetaMask/accounts/pull/405))
+
 ## [21.3.0]
 
 ### Added
