@@ -140,10 +140,8 @@ export class LedgerKeyringV2
       const basePath = indexAtEndMatch[1] as string;
       const index = parseInt(indexAtEndMatch[2] as string, 10);
       return {
-        // Here, we use a derivation path prefix for `inner.setHdPath`
-        // here (prefix + index derivation mode).
-        basePath,
-        index,
+        basePath: indexAtEndMatch[1] as string,
+        index: parseInt(indexAtEndMatch[2] as string, 10),
       };
     }
 
