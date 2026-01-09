@@ -45,6 +45,12 @@ export enum ErrorCode {
   ProtoCommandError = 5001,
   ProtoMessageError = 5002,
 
+  // Device Stae
+  DeviceStateBlindSignNotSupported = 6001,
+  DeviceStateOnlyV4Supported = 6002,
+  DeviceStateEthAppClosed = 6003,
+  DeviceStateEthAppOutOfDate = 6004,
+
   // Transaction
   TxInsufficientFunds = 10000,
 

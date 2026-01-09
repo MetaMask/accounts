@@ -433,9 +433,7 @@ describe('HARDWARE_MAPPINGS', () => {
       );
 
       criticalMappings.forEach((mapping) => {
-        expect([RetryStrategy.NoRetry, RetryStrategy.Retry]).toContain(
-          mapping.retryStrategy,
-        );
+        expect(mapping.retryStrategy).toBe(RetryStrategy.NoRetry);
       });
     });
   });
