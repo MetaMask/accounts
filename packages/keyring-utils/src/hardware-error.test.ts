@@ -8,7 +8,7 @@ import {
 
 describe('HardwareWalletError', () => {
   const mockOptions = {
-    code: ErrorCode.UserCancel001,
+    code: ErrorCode.UserRejected,
     severity: Severity.Warning,
     category: Category.UserAction,
     retryStrategy: RetryStrategy.Retry,
@@ -22,7 +22,7 @@ describe('HardwareWalletError', () => {
 
       expect(error.message).toBe('Test error');
       expect(error.name).toBe('HardwareWalletError');
-      expect(error.code).toBe(ErrorCode.UserCancel001);
+      expect(error.code).toBe(ErrorCode.UserRejected);
       expect(error.severity).toBe(Severity.Warning);
       expect(error.category).toBe(Category.UserAction);
       expect(error.retryStrategy).toBe(RetryStrategy.Retry);
@@ -233,7 +233,7 @@ describe('HardwareWalletError', () => {
       expect(json.id).toBe(error.id);
       expect(json.name).toBe('HardwareWalletError');
       expect(json.message).toBe('Test error');
-      expect(json.code).toBe(ErrorCode.UserCancel001);
+      expect(json.code).toBe(ErrorCode.UserRejected);
       expect(json.severity).toBe(Severity.Warning);
       expect(json.category).toBe(Category.UserAction);
       expect(json.retryStrategy).toBe(RetryStrategy.Retry);
@@ -281,20 +281,32 @@ describe('HardwareWalletError', () => {
       const result = error.toString();
 
       expect(result).toBe(
-        'HardwareWalletError [UserCancel001]: Transaction was rejected',
+        'HardwareWalletError [UserRejected:2000]: Transaction was rejected',
       );
     });
 
     it('should work with different error codes and messages', () => {
       const error = new HardwareWalletError('Internal error', {
         ...mockOptions,
-        code: ErrorCode.SysInternal001,
+        code: ErrorCode.Unknown,
         userMessage: 'An internal error occurred',
       });
       const result = error.toString();
 
       expect(result).toBe(
-        'HardwareWalletError [SysInternal001]: An internal error occurred',
+        'HardwareWalletError [Unknown:99999]: An internal error occurred',
+      );
+    });
+
+    it('should fall back to UNKNOWN name for unmapped numeric codes', () => {
+      const error = new HardwareWalletError('Weird error', {
+        ...mockOptions,
+        code: 123456 as unknown as ErrorCode,
+        userMessage: 'Something strange happened',
+      });
+
+      expect(error.toString()).toBe(
+        'HardwareWalletError [UNKNOWN:123456]: Something strange happened',
       );
     });
   });
@@ -307,7 +319,7 @@ describe('HardwareWalletError', () => {
 
       const result = error.toDetailedString();
 
-      expect(result).toContain('HardwareWalletError [UserCancel001]');
+      expect(result).toContain('HardwareWalletError [UserRejected:2000]');
       expect(result).toContain('Message: Test error');
       expect(result).toContain('User Message: Transaction was rejected');
       expect(result).toContain('Severity: Warning');
@@ -363,7 +375,7 @@ describe('HardwareWalletError', () => {
   describe('error scenarios', () => {
     it('should handle critical authentication errors', () => {
       const error = new HardwareWalletError('Device blocked', {
-        code: ErrorCode.AuthLock002,
+        code: ErrorCode.AuthDeviceBlocked,
         severity: Severity.Critical,
         category: Category.Authentication,
         retryStrategy: RetryStrategy.NoRetry,
@@ -378,7 +390,7 @@ describe('HardwareWalletError', () => {
 
     it('should handle retryable connection errors', () => {
       const error = new HardwareWalletError('Connection timeout', {
-        code: ErrorCode.ConnTimeout001,
+        code: ErrorCode.ConnTimeout,
         severity: Severity.Err,
         category: Category.Connection,
         retryStrategy: RetryStrategy.ExponentialBackoff,
@@ -393,7 +405,7 @@ describe('HardwareWalletError', () => {
 
     it('should handle user action warnings', () => {
       const error = new HardwareWalletError('User confirmation required', {
-        code: ErrorCode.UserConfirm001,
+        code: ErrorCode.UserConfirmationRequired,
         severity: Severity.Warning,
         category: Category.UserAction,
         retryStrategy: RetryStrategy.Retry,

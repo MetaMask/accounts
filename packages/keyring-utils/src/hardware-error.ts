@@ -1,5 +1,5 @@
-import type { ErrorCode, Category } from './hardware-errors-enums';
-import { Severity, RetryStrategy } from './hardware-errors-enums';
+import type { Category } from './hardware-errors-enums';
+import { ErrorCode, Severity, RetryStrategy } from './hardware-errors-enums';
 
 /**
  * Generates a unique error ID using timestamp and random values.
@@ -10,6 +10,17 @@ function generateErrorId(): string {
   const timestamp = Date.now().toString(36);
   const randomPart = Math.random().toString(36).substring(2, 9);
   return `err_${timestamp}_${randomPart}`;
+}
+
+/**
+ * Gets the human-readable name for an error code using enum reverse mapping.
+ *
+ * @param code - The error code enum value.
+ * @returns The string name of the error code, or 'UNKNOWN' if not found.
+ */
+function getErrorCodeName(code: ErrorCode): string {
+  // Numeric enums have a reverse mapping at runtime: ErrorCode[1000] => "AUTH_FAILED"
+  return ErrorCode[code] ?? 'UNKNOWN';
 }
 
 export type HardwareWalletErrorOptions = {
@@ -158,7 +169,8 @@ export class HardwareWalletError extends Error {
    * @returns A user-friendly string representation of the error.
    */
   toString(): string {
-    return `${this.name} [${this.code}]: ${this.userMessage}`;
+    const codeName = getErrorCodeName(this.code);
+    return `${this.name} [${codeName}:${this.code}]: ${this.userMessage}`;
   }
 
   /**
@@ -167,8 +179,9 @@ export class HardwareWalletError extends Error {
    * @returns A detailed string representation of the error for debugging.
    */
   toDetailedString(): string {
+    const codeName = getErrorCodeName(this.code);
     const details = [
-      `${this.name} [${this.code}]`,
+      `${this.name} [${codeName}:${this.code}]`,
       `Message: ${this.message}`,
       `User Message: ${this.userMessage}`,
       `Severity: ${this.severity}`,

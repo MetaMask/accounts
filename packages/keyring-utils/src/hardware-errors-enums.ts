@@ -1,91 +1,55 @@
 // Error Code Enum
 export enum ErrorCode {
-  // Authentication & Security
-  AuthPin001 = 'AuthPin001',
-  AuthPin002 = 'AuthPin002',
-  AuthPin003 = 'AuthPin003',
-  AuthPin004 = 'AuthPin004',
-  AuthLock001 = 'AuthLock001',
-  AuthLock002 = 'AuthLock002',
-  AuthSec001 = 'AuthSec001',
-  AuthSec002 = 'AuthSec002',
-  AuthWipe001 = 'AuthWipe001',
+  // Success
+  Success = 0,
 
-  // User Action
-  UserCancel001 = 'UserCancel001',
-  UserCancel002 = 'UserCancel002',
-  UserInput001 = 'UserInput001',
-  UserConfirm001 = 'UserConfirm001',
+  // Authentication
+  AuthFailed = 1000,
+  AuthIncorrectPin = 1001,
+  AuthPinAttemptsRemaining = 1002,
+  AuthPinCancelled = 1003,
+  AuthPinMismatch = 1004,
+  AuthDeviceLocked = 1010,
+  AuthDeviceBlocked = 1011,
+  AuthSecurityCondition = 1020,
+  AuthWipeCodeMismatch = 1030,
 
-  // Device State
-  DeviceState001 = 'DeviceState001',
-  DeviceState002 = 'DeviceState002',
-  DeviceState003 = 'DeviceState003',
-  DeviceState004 = 'DeviceState004',
-  DeviceState005 = 'DeviceState005',
-  DeviceDetect001 = 'DeviceDetect001',
-  DeviceCap001 = 'DeviceCap001',
-  DeviceCap002 = 'DeviceCap002',
-  DeviceMode001 = 'DeviceMode001',
+  // User action
+  UserRejected = 2000,
+  UserCancelled = 2001,
+  UserConfirmationRequired = 2002,
+  UserInputRequired = 2003,
 
-  // Connection & Transport
-  ConnTransport001 = 'ConnTransport001',
-  ConnClosed001 = 'ConnClosed001',
-  ConnIframe001 = 'ConnIframe001',
-  ConnSuite001 = 'ConnSuite001',
-  ConnTimeout001 = 'ConnTimeout001',
-  ConnBlocked001 = 'ConnBlocked001',
+  // Device state
+  DeviceNotReady = 3000,
+  DeviceInvalidSession = 3001,
+  DeviceDisconnected = 3003,
+  DeviceUsedElsewhere = 3004,
+  DeviceCallInProgress = 3005,
+  DeviceNotFound = 3010,
+  DeviceMultipleConnected = 3011,
+  DeviceMissingCapability = 3020,
+  DeviceBtcOnlyFirmware = 3021,
+  DeviceIncompatibleMode = 3030,
 
-  // Data & Validation
-  DataFormat001 = 'DataFormat001',
-  DataFormat002 = 'DataFormat002',
-  DataFormat003 = 'DataFormat003',
-  DataMissing001 = 'DataMissing001',
-  DataValidation001 = 'DataValidation001',
-  DataValidation002 = 'DataValidation002',
-  DataNotfound001 = 'DataNotfound001',
-  DataNotfound002 = 'DataNotfound002',
-  DataNotfound003 = 'DataNotfound003',
+  // Connection & transport
+  ConnTransportMissing = 4000,
+  ConnClosed = 4001,
+  ConnTimeout = 4002,
+  ConnBlocked = 4003,
+  ConnIframeMissing = 4010,
+  ConnSuiteMissing = 4011,
 
-  // Cryptographic Operations
-  CryptoSign001 = 'CryptoSign001',
-  CryptoAlgo001 = 'CryptoAlgo001',
-  CryptoKey001 = 'CryptoKey001',
-  CryptoEntropy001 = 'CryptoEntropy001',
-
-  // System & Internal
-  SysInternal001 = 'SysInternal001',
-  SysMemory001 = 'SysMemory001',
-  SysMemory002 = 'SysMemory002',
-  SysFile001 = 'SysFile001',
-  SysFile002 = 'SysFile002',
-  SysLicense001 = 'SysLicense001',
-  SysFirmware001 = 'SysFirmware001',
-  SysFirmware002 = 'SysFirmware002',
-
-  // Command & Protocol
-  ProtoCmd001 = 'ProtoCmd001',
-  ProtoCmd002 = 'ProtoCmd002',
-  ProtoCmd003 = 'ProtoCmd003',
-  ProtoMsg001 = 'ProtoMsg001',
-  ProtoParam001 = 'ProtoParam001',
-
-  // Configuration & Initialization
-  ConfigInit001 = 'ConfigInit001',
-  ConfigInit002 = 'ConfigInit002',
-  ConfigInit003 = 'ConfigInit003',
-  ConfigPerm001 = 'ConfigPerm001',
-  ConfigMethod001 = 'ConfigMethod001',
+  // Protocol
+  ProtoUnexpectedMessage = 5000,
+  ProtoCommandError = 5001,
+  ProtoMessageError = 5002,
 
   // Transaction
-  TxFunds001 = 'TxFunds001',
-  TxFail001 = 'TxFail001',
+  TxInsufficientFunds = 10000,
 
-  // Success
-  Success000 = 'Success000',
-
-  // Unknown/Fallback
-  Unknown001 = 'Unknown001',
+  // Unknown/fallback
+  Unknown = 99999,
 }
 
 // Severity Enum
@@ -100,15 +64,10 @@ export enum Severity {
 export enum Category {
   Success = 'Success',
   Authentication = 'Authentication',
-  DataValidation = 'DataValidation',
   Protocol = 'Protocol',
-  System = 'System',
-  Cryptography = 'Cryptography',
-  Configuration = 'Configuration',
   Connection = 'Connection',
   UserAction = 'UserAction',
   DeviceState = 'DeviceState',
-  Transaction = 'Transaction',
   Unknown = 'Unknown',
 }
 
