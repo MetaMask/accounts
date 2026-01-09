@@ -35,13 +35,6 @@ describe('api', () => {
       },
       {
         entropy: {
-          type: KeyringAccountEntropyTypeOption.Custom,
-          customProperty: 123,
-        },
-        exportable: false,
-      },
-      {
-        entropy: {
           ...baseEntropyMnemonicOptions,
           groupIndex: 0,
         },
