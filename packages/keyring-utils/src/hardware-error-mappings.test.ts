@@ -392,33 +392,27 @@ describe('HARDWARE_MAPPINGS', () => {
       const ledgerMappings = Object.values(
         HARDWARE_MAPPINGS.ledger.errorMappings,
       ).filter(
-        (mapping): mapping is typeof mapping & { userMessage: string } =>
-          mapping.userActionable &&
-          mapping.severity !== Severity.Info &&
-          'userMessage' in mapping &&
-          typeof mapping.userMessage === 'string' &&
-          mapping.userMessage.length > 0,
+        (mapping) =>
+          mapping.userActionable && mapping.severity !== Severity.Info,
       );
 
       ledgerMappings.forEach((mapping) => {
-        expect(mapping.userMessage).toBeDefined();
-        expect(mapping.userMessage.length).toBeGreaterThan(0);
+        expect('userMessage' in mapping).toBe(true);
+        expect(typeof (mapping as any).userMessage).toBe('string');
+        expect((mapping as any).userMessage.length).toBeGreaterThan(0);
       });
 
       const trezorMappings = Object.values(
         HARDWARE_MAPPINGS.trezor.errorMappings,
       ).filter(
-        (mapping): mapping is typeof mapping & { userMessage: string } =>
-          mapping.userActionable &&
-          mapping.severity !== Severity.Info &&
-          'userMessage' in mapping &&
-          typeof mapping.userMessage === 'string' &&
-          mapping.userMessage.length > 0,
+        (mapping) =>
+          mapping.userActionable && mapping.severity !== Severity.Info,
       );
 
       trezorMappings.forEach((mapping) => {
-        expect(mapping.userMessage).toBeDefined();
-        expect(mapping.userMessage.length).toBeGreaterThan(0);
+        expect('userMessage' in mapping).toBe(true);
+        expect(typeof (mapping as any).userMessage).toBe('string');
+        expect((mapping as any).userMessage.length).toBeGreaterThan(0);
       });
     });
 

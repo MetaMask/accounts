@@ -63,6 +63,7 @@ export const HARDWARE_MAPPINGS = {
         category: Category.Authentication,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
+        userMessage: 'Please update your Ledger app to continue.',
       },
       '0x9808': {
         customCode: ErrorCode.AuthFailed,
