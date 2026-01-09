@@ -6,17 +6,30 @@ import type {
 } from './wallet';
 import type { Bip44Account } from '../bip44';
 import type { AccountGroup, AccountGroupType } from '../group';
-import { AccountWalletType } from '../wallet';
-
-const MULTICHAIN_ACCOUNT_GROUP_ID_REGEX = new RegExp(
-  `^${AccountWalletType.Entropy}:.*/(?<groupIndex>\\d+)$`,
-  'u',
-);
+import type { AccountWalletType } from '../wallet';
 
 /**
  * Multichain account ID.
  */
 export type MultichainAccountGroupId = `${MultichainAccountWalletId}/${number}`; // Use number for the account group index.
+
+/**
+ * Regex to validate a valid multichain account group ID.
+ */
+export const MULTICHAIN_ACCOUNT_GROUP_ID_REGEX =
+  /^(?<walletId>(?<walletType>entropy):(?<walletSubId>.+))\/(?<groupIndex>[0-9]+)$/u;
+
+/**
+ * Parsed account group ID with its parsed wallet component and its sub-ID.
+ */
+export type ParsedMultichainAccountGroupId = {
+  wallet: {
+    id: MultichainAccountWalletId;
+    type: AccountWalletType.Entropy;
+    subId: string;
+  };
+  groupIndex: number;
+};
 
 /**
  * A multichain account that holds multiple accounts.
@@ -72,20 +85,45 @@ export function isMultichainAccountGroupId(
 }
 
 /**
+ * Parse a multichain account group ID to an object containing a multichain
+ * wallet ID information (wallet type and wallet sub-ID), as well as
+ * multichain account group ID information (group index).
+ *
+ * @param groupId - The multichain account group ID to validate and parse.
+ * @returns The parsed multichain account group ID.
+ * @throws When the group ID format is invalid.
+ */
+export function parseMultichainAccountGroupId(
+  groupId: string,
+): ParsedMultichainAccountGroupId {
+  const match = MULTICHAIN_ACCOUNT_GROUP_ID_REGEX.exec(groupId);
+  if (!match?.groups) {
+    throw new Error(`Invalid multichain account group ID: "${groupId}"`);
+  }
+
+  const walletId = match.groups.walletId as MultichainAccountWalletId;
+  const walletType = match.groups.walletType as AccountWalletType.Entropy;
+  const walletSubId = match.groups.walletSubId as string;
+
+  return {
+    wallet: {
+      id: walletId,
+      type: walletType,
+      subId: walletSubId,
+    },
+    groupIndex: Number(match.groups.groupIndex),
+  };
+}
+
+/**
  * Gets the multichain account index from an account group ID.
  *
  * @param id - Multichain account ID.
  * @returns The multichain account index if extractable, undefined otherwise.
+ * @throws When the group ID format is invalid.
  */
 export function getGroupIndexFromMultichainAccountGroupId(
   id: MultichainAccountGroupId,
 ): number {
-  const matched = id.match(MULTICHAIN_ACCOUNT_GROUP_ID_REGEX);
-  if (matched?.groups?.groupIndex === undefined) {
-    // Unable to extract group index, even though, type wise, this should not
-    // be possible!
-    throw new Error('Unable to extract group index');
-  }
-
-  return Number(matched.groups.groupIndex);
+  return parseMultichainAccountGroupId(id).groupIndex;
 }

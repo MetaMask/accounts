@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `EthKeyring` alias export for the legacy `Keyring` type ([#404](https://github.com/MetaMask/accounts/pull/404))
+
 ## [3.1.0]
 
 ### Added

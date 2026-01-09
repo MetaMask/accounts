@@ -22,7 +22,12 @@ export const TrxAddressStruct = definePattern(
  * Supported TRON methods.
  */
 export enum TrxMethod {
+  SignMessage = 'signMessage',
+  SignTransaction = 'signTransaction',
+
+  // @deprecated Use `SignMessage` instead.
   SignMessageV2 = 'signMessageV2',
+  // @deprecated Not supported anymore.
   VerifyMessageV2 = 'verifyMessageV2',
 }
 

@@ -69,8 +69,15 @@ export const BtcP2trAddressStruct = refine(
  * Supported Bitcoin methods.
  */
 export enum BtcMethod {
-  // General transaction methods
-  SendBitcoin = 'sendBitcoin',
+  SignPsbt = 'signPsbt',
+  ComputeFee = 'computeFee',
+  FillPsbt = 'fillPsbt',
+  BroadcastPsbt = 'broadcastPsbt',
+  SendTransfer = 'sendTransfer',
+  GetUtxo = 'getUtxo',
+  ListUtxos = 'listUtxos',
+  PublicDescriptor = 'publicDescriptor',
+  SignMessage = 'signMessage',
 }
 
 const BtcAccountStruct = object({
@@ -84,7 +91,7 @@ const BtcAccountStruct = object({
   /**
    * Account supported methods.
    */
-  methods: array(enums([`${BtcMethod.SendBitcoin}`])),
+  methods: array(enums(Object.values(BtcMethod))),
 });
 
 export const BtcP2pkhAccountStruct = object({

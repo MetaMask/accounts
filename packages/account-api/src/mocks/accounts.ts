@@ -15,6 +15,7 @@ import {
 } from '@metamask/keyring-api';
 import { v4 as uuid } from 'uuid';
 
+import { MOCK_ENTROPY_SOURCE_1, MOCK_ENTROPY_SOURCE_2 } from './keyrings';
 import { isBip44Account, type Bip44Account } from '../api';
 
 const ETH_EOA_METHODS = [
@@ -27,27 +28,6 @@ const ETH_EOA_METHODS = [
 ] as const;
 
 const SOL_METHODS = Object.values(SolMethod);
-
-export const MOCK_SNAP_1 = {
-  id: 'local:mock-snap-id-1',
-  name: 'Mock Snap 1',
-  enabled: true,
-  manifest: {
-    proposedName: 'Mock Snap 1',
-  },
-};
-
-export const MOCK_SNAP_2 = {
-  id: 'local:mock-snap-id-2',
-  name: 'Mock Snap 2',
-  enabled: true,
-  manifest: {
-    proposedName: 'Mock Snap 2',
-  },
-};
-
-export const MOCK_ENTROPY_SOURCE_1 = 'mock-keyring-id-1';
-export const MOCK_ENTROPY_SOURCE_2 = 'mock-keyring-id-2';
 
 export const MOCK_HD_ACCOUNT_1: Bip44Account<KeyringAccount> = {
   id: 'mock-id-1',
@@ -101,7 +81,7 @@ export const MOCK_SOL_ACCOUNT_1: Bip44Account<KeyringAccount> = {
 export const MOCK_BTC_P2WPKH_ACCOUNT_1: Bip44Account<KeyringAccount> = {
   id: 'b0f030d8-e101-4b5a-a3dd-13f8ca8ec1db',
   type: BtcAccountType.P2wpkh,
-  methods: [BtcMethod.SendBitcoin],
+  methods: Object.values(BtcMethod),
   address: 'bc1qx8ls07cy8j8nrluy2u0xwn7gh8fxg0rg4s8zze',
   options: {
     entropy: {
@@ -118,7 +98,7 @@ export const MOCK_BTC_P2WPKH_ACCOUNT_1: Bip44Account<KeyringAccount> = {
 export const MOCK_BTC_P2TR_ACCOUNT_1: Bip44Account<KeyringAccount> = {
   id: 'a20c2e1a-6ff6-40ba-b8e0-ccdb6f9933bb',
   type: BtcAccountType.P2tr,
-  methods: [BtcMethod.SendBitcoin],
+  methods: Object.values(BtcMethod),
   address: 'tb1p5cyxnuxmeuwuvkwfem96lxx9wex9kkf4mt9ll6q60jfsnrzqg4sszkqjnh',
   options: {
     entropy: {
