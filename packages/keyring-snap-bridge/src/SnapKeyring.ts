@@ -33,7 +33,7 @@ import type {
 } from '@metamask/keyring-internal-api';
 import {
   KeyringInternalFeature,
-  toKeyringRequestV1,
+  toLegacyKeyringRequest,
 } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import {
@@ -1090,7 +1090,7 @@ export class SnapKeyring {
         response = await client.submitRequest(request);
       } else {
         // V1 keyring request did not support the `origin` field.
-        response = await client.submitRequestV1(toKeyringRequestV1(request));
+        response = await client.submitRequestV1(toLegacyKeyringRequest(request));
       }
 
       // Some methods, like the ones used to prepare and patch user operations,

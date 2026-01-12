@@ -8,18 +8,18 @@ import { omit, type Infer } from '@metamask/superstruct';
 /**
  * Keyring request (v1).
  */
-export const KeyringRequestV1Struct = omit(KeyringRequestStruct, ['origin']);
+export const LegacyKeyringRequestStruct = omit(KeyringRequestStruct, ['origin']);
 
-export type KeyringRequestV1 = Infer<typeof KeyringRequestV1Struct>;
+export type LegacyKeyringRequest = Infer<typeof LegacyKeyringRequestStruct>;
 
 /**
  * Response to a call to `submitRequest` (v1).
  */
-export const KeyringResponseV1Struct = KeyringResponseStruct;
+export const LegacyKeyringResponseStruct = KeyringResponseStruct;
 
-export type KeyringResponseV1 = Infer<typeof KeyringResponseV1Struct>;
+export type LegacyKeyringResponse = Infer<typeof LegacyKeyringResponseStruct>;
 
-export const SubmitRequestResponseV1Struct = KeyringResponseV1Struct;
+export const SubmitRequestResponseV1Struct = LegacyKeyringResponseStruct;
 
 /**
  * Converts a keyring request to a keyring request v1.
@@ -27,7 +27,7 @@ export const SubmitRequestResponseV1Struct = KeyringResponseV1Struct;
  * @param request - A keyring request.
  * @returns A keyring request v1.
  */
-export function toKeyringRequestV1(request: KeyringRequest): KeyringRequestV1 {
+export function toLegacyKeyringRequest(request: KeyringRequest): LegacyKeyringRequest {
   const { origin, ...requestV1 } = request;
 
   return requestV1;
