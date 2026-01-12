@@ -30,9 +30,11 @@ import {
 } from '@metamask/keyring-api';
 import type {
   KeyringInternalFeatures,
+  InternalAccount,
+} from '@metamask/keyring-internal-api';
+import {
   KeyringInternalFeature,
   toKeyringRequestV1,
-  type InternalAccount,
 } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import {
