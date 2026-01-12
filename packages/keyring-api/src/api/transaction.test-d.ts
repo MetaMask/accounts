@@ -32,6 +32,7 @@ expectAssignable<Transaction>({
         type: 'eip155:1/slip44:60',
         unit: 'ETH',
         amount: '0.0001',
+        rawAmount: '100000000000000',
       },
     },
     {
@@ -41,6 +42,7 @@ expectAssignable<Transaction>({
         type: 'eip155:1/slip44:60',
         unit: 'ETH',
         amount: '0.0001',
+        rawAmount: '100000000000000',
       },
     },
   ],
@@ -62,6 +64,7 @@ expectAssignable<Transaction>({
         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
         unit: 'BTC',
         amount: '0.002',
+        rawAmount: '200000',
       },
     },
     {
@@ -80,6 +83,7 @@ expectAssignable<Transaction>({
         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
         unit: 'BTC',
         amount: '0.001',
+        rawAmount: '100000',
       },
     },
     {
@@ -98,6 +102,7 @@ expectAssignable<Transaction>({
         type: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
         unit: 'BTC',
         amount: '0.001',
+        rawAmount: '100000',
       },
     },
   ],

@@ -681,6 +681,7 @@ describe('SnapKeyring', () => {
               'bip122:000000000019d6689c085ae165831e93/slip44:0': {
                 amount: '0.1',
                 unit: 'BTC',
+                rawAmount: '10000000',
               },
             },
           },
@@ -706,6 +707,7 @@ describe('SnapKeyring', () => {
           'bip122:000000000019d6689c085ae165831e93/slip44:0': {
             amount: '0.1',
             unit: 'BTC',
+            rawAmount: '10000000',
           },
         };
         const event: AccountBalancesUpdatedEventPayload = {
@@ -761,6 +763,7 @@ describe('SnapKeyring', () => {
                       type: 'eip155:1/slip44:60',
                       unit: 'ETH',
                       amount: '0.0001',
+                      rawAmount: '100000000000000',
                     },
                   },
                   {
@@ -770,6 +773,7 @@ describe('SnapKeyring', () => {
                       type: 'eip155:1/slip44:60',
                       unit: 'ETH',
                       amount: '0.0001',
+                      rawAmount: '100000000000000',
                     },
                   },
                 ],
@@ -813,6 +817,7 @@ describe('SnapKeyring', () => {
                   type: 'eip155:1/slip44:60',
                   unit: 'ETH',
                   amount: '0.0001',
+                  rawAmount: '100000000000000',
                 },
               },
               {
@@ -822,6 +827,7 @@ describe('SnapKeyring', () => {
                   type: 'eip155:1/slip44:60',
                   unit: 'ETH',
                   amount: '0.0001',
+                  rawAmount: '100000000000000',
                 },
               },
             ],
