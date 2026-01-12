@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **BREAKING:** Remove `KeyringVersion` support ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Both `getKeyringVersionFromPlatform`, `PLATFORM_VERSION_TO_KEYRING_VERSION` got removed too.
+  - Use `KeyringInternalFeature` instead.
+
 ### Changed
 
 - Bump `@metamask/snaps-controllers` from `^14.0.1` to `^17.2.0` ([#422](https://github.com/MetaMask/accounts/pull/422))

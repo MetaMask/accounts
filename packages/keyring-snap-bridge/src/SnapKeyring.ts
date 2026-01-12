@@ -28,8 +28,9 @@ import {
   AccountTransactionsUpdatedEventStruct,
   AnyAccountType,
 } from '@metamask/keyring-api';
-import {
-  KeyringVersion,
+import type {
+  KeyringInternalFeatures,
+  KeyringInternalFeature,
   toKeyringRequestV1,
   type InternalAccount,
 } from '@metamask/keyring-internal-api';
@@ -84,7 +85,7 @@ import {
   toJson,
   unique,
 } from './util';
-import { getKeyringVersionFromPlatform } from './versions';
+import { getKeyringFeaturesFromPlatform } from './versions';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 
@@ -248,13 +249,13 @@ export class SnapKeyring {
   }
 
   /**
-   * Gets keyring's version for a given Snap.
+   * Gets keyring's features for a given Snap.
    *
    * @param snapId - The Snap ID.
-   * @returns The Snap's keyring version.
+   * @returns The Snap's keyring features.
    */
-  #getKeyringVersion(snapId: SnapId): KeyringVersion {
-    return getKeyringVersionFromPlatform((version: SemVerVersion) => {
+  #getKeyringFeatures(snapId: SnapId): KeyringInternalFeatures {
+    return getKeyringFeaturesFromPlatform((version: SemVerVersion) => {
       return this.#messenger.call(
         'SnapController:isMinimumPlatformVersion',
         snapId,
@@ -1019,21 +1020,22 @@ export class SnapKeyring {
    * @param options.version - The supported keyring version for the Snap.
    * @param options.snapId - The Snap ID to submit the request to.
    * @param options.request - The Snap request.
+   * @param options.features
    * @returns A promise that resolves to the keyring response from the Snap.
    */
-  async #submitSnapRequestForVersion({
+  async #submitSnapRequestForFeatures({
     snapId,
-    version,
+    features,
     request,
   }: {
     snapId: SnapId;
-    version: KeyringVersion;
+    features: KeyringInternalFeatures;
     request: KeyringRequest;
   }): Promise<KeyringResponse> {
     // Get specific client for that Snap.
     const client = this.#snapClient.withSnapId(snapId);
 
-    if (version === KeyringVersion.V1) {
+    if (!features.has(KeyringInternalFeature.UseOrigin)) {
       return await client.submitRequestV1(toKeyringRequestV1(request));
     }
 
@@ -1093,7 +1095,7 @@ export class SnapKeyring {
     );
 
     try {
-      const version = this.#getKeyringVersion(snapId);
+      const features = this.#getKeyringFeatures(snapId);
 
       const request = {
         id: requestId,
@@ -1108,8 +1110,8 @@ export class SnapKeyring {
 
       log('Submit Snap request: ', request);
 
-      const response = await this.#submitSnapRequestForVersion({
-        version,
+      const response = await this.#submitSnapRequestForFeatures({
+        features,
         snapId,
         request,
       });

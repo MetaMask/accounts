@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `KeyringInternalFeature` and `KeyringInternalFeatures` support ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - They can be used to describe the internal feature supported by a keyring (for internal use).
+
+### Removed
+
+- **BREAKING:** Remove `KeyringVersion` support ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Use `KeyringInternalFeature` and `KeyringInternalFeatures` instead.
+
 ## [9.1.1]
 
 ### Changed
