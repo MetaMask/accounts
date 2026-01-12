@@ -1016,35 +1016,6 @@ export class SnapKeyring {
   }
 
   /**
-   * Submits a request to a Snap and fix-up the payload depending on the version currently supported.
-   *
-   * @param options - The options for the Snap request.
-   * @param options.version - The supported keyring version for the Snap.
-   * @param options.snapId - The Snap ID to submit the request to.
-   * @param options.request - The Snap request.
-   * @param options.features
-   * @returns A promise that resolves to the keyring response from the Snap.
-   */
-  async #submitSnapRequestForFeatures({
-    snapId,
-    features,
-    request,
-  }: {
-    snapId: SnapId;
-    features: KeyringInternalFeatures;
-    request: KeyringRequest;
-  }): Promise<KeyringResponse> {
-    // Get specific client for that Snap.
-    const client = this.#snapClient.withSnapId(snapId);
-
-    if (!features.has(KeyringInternalFeature.UseOrigin)) {
-      return await client.submitRequestV1(toKeyringRequestV1(request));
-    }
-
-    return await client.submitRequest(request);
-  }
-
-  /**
    * Submits a request to a Snap.
    *
    * @param options - The options for the Snap request.
@@ -1112,11 +1083,16 @@ export class SnapKeyring {
 
       log('Submit Snap request: ', request);
 
-      const response = await this.#submitSnapRequestForFeatures({
-        features,
-        snapId,
-        request,
-      });
+      // Get specific client for that Snap.
+      const client = this.#snapClient.withSnapId(snapId);
+
+      let response: KeyringResponse;
+      if (features.has(KeyringInternalFeature.UseOrigin)) {
+        response = await client.submitRequest(request);
+      } else {
+        // V1 keyring request did not support the `origin` field.
+        response = await client.submitRequestV1(toKeyringRequestV1(request));
+      }
 
       // Some methods, like the ones used to prepare and patch user operations,
       // require the Snap to answer synchronously in order to work with the
