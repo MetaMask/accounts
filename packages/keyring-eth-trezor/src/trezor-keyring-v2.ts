@@ -88,6 +88,12 @@ export class TrezorKeyringV2
 {
   readonly entropySource: EntropySourceId;
 
+  /**
+   * Tracks the current HD path to detect path changes.
+   * When the path changes, the registry must be cleared.
+   */
+  #currentHdPath: AllowedHdPath;
+
   constructor(options: TrezorKeyringV2Options) {
     super({
       type: options.type ?? KeyringType.Trezor,
@@ -95,6 +101,7 @@ export class TrezorKeyringV2
       capabilities: trezorKeyringV2Capabilities,
     });
     this.entropySource = options.entropySource;
+    this.#currentHdPath = this.inner.hdPath as AllowedHdPath;
   }
 
   /**
@@ -123,6 +130,9 @@ export class TrezorKeyringV2
       // initialized HDKey. The registry will be populated lazily when
       // getAccounts() is called after the device is unlocked.
       await this.inner.deserialize(state);
+
+      // Sync the tracked HD path with the deserialized state
+      this.#currentHdPath = this.inner.hdPath as AllowedHdPath;
     });
   }
 
@@ -191,6 +201,30 @@ export class TrezorKeyringV2
 
     if (addresses.length === 0) {
       return [];
+    }
+
+    // If the device is locked, we cannot derive addresses to find indices.
+    // Return cached accounts if available, otherwise throw a clear error.
+    if (!this.inner.isUnlocked()) {
+      const cachedAccounts = addresses
+        .map((address) => {
+          const existingId = this.registry.getAccountId(address);
+          return existingId ? this.registry.get(existingId) : undefined;
+        })
+        .filter(
+          (account): account is Bip44Account<KeyringAccount> =>
+            account !== undefined,
+        );
+
+      // If we have all accounts cached, return them
+      if (cachedAccounts.length === addresses.length) {
+        return cachedAccounts;
+      }
+
+      // Some accounts are not cached and device is locked
+      throw new Error(
+        'Trezor device is locked. Please unlock the device to access accounts.',
+      );
     }
 
     return addresses.map((address) => {
@@ -267,12 +301,14 @@ export class TrezorKeyringV2
       }
 
       // Derive the account at the specified index.
-      // Note: setHdPath resets the inner keyring's accounts array when the path changes.
-      // This mirrors the production behavior where switching HD paths (via the dropdown)
-      // resets the entire account list. The TrezorKeyring operates on a single path at
-      // a time - accounts from different paths cannot coexist. The V2 registry tracks
-      // accounts independently, but getAccounts() relies on the inner keyring's account
-      // list, so accounts from a previous path would become inaccessible after switching.
+      // If the HD path is changing, clear the registry to avoid stale accounts.
+      // The TrezorKeyring operates on a single path at a time - accounts from
+      // different paths cannot coexist in the inner keyring.
+      if (basePath !== this.#currentHdPath) {
+        this.registry.clear();
+        this.#currentHdPath = basePath;
+      }
+
       this.inner.setHdPath(basePath);
       this.inner.setAccountToUnlock(targetIndex);
       const [newAddress] = await this.inner.addAccounts(1);

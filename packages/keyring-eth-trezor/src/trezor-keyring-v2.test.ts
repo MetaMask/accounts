@@ -626,5 +626,73 @@ describe('TrezorKeyringV2', () => {
 
       expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/0'/0`);
     });
+
+    it('clears registry when switching HD paths', async () => {
+      // Create wrapper with account on BIP44 path
+      const inner = createInnerKeyring();
+      inner.setAccountToUnlock(0);
+      await inner.addAccounts(1);
+
+      const wrapper = new TrezorKeyringV2({
+        legacyKeyring: inner,
+        entropySource,
+      });
+
+      // Get initial accounts - this populates the registry
+      const initialAccounts = await wrapper.getAccounts();
+      expect(initialAccounts).toHaveLength(1);
+      const initialAccountId = getFirstAccount(initialAccounts).id;
+
+      // Switch to legacy MEW path and add account
+      // This simulates what createAccounts does when path changes
+      inner.setHdPath(`m/44'/60'/0'`);
+      inner.hdk = fakeHdKey; // Reset HDKey after setHdPath clears it
+      inner.setAccountToUnlock(0);
+      await inner.addAccounts(1);
+
+      // Call createAccounts with the new path - this should clear registry
+      await wrapper.createAccounts(derivePathOptions(`m/44'/60'/0'/1`));
+
+      // The old account should no longer be accessible
+      await expect(wrapper.getAccount(initialAccountId)).rejects.toThrow(
+        /Account not found/u,
+      );
+    });
+  });
+
+  describe('locked device handling', () => {
+    it('returns cached accounts when device is locked', async () => {
+      const { wrapper, inner } = await createWrapperWithAccounts(2);
+
+      // First call with device unlocked populates the cache
+      const unlockedAccounts = await wrapper.getAccounts();
+      expect(unlockedAccounts).toHaveLength(2);
+
+      // Simulate locked device by clearing the HDKey
+      inner.hdk = {} as typeof fakeHdKey;
+
+      // Should return cached accounts
+      const lockedAccounts = await wrapper.getAccounts();
+      expect(lockedAccounts).toHaveLength(2);
+      expect(lockedAccounts).toStrictEqual(unlockedAccounts);
+    });
+
+    it('throws error when device is locked and accounts not cached', async () => {
+      const inner = createInnerKeyring();
+      inner.setAccountToUnlock(0);
+      await inner.addAccounts(1);
+
+      const wrapper = new TrezorKeyringV2({
+        legacyKeyring: inner,
+        entropySource,
+      });
+
+      // Simulate locked device before accounts are cached
+      inner.hdk = {} as typeof fakeHdKey;
+
+      await expect(wrapper.getAccounts()).rejects.toThrow(
+        /Trezor device is locked/u,
+      );
+    });
   });
 });
