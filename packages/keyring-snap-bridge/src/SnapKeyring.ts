@@ -13,7 +13,6 @@ import type {
   ResolvedAccountAddress,
   CaipChainId,
   MetaMaskOptions,
-  KeyringRequest,
   KeyringResponse,
 } from '@metamask/keyring-api';
 import {
