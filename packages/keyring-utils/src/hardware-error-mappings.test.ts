@@ -43,7 +43,7 @@ describe('HARDWARE_MAPPINGS', () => {
       it('should map 0x6300 to authentication failed', () => {
         const mapping = errorMappings['0x6300'];
         expect(mapping.customCode).toBe(ErrorCode.AuthFailed);
-        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.severity).toBe(Severity.Error);
         expect(mapping.category).toBe(Category.Authentication);
         expect(mapping.userActionable).toBe(true);
         expect(mapping.userMessage).toBeDefined();
@@ -59,7 +59,7 @@ describe('HARDWARE_MAPPINGS', () => {
       it('should map 0x5515 to device locked', () => {
         const mapping = errorMappings['0x5515'];
         expect(mapping.customCode).toBe(ErrorCode.AuthDeviceLocked);
-        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.severity).toBe(Severity.Error);
         expect(mapping.userActionable).toBe(true);
         expect(mapping.userMessage).toContain('unlock');
       });
@@ -146,7 +146,7 @@ describe('HARDWARE_MAPPINGS', () => {
       it('should map code 1 to unexpected message', () => {
         const mapping = errorMappings['1'];
         expect(mapping.customCode).toBe(ErrorCode.ProtoUnexpectedMessage);
-        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.severity).toBe(Severity.Error);
         expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
         expect(mapping.originalName).toBe('Failure_UnexpectedMessage');
       });
@@ -174,12 +174,6 @@ describe('HARDWARE_MAPPINGS', () => {
         expect(mapping.category).toBe(Category.Authentication);
         expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
         expect(mapping.originalName).toBe('Failure_PinInvalid');
-      });
-
-      it('should map code 12 to PIN mismatch', () => {
-        const mapping = errorMappings['12'];
-        expect(mapping.customCode).toBe(ErrorCode.AuthPinMismatch);
-        expect(mapping.originalName).toBe('Failure_PinMismatch');
       });
     });
 

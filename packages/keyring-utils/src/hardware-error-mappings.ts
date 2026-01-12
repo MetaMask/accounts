@@ -21,7 +21,7 @@ export const HARDWARE_MAPPINGS = {
       '0x6300': {
         customCode: ErrorCode.AuthFailed,
         message: 'Authentication failed',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Authentication,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -39,7 +39,7 @@ export const HARDWARE_MAPPINGS = {
       '0x6982': {
         customCode: ErrorCode.AuthSecurityCondition,
         message: 'Security conditions not satisfied',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Authentication,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -59,7 +59,7 @@ export const HARDWARE_MAPPINGS = {
       '0x9804': {
         customCode: ErrorCode.AuthSecurityCondition,
         message: 'App update required',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Authentication,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -68,7 +68,7 @@ export const HARDWARE_MAPPINGS = {
       '0x9808': {
         customCode: ErrorCode.AuthFailed,
         message: 'Contradiction in secret code status',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Authentication,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: false,
@@ -86,7 +86,7 @@ export const HARDWARE_MAPPINGS = {
       '0x650f': {
         customCode: ErrorCode.ConnClosed,
         message: 'App closed or connection issue',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Connection,
         retryStrategy: RetryStrategy.Retry,
         userActionable: true,
@@ -96,7 +96,7 @@ export const HARDWARE_MAPPINGS = {
       '0x5515': {
         customCode: ErrorCode.AuthDeviceLocked,
         message: 'Device is locked',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Authentication,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -115,7 +115,7 @@ export const HARDWARE_MAPPINGS = {
       '0x6a80': {
         customCode: ErrorCode.DeviceStateBlindSignNotSupported,
         message: 'Blind signing not supported',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -124,7 +124,7 @@ export const HARDWARE_MAPPINGS = {
       '0x6d00': {
         customCode: ErrorCode.DeviceStateOnlyV4Supported,
         message: 'Ledger Only V4 supported',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -133,7 +133,7 @@ export const HARDWARE_MAPPINGS = {
       '0x6e00': {
         customCode: ErrorCode.DeviceStateEthAppClosed,
         message: 'Ethereum app closed',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -142,7 +142,7 @@ export const HARDWARE_MAPPINGS = {
       '0x6501': {
         customCode: ErrorCode.DeviceStateEthAppOutOfDate,
         message: 'Ethereum app out of date',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -157,7 +157,7 @@ export const HARDWARE_MAPPINGS = {
       '1': {
         customCode: ErrorCode.ProtoUnexpectedMessage,
         message: 'Unexpected message received',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Protocol,
         retryStrategy: RetryStrategy.Retry,
         userActionable: false,
@@ -207,7 +207,7 @@ export const HARDWARE_MAPPINGS = {
       '7': {
         customCode: ErrorCode.AuthIncorrectPin,
         message: 'PIN invalid',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Authentication,
         retryStrategy: RetryStrategy.Retry,
         userActionable: true,
@@ -217,7 +217,7 @@ export const HARDWARE_MAPPINGS = {
       '11': {
         customCode: ErrorCode.DeviceNotReady,
         message: 'Device not initialized',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -225,20 +225,10 @@ export const HARDWARE_MAPPINGS = {
           'Your Trezor device needs to be initialized. Please set it up first.',
         originalName: 'Failure_NotInitialized',
       },
-      '12': {
-        customCode: ErrorCode.AuthPinMismatch,
-        message: 'PIN mismatch',
-        severity: Severity.Err,
-        category: Category.Authentication,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
-        userMessage: 'PINs do not match. Please try again.',
-        originalName: 'Failure_PinMismatch',
-      },
       '13': {
         customCode: ErrorCode.AuthWipeCodeMismatch,
         message: 'Wipe code mismatch',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Authentication,
         retryStrategy: RetryStrategy.Retry,
         userActionable: true,
@@ -248,7 +238,7 @@ export const HARDWARE_MAPPINGS = {
       '14': {
         customCode: ErrorCode.DeviceInvalidSession,
         message: 'Invalid session',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.Retry,
         userActionable: false,
@@ -268,7 +258,7 @@ export const HARDWARE_MAPPINGS = {
       UNKNOWN: {
         customCode: ErrorCode.Unknown,
         message: 'Unknown error',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Unknown,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: false,
@@ -279,7 +269,7 @@ export const HARDWARE_MAPPINGS = {
       Init_IframeBlocked: {
         customCode: ErrorCode.ConnBlocked,
         message: 'Iframe blocked',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Connection,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -290,7 +280,7 @@ export const HARDWARE_MAPPINGS = {
       Init_IframeTimeout: {
         customCode: ErrorCode.ConnTimeout,
         message: 'Iframe connection timeout',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Connection,
         retryStrategy: RetryStrategy.Retry,
         userActionable: false,
@@ -301,7 +291,7 @@ export const HARDWARE_MAPPINGS = {
       Popup_ConnectionMissing: {
         customCode: ErrorCode.ConnIframeMissing,
         message: 'Unable to establish connection with iframe',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Connection,
         retryStrategy: RetryStrategy.Retry,
         userActionable: false,
@@ -311,7 +301,7 @@ export const HARDWARE_MAPPINGS = {
       Desktop_ConnectionMissing: {
         customCode: ErrorCode.ConnSuiteMissing,
         message: 'Unable to establish connection with Suite',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Connection,
         retryStrategy: RetryStrategy.Retry,
         userActionable: true,
@@ -322,7 +312,7 @@ export const HARDWARE_MAPPINGS = {
       Transport_Missing: {
         customCode: ErrorCode.ConnTransportMissing,
         message: 'Transport is missing',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Connection,
         retryStrategy: RetryStrategy.Retry,
         userActionable: true,
@@ -353,7 +343,7 @@ export const HARDWARE_MAPPINGS = {
       Method_UnknownCoin: {
         customCode: ErrorCode.Unknown,
         message: 'Coin not found',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Unknown,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -363,7 +353,7 @@ export const HARDWARE_MAPPINGS = {
       Method_AddressNotMatch: {
         customCode: ErrorCode.Unknown,
         message: 'Addresses do not match',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Unknown,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -373,7 +363,7 @@ export const HARDWARE_MAPPINGS = {
       Method_Discovery_BundleException: {
         customCode: ErrorCode.Unknown,
         message: 'Discovery bundle exception',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Unknown,
         retryStrategy: RetryStrategy.Retry,
         userActionable: false,
@@ -390,7 +380,7 @@ export const HARDWARE_MAPPINGS = {
       Device_NotFound: {
         customCode: ErrorCode.DeviceNotFound,
         message: 'Device not found',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.Retry,
         userActionable: true,
@@ -401,7 +391,7 @@ export const HARDWARE_MAPPINGS = {
       Device_InitializeFailed: {
         customCode: ErrorCode.DeviceNotReady,
         message: 'Device initialization failed',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.Retry,
         userActionable: true,
@@ -411,7 +401,7 @@ export const HARDWARE_MAPPINGS = {
       Device_ModeException: {
         customCode: ErrorCode.DeviceIncompatibleMode,
         message: 'Device mode exception',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -421,7 +411,7 @@ export const HARDWARE_MAPPINGS = {
       Device_Disconnected: {
         customCode: ErrorCode.DeviceDisconnected,
         message: 'Device disconnected',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.Retry,
         userActionable: true,
@@ -432,7 +422,7 @@ export const HARDWARE_MAPPINGS = {
       Device_UsedElsewhere: {
         customCode: ErrorCode.DeviceUsedElsewhere,
         message: 'Device is used in another window',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -443,7 +433,7 @@ export const HARDWARE_MAPPINGS = {
       Device_InvalidState: {
         customCode: ErrorCode.AuthFailed,
         message: 'Passphrase is incorrect',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.Authentication,
         retryStrategy: RetryStrategy.Retry,
         userActionable: true,
@@ -463,7 +453,7 @@ export const HARDWARE_MAPPINGS = {
       Device_MultipleNotSupported: {
         customCode: ErrorCode.DeviceMultipleConnected,
         message: 'Multiple devices are not supported',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -474,7 +464,7 @@ export const HARDWARE_MAPPINGS = {
       Device_MissingCapability: {
         customCode: ErrorCode.DeviceMissingCapability,
         message: 'Device is missing required capability',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -485,7 +475,7 @@ export const HARDWARE_MAPPINGS = {
       Device_MissingCapabilityBtcOnly: {
         customCode: ErrorCode.DeviceBtcOnlyFirmware,
         message: 'Device is BTC-only, operation not supported',
-        severity: Severity.Err,
+        severity: Severity.Error,
         category: Category.DeviceState,
         retryStrategy: RetryStrategy.NoRetry,
         userActionable: true,
@@ -497,7 +487,7 @@ export const HARDWARE_MAPPINGS = {
     default: {
       customCode: ErrorCode.Unknown,
       message: 'Unknown Trezor error',
-      severity: Severity.Err,
+      severity: Severity.Error,
       category: Category.Unknown,
       retryStrategy: RetryStrategy.NoRetry,
       userActionable: false,
@@ -509,25 +499,25 @@ export const HARDWARE_MAPPINGS = {
         pattern: '^Failure_.*',
         type: 'prefix',
         description: 'Device failure codes',
-        defaultSeverity: Severity.Err,
+        defaultSeverity: Severity.Error,
       },
       {
         pattern: '^Init_.*',
         type: 'prefix',
         description: 'Initialization errors',
-        defaultSeverity: Severity.Err,
+        defaultSeverity: Severity.Error,
       },
       {
         pattern: '^Method_.*',
         type: 'prefix',
         description: 'Method invocation errors',
-        defaultSeverity: Severity.Err,
+        defaultSeverity: Severity.Error,
       },
       {
         pattern: '^Device_.*',
         type: 'prefix',
         description: 'Device state errors',
-        defaultSeverity: Severity.Err,
+        defaultSeverity: Severity.Error,
       },
     ],
   },

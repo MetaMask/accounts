@@ -8,7 +8,6 @@ export enum ErrorCode {
   AuthIncorrectPin = 1001,
   AuthPinAttemptsRemaining = 1002,
   AuthPinCancelled = 1003,
-  AuthPinMismatch = 1004,
   AuthDeviceLocked = 1010,
   AuthDeviceBlocked = 1011,
   AuthSecurityCondition = 1020,
@@ -61,7 +60,7 @@ export enum ErrorCode {
 // Severity Enum
 export enum Severity {
   Info = 'Info',
-  Err = 'Err',
+  Err = 'Error',
   Warning = 'Warning',
   Critical = 'Critical',
 }
