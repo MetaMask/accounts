@@ -179,9 +179,8 @@ export class HardwareWalletError extends Error {
    * @returns A detailed string representation of the error for debugging.
    */
   toDetailedString(): string {
-    const codeName = getErrorCodeName(this.code);
     const details = [
-      `${this.name} [${codeName}:${this.code}]`,
+      this.#getErrorPrefix(),
       `Message: ${this.message}`,
       `User Message: ${this.userMessage}`,
       `Severity: ${this.severity}`,
@@ -200,5 +199,10 @@ export class HardwareWalletError extends Error {
     }
 
     return details.join('\n');
+  }
+
+  #getErrorPrefix(): string {
+    const codeName = getErrorCodeName(this.code);
+    return `${this.name} [${codeName}:${this.code}]`;
   }
 }
