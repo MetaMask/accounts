@@ -108,7 +108,7 @@ describe('HardwareWalletError', () => {
     });
 
     it('should return false for non-CRITICAL severity', () => {
-      const severities = [Severity.Error, Severity.Warning, Severity.Info];
+      const severities = [Severity.Err, Severity.Warning, Severity.Info];
       severities.forEach((severity) => {
         const error = new HardwareWalletError('Test error', {
           ...mockOptions,
@@ -129,7 +129,7 @@ describe('HardwareWalletError', () => {
     });
 
     it('should return false for non-WARNING severity', () => {
-      const severities = [Severity.Error, Severity.Critical, Severity.Info];
+      const severities = [Severity.Err, Severity.Critical, Severity.Info];
       severities.forEach((severity) => {
         const error = new HardwareWalletError('Test error', {
           ...mockOptions,
@@ -306,7 +306,7 @@ describe('HardwareWalletError', () => {
       });
 
       expect(error.toString()).toBe(
-        'HardwareWalletError [UNKNOWN:123456]: Something strange happened',
+        'HardwareWalletError [99999:123456]: Something strange happened',
       );
     });
   });
@@ -391,7 +391,7 @@ describe('HardwareWalletError', () => {
     it('should handle retryable connection errors', () => {
       const error = new HardwareWalletError('Connection timeout', {
         code: ErrorCode.ConnTimeout,
-        severity: Severity.Error,
+        severity: Severity.Err,
         category: Category.Connection,
         retryStrategy: RetryStrategy.ExponentialBackoff,
         userActionable: false,
