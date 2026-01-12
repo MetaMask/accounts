@@ -19,8 +19,8 @@ function generateErrorId(): string {
  * @returns The string name of the error code, or 'UNKNOWN' if not found.
  */
 function getErrorCodeName(code: ErrorCode): string {
-  // Numeric enums have a reverse mapping at runtime: ErrorCode[1000] => "AUTH_FAILED"
-  return ErrorCode[code] ?? 'UNKNOWN';
+  // Numeric enums have a reverse mapping at runtime: ErrorCode[1000] => "AuthFailed"
+  return ErrorCode[code] ?? ErrorCode.Unknown;
 }
 
 export type HardwareWalletErrorOptions = {
