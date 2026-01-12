@@ -8,6 +8,7 @@ import { ErrorCode, Severity, RetryStrategy } from './hardware-errors-enums';
  */
 function generateErrorId(): string {
   const timestamp = Date.now().toString(36);
+  // Random string will be formatted as: 0.fa4dmg7flr8, so we skip 0. part.
   const randomPart = Math.random().toString(36).substring(2, 9);
   return `err_${timestamp}_${randomPart}`;
 }

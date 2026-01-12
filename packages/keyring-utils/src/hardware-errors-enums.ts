@@ -8,10 +8,10 @@ export enum ErrorCode {
   AuthIncorrectPin = 1001,
   AuthPinAttemptsRemaining = 1002,
   AuthPinCancelled = 1003,
-  AuthDeviceLocked = 1010,
-  AuthDeviceBlocked = 1011,
-  AuthSecurityCondition = 1020,
-  AuthWipeCodeMismatch = 1030,
+  AuthDeviceLocked = 1100,
+  AuthDeviceBlocked = 1101,
+  AuthSecurityCondition = 1200,
+  AuthWipeCodeMismatch = 1300,
 
   // User action
   UserRejected = 2000,
