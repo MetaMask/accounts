@@ -1745,6 +1745,25 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@metamask/eth-mpc-keyring@workspace:packages/keyring-eth-mpc":
+  version: 0.0.0-use.local
+  resolution: "@metamask/eth-mpc-keyring@workspace:packages/keyring-eth-mpc"
+  dependencies:
+    "@ethereumjs/tx": "npm:^5.4.0"
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/mfa-wallet-cl24-lib": ./metamask-mfa-wallet-cl24-lib-0.0.0.tgz
+    "@metamask/mfa-wallet-interface": ./metamask-mfa-wallet-interface-0.0.0.tgz
+    "@metamask/utils": "npm:^11.1.0"
+    "@ts-bridge/cli": "npm:^0.6.3"
+    "@types/jest": "npm:^29.5.12"
+    deepmerge: "npm:^4.2.2"
+    jest: "npm:^29.5.0"
+  languageName: unknown
+  linkType: soft
+
 "@metamask/eth-qr-keyring@workspace:packages/keyring-eth-qr":
   version: 0.0.0-use.local
   resolution: "@metamask/eth-qr-keyring@workspace:packages/keyring-eth-qr"
@@ -2163,6 +2182,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask/mfa-wallet-cl24-lib@file:./metamask-mfa-wallet-cl24-lib-0.0.0.tgz::locator=%40metamask%2Feth-mpc-keyring%40workspace%3Apackages%2Fkeyring-eth-mpc":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-cl24-lib@file:./metamask-mfa-wallet-cl24-lib-0.0.0.tgz#./metamask-mfa-wallet-cl24-lib-0.0.0.tgz::hash=322a56&locator=%40metamask%2Feth-mpc-keyring%40workspace%3Apackages%2Fkeyring-eth-mpc"
+  dependencies:
+    "@msgpack/msgpack": "npm:^3.1.2"
+    "@noble/curves": "npm:^1.9.2"
+    "@noble/hashes": "npm:^1.8.0"
+  checksum: 10/19a2de8dc2296f5f0f3dc15dbbb4cd1e66538415fba2c2b1edb967afafd2ecd7b1c3c8764b593f170e1781f09851ea4a5ce0526230e2a4e59305cd16997abd56
+  languageName: node
+  linkType: hard
+
+"@metamask/mfa-wallet-interface@file:./metamask-mfa-wallet-interface-0.0.0.tgz::locator=%40metamask%2Feth-mpc-keyring%40workspace%3Apackages%2Fkeyring-eth-mpc":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-interface@file:./metamask-mfa-wallet-interface-0.0.0.tgz#./metamask-mfa-wallet-interface-0.0.0.tgz::hash=7e0392&locator=%40metamask%2Feth-mpc-keyring%40workspace%3Apackages%2Fkeyring-eth-mpc"
+  checksum: 10/663ff097ce6b8fafd02412eb0e51e953ee816edc7db94484adb908ba542ed31d20200176979d5818be1dd6400294ae59df13a2255c3b97649dae6ca029a3a450
+  languageName: node
+  linkType: hard
+
 "@metamask/number-to-bn@npm:^1.7.1":
   version: 1.7.1
   resolution: "@metamask/number-to-bn@npm:1.7.1"
@@ -2484,6 +2521,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@msgpack/msgpack@npm:^3.1.2":
+  version: 3.1.3
+  resolution: "@msgpack/msgpack@npm:3.1.3"
+  checksum: 10/cf597b7ed1fcedc2101b145885e7da591c5ed8aeba3a2579b99da8dd15ef13595c807f64f052da0a0dd74704097f6299fc2e2fb4165029a60a1d1df3843c03ce
+  languageName: node
+  linkType: hard
+
 "@ngraveio/bc-ur@npm:^1.1.5":
   version: 1.1.13
   resolution: "@ngraveio/bc-ur@npm:1.1.13"
@@ -2530,6 +2574,15 @@ __metadata:
   dependencies:
     "@noble/hashes": "npm:1.8.0"
   checksum: 10/f60f00ad86296054566b67be08fd659999bb64b692bfbf11dbe3be1f422ad4d826bf5ebb2015ce2e246538eab2b677707e0a46ffa8323a6fae7a9a30ec1fe318
+  languageName: node
+  linkType: hard
+
+"@noble/curves@npm:^1.9.2":
+  version: 1.9.7
+  resolution: "@noble/curves@npm:1.9.7"
+  dependencies:
+    "@noble/hashes": "npm:1.8.0"
+  checksum: 10/3cfe2735ea94972988ca9e217e0ebb2044372a7160b2079bf885da789492a6291fc8bf76ca3d8bf8dee477847ee2d6fac267d1e6c4f555054059f5e8c4865d44
   languageName: node
   linkType: hard
 
