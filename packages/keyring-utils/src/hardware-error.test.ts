@@ -306,7 +306,7 @@ describe('HardwareWalletError', () => {
       });
 
       expect(error.toString()).toBe(
-        'HardwareWalletError [99999:123456]: Something strange happened',
+        'HardwareWalletError [Unknown:123456]: Something strange happened',
       );
     });
   });
