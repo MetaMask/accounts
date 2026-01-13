@@ -4,19 +4,22 @@ import type { Hex, Json } from '@metamask/utils';
 
 const type = 'eth-mpc';
 
-export type SerializedMPCKeyringState = {};
-
 export class MPCKeyring implements Keyring {
   readonly type: string = type;
 
+  #initRole: 'initiator' | 'responder' = 'initiator';
+
   constructor() {}
+
   /**
    * Return the serialized state of the keyring.
    *
    * @returns The serialized state of the keyring.
    */
   async serialize(): Promise<Json> {
-    
+    return {
+      initRole: this.#initRole,
+    };
   }
 
   /**
@@ -28,6 +31,19 @@ export class MPCKeyring implements Keyring {
   async deserialize(
     state: Json,
   ): Promise<void> {
+    if (!state || typeof state !== 'object') {
+      throw new Error('Invalid state');
+    }
+
+    if (
+      'initRole' in state &&
+      state.initRole === 'responder'
+    ) {
+      this.#initRole = 'responder';
+    }
+  }
+
+  async init(): Promise<void> {
     
   }
 
