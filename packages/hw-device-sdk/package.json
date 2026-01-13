@@ -1,12 +1,12 @@
 {
-  "name": "@metamask/keyring-snap-sdk",
-  "version": "7.1.1",
-  "description": "MetaMask Keyring Snap SDK",
+  "name": "@metamask/hw-device-sdk",
+  "version": "0.0.0",
+  "description": "MetaMask Hardware Device SDK",
   "keywords": [
     "metamask",
-    "keyring"
+    "hardware-wallet"
   ],
-  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-snap-sdk#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/hw-device-sdk#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
@@ -35,8 +35,8 @@
     "build": "ts-bridge --project tsconfig.build.json --no-references",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-snap-sdk",
-    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-snap-sdk",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/hw-device-sdk",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/hw-device-sdk",
     "publish:preview": "yarn npm publish --tag preview",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",
@@ -44,19 +44,10 @@
     "test:types": "../../scripts/tsd-test.sh ./src",
     "test:watch": "jest --watch"
   },
-  "dependencies": {
-    "@metamask/keyring-utils": "workspace:^",
-    "@metamask/snaps-sdk": "^10.3.0",
-    "@metamask/superstruct": "^3.1.0",
-    "@metamask/utils": "^11.1.0",
-    "webextension-polyfill": "^0.12.0"
-  },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/keyring-api": "workspace:^",
-    "@metamask/providers": "^19.0.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
@@ -70,10 +61,6 @@
     "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
     "typescript": "~5.6.3"
-  },
-  "peerDependencies": {
-    "@metamask/keyring-api": "workspace:^",
-    "@metamask/providers": "^19.0.0"
   },
   "engines": {
     "node": "^18.18 || >=20"
