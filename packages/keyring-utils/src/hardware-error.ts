@@ -140,7 +140,7 @@ export class HardwareWalletError extends Error {
    * @returns A user-friendly string representation of the error.
    */
   toString(): string {
-    return `${this.#getErrorPrefix()}: ${this.userMessage}`;
+    return `${this.#getErrorPrefix()}: ${this.message}`;
   }
 
   /**
@@ -150,8 +150,7 @@ export class HardwareWalletError extends Error {
    */
   toDetailedString(): string {
     const details = [
-      this.#getErrorPrefix(),
-      `Message: ${this.message}`,
+      this.toString(),
       `User Message: ${this.userMessage}`,
       `Severity: ${this.severity}`,
       `Category: ${this.category}`,

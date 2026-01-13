@@ -10,7 +10,7 @@ describe('HardwareWalletError', () => {
   };
 
   describe('constructor', () => {
-    it('should create an error with required properties', () => {
+    it('creates an error with required properties', () => {
       const error = new HardwareWalletError('Test error', mockOptions);
 
       expect(error.message).toBe('Test error');
@@ -21,7 +21,7 @@ describe('HardwareWalletError', () => {
       expect(error.userMessage).toBe('Transaction was rejected');
     });
 
-    it('should generate a unique error ID', () => {
+    it('generates a unique error ID', () => {
       const error1 = new HardwareWalletError('Test error 1', mockOptions);
       const error2 = new HardwareWalletError('Test error 2', mockOptions);
 
@@ -31,7 +31,7 @@ describe('HardwareWalletError', () => {
       expect(error1.id).toMatch(/^err_[a-z0-9]+_[a-z0-9]+$/u);
     });
 
-    it('should set timestamp to current date', () => {
+    it('sets timestamp to current date', () => {
       const before = new Date();
       const error = new HardwareWalletError('Test error', mockOptions);
       const after = new Date();
@@ -42,7 +42,7 @@ describe('HardwareWalletError', () => {
       expect(error.timestamp.getTime()).toBeLessThanOrEqual(after.getTime());
     });
 
-    it('should set optional properties when provided', () => {
+    it('sets optional properties when provided', () => {
       const cause = new Error('Original error');
       const metadata = { deviceId: '12345', attempt: 1 };
 
@@ -56,7 +56,7 @@ describe('HardwareWalletError', () => {
       expect(error.metadata).toStrictEqual(metadata);
     });
 
-    it('should work with instanceof checks', () => {
+    it('works with instanceof checks', () => {
       const error = new HardwareWalletError('Test error', mockOptions);
       expect(error instanceof HardwareWalletError).toBe(true);
       expect(error instanceof Error).toBe(true);
@@ -64,7 +64,7 @@ describe('HardwareWalletError', () => {
   });
 
   describe('isCritical', () => {
-    it('should return true for CRITICAL severity', () => {
+    it('returns true for CRITICAL severity', () => {
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
         severity: Severity.Critical,
@@ -72,7 +72,7 @@ describe('HardwareWalletError', () => {
       expect(error.isCritical()).toBe(true);
     });
 
-    it('should return false for non-CRITICAL severity', () => {
+    it('returns false for non-CRITICAL severity', () => {
       const severities = [Severity.Err, Severity.Warning, Severity.Info];
       severities.forEach((severity) => {
         const error = new HardwareWalletError('Test error', {
@@ -85,7 +85,7 @@ describe('HardwareWalletError', () => {
   });
 
   describe('isWarning', () => {
-    it('should return true for WARNING severity', () => {
+    it('returns true for WARNING severity', () => {
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
         severity: Severity.Warning,
@@ -93,7 +93,7 @@ describe('HardwareWalletError', () => {
       expect(error.isWarning()).toBe(true);
     });
 
-    it('should return false for non-WARNING severity', () => {
+    it('returns false for non-WARNING severity', () => {
       const severities = [Severity.Err, Severity.Critical, Severity.Info];
       severities.forEach((severity) => {
         const error = new HardwareWalletError('Test error', {
@@ -106,7 +106,7 @@ describe('HardwareWalletError', () => {
   });
 
   describe('withMetadata', () => {
-    it('should create a new error with additional metadata', () => {
+    it('creates a new error with additional metadata', () => {
       const originalMetadata = { deviceId: '12345' };
       const originalError = new HardwareWalletError('Test error', {
         ...mockOptions,
@@ -124,7 +124,7 @@ describe('HardwareWalletError', () => {
       expect(newError).not.toBe(originalError); // New instance
     });
 
-    it('should create metadata when original has none', () => {
+    it('creates metadata when original has none', () => {
       const originalError = new HardwareWalletError('Test error', mockOptions);
       const metadata = { deviceId: '12345' };
       const newError = originalError.withMetadata(metadata);
@@ -132,7 +132,7 @@ describe('HardwareWalletError', () => {
       expect(newError.metadata).toStrictEqual(metadata);
     });
 
-    it('should override existing metadata keys', () => {
+    it('overrides existing metadata keys', () => {
       const originalError = new HardwareWalletError('Test error', {
         ...mockOptions,
         metadata: { key: 'old', other: 'value' },
@@ -143,7 +143,7 @@ describe('HardwareWalletError', () => {
       expect(newError.metadata).toStrictEqual({ key: 'new', other: 'value' });
     });
 
-    it('should preserve all other properties', () => {
+    it('preserves all other properties', () => {
       const cause = new Error('Original error');
 
       const originalError = new HardwareWalletError('Test error', {
@@ -163,7 +163,7 @@ describe('HardwareWalletError', () => {
   });
 
   describe('toJSON', () => {
-    it('should serialize all properties to JSON', () => {
+    it('serializes all properties to JSON', () => {
       const cause = new Error('Original error');
       const metadata = { deviceId: '12345' };
 
@@ -186,7 +186,7 @@ describe('HardwareWalletError', () => {
       expect(json.metadata).toStrictEqual(metadata);
     });
 
-    it('should serialize cause when present', () => {
+    it('serializes cause when present', () => {
       const cause = new Error('Original error');
 
       const error = new HardwareWalletError('Test error', {
@@ -202,14 +202,14 @@ describe('HardwareWalletError', () => {
       });
     });
 
-    it('should not include cause when not present', () => {
+    it('does not include cause when not present', () => {
       const error = new HardwareWalletError('Test error', mockOptions);
       const json = error.toJSON();
 
       expect(json.cause).toBeUndefined();
     });
 
-    it('should handle undefined optional properties', () => {
+    it('handles undefined optional properties', () => {
       const error = new HardwareWalletError('Test error', mockOptions);
       const json = error.toJSON();
 
@@ -219,16 +219,16 @@ describe('HardwareWalletError', () => {
   });
 
   describe('toString', () => {
-    it('should return a user-friendly string representation', () => {
+    it('returns a user-friendly string representation', () => {
       const error = new HardwareWalletError('Test error', mockOptions);
       const result = error.toString();
 
       expect(result).toBe(
-        'HardwareWalletError [UserRejected:2000]: Transaction was rejected',
+        'HardwareWalletError [UserRejected:2000]: Test error',
       );
     });
 
-    it('should work with different error codes and messages', () => {
+    it('works with different error codes and messages', () => {
       const error = new HardwareWalletError('Internal error', {
         ...mockOptions,
         code: ErrorCode.Unknown,
@@ -237,11 +237,11 @@ describe('HardwareWalletError', () => {
       const result = error.toString();
 
       expect(result).toBe(
-        'HardwareWalletError [Unknown:99999]: An internal error occurred',
+        'HardwareWalletError [Unknown:99999]: Internal error',
       );
     });
 
-    it('should fall back to UNKNOWN name for unmapped numeric codes', () => {
+    it('falls back to UNKNOWN name for unmapped numeric codes', () => {
       const error = new HardwareWalletError('Weird error', {
         ...mockOptions,
         code: 123456 as unknown as ErrorCode,
@@ -249,13 +249,13 @@ describe('HardwareWalletError', () => {
       });
 
       expect(error.toString()).toBe(
-        'HardwareWalletError [Unknown:123456]: Something strange happened',
+        'HardwareWalletError [Unknown:123456]: Weird error',
       );
     });
   });
 
   describe('toDetailedString', () => {
-    it('should return a detailed string with all information', () => {
+    it('returns a detailed string with all information', () => {
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
       });
@@ -263,14 +263,16 @@ describe('HardwareWalletError', () => {
       const result = error.toDetailedString();
 
       expect(result).toContain('HardwareWalletError [UserRejected:2000]');
-      expect(result).toContain('Message: Test error');
+      expect(result).toContain(
+        'HardwareWalletError [UserRejected:2000]: Test error',
+      );
       expect(result).toContain('User Message: Transaction was rejected');
       expect(result).toContain('Severity: Warning');
       expect(result).toContain('Category: UserAction');
       expect(result).toContain('Timestamp:');
     });
 
-    it('should include metadata when present', () => {
+    it('includes metadata when present', () => {
       const metadata = { deviceId: '12345', attempt: 1 };
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
@@ -283,7 +285,7 @@ describe('HardwareWalletError', () => {
       expect(result).toContain('"attempt": 1');
     });
 
-    it('should include cause when present', () => {
+    it('includes cause when present', () => {
       const cause = new Error('Original error');
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
@@ -294,7 +296,7 @@ describe('HardwareWalletError', () => {
       expect(result).toContain('Caused by: Original error');
     });
 
-    it('should not include optional fields when not present', () => {
+    it('does not include optional fields when not present', () => {
       const error = new HardwareWalletError('Test error', mockOptions);
       const result = error.toDetailedString();
 
@@ -302,7 +304,7 @@ describe('HardwareWalletError', () => {
       expect(result).not.toContain('Caused by:');
     });
 
-    it('should not include metadata section when metadata is empty', () => {
+    it('does not include metadata section when metadata is empty', () => {
       const error = new HardwareWalletError('Test error', {
         ...mockOptions,
         metadata: {},
@@ -314,7 +316,7 @@ describe('HardwareWalletError', () => {
   });
 
   describe('error scenarios', () => {
-    it('should handle critical authentication errors', () => {
+    it('handles critical authentication errors', () => {
       const error = new HardwareWalletError('Device blocked', {
         code: ErrorCode.AuthDeviceBlocked,
         severity: Severity.Critical,
@@ -325,7 +327,7 @@ describe('HardwareWalletError', () => {
       expect(error.isCritical()).toBe(true);
     });
 
-    it('should handle retryable connection errors', () => {
+    it('handles retryable connection errors', () => {
       const error = new HardwareWalletError('Connection timeout', {
         code: ErrorCode.ConnTimeout,
         severity: Severity.Err,
@@ -336,7 +338,7 @@ describe('HardwareWalletError', () => {
       expect(error.isCritical()).toBe(false);
     });
 
-    it('should handle user action warnings', () => {
+    it('handles user action warnings', () => {
       const error = new HardwareWalletError('User confirmation required', {
         code: ErrorCode.UserConfirmationRequired,
         severity: Severity.Warning,

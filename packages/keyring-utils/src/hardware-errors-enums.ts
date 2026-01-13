@@ -38,9 +38,9 @@ export enum ErrorCode {
   ConnBlocked = 4003,
 
   // Protocol
-  ProtoUnexpectedMessage = 5000,
-  ProtoCommandError = 5001,
-  ProtoMessageError = 5002,
+  ProtocolUnexpectedMessage = 5000,
+  ProtocolCommandError = 5001,
+  ProtocolMessageError = 5002,
 
   // Device state
   DeviceStateBlindSignNotSupported = 6001,
