@@ -19,6 +19,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/eth-simple-keyring`](packages/keyring-eth-simple)
 - [`@metamask/eth-snap-keyring`](packages/keyring-snap-bridge)
 - [`@metamask/eth-trezor-keyring`](packages/keyring-eth-trezor)
+- [`@metamask/hw-device-sdk`](packages/hw-device-sdk)
 - [`@metamask/keyring-api`](packages/keyring-api)
 - [`@metamask/keyring-internal-api`](packages/keyring-internal-api)
 - [`@metamask/keyring-internal-snap-client`](packages/keyring-internal-snap-client)
@@ -37,6 +38,7 @@ Or, in graph form [^fn1]:
 graph LR;
 linkStyle default opacity:0.5
   account_api(["@metamask/account-api"]);
+  hw_device_sdk(["@metamask/hw-device-sdk"]);
   keyring_api(["@metamask/keyring-api"]);
   eth_hd_keyring(["@metamask/eth-hd-keyring"]);
   eth_ledger_bridge_keyring(["@metamask/eth-ledger-bridge-keyring"]);
