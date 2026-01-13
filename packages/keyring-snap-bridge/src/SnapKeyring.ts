@@ -1089,8 +1089,10 @@ export class SnapKeyring {
       if (features.has(KeyringInternalFeature.UseOrigin)) {
         response = await client.submitRequest(request);
       } else {
-        // V1 keyring request did not support the `origin` field.
-        response = await client.submitLegacyRequest(toLegacyKeyringRequest(request));
+        // LegacyV1 keyring request did not support the `origin` field.
+        response = await client.submitLegacyRequest(
+          toLegacyKeyringRequest(request),
+        );
       }
 
       // Some methods, like the ones used to prepare and patch user operations,
