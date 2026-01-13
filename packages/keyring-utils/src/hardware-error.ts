@@ -140,7 +140,6 @@ export class HardwareWalletError extends Error {
    * @returns A user-friendly string representation of the error.
    */
   toString(): string {
-    const codeName = getErrorCodeName(this.code);
     return `${this.#getErrorPrefix()}: ${this.userMessage}`;
   }
 
