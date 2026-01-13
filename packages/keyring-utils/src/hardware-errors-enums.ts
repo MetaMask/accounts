@@ -4,14 +4,14 @@ export enum ErrorCode {
   Success = 0,
 
   // Authentication
-  AuthFailed = 1000,
-  AuthIncorrectPin = 1001,
-  AuthPinAttemptsRemaining = 1002,
-  AuthPinCancelled = 1003,
-  AuthDeviceLocked = 1100,
-  AuthDeviceBlocked = 1101,
-  AuthSecurityCondition = 1200,
-  AuthWipeCodeMismatch = 1300,
+  AuthenticationFailed = 1000,
+  AuthenticationIncorrectPin = 1001,
+  AuthenticationPinAttemptsRemaining = 1002,
+  AuthenticationPinCancelled = 1003,
+  AuthenticationDeviceLocked = 1100,
+  AuthenticationDeviceBlocked = 1101,
+  AuthenticationSecurityCondition = 1200,
+  AuthenticationWipeCodeMismatch = 1300,
 
   // User action
   UserRejected = 2000,

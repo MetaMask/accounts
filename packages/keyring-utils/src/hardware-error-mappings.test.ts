@@ -1,27 +1,17 @@
-import { HARDWARE_ERROR_MAPPINGS } from './hardware-error-mappings';
+import { LEDGER_ERROR_MAPPINGS } from './hardware-error-mappings';
 import { ErrorCode, Severity, Category } from './hardware-errors-enums';
 
 describe('HARDWARE_ERROR_MAPPINGS', () => {
-  describe('structure', () => {
-    it('should have ledger vendor', () => {
-      expect(HARDWARE_ERROR_MAPPINGS).toHaveProperty('ledger');
-    });
-
-    it('should have vendor names', () => {
-      expect(HARDWARE_ERROR_MAPPINGS.ledger.vendorName).toBe('Ledger');
-    });
-  });
-
   describe('Ledger mappings', () => {
-    const { errorMappings } = HARDWARE_ERROR_MAPPINGS.ledger;
+    const errorMappings = LEDGER_ERROR_MAPPINGS;
 
-    it('should have errorMappings object', () => {
+    it('have errorMappings object', () => {
       expect(errorMappings).toBeDefined();
       expect(typeof errorMappings).toBe('object');
     });
 
     describe('success codes', () => {
-      it('should map 0x9000 to success', () => {
+      it('map 0x9000 to success', () => {
         const mapping = errorMappings['0x9000'];
         expect(mapping).toBeDefined();
         expect(mapping.customCode).toBe(ErrorCode.Success);
@@ -31,57 +21,59 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
     });
 
     describe('authentication errors', () => {
-      it('should map 0x6300 to authentication failed', () => {
+      it('map 0x6300 to authentication failed', () => {
         const mapping = errorMappings['0x6300'];
-        expect(mapping.customCode).toBe(ErrorCode.AuthFailed);
+        expect(mapping.customCode).toBe(ErrorCode.AuthenticationFailed);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.category).toBe(Category.Authentication);
         expect(mapping.userMessage).toBeDefined();
       });
 
-      it('should map 0x63c0 to PIN attempts remaining', () => {
+      it('map 0x63c0 to PIN attempts remaining', () => {
         const mapping = errorMappings['0x63c0'];
-        expect(mapping.customCode).toBe(ErrorCode.AuthPinAttemptsRemaining);
+        expect(mapping.customCode).toBe(
+          ErrorCode.AuthenticationPinAttemptsRemaining,
+        );
         expect(mapping.severity).toBe(Severity.Warning);
       });
 
-      it('should map 0x5515 to device locked', () => {
+      it('map 0x5515 to device locked', () => {
         const mapping = errorMappings['0x5515'];
-        expect(mapping.customCode).toBe(ErrorCode.AuthDeviceLocked);
+        expect(mapping.customCode).toBe(ErrorCode.AuthenticationDeviceLocked);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.userMessage).toContain('unlock');
       });
 
-      it('should map 0x9840 to device blocked', () => {
+      it('map 0x9840 to device blocked', () => {
         const mapping = errorMappings['0x9840'];
-        expect(mapping.customCode).toBe(ErrorCode.AuthDeviceBlocked);
+        expect(mapping.customCode).toBe(ErrorCode.AuthenticationDeviceBlocked);
         expect(mapping.severity).toBe(Severity.Critical);
       });
     });
 
     describe('user action errors', () => {
-      it('should map 0x6985 to user rejected', () => {
+      it('map 0x6985 to user rejected', () => {
         const mapping = errorMappings['0x6985'];
         expect(mapping.customCode).toBe(ErrorCode.UserRejected);
         expect(mapping.severity).toBe(Severity.Warning);
         expect(mapping.category).toBe(Category.UserAction);
       });
 
-      it('should map 0x5501 to user refused', () => {
+      it('map 0x5501 to user refused', () => {
         const mapping = errorMappings['0x5501'];
         expect(mapping.customCode).toBe(ErrorCode.UserRejected);
         expect(mapping.severity).toBe(Severity.Warning);
       });
     });
     describe('connection errors', () => {
-      it('should map 0x650f to connection issue', () => {
+      it('map 0x650f to connection issue', () => {
         const mapping = errorMappings['0x650f'];
         expect(mapping.customCode).toBe(ErrorCode.ConnClosed);
         expect(mapping.category).toBe(Category.Connection);
       });
     });
 
-    it('should have valid structure for all mappings', () => {
+    it('have valid structure for all mappings', () => {
       Object.entries(errorMappings).forEach(([_, mapping]) => {
         expect(mapping).toHaveProperty('customCode');
         expect(mapping).toHaveProperty('message');
@@ -98,7 +90,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       });
     });
 
-    it('should have valid userMessage when present', () => {
+    it('have valid userMessage when present', () => {
       const mappingsWithUserMessage = Object.values(errorMappings).filter(
         (mapping): mapping is typeof mapping & { userMessage: string } =>
           'userMessage' in mapping &&
@@ -114,10 +106,8 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
   });
 
   describe('consistency checks', () => {
-    it('should have unique error codes within each vendor', () => {
-      const ledgerCodes = Object.values(
-        HARDWARE_ERROR_MAPPINGS.ledger.errorMappings,
-      );
+    it('have unique error codes', () => {
+      const ledgerCodes = Object.values(LEDGER_ERROR_MAPPINGS);
       const ledgerCustomCodes = ledgerCodes.map(
         (mapping) => mapping.customCode,
       );

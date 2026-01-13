@@ -318,7 +318,7 @@ describe('HardwareWalletError', () => {
   describe('error scenarios', () => {
     it('handles critical authentication errors', () => {
       const error = new HardwareWalletError('Device blocked', {
-        code: ErrorCode.AuthDeviceBlocked,
+        code: ErrorCode.AuthenticationDeviceBlocked,
         severity: Severity.Critical,
         category: Category.Authentication,
         userMessage: 'Device is blocked due to too many failed attempts',
