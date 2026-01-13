@@ -87,7 +87,7 @@ describe('KeyringInternalSnapClient', () => {
     });
   });
 
-  describe('submitRequestV1', () => {
+  describe('submitLegacyRequest', () => {
     const keyringRequest: LegacyKeyringRequest = {
       id: 'mock-request-id',
       scope: EthScope.Mainnet,
@@ -109,7 +109,7 @@ describe('KeyringInternalSnapClient', () => {
       },
     };
 
-    it('calls the submitRequestV1 method', async () => {
+    it('calls the submitLegacyRequest method', async () => {
       const client = new KeyringInternalSnapClient({
         messenger: messenger as unknown as KeyringInternalSnapClientMessenger,
         snapId,
@@ -119,7 +119,7 @@ describe('KeyringInternalSnapClient', () => {
         pending: false,
         result: null,
       });
-      await client.submitRequestV1(keyringRequest);
+      await client.submitLegacyRequest(keyringRequest);
       expect(messenger.call).toHaveBeenCalledWith(
         'SnapController:handleRequest',
         request,

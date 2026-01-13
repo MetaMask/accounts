@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **BREAKING:** Rename `submitRequestV1` method to `submitLegacyRequest` ([#423](https://github.com/MetaMask/accounts/pull/423))
+
 ### Changed
 
 - Bump `@metamask/snaps-controllers` from `^14.0.1` to `^17.2.0` ([#422](https://github.com/MetaMask/accounts/pull/422))

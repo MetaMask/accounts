@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove `KeyringVersion` support ([#423](https://github.com/MetaMask/accounts/pull/423))
   - Both `getKeyringVersionFromPlatform`, `PLATFORM_VERSION_TO_KEYRING_VERSION` got removed too.
   - Use `KeyringInternalFeature` instead.
+- **BREAKING:** Rename `submitRequestV1` method to `submitLegacyRequest` ([#423](https://github.com/MetaMask/accounts/pull/423))
 
 ## [18.0.2]
 

@@ -131,7 +131,7 @@ export class KeyringInternalSnapClient extends KeyringClient {
    * @param request - Keyring request.
    * @returns Keyring request's response.
    */
-  async submitRequestV1(request: LegacyKeyringRequest): Promise<LegacyKeyringResponse> {
+  async submitLegacyRequest(request: LegacyKeyringRequest): Promise<LegacyKeyringResponse> {
     return strictMask(
       await this.send({
         method: KeyringRpcMethod.SubmitRequest,
