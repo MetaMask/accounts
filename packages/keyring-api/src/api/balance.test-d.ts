@@ -13,9 +13,21 @@ expectAssignable<Balance>({
   unit: 'BTC',
   rawAmount: '10000000',
 });
-expectAssignable<Balance>({ amount: '.1', unit: 'gwei', rawAmount: '100000000' });
-expectAssignable<Balance>({ amount: '.1', unit: 'wei', rawAmount: '100000000' });
-expectAssignable<Balance>({ amount: '1.', unit: 'sat', rawAmount: '100000000' });
+expectAssignable<Balance>({
+  amount: '.1',
+  unit: 'gwei',
+  rawAmount: '100000000',
+});
+expectAssignable<Balance>({
+  amount: '.1',
+  unit: 'wei',
+  rawAmount: '100000000',
+});
+expectAssignable<Balance>({
+  amount: '1.',
+  unit: 'sat',
+  rawAmount: '100000000',
+});
 
 // Missing rawAmount
 expectNotAssignable<Balance>({ amount: '1.0', unit: 'ETH' });
