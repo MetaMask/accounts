@@ -6,7 +6,7 @@ import {
   RetryStrategy,
 } from './hardware-errors-enums';
 
-export const HARDWARE_MAPPINGS = {
+export const HARDWARE_ERROR_MAPPINGS = {
   ledger: {
     vendorName: 'Ledger',
     errorMappings: {
@@ -110,7 +110,7 @@ export const HARDWARE_MAPPINGS = {
         retryStrategy: RetryStrategy.Retry,
         userActionable: true,
         userMessage:
-          'Transaction was rejected. Please approve on your device to continue.',
+          'Operation was rejected. Please approve on your device to continue.',
       },
       '0x6a80': {
         customCode: ErrorCode.DeviceStateBlindSignNotSupported,

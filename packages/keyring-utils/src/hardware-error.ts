@@ -171,7 +171,7 @@ export class HardwareWalletError extends Error {
    */
   toString(): string {
     const codeName = getErrorCodeName(this.code);
-    return `${this.name} [${codeName}:${this.code}]: ${this.userMessage}`;
+    return `${this.#getErrorPrefix()}: ${this.message}`;
   }
 
   /**
