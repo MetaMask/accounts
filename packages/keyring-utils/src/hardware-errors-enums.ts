@@ -36,8 +36,6 @@ export enum ErrorCode {
   ConnClosed = 4001,
   ConnTimeout = 4002,
   ConnBlocked = 4003,
-  ConnIframeMissing = 4010,
-  ConnSuiteMissing = 4011,
 
   // Protocol
   ProtoUnexpectedMessage = 5000,
