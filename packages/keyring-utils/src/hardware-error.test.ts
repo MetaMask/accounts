@@ -1,18 +1,11 @@
 import { HardwareWalletError } from './hardware-error';
-import {
-  ErrorCode,
-  Severity,
-  Category,
-  RetryStrategy,
-} from './hardware-errors-enums';
+import { ErrorCode, Severity, Category } from './hardware-errors-enums';
 
 describe('HardwareWalletError', () => {
   const mockOptions = {
     code: ErrorCode.UserRejected,
     severity: Severity.Warning,
     category: Category.UserAction,
-    retryStrategy: RetryStrategy.Retry,
-    userActionable: true,
     userMessage: 'Transaction was rejected',
   };
 
@@ -25,8 +18,6 @@ describe('HardwareWalletError', () => {
       expect(error.code).toBe(ErrorCode.UserRejected);
       expect(error.severity).toBe(Severity.Warning);
       expect(error.category).toBe(Category.UserAction);
-      expect(error.retryStrategy).toBe(RetryStrategy.Retry);
-      expect(error.userActionable).toBe(true);
       expect(error.userMessage).toBe('Transaction was rejected');
     });
 
@@ -72,32 +63,6 @@ describe('HardwareWalletError', () => {
     });
   });
 
-  describe('isRetryable', () => {
-    it('should return true for RETRY strategy', () => {
-      const error = new HardwareWalletError('Test error', {
-        ...mockOptions,
-        retryStrategy: RetryStrategy.Retry,
-      });
-      expect(error.isRetryable()).toBe(true);
-    });
-
-    it('should return true for EXPONENTIAL_BACKOFF strategy', () => {
-      const error = new HardwareWalletError('Test error', {
-        ...mockOptions,
-        retryStrategy: RetryStrategy.ExponentialBackoff,
-      });
-      expect(error.isRetryable()).toBe(true);
-    });
-
-    it('should return false for NO_RETRY strategy', () => {
-      const error = new HardwareWalletError('Test error', {
-        ...mockOptions,
-        retryStrategy: RetryStrategy.NoRetry,
-      });
-      expect(error.isRetryable()).toBe(false);
-    });
-  });
-
   describe('isCritical', () => {
     it('should return true for CRITICAL severity', () => {
       const error = new HardwareWalletError('Test error', {
@@ -137,24 +102,6 @@ describe('HardwareWalletError', () => {
         });
         expect(error.isWarning()).toBe(false);
       });
-    });
-  });
-
-  describe('requiresUserAction', () => {
-    it('should return true when userActionable is true', () => {
-      const error = new HardwareWalletError('Test error', {
-        ...mockOptions,
-        userActionable: true,
-      });
-      expect(error.requiresUserAction()).toBe(true);
-    });
-
-    it('should return false when userActionable is false', () => {
-      const error = new HardwareWalletError('Test error', {
-        ...mockOptions,
-        userActionable: false,
-      });
-      expect(error.requiresUserAction()).toBe(false);
     });
   });
 
@@ -210,8 +157,6 @@ describe('HardwareWalletError', () => {
       expect(newError.code).toBe(originalError.code);
       expect(newError.severity).toBe(originalError.severity);
       expect(newError.category).toBe(originalError.category);
-      expect(newError.retryStrategy).toBe(originalError.retryStrategy);
-      expect(newError.userActionable).toBe(originalError.userActionable);
       expect(newError.userMessage).toBe(originalError.userMessage);
       expect(newError.cause).toBe(originalError.cause);
     });
@@ -236,8 +181,6 @@ describe('HardwareWalletError', () => {
       expect(json.code).toBe(ErrorCode.UserRejected);
       expect(json.severity).toBe(Severity.Warning);
       expect(json.category).toBe(Category.UserAction);
-      expect(json.retryStrategy).toBe(RetryStrategy.Retry);
-      expect(json.userActionable).toBe(true);
       expect(json.userMessage).toBe('Transaction was rejected');
       expect(json.timestamp).toBe(error.timestamp.toISOString());
       expect(json.metadata).toStrictEqual(metadata);
@@ -324,8 +267,6 @@ describe('HardwareWalletError', () => {
       expect(result).toContain('User Message: Transaction was rejected');
       expect(result).toContain('Severity: Warning');
       expect(result).toContain('Category: UserAction');
-      expect(result).toContain('Retry Strategy: Retry');
-      expect(result).toContain('User Actionable: true');
       expect(result).toContain('Timestamp:');
     });
 
@@ -378,14 +319,10 @@ describe('HardwareWalletError', () => {
         code: ErrorCode.AuthDeviceBlocked,
         severity: Severity.Critical,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage: 'Device is blocked due to too many failed attempts',
       });
 
       expect(error.isCritical()).toBe(true);
-      expect(error.isRetryable()).toBe(false);
-      expect(error.requiresUserAction()).toBe(true);
     });
 
     it('should handle retryable connection errors', () => {
@@ -393,14 +330,10 @@ describe('HardwareWalletError', () => {
         code: ErrorCode.ConnTimeout,
         severity: Severity.Err,
         category: Category.Connection,
-        retryStrategy: RetryStrategy.ExponentialBackoff,
-        userActionable: false,
         userMessage: 'Connection timed out',
       });
 
       expect(error.isCritical()).toBe(false);
-      expect(error.isRetryable()).toBe(true);
-      expect(error.requiresUserAction()).toBe(false);
     });
 
     it('should handle user action warnings', () => {
@@ -408,15 +341,11 @@ describe('HardwareWalletError', () => {
         code: ErrorCode.UserConfirmationRequired,
         severity: Severity.Warning,
         category: Category.UserAction,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage: 'Please confirm the action on your device',
       });
 
       expect(error.isWarning()).toBe(true);
       expect(error.isCritical()).toBe(false);
-      expect(error.isRetryable()).toBe(true);
-      expect(error.requiresUserAction()).toBe(true);
     });
   });
 });

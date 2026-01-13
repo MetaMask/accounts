@@ -1,10 +1,5 @@
 import { HARDWARE_MAPPINGS } from './hardware-error-mappings';
-import {
-  ErrorCode,
-  Severity,
-  Category,
-  RetryStrategy,
-} from './hardware-errors-enums';
+import { ErrorCode, Severity, Category } from './hardware-errors-enums';
 
 describe('HARDWARE_MAPPINGS', () => {
   describe('structure', () => {
@@ -34,8 +29,6 @@ describe('HARDWARE_MAPPINGS', () => {
         expect(mapping.customCode).toBe(ErrorCode.Success);
         expect(mapping.severity).toBe(Severity.Info);
         expect(mapping.category).toBe(Category.Success);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.NoRetry);
-        expect(mapping.userActionable).toBe(false);
       });
     });
 
@@ -45,7 +38,6 @@ describe('HARDWARE_MAPPINGS', () => {
         expect(mapping.customCode).toBe(ErrorCode.AuthFailed);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.category).toBe(Category.Authentication);
-        expect(mapping.userActionable).toBe(true);
         expect(mapping.userMessage).toBeDefined();
       });
 
@@ -53,14 +45,12 @@ describe('HARDWARE_MAPPINGS', () => {
         const mapping = errorMappings['0x63c0'];
         expect(mapping.customCode).toBe(ErrorCode.AuthPinAttemptsRemaining);
         expect(mapping.severity).toBe(Severity.Warning);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
 
       it('should map 0x5515 to device locked', () => {
         const mapping = errorMappings['0x5515'];
         expect(mapping.customCode).toBe(ErrorCode.AuthDeviceLocked);
         expect(mapping.severity).toBe(Severity.Err);
-        expect(mapping.userActionable).toBe(true);
         expect(mapping.userMessage).toContain('unlock');
       });
 
@@ -68,7 +58,6 @@ describe('HARDWARE_MAPPINGS', () => {
         const mapping = errorMappings['0x9840'];
         expect(mapping.customCode).toBe(ErrorCode.AuthDeviceBlocked);
         expect(mapping.severity).toBe(Severity.Critical);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.NoRetry);
       });
     });
 
@@ -78,15 +67,12 @@ describe('HARDWARE_MAPPINGS', () => {
         expect(mapping.customCode).toBe(ErrorCode.UserRejected);
         expect(mapping.severity).toBe(Severity.Warning);
         expect(mapping.category).toBe(Category.UserAction);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
-        expect(mapping.userActionable).toBe(true);
       });
 
       it('should map 0x5501 to user refused', () => {
         const mapping = errorMappings['0x5501'];
         expect(mapping.customCode).toBe(ErrorCode.UserRejected);
         expect(mapping.severity).toBe(Severity.Warning);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
     });
     describe('connection errors', () => {
@@ -94,7 +80,6 @@ describe('HARDWARE_MAPPINGS', () => {
         const mapping = errorMappings['0x650f'];
         expect(mapping.customCode).toBe(ErrorCode.ConnClosed);
         expect(mapping.category).toBe(Category.Connection);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
     });
 
@@ -104,8 +89,6 @@ describe('HARDWARE_MAPPINGS', () => {
         expect(mapping).toHaveProperty('message');
         expect(mapping).toHaveProperty('severity');
         expect(mapping).toHaveProperty('category');
-        expect(mapping).toHaveProperty('retryStrategy');
-        expect(mapping).toHaveProperty('userActionable');
 
         const numericErrorCodes = Object.values(ErrorCode).filter(
           (value): value is number => typeof value === 'number',
@@ -113,8 +96,6 @@ describe('HARDWARE_MAPPINGS', () => {
         expect(numericErrorCodes).toContain(mapping.customCode);
         expect(Object.values(Severity)).toContain(mapping.severity);
         expect(Object.values(Category)).toContain(mapping.category);
-        expect(Object.values(RetryStrategy)).toContain(mapping.retryStrategy);
-        expect(typeof mapping.userActionable).toBe('boolean');
         expect(typeof mapping.message).toBe('string');
       });
     });
@@ -147,7 +128,6 @@ describe('HARDWARE_MAPPINGS', () => {
         const mapping = errorMappings['1'];
         expect(mapping.customCode).toBe(ErrorCode.ProtoUnexpectedMessage);
         expect(mapping.severity).toBe(Severity.Err);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
         expect(mapping.originalName).toBe('Failure_UnexpectedMessage');
       });
 
@@ -155,7 +135,6 @@ describe('HARDWARE_MAPPINGS', () => {
         const mapping = errorMappings['4'];
         expect(mapping.customCode).toBe(ErrorCode.UserCancelled);
         expect(mapping.category).toBe(Category.UserAction);
-        expect(mapping.userActionable).toBe(true);
         expect(mapping.originalName).toBe('Failure_ActionCancelled');
       });
     });
@@ -172,7 +151,6 @@ describe('HARDWARE_MAPPINGS', () => {
         const mapping = errorMappings['7'];
         expect(mapping.customCode).toBe(ErrorCode.AuthIncorrectPin);
         expect(mapping.category).toBe(Category.Authentication);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
         expect(mapping.originalName).toBe('Failure_PinInvalid');
       });
     });
@@ -189,21 +167,18 @@ describe('HARDWARE_MAPPINGS', () => {
         const mapping = errorMappings['15'];
         expect(mapping.customCode).toBe(ErrorCode.DeviceCallInProgress);
         expect(mapping.severity).toBe(Severity.Warning);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.ExponentialBackoff);
         expect(mapping.originalName).toBe('Failure_Busy');
       });
 
       it('should map Device_Disconnected to device disconnected', () => {
         const mapping = errorMappings.Device_Disconnected;
         expect(mapping.customCode).toBe(ErrorCode.DeviceDisconnected);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
         expect(mapping.sdkMessage).toBe('Device disconnected');
       });
 
       it('should map Device_UsedElsewhere correctly', () => {
         const mapping = errorMappings.Device_UsedElsewhere;
         expect(mapping.customCode).toBe(ErrorCode.DeviceUsedElsewhere);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.NoRetry);
         expect(mapping.userMessage).toContain('another window');
       });
     });
@@ -219,7 +194,6 @@ describe('HARDWARE_MAPPINGS', () => {
       it('should map Init_IframeTimeout', () => {
         const mapping = errorMappings.Init_IframeTimeout;
         expect(mapping.customCode).toBe(ErrorCode.ConnTimeout);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
 
       it('should map Transport_Missing', () => {
@@ -234,7 +208,6 @@ describe('HARDWARE_MAPPINGS', () => {
         const mapping = errorMappings.Method_Cancel;
         expect(mapping.customCode).toBe(ErrorCode.UserCancelled);
         expect(mapping.category).toBe(Category.UserAction);
-        expect(mapping.retryStrategy).toBe(RetryStrategy.Retry);
       });
 
       it('should map Method_UnknownCoin', () => {
@@ -278,8 +251,6 @@ describe('HARDWARE_MAPPINGS', () => {
         expect(mapping).toHaveProperty('message');
         expect(mapping).toHaveProperty('severity');
         expect(mapping).toHaveProperty('category');
-        expect(mapping).toHaveProperty('retryStrategy');
-        expect(mapping).toHaveProperty('userActionable');
 
         const numericErrorCodes = Object.values(ErrorCode).filter(
           (value): value is number => typeof value === 'number',
@@ -287,8 +258,6 @@ describe('HARDWARE_MAPPINGS', () => {
         expect(numericErrorCodes).toContain(mapping.customCode);
         expect(Object.values(Severity)).toContain(mapping.severity);
         expect(Object.values(Category)).toContain(mapping.category);
-        expect(Object.values(RetryStrategy)).toContain(mapping.retryStrategy);
-        expect(typeof mapping.userActionable).toBe('boolean');
         expect(typeof mapping.message).toBe('string');
       });
     });
@@ -380,49 +349,6 @@ describe('HARDWARE_MAPPINGS', () => {
         (mapping) => mapping.customCode,
       );
       expect(trezorCustomCodes.length).toBeGreaterThan(0);
-    });
-
-    it('should have user messages for user-actionable errors', () => {
-      const ledgerMappings = Object.values(
-        HARDWARE_MAPPINGS.ledger.errorMappings,
-      ).filter(
-        (mapping) =>
-          mapping.userActionable && mapping.severity !== Severity.Info,
-      );
-
-      ledgerMappings.forEach((mapping) => {
-        expect('userMessage' in mapping).toBe(true);
-        expect(typeof (mapping as any).userMessage).toBe('string');
-        expect((mapping as any).userMessage.length).toBeGreaterThan(0);
-      });
-
-      const trezorMappings = Object.values(
-        HARDWARE_MAPPINGS.trezor.errorMappings,
-      ).filter(
-        (mapping) =>
-          mapping.userActionable && mapping.severity !== Severity.Info,
-      );
-
-      trezorMappings.forEach((mapping) => {
-        expect('userMessage' in mapping).toBe(true);
-        expect(typeof (mapping as any).userMessage).toBe('string');
-        expect((mapping as any).userMessage.length).toBeGreaterThan(0);
-      });
-    });
-
-    it('should use NO_RETRY for critical errors', () => {
-      const allMappings = [
-        ...Object.values(HARDWARE_MAPPINGS.ledger.errorMappings),
-        ...Object.values(HARDWARE_MAPPINGS.trezor.errorMappings),
-      ];
-
-      const criticalMappings = allMappings.filter(
-        (mapping) => mapping.severity === Severity.Critical,
-      );
-
-      criticalMappings.forEach((mapping) => {
-        expect(mapping.retryStrategy).toBe(RetryStrategy.NoRetry);
-      });
     });
   });
 });

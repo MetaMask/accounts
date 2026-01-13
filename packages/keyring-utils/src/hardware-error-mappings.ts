@@ -1,10 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import {
-  ErrorCode,
-  Severity,
-  Category,
-  RetryStrategy,
-} from './hardware-errors-enums';
+import { ErrorCode, Severity, Category } from './hardware-errors-enums';
 
 export const HARDWARE_ERROR_MAPPINGS = {
   ledger: {
@@ -15,16 +10,12 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Operation successful',
         severity: Severity.Info,
         category: Category.Success,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: false,
       },
       '0x6300': {
         customCode: ErrorCode.AuthFailed,
         message: 'Authentication failed',
         severity: Severity.Err,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage: 'Authentication failed. Please verify your credentials.',
       },
       '0x63c0': {
@@ -32,8 +23,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'PIN attempts remaining',
         severity: Severity.Warning,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage: 'Incorrect PIN. Please try again.',
       },
       '0x6982': {
@@ -41,8 +30,7 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Security conditions not satisfied',
         severity: Severity.Err,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
+
         userMessage:
           'Device is locked or access rights are insufficient. Please unlock your device.',
       },
@@ -51,8 +39,7 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'User rejected action on device',
         severity: Severity.Warning,
         category: Category.UserAction,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
+
         userMessage:
           'Transaction was rejected. Please approve on your device to continue.',
       },
@@ -61,8 +48,7 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'App update required',
         severity: Severity.Err,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
+
         userMessage: 'Please update your Ledger app to continue.',
       },
       '0x9808': {
@@ -70,16 +56,13 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Contradiction in secret code status',
         severity: Severity.Err,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: false,
       },
       '0x9840': {
         customCode: ErrorCode.AuthDeviceBlocked,
         message: 'Code blocked',
         severity: Severity.Critical,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
+
         userMessage:
           'Your device is blocked due to too many failed attempts. Please follow device recovery procedures.',
       },
@@ -88,8 +71,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'App closed or connection issue',
         severity: Severity.Err,
         category: Category.Connection,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage:
           'Connection lost or app closed. Please open the corresponding app on your Ledger device.',
       },
@@ -98,8 +79,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device is locked',
         severity: Severity.Err,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage: 'Please unlock your Ledger device to continue.',
       },
       '0x5501': {
@@ -107,8 +86,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'User refused on device',
         severity: Severity.Warning,
         category: Category.UserAction,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage:
           'Operation was rejected. Please approve on your device to continue.',
       },
@@ -117,8 +94,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Blind signing not supported',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage: 'Blind signing is not supported on this device.',
       },
       '0x6d00': {
@@ -126,8 +101,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Ledger Only V4 supported',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage: 'Only V4 is supported on this device.',
       },
       '0x6e00': {
@@ -135,8 +108,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Ethereum app closed',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage: 'Ethereum app is closed. Please open it to continue.',
       },
       '0x6501': {
@@ -144,8 +115,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Ethereum app out of date',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage:
           'Ethereum app is out of date. Please update it to continue.',
       },
@@ -159,8 +128,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Unexpected message received',
         severity: Severity.Err,
         category: Category.Protocol,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: false,
         originalName: 'Failure_UnexpectedMessage',
       },
       '2': {
@@ -168,8 +135,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Button confirmation required',
         severity: Severity.Warning,
         category: Category.UserAction,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage: 'Please confirm the action on your Trezor device.',
         originalName: 'Failure_ButtonExpected',
       },
@@ -178,8 +143,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Action cancelled by user',
         severity: Severity.Warning,
         category: Category.UserAction,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage:
           'You cancelled the operation. Please try again if this was unintentional.',
         originalName: 'Failure_ActionCancelled',
@@ -189,8 +152,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'PIN entry expected',
         severity: Severity.Warning,
         category: Category.UserAction,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage: 'Please enter your PIN on the Trezor device.',
         originalName: 'Failure_PinExpected',
       },
@@ -199,8 +160,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'PIN cancelled by user',
         severity: Severity.Warning,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage: 'PIN entry was cancelled. Please try again.',
         originalName: 'Failure_PinCancelled',
       },
@@ -209,8 +168,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'PIN invalid',
         severity: Severity.Err,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage: 'Incorrect PIN entered. Please try again.',
         originalName: 'Failure_PinInvalid',
       },
@@ -219,8 +176,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device not initialized',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage:
           'Your Trezor device needs to be initialized. Please set it up first.',
         originalName: 'Failure_NotInitialized',
@@ -230,8 +185,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Wipe code mismatch',
         severity: Severity.Err,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage: 'Wipe codes do not match. Please try again.',
         originalName: 'Failure_WipeCodeMismatch',
       },
@@ -240,8 +193,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Invalid session',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: false,
         userMessage: 'Session expired. Please reconnect your device.',
         originalName: 'Failure_InvalidSession',
       },
@@ -250,8 +201,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device busy',
         severity: Severity.Warning,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.ExponentialBackoff,
-        userActionable: false,
         userMessage: 'Device is busy. Please wait and try again.',
         originalName: 'Failure_Busy',
       },
@@ -260,8 +209,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Unknown error',
         severity: Severity.Err,
         category: Category.Unknown,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: false,
         userMessage:
           'An unknown error occurred. Please try again or contact support.',
         originalName: 'Failure_UnknownCode',
@@ -271,8 +218,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Iframe blocked',
         severity: Severity.Err,
         category: Category.Connection,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage:
           'Connection blocked. Please check your browser settings and allow iframes.',
         sdkMessage: 'Iframe blocked',
@@ -282,8 +227,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Iframe connection timeout',
         severity: Severity.Err,
         category: Category.Connection,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: false,
         userMessage:
           'Connection timed out. Please check your internet connection and try again.',
         sdkMessage: 'Iframe timeout',
@@ -293,8 +236,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Unable to establish connection with iframe',
         severity: Severity.Err,
         category: Category.Connection,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: false,
         userMessage: 'Connection failed. Please try again.',
         sdkMessage: 'Unable to establish connection with iframe',
       },
@@ -303,8 +244,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Unable to establish connection with Suite',
         severity: Severity.Err,
         category: Category.Connection,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage:
           'Cannot connect to Trezor Suite. Please ensure Trezor Suite is running.',
         sdkMessage: 'Unable to establish connection with Suite',
@@ -314,8 +253,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Transport is missing',
         severity: Severity.Err,
         category: Category.Connection,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage:
           'Transport layer not available. Please reconnect your device.',
         sdkMessage: 'Transport is missing',
@@ -325,8 +262,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Method cancelled by user',
         severity: Severity.Warning,
         category: Category.UserAction,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage: 'Operation was cancelled.',
         sdkMessage: 'Cancelled',
       },
@@ -335,8 +270,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Popup closed by user',
         severity: Severity.Warning,
         category: Category.UserAction,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage: 'Operation interrupted. The popup was closed.',
         sdkMessage: 'Popup closed',
       },
@@ -345,8 +278,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Coin not found',
         severity: Severity.Err,
         category: Category.Unknown,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage: 'The requested cryptocurrency is not supported.',
         sdkMessage: 'Coin not found',
       },
@@ -355,8 +286,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Addresses do not match',
         severity: Severity.Err,
         category: Category.Unknown,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage: 'Address verification failed. The addresses do not match.',
         sdkMessage: 'Addresses do not match',
       },
@@ -365,16 +294,12 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Discovery bundle exception',
         severity: Severity.Err,
         category: Category.Unknown,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: false,
       },
       Method_Override: {
         customCode: ErrorCode.Unknown,
         message: 'Method override',
         severity: Severity.Warning,
         category: Category.Unknown,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: false,
         sdkMessage: 'override',
       },
       Device_NotFound: {
@@ -382,8 +307,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device not found',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage:
           'Trezor device not detected. Please connect your device and try again.',
         sdkMessage: 'Device not found',
@@ -393,8 +316,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device initialization failed',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage:
           'Failed to initialize device. Please reconnect and try again.',
       },
@@ -403,8 +324,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device mode exception',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage:
           'Device is in an incompatible mode. Please check your device settings.',
       },
@@ -413,8 +332,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device disconnected',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage:
           'Device was disconnected. Please reconnect your Trezor device.',
         sdkMessage: 'Device disconnected',
@@ -424,8 +341,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device is used in another window',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage:
           'Your Trezor is being used in another window or application. Please close other connections.',
         sdkMessage: 'Device is used in another window',
@@ -435,8 +350,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Passphrase is incorrect',
         severity: Severity.Err,
         category: Category.Authentication,
-        retryStrategy: RetryStrategy.Retry,
-        userActionable: true,
         userMessage: 'Incorrect passphrase. Please try again.',
         sdkMessage: 'Passphrase is incorrect',
       },
@@ -445,8 +358,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device call in progress',
         severity: Severity.Warning,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.ExponentialBackoff,
-        userActionable: false,
         userMessage: 'Another operation is in progress. Please wait.',
         sdkMessage: 'Device call in progress',
       },
@@ -455,8 +366,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Multiple devices are not supported',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage:
           'Multiple devices detected. Please connect only one Trezor device.',
         sdkMessage: 'Multiple devices are not supported',
@@ -466,8 +375,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device is missing required capability',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage:
           'Your device does not support this feature. A firmware update may be required.',
         sdkMessage: 'Device is missing capability',
@@ -477,8 +384,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
         message: 'Device is BTC-only, operation not supported',
         severity: Severity.Err,
         category: Category.DeviceState,
-        retryStrategy: RetryStrategy.NoRetry,
-        userActionable: true,
         userMessage:
           'This operation is not supported on Bitcoin-only firmware.',
         sdkMessage: 'Device is missing capability (BTC only)',
@@ -489,8 +394,6 @@ export const HARDWARE_ERROR_MAPPINGS = {
       message: 'Unknown Trezor error',
       severity: Severity.Err,
       category: Category.Unknown,
-      retryStrategy: RetryStrategy.NoRetry,
-      userActionable: false,
       userMessage:
         'An unexpected error occurred. Please try again or contact support.',
     },

@@ -1,5 +1,5 @@
 import type { Category } from './hardware-errors-enums';
-import { ErrorCode, Severity, RetryStrategy } from './hardware-errors-enums';
+import { ErrorCode, Severity } from './hardware-errors-enums';
 
 /**
  * Generates a unique error ID using timestamp and random values.
@@ -28,8 +28,6 @@ export type HardwareWalletErrorOptions = {
   code: ErrorCode;
   severity: Severity;
   category: Category;
-  retryStrategy: RetryStrategy;
-  userActionable: boolean;
   userMessage: string;
   cause?: Error;
   metadata?: Record<string, unknown>;
@@ -43,10 +41,6 @@ export class HardwareWalletError extends Error {
   public readonly severity: Severity;
 
   public readonly category: Category;
-
-  public readonly retryStrategy: RetryStrategy;
-
-  public readonly userActionable: boolean;
 
   public readonly userMessage: string;
 
@@ -63,21 +57,10 @@ export class HardwareWalletError extends Error {
     this.code = options.code;
     this.severity = options.severity;
     this.category = options.category;
-    this.retryStrategy = options.retryStrategy;
-    this.userActionable = options.userActionable;
     this.userMessage = options.userMessage;
     this.timestamp = new Date();
     this.metadata = options.metadata;
     this.cause = options.cause;
-  }
-
-  /**
-   * Checks if this error can be retried based on its retry strategy.
-   *
-   * @returns True if the error can be retried, false otherwise.
-   */
-  isRetryable(): boolean {
-    return this.retryStrategy !== RetryStrategy.NoRetry;
   }
 
   /**
@@ -99,15 +82,6 @@ export class HardwareWalletError extends Error {
   }
 
   /**
-   * Checks if this error requires user action.
-   *
-   * @returns True if the error requires user action, false otherwise.
-   */
-  requiresUserAction(): boolean {
-    return this.userActionable;
-  }
-
-  /**
    * Creates a new error instance with additional metadata.
    *
    * @param additionalMetadata - Additional metadata to merge with existing metadata.
@@ -120,8 +94,6 @@ export class HardwareWalletError extends Error {
       code: this.code,
       severity: this.severity,
       category: this.category,
-      retryStrategy: this.retryStrategy,
-      userActionable: this.userActionable,
       userMessage: this.userMessage,
       metadata: { ...(this.metadata ?? {}), ...additionalMetadata },
     };
@@ -147,8 +119,6 @@ export class HardwareWalletError extends Error {
       code: this.code,
       severity: this.severity,
       category: this.category,
-      retryStrategy: this.retryStrategy,
-      userActionable: this.userActionable,
       userMessage: this.userMessage,
       timestamp: this.timestamp.toISOString(),
       metadata: this.metadata,
@@ -186,8 +156,6 @@ export class HardwareWalletError extends Error {
       `User Message: ${this.userMessage}`,
       `Severity: ${this.severity}`,
       `Category: ${this.category}`,
-      `Retry Strategy: ${this.retryStrategy}`,
-      `User Actionable: ${this.userActionable}`,
       `Timestamp: ${this.timestamp.toISOString()}`,
     ];
 
