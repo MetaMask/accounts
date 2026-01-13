@@ -1941,6 +1941,7 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/keyring-utils": "workspace:^"
     "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
