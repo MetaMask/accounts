@@ -75,10 +75,3 @@ export enum Category {
   DeviceState = 'DeviceState',
   Unknown = 'Unknown',
 }
-
-// Retry Strategy Enum
-export enum RetryStrategy {
-  NoRetry = 'NoRetry',
-  Retry = 'Retry',
-  ExponentialBackoff = 'ExponentialBackoff',
-}

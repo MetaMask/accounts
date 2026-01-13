@@ -1,21 +1,19 @@
-import { HARDWARE_MAPPINGS } from './hardware-error-mappings';
+import { HARDWARE_ERROR_MAPPINGS } from './hardware-error-mappings';
 import { ErrorCode, Severity, Category } from './hardware-errors-enums';
 
-describe('HARDWARE_MAPPINGS', () => {
+describe('HARDWARE_ERROR_MAPPINGS', () => {
   describe('structure', () => {
-    it('should have ledger and trezor vendors', () => {
-      expect(HARDWARE_MAPPINGS).toHaveProperty('ledger');
-      expect(HARDWARE_MAPPINGS).toHaveProperty('trezor');
+    it('should have ledger vendor', () => {
+      expect(HARDWARE_ERROR_MAPPINGS).toHaveProperty('ledger');
     });
 
     it('should have vendor names', () => {
-      expect(HARDWARE_MAPPINGS.ledger.vendorName).toBe('Ledger');
-      expect(HARDWARE_MAPPINGS.trezor.vendorName).toBe('Trezor');
+      expect(HARDWARE_ERROR_MAPPINGS.ledger.vendorName).toBe('Ledger');
     });
   });
 
   describe('Ledger mappings', () => {
-    const { errorMappings } = HARDWARE_MAPPINGS.ledger;
+    const { errorMappings } = HARDWARE_ERROR_MAPPINGS.ledger;
 
     it('should have errorMappings object', () => {
       expect(errorMappings).toBeDefined();
@@ -115,240 +113,15 @@ describe('HARDWARE_MAPPINGS', () => {
     });
   });
 
-  describe('Trezor mappings', () => {
-    const { errorMappings } = HARDWARE_MAPPINGS.trezor;
-
-    it('should have errorMapping object', () => {
-      expect(errorMappings).toBeDefined();
-      expect(typeof errorMappings).toBe('object');
-    });
-
-    describe('failure codes', () => {
-      it('should map code 1 to unexpected message', () => {
-        const mapping = errorMappings['1'];
-        expect(mapping.customCode).toBe(ErrorCode.ProtoUnexpectedMessage);
-        expect(mapping.severity).toBe(Severity.Err);
-        expect(mapping.originalName).toBe('Failure_UnexpectedMessage');
-      });
-
-      it('should map code 4 to action cancelled', () => {
-        const mapping = errorMappings['4'];
-        expect(mapping.customCode).toBe(ErrorCode.UserCancelled);
-        expect(mapping.category).toBe(Category.UserAction);
-        expect(mapping.originalName).toBe('Failure_ActionCancelled');
-      });
-    });
-
-    describe('PIN errors', () => {
-      it('should map code 5 to PIN expected', () => {
-        const mapping = errorMappings['5'];
-        expect(mapping.customCode).toBe(ErrorCode.UserInputRequired);
-        expect(mapping.category).toBe(Category.UserAction);
-        expect(mapping.originalName).toBe('Failure_PinExpected');
-      });
-
-      it('should map code 7 to PIN invalid', () => {
-        const mapping = errorMappings['7'];
-        expect(mapping.customCode).toBe(ErrorCode.AuthIncorrectPin);
-        expect(mapping.category).toBe(Category.Authentication);
-        expect(mapping.originalName).toBe('Failure_PinInvalid');
-      });
-    });
-
-    describe('device state errors', () => {
-      it('should map code 11 to device not initialized', () => {
-        const mapping = errorMappings['11'];
-        expect(mapping.customCode).toBe(ErrorCode.DeviceNotReady);
-        expect(mapping.category).toBe(Category.DeviceState);
-        expect(mapping.originalName).toBe('Failure_NotInitialized');
-      });
-
-      it('should map code 15 to device busy', () => {
-        const mapping = errorMappings['15'];
-        expect(mapping.customCode).toBe(ErrorCode.DeviceCallInProgress);
-        expect(mapping.severity).toBe(Severity.Warning);
-        expect(mapping.originalName).toBe('Failure_Busy');
-      });
-
-      it('should map Device_Disconnected to device disconnected', () => {
-        const mapping = errorMappings.Device_Disconnected;
-        expect(mapping.customCode).toBe(ErrorCode.DeviceDisconnected);
-        expect(mapping.sdkMessage).toBe('Device disconnected');
-      });
-
-      it('should map Device_UsedElsewhere correctly', () => {
-        const mapping = errorMappings.Device_UsedElsewhere;
-        expect(mapping.customCode).toBe(ErrorCode.DeviceUsedElsewhere);
-        expect(mapping.userMessage).toContain('another window');
-      });
-    });
-
-    describe('connection errors', () => {
-      it('should map Init_IframeBlocked', () => {
-        const mapping = errorMappings.Init_IframeBlocked;
-        expect(mapping.customCode).toBe(ErrorCode.ConnBlocked);
-        expect(mapping.category).toBe(Category.Connection);
-        expect(mapping.userMessage).toContain('browser settings');
-      });
-
-      it('should map Init_IframeTimeout', () => {
-        const mapping = errorMappings.Init_IframeTimeout;
-        expect(mapping.customCode).toBe(ErrorCode.ConnTimeout);
-      });
-
-      it('should map Transport_Missing', () => {
-        const mapping = errorMappings.Transport_Missing;
-        expect(mapping.customCode).toBe(ErrorCode.ConnTransportMissing);
-        expect(mapping.category).toBe(Category.Connection);
-      });
-    });
-
-    describe('method errors', () => {
-      it('should map Method_Cancel', () => {
-        const mapping = errorMappings.Method_Cancel;
-        expect(mapping.customCode).toBe(ErrorCode.UserCancelled);
-        expect(mapping.category).toBe(Category.UserAction);
-      });
-
-      it('should map Method_UnknownCoin', () => {
-        const mapping = errorMappings.Method_UnknownCoin;
-        expect(mapping.customCode).toBe(ErrorCode.Unknown);
-        expect(mapping.userMessage).toContain('not supported');
-      });
-    });
-
-    describe('device capability errors', () => {
-      it('should map Device_MultipleNotSupported', () => {
-        const mapping = errorMappings.Device_MultipleNotSupported;
-        expect(mapping.customCode).toBe(ErrorCode.DeviceMultipleConnected);
-        expect(mapping.userMessage).toContain('only one');
-      });
-
-      it('should map Device_MissingCapability', () => {
-        const mapping = errorMappings.Device_MissingCapability;
-        expect(mapping.customCode).toBe(ErrorCode.DeviceMissingCapability);
-        expect(mapping.userMessage).toContain('firmware update');
-      });
-
-      it('should map Device_MissingCapabilityBtcOnly', () => {
-        const mapping = errorMappings.Device_MissingCapabilityBtcOnly;
-        expect(mapping.customCode).toBe(ErrorCode.DeviceBtcOnlyFirmware);
-        expect(mapping.userMessage).toContain('Bitcoin-only');
-      });
-    });
-    describe('special codes', () => {
-      it('should have UNKNOWN fallback', () => {
-        const mapping = errorMappings.UNKNOWN;
-        expect(mapping.customCode).toBe(ErrorCode.Unknown);
-        expect(mapping.category).toBe(Category.Unknown);
-        expect(mapping.originalName).toBe('Failure_UnknownCode');
-      });
-    });
-
-    it('should have valid structure for all mappings', () => {
-      Object.entries(errorMappings).forEach(([_code, mapping]) => {
-        expect(mapping).toHaveProperty('customCode');
-        expect(mapping).toHaveProperty('message');
-        expect(mapping).toHaveProperty('severity');
-        expect(mapping).toHaveProperty('category');
-
-        const numericErrorCodes = Object.values(ErrorCode).filter(
-          (value): value is number => typeof value === 'number',
-        );
-        expect(numericErrorCodes).toContain(mapping.customCode);
-        expect(Object.values(Severity)).toContain(mapping.severity);
-        expect(Object.values(Category)).toContain(mapping.category);
-        expect(typeof mapping.message).toBe('string');
-      });
-    });
-
-    it('should have valid optional fields when present', () => {
-      const mappingsWithUserMessage = Object.values(errorMappings).filter(
-        (mapping): mapping is typeof mapping & { userMessage: string } =>
-          'userMessage' in mapping &&
-          typeof mapping.userMessage === 'string' &&
-          mapping.userMessage.length > 0,
-      );
-      mappingsWithUserMessage.forEach((mapping) => {
-        expect(typeof mapping.userMessage).toBe('string');
-        expect(mapping.userMessage.length).toBeGreaterThan(0);
-      });
-
-      const mappingsWithOriginalName = Object.values(errorMappings).filter(
-        (mapping): mapping is typeof mapping & { originalName: string } =>
-          'originalName' in mapping &&
-          typeof mapping.originalName === 'string' &&
-          mapping.originalName.length > 0,
-      );
-      mappingsWithOriginalName.forEach((mapping) => {
-        expect(typeof mapping.originalName).toBe('string');
-        expect(mapping.originalName.length).toBeGreaterThan(0);
-      });
-
-      const mappingsWithSdkMessage = Object.values(errorMappings).filter(
-        (mapping): mapping is typeof mapping & { sdkMessage: string } =>
-          'sdkMessage' in mapping &&
-          typeof mapping.sdkMessage === 'string' &&
-          mapping.sdkMessage.length > 0,
-      );
-      mappingsWithSdkMessage.forEach((mapping) => {
-        expect(typeof mapping.sdkMessage).toBe('string');
-        expect(mapping.sdkMessage.length).toBeGreaterThan(0);
-      });
-    });
-  });
-
-  describe('Trezor default and patterns', () => {
-    it('should have default error mapping', () => {
-      const { default: defaultMapping } = HARDWARE_MAPPINGS.trezor;
-      expect(defaultMapping).toBeDefined();
-      expect(defaultMapping.customCode).toBe(ErrorCode.Unknown);
-      expect(defaultMapping.category).toBe(Category.Unknown);
-    });
-
-    it('should have error_patterns array', () => {
-      const { error_patterns: errorPatterns } = HARDWARE_MAPPINGS.trezor;
-      expect(Array.isArray(errorPatterns)).toBe(true);
-      expect(errorPatterns.length).toBeGreaterThan(0);
-    });
-
-    it('should have valid pattern structure', () => {
-      const { error_patterns: errorPatterns } = HARDWARE_MAPPINGS.trezor;
-      errorPatterns.forEach((pattern) => {
-        expect(pattern).toHaveProperty('pattern');
-        expect(pattern).toHaveProperty('type');
-        expect(pattern).toHaveProperty('description');
-        expect(pattern).toHaveProperty('defaultSeverity');
-        expect(typeof pattern.pattern).toBe('string');
-        expect(typeof pattern.type).toBe('string');
-        expect(typeof pattern.description).toBe('string');
-        expect(Object.values(Severity)).toContain(pattern.defaultSeverity);
-      });
-    });
-
-    it('should have patterns for common error prefixes', () => {
-      const { error_patterns: errorPatterns } = HARDWARE_MAPPINGS.trezor;
-      const patterns = errorPatterns.map((patternObj) => patternObj.pattern);
-      expect(patterns).toContain('^Failure_.*');
-      expect(patterns).toContain('^Init_.*');
-      expect(patterns).toContain('^Method_.*');
-      expect(patterns).toContain('^Device_.*');
-    });
-  });
-
   describe('consistency checks', () => {
     it('should have unique error codes within each vendor', () => {
-      const ledgerCodes = Object.values(HARDWARE_MAPPINGS.ledger.errorMappings);
+      const ledgerCodes = Object.values(
+        HARDWARE_ERROR_MAPPINGS.ledger.errorMappings,
+      );
       const ledgerCustomCodes = ledgerCodes.map(
         (mapping) => mapping.customCode,
       );
       expect(ledgerCustomCodes.length).toBeGreaterThan(0);
-
-      const trezorCodes = Object.values(HARDWARE_MAPPINGS.trezor.errorMappings);
-      const trezorCustomCodes = trezorCodes.map(
-        (mapping) => mapping.customCode,
-      );
-      expect(trezorCustomCodes.length).toBeGreaterThan(0);
     });
   });
 });
