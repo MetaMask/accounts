@@ -218,6 +218,36 @@ describe('QrKeyringV2', () => {
   });
 
   describe('getAccounts', () => {
+    it('updates capabilities for pre-paired Account mode device', async () => {
+      const inner = new QrKeyring({
+        bridge: getMockBridge(),
+        ur: KNOWN_CRYPTO_ACCOUNT_UR,
+      });
+      await inner.addAccounts(1);
+
+      const wrapper = new QrKeyringV2({
+        legacyKeyring: inner,
+        entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
+      });
+
+      // Before getAccounts, capabilities are default HD mode
+      expect(wrapper.capabilities.custom).toBeUndefined();
+
+      // After getAccounts, capabilities are updated to Account mode
+      await wrapper.getAccounts();
+
+      expect(wrapper.capabilities).toStrictEqual({
+        scopes: [EthScope.Eoa],
+        bip44: {
+          deriveIndex: false,
+          derivePath: false,
+          discover: false,
+        },
+        custom: {
+          createAccounts: true,
+        },
+      });
+    });
     it('returns empty array when no device is paired', async () => {
       const inner = new QrKeyring({ bridge: getMockBridge() });
       const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });

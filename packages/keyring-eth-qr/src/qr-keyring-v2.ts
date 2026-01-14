@@ -126,16 +126,24 @@ export class QrKeyringV2
   /**
    * Updates capabilities based on the current device mode.
    * Should be called after device pairing or deserialization.
+   * Returns early if capabilities already match the current mode.
    */
   async #updateCapabilities(): Promise<void> {
     const deviceState = await this.#getDeviceState();
 
-    // Use Account mode capabilities only when a device is paired in Account mode,
-    // otherwise use HD mode capabilities (which is also the default for unpaired state)
-    const newCapabilities =
-      deviceState?.mode === DeviceMode.ACCOUNT
-        ? ACCOUNT_MODE_CAPABILITIES
-        : HD_MODE_CAPABILITIES;
+    const isAccountMode = deviceState?.mode === DeviceMode.ACCOUNT;
+    const hasAccountModeCapabilities =
+      this.capabilities.custom?.createAccounts === true;
+
+    // Early return for performance: skip update if capabilities already match device mode.
+    // Both true = Account mode already set, both false = HD mode already set.
+    if (isAccountMode === hasAccountModeCapabilities) {
+      return;
+    }
+
+    const newCapabilities = isAccountMode
+      ? ACCOUNT_MODE_CAPABILITIES
+      : HD_MODE_CAPABILITIES;
 
     // Clear all existing properties from capabilities
     for (const key of Object.keys(this.capabilities)) {
@@ -268,6 +276,9 @@ export class QrKeyringV2
   }
 
   async getAccounts(): Promise<KeyringAccount[]> {
+    // Update capabilities based on current device mode
+    await this.#updateCapabilities();
+
     const addresses = await this.inner.getAccounts();
     const deviceState = await this.#getDeviceState();
 
