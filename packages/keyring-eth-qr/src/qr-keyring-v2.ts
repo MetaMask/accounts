@@ -368,7 +368,7 @@ export class QrKeyringV2
   ): Promise<KeyringAccount[]> {
     const { addressIndex } = options;
 
-    if (typeof addressIndex !== 'number' || addressIndex < 0) {
+    if (!Number.isInteger(addressIndex) || addressIndex < 0) {
       throw new Error(
         `Invalid addressIndex: ${String(
           addressIndex,
@@ -427,7 +427,7 @@ export class QrKeyringV2
       );
     }
 
-    if (options.groupIndex < 0) {
+    if (!Number.isInteger(options.groupIndex) || options.groupIndex < 0) {
       throw new Error(
         `Invalid groupIndex: ${options.groupIndex}. Must be a non-negative integer.`,
       );
