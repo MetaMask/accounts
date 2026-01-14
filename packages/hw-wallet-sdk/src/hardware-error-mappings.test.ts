@@ -121,8 +121,6 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(mapping.code).toBe(ErrorCode.PermissionBluetoothDenied);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.category).toBe(Category.Configuration);
-        expect(mapping.userActionable).toBe(true);
-        expect(mapping.retryable).toBe(false);
       });
 
       it('maps LOCATION_PERMISSION_DENIED correctly', () => {
@@ -147,8 +145,6 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(mapping.code).toBe(ErrorCode.BluetoothDisabled);
         expect(mapping.severity).toBe(Severity.Warning);
         expect(mapping.category).toBe(Category.Connection);
-        expect(mapping.userActionable).toBe(true);
-        expect(mapping.retryable).toBe(true);
       });
 
       it('maps BLUETOOTH_SCAN_FAILED correctly', () => {
@@ -156,7 +152,6 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(mapping.code).toBe(ErrorCode.BluetoothScanFailed);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.category).toBe(Category.Connection);
-        expect(mapping.retryable).toBe(true);
       });
 
       it('maps BLUETOOTH_CONNECTION_FAILED correctly', () => {
@@ -164,7 +159,6 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(mapping.code).toBe(ErrorCode.BluetoothConnectionFailed);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.category).toBe(Category.Connection);
-        expect(mapping.retryable).toBe(true);
       });
     });
 
@@ -174,8 +168,6 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(mapping).toHaveProperty('message');
         expect(mapping).toHaveProperty('severity');
         expect(mapping).toHaveProperty('category');
-        expect(mapping).toHaveProperty('userActionable');
-        expect(mapping).toHaveProperty('retryable');
 
         const numericErrorCodes = Object.values(ErrorCode).filter(
           (value): value is number => typeof value === 'number',
@@ -184,8 +176,6 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(Object.values(Severity)).toContain(mapping.severity);
         expect(Object.values(Category)).toContain(mapping.category);
         expect(typeof mapping.message).toBe('string');
-        expect(typeof mapping.userActionable).toBe('boolean');
-        expect(typeof mapping.retryable).toBe('boolean');
       });
     });
   });
@@ -203,8 +193,6 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       expect(mapping.code).toBe(ErrorCode.MobileNotSupported);
       expect(mapping.severity).toBe(Severity.Err);
       expect(mapping.category).toBe(Category.DeviceState);
-      expect(mapping.userActionable).toBe(false);
-      expect(mapping.retryable).toBe(false);
     });
 
     it('has valid structure for all mappings', () => {
@@ -213,8 +201,6 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(mapping).toHaveProperty('message');
         expect(mapping).toHaveProperty('severity');
         expect(mapping).toHaveProperty('category');
-        expect(mapping).toHaveProperty('userActionable');
-        expect(mapping).toHaveProperty('retryable');
 
         const numericErrorCodes = Object.values(ErrorCode).filter(
           (value): value is number => typeof value === 'number',
@@ -223,8 +209,6 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(Object.values(Severity)).toContain(mapping.severity);
         expect(Object.values(Category)).toContain(mapping.category);
         expect(typeof mapping.message).toBe('string');
-        expect(typeof mapping.userActionable).toBe('boolean');
-        expect(typeof mapping.retryable).toBe('boolean');
       });
     });
   });

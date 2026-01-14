@@ -123,8 +123,6 @@ export const BLE_ERROR_MAPPINGS = {
     category: Category.Configuration,
     userMessage:
       'Bluetooth permission is required to connect to your hardware wallet. Please enable it in your device settings.',
-    userActionable: true,
-    retryable: false,
   },
   LOCATION_PERMISSION_DENIED: {
     code: ErrorCode.PermissionLocationDenied,
@@ -133,8 +131,6 @@ export const BLE_ERROR_MAPPINGS = {
     category: Category.Configuration,
     userMessage:
       'Location permission is required for Bluetooth scanning on Android. Please enable it in your device settings.',
-    userActionable: true,
-    retryable: false,
   },
   NEARBY_DEVICES_PERMISSION_DENIED: {
     code: ErrorCode.PermissionNearbyDenied,
@@ -143,8 +139,6 @@ export const BLE_ERROR_MAPPINGS = {
     category: Category.Configuration,
     userMessage:
       'Nearby devices permission is required to scan for your hardware wallet. Please enable it in your device settings.',
-    userActionable: true,
-    retryable: false,
   },
   BLUETOOTH_DISABLED: {
     code: ErrorCode.BluetoothDisabled,
@@ -153,8 +147,6 @@ export const BLE_ERROR_MAPPINGS = {
     category: Category.Connection,
     userMessage:
       'Bluetooth is turned off. Please enable Bluetooth to connect to your hardware wallet.',
-    userActionable: true,
-    retryable: true,
   },
   BLUETOOTH_SCAN_FAILED: {
     code: ErrorCode.BluetoothScanFailed,
@@ -162,8 +154,6 @@ export const BLE_ERROR_MAPPINGS = {
     severity: Severity.Err,
     category: Category.Connection,
     userMessage: 'Unable to scan for Bluetooth devices. Please try again.',
-    userActionable: true,
-    retryable: true,
   },
   BLUETOOTH_CONNECTION_FAILED: {
     code: ErrorCode.BluetoothConnectionFailed,
@@ -172,8 +162,6 @@ export const BLE_ERROR_MAPPINGS = {
     category: Category.Connection,
     userMessage:
       'Failed to connect via Bluetooth. Please make sure your device is nearby and try again.',
-    userActionable: true,
-    retryable: true,
   },
 };
 
@@ -184,7 +172,5 @@ export const MOBILE_ERROR_MAPPINGS = {
     severity: Severity.Err,
     category: Category.DeviceState,
     userMessage: 'This operation is not supported on mobile devices.',
-    userActionable: false,
-    retryable: false,
   },
 };
