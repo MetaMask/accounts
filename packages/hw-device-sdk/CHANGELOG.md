@@ -7,4 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/MetaMask/accounts/
+### Added
+
+- Add hardwared related error mappings and custom hardware error.
+
+[Unreleased]: https://github.com/MetaMask/accounts/@0.0.0...HEAD

@@ -5,7 +5,6 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "references": [{ "path": "../keyring-utils/tsconfig.build.json" }],
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/**/*.test.ts", "./src/**/*.test-d.ts"]
 }
