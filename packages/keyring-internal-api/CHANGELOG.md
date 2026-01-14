@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Changed
 
-- Add `KeyringInternalFeature` and `KeyringInternalFeatures` support ([#423](https://github.com/MetaMask/accounts/pull/423))
-  - They can be used to describe the internal feature supported by a keyring (for internal use).
+- **BREAKING:** Rename `KeyringRequestV1` type to `LegacyKeyringRequest` ([#423](https://github.com/MetaMask/accounts/pull/423))
+- **BREAKING:** Rename `toKeyringRequestV1` method to `toLegacyKeyringRequest` ([#423](https://github.com/MetaMask/accounts/pull/423))
 
 ### Removed
 
