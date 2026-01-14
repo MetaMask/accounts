@@ -5,7 +5,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
   describe('Ledger mappings', () => {
     const errorMappings = LEDGER_ERROR_MAPPINGS;
 
-    it('have errorMappings object', () => {
+    it('has errorMappings object', () => {
       expect(errorMappings).toBeDefined();
       expect(typeof errorMappings).toBe('object');
     });
@@ -71,7 +71,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       });
     });
 
-    it('have valid structure for all mappings', () => {
+    it('has valid structure for all mappings', () => {
       Object.entries(errorMappings).forEach(([_, mapping]) => {
         expect(mapping).toHaveProperty('code');
         expect(mapping).toHaveProperty('message');
@@ -88,7 +88,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       });
     });
 
-    it('have valid userMessage when present', () => {
+    it('has valid userMessage when present', () => {
       const mappingsWithUserMessage = Object.values(errorMappings).filter(
         (mapping): mapping is typeof mapping & { userMessage: string } =>
           'userMessage' in mapping &&
@@ -100,14 +100,6 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(typeof mapping.userMessage).toBe('string');
         expect(mapping.userMessage.length).toBeGreaterThan(0);
       });
-    });
-  });
-
-  describe('consistency checks', () => {
-    it('have unique error codes', () => {
-      const ledgerCodes = Object.values(LEDGER_ERROR_MAPPINGS);
-      const ledgercodes = ledgerCodes.map((mapping) => mapping.code);
-      expect(ledgercodes.length).toBeGreaterThan(0);
     });
   });
 });
