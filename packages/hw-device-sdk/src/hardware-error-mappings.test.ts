@@ -14,7 +14,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       it('map 0x9000 to success', () => {
         const mapping = errorMappings['0x9000'];
         expect(mapping).toBeDefined();
-        expect(mapping.customCode).toBe(ErrorCode.Success);
+        expect(mapping.code).toBe(ErrorCode.Success);
         expect(mapping.severity).toBe(Severity.Info);
         expect(mapping.category).toBe(Category.Success);
       });
@@ -23,7 +23,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
     describe('authentication errors', () => {
       it('map 0x6300 to authentication failed', () => {
         const mapping = errorMappings['0x6300'];
-        expect(mapping.customCode).toBe(ErrorCode.AuthenticationFailed);
+        expect(mapping.code).toBe(ErrorCode.AuthenticationFailed);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.category).toBe(Category.Authentication);
         expect(mapping.userMessage).toBeDefined();
@@ -31,22 +31,20 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
 
       it('map 0x63c0 to PIN attempts remaining', () => {
         const mapping = errorMappings['0x63c0'];
-        expect(mapping.customCode).toBe(
-          ErrorCode.AuthenticationPinAttemptsRemaining,
-        );
+        expect(mapping.code).toBe(ErrorCode.AuthenticationPinAttemptsRemaining);
         expect(mapping.severity).toBe(Severity.Warning);
       });
 
       it('map 0x5515 to device locked', () => {
         const mapping = errorMappings['0x5515'];
-        expect(mapping.customCode).toBe(ErrorCode.AuthenticationDeviceLocked);
+        expect(mapping.code).toBe(ErrorCode.AuthenticationDeviceLocked);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.userMessage).toContain('unlock');
       });
 
       it('map 0x9840 to device blocked', () => {
         const mapping = errorMappings['0x9840'];
-        expect(mapping.customCode).toBe(ErrorCode.AuthenticationDeviceBlocked);
+        expect(mapping.code).toBe(ErrorCode.AuthenticationDeviceBlocked);
         expect(mapping.severity).toBe(Severity.Critical);
       });
     });
@@ -54,28 +52,28 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
     describe('user action errors', () => {
       it('map 0x6985 to user rejected', () => {
         const mapping = errorMappings['0x6985'];
-        expect(mapping.customCode).toBe(ErrorCode.UserRejected);
+        expect(mapping.code).toBe(ErrorCode.UserRejected);
         expect(mapping.severity).toBe(Severity.Warning);
         expect(mapping.category).toBe(Category.UserAction);
       });
 
       it('map 0x5501 to user refused', () => {
         const mapping = errorMappings['0x5501'];
-        expect(mapping.customCode).toBe(ErrorCode.UserRejected);
+        expect(mapping.code).toBe(ErrorCode.UserRejected);
         expect(mapping.severity).toBe(Severity.Warning);
       });
     });
     describe('connection errors', () => {
       it('map 0x650f to connection issue', () => {
         const mapping = errorMappings['0x650f'];
-        expect(mapping.customCode).toBe(ErrorCode.ConnClosed);
+        expect(mapping.code).toBe(ErrorCode.ConnectionClosed);
         expect(mapping.category).toBe(Category.Connection);
       });
     });
 
     it('have valid structure for all mappings', () => {
       Object.entries(errorMappings).forEach(([_, mapping]) => {
-        expect(mapping).toHaveProperty('customCode');
+        expect(mapping).toHaveProperty('code');
         expect(mapping).toHaveProperty('message');
         expect(mapping).toHaveProperty('severity');
         expect(mapping).toHaveProperty('category');
@@ -83,7 +81,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         const numericErrorCodes = Object.values(ErrorCode).filter(
           (value): value is number => typeof value === 'number',
         );
-        expect(numericErrorCodes).toContain(mapping.customCode);
+        expect(numericErrorCodes).toContain(mapping.code);
         expect(Object.values(Severity)).toContain(mapping.severity);
         expect(Object.values(Category)).toContain(mapping.category);
         expect(typeof mapping.message).toBe('string');
@@ -108,10 +106,8 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
   describe('consistency checks', () => {
     it('have unique error codes', () => {
       const ledgerCodes = Object.values(LEDGER_ERROR_MAPPINGS);
-      const ledgerCustomCodes = ledgerCodes.map(
-        (mapping) => mapping.customCode,
-      );
-      expect(ledgerCustomCodes.length).toBeGreaterThan(0);
+      const ledgercodes = ledgerCodes.map((mapping) => mapping.code);
+      expect(ledgercodes.length).toBeGreaterThan(0);
     });
   });
 });

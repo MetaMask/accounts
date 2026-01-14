@@ -32,10 +32,10 @@ export enum ErrorCode {
   DeviceIncompatibleMode = 3030,
 
   // Connection & transport
-  ConnTransportMissing = 4000,
-  ConnClosed = 4001,
-  ConnTimeout = 4002,
-  ConnBlocked = 4003,
+  ConnectionTransportMissing = 4000,
+  ConnectionClosed = 4001,
+  ConnectionTimeout = 4002,
+  ConnectionBlocked = 4003,
 
   // Protocol
   ProtocolUnexpectedMessage = 5000,
