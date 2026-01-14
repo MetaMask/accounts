@@ -48,6 +48,15 @@ export enum ErrorCode {
   DeviceStateEthAppClosed = 6003,
   DeviceStateEthAppOutOfDate = 6004,
 
+  // Mobile/BLE Permission Errors
+  PermissionBluetoothDenied = 7000,
+  PermissionLocationDenied = 7001,
+  PermissionNearbyDenied = 7002,
+  BluetoothDisabled = 7100,
+  BluetoothScanFailed = 7101,
+  BluetoothConnectionFailed = 7102,
+  MobileNotSupported = 7300,
+
   // Transaction
   TxInsufficientFunds = 10000,
 
@@ -72,4 +81,5 @@ export enum Category {
   UserAction = 'UserAction',
   DeviceState = 'DeviceState',
   Unknown = 'Unknown',
+  Configuration = 'Configuration',
 }

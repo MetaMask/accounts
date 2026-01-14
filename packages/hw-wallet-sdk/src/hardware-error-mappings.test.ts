@@ -1,4 +1,8 @@
-import { LEDGER_ERROR_MAPPINGS } from './hardware-error-mappings';
+import {
+  LEDGER_ERROR_MAPPINGS,
+  BLE_ERROR_MAPPINGS,
+  MOBILE_ERROR_MAPPINGS,
+} from './hardware-error-mappings';
 import { ErrorCode, Severity, Category } from './hardware-errors-enums';
 
 describe('HARDWARE_ERROR_MAPPINGS', () => {
@@ -99,6 +103,128 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       mappingsWithUserMessage.forEach((mapping) => {
         expect(typeof mapping.userMessage).toBe('string');
         expect(mapping.userMessage.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('BLE mappings', () => {
+    const errorMappings = BLE_ERROR_MAPPINGS;
+
+    it('has errorMappings object', () => {
+      expect(errorMappings).toBeDefined();
+      expect(typeof errorMappings).toBe('object');
+    });
+
+    describe('permission errors', () => {
+      it('maps BLUETOOTH_PERMISSION_DENIED correctly', () => {
+        const mapping = errorMappings.BLUETOOTH_PERMISSION_DENIED;
+        expect(mapping.code).toBe(ErrorCode.PermissionBluetoothDenied);
+        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.category).toBe(Category.Configuration);
+        expect(mapping.userActionable).toBe(true);
+        expect(mapping.retryable).toBe(false);
+      });
+
+      it('maps LOCATION_PERMISSION_DENIED correctly', () => {
+        const mapping = errorMappings.LOCATION_PERMISSION_DENIED;
+        expect(mapping.code).toBe(ErrorCode.PermissionLocationDenied);
+        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.category).toBe(Category.Configuration);
+        expect(mapping.userMessage).toContain('Location');
+      });
+
+      it('maps NEARBY_DEVICES_PERMISSION_DENIED correctly', () => {
+        const mapping = errorMappings.NEARBY_DEVICES_PERMISSION_DENIED;
+        expect(mapping.code).toBe(ErrorCode.PermissionNearbyDenied);
+        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.category).toBe(Category.Configuration);
+      });
+    });
+
+    describe('bluetooth state errors', () => {
+      it('maps BLUETOOTH_DISABLED correctly', () => {
+        const mapping = errorMappings.BLUETOOTH_DISABLED;
+        expect(mapping.code).toBe(ErrorCode.BluetoothDisabled);
+        expect(mapping.severity).toBe(Severity.Warning);
+        expect(mapping.category).toBe(Category.Connection);
+        expect(mapping.userActionable).toBe(true);
+        expect(mapping.retryable).toBe(true);
+      });
+
+      it('maps BLUETOOTH_SCAN_FAILED correctly', () => {
+        const mapping = errorMappings.BLUETOOTH_SCAN_FAILED;
+        expect(mapping.code).toBe(ErrorCode.BluetoothScanFailed);
+        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.category).toBe(Category.Connection);
+        expect(mapping.retryable).toBe(true);
+      });
+
+      it('maps BLUETOOTH_CONNECTION_FAILED correctly', () => {
+        const mapping = errorMappings.BLUETOOTH_CONNECTION_FAILED;
+        expect(mapping.code).toBe(ErrorCode.BluetoothConnectionFailed);
+        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.category).toBe(Category.Connection);
+        expect(mapping.retryable).toBe(true);
+      });
+    });
+
+    it('has valid structure for all mappings', () => {
+      Object.entries(errorMappings).forEach(([_, mapping]) => {
+        expect(mapping).toHaveProperty('code');
+        expect(mapping).toHaveProperty('message');
+        expect(mapping).toHaveProperty('severity');
+        expect(mapping).toHaveProperty('category');
+        expect(mapping).toHaveProperty('userActionable');
+        expect(mapping).toHaveProperty('retryable');
+
+        const numericErrorCodes = Object.values(ErrorCode).filter(
+          (value): value is number => typeof value === 'number',
+        );
+        expect(numericErrorCodes).toContain(mapping.code);
+        expect(Object.values(Severity)).toContain(mapping.severity);
+        expect(Object.values(Category)).toContain(mapping.category);
+        expect(typeof mapping.message).toBe('string');
+        expect(typeof mapping.userActionable).toBe('boolean');
+        expect(typeof mapping.retryable).toBe('boolean');
+      });
+    });
+  });
+
+  describe('Mobile mappings', () => {
+    const errorMappings = MOBILE_ERROR_MAPPINGS;
+
+    it('has errorMappings object', () => {
+      expect(errorMappings).toBeDefined();
+      expect(typeof errorMappings).toBe('object');
+    });
+
+    it('maps NOT_SUPPORTED correctly', () => {
+      const mapping = errorMappings.NOT_SUPPORTED;
+      expect(mapping.code).toBe(ErrorCode.MobileNotSupported);
+      expect(mapping.severity).toBe(Severity.Err);
+      expect(mapping.category).toBe(Category.DeviceState);
+      expect(mapping.userActionable).toBe(false);
+      expect(mapping.retryable).toBe(false);
+    });
+
+    it('has valid structure for all mappings', () => {
+      Object.entries(errorMappings).forEach(([_, mapping]) => {
+        expect(mapping).toHaveProperty('code');
+        expect(mapping).toHaveProperty('message');
+        expect(mapping).toHaveProperty('severity');
+        expect(mapping).toHaveProperty('category');
+        expect(mapping).toHaveProperty('userActionable');
+        expect(mapping).toHaveProperty('retryable');
+
+        const numericErrorCodes = Object.values(ErrorCode).filter(
+          (value): value is number => typeof value === 'number',
+        );
+        expect(numericErrorCodes).toContain(mapping.code);
+        expect(Object.values(Severity)).toContain(mapping.severity);
+        expect(Object.values(Category)).toContain(mapping.category);
+        expect(typeof mapping.message).toBe('string');
+        expect(typeof mapping.userActionable).toBe('boolean');
+        expect(typeof mapping.retryable).toBe('boolean');
       });
     });
   });
