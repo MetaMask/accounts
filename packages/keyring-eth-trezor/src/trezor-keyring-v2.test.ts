@@ -537,6 +537,38 @@ describe('TrezorKeyringV2', () => {
         ),
       ).rejects.toThrow(/Entropy source mismatch/u);
     });
+
+    it('normalizes derivation path with leading zeros in index', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      // Create account with leading zeros in the index
+      const firstResult = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/0/007`),
+      );
+      const firstAccount = getFirstAccount(firstResult);
+
+      // The stored derivation path should be normalized (no leading zeros)
+      expect(firstAccount.options.entropy.derivationPath).toBe(
+        `m/44'/60'/0'/0/7`,
+      );
+      expect(firstAccount.options.entropy.groupIndex).toBe(7);
+
+      // Requesting the same path with leading zeros should return the cached account
+      const secondResult = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/0/007`),
+      );
+      const secondAccount = getFirstAccount(secondResult);
+
+      expect(secondAccount).toBe(firstAccount);
+
+      // Requesting with the normalized path should also return the same account
+      const thirdResult = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/0'/0/7`),
+      );
+      const thirdAccount = getFirstAccount(thirdResult);
+
+      expect(thirdAccount).toBe(firstAccount);
+    });
   });
 
   describe('deleteAccount', () => {

@@ -266,7 +266,9 @@ export class TrezorKeyringV2
         const parsed = this.#parseDerivationPath(options.derivationPath);
         targetIndex = parsed.index;
         basePath = parsed.basePath;
-        derivationPath = options.derivationPath;
+        // Use the normalized path to avoid mismatches with leading zeros
+        // (e.g., "m/44'/60'/0'/0/007" becomes "m/44'/60'/0'/0/7")
+        derivationPath = `${basePath}/${targetIndex}`;
       } else {
         // derive-index uses BIP-44 standard path by default
         if (options.groupIndex < 0) {
