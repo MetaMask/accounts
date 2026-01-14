@@ -10,7 +10,10 @@ import {
 
 import type { QrKeyringBridge } from '.';
 import { QrKeyring } from '.';
-import { QrKeyringV2 } from './qr-keyring-v2';
+import {
+  QrKeyringV2,
+  type QrKeyringCreateAccountOptions,
+} from './qr-keyring-v2';
 import {
   ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS,
   EXPECTED_ACCOUNTS,
@@ -174,12 +177,35 @@ function deriveIndexOptions(
   };
 }
 
+/**
+ * Helper to create custom account options for Account mode.
+ *
+ * @param addressIndex - The index of the pre-defined address.
+ * @param source - Optional entropy source override.
+ * @returns The create account options.
+ */
+function customAccountOptions(
+  addressIndex: number,
+  source: string = ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
+): {
+  type: 'custom';
+  entropySource: string;
+  addressIndex: number;
+} {
+  return {
+    type: 'custom' as const,
+    entropySource: source,
+    addressIndex,
+  };
+}
+
 describe('QrKeyringV2', () => {
   describe('constructor', () => {
     it('creates a wrapper with correct type and capabilities', () => {
       const { wrapper } = createEmptyWrapper();
 
       expect(wrapper.type).toBe(KeyringType.Qr);
+      // Default capabilities when no device is paired
       expect(wrapper.capabilities).toStrictEqual({
         scopes: [EthScope.Eoa],
         bip44: {
@@ -297,6 +323,74 @@ describe('QrKeyringV2', () => {
       // The accounts should be new objects (cache was cleared)
       expect(accountsAfter[0]).not.toBe(accountsBefore[0]);
     });
+
+    it('updates capabilities to HD mode after deserializing HD device state', async () => {
+      const inner = new QrKeyring({ bridge: getMockBridge() });
+      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+
+      await wrapper.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS);
+
+      expect(wrapper.capabilities).toStrictEqual({
+        scopes: [EthScope.Eoa],
+        bip44: {
+          deriveIndex: true,
+          derivePath: false,
+          discover: false,
+        },
+      });
+    });
+
+    it('updates capabilities to Account mode after deserializing Account device state', async () => {
+      const inner = new QrKeyring({ bridge: getMockBridge() });
+      const wrapper = new QrKeyringV2({
+        legacyKeyring: inner,
+        entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
+      });
+
+      // Initially, capabilities are HD mode defaults (derivePath is false for QR)
+
+      await wrapper.deserialize(ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS);
+
+      // After deserializing Account mode state, capabilities should update
+      expect(wrapper.capabilities).toStrictEqual({
+        scopes: [EthScope.Eoa],
+        bip44: {
+          deriveIndex: false,
+          derivePath: false,
+          discover: false,
+        },
+        custom: {
+          createAccounts: true,
+        },
+      });
+    });
+
+    it('clears custom capability when transitioning from Account mode to HD mode', async () => {
+      const inner = new QrKeyring({ bridge: getMockBridge() });
+      const wrapper = new QrKeyringV2({
+        legacyKeyring: inner,
+        entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
+      });
+
+      // First deserialize Account mode to get custom capability
+      await wrapper.deserialize(ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS);
+      expect(wrapper.capabilities.custom).toStrictEqual({
+        createAccounts: true,
+      });
+
+      // Now deserialize HD mode state - custom capability should be cleared
+      await wrapper.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS);
+
+      expect(wrapper.capabilities.custom).toBeUndefined();
+      expect(wrapper.capabilities).toStrictEqual({
+        scopes: [EthScope.Eoa],
+        bip44: {
+          deriveIndex: true,
+          derivePath: false,
+          discover: false,
+        },
+      });
+    });
   });
 
   describe('createAccounts', () => {
@@ -335,12 +429,13 @@ describe('QrKeyringV2', () => {
       await expect(
         wrapper.createAccounts({
           type: 'private-key:import',
+          entropySource,
           accountType: EthAccountType.Eoa,
           encoding: 'hexadecimal',
           privateKey: '0xabc',
-        }),
+        } as unknown as QrKeyringCreateAccountOptions),
       ).rejects.toThrow(
-        'Unsupported account creation type for QrKeyring: private-key:import',
+        /Unsupported account creation type for HD mode QrKeyring/u,
       );
     });
 
@@ -394,6 +489,28 @@ describe('QrKeyringV2', () => {
       await expect(
         wrapper.createAccounts(deriveIndexOptions(0)),
       ).rejects.toThrow('Failed to create new account');
+    });
+
+    it('throws error for negative groupIndex', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      await expect(
+        wrapper.createAccounts(deriveIndexOptions(-1)),
+      ).rejects.toThrow(/Invalid groupIndex: -1/u);
+    });
+
+    it('throws error for unsupported derive-path type', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      await expect(
+        wrapper.createAccounts({
+          type: 'bip44:derive-path',
+          entropySource,
+          derivationPath: `m/44'/60'/0'/0/0`,
+        } as unknown as QrKeyringCreateAccountOptions),
+      ).rejects.toThrow(
+        /Unsupported account creation type for HD mode QrKeyring: bip44:derive-path/u,
+      );
     });
   });
 
@@ -478,7 +595,7 @@ describe('QrKeyringV2', () => {
           ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.accounts[0],
         );
         expect(account.options.entropy).toStrictEqual({
-          type: KeyringAccountEntropyTypeOption.PrivateKey,
+          type: KeyringAccountEntropyTypeOption.Custom,
         });
       });
     });
@@ -494,8 +611,105 @@ describe('QrKeyringV2', () => {
             groupIndex: 0,
           }),
         ).rejects.toThrow(
-          'Cannot create accounts by index for Account mode devices',
+          /Account mode devices only support 'custom' account creation type/u,
         );
+      });
+
+      it('throws error when trying to derive by path', async () => {
+        const { wrapper } = await createAccountModeWrapper();
+
+        await expect(
+          wrapper.createAccounts({
+            type: 'bip44:derive-path',
+            entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
+            derivationPath: `m/44'/60'/0'/0/0`,
+          } as unknown as QrKeyringCreateAccountOptions),
+        ).rejects.toThrow(
+          /Account mode devices only support 'custom' account creation type/u,
+        );
+      });
+
+      it('creates account using custom type with valid addressIndex', async () => {
+        const inner = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_CRYPTO_ACCOUNT_UR,
+        });
+        // Do not add any accounts initially
+        const wrapper = new QrKeyringV2({
+          legacyKeyring: inner,
+          entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
+        });
+
+        const newAccounts = await wrapper.createAccounts(
+          customAccountOptions(0),
+        );
+        const account = getFirstAccount(newAccounts);
+
+        expect(account.address).toBe(
+          ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.accounts[0],
+        );
+        expect(account.options.entropy).toStrictEqual({
+          type: KeyringAccountEntropyTypeOption.Custom,
+        });
+      });
+
+      it('returns existing account if addressIndex already exists', async () => {
+        const { wrapper } = await createAccountModeWrapper();
+
+        const existingAccounts = await wrapper.getAccounts();
+        const existingAccount = getFirstAccount(existingAccounts);
+
+        const newAccounts = await wrapper.createAccounts(
+          customAccountOptions(0),
+        );
+        const returnedAccount = getFirstAccount(newAccounts);
+
+        expect(returnedAccount).toBe(existingAccount);
+      });
+
+      it('throws error for invalid addressIndex type', async () => {
+        const { wrapper } = await createAccountModeWrapper();
+
+        await expect(
+          wrapper.createAccounts({
+            type: 'custom',
+            entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
+            addressIndex: 'invalid',
+          } as unknown as { type: 'custom'; entropySource: string; addressIndex: number }),
+        ).rejects.toThrow(/Invalid addressIndex/u);
+      });
+
+      it('throws error for negative addressIndex', async () => {
+        const { wrapper } = await createAccountModeWrapper();
+
+        await expect(
+          wrapper.createAccounts(customAccountOptions(-1)),
+        ).rejects.toThrow(/Invalid addressIndex/u);
+      });
+
+      it('throws error for addressIndex out of bounds', async () => {
+        const { wrapper } = await createAccountModeWrapper();
+
+        await expect(
+          wrapper.createAccounts(customAccountOptions(999)),
+        ).rejects.toThrow(/Address index 999 is out of bounds/u);
+      });
+
+      it('throws error when inner keyring fails to create account', async () => {
+        const inner = new QrKeyring({
+          bridge: getMockBridge(),
+          ur: KNOWN_CRYPTO_ACCOUNT_UR,
+        });
+        const wrapper = new QrKeyringV2({
+          legacyKeyring: inner,
+          entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
+        });
+
+        jest.spyOn(inner, 'addAccounts').mockResolvedValueOnce([]);
+
+        await expect(
+          wrapper.createAccounts(customAccountOptions(0)),
+        ).rejects.toThrow('Failed to create new account');
       });
     });
 

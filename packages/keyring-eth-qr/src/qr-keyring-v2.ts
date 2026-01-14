@@ -11,12 +11,13 @@ import {
   type KeyringV2,
   KeyringType,
   type EntropySourceId,
+  type CreateAccountBip44DeriveIndexOptions,
 } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 
 import { DeviceMode } from './device';
-import type { QrKeyring } from './qr-keyring';
+import type { QrKeyring, SerializedQrKeyringState } from './qr-keyring';
 
 /**
  * Methods supported by QR keyring EOA accounts.
@@ -28,7 +29,10 @@ const QR_KEYRING_METHODS = [
   EthMethod.SignTypedDataV4,
 ];
 
-const qrKeyringV2Capabilities: KeyringCapabilities = {
+/**
+ * Capabilities for HD mode devices (index-based derivation supported).
+ */
+const HD_MODE_CAPABILITIES: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   bip44: {
     deriveIndex: true,
@@ -38,16 +42,57 @@ const qrKeyringV2Capabilities: KeyringCapabilities = {
 };
 
 /**
+ * Capabilities for Account mode devices (custom account selection).
+ */
+const ACCOUNT_MODE_CAPABILITIES: KeyringCapabilities = {
+  scopes: [EthScope.Eoa],
+  bip44: {
+    deriveIndex: false,
+    derivePath: false,
+    discover: false,
+  },
+  custom: {
+    createAccounts: true,
+  },
+};
+
+/**
+ * Custom options for creating accounts on Account mode QR devices.
+ * Account mode devices provide pre-defined addresses that must be selected by index.
+ */
+export type QrAccountModeCreateOptions = {
+  type: 'custom';
+  /**
+   * The entropy source ID (device fingerprint) to verify we're targeting the correct device.
+   */
+  entropySource: EntropySourceId;
+  /**
+   * The index of the pre-defined address to add from the device.
+   * This refers to the position in the device's address list, not a BIP-44 derivation index.
+   */
+  addressIndex: number;
+};
+
+/**
+ * Account creation options for QR keyring.
+ * Excludes unsupported types (custom, private-key:import) and adds our specific QrAccountModeCreateOptions.
+ */
+export type QrKeyringCreateAccountOptions =
+  | CreateAccountBip44DeriveIndexOptions
+  | QrAccountModeCreateOptions;
+
+/**
  * Concrete {@link KeyringV2} adapter for {@link QrKeyring}.
  *
  * This wrapper exposes the accounts and signing capabilities of the legacy
  * QR keyring via the unified V2 interface.
  *
  * Account handling differs by device mode:
- * - **HD mode**: Accounts are BIP-44 derived with reliable `groupIndex` values.
+ * - **HD mode**: Accounts are derived by index with `groupIndex` values.
+ * Supports `bip44:derive-index` for index-based derivation.
  * - **Account mode**: Accounts are treated as private key imports since the
- *   device provides pre-defined addresses with arbitrary paths, making
- *   `groupIndex` unreliable for derivation.
+ * device provides pre-defined addresses with arbitrary paths. Uses `custom`
+ * account creation type to select addresses by their position in the device.
  */
 export type QrKeyringV2Options = {
   legacyKeyring: QrKeyring;
@@ -60,13 +105,48 @@ export class QrKeyringV2
 {
   readonly entropySource: EntropySourceId;
 
+  /**
+   * Override capabilities to allow dynamic updates based on device mode.
+   * This shadows the readonly property from the base class.
+   */
+  declare readonly capabilities: KeyringCapabilities;
+
   constructor(options: QrKeyringV2Options) {
     super({
       type: KeyringType.Qr,
       inner: options.legacyKeyring,
-      capabilities: qrKeyringV2Capabilities,
+      // Clone to avoid mutating the constant when capabilities are updated
+      capabilities: JSON.parse(
+        JSON.stringify(HD_MODE_CAPABILITIES),
+      ) as KeyringCapabilities,
     });
     this.entropySource = options.entropySource;
+  }
+
+  /**
+   * Updates capabilities based on the current device mode.
+   * Should be called after device pairing or deserialization.
+   */
+  async #updateCapabilities(): Promise<void> {
+    const deviceState = await this.#getDeviceState();
+
+    // Use Account mode capabilities only when a device is paired in Account mode,
+    // otherwise use HD mode capabilities (which is also the default for unpaired state)
+    const newCapabilities =
+      deviceState?.mode === DeviceMode.ACCOUNT
+        ? ACCOUNT_MODE_CAPABILITIES
+        : HD_MODE_CAPABILITIES;
+
+    // Clear all existing properties from capabilities
+    for (const key of Object.keys(this.capabilities)) {
+      delete (this.capabilities as Record<string, unknown>)[key];
+    }
+
+    // Deep copy new capabilities to avoid mutating the constants
+    Object.assign(
+      this.capabilities,
+      JSON.parse(JSON.stringify(newCapabilities)),
+    );
   }
 
   /**
@@ -75,7 +155,16 @@ export class QrKeyringV2
    * @returns The device state, or undefined if no device is paired.
    */
   async #getDeviceState(): Promise<
-    { mode: DeviceMode; indexes: Record<Hex, number> } | undefined
+    | {
+        mode: DeviceMode.HD;
+        indexes: Record<Hex, number>;
+      }
+    | {
+        mode: DeviceMode.ACCOUNT;
+        indexes: Record<Hex, number>;
+        paths: Record<Hex, string>;
+      }
+    | undefined
   > {
     const state = await this.inner.serialize();
 
@@ -83,8 +172,16 @@ export class QrKeyringV2
       return undefined;
     }
 
+    if (state.keyringMode === DeviceMode.ACCOUNT) {
+      return {
+        mode: DeviceMode.ACCOUNT,
+        indexes: state.indexes,
+        paths: state.paths,
+      };
+    }
+
     return {
-      mode: state.keyringMode,
+      mode: DeviceMode.HD,
       indexes: state.indexes,
     };
   }
@@ -150,13 +247,24 @@ export class QrKeyringV2
       methods: [...QR_KEYRING_METHODS],
       options: {
         entropy: {
-          type: KeyringAccountEntropyTypeOption.PrivateKey,
+          type: KeyringAccountEntropyTypeOption.Custom,
         },
       },
     };
 
     this.registry.set(account);
     return account;
+  }
+
+  /**
+   * Hydrate the underlying keyring from a previously serialized state.
+   *
+   * @param state - The serialized keyring state.
+   */
+  async deserialize(state: SerializedQrKeyringState): Promise<void> {
+    await super.deserialize(state);
+    // Update capabilities after deserialization based on device mode
+    await this.#updateCapabilities();
   }
 
   async getAccounts(): Promise<KeyringAccount[]> {
@@ -197,7 +305,7 @@ export class QrKeyringV2
   }
 
   async createAccounts(
-    options: CreateAccountOptions,
+    options: QrKeyringCreateAccountOptions,
   ): Promise<KeyringAccount[]> {
     return this.withLock(async () => {
       const deviceState = await this.#getDeviceState();
@@ -206,57 +314,140 @@ export class QrKeyringV2
         throw new Error('No device paired. Cannot create accounts.');
       }
 
-      // Only supports BIP-44 derive index
-      if (options.type !== 'bip44:derive-index') {
-        throw new Error(
-          `Unsupported account creation type for QrKeyring: ${options.type}`,
-        );
-      }
-
-      // Account mode devices don't support index-based derivation since they
-      // provide pre-defined addresses with arbitrary paths. The groupIndex
-      // would not reliably match the actual derivation index.
-      if (deviceState.mode !== DeviceMode.HD) {
-        throw new Error(
-          'Cannot create accounts by index for Account mode devices. ' +
-            'Account mode devices provide pre-defined addresses that cannot be derived by index.',
-        );
-      }
-
-      // Validate that the entropy source matches this keyring's entropy source
+      // Validate entropy source for all account creation types
       if (options.entropySource !== this.entropySource) {
         throw new Error(
           `Entropy source mismatch: expected '${this.entropySource}', got '${options.entropySource}'`,
         );
       }
 
-      const targetIndex = options.groupIndex;
-
-      // Check if an account at this index already exists (only consider HD/BIP-44 accounts)
-      const currentAccounts = await this.getAccounts();
-      const existingAccount = currentAccounts.find(
-        (account) =>
-          account.options.entropy?.type ===
-            KeyringAccountEntropyTypeOption.Mnemonic &&
-          (account.options.entropy as { groupIndex: number }).groupIndex ===
-            targetIndex,
-      );
-      if (existingAccount) {
-        return [existingAccount];
+      // Handle Account mode with custom account creation
+      if (deviceState.mode === DeviceMode.ACCOUNT) {
+        if (options.type !== 'custom') {
+          throw new Error(
+            `Account mode devices only support 'custom' account creation type, got '${options.type}'. ` +
+              `Use { type: 'custom', entropySource, addressIndex } to select a pre-defined address.`,
+          );
+        }
+        return this.#createAccountModeAccounts(options, deviceState);
       }
 
-      // Derive the account at the specified index
-      this.inner.setAccountToUnlock(targetIndex);
-      const [newAddress] = await this.inner.addAccounts(1);
-
-      if (!newAddress) {
-        throw new Error('Failed to create new account');
-      }
-
-      const newAccount = this.#createHdModeAccount(newAddress, targetIndex);
-
-      return [newAccount];
+      // HD mode: support derive-index
+      return this.#createHdModeAccounts(options, deviceState);
     });
+  }
+
+  /**
+   * Creates accounts for Account mode devices using custom options.
+   *
+   * @param options - The account creation options.
+   * @param deviceState - The current device state.
+   * @param deviceState.mode - The device mode (ACCOUNT).
+   * @param deviceState.paths - Map of addresses to derivation paths.
+   * @param deviceState.indexes - Map of addresses to their indexes.
+   * @returns The created accounts.
+   */
+  async #createAccountModeAccounts(
+    options: QrAccountModeCreateOptions,
+    deviceState: {
+      mode: DeviceMode.ACCOUNT;
+      paths: Record<Hex, string>;
+      indexes: Record<Hex, number>;
+    },
+  ): Promise<KeyringAccount[]> {
+    const { addressIndex } = options;
+
+    if (typeof addressIndex !== 'number' || addressIndex < 0) {
+      throw new Error(
+        `Invalid addressIndex: ${String(
+          addressIndex,
+        )}. Must be a non-negative integer.`,
+      );
+    }
+
+    // Get available addresses from paths
+    const availableAddresses = Object.keys(deviceState.paths) as Hex[];
+    if (addressIndex >= availableAddresses.length) {
+      throw new Error(
+        `Address index ${addressIndex} is out of bounds. Device has ${availableAddresses.length} pre-defined address(es).`,
+      );
+    }
+
+    const address = availableAddresses[addressIndex] as Hex;
+
+    // Check if already exists
+    const currentAccounts = await this.getAccounts();
+    const existingAccount = currentAccounts.find(
+      (account) => account.address.toLowerCase() === address.toLowerCase(),
+    );
+    if (existingAccount) {
+      return [existingAccount];
+    }
+
+    // Add the account via the inner keyring
+    this.inner.setAccountToUnlock(addressIndex);
+    const [newAddress] = await this.inner.addAccounts(1);
+
+    if (!newAddress) {
+      throw new Error('Failed to create new account');
+    }
+
+    const newAccount = this.#createAccountModeAccount(newAddress);
+    return [newAccount];
+  }
+
+  /**
+   * Creates accounts for HD mode devices using index-based derivation.
+   *
+   * @param options - The account creation options.
+   * @param _deviceState - The current device state (reserved for future use).
+   * @param _deviceState.indexes - Map of addresses to their indexes.
+   * @returns The created accounts.
+   */
+  async #createHdModeAccounts(
+    options: CreateAccountOptions,
+    _deviceState: { indexes: Record<Hex, number> },
+  ): Promise<Bip44Account<KeyringAccount>[]> {
+    if (options.type !== 'bip44:derive-index') {
+      throw new Error(
+        `Unsupported account creation type for HD mode QrKeyring: ${String(
+          options.type,
+        )}. Supported type: 'bip44:derive-index'.`,
+      );
+    }
+
+    if (options.groupIndex < 0) {
+      throw new Error(
+        `Invalid groupIndex: ${options.groupIndex}. Must be a non-negative integer.`,
+      );
+    }
+
+    const targetIndex = options.groupIndex;
+
+    // Check if an account at this index already exists
+    const currentAccounts = await this.getAccounts();
+    const existingAccount = currentAccounts.find(
+      (account) =>
+        account.options.entropy?.type ===
+          KeyringAccountEntropyTypeOption.Mnemonic &&
+        (account.options.entropy as { groupIndex: number }).groupIndex ===
+          targetIndex,
+    ) as Bip44Account<KeyringAccount> | undefined;
+
+    if (existingAccount) {
+      return [existingAccount];
+    }
+
+    // Derive the account at the specified index
+    this.inner.setAccountToUnlock(targetIndex);
+    const [newAddress] = await this.inner.addAccounts(1);
+
+    if (!newAddress) {
+      throw new Error('Failed to create new account');
+    }
+
+    const newAccount = this.#createHdModeAccount(newAddress, targetIndex);
+    return [newAccount];
   }
 
   /**
