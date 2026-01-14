@@ -100,7 +100,7 @@ export type QrKeyringV2Options = {
 };
 
 export class QrKeyringV2
-  extends EthKeyringWrapper<QrKeyring, KeyringAccount>
+  extends EthKeyringWrapper<QrKeyring>
   implements KeyringV2
 {
   readonly entropySource: EntropySourceId;
