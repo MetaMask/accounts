@@ -27,14 +27,8 @@ import {
   AccountTransactionsUpdatedEventStruct,
   AnyAccountType,
 } from '@metamask/keyring-api';
-import type {
-  KeyringInternalFeatures,
-  InternalAccount,
-} from '@metamask/keyring-internal-api';
-import {
-  KeyringInternalFeature,
-  toLegacyKeyringRequest,
-} from '@metamask/keyring-internal-api';
+import type { InternalAccount } from '@metamask/keyring-internal-api';
+import { toLegacyKeyringRequest } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import {
   type GetSelectedAccountsResponse,
@@ -71,6 +65,7 @@ import {
   getInternalOptionsOf,
   type SnapKeyringInternalOptions,
 } from './options';
+import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions';
 import { SnapIdMap } from './SnapIdMap';
 import type {
   SnapKeyringEvents,
@@ -86,7 +81,6 @@ import {
   toJson,
   unique,
 } from './util';
-import { getKeyringFeaturesFromPlatform } from './versions';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 
@@ -250,19 +244,18 @@ export class SnapKeyring {
   }
 
   /**
-   * Gets keyring's features for a given Snap.
+   * Checks whether a Snap meets a minimum platform version.
    *
    * @param snapId - The Snap ID.
-   * @returns The Snap's keyring features.
+   * @param version - Version to check.
+   * @returns True if the Snap meets the minimum version, false otherwise.
    */
-  #getKeyringFeatures(snapId: SnapId): KeyringInternalFeatures {
-    return getKeyringFeaturesFromPlatform((version: SemVerVersion) => {
-      return this.#messenger.call(
-        'SnapController:isMinimumPlatformVersion',
-        snapId,
-        version,
-      );
-    });
+  #isMinimumPlatformVersion(snapId: SnapId, version: SemVerVersion): boolean {
+    return this.#messenger.call(
+      'SnapController:isMinimumPlatformVersion',
+      snapId,
+      version,
+    );
   }
 
   /**
@@ -1067,7 +1060,15 @@ export class SnapKeyring {
     );
 
     try {
-      const features = this.#getKeyringFeatures(snapId);
+      // Snaps are expecting to receive the `origin` field after a specific
+      // platform version.
+      //
+      // We need to check the Snap platform version to know whether we can
+      // include it or not.
+      const useOrigin = this.#isMinimumPlatformVersion(
+        snapId,
+        PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN,
+      );
 
       const request = {
         id: requestId,
@@ -1086,10 +1087,10 @@ export class SnapKeyring {
       const client = this.#snapClient.withSnapId(snapId);
 
       let response: KeyringResponse;
-      if (features.has(KeyringInternalFeature.UseOrigin)) {
+      if (useOrigin) {
         response = await client.submitRequest(request);
       } else {
-        // LegacyV1 keyring request did not support the `origin` field.
+        // Legacy keyring request did not support the `origin` field.
         response = await client.submitLegacyRequest(
           toLegacyKeyringRequest(request),
         );
