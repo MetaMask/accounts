@@ -1,6 +1,6 @@
 # `@metamask/hw-wallet-sdk`
 
-MetaMask Hardware Device SDK.
+MetaMask Hardware Wallet SDK.
 
 ## Installation
 
