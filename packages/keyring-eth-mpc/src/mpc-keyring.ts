@@ -1,29 +1,46 @@
-import type { TypedTransaction } from '@ethereumjs/tx';
+import { TransactionFactory, type TypedTransaction } from '@ethereumjs/tx';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   CL24DKM,
   secp256k1 as secp256k1Curve,
 } from '@metamask/mfa-wallet-cl24-lib';
+import { DklsTssLib } from '@metamask/mfa-wallet-dkls19-lib';
+import type {
+  RandomNumberGenerator,
+  ThresholdKey,
+} from '@metamask/mfa-wallet-interface';
+import { load as loadDkls19 } from '@metamask/tss-dkls19-lib';
 import type { Hex, Json } from '@metamask/utils';
 
-import type { MPCKeyringOpts } from './types';
-import { CreateKeyParams, ThresholdKey } from '@metamask/mfa-wallet-interface';
+import {
+  createNetworkIdentity,
+  createNetworkSession,
+  generateSessionId,
+} from './network';
+import type { MPCKeyringOpts, ThresholdKeyId } from './types';
+import { equalAddresses, publicToAddressHex } from './util';
 
 const type = 'eth-mpc';
 
 export class MPCKeyring implements Keyring {
   readonly type: string = type;
 
+  readonly #rng: RandomNumberGenerator;
+
+  #dklsLib?: DklsTssLib;
+
   #initRole: 'initiator' | 'responder' = 'initiator';
 
   #networkCredentials: NetworkCredentials;
 
-  #keyShare: ThresholdKey;
+  #keyShare?: ThresholdKey;
 
-  readonly #getRandomBytes: (size: number) => Uint8Array;
+  readonly #keyId?: ThresholdKeyId;
 
   constructor(opts: MPCKeyringOpts) {
-    this.#getRandomBytes = opts.getRandomBytes;
+    this.#rng = {
+      generateRandomBytes: opts.getRandomBytes,
+    };
   }
 
   /**
@@ -54,7 +71,9 @@ export class MPCKeyring implements Keyring {
     }
 
     if ('networkCredentials' in state) {
-      this.#networkCredentials = deserializeNetworkCredentials(state.networkCredentials);
+      this.#networkCredentials = deserializeNetworkCredentials(
+        state.networkCredentials,
+      );
     }
 
     if ('keyShare' in state) {
@@ -63,20 +82,24 @@ export class MPCKeyring implements Keyring {
   }
 
   async init(): Promise<void> {
-    const rng = {
-      generateRandomBytes: this.#getRandomBytes,
-    };
-    const dkm = new CL24DKM('secp256k1', secp256k1Curve, rng);
+    this.#dklsLib = await loadDkls19();
+
+    const dkm = new CL24DKM('secp256k1', secp256k1Curve, this.#rng);
 
     const networkCredentials = await createNetworkIdentity();
     const localId = networkCredentials.partyId;
-    const { partyId: cloudId, sessionId } = await initCloudKeyGen({
+    const sessionId = generateSessionId();
+    const { cloudId } = await initCloudKeyGen({
       localId,
     });
     const custodians = [localId, cloudId];
     const threshold = 2;
 
-    const networkSession = await initNetworkSession(custodians, sessionId);
+    const networkSession = await createNetworkSession(
+      networkCredentials,
+      custodians,
+      sessionId,
+    );
 
     this.#networkCredentials = networkCredentials;
     this.#keyShare = await dkm.createKey({
@@ -93,14 +116,23 @@ export class MPCKeyring implements Keyring {
    * @param numberOfAccounts - The number of accounts to add.
    * @returns The addresses of the new accounts.
    */
-  async addAccounts(numberOfAccounts = 1): Promise<Hex[]> {}
+  async addAccounts(numberOfAccounts = 1): Promise<Hex[]> {
+    throw new Error(`addAccounts(${numberOfAccounts}): not implemented`);
+  }
 
   /**
    * Get the addresses of all accounts in the keyring.
    *
    * @returns The addresses of all accounts in the keyring.
    */
-  async getAccounts(): Promise<Hex[]> {}
+  async getAccounts(): Promise<Hex[]> {
+    if (!this.#keyShare) {
+      return [];
+    }
+
+    const addr = publicToAddressHex(this.#keyShare.publicKey);
+    return [addr];
+  }
 
   /**
    * Get the public address of the account for the given app key origin.
@@ -109,35 +141,70 @@ export class MPCKeyring implements Keyring {
    * @param origin - The origin of the app requesting the account.
    * @returns The public address of the account.
    */
-  async getAppKeyAddress(address: Hex, origin: string): Promise<Hex> {}
+  async getAppKeyAddress(address: Hex, origin: string): Promise<Hex> {
+    throw new Error(`getAppKeyAddress(${address}, ${origin}): not implemented`);
+  }
 
   /**
    * Sign a transaction using the specified account.
    *
    * @param address - The address of the account.
    * @param tx - The transaction to sign.
-   * @param opts - The options for signing the transaction.
+   * @param _opts - The options for signing the transaction.
    * @returns The signed transaction.
    */
   async signTransaction(
     address: Hex,
     tx: TypedTransaction,
-    opts = {},
-  ): Promise<TypedTransaction> {}
+    _opts = {},
+  ): Promise<TypedTransaction> {
+    if (!this.#keyShare) {
+      throw new Error(`keyshare not initialized`);
+    } else if (!this.#networkCredentials) {
+      throw new Error(`network credentials not initialized`);
+    } else if (!this.#keyId) {
+      throw new Error(`key id not initialized`);
+    }
 
-  /**
-   * Sign a message using the specified account.
-   *
-   * @param address - The address of the account.
-   * @param data - The data to sign.
-   * @param opts - The options for signing the message.
-   * @returns The signature of the message.
-   */
-  async signMessage(
-    address: Hex,
-    data: string,
-    opts?: Record<string, unknown>,
-  ): Promise<string> {}
+    const { custodians, publicKey } = this.#keyShare;
+
+    const addr = publicToAddressHex(publicKey);
+    if (!equalAddresses(address, addr)) {
+      throw new Error(`account ${address} not found`);
+    }
+
+    const sessionId = generateSessionId();
+    const message = tx.getHashedMessageToSign();
+
+    await initCloudSign({
+      keyId: this.#keyId,
+      sessionId,
+      message,
+    });
+
+    const networkSession = await createNetworkSession(
+      this.#networkCredentials,
+      custodians,
+      sessionId,
+    );
+
+    const dkls19 = new DklsTssLib(this.#dklsLib, this.#rng);
+    const signature = await dkls19.sign({
+      key: this.#keyShare,
+      signers: custodians,
+      message,
+      networkSession,
+    });
+
+    const { r, s, v } = parseEcdsaSignature(signature);
+
+    return TransactionFactory.fromTxData({
+      ...tx,
+      r,
+      s,
+      v,
+    });
+  }
 
   /**
    * Sign a personal message using the specified account.
