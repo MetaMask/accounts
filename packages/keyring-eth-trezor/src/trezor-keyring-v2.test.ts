@@ -627,8 +627,48 @@ describe('TrezorKeyringV2', () => {
       expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/0'/0`);
     });
 
-    it('clears registry when switching HD paths', async () => {
-      // Create wrapper with account on BIP44 path
+    it('clears registry when switching HD paths via createAccounts', async () => {
+      // Create wrapper with account on BIP44 standard path
+      const inner = createInnerKeyring(); // Uses m/44'/60'/0'/0 by default
+      inner.setAccountToUnlock(0);
+      await inner.addAccounts(1);
+
+      const wrapper = new TrezorKeyringV2({
+        legacyKeyring: inner,
+        entropySource,
+      });
+
+      // Get initial accounts - this populates the registry
+      const initialAccounts = await wrapper.getAccounts();
+      expect(initialAccounts).toHaveLength(1);
+      const initialAccountId = getFirstAccount(initialAccounts).id;
+
+      // Spy on registry.clear to verify it's called when path changes
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const clearSpy = jest.spyOn((wrapper as any).registry, 'clear');
+
+      // inner.hdPath is m/44'/60'/0'/0
+      // Call createAccounts with legacy MEW path (m/44'/60'/0') - this should trigger path change
+      // We need to reset the HDKey after setHdPath clears it inside createAccounts
+      const originalSetHdPath = inner.setHdPath.bind(inner);
+      jest.spyOn(inner, 'setHdPath').mockImplementation((path) => {
+        originalSetHdPath(path);
+        inner.hdk = fakeHdKey;
+      });
+
+      await wrapper.createAccounts(derivePathOptions(`m/44'/60'/0'/0`));
+
+      // Verify registry.clear was called
+      expect(clearSpy).toHaveBeenCalled();
+
+      // The old account should no longer be accessible because registry was cleared
+      await expect(wrapper.getAccount(initialAccountId)).rejects.toThrow(
+        /Account not found/u,
+      );
+    });
+
+    it('does not clear registry when using same HD path', async () => {
+      // Create wrapper with account on BIP44 standard path
       const inner = createInnerKeyring();
       inner.setAccountToUnlock(0);
       await inner.addAccounts(1);
@@ -643,20 +683,19 @@ describe('TrezorKeyringV2', () => {
       expect(initialAccounts).toHaveLength(1);
       const initialAccountId = getFirstAccount(initialAccounts).id;
 
-      // Switch to legacy MEW path and add account
-      // This simulates what createAccounts does when path changes
-      inner.setHdPath(`m/44'/60'/0'`);
-      inner.hdk = fakeHdKey; // Reset HDKey after setHdPath clears it
-      inner.setAccountToUnlock(0);
-      await inner.addAccounts(1);
+      // Spy on registry.clear
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const clearSpy = jest.spyOn((wrapper as any).registry, 'clear');
 
-      // Call createAccounts with the new path - this should clear registry
-      await wrapper.createAccounts(derivePathOptions(`m/44'/60'/0'/1`));
+      // Call createAccounts with same HD path base (m/44'/60'/0'/0) but different index
+      await wrapper.createAccounts(derivePathOptions(`m/44'/60'/0'/0/1`));
 
-      // The old account should no longer be accessible
-      await expect(wrapper.getAccount(initialAccountId)).rejects.toThrow(
-        /Account not found/u,
-      );
+      // Verify registry.clear was NOT called
+      expect(clearSpy).not.toHaveBeenCalled();
+
+      // The original account should still be accessible
+      const account = await wrapper.getAccount(initialAccountId);
+      expect(account).toBeDefined();
     });
   });
 

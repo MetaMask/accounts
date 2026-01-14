@@ -203,7 +203,7 @@ export class TrezorKeyring implements Keyring {
           const newAccounts: Hex[] = [];
 
           for (let i = from; i < to; i++) {
-            const address = this.addressFromIndex(pathBase, i);
+            const address = this.#addressFromIndex(pathBase, i);
             if (!this.accounts.includes(address)) {
               this.accounts = [...this.accounts, address];
               newAccounts.push(address);
@@ -247,7 +247,7 @@ export class TrezorKeyring implements Keyring {
           const accounts = [];
 
           for (let i = from; i < to; i++) {
-            const address = this.addressFromIndex(pathBase, i);
+            const address = this.#addressFromIndex(pathBase, i);
             accounts.push({
               address,
               balance: null,
@@ -565,7 +565,7 @@ export class TrezorKeyring implements Keyring {
    * @param i - The derivation index.
    * @returns The checksummed address.
    */
-  protected addressFromIndex(basePath: string, i: number): Hex {
+  #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
     const address = bytesToHex(publicToAddress(dkey.publicKey, true));
     return toChecksumAddress(address);
@@ -587,7 +587,7 @@ export class TrezorKeyring implements Keyring {
 
     if (typeof index === 'undefined') {
       for (let i = 0; i < MAX_INDEX; i++) {
-        if (checksummedAddress === this.addressFromIndex(pathBase, i)) {
+        if (checksummedAddress === this.#addressFromIndex(pathBase, i)) {
           index = i;
           break;
         }

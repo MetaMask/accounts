@@ -88,12 +88,6 @@ export class TrezorKeyringV2
 {
   readonly entropySource: EntropySourceId;
 
-  /**
-   * Tracks the current HD path to detect path changes.
-   * When the path changes, the registry must be cleared.
-   */
-  #currentHdPath: AllowedHdPath;
-
   constructor(options: TrezorKeyringV2Options) {
     super({
       type: options.type ?? KeyringType.Trezor,
@@ -101,7 +95,6 @@ export class TrezorKeyringV2
       capabilities: trezorKeyringV2Capabilities,
     });
     this.entropySource = options.entropySource;
-    this.#currentHdPath = this.inner.hdPath as AllowedHdPath;
   }
 
   /**
@@ -130,9 +123,6 @@ export class TrezorKeyringV2
       // initialized HDKey. The registry will be populated lazily when
       // getAccounts() is called after the device is unlocked.
       await this.inner.deserialize(state);
-
-      // Sync the tracked HD path with the deserialized state
-      this.#currentHdPath = this.inner.hdPath as AllowedHdPath;
     });
   }
 
@@ -304,9 +294,8 @@ export class TrezorKeyringV2
       // If the HD path is changing, clear the registry to avoid stale accounts.
       // The TrezorKeyring operates on a single path at a time - accounts from
       // different paths cannot coexist in the inner keyring.
-      if (basePath !== this.#currentHdPath) {
+      if (basePath !== this.inner.hdPath) {
         this.registry.clear();
-        this.#currentHdPath = basePath;
       }
 
       this.inner.setHdPath(basePath);
