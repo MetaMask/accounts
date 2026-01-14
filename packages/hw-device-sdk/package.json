@@ -44,9 +44,6 @@
     "test:types": "../../scripts/tsd-test.sh ./src",
     "test:watch": "jest --watch"
   },
-  "dependencies": {
-    "@metamask/keyring-utils": "workspace:^"
-  },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
