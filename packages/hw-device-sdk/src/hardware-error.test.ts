@@ -329,7 +329,7 @@ describe('HardwareWalletError', () => {
 
     it('handles retryable connection errors', () => {
       const error = new HardwareWalletError('Connection timeout', {
-        code: ErrorCode.ConnTimeout,
+        code: ErrorCode.ConnectionTimeout,
         severity: Severity.Err,
         category: Category.Connection,
         userMessage: 'Connection timed out',
