@@ -1,7 +1,7 @@
 {
   "references": [
     { "path": "./packages/account-api/tsconfig.build.json" },
-    { "path": "./packages/hw-device-sdk/tsconfig.build.json" },
+    { "path": "./packages/hw-wallet-sdk/tsconfig.build.json" },
     { "path": "./packages/keyring-api/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-hd/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-ledger-bridge/tsconfig.build.json" },

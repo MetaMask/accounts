@@ -1934,9 +1934,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/hw-device-sdk@workspace:packages/hw-device-sdk":
+"@metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk":
   version: 0.0.0-use.local
-  resolution: "@metamask/hw-device-sdk@workspace:packages/hw-device-sdk"
+  resolution: "@metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk"
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
