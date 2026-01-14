@@ -9,6 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add hardwared related error mappings and custom hardware error.
+- Add hardware related error mappings and custom hardware error ([#421](https://github.com/MetaMask/accounts/pull/421))
 
 [Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/hw-device-sdk@0.0.0...HEAD

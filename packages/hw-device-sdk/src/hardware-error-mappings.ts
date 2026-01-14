@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { ErrorCode, Severity, Category } from './hardware-errors-enums';
 
 export const LEDGER_ERROR_MAPPINGS = {
