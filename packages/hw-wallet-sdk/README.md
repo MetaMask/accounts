@@ -1,14 +1,14 @@
-# `@metamask/hw-device-sdk`
+# `@metamask/hw-wallet-sdk`
 
 MetaMask Hardware Device SDK.
 
 ## Installation
 
-`yarn add @metamask/hw-device-sdk`
+`yarn add @metamask/hw-wallet-sdk`
 
 or
 
-`npm install @metamask/hw-device-sdk`
+`npm install @metamask/hw-wallet-sdk`
 
 ## Contributing
 

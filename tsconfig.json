@@ -1,7 +1,7 @@
 {
   "compilerOptions": { "esModuleInterop": true, "noEmit": true },
   "references": [
-    { "path": "./packages/hw-device-sdk" },
+    { "path": "./packages/hw-wallet-sdk" },
     { "path": "./packages/keyring-api" },
     { "path": "./packages/keyring-eth-hd" },
     { "path": "./packages/keyring-eth-ledger-bridge" },
