@@ -336,6 +336,10 @@ accounts/
 - `keyring-eth-ledger-bridge` - Ledger hardware wallet integration
 - `keyring-eth-qr` - QR code keyring for air-gapped signing
 
+**Hardware Wallet SDK:**
+
+- `hw-wallet-sdk` - SDK for hardware wallet integrations
+
 **Snap Packages:**
 
 - `keyring-snap-bridge` - Snap keyring bridge for MetaMask Snaps
@@ -357,6 +361,7 @@ accounts/
 | Bitcoin methods           | `packages/keyring-api/src/btc/`                   |
 | Solana methods            | `packages/keyring-api/src/sol/`                   |
 | Snap integration          | `packages/keyring-snap-bridge/src/`               |
+| Hardware wallet SDK       | `packages/hw-wallet-sdk/src/`                     |
 | Utility functions         | `packages/keyring-utils/src/`                     |
 | Type definitions          | Each package's `src/*.types.ts` or `src/types.ts` |
 
@@ -805,6 +810,9 @@ IF creating Snap-specific code:
   → packages/keyring-snap-sdk/src/ (SDK for Snap developers)
   → packages/keyring-snap-client/src/ (client library)
 
+IF creating hardware wallet integrations:
+  → packages/hw-wallet-sdk/src/ (SDK for hardware wallets)
+
 IF creating types used across packages:
   → packages/keyring-api/src/ (if core types)
   → packages/keyring-utils/src/ (if utility types)
@@ -911,6 +919,7 @@ IF you added/modified types:
 - **Keyring API:** [packages/keyring-api/README.md](./packages/keyring-api/README.md)
 - **Snap Bridge:** [packages/keyring-snap-bridge/README.md](./packages/keyring-snap-bridge/README.md)
 - **Keyring Utils:** [packages/keyring-utils/README.md](./packages/keyring-utils/README.md)
+- **HW Wallet SDK:** [packages/hw-wallet-sdk/README.md](./packages/hw-wallet-sdk/README.md)
 
 ### External Resources
 
