@@ -4,7 +4,7 @@ Instructions for AI coding agents working on the MetaMask Accounts Monorepo.
 
 ## Agent Instructions Summary
 
-**Project Type:** TypeScript monorepo for keyring implementations and account management  
+**Project Type:** TypeScript monorepo for keyring implementations, accounts and hardware wallets management  
 **Languages:** TypeScript (required for all code)  
 **Testing:** Jest (unit tests)  
 **Build System:** ts-bridge, Yarn workspaces  
