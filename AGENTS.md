@@ -136,6 +136,7 @@ yarn lint:misc --write      # Auto-fix formatting
 - TypeScript-specific rules in `.eslintrc.js`
 - No `any` types allowed (enforced by linter)
 - Prettier for consistent formatting
+- All JSON files must be linted using Prettier (`yarn lint:misc`)
 
 ### Dependency Management
 
