@@ -438,6 +438,19 @@ enum AccountTypes {  // Don't use plural
   Eoa = 'eoa',
 }
 
+// ✅ CORRECT: Enum members should have JSDoc comments
+enum EthMethod {
+  /**
+   * Sign a transaction.
+   */
+  SignTransaction = 'eth_signTransaction',
+
+  /**
+   * Sign a personal message.
+   */
+  PersonalSign = 'personal_sign',
+}
+
 // ✅ CORRECT: Interfaces and types use PascalCase
 interface KeyringAccount { /* ... */ }
 type AccountId = string;
