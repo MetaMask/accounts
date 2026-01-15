@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** Rename `KeyringRequestV1` type to `KeyringRequestWithoutOrigin` ([#423](https://github.com/MetaMask/accounts/pull/423))
+- **BREAKING:** Rename `toKeyringRequestV1` method to `toKeyringRequestWithoutOrigin` ([#423](https://github.com/MetaMask/accounts/pull/423))
+
+### Removed
+
+- **BREAKING:** Remove `KeyringVersion` support ([#423](https://github.com/MetaMask/accounts/pull/423))
+
 ## [9.1.1]
 
 ### Changed

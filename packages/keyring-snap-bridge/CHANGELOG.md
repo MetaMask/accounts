@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump `@metamask/snaps-sdk` from `^9.0.0` to `^10.3.0` ([#422](https://github.com/MetaMask/accounts/pull/422))
 - Bump `@metamask/snaps-utils` from `^11.0.0` to `^11.7.0` ([#422](https://github.com/MetaMask/accounts/pull/422))
 
+### Removed
+
+- **BREAKING:** Remove `KeyringVersion` support ([#423](https://github.com/MetaMask/accounts/pull/423))
+  - Both `getKeyringVersionFromPlatform`, `PLATFORM_VERSION_TO_KEYRING_VERSION` got removed too.
+- **BREAKING:** Rename `submitRequestV1` method to `submitRequestWithoutOrigin` ([#423](https://github.com/MetaMask/accounts/pull/423))
+
 ## [18.0.2]
 
 ### Fixed
