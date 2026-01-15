@@ -133,7 +133,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
 
       it('maps NEARBY_DEVICES_PERMISSION_DENIED correctly', () => {
         const mapping = errorMappings.NEARBY_DEVICES_PERMISSION_DENIED;
-        expect(mapping.code).toBe(ErrorCode.PermissionNearbyDenied);
+        expect(mapping.code).toBe(ErrorCode.PermissionNearbyDevicesDenied);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.category).toBe(Category.Configuration);
       });

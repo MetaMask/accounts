@@ -51,7 +51,7 @@ export enum ErrorCode {
   // Mobile/BLE Permission Errors
   PermissionBluetoothDenied = 7000,
   PermissionLocationDenied = 7001,
-  PermissionNearbyDenied = 7002,
+  PermissionNearbyDevicesDenied = 7002,
   BluetoothDisabled = 7100,
   BluetoothScanFailed = 7101,
   BluetoothConnectionFailed = 7102,

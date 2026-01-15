@@ -133,7 +133,7 @@ export const BLE_ERROR_MAPPINGS = {
       'Location permission is required for Bluetooth scanning on Android. Please enable it in your device settings.',
   },
   NEARBY_DEVICES_PERMISSION_DENIED: {
-    code: ErrorCode.PermissionNearbyDenied,
+    code: ErrorCode.PermissionNearbyDevicesDenied,
     message: 'Nearby devices permission denied',
     severity: Severity.Err,
     category: Category.Configuration,
