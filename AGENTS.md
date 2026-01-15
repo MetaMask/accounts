@@ -132,11 +132,12 @@ yarn lint:misc --write      # Auto-fix formatting
 ```
 
 **Linting Notes:**
+
 - ESLint config extends `@metamask/eslint-config`
 - TypeScript-specific rules in `.eslintrc.js`
 - No `any` types allowed (enforced by linter)
 - Prettier for consistent formatting
-- All JSON, Markdown (.md), and YAML (.yml) files must be linted using Prettier (`yarn lint:misc`)
+- All JSON, Markdown (.md), and YAML (.yml) files must be linted using Prettier (`yarn lint:misc -w`)
 
 ### Dependency Management
 
