@@ -1760,6 +1760,7 @@ __metadata:
     "@metamask/mfa-wallet-dkls19-lib": "npm:^0.0.0"
     "@metamask/mfa-wallet-interface": "npm:^0.0.0"
     "@metamask/mfa-wallet-util": "npm:^0.0.0"
+    "@metamask/tss-dkls19-lib": "npm:^0.0.0"
     "@metamask/utils": "npm:^11.1.0"
     "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
@@ -2199,11 +2200,11 @@ __metadata:
 
 "@metamask/mfa-wallet-dkls19-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
   version: 0.0.0
-  resolution: "@metamask/mfa-wallet-dkls19-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz::hash=3adfc7&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  resolution: "@metamask/mfa-wallet-dkls19-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz::hash=adb1b2&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
   dependencies:
     "@metamask/mfa-wallet-util": "npm:^0.0.0"
     "@noble/curves": "npm:^1.9.2"
-  checksum: 10/e2b19b3fe0a91448c8acd0ea9b98093a5c4e1ac73d7a9162595084f0bbc221b1c2ab5cd3cdb751c95a260f112d36ff8c98c9ccabd27bb987de86975f6cadd6f6
+  checksum: 10/236c5bc3d8f231109d93eecce78de1cbcb6e95d3eae9c42cf43befd0b12584f5ce5b415b2c930d108c3b047d9f505768bb06bdd62900406a6404030d334ddfd1
   languageName: node
   linkType: hard
 
@@ -2496,6 +2497,13 @@ __metadata:
   version: 3.2.1
   resolution: "@metamask/superstruct@npm:3.2.1"
   checksum: 10/9e29380f2cf8b129283ccb2b568296d92682b705109ba62dbd7739ffd6a1982fe38c7228cdcf3cbee94dbcdd5fcc1c846ab9d1dd3582167154f914422fcff547
+  languageName: node
+  linkType: hard
+
+"@metamask/tss-dkls19-lib@file:./packages/keyring-eth-mpc/metamask-tss-dkls19-lib-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/tss-dkls19-lib@file:./packages/keyring-eth-mpc/metamask-tss-dkls19-lib-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-tss-dkls19-lib-0.0.0.tgz::hash=c28abe&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  checksum: 10/782d65c544eafc04ea32d5c403f0e4afe69e4e828728cc92452f32db46b84ac2d3e989f7d555d00f6e70482d930acca64d83dc64739cfe3e79bba33e0b7a474b
   languageName: node
   linkType: hard
 

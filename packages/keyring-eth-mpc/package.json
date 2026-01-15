@@ -56,6 +56,7 @@
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/mfa-wallet-interface": "^0.0.0",
+    "@metamask/tss-dkls19-lib": "^0.0.0",
     "@metamask/utils": "^11.1.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",

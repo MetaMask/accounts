@@ -1,7 +1,20 @@
-import type { NetworkSession } from '@metamask/mfa-wallet-interface';
+import type {
+  NetworkSession,
+  PartyId,
+  SessionId,
+} from '@metamask/mfa-wallet-interface';
 
-export type NetworkCredentials = {
-  partyId: string;
+export type NetworkIdentity = {
+  partyId: PartyId;
+};
+
+export type NetworkManager = {
+  createIdentity: () => Promise<NetworkIdentity>;
+  createSession: (
+    identity: NetworkIdentity,
+    parties: PartyId[],
+    sessionId: SessionId,
+  ) => Promise<NetworkSession>;
 };
 
 /**
@@ -9,31 +22,6 @@ export type NetworkCredentials = {
  *
  * @returns The session ID.
  */
-export function generateSessionId(): string {
-  
-}
+export function generateSessionId(): SessionId {
 
-/**
- * Creates a network identity for a MPC keyring.
- *
- * @returns The network credentials.
- */
-export async function createNetworkIdentity(): Promise<NetworkCredentials> {
-
-}
-
-/**
- * Creates a network session for a MPC keyring.
- *
- * @param networkCredentials - The network credentials.
- * @param parties - The parties in the network session.
- * @param sessionId - The session ID.
- * @returns The network session.
- */
-export async function createNetworkSession(
-  networkCredentials: NetworkCredentials,
-  parties: string[],
-  sessionId: string,
-): Promise<NetworkSession> {
-  
 }

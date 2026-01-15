@@ -4,21 +4,23 @@ import {
   CL24DKM,
   secp256k1 as secp256k1Curve,
 } from '@metamask/mfa-wallet-cl24-lib';
-import { DklsTssLib } from '@metamask/mfa-wallet-dkls19-lib';
+import { Dkls19TssLib } from '@metamask/mfa-wallet-dkls19-lib';
 import type {
   RandomNumberGenerator,
   ThresholdKey,
 } from '@metamask/mfa-wallet-interface';
-import { load as loadDkls19 } from '@metamask/tss-dkls19-lib';
+import type { WasmLib as Dkls19WasmLib } from '@metamask/tss-dkls19-lib';
 import type { Hex, Json } from '@metamask/utils';
 
-import {
-  createNetworkIdentity,
-  createNetworkSession,
-  generateSessionId,
-} from './network';
+import { initCloudKeyGen, initCloudSign } from './cloud';
+import type { NetworkIdentity, NetworkManager } from './network';
+import { generateSessionId } from './network';
 import type { MPCKeyringOpts, ThresholdKeyId } from './types';
-import { equalAddresses, publicToAddressHex } from './util';
+import {
+  equalAddresses,
+  parseEcdsaSignature,
+  publicToAddressHex,
+} from './util';
 
 const type = 'eth-mpc';
 
@@ -27,11 +29,13 @@ export class MPCKeyring implements Keyring {
 
   readonly #rng: RandomNumberGenerator;
 
-  #dklsLib?: DklsTssLib;
+  readonly #networkManager: NetworkManager;
+
+  readonly #dkls19Lib: Dkls19WasmLib;
 
   #initRole: 'initiator' | 'responder' = 'initiator';
 
-  #networkCredentials: NetworkCredentials;
+  #networkIdentity?: NetworkIdentity;
 
   #keyShare?: ThresholdKey;
 
@@ -41,6 +45,8 @@ export class MPCKeyring implements Keyring {
     this.#rng = {
       generateRandomBytes: opts.getRandomBytes,
     };
+    this.#dkls19Lib = opts.dkls19Lib;
+    this.#networkManager = {} as NetworkManager; // TODO
   }
 
   /**
@@ -51,7 +57,7 @@ export class MPCKeyring implements Keyring {
   async serialize(): Promise<Json> {
     return {
       initRole: this.#initRole,
-      networkCredentials: serializeNetworkCredentials(this.#networkCredentials),
+      networkCredentials: serializeNetworkCredentials(this.#networkIdentity),
       keyShare: serializeThresholdKey(this.#keyShare),
     };
   }
@@ -71,7 +77,7 @@ export class MPCKeyring implements Keyring {
     }
 
     if ('networkCredentials' in state) {
-      this.#networkCredentials = deserializeNetworkCredentials(
+      this.#networkIdentity = deserializeNetworkCredentials(
         state.networkCredentials,
       );
     }
@@ -82,12 +88,11 @@ export class MPCKeyring implements Keyring {
   }
 
   async init(): Promise<void> {
-    this.#dklsLib = await loadDkls19();
-
     const dkm = new CL24DKM('secp256k1', secp256k1Curve, this.#rng);
 
-    const networkCredentials = await createNetworkIdentity();
-    const localId = networkCredentials.partyId;
+    const net = this.#networkManager;
+    const networkIdentity = await net.createIdentity();
+    const localId = networkIdentity.partyId;
     const sessionId = generateSessionId();
     const { cloudId } = await initCloudKeyGen({
       localId,
@@ -95,13 +100,13 @@ export class MPCKeyring implements Keyring {
     const custodians = [localId, cloudId];
     const threshold = 2;
 
-    const networkSession = await createNetworkSession(
-      networkCredentials,
+    const networkSession = await net.createSession(
+      networkIdentity,
       custodians,
       sessionId,
     );
 
-    this.#networkCredentials = networkCredentials;
+    this.#networkIdentity = networkIdentity;
     this.#keyShare = await dkm.createKey({
       custodians,
       threshold,
@@ -160,7 +165,7 @@ export class MPCKeyring implements Keyring {
   ): Promise<TypedTransaction> {
     if (!this.#keyShare) {
       throw new Error(`keyshare not initialized`);
-    } else if (!this.#networkCredentials) {
+    } else if (!this.#networkIdentity) {
       throw new Error(`network credentials not initialized`);
     } else if (!this.#keyId) {
       throw new Error(`key id not initialized`);
@@ -182,14 +187,14 @@ export class MPCKeyring implements Keyring {
       message,
     });
 
-    const networkSession = await createNetworkSession(
-      this.#networkCredentials,
+    const networkSession = await this.#networkManager.createSession(
+      this.#networkIdentity,
       custodians,
       sessionId,
     );
 
-    const dkls19 = new DklsTssLib(this.#dklsLib, this.#rng);
-    const signature = await dkls19.sign({
+    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng);
+    const { signature } = await dkls19.sign({
       key: this.#keyShare,
       signers: custodians,
       message,
@@ -235,26 +240,4 @@ export class MPCKeyring implements Keyring {
     data: unknown[] | Record<string, unknown>,
     opts?: Record<string, unknown>,
   ): Promise<string> {}
-
-  /**
-   * Sign an EIP-7702 authorization using the specified account.
-   * This method is compatible with the EIP-7702 standard for enabling smart contract code for EOAs.
-   *
-   * @param withAccount - The address of the account.
-   * @param authorization - The EIP-7702 authorization to sign.
-   * @param opts - The options for signing the authorization.
-   * @returns The signature of the authorization.
-   */
-  async signEip7702Authorization(
-    withAccount: Hex,
-    authorization: [chainId: number, contractAddress: Hex, nonce: number],
-    opts?: Record<string, unknown>,
-  ): Promise<string> {}
-
-  /**
-   * Remove an account from the keyring.
-   *
-   * @param account - The address of the account to remove.
-   */
-  removeAccount(account: Hex): void {}
 }

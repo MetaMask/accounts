@@ -36,3 +36,17 @@ export function normalizeAddress(address: string): Hex {
 export function equalAddresses(address1: string, address2: string): boolean {
   return normalizeAddress(address1) === normalizeAddress(address2);
 }
+
+/**
+ * Parse an ECDSA signature.
+ *
+ * @param signature - The signature to parse.
+ * @returns The parsed signature.
+ */
+export function parseEcdsaSignature(signature: Uint8Array): {
+  r: bigint;
+  s: bigint;
+  v: bigint;
+} {
+  // TODO
+}
