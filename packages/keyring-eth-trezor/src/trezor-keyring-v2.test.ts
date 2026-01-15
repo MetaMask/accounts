@@ -268,13 +268,14 @@ describe('TrezorKeyringV2', () => {
     it('uses paths map when available for faster lookup', async () => {
       const { wrapper, inner } = await createWrapperWithAccounts(1);
 
-      // Manually populate the paths map (simulating what getFirstPage does)
-      inner.paths[EXPECTED_ACCOUNTS[0]] = 0;
+      // Manually populate the paths map with a non-zero index
+      // to prove that paths is actually being used (not just derivation)
+      inner.paths[EXPECTED_ACCOUNTS[0]] = 5;
 
       const accounts = await wrapper.getAccounts();
       const account = getFirstAccount(accounts);
 
-      expect(account.options.entropy.groupIndex).toBe(0);
+      expect(account.options.entropy.groupIndex).toBe(5);
     });
 
     it('throws error when address cannot be found', async () => {
