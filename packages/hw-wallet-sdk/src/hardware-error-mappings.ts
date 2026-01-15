@@ -114,3 +114,63 @@ export const LEDGER_ERROR_MAPPINGS = {
     userMessage: 'Ethereum app is out of date. Please update it to continue.',
   },
 };
+
+export const BLE_ERROR_MAPPINGS = {
+  BLUETOOTH_PERMISSION_DENIED: {
+    code: ErrorCode.PermissionBluetoothDenied,
+    message: 'Bluetooth permission denied',
+    severity: Severity.Err,
+    category: Category.Configuration,
+    userMessage:
+      'Bluetooth permission is required to connect to your hardware wallet. Please enable it in your device settings.',
+  },
+  LOCATION_PERMISSION_DENIED: {
+    code: ErrorCode.PermissionLocationDenied,
+    message: 'Location permission denied',
+    severity: Severity.Err,
+    category: Category.Configuration,
+    userMessage:
+      'Location permission is required for Bluetooth scanning on Android. Please enable it in your device settings.',
+  },
+  NEARBY_DEVICES_PERMISSION_DENIED: {
+    code: ErrorCode.PermissionNearbyDevicesDenied,
+    message: 'Nearby devices permission denied',
+    severity: Severity.Err,
+    category: Category.Configuration,
+    userMessage:
+      'Nearby devices permission is required to scan for your hardware wallet. Please enable it in your device settings.',
+  },
+  BLUETOOTH_DISABLED: {
+    code: ErrorCode.BluetoothDisabled,
+    message: 'Bluetooth is turned off',
+    severity: Severity.Warning,
+    category: Category.Connection,
+    userMessage:
+      'Bluetooth is turned off. Please enable Bluetooth to connect to your hardware wallet.',
+  },
+  BLUETOOTH_SCAN_FAILED: {
+    code: ErrorCode.BluetoothScanFailed,
+    message: 'Bluetooth scanning failed',
+    severity: Severity.Err,
+    category: Category.Connection,
+    userMessage: 'Unable to scan for Bluetooth devices. Please try again.',
+  },
+  BLUETOOTH_CONNECTION_FAILED: {
+    code: ErrorCode.BluetoothConnectionFailed,
+    message: 'Bluetooth connection failed',
+    severity: Severity.Err,
+    category: Category.Connection,
+    userMessage:
+      'Failed to connect via Bluetooth. Please make sure your device is nearby and try again.',
+  },
+};
+
+export const MOBILE_ERROR_MAPPINGS = {
+  NOT_SUPPORTED: {
+    code: ErrorCode.MobileNotSupported,
+    message: 'Operation not supported on mobile',
+    severity: Severity.Err,
+    category: Category.DeviceState,
+    userMessage: 'This operation is not supported on mobile devices.',
+  },
+};
