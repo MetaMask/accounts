@@ -247,14 +247,17 @@ export class SnapKeyring {
    * Checks whether a Snap meets a minimum platform version.
    *
    * @param snapId - The Snap ID.
-   * @param version - Version to check.
+   * @param platformVersion - Platform version to check.
    * @returns True if the Snap meets the minimum version, false otherwise.
    */
-  #isMinimumPlatformVersion(snapId: SnapId, version: SemVerVersion): boolean {
+  #isMinimumPlatformVersion(
+    snapId: SnapId,
+    platformVersion: SemVerVersion,
+  ): boolean {
     return this.#messenger.call(
       'SnapController:isMinimumPlatformVersion',
       snapId,
-      version,
+      platformVersion,
     );
   }
 
