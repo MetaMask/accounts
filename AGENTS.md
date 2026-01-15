@@ -16,7 +16,7 @@ Instructions for AI coding agents working on the MetaMask Accounts Monorepo.
 2. **ALWAYS run `yarn lint:fix`** before completing work
 3. **ALWAYS colocate tests** with source files (`.test.ts`)
 4. **ALWAYS run tests** after making changes: `yarn test`
-5. **ALWAYS update CHANGELOGs** when modifying package behavior
+5. **ALWAYS update CHANGELOGs** when modifying package behavior - Include PR link with `TODO` placeholder: `([#TODO](https://github.com/MetaMask/accounts/pull/TODO))`
 6. **NEVER use `any` type** - Use proper TypeScript types (`@typescript-eslint/no-explicit-any` is enforced)
 7. **NEVER modify git config** or run destructive git operations
 8. **NEVER commit** unless explicitly requested by user
@@ -194,7 +194,8 @@ yarn lint:fix
 yarn build
 
 # 7. Update CHANGELOG.md with your changes
-# Add entry under "Unreleased" section
+# Add entry under "Unreleased" section with PR link placeholder
+# Format: - Add feature description ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 ```
 
 ### Workflow: Modifying Existing Code
@@ -243,6 +244,7 @@ yarn test
 yarn lint:fix
 
 # 7. Update CHANGELOG.md with bug fix entry
+# Format: - Fix bug description ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 ```
 
 ### Workflow: Adding a New Package
@@ -879,6 +881,9 @@ IF you created new public APIs:
 
 IF you changed behavior:
   → Update CHANGELOG.md under "Unreleased" section
+  → Use format: `- Description ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))`
+  → Main entries (with PR links) should NOT end with a period
+  → Sub-bullet items (indented with `-`) MUST end with a period
   → Update relevant documentation in README files
 
 IF you added/modified types:
@@ -896,7 +901,7 @@ IF you added/modified types:
 ✓ Build succeeds: yarn build
 ✓ No console.log or debug code remains
 ✓ JSDoc comments on public functions
-✓ CHANGELOG.md updated (if applicable)
+✓ CHANGELOG.md updated with PR link placeholder (if applicable)
 ✓ README.md updated (if API changed)
 ✓ Dependencies properly declared in package.json
 ✓ No use of `any` type
