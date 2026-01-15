@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `TrezorKeyringV2` and `OneKeyKeyringV2` classes implementing `KeyringV2` interface ([#412](https://github.com/MetaMask/accounts/pull/412))
+  - Wraps legacy `TrezorKeyring` and `OneKeyKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
+  - Extends `EthKeyringWrapper` for common Ethereum logic.
+
 ## [9.0.0]
 
 ### Changed

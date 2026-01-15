@@ -558,15 +558,33 @@ export class TrezorKeyring implements Keyring {
     return bytesToHex(buf);
   }
 
+  /**
+   * Derive an address at a specific index using the HDKey.
+   *
+   * @param basePath - The base derivation path (e.g., 'm').
+   * @param i - The derivation index.
+   * @returns The checksummed address.
+   */
   #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
     const address = bytesToHex(publicToAddress(dkey.publicKey, true));
     return toChecksumAddress(address);
   }
 
-  #pathFromAddress(address: Hex): string {
+  /**
+   * Get the account index for a given address.
+   *
+   * This method first checks the `paths` map, and if not found, derives
+   * addresses up to MAX_INDEX to find the matching index.
+   *
+   * @param address - The account address.
+   * @returns The account index.
+   * @throws If the address is not found.
+   */
+  getIndexForAddress(address: Hex): number {
     const checksummedAddress = getChecksumAddress(address);
     let index = this.paths[checksummedAddress];
+
     if (typeof index === 'undefined') {
       for (let i = 0; i < MAX_INDEX; i++) {
         if (checksummedAddress === this.#addressFromIndex(pathBase, i)) {
@@ -579,6 +597,12 @@ export class TrezorKeyring implements Keyring {
     if (typeof index === 'undefined') {
       throw new Error('Unknown address');
     }
+
+    return index;
+  }
+
+  #pathFromAddress(address: Hex): string {
+    const index = this.getIndexForAddress(address);
     return `${this.hdPath}/${index}`;
   }
 }
