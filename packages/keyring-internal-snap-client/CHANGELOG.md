@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore(deps-dev): bump @metamask/snaps-utils from 11.7.0 to 11.7.1 ([#424](https://github.com/MetaMask/accounts/pull/424))
+
 ### Changed
 
 - Bump `@metamask/snaps-controllers` from `^14.0.1` to `^17.2.0` ([#422](https://github.com/MetaMask/accounts/pull/422))
