@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0]
 
-### Uncategorized
-
-- refactor: hw-device-sdk -> hw-wallet-sdk ([#431](https://github.com/MetaMask/accounts/pull/431))
-
 ### Added
 
 - Add hardware related error mappings and custom hardware error ([#421](https://github.com/MetaMask/accounts/pull/421))
