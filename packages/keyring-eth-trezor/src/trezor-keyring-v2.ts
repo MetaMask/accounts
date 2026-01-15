@@ -41,17 +41,17 @@ const trezorKeyringV2Capabilities: KeyringCapabilities = {
  * BIP-44 standard HD path prefix constant for Ethereum.
  * Used as default for derive-index operations.
  */
-const BIP44_HD_PATH_PREFIX = `m/44'/60'/0'/0`;
+export const BIP44_HD_PATH_PREFIX = `m/44'/60'/0'/0`;
 
 /**
  * SLIP-0044 testnet HD path prefix constant.
  */
-const SLIP0044_TESTNET_PATH = `m/44'/1'/0'/0`;
+export const SLIP0044_TESTNET_PATH = `m/44'/1'/0'/0`;
 
 /**
  * Legacy MEW (MyEtherWallet) HD path prefix constant.
  */
-const LEGACY_MEW_PATH = `m/44'/60'/0'`;
+export const LEGACY_MEW_PATH = `m/44'/60'/0'`;
 
 /**
  * Allowed HD paths for Trezor keyring.
