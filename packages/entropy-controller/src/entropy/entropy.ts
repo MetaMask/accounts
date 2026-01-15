@@ -90,6 +90,8 @@ export function isPrivateKeyEntropy(
 }
 
 export type EntropyController = {
+  addEntropy(entropy: Entropy): Promise<void>; // TODO: update, delete
+
   getEntropyById(entropyId: EntropyId): Promise<Entropy>;
 
   getEntropyByType(entropyType: EntropyType): Promise<Entropy[]>;
