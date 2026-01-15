@@ -1,5 +1,11 @@
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { hashPersonalMessage } from '@ethereumjs/util';
+import type {
+  TypedDataV1,
+  TypedMessage,
+  SignTypedDataVersion,
+  MessageTypes,
+} from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   CL24DKM,
@@ -11,14 +17,7 @@ import type {
   ThresholdKey,
 } from '@metamask/mfa-wallet-interface';
 import type { WasmLib as Dkls19WasmLib } from '@metamask/tss-dkls19-lib';
-import {
-  bigIntToBytes,
-  bytesToHex,
-  concatBytes,
-  hexToBytes,
-  type Hex,
-  type Json,
-} from '@metamask/utils';
+import { hexToBytes, type Hex, type Json } from '@metamask/utils';
 
 import { initCloudKeyGen, initCloudSign } from './cloud';
 import type { NetworkIdentity, NetworkManager } from './network';
@@ -26,8 +25,11 @@ import { generateSessionId } from './network';
 import type { MPCKeyringOpts, ThresholdKeyId } from './types';
 import {
   equalAddresses,
+  getSignedTypedDataHash,
   parseEcdsaSignature,
+  parseSignedTypedDataVersion,
   publicToAddressHex,
+  toEthSig,
 } from './util';
 
 const type = 'eth-mpc';
@@ -65,7 +67,7 @@ export class MPCKeyring implements Keyring {
   async serialize(): Promise<Json> {
     return {
       initRole: this.#initRole,
-      networkCredentials: serializeNetworkCredentials(this.#networkIdentity),
+      networkIdentity: serializeNetworkIdentity(this.#networkIdentity),
       keyShare: serializeThresholdKey(this.#keyShare),
     };
   }
@@ -84,10 +86,8 @@ export class MPCKeyring implements Keyring {
       this.#initRole = 'responder';
     }
 
-    if ('networkCredentials' in state) {
-      this.#networkIdentity = deserializeNetworkCredentials(
-        state.networkCredentials,
-      );
+    if ('networkIdentity' in state) {
+      this.#networkIdentity = deserializeNetworkIdentity(state.networkIdentity);
     }
 
     if ('keyShare' in state) {
@@ -199,14 +199,8 @@ export class MPCKeyring implements Keyring {
     const msgHash = hashPersonalMessage(rawMsg);
 
     const signature = await this.#signHash(address, msgHash);
-    const { r, s, v } = parseEcdsaSignature(signature);
-    const vRaw = bigIntToBytes(v);
-
-    if (vRaw.length !== 1) {
-      throw new Error('Invalid signature');
-    }
-
-    return bytesToHex(concatBytes([vRaw, r, s]));
+    const ethSig = toEthSig(signature);
+    return ethSig;
   }
 
   /**
@@ -215,14 +209,26 @@ export class MPCKeyring implements Keyring {
    *
    * @param address - The address of the account.
    * @param data - The typed data to sign.
-   * @param opts - The options for signing the message.
+   * @param options - The options for signing the message.
    * @returns The signature of the message.
    */
-  async signTypedData(
+  async signTypedData<
+    Version extends SignTypedDataVersion,
+    Types extends MessageTypes,
+    Options extends { version?: Version },
+  >(
     address: Hex,
-    data: unknown[] | Record<string, unknown>,
-    opts?: Record<string, unknown>,
-  ): Promise<string> {}
+    data: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
+    options?: Options,
+  ): Promise<string> {
+    const version = parseSignedTypedDataVersion(options);
+
+    const messageHash = getSignedTypedDataHash(data, version);
+
+    const signature = await this.#signHash(address, messageHash);
+    const ethSig = toEthSig(signature);
+    return ethSig;
+  }
 
   async #signHash(address: Hex, hash: Uint8Array): Promise<Uint8Array> {
     if (!this.#keyShare) {
