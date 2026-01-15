@@ -1,1 +1,1 @@
-export * from './legacy';
+export * from './keyring-request';

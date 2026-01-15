@@ -3,7 +3,7 @@ import {
   EthScope,
   type KeyringAccount,
 } from '@metamask/keyring-api';
-import type { LegacyKeyringRequest } from '@metamask/keyring-internal-api';
+import type { KeyringRequestWithoutOrigin } from '@metamask/keyring-internal-api';
 import type { SnapId } from '@metamask/snaps-sdk';
 
 import {
@@ -87,8 +87,8 @@ describe('KeyringInternalSnapClient', () => {
     });
   });
 
-  describe('submitLegacyRequest', () => {
-    const keyringRequest: LegacyKeyringRequest = {
+  describe('submitRequestWithoutOrigin', () => {
+    const keyringRequest: KeyringRequestWithoutOrigin = {
       id: 'mock-request-id',
       scope: EthScope.Mainnet,
       account: MOCK_ACCOUNT.id,
@@ -109,7 +109,7 @@ describe('KeyringInternalSnapClient', () => {
       },
     };
 
-    it('calls the submitLegacyRequest method', async () => {
+    it('calls the submitRequestWithoutOrigin method', async () => {
       const client = new KeyringInternalSnapClient({
         messenger: messenger as unknown as KeyringInternalSnapClientMessenger,
         snapId,
@@ -119,7 +119,7 @@ describe('KeyringInternalSnapClient', () => {
         pending: false,
         result: null,
       });
-      await client.submitLegacyRequest(keyringRequest);
+      await client.submitRequestWithoutOrigin(keyringRequest);
       expect(messenger.call).toHaveBeenCalledWith(
         'SnapController:handleRequest',
         request,

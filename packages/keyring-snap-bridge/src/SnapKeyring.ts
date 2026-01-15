@@ -28,7 +28,7 @@ import {
   AnyAccountType,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
-import { toLegacyKeyringRequest } from '@metamask/keyring-internal-api';
+import { toKeyringRequestWithoutOrigin } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import {
   type GetSelectedAccountsResponse,
@@ -1091,8 +1091,8 @@ export class SnapKeyring {
         response = await client.submitRequest(request);
       } else {
         // Legacy keyring request did not support the `origin` field.
-        response = await client.submitLegacyRequest(
-          toLegacyKeyringRequest(request),
+        response = await client.submitRequestWithoutOrigin(
+          toKeyringRequestWithoutOrigin(request),
         );
       }
 
