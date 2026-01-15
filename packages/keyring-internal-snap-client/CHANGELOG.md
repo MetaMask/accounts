@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- **BREAKING:** Rename `submitRequestV1` method to `submitLegacyRequest` ([#423](https://github.com/MetaMask/accounts/pull/423))
+- **BREAKING:** Rename `submitRequestV1` method to `submitRequestWithoutOrigin` ([#423](https://github.com/MetaMask/accounts/pull/423))
 
 ## [8.0.1]
 
