@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
   - Provides common Ethereum signing method routing (`submitRequest`) for all Ethereum-based keyrings.
 - Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)), ([#410](https://github.com/MetaMask/accounts/pull/410))
+- Add `KeyringVersion` enum and required `versions` field to `KeyringCapabilities` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - `KeyringVersion` enum represents keyring API versions: `V1 = 1`, `V2 = 2`.
+  - Keyrings must now declare which API versions they support via the `versions` field.
+  - The `versions` field is a non-empty array of `KeyringVersion` values.
 
 ### Changed
 

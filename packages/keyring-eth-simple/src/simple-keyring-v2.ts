@@ -12,6 +12,7 @@ import {
   type KeyringCapabilities,
   type KeyringV2,
   KeyringType,
+  KeyringVersion,
   PrivateKeyEncoding,
 } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
@@ -38,6 +39,7 @@ const SIMPLE_KEYRING_METHODS = [
 ];
 
 const simpleKeyringV2Capabilities: KeyringCapabilities = {
+  versions: [KeyringVersion.V2],
   scopes: [EthScope.Eoa],
   privateKey: {
     importFormats: [

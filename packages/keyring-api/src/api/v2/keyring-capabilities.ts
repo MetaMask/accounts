@@ -1,6 +1,7 @@
 import {
   array,
   boolean,
+  enums,
   exactOptional,
   nonempty,
   object,
@@ -15,9 +16,30 @@ import {
 import { CaipChainIdStruct } from '../caip';
 
 /**
+ * Enum representing keyring API versions.
+ */
+export enum KeyringVersion {
+  /**
+   * Initial Keyring API.
+   */
+  V1 = 1,
+
+  /**
+   * Unified keyring API introducing the new capabilities system.
+   *
+   * Requires Snap platform: TBD (TODO)
+   */
+  V2 = 2,
+}
+
+/**
  * Struct for {@link KeyringCapabilities}.
  */
 export const KeyringCapabilitiesStruct = object({
+  /**
+   * List of keyring API versions that this keyring supports.
+   */
+  versions: nonempty(array(enums([KeyringVersion.V1, KeyringVersion.V2]))),
   /**
    * List of CAIP-2 chain IDs that this keyring supports.
    */
@@ -78,6 +100,7 @@ export const KeyringCapabilitiesStruct = object({
  * @example
  * ```ts
  * const capabilities: KeyringCapabilities = {
+ *   versions: [KeyringVersion.V2],
  *   scopes: ['bip122:_'],
  *   bip44: {
  *     derivePath: true,
