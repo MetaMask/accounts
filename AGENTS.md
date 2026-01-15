@@ -316,28 +316,28 @@ accounts/
 
 ### Dependency Graph
 
-The packages have the following dependency relationships (see README.md for visual graph):
+**The dependency relationships between packages are maintained in [README.md](./README.md) with a visual graph. Always run `yarn readme:update` when updating dependencies to keep this graph current.**
 
 **Core Packages:**
-- `keyring-api` - Core interfaces (no dependencies within monorepo)
-- `keyring-utils` - Shared utilities (no dependencies within monorepo)
+- `keyring-api` - Core interfaces
+- `keyring-utils` - Shared utilities
 
 **Implementation Packages:**
-- `keyring-eth-hd` - HD wallet (depends on: keyring-api, keyring-utils, account-api)
-- `keyring-eth-simple` - Simple keyring (depends on: keyring-api, keyring-utils)
-- `keyring-eth-trezor` - Trezor integration (depends on: keyring-utils)
-- `keyring-eth-ledger-bridge` - Ledger integration (depends on: keyring-api, keyring-utils, account-api)
-- `keyring-eth-qr` - QR code keyring (depends on: keyring-utils)
+- `keyring-eth-hd` - HD wallet implementation
+- `keyring-eth-simple` - Simple keyring implementation
+- `keyring-eth-trezor` - Trezor hardware wallet integration
+- `keyring-eth-ledger-bridge` - Ledger hardware wallet integration
+- `keyring-eth-qr` - QR code keyring for air-gapped signing
 
 **Snap Packages:**
-- `keyring-snap-bridge` - Snap keyring bridge (depends on: keyring-api, keyring-internal-api, keyring-internal-snap-client, keyring-snap-sdk, keyring-utils)
-- `keyring-snap-client` - Client for snap communication (depends on: keyring-api, keyring-utils)
-- `keyring-snap-sdk` - SDK for building snaps (depends on: keyring-api, keyring-utils)
-- `keyring-internal-api` - Internal APIs (depends on: keyring-api, keyring-utils)
-- `keyring-internal-snap-client` - Internal snap client (depends on: keyring-api, keyring-internal-api, keyring-snap-client, keyring-utils)
+- `keyring-snap-bridge` - Snap keyring bridge for MetaMask Snaps
+- `keyring-snap-client` - Client library for snap communication
+- `keyring-snap-sdk` - SDK for building keyring Snaps
+- `keyring-internal-api` - Internal APIs for keyring communication
+- `keyring-internal-snap-client` - Internal snap client implementation
 
 **Account API:**
-- `account-api` - Account abstractions (depends on: keyring-api, keyring-utils)
+- `account-api` - Account abstractions and utilities
 
 ### Finding Specific Code
 
