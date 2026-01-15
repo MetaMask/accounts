@@ -519,12 +519,22 @@ describe('TrezorKeyringV2', () => {
       ).rejects.toThrow(/Invalid derivation path/u);
     });
 
-    it('throws error for unsupported HD path', async () => {
+    it('throws error for unsupported HD path prefix', async () => {
       const { wrapper } = createEmptyWrapper();
 
-      // Valid format but unsupported base path for Trezor
+      // Valid format but unsupported base path (coin type 100 instead of 60 or 1)
       await expect(
         wrapper.createAccounts(derivePathOptions(`m/44'/100'/0'/0/0`)),
+      ).rejects.toThrow(/Invalid derivation path/u);
+    });
+
+    it('throws error for valid format but disallowed HD path', async () => {
+      const { wrapper } = createEmptyWrapper();
+
+      // Path matches the regex (starts with m/44'/60') but the base path
+      // m/44'/60'/1'/0 is not in ALLOWED_HD_PATHS
+      await expect(
+        wrapper.createAccounts(derivePathOptions(`m/44'/60'/1'/0/0`)),
       ).rejects.toThrow(/Invalid derivation path/u);
     });
 

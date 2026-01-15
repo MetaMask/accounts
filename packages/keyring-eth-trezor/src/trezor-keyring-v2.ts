@@ -44,22 +44,39 @@ const trezorKeyringV2Capabilities: KeyringCapabilities = {
 const BIP44_HD_PATH_PREFIX = `m/44'/60'/0'/0`;
 
 /**
+ * SLIP-0044 testnet HD path prefix constant.
+ */
+const SLIP0044_TESTNET_PATH = `m/44'/1'/0'/0`;
+
+/**
+ * Legacy MEW (MyEtherWallet) HD path prefix constant.
+ */
+const LEGACY_MEW_PATH = `m/44'/60'/0'`;
+
+/**
  * Allowed HD paths for Trezor keyring.
  * These must match the keys in ALLOWED_HD_PATHS from trezor-keyring.ts.
  */
-type AllowedHdPath = `m/44'/60'/0'/0` | `m/44'/60'/0'` | `m/44'/1'/0'/0`;
+const ALLOWED_HD_PATHS = [
+  BIP44_HD_PATH_PREFIX,
+  SLIP0044_TESTNET_PATH,
+  LEGACY_MEW_PATH,
+] as const;
+
+/**
+ * Type representing one of the allowed Trezor HD paths.
+ * Used by inner.setHdPath which expects one of these specific paths.
+ */
+type AllowedHdPath = (typeof ALLOWED_HD_PATHS)[number];
 
 /**
  * Regex pattern for validating and parsing Trezor derivation paths.
- * Only matches the allowed Trezor HD paths from the legacy keyring:
- * - m/44'/60'/0'/0/{index} (BIP44 standard)
- * - m/44'/60'/0'/{index} (legacy MEW)
- * - m/44'/1'/0'/0/{index} (SLIP0044 testnet)
- *
+ * Matches BIP-44 style paths: m/44'/{coin}'/{segments}/{index}
+ * where coin is 60' (Ethereum) or 1' (testnet).
  * Captures: [1] = base path prefix, [2] = index
+ * The prefix is then validated against ALLOWED_HD_PATHS.
  */
-const DERIVATION_PATH_PATTERN =
-  /^(m\/44'\/60'\/0'\/0|m\/44'\/60'\/0'|m\/44'\/1'\/0'\/0)\/(\d+)$/u;
+const DERIVATION_PATH_PATTERN = /^(m\/44'\/(?:60'|1')(?:\/\d+'?)*)\/(\d+)$/u;
 
 /**
  * Concrete {@link KeyringV2} adapter for {@link TrezorKeyring}.
@@ -144,18 +161,29 @@ export class TrezorKeyringV2
     index: number;
   } {
     const match = derivationPath.match(DERIVATION_PATH_PATTERN);
-    if (!match) {
+    if (!match?.[1] || !match[2]) {
       throw new Error(
         `Invalid derivation path: ${derivationPath}. ` +
           `Expected format: {base}/{index} where base is one of: ` +
-          `m/44'/60'/0'/0, m/44'/60'/0', m/44'/1'/0'/0.`,
+          `${ALLOWED_HD_PATHS.join(', ')}.`,
       );
     }
 
-    // The regex guarantees match[1] is one of the allowed HD paths and match[2] is an index
+    const basePath = match[1];
+    const index = parseInt(match[2], 10);
+
+    // Validate the base path is one of the allowed paths
+    if (!ALLOWED_HD_PATHS.includes(basePath as AllowedHdPath)) {
+      throw new Error(
+        `Invalid derivation path: ${derivationPath}. ` +
+          `Expected format: {base}/{index} where base is one of: ` +
+          `${ALLOWED_HD_PATHS.join(', ')}.`,
+      );
+    }
+
     return {
-      basePath: match[1] as AllowedHdPath,
-      index: parseInt(match[2] as string, 10),
+      basePath: basePath as AllowedHdPath,
+      index,
     };
   }
 
