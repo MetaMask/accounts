@@ -38,27 +38,52 @@ const trezorKeyringV2Capabilities: KeyringCapabilities = {
 };
 
 /**
- * Allowed HD paths for Trezor keyring.
- * These must match the keys in ALLOWED_HD_PATHS from trezor-keyring.ts.
- */
-type AllowedHdPath = `m/44'/60'/0'/0` | `m/44'/60'/0'` | `m/44'/1'/0'/0`;
-
-/**
  * BIP-44 standard HD path prefix constant for Ethereum.
  * Used as default for derive-index operations.
  */
-const BIP44_HD_PATH_PREFIX: AllowedHdPath = `m/44'/60'/0'/0`;
+const BIP44_HD_PATH_PREFIX = `m/44'/60'/0'/0` as const;
 
 /**
- * Regex pattern for validating and parsing derivation paths.
- * Only matches the allowed Trezor HD paths from the V1 implementation:
- * - m/44'/60'/0'/0/{index} (BIP44 standard)
- * - m/44'/60'/0'/{index} (legacy MEW)
- * - m/44'/1'/0'/0/{index} (SLIP0044 testnet)
- * Captures: [1] = base path, [2] = index
+ * Legacy MEW HD path.
  */
-const DERIVATION_PATH_PATTERN =
-  /^(m\/44'\/60'\/0'\/0|m\/44'\/60'\/0'|m\/44'\/1'\/0'\/0)\/(\d+)$/u;
+const LEGACY_MEW_PATH = `m/44'/60'/0'` as const;
+
+/**
+ * SLIP-0044 testnet HD path.
+ */
+const SLIP0044_TESTNET_PATH = `m/44'/1'/0'/0` as const;
+
+/**
+ * Allowed HD paths for Trezor keyring.
+ * These must match the keys in ALLOWED_HD_PATHS from trezor-keyring.ts.
+ */
+const ALLOWED_HD_PATHS = [
+  BIP44_HD_PATH_PREFIX,
+  LEGACY_MEW_PATH,
+  SLIP0044_TESTNET_PATH,
+] as const;
+
+/**
+ * Type representing allowed HD paths for Trezor keyring.
+ */
+type AllowedHdPath = (typeof ALLOWED_HD_PATHS)[number];
+
+/**
+ * Regex pattern for parsing derivation paths.
+ * Matches any path in the format {prefix}/{index} where index is a non-negative integer.
+ * Captures: [1] = base path prefix, [2] = index
+ */
+const DERIVATION_PATH_PATTERN = /^(.+)\/(\d+)$/u;
+
+/**
+ * Checks if a path prefix is an allowed HD path.
+ *
+ * @param prefix - The path prefix to check.
+ * @returns True if the prefix is allowed, false otherwise.
+ */
+function isAllowedHdPath(prefix: string): prefix is AllowedHdPath {
+  return ALLOWED_HD_PATHS.includes(prefix as AllowedHdPath);
+}
 
 /**
  * Concrete {@link KeyringV2} adapter for {@link TrezorKeyring}.
@@ -131,25 +156,31 @@ export class TrezorKeyringV2
    *
    * @param derivationPath - The full derivation path (e.g., m/44'/60'/0'/0/5).
    * @returns The base HD path and account index.
-   * @throws If the path format is invalid.
+   * @throws If the path format is invalid or the base path is not allowed.
    */
   #parseDerivationPath(derivationPath: string): {
     basePath: AllowedHdPath;
     index: number;
   } {
     const match = derivationPath.match(DERIVATION_PATH_PATTERN);
-    if (match) {
-      return {
-        basePath: match[1] as AllowedHdPath,
-        index: parseInt(match[2] as string, 10),
-      };
+    if (!match) {
+      throw new Error(
+        `Invalid derivation path format: ${derivationPath}. ` +
+          `Expected format: {base}/{index}.`,
+      );
     }
 
-    throw new Error(
-      `Invalid derivation path: ${derivationPath}. ` +
-        `Expected format: {base}/{index} where base is one of: ` +
-        `m/44'/60'/0'/0, m/44'/60'/0', m/44'/1'/0'/0.`,
-    );
+    const prefix = match[1] as string;
+    const index = parseInt(match[2] as string, 10);
+
+    if (!isAllowedHdPath(prefix)) {
+      throw new Error(
+        `Invalid derivation path: ${derivationPath}. ` +
+          `Base path must be one of: ${ALLOWED_HD_PATHS.join(', ')}.`,
+      );
+    }
+
+    return { basePath: prefix, index };
   }
 
   /**
