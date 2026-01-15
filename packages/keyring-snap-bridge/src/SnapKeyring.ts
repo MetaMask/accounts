@@ -13,7 +13,6 @@ import type {
   ResolvedAccountAddress,
   CaipChainId,
   MetaMaskOptions,
-  KeyringRequest,
   KeyringResponse,
 } from '@metamask/keyring-api';
 import {
@@ -28,11 +27,8 @@ import {
   AccountTransactionsUpdatedEventStruct,
   AnyAccountType,
 } from '@metamask/keyring-api';
-import {
-  KeyringVersion,
-  toKeyringRequestV1,
-  type InternalAccount,
-} from '@metamask/keyring-internal-api';
+import type { InternalAccount } from '@metamask/keyring-internal-api';
+import { toKeyringRequestWithoutOrigin } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import {
   type GetSelectedAccountsResponse,
@@ -69,6 +65,7 @@ import {
   getInternalOptionsOf,
   type SnapKeyringInternalOptions,
 } from './options';
+import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions';
 import { SnapIdMap } from './SnapIdMap';
 import type {
   SnapKeyringEvents,
@@ -84,7 +81,6 @@ import {
   toJson,
   unique,
 } from './util';
-import { getKeyringVersionFromPlatform } from './versions';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 
@@ -248,19 +244,21 @@ export class SnapKeyring {
   }
 
   /**
-   * Gets keyring's version for a given Snap.
+   * Checks whether a Snap meets a minimum platform version.
    *
    * @param snapId - The Snap ID.
-   * @returns The Snap's keyring version.
+   * @param platformVersion - Platform version to check.
+   * @returns True if the Snap meets the minimum version, false otherwise.
    */
-  #getKeyringVersion(snapId: SnapId): KeyringVersion {
-    return getKeyringVersionFromPlatform((version: SemVerVersion) => {
-      return this.#messenger.call(
-        'SnapController:isMinimumPlatformVersion',
-        snapId,
-        version,
-      );
-    });
+  #isMinimumPlatformVersion(
+    snapId: SnapId,
+    platformVersion: SemVerVersion,
+  ): boolean {
+    return this.#messenger.call(
+      'SnapController:isMinimumPlatformVersion',
+      snapId,
+      platformVersion,
+    );
   }
 
   /**
@@ -1013,34 +1011,6 @@ export class SnapKeyring {
   }
 
   /**
-   * Submits a request to a Snap and fix-up the payload depending on the version currently supported.
-   *
-   * @param options - The options for the Snap request.
-   * @param options.version - The supported keyring version for the Snap.
-   * @param options.snapId - The Snap ID to submit the request to.
-   * @param options.request - The Snap request.
-   * @returns A promise that resolves to the keyring response from the Snap.
-   */
-  async #submitSnapRequestForVersion({
-    snapId,
-    version,
-    request,
-  }: {
-    snapId: SnapId;
-    version: KeyringVersion;
-    request: KeyringRequest;
-  }): Promise<KeyringResponse> {
-    // Get specific client for that Snap.
-    const client = this.#snapClient.withSnapId(snapId);
-
-    if (version === KeyringVersion.V1) {
-      return await client.submitRequestV1(toKeyringRequestV1(request));
-    }
-
-    return await client.submitRequest(request);
-  }
-
-  /**
    * Submits a request to a Snap.
    *
    * @param options - The options for the Snap request.
@@ -1093,7 +1063,15 @@ export class SnapKeyring {
     );
 
     try {
-      const version = this.#getKeyringVersion(snapId);
+      // Snaps are expecting to receive the `origin` field after a specific
+      // platform version.
+      //
+      // We need to check the Snap platform version to know whether we can
+      // include it or not.
+      const useOrigin = this.#isMinimumPlatformVersion(
+        snapId,
+        PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN,
+      );
 
       const request = {
         id: requestId,
@@ -1108,11 +1086,18 @@ export class SnapKeyring {
 
       log('Submit Snap request: ', request);
 
-      const response = await this.#submitSnapRequestForVersion({
-        version,
-        snapId,
-        request,
-      });
+      // Get specific client for that Snap.
+      const client = this.#snapClient.withSnapId(snapId);
+
+      let response: KeyringResponse;
+      if (useOrigin) {
+        response = await client.submitRequest(request);
+      } else {
+        // Legacy keyring request did not support the `origin` field.
+        response = await client.submitRequestWithoutOrigin(
+          toKeyringRequestWithoutOrigin(request),
+        );
+      }
 
       // Some methods, like the ones used to prepare and patch user operations,
       // require the Snap to answer synchronously in order to work with the

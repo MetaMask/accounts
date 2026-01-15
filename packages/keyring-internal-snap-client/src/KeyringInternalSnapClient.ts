@@ -1,7 +1,7 @@
 import { KeyringRpcMethod } from '@metamask/keyring-api';
 import type {
-  KeyringRequestV1,
-  KeyringResponseV1,
+  KeyringRequestWithoutOrigin,
+  KeyringResponseWithoutOrigin,
 } from '@metamask/keyring-internal-api';
 import { SubmitRequestResponseV1Struct } from '@metamask/keyring-internal-api';
 import { KeyringClient, type Sender } from '@metamask/keyring-snap-client';
@@ -131,7 +131,9 @@ export class KeyringInternalSnapClient extends KeyringClient {
    * @param request - Keyring request.
    * @returns Keyring request's response.
    */
-  async submitRequestV1(request: KeyringRequestV1): Promise<KeyringResponseV1> {
+  async submitRequestWithoutOrigin(
+    request: KeyringRequestWithoutOrigin,
+  ): Promise<KeyringResponseWithoutOrigin> {
     return strictMask(
       await this.send({
         method: KeyringRpcMethod.SubmitRequest,
