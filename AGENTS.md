@@ -56,12 +56,12 @@ yarn test
 
 ### Common Setup Issues
 
-| Problem | Solution |
-|---------|----------|
-| `command not found: yarn` | Run `corepack enable` |
-| Build fails with type errors | Run `yarn build:clean` |
-| Tests fail after setup | Ensure all dependencies installed: `yarn install` |
-| Circular dependency warnings | Run `yarn lint:dependencies:fix` |
+| Problem                      | Solution                                          |
+| ---------------------------- | ------------------------------------------------- |
+| `command not found: yarn`    | Run `corepack enable`                             |
+| Build fails with type errors | Run `yarn build:clean`                            |
+| Tests fail after setup       | Ensure all dependencies installed: `yarn install` |
+| Circular dependency warnings | Run `yarn lint:dependencies:fix`                  |
 
 ---
 
@@ -81,6 +81,7 @@ yarn build:docs
 ```
 
 **Build System Notes:**
+
 - Uses `ts-bridge` for TypeScript compilation
 - Build outputs go to each package's `dist/` directory
 - Source maps are generated for debugging
@@ -106,6 +107,7 @@ yarn test:clean
 ```
 
 **Testing Notes:**
+
 - Tests must be colocated with source files (e.g., `file.ts` → `file.test.ts`)
 - Uses Jest as test runner
 - Coverage reports in `coverage/` directory of each package
@@ -160,6 +162,7 @@ yarn dedupe
 ```
 
 **Dependency Notes:**
+
 - Use workspace protocol for internal dependencies: `"@metamask/keyring-api": "workspace:^"`
 - Run `yarn lint:dependencies:fix` after adding/updating packages
 - Check `syncpack` for version consistency across packages
@@ -321,10 +324,12 @@ accounts/
 **The dependency relationships between packages are maintained in [README.md](./README.md) with a visual graph. Always run `yarn readme:update` when updating dependencies to keep this graph current.**
 
 **Core Packages:**
+
 - `keyring-api` - Core interfaces
 - `keyring-utils` - Shared utilities
 
 **Implementation Packages:**
+
 - `keyring-eth-hd` - HD wallet implementation
 - `keyring-eth-simple` - Simple keyring implementation
 - `keyring-eth-trezor` - Trezor hardware wallet integration
@@ -332,6 +337,7 @@ accounts/
 - `keyring-eth-qr` - QR code keyring for air-gapped signing
 
 **Snap Packages:**
+
 - `keyring-snap-bridge` - Snap keyring bridge for MetaMask Snaps
 - `keyring-snap-client` - Client library for snap communication
 - `keyring-snap-sdk` - SDK for building keyring Snaps
@@ -339,23 +345,25 @@ accounts/
 - `keyring-internal-snap-client` - Internal snap client implementation
 
 **Account API:**
+
 - `account-api` - Account abstractions and utilities
 
 ### Finding Specific Code
 
-| Feature | Location |
-|---------|----------|
-| Core keyring interfaces | `packages/keyring-api/src/api/` |
-| Ethereum-specific methods | `packages/keyring-api/src/eth/` |
-| Bitcoin methods | `packages/keyring-api/src/btc/` |
-| Solana methods | `packages/keyring-api/src/sol/` |
-| Snap integration | `packages/keyring-snap-bridge/src/` |
-| Utility functions | `packages/keyring-utils/src/` |
-| Type definitions | Each package's `src/*.types.ts` or `src/types.ts` |
+| Feature                   | Location                                          |
+| ------------------------- | ------------------------------------------------- |
+| Core keyring interfaces   | `packages/keyring-api/src/api/`                   |
+| Ethereum-specific methods | `packages/keyring-api/src/eth/`                   |
+| Bitcoin methods           | `packages/keyring-api/src/btc/`                   |
+| Solana methods            | `packages/keyring-api/src/sol/`                   |
+| Snap integration          | `packages/keyring-snap-bridge/src/`               |
+| Utility functions         | `packages/keyring-utils/src/`                     |
+| Type definitions          | Each package's `src/*.types.ts` or `src/types.ts` |
 
 ### Architecture Patterns
 
 **Keyring Implementations:**
+
 - Implement the `Keyring` interface from `@metamask/keyring-api`
 - Methods for account management: `getAccounts()`, `addAccounts()`, etc.
 - Methods for signing: `signTransaction()`, `signMessage()`, etc.
@@ -363,12 +371,14 @@ accounts/
 - Type property to identify keyring type
 
 **Type Definitions:**
+
 - Use strict TypeScript types (no `any`)
 - Export types and interfaces from separate files when complex
 - Use JSDoc comments for public APIs
 - Leverage TypeScript utility types (`Partial`, `Required`, `Pick`, etc.)
 
 **Testing:**
+
 - Tests colocated with source: `file.ts` → `file.test.ts`
 - Use `describe` blocks to organize by class/function
 - Use `it` blocks for individual test cases (not `test`)
@@ -381,6 +391,7 @@ accounts/
 When you modify certain files, you typically need to update related files:
 
 **When modifying a package's main export:**
+
 ```
 packages/foo/src/FooKeyring.ts → ALSO UPDATE:
 ├── packages/foo/src/FooKeyring.test.ts (tests)
@@ -390,6 +401,7 @@ packages/foo/src/FooKeyring.ts → ALSO UPDATE:
 ```
 
 **When adding a new file to a package:**
+
 ```
 packages/foo/src/new-feature.ts → ALSO CREATE:
 ├── packages/foo/src/new-feature.test.ts (tests)
@@ -398,6 +410,7 @@ packages/foo/src/new-feature.ts → ALSO CREATE:
 ```
 
 **When changing exported types:**
+
 ```
 packages/foo/src/types.ts → CHECK:
 ├── All packages that depend on this package
@@ -406,6 +419,7 @@ packages/foo/src/types.ts → CHECK:
 ```
 
 **When adding/removing dependencies:**
+
 ```
 packages/foo/package.json → MUST RUN:
 ├── yarn install (update lockfile)
@@ -432,11 +446,11 @@ enum AccountType {
 }
 
 // ❌ WRONG: Plural enum names
-enum EthMethods {  // Don't use plural
+enum EthMethods { // Don't use plural
   SignTransaction = 'eth_signTransaction',
 }
 
-enum AccountTypes {  // Don't use plural
+enum AccountTypes { // Don't use plural
   Eoa = 'eoa',
 }
 
@@ -454,16 +468,22 @@ enum EthMethod {
 }
 
 // ✅ CORRECT: Interfaces and types use PascalCase
-interface KeyringAccount { /* ... */ }
+interface KeyringAccount {
+  /* ... */
+}
 type AccountId = string;
 
 // ✅ CORRECT: Functions and variables use camelCase
-function getAccountById(id: string): KeyringAccount { /* ... */ }
+function getAccountById(id: string): KeyringAccount {
+  /* ... */
+}
 const accountList: KeyringAccount[] = [];
 
 // ✅ CORRECT: Constants use SCREAMING_SNAKE_CASE or camelCase
 const SNAP_KEYRING_TYPE = 'Snap Keyring';
-const defaultOptions = { /* ... */ };
+const defaultOptions = {
+  /* ... */
+};
 
 // ✅ CORRECT: Private class members use # prefix
 class SnapKeyring {
@@ -642,7 +662,7 @@ expect(mockMessenger.call).toHaveBeenCalledWith(
   'SnapController:handleRequest',
   expect.objectContaining({
     snapId: 'local:snap.mock',
-  })
+  }),
 );
 ```
 
@@ -659,7 +679,7 @@ it('creates account asynchronously', async () => {
 // ✅ CORRECT: Test error cases
 it('throws error when creation fails', async () => {
   await expect(
-    keyring.createAccount(snapId, { invalid: true })
+    keyring.createAccount(snapId, { invalid: true }),
   ).rejects.toThrow('Invalid account options');
 });
 ```
@@ -749,6 +769,7 @@ describe('SnapKeyringV2', () => {
 ```
 
 **Setup Function Best Practices:**
+
 - Return an object with the instance under test, mocks, and any helpers
 - Use default parameters for optional configuration
 - Type the return value explicitly for better IDE support
@@ -904,43 +925,47 @@ IF you added/modified types:
 
 ### Build Issues
 
-| Problem | Solution |
-|---------|----------|
-| Type errors in build | Run `yarn build:clean` to rebuild from scratch |
-| Module not found | Run `yarn install` to ensure all deps installed |
-| Circular dependency warnings | Check `packages/*/src/index.ts` exports |
-| Build hangs | Check for infinite loops in type definitions |
+| Problem                      | Solution                                        |
+| ---------------------------- | ----------------------------------------------- |
+| Type errors in build         | Run `yarn build:clean` to rebuild from scratch  |
+| Module not found             | Run `yarn install` to ensure all deps installed |
+| Circular dependency warnings | Check `packages/*/src/index.ts` exports         |
+| Build hangs                  | Check for infinite loops in type definitions    |
 
 ### Test Issues
 
-| Problem | Solution |
-|---------|----------|
-| Tests fail after changes | Check if test expectations need updating |
-| Tests timeout | Increase timeout in jest.config.js |
-| Coverage too low | Add tests for uncovered code paths |
-| Mock not working | Verify mock is called before test assertion |
+| Problem                  | Solution                                    |
+| ------------------------ | ------------------------------------------- |
+| Tests fail after changes | Check if test expectations need updating    |
+| Tests timeout            | Increase timeout in jest.config.js          |
+| Coverage too low         | Add tests for uncovered code paths          |
+| Mock not working         | Verify mock is called before test assertion |
 
 ### Development Issues
 
-| Problem | Solution |
-|---------|----------|
-| ESLint errors | Run `yarn lint:fix` to auto-fix |
-| Type errors | Check imported types are exported correctly |
-| Dependency version mismatch | Run `yarn lint:dependencies:fix` |
-| Yarn lockfile conflicts | Run `yarn dedupe` |
+| Problem                     | Solution                                    |
+| --------------------------- | ------------------------------------------- |
+| ESLint errors               | Run `yarn lint:fix` to auto-fix             |
+| Type errors                 | Check imported types are exported correctly |
+| Dependency version mismatch | Run `yarn lint:dependencies:fix`            |
+| Yarn lockfile conflicts     | Run `yarn dedupe`                           |
 
 ### Common Error Messages
 
 **"@typescript-eslint/no-explicit-any: Unexpected any"**
+
 - Solution: Replace `any` with proper type (string, number, Json, unknown, etc.)
 
 **"Cannot find module '@metamask/...'"**
+
 - Solution: Add dependency to package.json and run `yarn install`
 
 **"Circular dependency detected"**
+
 - Solution: Refactor imports to avoid circular references, use type-only imports if needed
 
 **"Test suite failed to run"**
+
 - Solution: Check jest.config.js configuration, ensure test file has `.test.ts` extension
 
 ---
@@ -948,6 +973,7 @@ IF you added/modified types:
 ## Summary for Quick Reference
 
 **Key Commands:**
+
 ```bash
 yarn install        # Install dependencies
 yarn build          # Build all packages
@@ -957,6 +983,7 @@ yarn release        # Start release process
 ```
 
 **Key Principles:**
+
 1. TypeScript only, no `any` types
 2. Tests colocated with source
 3. High test coverage (>80%)
@@ -965,8 +992,9 @@ yarn release        # Start release process
 6. Follow existing patterns in codebase
 
 **Before Committing:**
+
 - [ ] `yarn lint:fix` passes
-- [ ] `yarn test` passes  
+- [ ] `yarn test` passes
 - [ ] `yarn build` succeeds
 - [ ] CHANGELOG.md updated
 - [ ] Tests added/updated
@@ -974,4 +1002,4 @@ yarn release        # Start release process
 
 ---
 
-*This document is intended to help AI coding agents understand the codebase structure, patterns, and workflows. For human developers, please also refer to the package-specific README files and MetaMask contributor documentation.*
+_This document is intended to help AI coding agents understand the codebase structure, patterns, and workflows. For human developers, please also refer to the package-specific README files and MetaMask contributor documentation._
