@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0]
+
 ### Uncategorized
 
 - refactor: hw-device-sdk -> hw-wallet-sdk ([#431](https://github.com/MetaMask/accounts/pull/431))
@@ -15,4 +17,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add hardware related error mappings and custom hardware error ([#421](https://github.com/MetaMask/accounts/pull/421))
 
-[Unreleased]: https://github.com/MetaMask/accounts/
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.1.0...HEAD
+[0.1.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/hw-wallet-sdk@0.1.0
