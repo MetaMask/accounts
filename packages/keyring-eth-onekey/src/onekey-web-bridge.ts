@@ -30,7 +30,7 @@ export class OneKeyWebBridge implements OneKeyBridge {
   #onUIEvent?: ((event: Unsuccessful['payload']) => void) | undefined;
 
   #handleBlockErrorEvent(payload: Unsuccessful): void {
-    const { code } = payload.payload;
+    const { code } = payload?.payload ?? {};
     const errorCodes: number[] = [
       HardwareErrorCode.WebDeviceNotFoundOrNeedsPermission,
       HardwareErrorCode.BridgeNotInstalled,
@@ -104,6 +104,7 @@ export class OneKeyWebBridge implements OneKeyBridge {
 
   async destroy(): Promise<void> {
     this.isSDKInitialized = false;
+    this.sdk?.removeAllListeners?.('UI_EVENT');
     this.sdk = undefined;
   }
 
