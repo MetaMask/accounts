@@ -91,6 +91,7 @@ export function assertKeyringAccount<
  * @returns A valid transformed `KeyringAccount`.
  */
 export function transformAccount(
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   accountToTransform: KeyringAccountV1 | KeyringAccount,
 ): KeyringAccount {
   // To keep the retro-compatibility with older keyring-api versions, we identify the account's

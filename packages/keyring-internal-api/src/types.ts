@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+/* eslint-disable @typescript-eslint/no-duplicate-type-constituents */
+// FIXME: Those rules seem to be triggering a false positive on the `InternalAccountStructs`
+// and `InternalAccountTypes`.
+
 import {
   BtcAccountType,
   EthAccountType,

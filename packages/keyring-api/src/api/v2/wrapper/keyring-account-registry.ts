@@ -22,6 +22,7 @@ export class KeyringAccountRegistry<
    * @param accountId - The account ID to look up.
    * @returns The KeyringAccount, or undefined if not found.
    */
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   get(accountId: AccountId): KeyringAccountType | undefined {
     return this.#accountById.get(accountId);
   }
@@ -42,6 +43,7 @@ export class KeyringAccountRegistry<
    * @param address - The address to look up.
    * @returns The account ID, or undefined if not found.
    */
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   getAccountId(address: string): AccountId | undefined {
     return this.#idByAddress.get(address);
   }
