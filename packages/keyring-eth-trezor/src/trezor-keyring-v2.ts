@@ -46,12 +46,12 @@ export const BIP44_HD_PATH_PREFIX = `m/44'/60'/0'/0`;
 /**
  * SLIP-0044 testnet HD path prefix constant.
  */
-export const SLIP0044_TESTNET_PATH = `m/44'/1'/0'/0`;
+export const SLIP0044_TESTNET_PATH_PREFIX = `m/44'/1'/0'/0`;
 
 /**
  * Legacy MEW (MyEtherWallet) HD path prefix constant.
  */
-export const LEGACY_MEW_PATH = `m/44'/60'/0'`;
+export const LEGACY_MEW_PATH_PREFIX = `m/44'/60'/0'`;
 
 /**
  * Allowed HD paths for Trezor keyring.
@@ -59,8 +59,8 @@ export const LEGACY_MEW_PATH = `m/44'/60'/0'`;
  */
 const ALLOWED_HD_PATHS = [
   BIP44_HD_PATH_PREFIX,
-  SLIP0044_TESTNET_PATH,
-  LEGACY_MEW_PATH,
+  SLIP0044_TESTNET_PATH_PREFIX,
+  LEGACY_MEW_PATH_PREFIX,
 ] as const;
 
 /**

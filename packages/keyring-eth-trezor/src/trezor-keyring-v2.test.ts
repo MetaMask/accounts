@@ -13,7 +13,8 @@ import type { TrezorBridge } from './trezor-bridge';
 import { TrezorKeyring } from './trezor-keyring';
 import {
   BIP44_HD_PATH_PREFIX,
-  LEGACY_MEW_PATH,
+  LEGACY_MEW_PATH_PREFIX,
+  SLIP0044_TESTNET_PATH_PREFIX,
   TrezorKeyringV2,
 } from './trezor-keyring-v2';
 
@@ -482,23 +483,44 @@ describe('TrezorKeyringV2', () => {
 
     it('creates an account with legacy MEW path', async () => {
       // Create wrapper with legacy MEW path pre-set to avoid HDKey reset
-      const inner = createInnerKeyring(LEGACY_MEW_PATH);
+      const inner = createInnerKeyring(LEGACY_MEW_PATH_PREFIX);
       const wrapper = new TrezorKeyringV2({
         legacyKeyring: inner,
         entropySource,
       });
 
       const newAccounts = await wrapper.createAccounts(
-        derivePathOptions(`${LEGACY_MEW_PATH}/3`),
+        derivePathOptions(`${LEGACY_MEW_PATH_PREFIX}/3`),
       );
       const account = getFirstAccount(newAccounts);
 
       expect(account.address).toBe(EXPECTED_ACCOUNTS[3]);
       expect(account.options.entropy.groupIndex).toBe(3);
       expect(account.options.entropy.derivationPath).toBe(
-        `${LEGACY_MEW_PATH}/3`,
+        `${LEGACY_MEW_PATH_PREFIX}/3`,
       );
-      expect(inner.hdPath).toBe(LEGACY_MEW_PATH);
+      expect(inner.hdPath).toBe(LEGACY_MEW_PATH_PREFIX);
+    });
+
+    it('creates an account with SLIP0044 testnet path', async () => {
+      // Create wrapper with testnet path pre-set to avoid HDKey reset
+      const inner = createInnerKeyring(SLIP0044_TESTNET_PATH_PREFIX);
+      const wrapper = new TrezorKeyringV2({
+        legacyKeyring: inner,
+        entropySource,
+      });
+
+      const newAccounts = await wrapper.createAccounts(
+        derivePathOptions(`${SLIP0044_TESTNET_PATH_PREFIX}/2`),
+      );
+      const account = getFirstAccount(newAccounts);
+
+      expect(account.address).toBe(EXPECTED_ACCOUNTS[2]);
+      expect(account.options.entropy.groupIndex).toBe(2);
+      expect(account.options.entropy.derivationPath).toBe(
+        `${SLIP0044_TESTNET_PATH_PREFIX}/2`,
+      );
+      expect(inner.hdPath).toBe(SLIP0044_TESTNET_PATH_PREFIX);
     });
 
     it('returns existing account if path already exists', async () => {
@@ -664,7 +686,7 @@ describe('TrezorKeyringV2', () => {
   describe('different HD paths', () => {
     it('uses the correct derivation path from the inner keyring', async () => {
       const inner = createInnerKeyring();
-      inner.setHdPath(LEGACY_MEW_PATH);
+      inner.setHdPath(LEGACY_MEW_PATH_PREFIX);
       inner.hdk = fakeHdKey; // Reset after setHdPath clears it
       inner.setAccountToUnlock(0);
       await inner.addAccounts(1);
@@ -678,7 +700,7 @@ describe('TrezorKeyringV2', () => {
       const account = getFirstAccount(accounts);
 
       expect(account.options.entropy.derivationPath).toBe(
-        `${LEGACY_MEW_PATH}/0`,
+        `${LEGACY_MEW_PATH_PREFIX}/0`,
       );
     });
 
