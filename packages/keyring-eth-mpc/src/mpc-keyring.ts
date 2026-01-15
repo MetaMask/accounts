@@ -1,4 +1,5 @@
-import { TransactionFactory, type TypedTransaction } from '@ethereumjs/tx';
+import type { TypedTransaction } from '@ethereumjs/tx';
+import { hashPersonalMessage } from '@ethereumjs/util';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   CL24DKM,
@@ -10,7 +11,14 @@ import type {
   ThresholdKey,
 } from '@metamask/mfa-wallet-interface';
 import type { WasmLib as Dkls19WasmLib } from '@metamask/tss-dkls19-lib';
-import type { Hex, Json } from '@metamask/utils';
+import {
+  bigIntToBytes,
+  bytesToHex,
+  concatBytes,
+  hexToBytes,
+  type Hex,
+  type Json,
+} from '@metamask/utils';
 
 import { initCloudKeyGen, initCloudSign } from './cloud';
 import type { NetworkIdentity, NetworkManager } from './network';
@@ -163,6 +171,60 @@ export class MPCKeyring implements Keyring {
     tx: TypedTransaction,
     _opts = {},
   ): Promise<TypedTransaction> {
+    const message = tx.getHashedMessageToSign();
+
+    const signature = await this.#signHash(address, message);
+
+    const { r, s, v } = parseEcdsaSignature(signature);
+
+    const signedTx = tx.addSignature(v, r, s);
+    return signedTx;
+  }
+
+  /**
+   * Sign a personal message using the specified account.
+   * This method is compatible with the `personal_sign` RPC method.
+   *
+   * @param address - The address of the account.
+   * @param msgHex - The message to sign.
+   * @param _opts - The options for signing the message.
+   * @returns The signature of the message.
+   */
+  async signPersonalMessage(
+    address: Hex,
+    msgHex: string,
+    _opts?: Record<string, unknown>,
+  ): Promise<string> {
+    const rawMsg = hexToBytes(msgHex);
+    const msgHash = hashPersonalMessage(rawMsg);
+
+    const signature = await this.#signHash(address, msgHash);
+    const { r, s, v } = parseEcdsaSignature(signature);
+    const vRaw = bigIntToBytes(v);
+
+    if (vRaw.length !== 1) {
+      throw new Error('Invalid signature');
+    }
+
+    return bytesToHex(concatBytes([vRaw, r, s]));
+  }
+
+  /**
+   * Sign a typed message using the specified account.
+   * This method is compatible with the `eth_signTypedData` RPC method.
+   *
+   * @param address - The address of the account.
+   * @param data - The typed data to sign.
+   * @param opts - The options for signing the message.
+   * @returns The signature of the message.
+   */
+  async signTypedData(
+    address: Hex,
+    data: unknown[] | Record<string, unknown>,
+    opts?: Record<string, unknown>,
+  ): Promise<string> {}
+
+  async #signHash(address: Hex, hash: Uint8Array): Promise<Uint8Array> {
     if (!this.#keyShare) {
       throw new Error(`keyshare not initialized`);
     } else if (!this.#networkIdentity) {
@@ -179,7 +241,7 @@ export class MPCKeyring implements Keyring {
     }
 
     const sessionId = generateSessionId();
-    const message = tx.getHashedMessageToSign();
+    const message = hash;
 
     await initCloudSign({
       keyId: this.#keyId,
@@ -193,7 +255,7 @@ export class MPCKeyring implements Keyring {
       sessionId,
     );
 
-    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng);
+    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
     const { signature } = await dkls19.sign({
       key: this.#keyShare,
       signers: custodians,
@@ -201,43 +263,6 @@ export class MPCKeyring implements Keyring {
       networkSession,
     });
 
-    const { r, s, v } = parseEcdsaSignature(signature);
-
-    return TransactionFactory.fromTxData({
-      ...tx,
-      r,
-      s,
-      v,
-    });
+    return signature;
   }
-
-  /**
-   * Sign a personal message using the specified account.
-   * This method is compatible with the `personal_sign` RPC method.
-   *
-   * @param address - The address of the account.
-   * @param msgHex - The message to sign.
-   * @param opts - The options for signing the message.
-   * @returns The signature of the message.
-   */
-  async signPersonalMessage(
-    address: Hex,
-    msgHex: string,
-    opts?: Record<string, unknown>,
-  ): Promise<string> {}
-
-  /**
-   * Sign a typed message using the specified account.
-   * This method is compatible with the `eth_signTypedData` RPC method.
-   *
-   * @param address - The address of the account.
-   * @param data - The typed data to sign.
-   * @param opts - The options for signing the message.
-   * @returns The signature of the message.
-   */
-  async signTypedData(
-    address: Hex,
-    data: unknown[] | Record<string, unknown>,
-    opts?: Record<string, unknown>,
-  ): Promise<string> {}
 }

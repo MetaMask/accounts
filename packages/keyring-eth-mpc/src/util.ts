@@ -44,8 +44,8 @@ export function equalAddresses(address1: string, address2: string): boolean {
  * @returns The parsed signature.
  */
 export function parseEcdsaSignature(signature: Uint8Array): {
-  r: bigint;
-  s: bigint;
+  r: Uint8Array;
+  s: Uint8Array;
   v: bigint;
 } {
   // TODO
