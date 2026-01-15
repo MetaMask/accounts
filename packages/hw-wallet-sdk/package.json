@@ -1,12 +1,12 @@
 {
-  "name": "@metamask/keyring-internal-snap-client",
-  "version": "8.0.1",
-  "description": "MetaMask Keyring Snap internal clients",
+  "name": "@metamask/hw-wallet-sdk",
+  "version": "0.0.0",
+  "description": "MetaMask Hardware Device SDK",
   "keywords": [
     "metamask",
-    "keyring"
+    "hardware-wallet"
   ],
-  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-internal-snap-client#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/hw-wallet-sdk#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
@@ -35,8 +35,8 @@
     "build": "ts-bridge --project tsconfig.build.json --no-references",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-internal-snap-client",
-    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-internal-snap-client",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/hw-wallet-sdk",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/hw-wallet-sdk",
     "publish:preview": "yarn npm publish --tag preview",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",
@@ -44,21 +44,10 @@
     "test:types": "../../scripts/tsd-test.sh ./src",
     "test:watch": "jest --watch"
   },
-  "dependencies": {
-    "@metamask/keyring-api": "workspace:^",
-    "@metamask/keyring-internal-api": "workspace:^",
-    "@metamask/keyring-snap-client": "workspace:^",
-    "@metamask/keyring-utils": "workspace:^",
-    "@metamask/messenger": "^0.3.0"
-  },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/snaps-controllers": "^17.2.0",
-    "@metamask/snaps-sdk": "^10.3.0",
-    "@metamask/snaps-utils": "^11.7.1",
-    "@metamask/utils": "^11.1.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
