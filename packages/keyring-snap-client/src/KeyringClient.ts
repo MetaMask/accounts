@@ -157,8 +157,6 @@ export class KeyringClient implements Keyring {
   async resolveAccountAddress(
     scope: CaipChainId,
     request: JsonRpcRequest,
-    // FIXME: eslint is complaning about `ResolvedAccountAddress` being `any`, so disable this for now:
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   ): Promise<ResolvedAccountAddress | null> {
     return strictMask(
       await this.send({

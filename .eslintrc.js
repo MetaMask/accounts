@@ -58,6 +58,10 @@ module.exports = {
       rules: {
         // Enable rules that are disabled in `@metamask/eslint-config-typescript`
         '@typescript-eslint/no-explicit-any': 'error',
+
+        // This rule triggers false positives and doesn't add real type-safety value.
+        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
+        '@typescript-eslint/no-redundant-type-constituents': 'off',
       },
     },
     {
@@ -97,6 +101,10 @@ module.exports = {
         // works on the original repository, so there might be some side-effects now that
         // we are building in a monorepo)
         '@typescript-eslint/restrict-template-expressions': 'off',
+
+        // This rule triggers false positives and doesn't add real type-safety value.
+        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
+        '@typescript-eslint/no-redundant-type-constituents': 'off',
       },
     },
     // @metamask/keyring-eth-hd
@@ -175,6 +183,10 @@ module.exports = {
         'jsdoc/tag-lines': 'off',
         'n/no-callback-literal': 'off',
         'promise/no-multiple-resolved': 'off',
+
+        // This rule triggers false positives and doesn't add real type-safety value.
+        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
+        '@typescript-eslint/no-redundant-type-constituents': 'off',
       },
     },
     // @metamask/keyring-snap-bridge
@@ -189,6 +201,10 @@ module.exports = {
         // works on the original repository, so there might be some side-effects now that
         // we are building in a monorepo)
         '@typescript-eslint/restrict-template-expressions': 'off',
+
+        // This rule triggers false positives and doesn't add real type-safety value.
+        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
+        '@typescript-eslint/no-redundant-type-constituents': 'off',
       },
     },
     // @metamask/keyring-snap-sdk
@@ -215,6 +231,10 @@ module.exports = {
         // works on the original repository, so there might be some side-effects now that
         // we are building in a monorepo)
         '@typescript-eslint/restrict-template-expressions': 'off',
+
+        // This rule triggers false positives and doesn't add real type-safety value.
+        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
+        '@typescript-eslint/no-redundant-type-constituents': 'off',
       },
     },
   ],

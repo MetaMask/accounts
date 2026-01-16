@@ -1,6 +1,6 @@
-// FIXME: eslint is complaning about some unions here, so disable this for now:
+// FIXME: eslint is complaning about our account union even if those accounts
+// types should all be different, so we disable this for now:
 /* eslint-disable @typescript-eslint/no-duplicate-type-constituents */
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 
 import {
   BtcAccountType,

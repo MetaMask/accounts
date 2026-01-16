@@ -89,8 +89,6 @@ const DERIVATION_PATH_PATTERN = /^(m\/44'\/(?:60'|1')(?:\/\d+'?)*)\/(\d+)$/u;
 export type TrezorKeyringV2Options = {
   legacyKeyring: TrezorKeyring;
   entropySource: EntropySourceId;
-  // FIXME: eslint is complaning about `Trezor` and `OneKey` being `any`, so disable this for now:
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   type?: KeyringType.Trezor | KeyringType.OneKey;
 };
 

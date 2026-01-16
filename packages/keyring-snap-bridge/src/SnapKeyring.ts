@@ -914,8 +914,6 @@ export class SnapKeyring {
     snapId: SnapId,
     scope: CaipChainId,
     request: JsonRpcRequest,
-    // FIXME: eslint is complaning about `ResolvedAccountAddress` being `any`, so disable this for now:
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   ): Promise<ResolvedAccountAddress | null> {
     // We do check that the incoming Snap ID is known by the keyring.
     if (!this.hasSnapId(snapId)) {
