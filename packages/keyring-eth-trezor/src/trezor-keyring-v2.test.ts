@@ -64,7 +64,7 @@ function getFirstAccount(accounts: TrezorAccount[]): TrezorAccount {
   if (accounts.length === 0) {
     throw new Error('Expected at least one account');
   }
-  return accounts[0] as TrezorAccount;
+  return accounts[0];
 }
 
 /**
@@ -78,7 +78,7 @@ function getAccountAt(accounts: TrezorAccount[], index: number): TrezorAccount {
   if (accounts.length <= index) {
     throw new Error(`Expected account at index ${index}`);
   }
-  return accounts[index] as TrezorAccount;
+  return accounts[index];
 }
 
 /**

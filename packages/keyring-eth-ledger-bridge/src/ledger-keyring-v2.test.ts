@@ -59,7 +59,7 @@ function getFirstAccount(accounts: LedgerAccount[]): LedgerAccount {
   if (accounts.length === 0) {
     throw new Error('Expected at least one account');
   }
-  return accounts[0] as LedgerAccount;
+  return accounts[0];
 }
 
 /**
@@ -73,7 +73,7 @@ function getAccountAt(accounts: LedgerAccount[], index: number): LedgerAccount {
   if (accounts.length <= index) {
     throw new Error(`Expected account at index ${index}`);
   }
-  return accounts[index] as LedgerAccount;
+  return accounts[index];
 }
 
 /**
