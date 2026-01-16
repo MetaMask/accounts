@@ -431,6 +431,7 @@ describe('KeyringClient', () => {
                   type: 'eip155:1/slip44:60',
                   unit: 'ETH',
                   amount: 'invalid-amount', // Should be a numeric string
+                  rawAmount: '100000000000000',
                 },
               },
             ],
@@ -554,6 +555,7 @@ describe('KeyringClient', () => {
         [assets[0] as string]: {
           amount: '1234',
           unit: 'sat',
+          rawAmount: '1234',
         },
       };
 
@@ -579,6 +581,7 @@ describe('KeyringClient', () => {
         [assets[0] as string]: {
           amount: 1234, // Should be a `StringNumber`
           unit: 'sat',
+          rawAmount: '1234',
         },
       };
 
@@ -597,12 +600,32 @@ describe('KeyringClient', () => {
         [assets[0] as string]: {
           amount: 'not-a-string-number', // Should be a `StringNumber`
           unit: 'sat',
+          rawAmount: '1234',
         },
       };
 
       mockSender.send.mockResolvedValue(expectedResponse);
       await expect(client.getAccountBalances(id, assets)).rejects.toThrow(
         'At path: bip122:000000000019d6689c085ae165831e93/slip44:0.amount -- Expected a value of type `StringNumber`, but received: `"not-a-string-number"`',
+      );
+    });
+
+    it('throws an error because the rawAmount is missing', async () => {
+      const assets: CaipAssetType[] = [
+        'bip122:000000000019d6689c085ae165831e93/slip44:0',
+      ];
+      const id = '1617ea08-d4b6-48bf-ba83-901ef1e45ed7';
+      const expectedResponse = {
+        [assets[0] as string]: {
+          amount: '1234',
+          unit: 'sat',
+          // Missing rawAmount
+        },
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      await expect(client.getAccountBalances(id, assets)).rejects.toThrow(
+        'At path: bip122:000000000019d6689c085ae165831e93/slip44:0.rawAmount -- Expected a string, but received: undefined',
       );
     });
   });

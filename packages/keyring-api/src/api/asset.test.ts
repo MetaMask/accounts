@@ -6,7 +6,7 @@ describe('AssetStruct', () => {
   it.each([
     // Missing `fungible`
     { asset: {}, expected: false },
-    // Valid
+    // Valid non-fungible asset
     {
       asset: {
         fungible: false,
@@ -14,25 +14,36 @@ describe('AssetStruct', () => {
       },
       expected: true,
     },
-    // Missing `unit` and `amount`
+    // Missing `unit`, `amount`, and `rawAmount`
     { asset: { fungible: true, type: 'eip155:1/slip44:60' }, expected: false },
-    // Missing `amount`
+    // Missing `amount` and `rawAmount`
     {
       asset: { fungible: true, type: 'eip155:1/slip44:60', unit: 'ETH' },
       expected: false,
     },
-    // Missing `unit`
+    // Missing `unit` and `rawAmount`
     {
       asset: { fungible: true, type: 'eip155:1/slip44:60', amount: '0.01' },
       expected: false,
     },
-    // Valid
+    // Missing `rawAmount`
     {
       asset: {
         fungible: true,
         type: 'eip155:1/slip44:60',
         unit: 'ETH',
         amount: '0.01',
+      },
+      expected: false,
+    },
+    // Valid fungible asset
+    {
+      asset: {
+        fungible: true,
+        type: 'eip155:1/slip44:60',
+        unit: 'ETH',
+        amount: '0.01',
+        rawAmount: '10000000000000000',
       },
       expected: true,
     },

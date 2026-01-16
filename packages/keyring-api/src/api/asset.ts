@@ -16,14 +16,21 @@ import {
  */
 export const FungibleAssetAmountStruct = object({
   /**
-   * Asset unit.
+   * Asset unit (symbol).
    */
   unit: string(),
 
   /**
-   * Asset amount.
+   * The human-readable asset amount with decimals applied (e.g., "1.5" for 1.5 SOL).
+   * This is kept for backward compatibility with existing consumers.
    */
   amount: StringNumberStruct,
+
+  /**
+   * The raw blockchain balance without decimals applied (e.g., "1500000000" for 1.5 SOL).
+   * This provides precision for calculations using BigInt/BigNumber.
+   */
+  rawAmount: string(),
 });
 
 /**
@@ -83,6 +90,7 @@ export const NonFungibleAssetStruct = object({
  *   type: 'eip155:1/slip44:60',
  *   unit: 'ETH',
  *   amount: '0.01',
+ *   rawAmount: '10000000000000000',
  * }
  * ```
  *

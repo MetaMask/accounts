@@ -209,6 +209,7 @@ expectAssignable<KeyringEventPayload<KeyringEvent.AccountBalancesUpdated>>({
       'bip122:000000000019d6689c085ae165831e93/slip44:0': {
         amount: '0.0001',
         unit: 'BTC',
+        rawAmount: '10000',
       },
     },
   },
@@ -220,6 +221,7 @@ expectNotAssignable<KeyringEventPayload<KeyringEvent.AccountBalancesUpdated>>({
     'bip122:000000000019d6689c085ae165831e93/slip44:0': {
       amount: '0.0001',
       unit: 'BTC',
+      rawAmount: '10000',
     },
   },
 });
@@ -230,6 +232,7 @@ expectNotAssignable<KeyringEventPayload<KeyringEvent.AccountBalancesUpdated>>({
     'bip122:000000000019d6689c085ae165831e93/slip44:0': {
       amount: '0.0001',
       unit: 'BTC',
+      rawAmount: '10000',
     },
   },
 });
@@ -239,6 +242,19 @@ expectNotAssignable<KeyringEventPayload<KeyringEvent.AccountBalancesUpdated>>({
     '11027d05-12f8-4ec0-b03f-151d86a8089e': {
       // Not CAIP-19 compliant
       bitcoin: {
+        amount: '0.0001',
+        unit: 'BTC',
+        rawAmount: '10000',
+      },
+    },
+  },
+});
+
+expectNotAssignable<KeyringEventPayload<KeyringEvent.AccountBalancesUpdated>>({
+  balances: {
+    '11027d05-12f8-4ec0-b03f-151d86a8089e': {
+      'bip122:000000000019d6689c085ae165831e93/slip44:0': {
+        // Missing `rawAmount`
         amount: '0.0001',
         unit: 'BTC',
       },
