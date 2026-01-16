@@ -5,6 +5,12 @@ const parserOptions = {
   sourceType: 'module',
 };
 
+const tsCommonRules = {
+  // This rule triggers false positives and doesn't add real type-safety value.
+  // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
+  '@typescript-eslint/no-redundant-type-constituents': 'off',
+};
+
 module.exports = {
   root: true,
   extends: ['@metamask/eslint-config', '@metamask/eslint-config-nodejs'],
@@ -56,12 +62,10 @@ module.exports = {
       extends: ['@metamask/eslint-config-typescript'],
       parserOptions,
       rules: {
+        ...tsCommonRules,
+
         // Enable rules that are disabled in `@metamask/eslint-config-typescript`
         '@typescript-eslint/no-explicit-any': 'error',
-
-        // This rule triggers false positives and doesn't add real type-safety value.
-        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
-        '@typescript-eslint/no-redundant-type-constituents': 'off',
       },
     },
     {
@@ -76,6 +80,8 @@ module.exports = {
       extends: ['@metamask/eslint-config-typescript'],
       parserOptions,
       rules: {
+        ...tsCommonRules,
+
         // TODO: re-lint everything once the migration is done
         '@typescript-eslint/no-explicit-any': 'off',
       },
@@ -86,6 +92,8 @@ module.exports = {
       extends: ['@metamask/eslint-config-typescript'],
       parserOptions,
       rules: {
+        ...tsCommonRules,
+
         // TODO: re-lint everything once the migration is done
         'import/order': 'off',
         'jsdoc/newline-after-description': 'off',
@@ -97,14 +105,12 @@ module.exports = {
       extends: ['@metamask/eslint-config-typescript'],
       parserOptions,
       rules: {
+        ...tsCommonRules,
+
         // FIXME: for some reason, it seems eslint is not able to infere those (this
         // works on the original repository, so there might be some side-effects now that
         // we are building in a monorepo)
         '@typescript-eslint/restrict-template-expressions': 'off',
-
-        // This rule triggers false positives and doesn't add real type-safety value.
-        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
-        '@typescript-eslint/no-redundant-type-constituents': 'off',
       },
     },
     // @metamask/keyring-eth-hd
@@ -164,6 +170,8 @@ module.exports = {
       extends: ['@metamask/eslint-config-typescript'],
       parserOptions,
       rules: {
+        ...tsCommonRules,
+
         // TODO: re-lint everything once the migration is done
         '@typescript-eslint/consistent-type-definitions': 'off',
         '@typescript-eslint/consistent-type-imports': 'off',
@@ -183,10 +191,6 @@ module.exports = {
         'jsdoc/tag-lines': 'off',
         'n/no-callback-literal': 'off',
         'promise/no-multiple-resolved': 'off',
-
-        // This rule triggers false positives and doesn't add real type-safety value.
-        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
-        '@typescript-eslint/no-redundant-type-constituents': 'off',
       },
     },
     // @metamask/keyring-snap-bridge
@@ -195,16 +199,14 @@ module.exports = {
       extends: ['@metamask/eslint-config-typescript'],
       parserOptions,
       rules: {
+        ...tsCommonRules,
+
         // TODO: re-lint everything once the migration is done
         '@typescript-eslint/no-explicit-any': 'off',
         // FIXME: for some reason, it seems eslint is not able to infere those (this
         // works on the original repository, so there might be some side-effects now that
         // we are building in a monorepo)
         '@typescript-eslint/restrict-template-expressions': 'off',
-
-        // This rule triggers false positives and doesn't add real type-safety value.
-        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
-        '@typescript-eslint/no-redundant-type-constituents': 'off',
       },
     },
     // @metamask/keyring-snap-sdk
@@ -225,16 +227,14 @@ module.exports = {
       extends: ['@metamask/eslint-config-typescript'],
       parserOptions,
       rules: {
+        ...tsCommonRules,
+
         // TODO: re-lint everything once the migration is done
         '@typescript-eslint/no-explicit-any': 'off',
         // FIXME: for some reason, it seems eslint is not able to infere those (this
         // works on the original repository, so there might be some side-effects now that
         // we are building in a monorepo)
         '@typescript-eslint/restrict-template-expressions': 'off',
-
-        // This rule triggers false positives and doesn't add real type-safety value.
-        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
-        '@typescript-eslint/no-redundant-type-constituents': 'off',
       },
     },
   ],
