@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-internal-snap-client",
-  "version": "6.0.0",
+  "version": "8.0.1",
   "description": "MetaMask Keyring Snap internal clients",
   "keywords": [
     "metamask",
@@ -45,19 +45,19 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/base-controller": "^7.1.1",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-internal-api": "workspace:^",
     "@metamask/keyring-snap-client": "workspace:^",
-    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/keyring-utils": "workspace:^",
+    "@metamask/messenger": "^0.3.0"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/snaps-controllers": "^14.0.1",
-    "@metamask/snaps-sdk": "^9.0.0",
-    "@metamask/snaps-utils": "^11.0.0",
+    "@metamask/snaps-controllers": "^17.2.0",
+    "@metamask/snaps-sdk": "^10.3.0",
+    "@metamask/snaps-utils": "^11.7.1",
     "@metamask/utils": "^11.1.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",

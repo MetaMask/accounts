@@ -39,6 +39,8 @@ jobs:
             style
             test
           scopes: |
+            deps
+            deps-dev
             keyring-api
             keyring-eth-hd
             keyring-eth-ledger-bridge

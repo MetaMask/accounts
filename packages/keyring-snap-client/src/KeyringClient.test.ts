@@ -612,7 +612,7 @@ describe('KeyringClient', () => {
     const request: JsonRpcRequest = {
       id: '71621d8d-62a4-4bf4-97cc-fb8f243679b0',
       jsonrpc: '2.0',
-      method: BtcMethod.SendBitcoin,
+      method: BtcMethod.SendTransfer,
       params: {
         recipients: {
           address: '0.1',
@@ -668,6 +668,19 @@ describe('KeyringClient', () => {
       ).rejects.toThrow(
         'At path: address -- Expected a value of type `CaipAccountId`, but received: `undefined`',
       );
+    });
+  });
+
+  describe('setSelectedAccounts', () => {
+    it('sends SetSelectedAccounts and masks null response', async () => {
+      mockSender.send.mockResolvedValue(null);
+      await client.setSelectedAccounts(['acc-1', 'acc-2']);
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_setSelectedAccounts',
+        params: { accounts: ['acc-1', 'acc-2'] },
+      });
     });
   });
 

@@ -1,9 +1,9 @@
 import { EthMethod, EthScope } from '@metamask/keyring-api';
 
-import { toKeyringRequestV1 } from './v1';
+import { toKeyringRequestWithoutOrigin } from './keyring-request';
 
 describe('v1', () => {
-  describe('toKeyringRequestV1', () => {
+  describe('toKeyringRequestWithoutOrigin', () => {
     const request = {
       id: 'mock-request-id',
       scope: EthScope.Mainnet,
@@ -17,7 +17,7 @@ describe('v1', () => {
     const { origin, ...requestV1 } = request;
 
     it('converts a keyring request to a keyring request v1', () => {
-      expect(toKeyringRequestV1(request)).toStrictEqual(requestV1);
+      expect(toKeyringRequestWithoutOrigin(request)).toStrictEqual(requestV1);
     });
   });
 });

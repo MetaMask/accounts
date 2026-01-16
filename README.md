@@ -20,6 +20,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/eth-simple-keyring`](packages/keyring-eth-simple)
 - [`@metamask/eth-snap-keyring`](packages/keyring-snap-bridge)
 - [`@metamask/eth-trezor-keyring`](packages/keyring-eth-trezor)
+- [`@metamask/hw-wallet-sdk`](packages/hw-wallet-sdk)
 - [`@metamask/keyring-api`](packages/keyring-api)
 - [`@metamask/keyring-internal-api`](packages/keyring-internal-api)
 - [`@metamask/keyring-internal-snap-client`](packages/keyring-internal-snap-client)
@@ -38,6 +39,7 @@ Or, in graph form [^fn1]:
 graph LR;
 linkStyle default opacity:0.5
   account_api(["@metamask/account-api"]);
+  hw_wallet_sdk(["@metamask/hw-wallet-sdk"]);
   keyring_api(["@metamask/keyring-api"]);
   eth_hd_keyring(["@metamask/eth-hd-keyring"]);
   eth_ledger_bridge_keyring(["@metamask/eth-ledger-bridge-keyring"]);
@@ -54,12 +56,19 @@ linkStyle default opacity:0.5
   account_api --> keyring_api;
   account_api --> keyring_utils;
   keyring_api --> keyring_utils;
+  eth_hd_keyring --> keyring_api;
   eth_hd_keyring --> keyring_utils;
+  eth_hd_keyring --> account_api;
+  eth_ledger_bridge_keyring --> keyring_api;
   eth_ledger_bridge_keyring --> keyring_utils;
   eth_onekey_keyring --> keyring_utils;
+  eth_ledger_bridge_keyring --> account_api;
   eth_qr_keyring --> keyring_utils;
+  eth_simple_keyring --> keyring_api;
   eth_simple_keyring --> keyring_utils;
+  eth_trezor_keyring --> keyring_api;
   eth_trezor_keyring --> keyring_utils;
+  eth_trezor_keyring --> account_api;
   keyring_internal_api --> keyring_api;
   keyring_internal_api --> keyring_utils;
   keyring_internal_snap_client --> keyring_api;
@@ -69,6 +78,7 @@ linkStyle default opacity:0.5
   eth_snap_keyring --> keyring_api;
   eth_snap_keyring --> keyring_internal_api;
   eth_snap_keyring --> keyring_internal_snap_client;
+  eth_snap_keyring --> keyring_snap_sdk;
   eth_snap_keyring --> keyring_utils;
   keyring_snap_client --> keyring_api;
   keyring_snap_client --> keyring_utils;

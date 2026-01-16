@@ -15,4 +15,5 @@ export {
   type QrKeyringOptions,
   type QrSignatureRequest,
   type SerializedQrKeyringState,
+  type SerializedUR,
 } from './qr-keyring';

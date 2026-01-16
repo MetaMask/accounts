@@ -1,12 +1,12 @@
-import type { RestrictedMessenger } from '@metamask/base-controller';
 import { KeyringRpcMethod } from '@metamask/keyring-api';
 import type {
-  KeyringRequestV1,
-  KeyringResponseV1,
+  KeyringRequestWithoutOrigin,
+  KeyringResponseWithoutOrigin,
 } from '@metamask/keyring-internal-api';
 import { SubmitRequestResponseV1Struct } from '@metamask/keyring-internal-api';
 import { KeyringClient, type Sender } from '@metamask/keyring-snap-client';
 import { strictMask, type JsonRpcRequest } from '@metamask/keyring-utils';
+import type { Messenger } from '@metamask/messenger';
 import type { HandleSnapRequest } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
@@ -19,12 +19,9 @@ type AllowedActions = HandleSnapRequest;
  * A restricted-`Messenger` used by `KeyringInternalSnapClient` to dispatch
  * internal Snap requests.
  */
-export type KeyringInternalSnapClientMessenger = RestrictedMessenger<
+export type KeyringInternalSnapClientMessenger = Messenger<
   'KeyringInternalSnapClient',
-  AllowedActions,
-  never,
-  AllowedActions['type'],
-  never
+  AllowedActions
 >;
 
 /**
@@ -134,7 +131,9 @@ export class KeyringInternalSnapClient extends KeyringClient {
    * @param request - Keyring request.
    * @returns Keyring request's response.
    */
-  async submitRequestV1(request: KeyringRequestV1): Promise<KeyringResponseV1> {
+  async submitRequestWithoutOrigin(
+    request: KeyringRequestWithoutOrigin,
+  ): Promise<KeyringResponseWithoutOrigin> {
     return strictMask(
       await this.send({
         method: KeyringRpcMethod.SubmitRequest,

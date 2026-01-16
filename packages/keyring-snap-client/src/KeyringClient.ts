@@ -17,6 +17,7 @@ import {
   KeyringRpcMethod,
   ResolveAccountAddressResponseStruct,
   DiscoverAccountsResponseStruct,
+  SetSelectedAccountsResponseStruct,
 } from '@metamask/keyring-api';
 import type {
   Keyring,
@@ -34,7 +35,7 @@ import type {
   EntropySourceId,
   DiscoveredAccount,
 } from '@metamask/keyring-api';
-import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
@@ -156,8 +157,6 @@ export class KeyringClient implements Keyring {
   async resolveAccountAddress(
     scope: CaipChainId,
     request: JsonRpcRequest,
-    // FIXME: eslint is complaning about `ResolvedAccountAddress` being `any`, so disable this for now:
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   ): Promise<ResolvedAccountAddress | null> {
     return strictMask(
       await this.send({
@@ -165,6 +164,16 @@ export class KeyringClient implements Keyring {
         params: { scope, request },
       }),
       ResolveAccountAddressResponseStruct,
+    );
+  }
+
+  async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
+    strictMask(
+      await this.send({
+        method: KeyringRpcMethod.SetSelectedAccounts,
+        params: { accounts },
+      }),
+      SetSelectedAccountsResponseStruct,
     );
   }
 

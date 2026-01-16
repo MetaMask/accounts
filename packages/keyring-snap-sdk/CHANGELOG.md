@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `@metamask/snaps-sdk` from `^9.0.0` to `^10.3.0` ([#422](https://github.com/MetaMask/accounts/pull/422))
+
+## [7.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.1.0` to `^21.2.0` ([#395](https://github.com/MetaMask/accounts/pull/395))
+
+## [7.1.0]
+
+### Added
+
+- Add `getSelectedAccounts` helper ([#387](https://github.com/MetaMask/accounts/pull/387))
+  - This helper can be used to get the currently selected accounts for this Snap.
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.0.0` to `^21.1.0` ([#388](https://github.com/MetaMask/accounts/pull/388))
+
+## [7.0.0]
+
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^20.0.0` to `^21.0.0` ([#355](https://github.com/MetaMask/accounts/pull/355)), ([#356](https://github.com/MetaMask/accounts/pull/356))
+
 ## [6.0.0]
 
 ### Changed
@@ -102,7 +129,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@6.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.1.1...HEAD
+[7.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.1.0...@metamask/keyring-snap-sdk@7.1.1
+[7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.0.0...@metamask/keyring-snap-sdk@7.1.0
+[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@6.0.0...@metamask/keyring-snap-sdk@7.0.0
 [6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@5.0.0...@metamask/keyring-snap-sdk@6.0.0
 [5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@4.0.0...@metamask/keyring-snap-sdk@5.0.0
 [4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@3.2.0...@metamask/keyring-snap-sdk@4.0.0
