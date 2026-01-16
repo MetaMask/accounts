@@ -56,10 +56,11 @@ const EXPECTED_METHODS = [
  * @returns The first account.
  */
 function getFirstAccount(accounts: LedgerAccount[]): LedgerAccount {
-  if (accounts.length === 0) {
+  const [account] = accounts;
+  if (!account) {
     throw new Error('Expected at least one account');
   }
-  return accounts[0];
+  return account;
 }
 
 /**
@@ -70,10 +71,11 @@ function getFirstAccount(accounts: LedgerAccount[]): LedgerAccount {
  * @returns The account at the index.
  */
 function getAccountAt(accounts: LedgerAccount[], index: number): LedgerAccount {
-  if (accounts.length <= index) {
+  const account = accounts[index];
+  if (!account) {
     throw new Error(`Expected account at index ${index}`);
   }
-  return accounts[index];
+  return account;
 }
 
 /**
