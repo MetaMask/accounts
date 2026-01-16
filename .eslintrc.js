@@ -146,6 +146,8 @@ module.exports = {
       extends: ['@metamask/eslint-config-typescript'],
       parserOptions,
       rules: {
+        ...tsCommonRules,
+
         // TODO: re-lint everything once the migration is done
         '@typescript-eslint/consistent-type-imports': 'off',
         '@typescript-eslint/naming-convention': 'off',
