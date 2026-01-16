@@ -25,6 +25,7 @@ import {
  * @returns True if the account is v1, false otherwise.
  */
 export function isAccountV1(
+  // FIXME: eslint is complaning about `Infer` (used for `KeyringAccount`) being `any`, so disable this for now:
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   account: KeyringAccountV1 | KeyringAccount,
 ): boolean {

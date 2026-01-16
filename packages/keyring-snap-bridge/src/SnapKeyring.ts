@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-// This rule seems to be triggering a false positive. Possibly eslint is not
-// inferring the `EthMethod`, `BtcMethod`, and `InternalAccount` types correctly.
-
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
@@ -918,6 +914,8 @@ export class SnapKeyring {
     snapId: SnapId,
     scope: CaipChainId,
     request: JsonRpcRequest,
+    // FIXME: eslint is complaning about `ResolvedAccountAddress` being `any`, so disable this for now:
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   ): Promise<ResolvedAccountAddress | null> {
     // We do check that the incoming Snap ID is known by the keyring.
     if (!this.hasSnapId(snapId)) {

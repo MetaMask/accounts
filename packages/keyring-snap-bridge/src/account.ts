@@ -91,6 +91,7 @@ export function assertKeyringAccount<
  * @returns A valid transformed `KeyringAccount`.
  */
 export function transformAccount(
+  // FIXME: eslint is complaning about `Infer` (from `KeyringAccount`) being `any`, so disable this for now:
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   accountToTransform: KeyringAccountV1 | KeyringAccount,
 ): KeyringAccount {
