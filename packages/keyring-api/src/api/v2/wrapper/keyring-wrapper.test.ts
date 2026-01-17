@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { KeyringWrapper } from './keyring-wrapper';
 import type { KeyringAccount } from '../../account';
 import type { KeyringCapabilities } from '../keyring-capabilities';
+import { KeyringVersion } from '../keyring-capabilities';
 import { KeyringType } from '../keyring-type';
 
 class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
@@ -127,6 +128,7 @@ class TestKeyring implements Keyring {
 }
 
 const capabilities: KeyringCapabilities = {
+  versions: [KeyringVersion.V2],
   scopes: ['eip155:10'],
 };
 

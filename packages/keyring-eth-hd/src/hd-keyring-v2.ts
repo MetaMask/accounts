@@ -13,6 +13,7 @@ import {
   type KeyringCapabilities,
   type KeyringV2,
   KeyringType,
+  KeyringVersion,
   PrivateKeyEncoding,
   type EntropySourceId,
 } from '@metamask/keyring-api';
@@ -39,6 +40,7 @@ const HD_KEYRING_METHODS = [
 ];
 
 const hdKeyringV2Capabilities: KeyringCapabilities = {
+  versions: [KeyringVersion.V2],
   scopes: [EthScope.Eoa],
   bip44: {
     deriveIndex: true,

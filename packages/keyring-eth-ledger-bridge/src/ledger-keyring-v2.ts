@@ -10,6 +10,7 @@ import {
   type KeyringCapabilities,
   type KeyringV2,
   KeyringType,
+  KeyringVersion,
   type EntropySourceId,
 } from '@metamask/keyring-api';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
@@ -28,6 +29,7 @@ const LEDGER_KEYRING_METHODS = [
 ];
 
 const ledgerKeyringV2Capabilities: KeyringCapabilities = {
+  versions: [KeyringVersion.V2],
   scopes: [EthScope.Eoa],
   bip44: {
     deriveIndex: true,
