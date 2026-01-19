@@ -77,6 +77,8 @@ export function toEthSig(
     throw new Error('Invalid signature length');
   }
 
+  // Enforce low S value
+
   const rBuf = signature.slice(0, 32);
   let sBuf = signature.slice(32, 64);
 
@@ -92,6 +94,8 @@ export function toEthSig(
       sBuf = new Uint8Array(newSBytes);
     }
   }
+
+  // Recover parity bit
 
   const expectedAddr = publicToAddressHex(pubKey);
 
