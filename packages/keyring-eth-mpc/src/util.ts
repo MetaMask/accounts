@@ -20,6 +20,11 @@ import { add0x, assert, bytesToHex, hexToBytes } from '@metamask/utils';
 
 import type { InitRole, ThresholdKeyId } from './types';
 
+const SECP256K1_N = BigInt(
+  '0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
+);
+const SECP256K1_HALF_N = SECP256K1_N / 2n;
+
 /**
  * Convert a public key to an address.
  *
@@ -73,7 +78,20 @@ export function toEthSig(
   }
 
   const rBuf = signature.slice(0, 32);
-  const sBuf = signature.slice(32, 64);
+  let sBuf = signature.slice(32, 64);
+
+  const sInt = BigInt(add0x(bytesToHex(sBuf)));
+  if (sInt > SECP256K1_HALF_N) {
+    const newSInt = SECP256K1_N - sInt;
+    const newSBytes = bigIntToBytes(newSInt);
+
+    if (newSBytes.length < 32) {
+      sBuf = new Uint8Array(32);
+      sBuf.set(newSBytes, 32 - newSBytes.length);
+    } else {
+      sBuf = new Uint8Array(newSBytes);
+    }
+  }
 
   const expectedAddr = publicToAddressHex(pubKey);
 
