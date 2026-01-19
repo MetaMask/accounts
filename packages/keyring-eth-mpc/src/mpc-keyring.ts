@@ -131,7 +131,7 @@ export class MPCKeyring implements Keyring {
     const net = this.#networkManager;
     const networkIdentity = await net.createIdentity();
     const localId = networkIdentity.partyId;
-    const sessionId = generateSessionId();
+    const sessionId = generateSessionId(this.#rng);
     const { cloudId } = await initCloudKeyGen({
       localId,
       sessionId,
@@ -279,7 +279,7 @@ export class MPCKeyring implements Keyring {
       throw new Error(`account ${address} not found`);
     }
 
-    const sessionId = generateSessionId();
+    const sessionId = generateSessionId(this.#rng);
     const message = hash;
 
     await initCloudSign({
