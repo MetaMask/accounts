@@ -77,7 +77,7 @@ export function toEthSig(
     throw new Error('Invalid signature length');
   }
 
-  // Enforce low S value
+  // Enforce low `s`
 
   const rBuf = signature.slice(0, 32);
   let sBuf = signature.slice(32, 64);
@@ -95,23 +95,26 @@ export function toEthSig(
     }
   }
 
-  // Recover parity bit
+  // Recover `v`
+  // ---------------------------------------------------------------------------
+  // NOTE: If the signing library provided the parity of R.y, we could compute
+  // `v` directly and skip the costly ecrecover operation.
+  // ---------------------------------------------------------------------------
 
   const expectedAddr = publicToAddressHex(pubKey);
 
-  for (const candidateV of [0n, 1n]) {
+  const checkParity = (parity: bigint): boolean => {
     try {
-      const candidatePubKey = ecrecover(hash, candidateV + 27n, rBuf, sBuf);
-      if (publicToAddressHex(candidatePubKey) === expectedAddr) {
-        const vInt = candidateV + 27n;
-        return concatBytes(rBuf, sBuf, bigIntToBytes(vInt));
-      }
+      const candidatePubKey = ecrecover(hash, parity, rBuf, sBuf);
+      return publicToAddressHex(candidatePubKey) === expectedAddr;
     } catch {
-      // Ignore errors
+      return false;
     }
-  }
+  };
 
-  throw new Error('Invalid signature');
+  // Ethereum defines `v = parity(R.y) + 27`.
+  const vInt = checkParity(0n) ? 27n : 28n;
+  return concatBytes(rBuf, sBuf, bigIntToBytes(vInt));
 }
 
 /**

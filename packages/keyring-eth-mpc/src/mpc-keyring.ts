@@ -301,8 +301,6 @@ export class MPCKeyring implements Keyring {
       networkSession,
     });
 
-    // NOTE: We could create an Ethereum compliant signature more efficiently if
-    // the signing library provided the parity bit.
     return toEthSig(signature, hash, publicKey);
   }
 }
