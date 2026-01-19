@@ -1,4 +1,9 @@
-import { bigIntToBytes, concatBytes, publicToAddress } from '@ethereumjs/util';
+import {
+  bigIntToBytes,
+  concatBytes,
+  ecrecover,
+  publicToAddress,
+} from '@ethereumjs/util';
 import type {
   MessageTypes,
   TypedDataV1,
@@ -50,34 +55,69 @@ export function equalAddresses(address1: string, address2: string): boolean {
 }
 
 /**
- * Parse an ECDSA signature.
+ * Convert an ECDSA signature in compact format (64 bytes) to a signature in
+ * Ethereum extended format (65 bytes).
+ *
+ * @param signature - The signature to convert.
+ * @param hash - The hash of the message.
+ * @param pubKey - The public key of the signer.
+ * @returns The Ethereum signature.
+ */
+export function toEthSig(
+  signature: Uint8Array,
+  hash: Uint8Array,
+  pubKey: Uint8Array,
+): Uint8Array {
+  if (signature.length !== 64) {
+    throw new Error('Invalid signature length');
+  }
+
+  const rBuf = signature.slice(0, 32);
+  const sBuf = signature.slice(32, 64);
+
+  const expectedAddr = publicToAddressHex(pubKey);
+
+  for (const candidateV of [0n, 1n]) {
+    try {
+      const candidatePubKey = ecrecover(hash, candidateV + 27n, rBuf, sBuf);
+      if (publicToAddressHex(candidatePubKey) === expectedAddr) {
+        const vInt = candidateV + 27n;
+        return concatBytes(rBuf, sBuf, bigIntToBytes(vInt));
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  throw new Error('Invalid signature');
+}
+
+/**
+ * Parse an extended ECDSA signature.
  *
  * @param signature - The signature to parse.
  * @returns The parsed signature.
  */
-export function parseEcdsaSignature(signature: Uint8Array): {
+export function parseEthSig(signature: Uint8Array): {
   r: Uint8Array;
   s: Uint8Array;
   v: bigint;
 } {
-  // TODO
-}
-
-/**
- * Convert an ECDSA signature to an Ethereum signature.
- *
- * @param signature - The signature to convert.
- * @returns The Ethereum signature.
- */
-export function toEthSig(signature: Uint8Array): string {
-  const { r, s, v } = parseEcdsaSignature(signature);
-  const vRaw = bigIntToBytes(v);
-
-  if (vRaw.length !== 1) {
-    throw new Error('Invalid signature');
+  if (signature.length !== 65) {
+    throw new Error('Invalid signature length');
   }
 
-  return bytesToHex(concatBytes(vRaw, r, s));
+  const rBuf = signature.slice(0, 32);
+  const sBuf = signature.slice(32, 64);
+  const vByte = signature[64];
+
+  // This check is technically redundant because length is 65, but satisfies TS
+  if (vByte === undefined) {
+    throw new Error('Invalid signature v value');
+  }
+  const vInt = BigInt(vByte);
+
+  return { r: rBuf, s: sBuf, v: vInt };
 }
 
 /**

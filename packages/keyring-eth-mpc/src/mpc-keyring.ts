@@ -17,7 +17,7 @@ import type {
   ThresholdKey,
 } from '@metamask/mfa-wallet-interface';
 import type { WasmLib as Dkls19WasmLib } from '@metamask/tss-dkls19-lib';
-import { hexToBytes, type Hex, type Json } from '@metamask/utils';
+import { bytesToHex, hexToBytes, type Hex, type Json } from '@metamask/utils';
 
 import { initCloudKeyGen, initCloudSign } from './cloud';
 import type { NetworkIdentity, NetworkManager } from './network';
@@ -31,7 +31,7 @@ import type {
 import {
   equalAddresses,
   getSignedTypedDataHash,
-  parseEcdsaSignature,
+  parseEthSig,
   parseInitRole,
   parseSignedTypedDataVersion,
   parseThresholdKeyId,
@@ -208,7 +208,7 @@ export class MPCKeyring implements Keyring {
 
     const signature = await this.#signHash(address, message);
 
-    const { r, s, v } = parseEcdsaSignature(signature);
+    const { r, s, v } = parseEthSig(signature);
 
     const signedTx = tx.addSignature(v, r, s);
     return signedTx;
@@ -232,8 +232,7 @@ export class MPCKeyring implements Keyring {
     const msgHash = hashPersonalMessage(rawMsg);
 
     const signature = await this.#signHash(address, msgHash);
-    const ethSig = toEthSig(signature);
-    return ethSig;
+    return bytesToHex(signature);
   }
 
   /**
@@ -259,8 +258,7 @@ export class MPCKeyring implements Keyring {
     const messageHash = getSignedTypedDataHash(data, version);
 
     const signature = await this.#signHash(address, messageHash);
-    const ethSig = toEthSig(signature);
-    return ethSig;
+    return bytesToHex(signature);
   }
 
   async #signHash(address: Hex, hash: Uint8Array): Promise<Uint8Array> {
@@ -303,6 +301,6 @@ export class MPCKeyring implements Keyring {
       networkSession,
     });
 
-    return signature;
+    return toEthSig(signature, hash, publicKey);
   }
 }
