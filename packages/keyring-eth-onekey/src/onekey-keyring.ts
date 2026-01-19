@@ -185,10 +185,6 @@ export class OneKeyKeyring implements Keyring {
     this.hdPath = hdPath;
   }
 
-  lock(): void {
-    this.hdk = new HDKey();
-  }
-
   isUnlocked(): boolean {
     return Boolean(this.hdk?.publicKey);
   }
@@ -401,38 +397,28 @@ export class OneKeyKeyring implements Keyring {
     withAccount: string,
     message: string,
   ): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const details = this.#accountDetailsFromAddress(withAccount);
-      this.bridge
-        .ethereumSignMessage({
-          path: details.hdPath,
-          passphraseState: details.passphraseState ?? '',
-          useEmptyPassphrase: isEmptyPassphrase(details.passphraseState),
-          messageHex: ethUtil.stripHexPrefix(message),
-        })
-        .then((response) => {
-          if (response.success) {
-            const signature = addHexPrefix(response.payload.signature);
-            const addressSignedWith = recoverPersonalSignature({
-              data: message,
-              signature,
-            });
-            if (
-              ethUtil.toChecksumAddress(addressSignedWith) !==
-              ethUtil.toChecksumAddress(withAccount)
-            ) {
-              reject(new Error('signature doesnt match the right address'));
-            }
-            // eslint-disable-next-line promise/no-multiple-resolved
-            resolve(signature);
-          } else {
-            reject(new Error(response.payload?.error || 'Unknown error'));
-          }
-        })
-        .catch((error) => {
-          reject(new Error(error?.toString() || 'Unknown error'));
-        });
+    const details = this.#accountDetailsFromAddress(withAccount);
+    const response = await this.bridge.ethereumSignMessage({
+      path: details.hdPath,
+      passphraseState: details.passphraseState ?? '',
+      useEmptyPassphrase: isEmptyPassphrase(details.passphraseState),
+      messageHex: ethUtil.stripHexPrefix(message),
     });
+    if (response.success) {
+      const signature = addHexPrefix(response.payload.signature);
+      const addressSignedWith = recoverPersonalSignature({
+        data: message,
+        signature,
+      });
+      if (
+        ethUtil.toChecksumAddress(addressSignedWith) !==
+        ethUtil.toChecksumAddress(withAccount)
+      ) {
+        throw new Error('signature doesnt match the right address');
+      }
+      return signature;
+    }
+    throw new Error(response.payload?.error || 'Unknown error');
   }
 
   // EIP-712 Sign Typed Data

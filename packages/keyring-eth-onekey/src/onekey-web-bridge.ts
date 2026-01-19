@@ -103,14 +103,15 @@ export class OneKeyWebBridge implements OneKeyBridge {
   }
 
   async destroy(): Promise<void> {
-    this.isSDKInitialized = false;
     this.sdk?.removeAllListeners?.('UI_EVENT');
+    this.sdk?.dispose();
+
+    this.isSDKInitialized = false;
     this.sdk = undefined;
   }
 
   async dispose(): Promise<void> {
-    this.sdk?.dispose();
-    return Promise.resolve();
+    return await this.destroy();
   }
 
   getModel(): string | undefined {
