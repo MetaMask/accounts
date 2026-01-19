@@ -1,24 +1,70 @@
+import type { PartyId } from '@metamask/mfa-wallet-interface';
+
 /**
  * Initialize a cloud keygen session
  *
  * @param opts - The options for the cloud keygen session
  * @param opts.localId - The local ID of the device
+ * @param opts.sessionId - The ID of the session
+ * @param opts.baseURL - The base URL of the cloud service
  * @returns The cloud ID of the device
  */
 export async function initCloudKeyGen(opts: {
-  localId: string;
-}): Promise<{ cloudId: string }> {}
+  baseURL: string;
+  localId: PartyId;
+  sessionId: string;
+}): Promise<{ cloudId: string }> {
+  const response = await fetch(`${opts.baseURL}/createKey`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      localId: opts.localId,
+      sessionId: opts.sessionId,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to initialize cloud keygen session: ${response.statusText}`,
+    );
+  }
+
+  const data = await response.json();
+  return { cloudId: data.cloudId };
+}
 
 /**
  * Initialize a cloud sign session
  *
  * @param opts - The options for the cloud sign session
+ * @param opts.baseURL - The base URL of the cloud service
  * @param opts.keyId - The ID of the key
  * @param opts.sessionId - The ID of the session
  * @param opts.message - The message to sign
  */
 export async function initCloudSign(opts: {
+  baseURL: string;
   keyId: string;
   sessionId: string;
   message: Uint8Array;
-}): Promise<void> {}
+}): Promise<void> {
+  const response = await fetch(`${opts.baseURL}/sign`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      keyId: opts.keyId,
+      sessionId: opts.sessionId,
+      message: opts.message,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to initialize cloud sign session: ${response.statusText}`,
+    );
+  }
+}

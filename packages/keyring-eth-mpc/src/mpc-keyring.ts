@@ -51,12 +51,15 @@ export class MPCKeyring implements Keyring {
 
   readonly #keyId?: ThresholdKeyId;
 
+  readonly #cloudURL: string;
+
   constructor(opts: MPCKeyringOpts) {
     this.#rng = {
       generateRandomBytes: opts.getRandomBytes,
     };
     this.#dkls19Lib = opts.dkls19Lib;
     this.#networkManager = {} as NetworkManager; // TODO
+    this.#cloudURL = opts.cloudURL;
   }
 
   /**
@@ -104,6 +107,8 @@ export class MPCKeyring implements Keyring {
     const sessionId = generateSessionId();
     const { cloudId } = await initCloudKeyGen({
       localId,
+      sessionId,
+      baseURL: this.#cloudURL,
     });
     const custodians = [localId, cloudId];
     const threshold = 2;
@@ -253,6 +258,7 @@ export class MPCKeyring implements Keyring {
       keyId: this.#keyId,
       sessionId,
       message,
+      baseURL: this.#cloudURL,
     });
 
     const networkSession = await this.#networkManager.createSession(
