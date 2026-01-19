@@ -22,20 +22,27 @@ import { hexToBytes, type Hex, type Json } from '@metamask/utils';
 import { initCloudKeyGen, initCloudSign } from './cloud';
 import type { NetworkIdentity, NetworkManager } from './network';
 import { generateSessionId } from './network';
-import type { MPCKeyringOpts, ThresholdKeyId } from './types';
+import type {
+  InitRole,
+  MPCKeyringOpts,
+  MPCKeyringSerializer,
+  ThresholdKeyId,
+} from './types';
 import {
   equalAddresses,
   getSignedTypedDataHash,
   parseEcdsaSignature,
+  parseInitRole,
   parseSignedTypedDataVersion,
+  parseThresholdKeyId,
   publicToAddressHex,
   toEthSig,
 } from './util';
 
-const type = 'eth-mpc';
+const mpcKeyringType = 'MPC Keyring';
 
 export class MPCKeyring implements Keyring {
-  readonly type: string = type;
+  readonly type: string = mpcKeyringType;
 
   readonly #rng: RandomNumberGenerator;
 
@@ -43,23 +50,27 @@ export class MPCKeyring implements Keyring {
 
   readonly #dkls19Lib: Dkls19WasmLib;
 
-  #initRole: 'initiator' | 'responder' = 'initiator';
+  #initRole: InitRole;
 
   #networkIdentity?: NetworkIdentity;
 
   #keyShare?: ThresholdKey;
 
-  readonly #keyId?: ThresholdKeyId;
+  #keyId?: ThresholdKeyId;
 
   readonly #cloudURL: string;
+
+  readonly #serializer: MPCKeyringSerializer;
 
   constructor(opts: MPCKeyringOpts) {
     this.#rng = {
       generateRandomBytes: opts.getRandomBytes,
     };
     this.#dkls19Lib = opts.dkls19Lib;
-    this.#networkManager = {} as NetworkManager; // TODO
+    this.#networkManager = opts.networkManager;
     this.#cloudURL = opts.cloudURL;
+    this.#serializer = opts.serializer;
+    this.#initRole = opts.initRole;
   }
 
   /**
@@ -68,11 +79,21 @@ export class MPCKeyring implements Keyring {
    * @returns The serialized state of the keyring.
    */
   async serialize(): Promise<Json> {
-    return {
+    const state: Json = {
       initRole: this.#initRole,
-      networkIdentity: serializeNetworkIdentity(this.#networkIdentity),
-      keyShare: serializeThresholdKey(this.#keyShare),
     };
+    if (this.#networkIdentity) {
+      state.networkIdentity = this.#serializer.networkIdentityToJSON(
+        this.#networkIdentity,
+      );
+    }
+    if (this.#keyShare) {
+      state.keyShare = this.#serializer.thresholdKeyToJSON(this.#keyShare);
+    }
+    if (this.#keyId) {
+      state.keyId = this.#keyId;
+    }
+    return state;
   }
 
   /**
@@ -85,16 +106,22 @@ export class MPCKeyring implements Keyring {
       throw new Error('Invalid state');
     }
 
-    if ('initRole' in state && state.initRole === 'responder') {
-      this.#initRole = 'responder';
+    if ('initRole' in state) {
+      this.#initRole = parseInitRole(state.initRole);
     }
 
     if ('networkIdentity' in state) {
-      this.#networkIdentity = deserializeNetworkIdentity(state.networkIdentity);
+      this.#networkIdentity = this.#serializer.networkIdentityFromJSON(
+        state.networkIdentity,
+      );
     }
 
     if ('keyShare' in state) {
-      this.#keyShare = deserializeThresholdKey(state.keyShare);
+      this.#keyShare = this.#serializer.thresholdKeyFromJSON(state.keyShare);
+    }
+
+    if ('keyId' in state) {
+      this.#keyId = parseThresholdKeyId(state.keyId);
     }
   }
 
@@ -125,6 +152,7 @@ export class MPCKeyring implements Keyring {
       threshold,
       networkSession,
     });
+    this.#keyId = networkSession.sessionId;
   }
 
   /**

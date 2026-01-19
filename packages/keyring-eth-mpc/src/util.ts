@@ -10,8 +10,10 @@ import {
   TypedDataUtils,
   typedSignatureHash,
 } from '@metamask/eth-sig-util';
-import type { Hex } from '@metamask/utils';
+import type { Hex, Json } from '@metamask/utils';
 import { add0x, assert, bytesToHex, hexToBytes } from '@metamask/utils';
+
+import type { InitRole, ThresholdKeyId } from './types';
 
 /**
  * Convert a public key to an address.
@@ -118,4 +120,30 @@ export function getSignedTypedDataHash<
     version,
   );
   return new Uint8Array(hash);
+}
+
+/**
+ * Parse the init role from a JSON object.
+ *
+ * @param initRole - The init role to parse.
+ * @returns The parsed init role.
+ */
+export function parseInitRole(initRole: Json): InitRole {
+  if (initRole !== 'initiator' && initRole !== 'responder') {
+    throw new Error('Invalid init role');
+  }
+  return initRole;
+}
+
+/**
+ * Parse the key ID from a JSON object.
+ *
+ * @param keyId - The key ID to parse.
+ * @returns The parsed key ID.
+ */
+export function parseThresholdKeyId(keyId: Json): ThresholdKeyId {
+  if (typeof keyId !== 'string') {
+    throw new Error('Invalid key ID');
+  }
+  return keyId;
 }
