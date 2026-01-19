@@ -34,24 +34,31 @@ import {
  * Keyring RPC methods used by the API.
  */
 export enum KeyringRpcMethod {
-  ListAccounts = 'keyring_listAccounts',
-  GetAccount = 'keyring_getAccount',
+  // Account management
   CreateAccount = 'keyring_createAccount',
+  DeleteAccount = 'keyring_deleteAccount',
   DiscoverAccounts = 'keyring_discoverAccounts',
+  ExportAccount = 'keyring_exportAccount',
+  FilterAccountChains = 'keyring_filterAccountChains',
+  GetAccount = 'keyring_getAccount',
+  ListAccounts = 'keyring_listAccounts',
+  UpdateAccount = 'keyring_updateAccount',
+
+  // Signing request management
+  ApproveRequest = 'keyring_approveRequest',
+  GetRequest = 'keyring_getRequest',
+  ListRequests = 'keyring_listRequests',
+  RejectRequest = 'keyring_rejectRequest',
+  SubmitRequest = 'keyring_submitRequest',
+
+  // Account assets and transactions
+  GetAccountBalances = 'keyring_getAccountBalances',
   ListAccountAssets = 'keyring_listAccountAssets',
   ListAccountTransactions = 'keyring_listAccountTransactions',
-  GetAccountBalances = 'keyring_getAccountBalances',
-  ResolveAccountAddress = 'keyring_resolveAccountAddress',
-  FilterAccountChains = 'keyring_filterAccountChains',
-  UpdateAccount = 'keyring_updateAccount',
-  DeleteAccount = 'keyring_deleteAccount',
-  ExportAccount = 'keyring_exportAccount',
-  ListRequests = 'keyring_listRequests',
-  GetRequest = 'keyring_getRequest',
-  SubmitRequest = 'keyring_submitRequest',
-  ApproveRequest = 'keyring_approveRequest',
-  RejectRequest = 'keyring_rejectRequest',
   SetSelectedAccounts = 'keyring_setSelectedAccounts',
+
+  // Dapp interaction
+  ResolveAccountAddress = 'keyring_resolveAccountAddress',
 }
 
 /**
