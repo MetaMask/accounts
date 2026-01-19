@@ -95,7 +95,7 @@ export function toEthSig(
     }
   }
 
-  // Recover `v`
+  // Compute `v`
   // ---------------------------------------------------------------------------
   // NOTE: If the signing library provided the parity of R.y, we could compute
   // `v` directly and skip the costly ecrecover operation.
@@ -112,8 +112,12 @@ export function toEthSig(
     }
   };
 
-  // Ethereum defines `v = parity(R.y) + 27`.
-  const vInt = checkParity(0n) ? 27n : 28n;
+  const parity = checkParity(0n) ? 0n : 1n;
+
+  // Ethereum's recovery value: `v = parity(R.y) + 27`
+  const vInt = parity + 27n;
+
+  // Ethereum's extended signature format: `[r | s | v]`
   return concatBytes(rBuf, sBuf, bigIntToBytes(vInt));
 }
 
