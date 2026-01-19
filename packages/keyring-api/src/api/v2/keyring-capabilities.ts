@@ -100,3 +100,33 @@ export const KeyringCapabilitiesStruct = object({
  * ```
  */
 export type KeyringCapabilities = Infer<typeof KeyringCapabilitiesStruct>;
+
+export type Capabilities = {
+  scopes: `${string}:${string}`[];
+  bip44?: {
+    derivePath: boolean;
+    deriveIndex: boolean;
+    discover: boolean;
+  };
+  privateKey?: {
+    importFormats?: {
+      encoding: 'hexadecimal' | 'base58';
+      type?:
+        | 'eip155:eoa'
+        | 'eip155:erc4337'
+        | 'bip122:p2pkh'
+        | 'bip122:p2sh'
+        | 'bip122:p2wpkh'
+        | 'bip122:p2tr'
+        | 'solana:data-account'
+        | 'tron:eoa'
+        | 'any:account';
+    }[];
+    exportFormats?: {
+      encoding: 'hexadecimal' | 'base58';
+    }[];
+  };
+  custom?: {
+    createAccounts?: boolean | undefined;
+  };
+};

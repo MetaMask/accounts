@@ -1,12 +1,15 @@
-import type { AccountId } from '@metamask/keyring-utils';
-import type { Json } from '@metamask/utils';
+import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
+import type { CaipAssetType, CaipChainId, Json } from '@metamask/utils';
 
 import type { CreateAccountOptions } from './create-account';
 import type { ExportedAccount, ExportAccountOptions } from './export-account';
 import type { KeyringCapabilities } from './keyring-capabilities';
 import type { KeyringType } from './keyring-type';
 import type { KeyringAccount } from '../account';
+import type { ResolvedAccountAddress } from '../address';
+import type { Balance } from '../balance';
 import type { KeyringRequest } from '../request';
+import type { KeyringResponse } from '../response';
 
 /**
  * The KeyringV2 interface defines methods for managing accounts and signing
@@ -119,4 +122,37 @@ export type KeyringV2 = {
    * @returns A promise that resolves to the response for the request.
    */
   submitRequest(request: KeyringRequest): Promise<Json>;
+};
+
+export type SnapKeyringV2 = KeyringV2 & {
+  // The submitRequest method is overridden here to specify that Snap keyrings
+  // may return a async response.
+  submitRequest(request: KeyringRequest): Promise<KeyringResponse>;
+};
+
+export type NonEvmMethods = {
+  resolveAccountAddress?(
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+  ): Promise<ResolvedAccountAddress | null>;
+
+  setSelectedAccounts?(accounts: AccountId[]): Promise<void>;
+
+  getAccountBalances?(
+    id: string,
+    assets: CaipAssetType[],
+  ): Promise<Record<CaipAssetType, Balance>>;
+
+  // Additional methods specific to Snap keyrings are added here:
+  //
+  // Dapp Interaction:
+  // - resolveAccountAddress
+  //
+  // Lifecycle:
+  // - setSelectedAccounts
+  //
+  // Assets Management:
+  // - getAccountBalances
+  // - listAccountTransactions
+  // - listAccountAssets
 };
