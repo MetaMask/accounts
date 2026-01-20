@@ -3,7 +3,10 @@
   "compilerOptions": {
     "baseUrl": "./",
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    // NOTE: @msgpack/msgpack uses Uint8Array<ArrayBuffer> which requires TypeScript 5.7+.
+    // skipLibCheck bypasses type-checking of .d.ts files in node_modules.
+    "skipLibCheck": true
   },
   "references": [
     { "path": "../keyring-utils/tsconfig.build.json" }
