@@ -2189,12 +2189,12 @@ __metadata:
 
 "@metamask/mfa-wallet-cl24-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
   version: 0.0.0
-  resolution: "@metamask/mfa-wallet-cl24-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz::hash=322a56&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  resolution: "@metamask/mfa-wallet-cl24-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz::hash=8ee1d0&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
   dependencies:
     "@msgpack/msgpack": "npm:^3.1.2"
     "@noble/curves": "npm:^1.9.2"
     "@noble/hashes": "npm:^1.8.0"
-  checksum: 10/19a2de8dc2296f5f0f3dc15dbbb4cd1e66538415fba2c2b1edb967afafd2ecd7b1c3c8764b593f170e1781f09851ea4a5ce0526230e2a4e59305cd16997abd56
+  checksum: 10/ba0a676cdb75fa4aed3cefb12c28b36e29ee384f2664190cc9898af3e61b83b4c9cab815631fe18d06996c9b3fafefd35967d93dac98689f9fcb72c9f0b499a6
   languageName: node
   linkType: hard
 
