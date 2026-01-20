@@ -75,6 +75,16 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       });
     });
 
+    describe('device state errors', () => {
+      it('maps 0x6f00 to device unresponsive', () => {
+        const mapping = errorMappings['0x6f00'];
+        expect(mapping.code).toBe(ErrorCode.DeviceUnresponsive);
+        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.category).toBe(Category.DeviceState);
+        expect(mapping.userMessage).toContain('not responding');
+      });
+    });
+
     it('has valid structure for all mappings', () => {
       Object.entries(errorMappings).forEach(([_, mapping]) => {
         expect(mapping).toHaveProperty('code');

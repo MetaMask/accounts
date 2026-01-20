@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `DeviceUnresponsive` error code and Ledger mapping for unresponsive device state ([#442](https://github.com/MetaMask/accounts/pull/442))
+
 ## [0.1.0]
 
 ### Added

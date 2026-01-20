@@ -25,6 +25,7 @@ export enum ErrorCode {
   DeviceDisconnected = 3003,
   DeviceUsedElsewhere = 3004,
   DeviceCallInProgress = 3005,
+  DeviceUnresponsive = 3006,
   DeviceNotFound = 3010,
   DeviceMultipleConnected = 3011,
   DeviceMissingCapability = 3020,
