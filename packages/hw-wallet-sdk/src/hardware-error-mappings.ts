@@ -113,6 +113,14 @@ export const LEDGER_ERROR_MAPPINGS = {
     category: Category.DeviceState,
     userMessage: 'Ethereum app is out of date. Please update it to continue.',
   },
+  '0x6f00': {
+    code: ErrorCode.DeviceUnresponsive,
+    message: 'Device unresponsive',
+    severity: Severity.Err,
+    category: Category.DeviceState,
+    userMessage:
+      'Your device is not responding. Please disconnect and reconnect your device.',
+  },
 };
 
 export const BLE_ERROR_MAPPINGS = {
