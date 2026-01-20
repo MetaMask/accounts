@@ -1,1 +1,1 @@
-export { MpcKeyring } from './mpc-keyring';
+export { MPCKeyring } from './mpc-keyring';
