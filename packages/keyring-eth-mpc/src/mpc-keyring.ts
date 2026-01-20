@@ -41,6 +41,10 @@ import {
 
 const mpcKeyringType = 'MPC Keyring';
 
+export const uninitializedResponderState: Json = {
+  initRole: 'responder',
+};
+
 export class MPCKeyring implements Keyring {
   readonly type: string = mpcKeyringType;
 

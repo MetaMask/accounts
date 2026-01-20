@@ -7,6 +7,7 @@
     { "path": "./packages/keyring-eth-simple" },
     { "path": "./packages/keyring-eth-trezor" },
     { "path": "./packages/keyring-eth-hd" },
+    { "path": "./packages/keyring-eth-mpc" },
     { "path": "./packages/keyring-snap-bridge" },
     { "path": "./packages/keyring-snap-client" },
     { "path": "./packages/keyring-internal-snap-client" },

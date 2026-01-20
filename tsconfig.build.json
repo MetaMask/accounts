@@ -7,6 +7,7 @@
     { "path": "./packages/keyring-eth-simple/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-trezor/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-hd/tsconfig.build.json" },
+    { "path": "./packages/keyring-eth-mpc/tsconfig.build.json" },
     { "path": "./packages/keyring-snap-bridge/tsconfig.build.json" },
     { "path": "./packages/keyring-snap-sdk/tsconfig.build.json" },
     { "path": "./packages/keyring-snap-client/tsconfig.build.json" },
