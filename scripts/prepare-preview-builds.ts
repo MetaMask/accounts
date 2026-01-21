@@ -150,8 +150,8 @@ async function updateWorkspacePackagesWithPreviewInfo(
     const peerDepKey = 'peerDependencies';
     if (peerDepKey in pkgJson.content) {
       const depKey = 'dependencies';
-      const deps = pkgJson.content[depKey] as DependenciesRecord;
-      const peerDeps = pkgJson.content[peerDepKey] as DependenciesRecord;
+      const deps: DependenciesRecord = pkgJson.content[depKey] ?? {};
+      const peerDeps: DependenciesRecord = pkgJson.content[peerDepKey] ?? {};
 
       for (const { name, version } of previewPkgs) {
         // Only consider dependenc that refers to a local workspace package
@@ -173,7 +173,7 @@ async function updateWorkspacePackagesWithPreviewInfo(
     // of that package instead, and `yarn` will resolve this using the global resolutions
     // (see `updateWorkspaceResolutions`)
     for (const depKey of ['dependencies', 'devDependencies']) {
-      const deps = pkgJson.content[depKey] as DependenciesRecord;
+      const deps: DependenciesRecord = pkgJson.content[depKey] ?? {};
 
       for (const { name, version } of previewPkgs) {
         // Only consider dependenc that refers to a local workspace package

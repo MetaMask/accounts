@@ -12,25 +12,35 @@
   "semverGroups": [
     {
       "label": "use tilde range for some dependencies",
-      "dependencies": ["eslint-plugin-import", "typescript"],
+      "dependencies": [
+        "eslint-plugin-import",
+        "typescript"
+      ],
       "range": "~"
     },
     {
       "label": "use exact versions for some dependencies",
-      "dependencies": ["yarn"],
+      "dependencies": [
+        "yarn"
+      ],
       "range": ""
     },
     {
       "label": "use caret ranges everywhere else",
-      "dependencies": ["**"],
+      "dependencies": [
+        "**"
+      ],
       "range": "^"
     }
   ],
   "versionGroups": [
     {
       "label": "use workspace version of packages in the monorepo",
-      "dependencyTypes": ["!local"],
+      "dependencyTypes": [
+        "!local"
+      ],
       "dependencies": [
+        "@metamask/account-**",
         "@metamask/keyring-**",
         "@metamask/eth-**-keyring"
       ],

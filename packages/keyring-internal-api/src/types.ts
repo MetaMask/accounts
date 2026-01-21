@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+// FIXME: eslint is complaning about our account union even if those accounts
+// types should all be different, so we disable this for now:
 /* eslint-disable @typescript-eslint/no-duplicate-type-constituents */
-// FIXME: Those rules seem to be triggering a false positive on the `InternalAccountStructs`
-// and `InternalAccountTypes`.
 
 import {
   BtcAccountType,

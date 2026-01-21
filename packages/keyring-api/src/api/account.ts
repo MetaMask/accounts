@@ -60,6 +60,21 @@ export type KeyringAccountType =
   | `${AnyAccountType.Account}`;
 
 /**
+ * Struct for {@link KeyringAccountType}.
+ */
+export const KeyringAccountTypeStruct = enums([
+  `${EthAccountType.Eoa}`,
+  `${EthAccountType.Erc4337}`,
+  `${BtcAccountType.P2pkh}`,
+  `${BtcAccountType.P2sh}`,
+  `${BtcAccountType.P2wpkh}`,
+  `${BtcAccountType.P2tr}`,
+  `${SolAccountType.DataAccount}`,
+  `${TrxAccountType.Eoa}`,
+  `${AnyAccountType.Account}`,
+]);
+
+/**
  * A struct which represents a Keyring account object. It is abstract enough to
  * be used with any blockchain. Specific blockchain account types should extend
  * this struct.

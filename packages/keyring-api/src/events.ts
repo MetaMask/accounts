@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-// FIXME: This rule seems to be triggering a false positive on the `KeyringEvents`.
-
 import {
   exactOptional,
   object,

@@ -1,5 +1,15 @@
-import type { KeyringEvent, KeyringEventPayload } from '@metamask/keyring-api';
+import {
+  type KeyringEvent,
+  type KeyringEventPayload,
+} from '@metamask/keyring-api';
 import type { SnapsProvider } from '@metamask/snaps-sdk';
+import { assert } from '@metamask/superstruct';
+
+import {
+  type GetSelectedAccountsResponse,
+  GetSelectedAccountsResponseStruct,
+  SnapManageAccountsMethod,
+} from './methods';
 
 /**
  * Emit a keyring event from a snap.
@@ -20,4 +30,23 @@ export async function emitSnapKeyringEvent<Event extends KeyringEvent>(
       params: { ...data },
     },
   });
+}
+
+/**
+ * Get the selected accounts from a snap.
+ *
+ * @param snap - The global snap object.
+ * @returns The selected accounts.
+ */
+export async function getSelectedAccounts(
+  snap: SnapsProvider,
+): Promise<GetSelectedAccountsResponse> {
+  const response = await snap.request({
+    method: 'snap_manageAccounts',
+    params: {
+      method: SnapManageAccountsMethod.GetSelectedAccounts,
+    },
+  });
+  assert(response, GetSelectedAccountsResponseStruct);
+  return response;
 }

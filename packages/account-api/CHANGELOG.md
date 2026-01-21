@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0]
+
+### Changed
+
+- **BREAKING:** Rename `AccountsProvider.discoverAndCreateAccounts` to `AccountsProvider.discoverAccounts` ([#371](https://github.com/MetaMask/accounts/pull/371))
+  - This aligns the method name with `MultichainAccountWallet.discoverAccounts`.
+
+## [0.11.0]
+
+### Added
+
+- **BREAKING:** Add `MultichainAccountWallet.{align,discover}Accounts` methods ([#368](https://github.com/MetaMask/accounts/pull/368))
+- **BREAKING:** Add `{Multichain,}AccountWallet.status` getter ([#367](https://github.com/MetaMask/accounts/pull/367))
+
+### Changed
+
+- Make `isBip44Account` faster ([#369](https://github.com/MetaMask/accounts/pull/369))
+  - We mainly rely on the `options.entropy.type` now and no longer use `superstruct` for this function.
+
+## [0.10.0]
+
+### Added
+
+- Add group/wallet ID parsing/validation support ([#360](https://github.com/MetaMask/accounts/pull/360))
+- Add `Bip44AccountProvider` type alias ([#361](https://github.com/MetaMask/accounts/pull/361))
+
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` to `^21.0.0` ([#362](https://github.com/MetaMask/accounts/pull/362))
+
 ## [0.9.0]
 
 ### Changed
@@ -100,7 +130,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `AccountGroup` and `AccountWallet` ([#307](https://github.com/MetaMask/accounts/pull/307))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.9.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.12.0...HEAD
+[0.12.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.11.0...@metamask/account-api@0.12.0
+[0.11.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.10.0...@metamask/account-api@0.11.0
+[0.10.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.9.0...@metamask/account-api@0.10.0
 [0.9.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.8.0...@metamask/account-api@0.9.0
 [0.8.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.7.0...@metamask/account-api@0.8.0
 [0.7.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.6.0...@metamask/account-api@0.7.0

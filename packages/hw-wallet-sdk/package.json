@@ -1,0 +1,83 @@
+{
+  "name": "@metamask/hw-wallet-sdk",
+  "version": "0.2.0",
+  "description": "MetaMask Hardware Device SDK",
+  "keywords": [
+    "metamask",
+    "hardware-wallet"
+  ],
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/hw-wallet-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/MetaMask/accounts/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/accounts.git"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "ts-bridge --project tsconfig.build.json --no-references",
+    "build:clean": "yarn build --clean",
+    "build:docs": "typedoc",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/hw-wallet-sdk",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/hw-wallet-sdk",
+    "publish:preview": "yarn npm publish --tag preview",
+    "test": "yarn test:source && yarn test:types",
+    "test:clean": "jest --clearCache",
+    "test:source": "jest && jest-it-up",
+    "test:types": "../../scripts/tsd-test.sh ./src",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "@lavamoat/allow-scripts": "^3.2.1",
+    "@lavamoat/preinstall-always-fail": "^2.1.0",
+    "@metamask/auto-changelog": "^3.4.4",
+    "@ts-bridge/cli": "^0.6.3",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.12",
+    "deepmerge": "^4.2.2",
+    "depcheck": "^1.4.7",
+    "jest": "^29.5.0",
+    "jest-it-up": "^3.1.0",
+    "rimraf": "^5.0.7",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.2",
+    "tsd": "^0.31.0",
+    "typedoc": "^0.25.13",
+    "typescript": "~5.6.3"
+  },
+  "engines": {
+    "node": "^18.18 || >=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "@lavamoat/preinstall-always-fail": false
+    }
+  },
+  "tsd": {
+    "directory": "src",
+    "compilerOptions": {
+      "composite": "false"
+    }
+  }
+}

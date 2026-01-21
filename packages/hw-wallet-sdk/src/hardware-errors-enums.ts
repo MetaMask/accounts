@@ -1,0 +1,86 @@
+// Error Code Enum
+export enum ErrorCode {
+  // Success
+  Success = 0,
+
+  // Authentication
+  AuthenticationFailed = 1000,
+  AuthenticationIncorrectPin = 1001,
+  AuthenticationPinAttemptsRemaining = 1002,
+  AuthenticationPinCancelled = 1003,
+  AuthenticationDeviceLocked = 1100,
+  AuthenticationDeviceBlocked = 1101,
+  AuthenticationSecurityCondition = 1200,
+  AuthenticationWipeCodeMismatch = 1300,
+
+  // User action
+  UserRejected = 2000,
+  UserCancelled = 2001,
+  UserConfirmationRequired = 2002,
+  UserInputRequired = 2003,
+
+  // Device state
+  DeviceNotReady = 3000,
+  DeviceInvalidSession = 3001,
+  DeviceDisconnected = 3003,
+  DeviceUsedElsewhere = 3004,
+  DeviceCallInProgress = 3005,
+  DeviceUnresponsive = 3006,
+  DeviceNotFound = 3010,
+  DeviceMultipleConnected = 3011,
+  DeviceMissingCapability = 3020,
+  DeviceBtcOnlyFirmware = 3021,
+  DeviceIncompatibleMode = 3030,
+
+  // Connection & transport
+  ConnectionTransportMissing = 4000,
+  ConnectionClosed = 4001,
+  ConnectionTimeout = 4002,
+  ConnectionBlocked = 4003,
+
+  // Protocol
+  ProtocolUnexpectedMessage = 5000,
+  ProtocolCommandError = 5001,
+  ProtocolMessageError = 5002,
+
+  // Device state
+  DeviceStateBlindSignNotSupported = 6001,
+  DeviceStateOnlyV4Supported = 6002,
+  DeviceStateEthAppClosed = 6003,
+  DeviceStateEthAppOutOfDate = 6004,
+
+  // Mobile/BLE Permission Errors
+  PermissionBluetoothDenied = 7000,
+  PermissionLocationDenied = 7001,
+  PermissionNearbyDevicesDenied = 7002,
+  BluetoothDisabled = 7100,
+  BluetoothScanFailed = 7101,
+  BluetoothConnectionFailed = 7102,
+  MobileNotSupported = 7300,
+
+  // Transaction
+  TxInsufficientFunds = 10000,
+
+  // Unknown/fallback
+  Unknown = 99999,
+}
+
+// Severity Enum
+export enum Severity {
+  Info = 'Info',
+  Err = 'Error',
+  Warning = 'Warning',
+  Critical = 'Critical',
+}
+
+// Category Enum
+export enum Category {
+  Success = 'Success',
+  Authentication = 'Authentication',
+  Protocol = 'Protocol',
+  Connection = 'Connection',
+  UserAction = 'UserAction',
+  DeviceState = 'DeviceState',
+  Unknown = 'Unknown',
+  Configuration = 'Configuration',
+}

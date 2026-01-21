@@ -1,19 +1,20 @@
 {
   "references": [
+    { "path": "./packages/account-api/tsconfig.build.json" },
+    { "path": "./packages/hw-wallet-sdk/tsconfig.build.json" },
     { "path": "./packages/keyring-api/tsconfig.build.json" },
-    { "path": "./packages/keyring-internal-api/tsconfig.build.json" },
+    { "path": "./packages/keyring-eth-hd/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-ledger-bridge/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-qr/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-onekey/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-simple/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-trezor/tsconfig.build.json" },
-    { "path": "./packages/keyring-eth-hd/tsconfig.build.json" },
-    { "path": "./packages/keyring-snap-bridge/tsconfig.build.json" },
-    { "path": "./packages/keyring-snap-sdk/tsconfig.build.json" },
-    { "path": "./packages/keyring-snap-client/tsconfig.build.json" },
+    { "path": "./packages/keyring-internal-api/tsconfig.build.json" },
     { "path": "./packages/keyring-internal-snap-client/tsconfig.build.json" },
-    { "path": "./packages/keyring-utils/tsconfig.build.json" },
-    { "path": "./packages/account-api/tsconfig.build.json" }
+    { "path": "./packages/keyring-snap-bridge/tsconfig.build.json" },
+    { "path": "./packages/keyring-snap-client/tsconfig.build.json" },
+    { "path": "./packages/keyring-snap-sdk/tsconfig.build.json" },
+    { "path": "./packages/keyring-utils/tsconfig.build.json" }
   ],
   "files": [],
   "include": []

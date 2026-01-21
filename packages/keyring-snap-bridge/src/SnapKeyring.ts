@@ -1,10 +1,5 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-// This rule seems to be triggering a false positive. Possibly eslint is not
-// inferring the `EthMethod`, `BtcMethod`, and `InternalAccount` types correctly.
-
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
-import type { ExtractEventPayload } from '@metamask/base-controller';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
@@ -18,7 +13,6 @@ import type {
   ResolvedAccountAddress,
   CaipChainId,
   MetaMaskOptions,
-  KeyringRequest,
   KeyringResponse,
 } from '@metamask/keyring-api';
 import {
@@ -33,14 +27,17 @@ import {
   AccountTransactionsUpdatedEventStruct,
   AnyAccountType,
 } from '@metamask/keyring-api';
-import {
-  KeyringVersion,
-  toKeyringRequestV1,
-  type InternalAccount,
-} from '@metamask/keyring-internal-api';
+import type { InternalAccount } from '@metamask/keyring-internal-api';
+import { toKeyringRequestWithoutOrigin } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
+import {
+  type GetSelectedAccountsResponse,
+  GetSelectedAccountsRequestStruct,
+  SnapManageAccountsMethod,
+} from '@metamask/keyring-snap-sdk';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
+import type { ExtractEventPayload } from '@metamask/messenger';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
@@ -51,7 +48,6 @@ import {
   KnownCaipNamespace,
   toCaipChainId,
 } from '@metamask/utils';
-import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
 import { transformAccount } from './account';
@@ -69,11 +65,13 @@ import {
   getInternalOptionsOf,
   type SnapKeyringInternalOptions,
 } from './options';
+import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions';
 import { SnapIdMap } from './SnapIdMap';
 import type {
   SnapKeyringEvents,
   SnapKeyringMessenger,
 } from './SnapKeyringMessenger';
+import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
 import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
@@ -83,7 +81,6 @@ import {
   toJson,
   unique,
 } from './util';
-import { getKeyringVersionFromPlatform } from './versions';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 
@@ -154,10 +151,15 @@ function normalizeAccountAddress(account: KeyringAccount): string {
 /**
  * Keyring bridge implementation to support Snaps.
  */
-export class SnapKeyring extends EventEmitter {
+export class SnapKeyring {
   static type: string = SNAP_KEYRING_TYPE;
 
   type: string;
+
+  // Name and state are required for modular initialisation.
+  name: typeof SNAP_KEYRING_NAME = SNAP_KEYRING_NAME;
+
+  state = null;
 
   /**
    * Messenger to dispatch requests to the Snaps controller.
@@ -177,6 +179,11 @@ export class SnapKeyring extends EventEmitter {
     account: KeyringAccount;
     snapId: SnapId;
   }>;
+
+  /**
+   * Mapping between Snap IDs and the selected accounts.
+   */
+  readonly #selectedAccounts: Map<SnapId, AccountId[]>;
 
   /**
    * Mapping between request IDs and their deferred promises.
@@ -225,7 +232,6 @@ export class SnapKeyring extends EventEmitter {
     callbacks: SnapKeyringCallbacks;
     isAnyAccountTypeAllowed?: boolean;
   }) {
-    super();
     this.type = SnapKeyring.type;
     this.#messenger = messenger;
     this.#snapClient = new KeyringInternalSnapClient({ messenger });
@@ -234,22 +240,25 @@ export class SnapKeyring extends EventEmitter {
     this.#options = new SnapIdMap();
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
+    this.#selectedAccounts = new Map();
   }
 
   /**
-   * Gets keyring's version for a given Snap.
+   * Checks whether a Snap meets a minimum platform version.
    *
    * @param snapId - The Snap ID.
-   * @returns The Snap's keyring version.
+   * @param platformVersion - Platform version to check.
+   * @returns True if the Snap meets the minimum version, false otherwise.
    */
-  #getKeyringVersion(snapId: SnapId): KeyringVersion {
-    return getKeyringVersionFromPlatform((version: SemVerVersion) => {
-      return this.#messenger.call(
-        'SnapController:isMinimumPlatformVersion',
-        snapId,
-        version,
-      );
-    });
+  #isMinimumPlatformVersion(
+    snapId: SnapId,
+    platformVersion: SemVerVersion,
+  ): boolean {
+    return this.#messenger.call(
+      'SnapController:isMinimumPlatformVersion',
+      snapId,
+      platformVersion,
+    );
   }
 
   /**
@@ -314,6 +323,7 @@ export class SnapKeyring extends EventEmitter {
 
     // Potentially migrate the account.
     const account = transformAccount(newAccountFromEvent);
+    const address = normalizeAccountAddress(account);
 
     // The `AnyAccountType.Account` generic account type is allowed only during
     // development, so we check whether it's allowed before continuing.
@@ -324,10 +334,21 @@ export class SnapKeyring extends EventEmitter {
       throw new Error(`Cannot create generic account '${account.id}'`);
     }
 
+    // This is idempotent, so we need to check whether the account already exists
+    // and that the right Snap is trying to "create" it again.
+    const accountEntry = this.#accounts.get(snapId, account.id);
+    if (
+      accountEntry &&
+      normalizeAccountAddress(accountEntry.account) === address
+    ) {
+      // NOTE: We are not checking account object equality here. If a Snap
+      // re-send this event with different account data, we will ignore it.
+      return null;
+    }
+
     // The UI still uses the account address to identify accounts, so we need
     // to block the creation of duplicate accounts for now to prevent accounts
     // from being overwritten.
-    const address = normalizeAccountAddress(account);
     if (await this.#callbacks.addressExists(address)) {
       throw new Error(`Account address '${address}' already exists`);
     }
@@ -491,6 +512,21 @@ export class SnapKeyring extends EventEmitter {
       },
     );
     return null;
+  }
+
+  /**
+   * Handle a Get Selected Accounts method call from a Snap.
+   *
+   * @param snapId - Snap ID.
+   * @param message - Method call message.
+   * @returns The selected accounts.
+   */
+  async #handleGetSelectedAccounts(
+    snapId: SnapId,
+    message: SnapMessage,
+  ): Promise<GetSelectedAccountsResponse> {
+    assert(message, GetSelectedAccountsRequestStruct);
+    return this.#selectedAccounts.get(snapId) ?? [];
   }
 
   /**
@@ -695,6 +731,10 @@ export class SnapKeyring extends EventEmitter {
 
       case `${KeyringEvent.AccountTransactionsUpdated}`: {
         return this.#handleAccountTransactionsUpdated(snapId, message);
+      }
+
+      case `${SnapManageAccountsMethod.GetSelectedAccounts}`: {
+        return this.#handleGetSelectedAccounts(snapId, message);
       }
 
       default:
@@ -971,34 +1011,6 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
-   * Submits a request to a Snap and fix-up the payload depending on the version currently supported.
-   *
-   * @param options - The options for the Snap request.
-   * @param options.version - The supported keyring version for the Snap.
-   * @param options.snapId - The Snap ID to submit the request to.
-   * @param options.request - The Snap request.
-   * @returns A promise that resolves to the keyring response from the Snap.
-   */
-  async #submitSnapRequestForVersion({
-    snapId,
-    version,
-    request,
-  }: {
-    snapId: SnapId;
-    version: KeyringVersion;
-    request: KeyringRequest;
-  }): Promise<KeyringResponse> {
-    // Get specific client for that Snap.
-    const client = this.#snapClient.withSnapId(snapId);
-
-    if (version === KeyringVersion.V1) {
-      return await client.submitRequestV1(toKeyringRequestV1(request));
-    }
-
-    return await client.submitRequest(request);
-  }
-
-  /**
    * Submits a request to a Snap.
    *
    * @param options - The options for the Snap request.
@@ -1051,7 +1063,15 @@ export class SnapKeyring extends EventEmitter {
     );
 
     try {
-      const version = this.#getKeyringVersion(snapId);
+      // Snaps are expecting to receive the `origin` field after a specific
+      // platform version.
+      //
+      // We need to check the Snap platform version to know whether we can
+      // include it or not.
+      const useOrigin = this.#isMinimumPlatformVersion(
+        snapId,
+        PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN,
+      );
 
       const request = {
         id: requestId,
@@ -1066,11 +1086,18 @@ export class SnapKeyring extends EventEmitter {
 
       log('Submit Snap request: ', request);
 
-      const response = await this.#submitSnapRequestForVersion({
-        version,
-        snapId,
-        request,
-      });
+      // Get specific client for that Snap.
+      const client = this.#snapClient.withSnapId(snapId);
+
+      let response: KeyringResponse;
+      if (useOrigin) {
+        response = await client.submitRequest(request);
+      } else {
+        // Legacy keyring request did not support the `origin` field.
+        response = await client.submitRequestWithoutOrigin(
+          toKeyringRequestWithoutOrigin(request),
+        );
+      }
 
       // Some methods, like the ones used to prepare and patch user operations,
       // require the Snap to answer synchronously in order to work with the
@@ -1494,6 +1521,48 @@ export class SnapKeyring extends EventEmitter {
   }
 
   /**
+   * Update the in-memory selected accounts map.
+   *
+   * @param accounts - The accounts to update the map with.
+   */
+  #updateSelectedAccountsMap(accounts: AccountId[]): void {
+    const selectedAccounts = this.#selectedAccounts;
+    selectedAccounts.clear();
+    for (const account of accounts) {
+      const snapId = this.#accounts.getSnapId(account);
+      if (!snapId) {
+        continue;
+      }
+      const snapAccounts = selectedAccounts.get(snapId) ?? [];
+      snapAccounts.push(account);
+      selectedAccounts.set(snapId, snapAccounts);
+    }
+  }
+
+  /**
+   * Set the selected accounts.
+   *
+   * @param accounts - The accounts to set as selected.
+   */
+  async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
+    this.#updateSelectedAccountsMap(accounts);
+    const entries = [...this.#selectedAccounts.entries()];
+    await Promise.all(
+      entries.map(async ([snapId, accountIds]) => {
+        try {
+          await this.#snapClient
+            .withSnapId(snapId)
+            .setSelectedAccounts(accountIds);
+        } catch (error: any) {
+          console.error(
+            `Failed to set selected accounts for ${snapId} snap: '${error.message}'`,
+          );
+        }
+      }),
+    );
+  }
+
+  /**
    * Get the Snap associated with the given Snap ID.
    *
    * @param snapId - Snap ID.
@@ -1531,6 +1600,35 @@ export class SnapKeyring extends EventEmitter {
     );
   }
 
+  #transformToInternalAccount(
+    account: KeyringAccount,
+    snapId: SnapId,
+  ): InternalAccount {
+    const snap = this.#getSnapMetadata(snapId);
+
+    return {
+      ...account,
+      // TODO: Do not convert the address to lowercase.
+      //
+      // This is a workaround to support the current UI which expects the
+      // account address to be lowercase. This workaround should be removed
+      // once we migrated the UI to use the account ID instead of the account
+      // address.
+      //
+      // NOTE: We convert the address only for EVM accounts, see
+      // `normalizeAccountAddress`.
+      address: normalizeAccountAddress(account),
+      metadata: {
+        name: '',
+        importTime: 0,
+        keyring: {
+          type: this.type,
+        },
+        ...(snap !== undefined && { snap }),
+      },
+    };
+  }
+
   /**
    * Return an internal account object for a given address.
    *
@@ -1538,41 +1636,26 @@ export class SnapKeyring extends EventEmitter {
    * @returns An internal account object for the given address.
    */
   getAccountByAddress(address: string): InternalAccount | undefined {
-    const accounts = this.listAccounts();
-    return accounts.find(({ address: accountAddress }) =>
+    const accounts = [...this.#accounts.values()];
+    const account = accounts.find(({ account: { address: accountAddress } }) =>
       equalsIgnoreCase(accountAddress, address),
     );
+
+    return account
+      ? this.#transformToInternalAccount(account.account, account.snapId)
+      : undefined;
   }
 
   /**
    * List all Snap keyring accounts.
+   * This method is expensive on mobile devices and could takes tens or hundreds of milliseconds to complete.
+   * Use with caution.
    *
    * @returns An array containing all Snap keyring accounts.
    */
   listAccounts(): InternalAccount[] {
-    return [...this.#accounts.values()].map(({ account, snapId }) => {
-      const snap = this.#getSnapMetadata(snapId);
-      return {
-        ...account,
-        // TODO: Do not convert the address to lowercase.
-        //
-        // This is a workaround to support the current UI which expects the
-        // account address to be lowercase. This workaround should be removed
-        // once we migrated the UI to use the account ID instead of the account
-        // address.
-        //
-        // NOTE: We convert the address only for EVM accounts, see
-        // `normalizeAccountAddress`.
-        address: normalizeAccountAddress(account),
-        metadata: {
-          name: '',
-          importTime: 0,
-          keyring: {
-            type: this.type,
-          },
-          ...(snap !== undefined && { snap }),
-        },
-      };
-    });
+    return [...this.#accounts.values()].map(({ account, snapId }) =>
+      this.#transformToInternalAccount(account, snapId),
+    );
   }
 }

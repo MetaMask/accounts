@@ -7,6 +7,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add support for custom capabilities and entropy types in `KeyringV2` ([#415](https://github.com/MetaMask/accounts/pull/415))
+  - Add `custom` capability to `KeyringCapabilities` for keyrings with non-standard `createAccounts` method.
+  - Add `KeyringAccountEntropyTypeOption.Custom` for custom/opaque entropy sources.
+  - Add `AccountCreationType.Custom` and `CreateAccountCustomOptions` for custom account creation flows.
+- Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
+  - Provides common Ethereum signing method routing (`submitRequest`) for all Ethereum-based keyrings.
+- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)), ([#410](https://github.com/MetaMask/accounts/pull/410))
+
+### Changed
+
+- Refine `EthAddressStruct` in order to make it compatible with the `Hex` type from `@metamask/utils` ([#405](https://github.com/MetaMask/accounts/pull/405))
+
+## [21.3.0]
+
+### Added
+
+- Add initial `Keyringv2` interface ([#397](https://github.com/MetaMask/accounts/pull/397))
+  - This is an on-going work and should not be used for now.
+- Add new Tron methods `signMessage` and `signTransaction` ([#401](https://github.com/MetaMask/accounts/pull/401))
+
+### Changed
+
+- Deprecate Tron methods `signMessageV2` and `verifyMessageV2` ([#401](https://github.com/MetaMask/accounts/pull/401))
+
+## [21.2.0]
+
+### Added
+
+- Add `stake:{deposit,withdraw}` transaction types ([#394](https://github.com/MetaMask/accounts/pull/394))
+
+## [21.1.0]
+
+### Added
+
+- Add new optional `Keyring.setSelectedAccounts` method ([#387](https://github.com/MetaMask/accounts/pull/387))
+  - This method can be invoked by the MetaMask client to inform which accounts are now selected for this Snap.
+
+## [21.0.0]
+
+### Added
+
+- **BREAKING:** Add new bitcoin methods to `BtcMethod` enum ([#355](https://github.com/metamask/accounts/pull/355)), ([#356](https://github.com/metamask/accounts/pull/356))
+  - This change was not properly reported as breaking on the `20.1.1`.
+
+### Removed
+
+- **BREAKING:** Remove `BtcMethod.SendBitcoin` method ([#355](https://github.com/metamask/accounts/pull/355))
+  - This change was not properly reported as breaking on the `20.1.1`.
+
+## [20.1.1]
+
+### Added
+
+- Add new bitcoin methods to `BtcMethod` enum ([#354](https://github.com/MetaMask/accounts/pull/354))
+
 ## [20.1.0]
 
 ### Added
@@ -612,7 +669,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@20.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.3.0...HEAD
+[21.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.2.0...@metamask/keyring-api@21.3.0
+[21.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.1.0...@metamask/keyring-api@21.2.0
+[21.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.0.0...@metamask/keyring-api@21.1.0
+[21.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@20.1.1...@metamask/keyring-api@21.0.0
+[20.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@20.1.0...@metamask/keyring-api@20.1.1
 [20.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@20.0.0...@metamask/keyring-api@20.1.0
 [20.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@19.1.0...@metamask/keyring-api@20.0.0
 [19.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@19.0.0...@metamask/keyring-api@19.1.0

@@ -279,3 +279,9 @@ export type Keyring = {
    */
   destroy?(): Promise<void>;
 };
+
+/**
+ * The legacy `Keyring` is Ethereum only, so we can alias it here for better
+ * clarity.
+ */
+export type EthKeyring = Keyring;
