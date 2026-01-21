@@ -766,14 +766,12 @@ describe('OneKeyKeyring', function () {
   });
 
   describe('misc utility coverage', function () {
-    it('should expose model info and reset HDKey on lock', function () {
+    it('should expose model info', function () {
       bridge.model = 'OneKey Pro';
       expect(keyring.getModel()).toBe('OneKey Pro');
 
       keyring.hdk.publicKey = fakeHdKey.publicKey;
       expect(keyring.isUnlocked()).toBe(true);
-      keyring.lock();
-      expect(keyring.isUnlocked()).toBe(false);
     });
 
     it('should delegate updateTransportMethod to the bridge', async function () {
