@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0]
+
 ### Added
 
 - Add `DeviceUnresponsive` error code and Ledger mapping for unresponsive device state ([#442](https://github.com/MetaMask/accounts/pull/442))
@@ -18,5 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add hardware related error mappings and custom hardware error ([#421](https://github.com/MetaMask/accounts/pull/421))
 - Add BLE and mobile error mappings with new error codes for Bluetooth permissions, connection states, and mobile support ([#433](https://github.com/MetaMask/accounts/pull/433))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.2.0...HEAD
+[0.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.1.0...@metamask/hw-wallet-sdk@0.2.0
 [0.1.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/hw-wallet-sdk@0.1.0
