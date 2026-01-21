@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore: organize KeyringRpcMethod enum by category ([#441](https://github.com/MetaMask/accounts/pull/441))
+- feat: add `SimpleKeyringV2` ([#409](https://github.com/MetaMask/accounts/pull/409))
+- fix: remove `@typescript-eslint/no-redundant-type-constituents` directives ([#407](https://github.com/MetaMask/accounts/pull/407))
+- feat: add `KeyringV2` wrapper + `HdKeyringV2` adapter ([#402](https://github.com/MetaMask/accounts/pull/402))
+
 ### Added
 
 - Add support for custom capabilities and entropy types in `KeyringV2` ([#415](https://github.com/MetaMask/accounts/pull/415))
