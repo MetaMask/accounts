@@ -1,6 +1,6 @@
 {
   "name": "@metamask/hw-wallet-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MetaMask Hardware Device SDK",
   "keywords": [
     "metamask",
