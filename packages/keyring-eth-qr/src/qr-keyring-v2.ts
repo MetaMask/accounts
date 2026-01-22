@@ -419,10 +419,10 @@ export class QrKeyringV2
           KeyringAccountEntropyTypeOption.Mnemonic &&
         (account.options.entropy as { groupIndex: number }).groupIndex ===
           targetIndex,
-    ) as Bip44Account<KeyringAccount> | undefined;
+    );
 
     if (existingAccount) {
-      return [existingAccount];
+      return [existingAccount as Bip44Account<KeyringAccount>];
     }
 
     // Derive the account at the specified index
