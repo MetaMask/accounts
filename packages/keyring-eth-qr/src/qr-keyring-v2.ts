@@ -106,55 +106,31 @@ export class QrKeyringV2
   readonly entropySource: EntropySourceId;
 
   /**
-   * Override capabilities to allow dynamic updates based on device mode.
-   * This shadows the readonly property from the base class.
+   * Cached device mode for synchronous capabilities lookup.
+   * Updated during deserialization and device state queries.
    */
-  declare readonly capabilities: KeyringCapabilities;
+  #mode: DeviceMode | undefined;
 
   constructor(options: QrKeyringV2Options) {
     super({
       type: KeyringType.Qr,
       inner: options.legacyKeyring,
-      // Clone to avoid mutating the constant when capabilities are updated
-      capabilities: JSON.parse(
-        JSON.stringify(HD_MODE_CAPABILITIES),
-      ) as KeyringCapabilities,
+      // Placeholder - will be overridden by getter below
+      capabilities: HD_MODE_CAPABILITIES,
     });
     this.entropySource = options.entropySource;
-  }
 
-  /**
-   * Updates capabilities based on the current device mode.
-   * Should be called after device pairing or deserialization.
-   * Returns early if capabilities already match the current mode.
-   */
-  async #updateCapabilities(): Promise<void> {
-    const deviceState = await this.#getDeviceState();
-
-    const isAccountMode = deviceState?.mode === DeviceMode.ACCOUNT;
-    const hasAccountModeCapabilities =
-      this.capabilities.custom?.createAccounts === true;
-
-    // Early return for performance: skip update if capabilities already match device mode.
-    // Both true = Account mode already set, both false = HD mode already set.
-    if (isAccountMode === hasAccountModeCapabilities) {
-      return;
-    }
-
-    const newCapabilities = isAccountMode
-      ? ACCOUNT_MODE_CAPABILITIES
-      : HD_MODE_CAPABILITIES;
-
-    // Clear all existing properties from capabilities
-    for (const key of Object.keys(this.capabilities)) {
-      delete (this.capabilities as Record<string, unknown>)[key];
-    }
-
-    // Deep copy new capabilities to avoid mutating the constants
-    Object.assign(
-      this.capabilities,
-      JSON.parse(JSON.stringify(newCapabilities)),
-    );
+    // Override the readonly capabilities property with a dynamic getter
+    // that returns capabilities based on the current device mode.
+    Object.defineProperty(this, 'capabilities', {
+      get: (): KeyringCapabilities => {
+        return this.#mode === DeviceMode.ACCOUNT
+          ? ACCOUNT_MODE_CAPABILITIES
+          : HD_MODE_CAPABILITIES;
+      },
+      enumerable: true,
+      configurable: false,
+    });
   }
 
   /**
@@ -177,10 +153,12 @@ export class QrKeyringV2
     const state = await this.inner.serialize();
 
     if (!state?.initialized) {
+      this.#mode = undefined;
       return undefined;
     }
 
     if (state.keyringMode === DeviceMode.ACCOUNT) {
+      this.#mode = DeviceMode.ACCOUNT;
       return {
         mode: DeviceMode.ACCOUNT,
         indexes: state.indexes,
@@ -188,6 +166,7 @@ export class QrKeyringV2
       };
     }
 
+    this.#mode = DeviceMode.HD;
     return {
       mode: DeviceMode.HD,
       indexes: state.indexes,
@@ -271,14 +250,11 @@ export class QrKeyringV2
    */
   async deserialize(state: SerializedQrKeyringState): Promise<void> {
     await super.deserialize(state);
-    // Update capabilities after deserialization based on device mode
-    await this.#updateCapabilities();
+    // Update cached mode after deserialization for capabilities getter
+    await this.#getDeviceState();
   }
 
   async getAccounts(): Promise<KeyringAccount[]> {
-    // Update capabilities based on current device mode
-    await this.#updateCapabilities();
-
     const addresses = await this.inner.getAccounts();
     const deviceState = await this.#getDeviceState();
 
