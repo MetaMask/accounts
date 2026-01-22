@@ -243,17 +243,6 @@ export class QrKeyringV2
     return account;
   }
 
-  /**
-   * Hydrate the underlying keyring from a previously serialized state.
-   *
-   * @param state - The serialized keyring state.
-   */
-  async deserialize(state: SerializedQrKeyringState): Promise<void> {
-    await super.deserialize(state);
-    // Update cached mode after deserialization for capabilities getter
-    await this.#getDeviceState();
-  }
-
   async getAccounts(): Promise<KeyringAccount[]> {
     const addresses = await this.inner.getAccounts();
     const deviceState = await this.#getDeviceState();
