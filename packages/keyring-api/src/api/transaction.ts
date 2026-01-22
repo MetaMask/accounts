@@ -1,5 +1,5 @@
 import type { InferEquals } from '@metamask/keyring-utils';
-import { object, UuidStruct } from '@metamask/keyring-utils';
+import { exactOptional, object, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, enums, nullable, number, string } from '@metamask/superstruct';
 
@@ -172,6 +172,67 @@ export enum TransactionType {
 }
 
 /**
+ * Security alert response values from the Security Alert API.
+ */
+export enum SecurityAlertResponse {
+  /**
+   * The transaction is considered safe with no detected security issues.
+   */
+  Benign = 'benign',
+
+  /**
+   * The transaction has potential security concerns that warrant user attention.
+   */
+  Warning = 'warning',
+
+  /**
+   * The transaction has been identified as malicious and should be avoided.
+   */
+  Malicious = 'malicious',
+}
+
+/**
+ * This struct represents additional transaction details.
+ *
+ * @example
+ * ```ts
+ * {
+ *   origin: 'https://dapp.example.com',
+ *   securityAlertResponse: 'benign',
+ * }
+ * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *   origin: 'metamask',
+ *   securityAlertResponse: 'warning',
+ * }
+ * ```
+ */
+const TransactionDetailsStruct = object({
+  /**
+   * Origin of the original transaction request.
+   *
+   * This can be either 'metamask' for internally initiated transactions, or a URL
+   * (e.g., 'https://dapp.example.com') for dapp-initiated transactions.
+   */
+  origin: exactOptional(string()),
+
+  /**
+   * Response from the Security Alert API indicating the security assessment of the
+   * transaction.
+   */
+  securityAlertResponse: exactOptional(
+    enums([
+      `${SecurityAlertResponse.Benign}`,
+      `${SecurityAlertResponse.Warning}`,
+      `${SecurityAlertResponse.Malicious}`,
+    ]),
+  ),
+});
+
+/**
  * This struct represents a transaction event.
  */
 export const TransactionEventStruct = object({
@@ -318,6 +379,15 @@ export const TransactionStruct = object({
    * all transactions.
    */
   events: array(TransactionEventStruct),
+
+  /**
+   * Additional transaction details {@see TransactionDetailsStruct}.
+   *
+   * Contains contextual information about the transaction such as its origin and
+   * security assessment. This field is optional and may not be present for all
+   * transactions.
+   */
+  details: exactOptional(TransactionDetailsStruct),
 });
 
 /**
