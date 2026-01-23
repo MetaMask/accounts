@@ -47,6 +47,8 @@
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/mfa-wallet-cl24-lib": "^0.0.0",
     "@metamask/mfa-wallet-dkls19-lib": "^0.0.0",
+    "@metamask/mfa-wallet-e2ee": "^0.0.0",
+    "@metamask/mfa-wallet-network": "^0.0.0",
     "@metamask/mfa-wallet-util": "^0.0.0"
   },
   "devDependencies": {

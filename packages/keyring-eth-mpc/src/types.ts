@@ -1,25 +1,26 @@
 import type { ThresholdKey } from '@metamask/mfa-wallet-interface';
+import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
 import type { WasmLib as Dkls19WasmLib } from '@metamask/tss-dkls19-lib';
 import type { Json } from '@metamask/utils';
-
-import type { NetworkIdentity, NetworkManager } from './network';
 
 export type MPCKeyringOpts = {
   getRandomBytes: (size: number) => Uint8Array;
   dkls19Lib: Dkls19WasmLib;
   cloudURL: string;
-  networkManager: NetworkManager;
-  serializer: MPCKeyringSerializer;
+  relayerURL: string;
   initRole: InitRole;
 };
 
 export type ThresholdKeyId = string;
 
-export type MPCKeyringSerializer = {
-  networkIdentityToJSON: (identity: NetworkIdentity) => Json;
-  networkIdentityFromJSON: (identity: Json) => NetworkIdentity;
-  thresholdKeyToJSON: (key: ThresholdKey) => Json;
-  thresholdKeyFromJSON: (key: Json) => ThresholdKey;
+type JsonSerializer<Value> = {
+  toJson: (value: Value) => Json;
+  fromJson: (value: Json) => Value;
 };
 
 export type InitRole = 'initiator' | 'responder';
+
+export type MPCKeyringSerializer = {
+  thresholdKey: JsonSerializer<ThresholdKey>;
+  networkIdentity: JsonSerializer<MfaNetworkIdentity>;
+};

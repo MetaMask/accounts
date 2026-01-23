@@ -9,6 +9,7 @@ import type {
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   CL24DKM,
+  CL24ThresholdKeySerializer,
   secp256k1 as secp256k1Curve,
 } from '@metamask/mfa-wallet-cl24-lib';
 import { Dkls19TssLib } from '@metamask/mfa-wallet-dkls19-lib';
@@ -16,11 +17,15 @@ import type {
   RandomNumberGenerator,
   ThresholdKey,
 } from '@metamask/mfa-wallet-interface';
+import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
+import {
+  MfaNetworkIdentitySerializer,
+  MfaNetworkManager,
+} from '@metamask/mfa-wallet-network';
 import type { WasmLib as Dkls19WasmLib } from '@metamask/tss-dkls19-lib';
 import { bytesToHex, hexToBytes, type Hex, type Json } from '@metamask/utils';
 
 import { initCloudKeyGen, initCloudSign } from './cloud';
-import type { NetworkIdentity, NetworkManager } from './network';
 import { generateSessionId } from './network';
 import type {
   InitRole,
@@ -50,13 +55,13 @@ export class MPCKeyring implements Keyring {
 
   readonly #rng: RandomNumberGenerator;
 
-  readonly #networkManager: NetworkManager;
+  readonly #networkManager: MfaNetworkManager;
 
   readonly #dkls19Lib: Dkls19WasmLib;
 
   #initRole: InitRole;
 
-  #networkIdentity?: NetworkIdentity;
+  #networkIdentity?: MfaNetworkIdentity;
 
   #keyShare?: ThresholdKey;
 
@@ -71,10 +76,22 @@ export class MPCKeyring implements Keyring {
       generateRandomBytes: opts.getRandomBytes,
     };
     this.#dkls19Lib = opts.dkls19Lib;
-    this.#networkManager = opts.networkManager;
     this.#cloudURL = opts.cloudURL;
-    this.#serializer = opts.serializer;
     this.#initRole = opts.initRole;
+    this.#serializer = {
+      thresholdKey: new CL24ThresholdKeySerializer(),
+      networkIdentity: new MfaNetworkIdentitySerializer(),
+    };
+    this.#networkManager = new MfaNetworkManager({
+      url: opts.relayerURL,
+      randomBytes: {
+        getRandomValues: (array: Uint8Array): Uint8Array => {
+          const bytes = opts.getRandomBytes(array.length);
+          array.set(bytes);
+          return array;
+        },
+      },
+    });
   }
 
   /**
@@ -87,12 +104,12 @@ export class MPCKeyring implements Keyring {
       initRole: this.#initRole,
     };
     if (this.#networkIdentity) {
-      state.networkIdentity = this.#serializer.networkIdentityToJSON(
+      state.networkIdentity = this.#serializer.networkIdentity.toJson(
         this.#networkIdentity,
       );
     }
     if (this.#keyShare) {
-      state.keyShare = this.#serializer.thresholdKeyToJSON(this.#keyShare);
+      state.keyShare = this.#serializer.thresholdKey.toJson(this.#keyShare);
     }
     if (this.#keyId) {
       state.keyId = this.#keyId;
@@ -115,13 +132,13 @@ export class MPCKeyring implements Keyring {
     }
 
     if ('networkIdentity' in state) {
-      this.#networkIdentity = this.#serializer.networkIdentityFromJSON(
+      this.#networkIdentity = this.#serializer.networkIdentity.fromJson(
         state.networkIdentity,
       );
     }
 
     if ('keyShare' in state) {
-      this.#keyShare = this.#serializer.thresholdKeyFromJSON(state.keyShare);
+      this.#keyShare = this.#serializer.thresholdKey.fromJson(state.keyShare);
     }
 
     if ('keyId' in state) {
@@ -130,7 +147,7 @@ export class MPCKeyring implements Keyring {
   }
 
   async init(): Promise<void> {
-    const dkm = new CL24DKM('secp256k1', secp256k1Curve, this.#rng);
+    const dkm = new CL24DKM(secp256k1Curve, this.#rng);
 
     const net = this.#networkManager;
     const networkIdentity = await net.createIdentity();
@@ -144,11 +161,7 @@ export class MPCKeyring implements Keyring {
     const custodians = [localId, cloudId];
     const threshold = 2;
 
-    const networkSession = await net.createSession(
-      networkIdentity,
-      custodians,
-      sessionId,
-    );
+    const networkSession = await net.createSession(networkIdentity, sessionId);
 
     this.#networkIdentity = networkIdentity;
     this.#keyShare = await dkm.createKey({
@@ -293,7 +306,6 @@ export class MPCKeyring implements Keyring {
 
     const networkSession = await this.#networkManager.createSession(
       this.#networkIdentity,
-      custodians,
       sessionId,
     );
 

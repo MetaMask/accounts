@@ -41,7 +41,9 @@
     "ws@7.4.6": "^7.5.10",
     "@metamask/mfa-wallet-cl24-lib": "file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz",
     "@metamask/mfa-wallet-dkls19-lib": "file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz",
+    "@metamask/mfa-wallet-e2ee": "file:./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz",
     "@metamask/mfa-wallet-interface": "file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz",
+    "@metamask/mfa-wallet-network": "file:./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz",
     "@metamask/mfa-wallet-util": "file:./packages/keyring-eth-mpc/metamask-mfa-wallet-util-0.0.0.tgz",
     "@metamask/tss-dkls19-lib": "file:./packages/keyring-eth-mpc/metamask-tss-dkls19-lib-0.0.0.tgz"
   },
