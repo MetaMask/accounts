@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add optional `details` field to `Transaction` type ([#445](https://github.com/MetaMask/accounts/pull/445))
+  - Add `SecurityAlertResponse` enum with values: `benign`, `warning`, `malicious`
+  - Add optional `origin` field (string) to track transaction request source
+  - Add optional `securityAlertResponse` field for Security Alert API responses
 - Add support for custom capabilities and entropy types in `KeyringV2` ([#415](https://github.com/MetaMask/accounts/pull/415))
   - Add `custom` capability to `KeyringCapabilities` for keyrings with non-standard `createAccounts` method.
   - Add `KeyringAccountEntropyTypeOption.Custom` for custom/opaque entropy sources.
