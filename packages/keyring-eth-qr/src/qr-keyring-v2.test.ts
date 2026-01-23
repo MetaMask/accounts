@@ -628,6 +628,20 @@ describe('QrKeyringV2', () => {
           type: KeyringAccountEntropyTypeOption.Custom,
         });
       });
+
+      it('throws error in Account mode when address is not in paths map', async () => {
+        const { wrapper, inner } = await createAccountModeWrapper();
+
+        // Mock serialize to return an inconsistent state
+        jest.spyOn(inner, 'serialize').mockResolvedValue({
+          ...ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS,
+          paths: {}, // Empty paths - inconsistent with accounts
+        });
+
+        await expect(wrapper.getAccounts()).rejects.toThrow(
+          /not found in device paths/u,
+        );
+      });
     });
 
     describe('createAccounts', () => {

@@ -275,7 +275,13 @@ export class QrKeyringV2
         return this.#createHdModeAccount(address, addressIndex);
       }
 
-      // Account mode: treat as private key import
+      // Account mode: validate address exists in paths map
+      const { paths } = deviceState as { paths: Record<Hex, string> };
+      if (paths[address] === undefined) {
+        throw new Error(
+          `Address ${address} not found in device paths. This indicates an inconsistent keyring state.`,
+        );
+      }
       return this.#createAccountModeAccount(address);
     });
   }
