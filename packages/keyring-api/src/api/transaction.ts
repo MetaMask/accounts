@@ -164,6 +164,7 @@ export enum TransactionType {
    * Represents a stake withdrawal transaction.
    */
   StakeWithdraw = 'stake:withdraw',
+
   /**
    * The transaction type is unknown. It's not possible to determine the
    * transaction type based on the information available.
