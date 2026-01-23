@@ -17,7 +17,7 @@ import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 
 import { DeviceMode } from './device';
-import type { QrKeyring, SerializedQrKeyringState } from './qr-keyring';
+import type { QrKeyring } from './qr-keyring';
 
 /**
  * Methods supported by QR keyring EOA accounts.
