@@ -15,7 +15,10 @@ module.exports = merge(baseConfig, {
   displayName,
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['./src/tests'],
+  coveragePathIgnorePatterns: [
+    './src/tests',
+    './src/type.ts', // Deprecated, kept for backwards compatibility
+  ],
 
   // The glob patterns Jest uses to detect test files
   testMatch: ['**/*.test.[jt]s?(x)'],
@@ -23,10 +26,10 @@ module.exports = merge(baseConfig, {
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
     global: {
-      branches: 93.58,
-      functions: 98.16,
-      lines: 97.75,
-      statements: 97.76,
+      branches: 93.75,
+      functions: 98.21,
+      lines: 97.82,
+      statements: 97.84,
     },
   },
 });

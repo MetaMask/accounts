@@ -51,6 +51,7 @@
     "@ethereumjs/util": "^9.1.0",
     "@ledgerhq/hw-app-eth": "^6.42.0",
     "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/hw-wallet-sdk": "workspace:^",
     "@metamask/keyring-api": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
     "hdkey": "^2.1.0"
