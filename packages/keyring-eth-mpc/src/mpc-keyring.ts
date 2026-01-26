@@ -171,6 +171,8 @@ export class MPCKeyring implements Keyring {
       networkSession,
     });
     this.#keyId = networkSession.sessionId;
+
+    await networkSession.disconnect();
   }
 
   /**
@@ -318,6 +320,8 @@ export class MPCKeyring implements Keyring {
       message,
       networkSession,
     });
+
+    await networkSession.disconnect();
 
     return toEthSig(signature, hash, publicKey);
   }

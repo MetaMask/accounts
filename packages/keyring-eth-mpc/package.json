@@ -74,7 +74,8 @@
   },
   "lavamoat": {
     "allowScripts": {
-      "@lavamoat/preinstall-always-fail": false
+      "@lavamoat/preinstall-always-fail": false,
+      "@metamask/mfa-wallet-network>centrifuge>protobufjs": false
     }
   }
 }
