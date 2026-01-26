@@ -1,4 +1,5 @@
 import type { PartyId } from '@metamask/mfa-wallet-interface';
+import { bytesToBase64 } from '@metamask/utils';
 
 /**
  * Initialize a cloud keygen session
@@ -20,8 +21,9 @@ export async function initCloudKeyGen(opts: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      localId: opts.localId,
-      sessionNonce: opts.sessionNonce,
+      custodianId: opts.localId,
+      nonce: opts.sessionNonce,
+      keyType: 'secp256k1',
     }),
   });
 
@@ -41,12 +43,14 @@ export async function initCloudKeyGen(opts: {
  * @param opts - The options for the cloud sign session
  * @param opts.baseURL - The base URL of the cloud service
  * @param opts.keyId - The ID of the key
+ * @param opts.localId - The local ID of the device
  * @param opts.sessionNonce - The nonce of the session
  * @param opts.message - The message to sign
  */
 export async function initCloudSign(opts: {
   baseURL: string;
   keyId: string;
+  localId: PartyId;
   sessionNonce: string;
   message: Uint8Array;
 }): Promise<void> {
@@ -57,8 +61,10 @@ export async function initCloudSign(opts: {
     },
     body: JSON.stringify({
       keyId: opts.keyId,
-      sessionNonce: opts.sessionNonce,
-      message: opts.message,
+      custodianId: opts.localId,
+      nonce: opts.sessionNonce,
+      message: bytesToBase64(opts.message),
+      protocol: 'dkls19',
     }),
   });
 

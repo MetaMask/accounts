@@ -303,6 +303,7 @@ export class MPCKeyring implements Keyring {
 
     await initCloudSign({
       keyId: this.#keyId,
+      localId: this.#networkIdentity.partyId,
       sessionNonce,
       message,
       baseURL: this.#cloudURL,
