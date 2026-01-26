@@ -21,12 +21,12 @@ import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
 import {
   MfaNetworkIdentitySerializer,
   MfaNetworkManager,
+  createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
 import type { WasmLib as Dkls19WasmLib } from '@metamask/tss-dkls19-lib';
 import { bytesToHex, hexToBytes, type Hex, type Json } from '@metamask/utils';
 
 import { initCloudKeyGen, initCloudSign } from './cloud';
-import { generateSessionId } from './network';
 import type {
   InitRole,
   MPCKeyringOpts,
@@ -152,15 +152,16 @@ export class MPCKeyring implements Keyring {
     const net = this.#networkManager;
     const networkIdentity = await net.createIdentity();
     const localId = networkIdentity.partyId;
-    const sessionId = generateSessionId(this.#rng);
+    const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
     const { cloudId } = await initCloudKeyGen({
       localId,
-      sessionId,
+      sessionNonce,
       baseURL: this.#cloudURL,
     });
     const custodians = [localId, cloudId];
     const threshold = 2;
 
+    const sessionId = createScopedSessionId(custodians, sessionNonce);
     const networkSession = await net.createSession(networkIdentity, sessionId);
 
     this.#networkIdentity = networkIdentity;
@@ -294,12 +295,13 @@ export class MPCKeyring implements Keyring {
       throw new Error(`account ${address} not found`);
     }
 
-    const sessionId = generateSessionId(this.#rng);
+    const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
+    const sessionId = createScopedSessionId(custodians, sessionNonce);
     const message = hash;
 
     await initCloudSign({
       keyId: this.#keyId,
-      sessionId,
+      sessionNonce,
       message,
       baseURL: this.#cloudURL,
     });

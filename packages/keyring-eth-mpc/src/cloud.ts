@@ -5,14 +5,14 @@ import type { PartyId } from '@metamask/mfa-wallet-interface';
  *
  * @param opts - The options for the cloud keygen session
  * @param opts.localId - The local ID of the device
- * @param opts.sessionId - The ID of the session
+ * @param opts.sessionNonce - The nonce of the session
  * @param opts.baseURL - The base URL of the cloud service
  * @returns The cloud ID of the device
  */
 export async function initCloudKeyGen(opts: {
   baseURL: string;
   localId: PartyId;
-  sessionId: string;
+  sessionNonce: string;
 }): Promise<{ cloudId: string }> {
   const response = await fetch(`${opts.baseURL}/createKey`, {
     method: 'POST',
@@ -21,7 +21,7 @@ export async function initCloudKeyGen(opts: {
     },
     body: JSON.stringify({
       localId: opts.localId,
-      sessionId: opts.sessionId,
+      sessionNonce: opts.sessionNonce,
     }),
   });
 
@@ -41,13 +41,13 @@ export async function initCloudKeyGen(opts: {
  * @param opts - The options for the cloud sign session
  * @param opts.baseURL - The base URL of the cloud service
  * @param opts.keyId - The ID of the key
- * @param opts.sessionId - The ID of the session
+ * @param opts.sessionNonce - The nonce of the session
  * @param opts.message - The message to sign
  */
 export async function initCloudSign(opts: {
   baseURL: string;
   keyId: string;
-  sessionId: string;
+  sessionNonce: string;
   message: Uint8Array;
 }): Promise<void> {
   const response = await fetch(`${opts.baseURL}/sign`, {
@@ -57,7 +57,7 @@ export async function initCloudSign(opts: {
     },
     body: JSON.stringify({
       keyId: opts.keyId,
-      sessionId: opts.sessionId,
+      sessionNonce: opts.sessionNonce,
       message: opts.message,
     }),
   });
