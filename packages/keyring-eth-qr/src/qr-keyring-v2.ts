@@ -104,22 +104,24 @@ export class QrKeyringV2
     super({
       type: KeyringType.Qr,
       inner: options.legacyKeyring,
-      // Placeholder - will be overridden by getter below
+      // Default capabilities - overridden by getter below
       capabilities: HD_MODE_CAPABILITIES,
     });
     this.entropySource = options.entropySource;
+  }
 
-    // Override the readonly capabilities property with a dynamic getter
-    // that returns capabilities based on the current device mode.
-    Object.defineProperty(this, 'capabilities', {
-      get: (): KeyringCapabilities => {
-        return this.inner.getMode() === DeviceMode.ACCOUNT
-          ? ACCOUNT_MODE_CAPABILITIES
-          : HD_MODE_CAPABILITIES;
-      },
-      enumerable: true,
-      configurable: false,
-    });
+  /**
+   * Get the capabilities of this keyring.
+   *
+   * Overrides the base class getter to return capabilities dynamically
+   * based on the current device mode.
+   *
+   * @returns The keyring's capabilities.
+   */
+  override get capabilities(): KeyringCapabilities {
+    return this.inner.getMode() === DeviceMode.ACCOUNT
+      ? ACCOUNT_MODE_CAPABILITIES
+      : HD_MODE_CAPABILITIES;
   }
 
   /**
