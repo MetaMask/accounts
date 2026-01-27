@@ -15,7 +15,7 @@ export async function initCloudKeyGen(opts: {
   localId: PartyId;
   sessionNonce: string;
 }): Promise<{ cloudId: string }> {
-  const response = await fetch(`${opts.baseURL}/createKey`, {
+  const response = await fetch(`${opts.baseURL}/create-key`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -24,6 +24,7 @@ export async function initCloudKeyGen(opts: {
       custodianId: opts.localId,
       nonce: opts.sessionNonce,
       keyType: 'secp256k1',
+      tssVerifierId: opts.localId, // TODO: remove this once we have updated API
     }),
   });
 
@@ -34,7 +35,7 @@ export async function initCloudKeyGen(opts: {
   }
 
   const data = await response.json();
-  return { cloudId: data.cloudId };
+  return { cloudId: data.serverCustodianId };
 }
 
 /**
@@ -65,6 +66,9 @@ export async function initCloudSign(opts: {
       nonce: opts.sessionNonce,
       message: bytesToBase64(opts.message),
       protocol: 'dkls19',
+      tssVerifierId: opts.localId, // TODO: remove this once we have updated API
+      kid: opts.keyId, // TODO: remove this once we have updated API
+      keyType: 'secp256k1', // TODO: remove this once we have updated API
     }),
   });
 

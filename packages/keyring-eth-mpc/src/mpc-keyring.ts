@@ -1,5 +1,5 @@
 import type { TypedTransaction } from '@ethereumjs/tx';
-import { hashPersonalMessage } from '@ethereumjs/util';
+import { hashPersonalMessage, pubToAddress } from '@ethereumjs/util';
 import type {
   TypedDataV1,
   TypedMessage,
@@ -40,7 +40,6 @@ import {
   parseInitRole,
   parseSignedTypedDataVersion,
   parseThresholdKeyId,
-  publicToAddressHex,
   toEthSig,
 } from './util';
 
@@ -91,6 +90,8 @@ export class MPCKeyring implements Keyring {
           return array;
         },
       },
+      ...(opts.getToken && { getToken: opts.getToken }),
+      ...(opts.webSocket === undefined ? {} : { websocket: opts.webSocket }),
     });
   }
 
@@ -147,6 +148,10 @@ export class MPCKeyring implements Keyring {
   }
 
   async init(): Promise<void> {
+    if (this.#keyShare && this.#networkIdentity && this.#keyId) {
+      return;
+    }
+
     const dkm = new CL24DKM(secp256k1Curve, this.#rng);
 
     const net = this.#networkManager;
@@ -196,7 +201,7 @@ export class MPCKeyring implements Keyring {
       return [];
     }
 
-    const addr = publicToAddressHex(this.#keyShare.publicKey);
+    const addr = this.#address();
     return [addr];
   }
 
@@ -292,7 +297,7 @@ export class MPCKeyring implements Keyring {
 
     const { custodians, publicKey } = this.#keyShare;
 
-    const addr = publicToAddressHex(publicKey);
+    const addr = this.#address();
     if (!equalAddresses(address, addr)) {
       throw new Error(`account ${address} not found`);
     }
@@ -325,5 +330,12 @@ export class MPCKeyring implements Keyring {
     await networkSession.disconnect();
 
     return toEthSig(signature, hash, publicKey);
+  }
+
+  #address(): Hex {
+    if (!this.#keyShare) {
+      throw new Error(`keyshare not initialized`);
+    }
+    return bytesToHex(pubToAddress(this.#keyShare.publicKey, true));
   }
 }

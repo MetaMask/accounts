@@ -9,6 +9,8 @@ export type MPCKeyringOpts = {
   cloudURL: string;
   relayerURL: string;
   initRole: InitRole;
+  getToken?: (partyId: string) => string;
+  webSocket?: unknown;
 };
 
 export type ThresholdKeyId = string;
