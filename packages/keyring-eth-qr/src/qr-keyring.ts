@@ -254,6 +254,15 @@ export class QrKeyring implements Keyring {
   }
 
   /**
+   * Get the mode of the paired device.
+   *
+   * @returns The device mode, or undefined if no device is paired.
+   */
+  getMode(): DeviceMode | undefined {
+    return this.#device?.getDeviceDetails().keyringMode;
+  }
+
+  /**
    * Fetch the first page of accounts. If the keyring is not currently initialized,
    * it will trigger a scan request to initialize it.
    *

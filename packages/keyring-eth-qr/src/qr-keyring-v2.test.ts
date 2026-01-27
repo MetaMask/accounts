@@ -218,7 +218,7 @@ describe('QrKeyringV2', () => {
   });
 
   describe('getAccounts', () => {
-    it('updates capabilities for pre-paired Account mode device', async () => {
+    it('returns correct capabilities immediately for pre-paired Account mode device', async () => {
       const inner = new QrKeyring({
         bridge: getMockBridge(),
         ur: KNOWN_CRYPTO_ACCOUNT_UR,
@@ -230,19 +230,9 @@ describe('QrKeyringV2', () => {
         entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
       });
 
-      // Before getAccounts, capabilities are default HD mode
-      expect(wrapper.capabilities.custom).toBeUndefined();
-
-      // After getAccounts, capabilities are updated to Account mode
-      await wrapper.getAccounts();
-
+      // Capabilities are correct immediately - no need to call getAccounts first
       expect(wrapper.capabilities).toStrictEqual({
         scopes: [EthScope.Eoa],
-        bip44: {
-          deriveIndex: false,
-          derivePath: false,
-          discover: false,
-        },
         custom: {
           createAccounts: true,
         },
@@ -384,11 +374,6 @@ describe('QrKeyringV2', () => {
       // After deserializing Account mode state, capabilities should update
       expect(wrapper.capabilities).toStrictEqual({
         scopes: [EthScope.Eoa],
-        bip44: {
-          deriveIndex: false,
-          derivePath: false,
-          discover: false,
-        },
         custom: {
           createAccounts: true,
         },

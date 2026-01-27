@@ -46,11 +46,6 @@ const HD_MODE_CAPABILITIES: KeyringCapabilities = {
  */
 const ACCOUNT_MODE_CAPABILITIES: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
-  bip44: {
-    deriveIndex: false,
-    derivePath: false,
-    discover: false,
-  },
   custom: {
     createAccounts: true,
   },
@@ -105,12 +100,6 @@ export class QrKeyringV2
 {
   readonly entropySource: EntropySourceId;
 
-  /**
-   * Cached device mode for synchronous capabilities lookup.
-   * Updated during deserialization and device state queries.
-   */
-  #mode: DeviceMode | undefined;
-
   constructor(options: QrKeyringV2Options) {
     super({
       type: KeyringType.Qr,
@@ -124,7 +113,7 @@ export class QrKeyringV2
     // that returns capabilities based on the current device mode.
     Object.defineProperty(this, 'capabilities', {
       get: (): KeyringCapabilities => {
-        return this.#mode === DeviceMode.ACCOUNT
+        return this.inner.getMode() === DeviceMode.ACCOUNT
           ? ACCOUNT_MODE_CAPABILITIES
           : HD_MODE_CAPABILITIES;
       },
@@ -153,12 +142,10 @@ export class QrKeyringV2
     const state = await this.inner.serialize();
 
     if (!state?.initialized) {
-      this.#mode = undefined;
       return undefined;
     }
 
     if (state.keyringMode === DeviceMode.ACCOUNT) {
-      this.#mode = DeviceMode.ACCOUNT;
       return {
         mode: DeviceMode.ACCOUNT,
         indexes: state.indexes,
@@ -166,7 +153,6 @@ export class QrKeyringV2
       };
     }
 
-    this.#mode = DeviceMode.HD;
     return {
       mode: DeviceMode.HD,
       indexes: state.indexes,
@@ -276,7 +262,7 @@ export class QrKeyringV2
       }
 
       // Account mode: validate address exists in paths map
-      const { paths } = deviceState as { paths: Record<Hex, string> };
+      const { paths } = deviceState;
       if (paths[address] === undefined) {
         throw new Error(
           `Address ${address} not found in device paths. This indicates an inconsistent keyring state.`,
@@ -355,12 +341,12 @@ export class QrKeyringV2
       );
     }
 
-    const address = availableAddresses[addressIndex] as Hex;
+    const address = availableAddresses[addressIndex];
 
     // Check if already exists
     const currentAccounts = await this.getAccounts();
     const existingAccount = currentAccounts.find(
-      (account) => account.address.toLowerCase() === address.toLowerCase(),
+      (account) => account.address.toLowerCase() === address?.toLowerCase(),
     );
     if (existingAccount) {
       return [existingAccount];
@@ -412,8 +398,7 @@ export class QrKeyringV2
       (account) =>
         account.options.entropy?.type ===
           KeyringAccountEntropyTypeOption.Mnemonic &&
-        (account.options.entropy as { groupIndex: number }).groupIndex ===
-          targetIndex,
+        account.options.entropy.groupIndex === targetIndex,
     );
 
     if (existingAccount) {
