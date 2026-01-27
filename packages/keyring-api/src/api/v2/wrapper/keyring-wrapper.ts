@@ -51,7 +51,7 @@ export abstract class KeyringWrapper<
 {
   readonly type: `${KeyringType}`;
 
-  readonly capabilities: KeyringCapabilities;
+  readonly #capabilities: KeyringCapabilities;
 
   protected readonly inner: InnerKeyring;
 
@@ -74,7 +74,19 @@ export abstract class KeyringWrapper<
   constructor(options: KeyringWrapperOptions<InnerKeyring>) {
     this.inner = options.inner;
     this.type = `${options.type}`;
-    this.capabilities = options.capabilities;
+    this.#capabilities = options.capabilities;
+  }
+
+  /**
+   * Get the capabilities of this keyring.
+   *
+   * Subclasses can override this getter to return capabilities dynamically
+   * based on runtime state.
+   *
+   * @returns The keyring's capabilities.
+   */
+  get capabilities(): KeyringCapabilities {
+    return this.#capabilities;
   }
 
   /**

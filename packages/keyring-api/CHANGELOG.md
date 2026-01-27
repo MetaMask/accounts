@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Change `KeyringWrapper.capabilities` from a readonly property to a getter ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Allows subclasses to override and return capabilities dynamically based on runtime state.
+
 ### Added
 
 - Add support for custom capabilities and entropy types in `KeyringV2` ([#415](https://github.com/MetaMask/accounts/pull/415))

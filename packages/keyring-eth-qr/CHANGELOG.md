@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Override `capabilities` getter in `QrKeyringV2` to return capabilities dynamically based on device mode ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ### Added
 
 - Add `QrKeyringV2` class implementing `KeyringV2` interface ([#411](https://github.com/MetaMask/accounts/pull/411))
