@@ -1,89 +1,86 @@
 import { TransportStatusError } from '@ledgerhq/hw-transport';
+import {
+  ErrorCode,
+  Severity,
+  Category,
+  RetryStrategy,
+  HardwareWalletError,
+} from '@metamask/keyring-utils';
 
 import { handleLedgerTransportError } from './ledger-error-handler';
-import { LedgerStatusError } from './type';
 
+const fallbackMessage = 'Default error message';
+
+/**
+ * Helper function to create a TransportStatusError-like object
+ *
+ * @param message - The error message
+ * @param statusCode - The status code
+ * @returns A TransportStatusError instance
+ */
+function createTransportStatusError(
+  message: string,
+  statusCode: number,
+): TransportStatusError {
+  const error = {
+    statusCode,
+    message,
+    name: 'TransportStatusError',
+  };
+  Object.setPrototypeOf(error, TransportStatusError.prototype);
+  return error as TransportStatusError;
+}
+
+/**
+ * Helper function to test that handleLedgerTransportError throws a HardwareWalletError
+ * with expected properties
+ *
+ * @param error - The error to pass to handleLedgerTransportError
+ * @param expectedMessage - Expected message of the thrown HardwareWalletError
+ * @returns True if all assertions pass
+ */
+function expectLedgerError(error: unknown, expectedMessage: string): boolean {
+  expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
+    HardwareWalletError,
+  );
+
+  let thrownError: unknown;
+  try {
+    handleLedgerTransportError(error, fallbackMessage);
+  } catch (error_: unknown) {
+    thrownError = error_;
+  }
+  expect(thrownError).toBeInstanceOf(HardwareWalletError);
+  expect((thrownError as HardwareWalletError).message).toBe(expectedMessage);
+
+  return true;
+}
 describe('handleLedgerTransportError', () => {
-  const fallbackMessage = 'Default error message';
-
-  /**
-   * Helper function to create a TransportStatusError-like object
-   *
-   * @param message - The error message
-   * @param statusCode - The status code
-   * @returns A TransportStatusError instance
-   */
-  function createTransportStatusError(
-    message: string,
-    statusCode: number,
-  ): TransportStatusError {
-    const error = {
-      statusCode,
-      message,
-      name: 'TransportStatusError',
-    };
-    Object.setPrototypeOf(error, TransportStatusError.prototype);
-    return error as TransportStatusError;
-  }
-
-  /**
-   * Helper function to test that handleLedgerTransportError throws a LedgerStatusError
-   * with expected properties
-   *
-   * @param error - The error to pass to handleLedgerTransportError
-   * @param expectedStatusCode - Expected status code of the thrown LedgerStatusError
-   * @param expectedMessage - Expected message of the thrown LedgerStatusError
-   * @returns True if all assertions pass
-   */
-  function expectLedgerStatusError(
-    error: unknown,
-    expectedStatusCode: number,
-    expectedMessage: string,
-  ): boolean {
-    expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-      LedgerStatusError,
-    );
-
-    let thrownError: unknown;
-    try {
-      handleLedgerTransportError(error, fallbackMessage);
-    } catch (error_: unknown) {
-      thrownError = error_;
-    }
-    expect(thrownError).toBeInstanceOf(LedgerStatusError);
-    expect((thrownError as LedgerStatusError).statusCode).toBe(
-      expectedStatusCode,
-    );
-    expect((thrownError as LedgerStatusError).message).toBe(expectedMessage);
-
-    return true;
-  }
-
   describe('when error is TransportStatusError', () => {
     it.each([
       {
         tc: 'user rejection',
         inputMessage: 'User rejected',
         status: 0x6985,
-        expectedMessage: 'Ledger: User rejected the transaction',
+        expectedMessage: 'User rejected action on device',
       },
       {
         tc: 'blind signing',
         inputMessage: 'Blind signing required',
         status: 0x6a80,
-        expectedMessage: 'Ledger: Blind signing must be enabled',
+        expectedMessage: 'Invalid data received',
       },
       {
         tc: 'device locked',
         inputMessage: 'Device locked',
         status: 0x5515,
-        expectedMessage: 'Ledger: Device is locked. Unlock it to continue',
+        expectedMessage: 'Device is locked',
       },
       {
         tc: 'app closed',
         inputMessage: 'App closed',
         status: 0x650f,
-        expectedMessage: 'Ledger: Ethereum app closed. Open it to unlock',
+        expectedMessage: 'App closed or connection issue',
       },
       {
         tc: 'unknown status codes by preserving original message',
@@ -95,9 +92,7 @@ describe('handleLedgerTransportError', () => {
       'handles status code $status ($tc)',
       ({ inputMessage, status, expectedMessage }) => {
         const error = createTransportStatusError(inputMessage, status);
-        expect(expectLedgerStatusError(error, status, expectedMessage)).toBe(
-          true,
-        );
+        expect(expectLedgerError(error, expectedMessage)).toBe(true);
       },
     );
   });
@@ -119,27 +114,49 @@ describe('handleLedgerTransportError', () => {
       expect(throwingFunction).toThrow(fallbackMessage);
     });
 
-    it('re-throws Error instances as-is', () => {
+    it('wraps Error instances in HardwareWalletError', () => {
       const error = new Error('Original error message');
 
       expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-        error,
+        HardwareWalletError,
       );
 
-      expect(() => handleLedgerTransportError(error, fallbackMessage)).toThrow(
-        error.message,
+      let thrownError: unknown;
+      try {
+        handleLedgerTransportError(error, fallbackMessage);
+      } catch (error_: unknown) {
+        thrownError = error_;
+      }
+
+      expect(thrownError).toBeInstanceOf(HardwareWalletError);
+      expect((thrownError as HardwareWalletError).message).toBe(
+        'Original error message',
       );
+      expect((thrownError as HardwareWalletError).cause).toBe(error);
     });
-  });
 
-  describe('return type', () => {
-    it('has never return type (always throws)', () => {
-      type ReturnTypeIsNever<Function extends (...args: any) => any> =
-        ReturnType<Function> extends never ? true : false;
+    it('passes through HardwareWalletError instances', () => {
+      const ledgerError = new HardwareWalletError('Ledger error', {
+        code: ErrorCode.USER_CANCEL_001,
+        severity: Severity.ERROR,
+        category: Category.USER_ACTION,
+        retryStrategy: RetryStrategy.NO_RETRY,
+        userActionable: false,
+        userMessage: '',
+      });
 
-      const isNever: ReturnTypeIsNever<typeof handleLedgerTransportError> =
-        true;
-      expect(isNever).toBe(true);
+      expect(() =>
+        handleLedgerTransportError(ledgerError, fallbackMessage),
+      ).toThrow(ledgerError);
+
+      let thrownError: unknown;
+      try {
+        handleLedgerTransportError(ledgerError, fallbackMessage);
+      } catch (error_: unknown) {
+        thrownError = error_;
+      }
+
+      expect(thrownError).toBe(ledgerError);
     });
   });
 });
