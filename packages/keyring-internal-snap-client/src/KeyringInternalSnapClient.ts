@@ -4,11 +4,12 @@ import type {
   KeyringResponseWithoutOrigin,
 } from '@metamask/keyring-internal-api';
 import { SubmitRequestResponseV1Struct } from '@metamask/keyring-internal-api';
-import { KeyringClient, type Sender } from '@metamask/keyring-snap-client';
-import { strictMask, type JsonRpcRequest } from '@metamask/keyring-utils';
+import type { Sender } from '@metamask/keyring-snap-client';
+import { KeyringClient } from '@metamask/keyring-snap-client';
+import { strictMask } from '@metamask/keyring-utils';
 import type { Messenger } from '@metamask/messenger';
 import type { HandleSnapRequest } from '@metamask/snaps-controllers';
-import type { SnapId } from '@metamask/snaps-sdk';
+import type { JsonRpcRequest, SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 import type { Json } from '@metamask/utils';
 
@@ -28,7 +29,7 @@ export type KeyringInternalSnapClientMessenger = Messenger<
  * Implementation of the `Sender` interface that can be used to send requests
  * to a Snap through a `Messenger`.
  */
-class SnapControllerMessengerSender implements Sender {
+export class SnapControllerMessengerSender implements Sender {
   readonly #snapId: SnapId;
 
   readonly #origin: string;
