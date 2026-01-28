@@ -88,3 +88,34 @@ export const CreateAccountBip44DiscoverOptionsStruct = object({
 export type CreateAccountBip44DiscoverOptions = Infer<
   typeof CreateAccountBip44DiscoverOptionsStruct
 >;
+
+/**
+ * Struct for {@link CreateAccountBip44DeriveMaxIndexOptions}.
+ */
+export const CreateAccountBip44DeriveMaxIndexOptionsStruct = object({
+  /**
+   * The type of the options.
+   */
+  type: literal('bip44:derive-max-index'),
+  /**
+   * ID of the entropy source to be used to derive the accounts.
+   */
+  entropySource: string(),
+  /**
+   * The maximum account group index to derive (inclusive).
+   * Accounts will be created from index 0 up to and including this index.
+   */
+  maxGroupIndex: number(),
+});
+
+/**
+ * Options for creating multiple accounts by deriving up to a maximum BIP-44
+ * account group index.
+ *
+ * This will create all accounts from index 0 to maxGroupIndex (inclusive).
+ * Note that the keyring can support non-standard BIP-44 paths for
+ * compatibility with other wallets.
+ */
+export type CreateAccountBip44DeriveMaxIndexOptions = Infer<
+  typeof CreateAccountBip44DeriveMaxIndexOptionsStruct
+>;

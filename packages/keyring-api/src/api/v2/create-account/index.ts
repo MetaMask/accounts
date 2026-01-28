@@ -5,6 +5,7 @@ import {
   CreateAccountBip44DiscoverOptionsStruct,
   CreateAccountBip44DeriveIndexOptionsStruct,
   CreateAccountBip44DerivePathOptionsStruct,
+  CreateAccountBip44DeriveMaxIndexOptionsStruct,
 } from './bip44';
 import { CreateAccountCustomOptionsStruct } from './custom';
 import { CreateAccountPrivateKeyOptionsStruct } from './private-key';
@@ -41,6 +42,15 @@ export enum AccountCreationType {
   Bip44Discover = 'bip44:discover',
 
   /**
+   * Represents accounts created by deriving up to a maximum BIP-44 account index.
+   *
+   * Multiple accounts are created, from index 0 to the specified maximum index.
+   * For each index, the keyring can create multiple account types
+   * (e.g., P2PKH, P2TR, P2WPKH).
+   */
+  Bip44DeriveMaxIndex = 'bip44:derive-max-index',
+
+  /**
    * Represents an account imported from a private key.
    */
   PrivateKeyImport = 'private-key:import',
@@ -66,6 +76,8 @@ export const CreateAccountOptionsStruct = selectiveUnion((value: any) => {
       return CreateAccountBip44DeriveIndexOptionsStruct;
     case AccountCreationType.Bip44Discover:
       return CreateAccountBip44DiscoverOptionsStruct;
+    case AccountCreationType.Bip44DeriveMaxIndex:
+      return CreateAccountBip44DeriveMaxIndexOptionsStruct;
     case AccountCreationType.PrivateKeyImport:
       return CreateAccountPrivateKeyOptionsStruct;
     case AccountCreationType.Custom:

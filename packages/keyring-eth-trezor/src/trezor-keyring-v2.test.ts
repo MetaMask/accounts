@@ -205,6 +205,7 @@ describe('TrezorKeyringV2', () => {
           deriveIndex: true,
           derivePath: true,
           discover: false,
+          deriveMaxIndex: false,
         },
       });
     });

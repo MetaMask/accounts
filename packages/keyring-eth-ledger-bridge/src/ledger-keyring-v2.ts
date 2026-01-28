@@ -33,6 +33,7 @@ const ledgerKeyringV2Capabilities: KeyringCapabilities = {
     deriveIndex: true,
     derivePath: true,
     discover: false,
+    deriveMaxIndex: false,
   },
 };
 
