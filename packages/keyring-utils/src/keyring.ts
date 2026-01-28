@@ -64,6 +64,17 @@ export type Keyring = {
   addAccounts(number: number): Promise<Hex[]>;
 
   /**
+   * Create one or more accounts according to the provided options.
+   *
+   * This is an optional method that allows keyrings to support batch account
+   * creation with more advanced options than the legacy `addAccounts` method.
+   *
+   * @param options - Options describing how to create the account(s).
+   * @returns A promise that resolves to an array of the created account addresses.
+   */
+  createAccounts?(options: Record<string, Json>): Promise<Hex[]>;
+
+  /**
    * Serialize the keyring state as a JSON-serializable object.
    *
    * @returns A JSON-serializable representation of the keyring state.

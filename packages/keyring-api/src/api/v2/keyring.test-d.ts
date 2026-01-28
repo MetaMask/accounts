@@ -64,6 +64,7 @@ expectAssignable<KeyringCapabilities>({
     derivePath: true,
     deriveIndex: true,
     discover: false,
+    deriveMaxIndex: false,
   },
 });
 

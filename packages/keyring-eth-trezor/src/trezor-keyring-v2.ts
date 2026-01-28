@@ -34,6 +34,7 @@ const trezorKeyringV2Capabilities: KeyringCapabilities = {
     deriveIndex: true,
     derivePath: true,
     discover: false,
+    deriveMaxIndex: false,
   },
 };
 

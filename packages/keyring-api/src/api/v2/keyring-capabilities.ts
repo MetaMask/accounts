@@ -39,6 +39,10 @@ export const KeyringCapabilitiesStruct = object({
        * Whether the keyring supports BIP-44 account discovery.
        */
       discover: boolean(),
+      /**
+       * Whether the keyring supports deriving multiple accounts up to a maximum BIP-44 account index.
+       */
+      deriveMaxIndex: boolean(),
     }),
   ),
   /**
@@ -83,6 +87,7 @@ export const KeyringCapabilitiesStruct = object({
  *     derivePath: true,
  *     deriveIndex: true,
  *     discover: true,
+ *     deriveMaxIndex: true,
  *   },
  *   privateKey: {
  *     importFormats: [
