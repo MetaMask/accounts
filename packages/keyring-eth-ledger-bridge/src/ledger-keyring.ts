@@ -464,10 +464,7 @@ export class LedgerKeyring implements Keyring {
     if (recoveryParam === 0 || recoveryParam === 1) {
       recoveryParam += 27;
     }
-    let modifiedV = recoveryParam.toString(16);
-    if (modifiedV.length < 2) {
-      modifiedV = `0${modifiedV}`;
-    }
+    const modifiedV = recoveryParam.toString(16);
 
     const signature = `0x${payload.r}${payload.s}${modifiedV}`;
     const addressSignedWith = recoverPersonalSignature({
@@ -563,10 +560,7 @@ export class LedgerKeyring implements Keyring {
     if (recoveryParam === 0 || recoveryParam === 1) {
       recoveryParam += 27;
     }
-    let recoveryId = recoveryParam.toString(16);
-    if (recoveryId.length < 2) {
-      recoveryId = `0${recoveryId}`;
-    }
+    const recoveryId = recoveryParam.toString(16);
     const signature = `0x${payload.r}${payload.s}${recoveryId}`;
     const addressSignedWith = recoverTypedSignature({
       data,
