@@ -458,7 +458,13 @@ export class LedgerKeyring implements Keyring {
       );
     }
 
-    let modifiedV = parseInt(String(payload.v), 10).toString(16);
+    let recoveryParam = parseInt(String(payload.v), 10);
+    // Normalize: Ledger may return 0 or 1 (modern format), but signature
+    // recovery expects 27 or 28 (legacy format per EIP-191)
+    if (recoveryParam === 0 || recoveryParam === 1) {
+      recoveryParam += 27;
+    }
+    let modifiedV = recoveryParam.toString(16);
     if (modifiedV.length < 2) {
       modifiedV = `0${modifiedV}`;
     }
@@ -551,7 +557,13 @@ export class LedgerKeyring implements Keyring {
       );
     }
 
-    let recoveryId = parseInt(String(payload.v), 10).toString(16);
+    let recoveryParam = parseInt(String(payload.v), 10);
+    // Normalize: Ledger may return 0 or 1 (modern format), but signature
+    // recovery expects 27 or 28 (legacy format per EIP-712)
+    if (recoveryParam === 0 || recoveryParam === 1) {
+      recoveryParam += 27;
+    }
+    let recoveryId = recoveryParam.toString(16);
     if (recoveryId.length < 2) {
       recoveryId = `0${recoveryId}`;
     }
