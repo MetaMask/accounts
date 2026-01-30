@@ -41,6 +41,7 @@
       ],
       "dependencies": [
         "@metamask/account-**",
+        "@metamask/hw-wallet-sdk",
         "@metamask/keyring-**",
         "@metamask/eth-**-keyring"
       ],
