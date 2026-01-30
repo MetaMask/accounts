@@ -458,13 +458,9 @@ export class LedgerKeyring implements Keyring {
       );
     }
 
-    let recoveryParam = parseInt(String(payload.v), 10);
-    // Normalize: Ledger may return 0 or 1 (modern format), but signature
-    // recovery expects 27 or 28 (legacy format per EIP-191)
-    if (recoveryParam === 0 || recoveryParam === 1) {
-      recoveryParam += 27;
-    }
-    const modifiedV = recoveryParam.toString(16);
+    const modifiedV = this.#normalizeRecoveryParam(
+      parseInt(String(payload.v), 10),
+    );
 
     const signature = `0x${payload.r}${payload.s}${modifiedV}`;
     const addressSignedWith = recoverPersonalSignature({
@@ -554,13 +550,9 @@ export class LedgerKeyring implements Keyring {
       );
     }
 
-    let recoveryParam = parseInt(String(payload.v), 10);
-    // Normalize: Ledger may return 0 or 1 (modern format), but signature
-    // recovery expects 27 or 28 (legacy format per EIP-712)
-    if (recoveryParam === 0 || recoveryParam === 1) {
-      recoveryParam += 27;
-    }
-    const recoveryId = recoveryParam.toString(16);
+    const recoveryId = this.#normalizeRecoveryParam(
+      parseInt(String(payload.v), 10),
+    );
     const signature = `0x${payload.r}${payload.s}${recoveryId}`;
     const addressSignedWith = recoverTypedSignature({
       data,
@@ -702,5 +694,20 @@ export class LedgerKeyring implements Keyring {
 
   #getChecksumHexAddress(address: string): Hex {
     return getChecksumAddress(add0x(address));
+  }
+
+  /**
+   * Normalizes the signature recovery parameter (v) to legacy format.
+   * Ledger devices may return v as 0 or 1 (modern format), but signature
+   * recovery expects 27 or 28 (legacy format per EIP-191/EIP-712).
+   *
+   * @param recoveryParam - The recovery parameter from Ledger.
+   * @returns The normalized recovery parameter as a hex string.
+   */
+  #normalizeRecoveryParam(recoveryParam: number): string {
+    if (recoveryParam === 0 || recoveryParam === 1) {
+      return (recoveryParam + 27).toString(16);
+    }
+    return recoveryParam.toString(16);
   }
 }
