@@ -1,4 +1,5 @@
 export * from './ledger-keyring';
+export * from './ledger-keyring-v2';
 export * from './ledger-iframe-bridge';
 export * from './ledger-mobile-bridge';
 export type * from './ledger-bridge';
