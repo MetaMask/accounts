@@ -484,7 +484,7 @@ export class HdKeyring implements Keyring {
    * @returns The Uint8Array mnemonic.
    */
   #mnemonicToUint8Array(
-    mnemonic: Buffer | SerializedBuffer | string | Uint8Array | number[],
+    mnemonic: Mnemonic,
   ): Uint8Array {
     let mnemonicData: unknown = mnemonic;
     // When using `Buffer.toJSON()`, the Buffer is serialized into an object
@@ -653,28 +653,9 @@ export class HdKeyring implements Keyring {
    * @throws If the mnemonic is invalid.
    */
   #isValidMnemonic(mnemonic: Mnemonic): void {
-    let mnemonicString: string;
-
-    if (typeof mnemonic === 'string') {
-      mnemonicString = mnemonic;
-    } else if (Array.isArray(mnemonic)) {
-      mnemonicString = Buffer.from(mnemonic).toString();
-    } else if (isSerializedBuffer(mnemonic)) {
-      mnemonicString = Buffer.from(mnemonic.data).toString();
-    } else if (Buffer.isBuffer(mnemonic)) {
-      mnemonicString = mnemonic.toString();
-    } else if (mnemonic instanceof Uint8Array) {
-      mnemonicString = this.#uint8ArrayToString(mnemonic);
-    } else if (typeof mnemonic === 'object') {
-      // When encrypted/decrypted, Uint8Arrays can become plain objects like {0: ..., 1: ..., ...}
-      // Convert back to Uint8Array first, then to mnemonic string
-      const mnemonicAsUint8Array = Uint8Array.from(
-        Object.values(mnemonic as Record<string, number>),
-      );
-      mnemonicString = this.#uint8ArrayToString(mnemonicAsUint8Array);
-    } else {
-      throw new Error('Eth-Hd-Keyring: Invalid mnemonic format');
-    }
+    // Reuse #mnemonicToUint8Array for format conversion to avoid duplication
+    const mnemonicAsUint8Array = this.#mnemonicToUint8Array(mnemonic);
+    const mnemonicString = this.#uint8ArrayToString(mnemonicAsUint8Array);
 
     if (!validateMnemonic(mnemonicString, wordlist)) {
       throw new Error(
