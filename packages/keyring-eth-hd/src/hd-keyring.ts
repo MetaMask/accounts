@@ -1,5 +1,6 @@
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { privateToPublic, publicToAddress, ecsign } from '@ethereumjs/util';
+import { isValidMnemonic } from '@ethersproject/hdnode';
 import {
   concatSig,
   decrypt,
@@ -610,6 +611,7 @@ export class HdKeyring implements Keyring {
       );
     }
 
+    this.#validateMnemonic(mnemonic);
     this.mnemonic = this.#mnemonicToUint8Array(mnemonic);
 
     this.seed = await mnemonicToSeed(
@@ -643,5 +645,37 @@ export class HdKeyring implements Keyring {
     const normalized = normalize(address);
     assert(normalized, 'Expected address to be set');
     return add0x(normalized);
+  }
+
+  /**
+   * Validate the mnemonic seed phrase.
+   *
+   * @param mnemonic - The mnemonic seed phrase to validate.
+   * @throws If the mnemonic is invalid.
+   */
+  #validateMnemonic(
+    mnemonic: string | number[] | SerializedBuffer | Buffer | Uint8Array,
+  ): void {
+    let mnemonicString: string;
+
+    if (typeof mnemonic === 'string') {
+      mnemonicString = mnemonic;
+    } else if (Array.isArray(mnemonic)) {
+      mnemonicString = Buffer.from(mnemonic).toString();
+    } else if (isSerializedBuffer(mnemonic)) {
+      mnemonicString = Buffer.from(mnemonic.data).toString();
+    } else if (Buffer.isBuffer(mnemonic)) {
+      mnemonicString = mnemonic.toString();
+    } else if (mnemonic instanceof Uint8Array) {
+      mnemonicString = this.#uint8ArrayToString(mnemonic);
+    } else {
+      throw new Error('Eth-Hd-Keyring: Invalid mnemonic format');
+    }
+
+    if (!isValidMnemonic(mnemonicString)) {
+      throw new Error(
+        'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
+      );
+    }
   }
 }
