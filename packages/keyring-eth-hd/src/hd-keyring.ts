@@ -38,6 +38,8 @@ import { keccak256 } from 'ethereum-cryptography/keccak';
 const hdPathString = `m/44'/60'/0'/0`;
 const type = 'HD Key Tree';
 
+type Mnemonic = string | number[] | SerializedBuffer | Buffer | Uint8Array;
+
 export type HDKeyringOptions = {
   cryptographicFunctions?: CryptographicFunctions;
 };
@@ -601,9 +603,7 @@ export class HdKeyring implements Keyring {
    * as a string, an array of UTF-8 bytes, or a Buffer. Mnemonic input
    * passed as type buffer or array of UTF-8 bytes must be NFKD normalized.
    */
-  async #initFromMnemonic(
-    mnemonic: string | number[] | SerializedBuffer | Buffer | Uint8Array,
-  ): Promise<void> {
+  async #initFromMnemonic(mnemonic: Mnemonic): Promise<void> {
     if (this.root) {
       throw new Error(
         'Eth-Hd-Keyring: Secret recovery phrase already provided',
@@ -652,9 +652,7 @@ export class HdKeyring implements Keyring {
    * @param mnemonic - The mnemonic seed phrase to validate.
    * @throws If the mnemonic is invalid.
    */
-  #isValidMnemonic(
-    mnemonic: string | number[] | SerializedBuffer | Buffer | Uint8Array,
-  ): void {
+  #isValidMnemonic(mnemonic: Mnemonic): void {
     let mnemonicString: string;
 
     if (typeof mnemonic === 'string') {
@@ -667,6 +665,13 @@ export class HdKeyring implements Keyring {
       mnemonicString = mnemonic.toString();
     } else if (mnemonic instanceof Uint8Array) {
       mnemonicString = this.#uint8ArrayToString(mnemonic);
+    } else if (typeof mnemonic === 'object') {
+      // When encrypted/decrypted, Uint8Arrays can become plain objects like {0: ..., 1: ..., ...}
+      // Convert back to Uint8Array first, then to mnemonic string
+      const mnemonicAsUint8Array = Uint8Array.from(
+        Object.values(mnemonic as Record<string, number>),
+      );
+      mnemonicString = this.#uint8ArrayToString(mnemonicAsUint8Array);
     } else {
       throw new Error('Eth-Hd-Keyring: Invalid mnemonic format');
     }

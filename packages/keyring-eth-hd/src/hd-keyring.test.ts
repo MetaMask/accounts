@@ -340,6 +340,29 @@ describe('hd-keyring', () => {
       expect(accounts[0]).toStrictEqual(firstAcct);
     });
 
+    it('validates mnemonic passed as plain object (simulating encryption/decryption cycle)', async () => {
+      const keyring = new HdKeyring();
+
+      const tempKeyring = new HdKeyring();
+      await tempKeyring.deserialize({ mnemonic: sampleMnemonic });
+      const { mnemonic } = tempKeyring;
+      assert(mnemonic, 'Mnemonic should be defined');
+
+      const mnemonicAsPlainObject: Record<string, number> = {};
+      mnemonic.forEach((value, index) => {
+        mnemonicAsPlainObject[index] = value;
+      });
+
+      await keyring.deserialize({
+        // @ts-expect-error testing plain object mnemonic directly
+        mnemonic: mnemonicAsPlainObject,
+        numberOfAccounts: 1,
+      });
+
+      const accounts = await keyring.getAccounts();
+      expect(accounts[0]).toStrictEqual(firstAcct);
+    });
+
     it('throws when numberOfAccounts is passed with no mnemonic', async () => {
       const keyring = new HdKeyring();
 
