@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Extends `EthKeyringWrapper` for common Ethereum logic.
 - Add mnemonic validation using `validateMnemonic` from `@metamask/scure-bip39`
   - Validates mnemonics against BIP39 specification (word count, wordlist, checksum) before use.
-  - Throws `'Eth-Hd-Keyring: Invalid secret recovery phrase provided'` for invalid mnemonics.
+  - Throws for invalid mnemonics.
 
 ## [13.0.0]
 
