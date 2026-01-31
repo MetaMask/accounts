@@ -483,9 +483,7 @@ export class HdKeyring implements Keyring {
    * @param mnemonic - The mnemonic seed phrase.
    * @returns The Uint8Array mnemonic.
    */
-  #mnemonicToUint8Array(
-    mnemonic: Mnemonic,
-  ): Uint8Array {
+  #mnemonicToUint8Array(mnemonic: Mnemonic): Uint8Array {
     let mnemonicData: unknown = mnemonic;
     // When using `Buffer.toJSON()`, the Buffer is serialized into an object
     // with the structure `{ type: 'Buffer', data: [...] }`
@@ -610,8 +608,8 @@ export class HdKeyring implements Keyring {
       );
     }
 
-    this.#isValidMnemonic(mnemonic);
     this.mnemonic = this.#mnemonicToUint8Array(mnemonic);
+    this.#isValidMnemonic(this.mnemonic);
 
     this.seed = await mnemonicToSeed(
       this.mnemonic,
@@ -652,11 +650,8 @@ export class HdKeyring implements Keyring {
    * @param mnemonic - The mnemonic seed phrase to validate.
    * @throws If the mnemonic is invalid.
    */
-  #isValidMnemonic(mnemonic: Mnemonic): void {
-    // Reuse #mnemonicToUint8Array for format conversion to avoid duplication
-    const mnemonicAsUint8Array = this.#mnemonicToUint8Array(mnemonic);
-    const mnemonicString = this.#uint8ArrayToString(mnemonicAsUint8Array);
-
+  #isValidMnemonic(mnemonic: Uint8Array): void {
+    const mnemonicString = this.#uint8ArrayToString(mnemonic);
     if (!validateMnemonic(mnemonicString, wordlist)) {
       throw new Error(
         'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
