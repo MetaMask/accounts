@@ -1,8 +1,9 @@
 export * from './ledger-keyring';
-export * from './ledger-keyring-v2';
 export * from './ledger-iframe-bridge';
 export * from './ledger-mobile-bridge';
 export type * from './ledger-bridge';
 export * from './ledger-transport-middleware';
 export type * from './type';
 export * from './ledger-hw-app';
+export * from './errors';
+export * from './ledger-error-handler';
