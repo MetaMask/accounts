@@ -1,6 +1,5 @@
 import type { TypedTransaction } from '@ethereumjs/tx';
 import { privateToPublic, publicToAddress, ecsign } from '@ethereumjs/util';
-import { isValidMnemonic } from '@ethersproject/hdnode';
 import {
   concatSig,
   decrypt,
@@ -21,7 +20,7 @@ import {
   mnemonicToSeed,
 } from '@metamask/key-tree';
 import type { Keyring } from '@metamask/keyring-utils';
-import { generateMnemonic } from '@metamask/scure-bip39';
+import { generateMnemonic, validateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import {
   add0x,
@@ -611,7 +610,7 @@ export class HdKeyring implements Keyring {
       );
     }
 
-    this.#validateMnemonic(mnemonic);
+    this.#isValidMnemonic(mnemonic);
     this.mnemonic = this.#mnemonicToUint8Array(mnemonic);
 
     this.seed = await mnemonicToSeed(
@@ -653,7 +652,7 @@ export class HdKeyring implements Keyring {
    * @param mnemonic - The mnemonic seed phrase to validate.
    * @throws If the mnemonic is invalid.
    */
-  #validateMnemonic(
+  #isValidMnemonic(
     mnemonic: string | number[] | SerializedBuffer | Buffer | Uint8Array,
   ): void {
     let mnemonicString: string;
@@ -672,7 +671,7 @@ export class HdKeyring implements Keyring {
       throw new Error('Eth-Hd-Keyring: Invalid mnemonic format');
     }
 
-    if (!isValidMnemonic(mnemonicString)) {
+    if (!validateMnemonic(mnemonicString, wordlist)) {
       throw new Error(
         'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
       );
