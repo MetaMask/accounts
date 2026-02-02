@@ -608,8 +608,11 @@ export class HdKeyring implements Keyring {
       );
     }
 
-    this.mnemonic = this.#mnemonicToUint8Array(mnemonic);
-    this.#isValidMnemonic(this.mnemonic);
+    // Convert and validate before assigning to instance property
+    // to avoid inconsistent state if validation fails
+    const mnemonicAsUint8Array = this.#mnemonicToUint8Array(mnemonic);
+    this.#isValidMnemonic(mnemonicAsUint8Array);
+    this.mnemonic = mnemonicAsUint8Array;
 
     this.seed = await mnemonicToSeed(
       this.mnemonic,
