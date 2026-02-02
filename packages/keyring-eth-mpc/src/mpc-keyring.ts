@@ -1,5 +1,5 @@
 import type { TypedTransaction } from '@ethereumjs/tx';
-import { hashPersonalMessage, pubToAddress } from '@ethereumjs/util';
+import { hashPersonalMessage } from '@ethereumjs/util';
 import type {
   TypedDataV1,
   TypedMessage,
@@ -40,6 +40,7 @@ import {
   parseInitRole,
   parseSignedTypedDataVersion,
   parseThresholdKeyId,
+  publicKeyToAddressHex,
   toEthSig,
 } from './util';
 
@@ -336,6 +337,6 @@ export class MPCKeyring implements Keyring {
     if (!this.#keyShare) {
       throw new Error(`keyshare not initialized`);
     }
-    return bytesToHex(pubToAddress(this.#keyShare.publicKey, true));
+    return publicKeyToAddressHex(this.#keyShare.publicKey);
   }
 }

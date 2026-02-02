@@ -3,6 +3,7 @@ import {
   concatBytes,
   ecrecover,
   publicToAddress,
+  pubToAddress,
 } from '@ethereumjs/util';
 import type {
   MessageTypes,
@@ -101,7 +102,7 @@ export function toEthSig(
   // `v` directly and skip the costly ecrecover operation.
   // ---------------------------------------------------------------------------
 
-  const expectedAddr = publicToAddressHex(pubKey);
+  const expectedAddr = publicKeyToAddressHex(pubKey);
 
   const checkParity = (parity: bigint): boolean => {
     try {
@@ -215,4 +216,14 @@ export function parseThresholdKeyId(keyId: Json): ThresholdKeyId {
     throw new Error('Invalid key ID');
   }
   return keyId;
+}
+
+/**
+ * Convert a public key to an address.
+ *
+ * @param publicKey - The public key to convert.
+ * @returns The address.
+ */
+export function publicKeyToAddressHex(publicKey: Uint8Array): Hex {
+  return bytesToHex(pubToAddress(publicKey, true));
 }
