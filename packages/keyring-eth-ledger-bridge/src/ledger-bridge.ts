@@ -65,10 +65,6 @@ export type LedgerBridge<T extends LedgerBridgeOptions> = {
 
   getPublicKey(params: GetPublicKeyParams): Promise<GetPublicKeyResponse>;
 
-  getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse>;
-
-  getAppConfiguration(): Promise<AppConfigurationResponse>;
-
   deviceSignTransaction(
     params: LedgerSignTransactionParams,
   ): Promise<LedgerSignTransactionResponse>;
@@ -87,4 +83,11 @@ export type LedgerBridge<T extends LedgerBridgeOptions> = {
    * @returns An object containing appName and version.
    */
   getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse>;
+
+  /**
+   * Method to retrieve the configuration of the running application on the Ledger device.
+   *
+   * @returns An object containing the configuration of the running application.
+   */
+  getAppConfiguration(): Promise<AppConfigurationResponse>;
 };
