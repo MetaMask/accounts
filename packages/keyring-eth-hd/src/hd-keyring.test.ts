@@ -299,6 +299,7 @@ describe('hd-keyring', () => {
       // Invalid mnemonic as raw Buffer
       await expect(
         keyring.deserialize({
+          // @ts-expect-error testing Buffer mnemonic directly
           mnemonic: Buffer.from('invalid mnemonic phrase here', 'utf8'),
           numberOfAccounts: 1,
         }),
@@ -311,6 +312,7 @@ describe('hd-keyring', () => {
       const keyring = new HdKeyring();
 
       await keyring.deserialize({
+        // @ts-expect-error testing Buffer mnemonic directly
         mnemonic: Buffer.from(sampleMnemonic, 'utf8'),
         numberOfAccounts: 1,
       });
@@ -329,6 +331,7 @@ describe('hd-keyring', () => {
       assert(mnemonic, 'Mnemonic should be defined');
 
       await keyring.deserialize({
+        // @ts-expect-error testing Uint8Array mnemonic directly
         mnemonic,
         numberOfAccounts: 1,
       });
