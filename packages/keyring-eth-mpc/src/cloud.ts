@@ -23,8 +23,8 @@ export async function initCloudKeyGen(opts: {
     body: JSON.stringify({
       custodianId: opts.localId,
       nonce: opts.sessionNonce,
-      keyType: 'secp256k1',
-      tssVerifierId: opts.localId, // TODO: remove this once we have updated API
+      protocol: 'cl24-secp256k1',
+      // verifierIds: [], // TODO add this once we get verifier ids from frontend
     }),
   });
 
@@ -66,9 +66,7 @@ export async function initCloudSign(opts: {
       nonce: opts.sessionNonce,
       message: bytesToBase64(opts.message),
       protocol: 'dkls19',
-      tssVerifierId: opts.localId, // TODO: remove this once we have updated API
-      kid: opts.keyId, // TODO: remove this once we have updated API
-      keyType: 'secp256k1', // TODO: remove this once we have updated API
+      // token: 'TODO', // TODO add this once we get token from frontend
     }),
   });
 
