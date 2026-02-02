@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Change `KeyringWrapper.capabilities` from a readonly property to a getter ([#447](https://github.com/MetaMask/accounts/pull/447))
+  - Allows subclasses to override and return capabilities dynamically based on runtime state.
 - Refine `EthAddressStruct` in order to make it compatible with the `Hex` type from `@metamask/utils` ([#405](https://github.com/MetaMask/accounts/pull/405))
 
 ## [21.3.0]
