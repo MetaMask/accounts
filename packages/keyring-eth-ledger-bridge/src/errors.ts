@@ -28,10 +28,7 @@ export function createLedgerError(
   ledgerErrorCode: string,
   context?: string,
 ): HardwareWalletError {
-  const mappings = LEDGER_ERROR_MAPPINGS as {
-    [key: string]: LedgerErrorMapping;
-  };
-  const errorMapping = mappings[ledgerErrorCode];
+  const errorMapping = getLedgerErrorMapping(ledgerErrorCode);
 
   if (errorMapping) {
     const message = context
