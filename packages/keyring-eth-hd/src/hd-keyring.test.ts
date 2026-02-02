@@ -250,7 +250,7 @@ describe('hd-keyring', () => {
       expect(cryptographicFunctions.pbkdf2Sha512).toHaveBeenCalledTimes(1);
     });
 
-    it('throws on invalid mnemonic', async () => {
+    it('throws on invalid mnemonic with wrong number of words', async () => {
       const keyring = new HdKeyring();
 
       await expect(
@@ -259,8 +259,108 @@ describe('hd-keyring', () => {
           numberOfAccounts: 2,
         }),
       ).rejects.toThrow(
-        'Invalid mnemonic phrase: The mnemonic phrase must consist of 12, 15, 18, 21, or 24 words.',
+        'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
       );
+    });
+
+    it('throws on mnemonic with invalid words', async () => {
+      const keyring = new HdKeyring();
+
+      // 12 words but invalid (not in BIP39 wordlist)
+      await expect(
+        keyring.deserialize({
+          mnemonic:
+            'invalid words that are not in the bip39 wordlist at all here',
+          numberOfAccounts: 1,
+        }),
+      ).rejects.toThrow(
+        'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
+      );
+    });
+
+    it('throws on mnemonic with invalid checksum', async () => {
+      const keyring = new HdKeyring();
+
+      // Valid BIP39 words but invalid checksum (last word changed from 'mango' to 'abandon')
+      await expect(
+        keyring.deserialize({
+          mnemonic:
+            'finish oppose decorate face calm tragic certain desk hour urge dinosaur abandon',
+          numberOfAccounts: 1,
+        }),
+      ).rejects.toThrow(
+        'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
+      );
+    });
+
+    it('throws on invalid mnemonic passed as Buffer', async () => {
+      const keyring = new HdKeyring();
+
+      // Invalid mnemonic as raw Buffer
+      await expect(
+        keyring.deserialize({
+          // @ts-expect-error testing Buffer mnemonic directly
+          mnemonic: Buffer.from('invalid mnemonic phrase here', 'utf8'),
+          numberOfAccounts: 1,
+        }),
+      ).rejects.toThrow(
+        'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
+      );
+    });
+
+    it('deserializes valid mnemonic passed as Buffer', async () => {
+      const keyring = new HdKeyring();
+
+      await keyring.deserialize({
+        // @ts-expect-error testing Buffer mnemonic directly
+        mnemonic: Buffer.from(sampleMnemonic, 'utf8'),
+        numberOfAccounts: 1,
+      });
+
+      const accounts = await keyring.getAccounts();
+      expect(accounts[0]).toStrictEqual(firstAcct);
+    });
+
+    it('validates mnemonic passed as Uint8Array with valid mnemonic', async () => {
+      const keyring = new HdKeyring();
+
+      // Serialize a valid keyring to get the Uint8Array format
+      const tempKeyring = new HdKeyring();
+      await tempKeyring.deserialize({ mnemonic: sampleMnemonic });
+      const { mnemonic } = tempKeyring;
+      assert(mnemonic, 'Mnemonic should be defined');
+
+      await keyring.deserialize({
+        // @ts-expect-error testing Uint8Array mnemonic directly
+        mnemonic,
+        numberOfAccounts: 1,
+      });
+
+      const accounts = await keyring.getAccounts();
+      expect(accounts[0]).toStrictEqual(firstAcct);
+    });
+
+    it('validates mnemonic passed as plain object (simulating encryption/decryption cycle)', async () => {
+      const keyring = new HdKeyring();
+
+      const tempKeyring = new HdKeyring();
+      await tempKeyring.deserialize({ mnemonic: sampleMnemonic });
+      const { mnemonic } = tempKeyring;
+      assert(mnemonic, 'Mnemonic should be defined');
+
+      const mnemonicAsPlainObject: Record<string, number> = {};
+      mnemonic.forEach((value, index) => {
+        mnemonicAsPlainObject[index] = value;
+      });
+
+      await keyring.deserialize({
+        // @ts-expect-error testing plain object mnemonic directly
+        mnemonic: mnemonicAsPlainObject,
+        numberOfAccounts: 1,
+      });
+
+      const accounts = await keyring.getAccounts();
+      expect(accounts[0]).toStrictEqual(firstAcct);
     });
 
     it('throws when numberOfAccounts is passed with no mnemonic', async () => {

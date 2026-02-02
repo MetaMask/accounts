@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Wraps legacy `HdKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
   - Extends `EthKeyringWrapper` for common Ethereum logic.
 
+### Fixed
+
+- Enforce mnemonics validation ([#450](https://github.com/MetaMask/accounts/pull/450))
+  - Validates mnemonics against BIP39 specification (word count, wordlist, checksum) before use.
+  - Throws for invalid mnemonics.
+
 ## [13.0.0]
 
 ### Added
