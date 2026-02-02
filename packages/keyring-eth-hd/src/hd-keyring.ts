@@ -611,7 +611,7 @@ export class HdKeyring implements Keyring {
     // Convert and validate before assigning to instance property
     // to avoid inconsistent state if validation fails
     const mnemonicAsUint8Array = this.#mnemonicToUint8Array(mnemonic);
-    this.#isValidMnemonic(mnemonicAsUint8Array);
+    this.#assertValidMnemonic(mnemonicAsUint8Array);
     this.mnemonic = mnemonicAsUint8Array;
 
     this.seed = await mnemonicToSeed(
@@ -648,12 +648,13 @@ export class HdKeyring implements Keyring {
   }
 
   /**
-   * Validate the mnemonic seed phrase.
+   * Assert that the mnemonic seed phrase is valid.
+   * Throws an error if the mnemonic is not a valid BIP39 phrase.
    *
-   * @param mnemonic - The mnemonic seed phrase to validate.
-   * @throws If the mnemonic is invalid.
+   * @param mnemonic - The mnemonic seed phrase to validate (as Uint8Array).
+   * @throws If the mnemonic is not a valid BIP39 secret recovery phrase.
    */
-  #isValidMnemonic(mnemonic: Uint8Array): void {
+  #assertValidMnemonic(mnemonic: Uint8Array): void {
     const mnemonicString = this.#uint8ArrayToString(mnemonic);
     if (!validateMnemonic(mnemonicString, wordlist)) {
       throw new Error(
