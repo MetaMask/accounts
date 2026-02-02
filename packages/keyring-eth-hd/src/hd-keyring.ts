@@ -69,7 +69,7 @@ export type DeserializableHDKeyringState = Omit<
   SerializedHDKeyringState,
   'mnemonic'
 > & {
-  mnemonic: number[] | SerializedBuffer | string;
+  mnemonic: Mnemonic;
 };
 
 /**
