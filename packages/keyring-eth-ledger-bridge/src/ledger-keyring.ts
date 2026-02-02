@@ -25,6 +25,7 @@ import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
 import {
+  AppConfigurationResponse,
   GetAppNameAndVersionResponse,
   LedgerBridge,
   LedgerBridgeOptions,
@@ -342,6 +343,10 @@ export class LedgerKeyring implements Keyring {
         'Ledger: Unknown error while getting app name and version',
       );
     }
+  }
+
+  async getAppConfiguration(): Promise<AppConfigurationResponse> {
+    return await this.bridge.getAppConfiguration();
   }
 
   // tx is an instance of the ethereumjs-transaction class.

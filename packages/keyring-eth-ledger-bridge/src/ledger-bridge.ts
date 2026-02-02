@@ -30,6 +30,14 @@ export type GetAppNameAndVersionResponse = {
   version: string;
 };
 
+export type AppConfigurationResponse = {
+  arbitraryDataEnabled: number; // this is the blind signing support
+  erc20ProvisioningNecessary: number;
+  starkEnabled: number;
+  starkv2Supported: number;
+  version: string;
+};
+
 export type LedgerBridgeOptions = Record<string, unknown>;
 
 export type LedgerBridge<T extends LedgerBridgeOptions> = {
@@ -58,6 +66,8 @@ export type LedgerBridge<T extends LedgerBridgeOptions> = {
   getPublicKey(params: GetPublicKeyParams): Promise<GetPublicKeyResponse>;
 
   getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse>;
+
+  getAppConfiguration(): Promise<AppConfigurationResponse>;
 
   deviceSignTransaction(
     params: LedgerSignTransactionParams,

@@ -1384,6 +1384,45 @@ describe('LedgerKeyring', function () {
       });
     });
 
+    describe('getAppConfiguration', function () {
+      it('returns app configuration from bridge', async function () {
+        const mockResponse = {
+          arbitraryDataEnabled: 1,
+          erc20ProvisioningNecessary: 0,
+          starkEnabled: 0,
+          starkv2Supported: 0,
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(keyring.bridge, 'getAppConfiguration')
+          .mockResolvedValue(mockResponse);
+
+        const result = await keyring.getAppConfiguration();
+
+        expect(result).toStrictEqual(mockResponse);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(keyring.bridge.getAppConfiguration).toHaveBeenCalledTimes(1);
+      });
+
+      it('returns app configuration with blind signing disabled', async function () {
+        const mockResponse = {
+          arbitraryDataEnabled: 0,
+          erc20ProvisioningNecessary: 1,
+          starkEnabled: 0,
+          starkv2Supported: 0,
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(keyring.bridge, 'getAppConfiguration')
+          .mockResolvedValue(mockResponse);
+
+        const result = await keyring.getAppConfiguration();
+
+        expect(result).toStrictEqual(mockResponse);
+        expect(result.arbitraryDataEnabled).toBe(0);
+      });
+    });
+
     describe('destroy', function () {
       it('calls the destroy bridge method', async function () {
         jest.spyOn(keyring.bridge, 'destroy').mockResolvedValue(undefined);

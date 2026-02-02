@@ -1,6 +1,7 @@
 import type Transport from '@ledgerhq/hw-transport';
 
 import {
+  AppConfigurationResponse,
   GetAppNameAndVersionResponse,
   GetPublicKeyParams,
   GetPublicKeyResponse,
@@ -199,6 +200,15 @@ export class LedgerMobileBridge implements MobileBridge {
    */
   async getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse> {
     return this.#getEthApp().getAppNameAndVersion();
+  }
+
+  /**
+   * Method to retrieve the current configuration of the Ethereum application on the Ledger device.
+   *
+   * @returns An object containing the application configuration including blind signing support, ERC20 provisioning status, Stark support, and version.
+   */
+  async getAppConfiguration(): Promise<AppConfigurationResponse> {
+    return this.#getEthApp().getAppConfiguration();
   }
 
   /**
