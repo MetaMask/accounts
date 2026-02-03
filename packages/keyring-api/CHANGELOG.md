@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `bip44:derive-index-range` constructor for `createAccounts` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `bip44:derive-index-range` constructor for `createAccounts` ([#451](https://github.com/MetaMask/accounts/pull/451))
   - This new option allows keyrings to derive multiple accounts at once by specifying a range of BIP-44 indices.
 - Add support for custom capabilities and entropy types in `KeyringV2` ([#415](https://github.com/MetaMask/accounts/pull/415))
   - Add `custom` capability to `KeyringCapabilities` for keyrings with non-standard `createAccounts` method.
