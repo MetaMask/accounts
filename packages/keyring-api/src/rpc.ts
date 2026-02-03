@@ -28,6 +28,7 @@ import {
   PaginationStruct,
   CaipAccountIdStruct,
   DiscoveredAccountStruct,
+  CreateAccountOptionsStruct,
 } from './api';
 
 /**
@@ -134,7 +135,7 @@ export const CreateAccountsRequestStruct = object({
   ...CommonHeader,
   method: literal('keyring_createAccounts'),
   params: object({
-    options: record(string(), JsonStruct),
+    options: CreateAccountOptionsStruct,
   }),
 });
 
