@@ -1,21 +1,11 @@
 import {
-  type ErrorCode,
-  type Severity,
-  type Category,
+  ErrorMapping,
+  ErrorCode,
+  Severity,
+  Category,
   HardwareWalletError,
   LEDGER_ERROR_MAPPINGS,
-  ErrorCode as ErrorCodeEnum,
-  Severity as SeverityEnum,
-  Category as CategoryEnum,
 } from '@metamask/hw-wallet-sdk';
-
-type LedgerErrorMapping = {
-  code: ErrorCode;
-  message: string;
-  severity: Severity;
-  category: Category;
-  userMessage?: string;
-};
 
 /**
  * Factory function to create a HardwareWalletError from a Ledger error code.
@@ -49,9 +39,9 @@ export function createLedgerError(
     : `Unknown Ledger error: ${ledgerErrorCode}`;
 
   return new HardwareWalletError(fallbackMessage, {
-    code: ErrorCodeEnum.Unknown,
-    severity: SeverityEnum.Err,
-    category: CategoryEnum.Unknown,
+    code: ErrorCode.Unknown,
+    severity: Severity.Err,
+    category: Category.Unknown,
     userMessage: fallbackMessage,
   });
 }
@@ -74,9 +64,6 @@ export function isKnownLedgerError(ledgerErrorCode: string): boolean {
  */
 export function getLedgerErrorMapping(
   ledgerErrorCode: string,
-): LedgerErrorMapping | undefined {
-  const mappings = LEDGER_ERROR_MAPPINGS as {
-    [key: string]: LedgerErrorMapping;
-  };
-  return mappings[ledgerErrorCode];
+): ErrorMapping | undefined {
+  return LEDGER_ERROR_MAPPINGS[ledgerErrorCode];
 }

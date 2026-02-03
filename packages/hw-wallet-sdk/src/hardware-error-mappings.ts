@@ -1,6 +1,14 @@
 import { ErrorCode, Severity, Category } from './hardware-errors-enums';
 
-export const LEDGER_ERROR_MAPPINGS = {
+export type ErrorMapping = {
+  code: ErrorCode;
+  message: string;
+  severity: Severity;
+  category: Category;
+  userMessage?: string;
+};
+
+export const LEDGER_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
   '0x9000': {
     code: ErrorCode.Success,
     message: 'Operation successful',
