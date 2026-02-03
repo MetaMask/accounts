@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add support for account derivations using range of indices in `KeyringV2` ([#451](https://github.com/MetaMask/accounts/pull/451))
+  - Add `bip44:derive-index-range` capability to `KeyringCapabilities`.
+  - Add `AccountCreationType.Bip44DeriveIndexRange` and `CreateAccountBip44DeriveIndexRangeOptions`.
 - Add support for custom capabilities and entropy types in `KeyringV2` ([#415](https://github.com/MetaMask/accounts/pull/415))
   - Add `custom` capability to `KeyringCapabilities` for keyrings with non-standard `createAccounts` method.
   - Add `KeyringAccountEntropyTypeOption.Custom` for custom/opaque entropy sources.
@@ -27,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add initial `Keyringv2` interface ([#397](https://github.com/MetaMask/accounts/pull/397))
+- Add initial `KeyringV2` interface ([#397](https://github.com/MetaMask/accounts/pull/397))
   - This is an on-going work and should not be used for now.
 - Add new Tron methods `signMessage` and `signTransaction` ([#401](https://github.com/MetaMask/accounts/pull/401))
 

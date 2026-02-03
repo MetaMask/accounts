@@ -43,6 +43,7 @@ const hdKeyringV2Capabilities: KeyringCapabilities = {
   bip44: {
     deriveIndex: true,
     derivePath: false,
+    deriveIndexRange: false,
     discover: false,
   },
   privateKey: {
