@@ -4,6 +4,7 @@ import { type Infer } from '@metamask/superstruct';
 import {
   CreateAccountBip44DiscoverOptionsStruct,
   CreateAccountBip44DeriveIndexOptionsStruct,
+  CreateAccountBip44DeriveIndexRangeOptionsStruct,
   CreateAccountBip44DerivePathOptionsStruct,
 } from './bip44';
 import { CreateAccountCustomOptionsStruct } from './custom';
@@ -30,6 +31,15 @@ export enum AccountCreationType {
    * index.
    */
   Bip44DeriveIndex = 'bip44:derive-index',
+
+  /**
+   * Represents accounts created by deriving a range of BIP-44 account indices.
+   *
+   * More than one account can be created per index, for example, the keyring
+   * can create multiple account types (e.g., P2PKH, P2TR, P2WPKH) for each
+   * account index in the range.
+   */
+  Bip44DeriveIndexRange = 'bip44:derive-index-range',
 
   /**
    * Represents accounts created through BIP-44 account discovery.
@@ -64,6 +74,8 @@ export const CreateAccountOptionsStruct = selectiveUnion((value: any) => {
       return CreateAccountBip44DerivePathOptionsStruct;
     case AccountCreationType.Bip44DeriveIndex:
       return CreateAccountBip44DeriveIndexOptionsStruct;
+    case AccountCreationType.Bip44DeriveIndexRange:
+      return CreateAccountBip44DeriveIndexRangeOptionsStruct;
     case AccountCreationType.Bip44Discover:
       return CreateAccountBip44DiscoverOptionsStruct;
     case AccountCreationType.PrivateKeyImport:

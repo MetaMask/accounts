@@ -204,6 +204,7 @@ describe('TrezorKeyringV2', () => {
         bip44: {
           deriveIndex: true,
           derivePath: true,
+          deriveIndexRange: false,
           discover: false,
         },
       });

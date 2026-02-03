@@ -67,6 +67,7 @@ describe('HdKeyringV2', () => {
       expect(wrapper.capabilities.scopes).toStrictEqual([EthScope.Eoa]);
       expect(wrapper.capabilities.bip44?.deriveIndex).toBe(true);
       expect(wrapper.capabilities.bip44?.derivePath).toBe(false);
+      expect(wrapper.capabilities.bip44?.deriveIndexRange).toBe(false);
       expect(wrapper.capabilities.bip44?.discover).toBe(false);
     });
   });

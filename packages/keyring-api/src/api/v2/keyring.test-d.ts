@@ -63,6 +63,7 @@ expectAssignable<KeyringCapabilities>({
   bip44: {
     derivePath: true,
     deriveIndex: true,
+    deriveIndexRange: true,
     discover: false,
   },
 });

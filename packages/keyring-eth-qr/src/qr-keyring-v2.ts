@@ -37,6 +37,7 @@ const HD_MODE_CAPABILITIES: KeyringCapabilities = {
   bip44: {
     deriveIndex: true,
     derivePath: false,
+    deriveIndexRange: false,
     discover: false,
   },
 };
