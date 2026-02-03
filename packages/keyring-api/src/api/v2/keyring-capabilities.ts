@@ -36,6 +36,10 @@ export const KeyringCapabilitiesStruct = object({
        */
       deriveIndex: boolean(),
       /**
+       * Whether the keyring supports deriving accounts from a range of BIP-44 account indices.
+       */
+      deriveIndexRange: boolean(),
+      /**
        * Whether the keyring supports BIP-44 account discovery.
        */
       discover: boolean(),
@@ -82,6 +86,7 @@ export const KeyringCapabilitiesStruct = object({
  *   bip44: {
  *     derivePath: true,
  *     deriveIndex: true,
+ *     deriveIndexRange: true,
  *     discover: true,
  *   },
  *   privateKey: {

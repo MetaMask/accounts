@@ -211,6 +211,7 @@ describe('QrKeyringV2', () => {
         bip44: {
           deriveIndex: true,
           derivePath: false,
+          deriveIndexRange: false,
           discover: false,
         },
       });
@@ -355,6 +356,7 @@ describe('QrKeyringV2', () => {
         bip44: {
           deriveIndex: true,
           derivePath: false,
+          deriveIndexRange: false,
           discover: false,
         },
       });
@@ -402,6 +404,7 @@ describe('QrKeyringV2', () => {
         bip44: {
           deriveIndex: true,
           derivePath: false,
+          deriveIndexRange: false,
           discover: false,
         },
       });
