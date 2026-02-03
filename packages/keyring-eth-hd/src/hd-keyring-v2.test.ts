@@ -66,9 +66,9 @@ describe('HdKeyringV2', () => {
       expect(wrapper.type).toBe(KeyringType.Hd);
       expect(wrapper.capabilities.scopes).toStrictEqual([EthScope.Eoa]);
       expect(wrapper.capabilities.bip44?.deriveIndex).toBe(true);
-      expect(wrapper.capabilities.bip44?.derivePath).toBe(false);
-      expect(wrapper.capabilities.bip44?.deriveIndexRange).toBe(false);
-      expect(wrapper.capabilities.bip44?.discover).toBe(false);
+      expect(wrapper.capabilities.bip44?.derivePath).toBeUndefined();
+      expect(wrapper.capabilities.bip44?.deriveIndexRange).toBeUndefined();
+      expect(wrapper.capabilities.bip44?.discover).toBeUndefined();
     });
   });
 

@@ -36,9 +36,6 @@ const HD_MODE_CAPABILITIES: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   bip44: {
     deriveIndex: true,
-    derivePath: false,
-    deriveIndexRange: false,
-    discover: false,
   },
 };
 

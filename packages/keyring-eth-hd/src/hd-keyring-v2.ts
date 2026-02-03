@@ -42,9 +42,6 @@ const hdKeyringV2Capabilities: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   bip44: {
     deriveIndex: true,
-    derivePath: false,
-    deriveIndexRange: false,
-    discover: false,
   },
   privateKey: {
     exportFormats: [{ encoding: PrivateKeyEncoding.Hexadecimal }],
