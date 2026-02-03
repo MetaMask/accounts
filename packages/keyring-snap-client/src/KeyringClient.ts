@@ -125,7 +125,7 @@ export class KeyringClient implements Keyring {
     return strictMask(
       await this.send({
         method: KeyringRpcMethod.CreateAccounts,
-        params: options,
+        params: { options },
       }),
       CreateAccountsResponseStruct,
     );
