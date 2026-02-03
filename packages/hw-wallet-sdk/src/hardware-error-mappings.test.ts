@@ -3,11 +3,19 @@ import {
   BLE_ERROR_MAPPINGS,
   MOBILE_ERROR_MAPPINGS,
 } from './hardware-error-mappings';
+import type { ErrorMapping } from './hardware-error-mappings';
 import { ErrorCode, Severity, Category } from './hardware-errors-enums';
 
 describe('HARDWARE_ERROR_MAPPINGS', () => {
   describe('Ledger mappings', () => {
     const errorMappings = LEDGER_ERROR_MAPPINGS;
+    const getLedgerMapping = (code: string): ErrorMapping => {
+      const mapping = errorMappings[code];
+      if (!mapping) {
+        throw new Error(`Missing Ledger mapping for ${code}`);
+      }
+      return mapping;
+    };
 
     it('has errorMappings object', () => {
       expect(errorMappings).toBeDefined();
@@ -16,7 +24,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
 
     describe('success codes', () => {
       it('map 0x9000 to success', () => {
-        const mapping = errorMappings['0x9000'];
+        const mapping = getLedgerMapping('0x9000');
         expect(mapping).toBeDefined();
         expect(mapping.code).toBe(ErrorCode.Success);
         expect(mapping.severity).toBe(Severity.Info);
@@ -26,7 +34,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
 
     describe('authentication errors', () => {
       it('map 0x6300 to authentication failed', () => {
-        const mapping = errorMappings['0x6300'];
+        const mapping = getLedgerMapping('0x6300');
         expect(mapping.code).toBe(ErrorCode.AuthenticationFailed);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.category).toBe(Category.Authentication);
@@ -34,20 +42,20 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       });
 
       it('map 0x63c0 to PIN attempts remaining', () => {
-        const mapping = errorMappings['0x63c0'];
+        const mapping = getLedgerMapping('0x63c0');
         expect(mapping.code).toBe(ErrorCode.AuthenticationPinAttemptsRemaining);
         expect(mapping.severity).toBe(Severity.Warning);
       });
 
       it('map 0x5515 to device locked', () => {
-        const mapping = errorMappings['0x5515'];
+        const mapping = getLedgerMapping('0x5515');
         expect(mapping.code).toBe(ErrorCode.AuthenticationDeviceLocked);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.userMessage).toContain('unlock');
       });
 
       it('map 0x9840 to device blocked', () => {
-        const mapping = errorMappings['0x9840'];
+        const mapping = getLedgerMapping('0x9840');
         expect(mapping.code).toBe(ErrorCode.AuthenticationDeviceBlocked);
         expect(mapping.severity).toBe(Severity.Critical);
       });
@@ -55,21 +63,21 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
 
     describe('user action errors', () => {
       it('map 0x6985 to user rejected', () => {
-        const mapping = errorMappings['0x6985'];
+        const mapping = getLedgerMapping('0x6985');
         expect(mapping.code).toBe(ErrorCode.UserRejected);
         expect(mapping.severity).toBe(Severity.Warning);
         expect(mapping.category).toBe(Category.UserAction);
       });
 
       it('map 0x5501 to user refused', () => {
-        const mapping = errorMappings['0x5501'];
+        const mapping = getLedgerMapping('0x5501');
         expect(mapping.code).toBe(ErrorCode.UserRejected);
         expect(mapping.severity).toBe(Severity.Warning);
       });
     });
     describe('connection errors', () => {
       it('map 0x650f to connection issue', () => {
-        const mapping = errorMappings['0x650f'];
+        const mapping = getLedgerMapping('0x650f');
         expect(mapping.code).toBe(ErrorCode.ConnectionClosed);
         expect(mapping.category).toBe(Category.Connection);
       });
@@ -77,7 +85,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
 
     describe('device state errors', () => {
       it('maps 0x6f00 to device unresponsive', () => {
-        const mapping = errorMappings['0x6f00'];
+        const mapping = getLedgerMapping('0x6f00');
         expect(mapping.code).toBe(ErrorCode.DeviceUnresponsive);
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.category).toBe(Category.DeviceState);
@@ -86,7 +94,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
     });
 
     it('has valid structure for all mappings', () => {
-      Object.entries(errorMappings).forEach(([_, mapping]) => {
+      Object.values(errorMappings).forEach((mapping) => {
         expect(mapping).toHaveProperty('code');
         expect(mapping).toHaveProperty('message');
         expect(mapping).toHaveProperty('severity');
@@ -173,7 +181,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
     });
 
     it('has valid structure for all mappings', () => {
-      Object.entries(errorMappings).forEach(([_, mapping]) => {
+      Object.values(errorMappings).forEach((mapping) => {
         expect(mapping).toHaveProperty('code');
         expect(mapping).toHaveProperty('message');
         expect(mapping).toHaveProperty('severity');
@@ -206,7 +214,7 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
     });
 
     it('has valid structure for all mappings', () => {
-      Object.entries(errorMappings).forEach(([_, mapping]) => {
+      Object.values(errorMappings).forEach((mapping) => {
         expect(mapping).toHaveProperty('code');
         expect(mapping).toHaveProperty('message');
         expect(mapping).toHaveProperty('severity');

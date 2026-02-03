@@ -19,7 +19,6 @@ import { LedgerMobileBridgeOptions } from './type';
 
 // MobileBridge Type will always use LedgerBridge with LedgerMobileBridgeOptions
 export type MobileBridge = LedgerBridge<LedgerMobileBridgeOptions> & {
-  getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse>;
   openEthApp(): Promise<void>;
   closeApps(): Promise<void>;
 };
