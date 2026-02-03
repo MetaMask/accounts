@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- export `ErrorMapping` type ([#446](https://github.com/MetaMask/accounts/pull/446))
+
 ## [0.2.0]
 
 ### Added
