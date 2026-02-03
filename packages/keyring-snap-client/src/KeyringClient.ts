@@ -1,6 +1,7 @@
 import {
   ApproveRequestResponseStruct,
   CreateAccountResponseStruct,
+  CreateAccountsResponseStruct,
   DeleteAccountResponseStruct,
   ExportAccountResponseStruct,
   FilterAccountChainsResponseStruct,
@@ -34,6 +35,7 @@ import type {
   CaipAssetTypeOrId,
   EntropySourceId,
   DiscoveredAccount,
+  CreateAccountOptions,
 } from '@metamask/keyring-api';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
@@ -114,6 +116,18 @@ export class KeyringClient implements Keyring {
         params: { options },
       }),
       CreateAccountResponseStruct,
+    );
+  }
+
+  async createAccounts(
+    options: CreateAccountOptions,
+  ): Promise<KeyringAccount[]> {
+    return strictMask(
+      await this.send({
+        method: KeyringRpcMethod.CreateAccounts,
+        params: options,
+      }),
+      CreateAccountsResponseStruct,
     );
   }
 

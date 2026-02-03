@@ -14,6 +14,7 @@ import type {
   CaipChainId,
   MetaMaskOptions,
   KeyringResponse,
+  CreateAccountOptions,
 } from '@metamask/keyring-api';
 import {
   EthBytesStruct,
@@ -889,6 +890,39 @@ export class SnapKeyring {
         },
       } as MetaMaskOptions),
     });
+  }
+
+  /**
+   * Create one or more accounts according to the provided options.
+   *
+   * This method supports batch account creation for BIP-44 derivation paths,
+   * allowing the creation of multiple accounts up to a specified maximum index.
+   *
+   * @param snapId - Snap ID to create the accounts for.
+   * @param options - Account creation options.
+   * @returns A promise that resolves to an array of the created account objects.
+   */
+  async createAccounts(
+    snapId: SnapId,
+    options: CreateAccountOptions,
+  ): Promise<KeyringAccount[]> {
+    const client = new KeyringInternalSnapClient({
+      messenger: this.#messenger,
+      snapId,
+    });
+
+    // Add each returned account to the internal accounts map.
+    // NOTE: This method DOES NOT rely on the `AccountCreated` event to add
+    // accounts to the keyring, since those accounts are created in batch.
+    const accounts = await client.createAccounts(options);
+    for (const account of accounts) {
+      this.#accounts.set(account.id, { account, snapId });
+    }
+
+    // Save the state after adding all accounts.
+    await this.#callbacks.saveState();
+
+    return accounts;
   }
 
   /**
