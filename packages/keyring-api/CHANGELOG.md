@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add initial `Keyringv2` interface ([#397](https://github.com/MetaMask/accounts/pull/397))
+- Add initial `KeyringV2` interface ([#397](https://github.com/MetaMask/accounts/pull/397))
   - This is an on-going work and should not be used for now.
 - Add new Tron methods `signMessage` and `signTransaction` ([#401](https://github.com/MetaMask/accounts/pull/401))
 
