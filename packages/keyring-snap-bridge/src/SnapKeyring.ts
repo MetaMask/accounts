@@ -916,6 +916,15 @@ export class SnapKeyring {
     // accounts to the keyring, since those accounts are created in batch.
     const accounts = await client.createAccounts(options);
     for (const account of accounts) {
+      // The `AnyAccountType.Account` generic account type is allowed only during
+      // development, so we check whether it's allowed before continuing.
+      if (
+        !this.#isAnyAccountTypeAllowed &&
+        account.type === AnyAccountType.Account
+      ) {
+        throw new Error(`Cannot create generic account '${account.id}'`);
+      }
+
       this.#accounts.set(account.id, { account, snapId });
     }
 

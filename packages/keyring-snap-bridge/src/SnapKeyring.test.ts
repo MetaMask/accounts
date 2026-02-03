@@ -2576,7 +2576,7 @@ describe('SnapKeyring', () => {
       const result = await keyring.createAccounts(snapId, options);
 
       expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
-        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, options),
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
       );
 
       // Verify all accounts were returned
@@ -2622,7 +2622,7 @@ describe('SnapKeyring', () => {
       const result = await keyring.createAccounts(snapId, options);
 
       expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
-        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, options),
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
       );
 
       expect(result).toStrictEqual(accountToCreate);
@@ -2658,7 +2658,7 @@ describe('SnapKeyring', () => {
       const result = await keyring.createAccounts(snapId, options);
 
       expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
-        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, options),
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
       );
 
       expect(result).toStrictEqual(accountsToCreate);
@@ -2737,6 +2737,40 @@ describe('SnapKeyring', () => {
         expect(createdAccount).toBeDefined();
         expect(createdAccount?.metadata.snap?.id).toBe(snapId);
       }
+    });
+
+    it('throws an error when creating generic accounts if not allowed', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      // Create a keyring with isAnyAccountTypeAllowed = false
+      const restrictedKeyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+        isAnyAccountTypeAllowed: false,
+      });
+
+      const genericAccount = {
+        ...newAccount1,
+        type: AnyAccountType.Account,
+      };
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => [genericAccount],
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      await expect(
+        restrictedKeyring.createAccounts(snapId, options),
+      ).rejects.toThrow(`Cannot create generic account '${genericAccount.id}'`);
+
+      // State should not be saved if validation fails
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
   });
 
