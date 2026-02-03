@@ -14,6 +14,7 @@ describe('handleKeyringRequest', () => {
     listAccounts: jest.fn(),
     getAccount: jest.fn(),
     createAccount: jest.fn(),
+    createAccounts: jest.fn(),
     discoverAccounts: jest.fn(),
     listAccountTransactions: jest.fn(),
     listAccountAssets: jest.fn(),
@@ -118,6 +119,55 @@ describe('handleKeyringRequest', () => {
 
     expect(keyring.createAccount).toHaveBeenCalledWith({});
     expect(result).toBe('CreateAccount result');
+  });
+
+  it('calls `keyring_createAccounts`', async () => {
+    const options = {
+      type: 'bip44:derive-index-range',
+      entropySource: '01JQCAKR17JARQXZ0NDP760N1K',
+      range: {
+        from: 0,
+        to: 2,
+      },
+    };
+
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: 'keyring_createAccounts',
+      params: { options },
+    };
+
+    keyring.createAccounts.mockResolvedValue('CreateAccounts result');
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.createAccounts).toHaveBeenCalledWith(options);
+    expect(result).toBe('CreateAccounts result');
+  });
+
+  it('throws an error if `keyring_createAccounts` is not implemented', async () => {
+    const options = {
+      type: 'bip44:derive-index-range',
+      entropySource: '01JQCAKR17JARQXZ0NDP760N1K',
+      range: {
+        from: 0,
+        to: 2,
+      },
+    };
+
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: 'keyring_createAccounts',
+      params: { options },
+    };
+
+    const partialKeyring: Keyring = { ...keyring };
+    delete partialKeyring.createAccounts;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      'Method not supported: keyring_createAccounts',
+    );
   });
 
   it('calls `keyring_discoverAccounts`', async () => {
