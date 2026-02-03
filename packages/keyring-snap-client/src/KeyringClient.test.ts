@@ -1,4 +1,9 @@
-import { BtcMethod, BtcScope, KeyringRpcMethod } from '@metamask/keyring-api';
+import {
+  AccountCreationType,
+  BtcMethod,
+  BtcScope,
+  KeyringRpcMethod,
+} from '@metamask/keyring-api';
 import type {
   KeyringAccount,
   KeyringRequest,
@@ -7,6 +12,7 @@ import type {
   CaipAssetType,
   CaipAssetTypeOrId,
   DiscoveredAccount,
+  CreateAccountOptions,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
@@ -269,6 +275,107 @@ describe('KeyringClient', () => {
   // Private/Internal methods (meant to be used by MetaMask)
 
   const client = keyringClient;
+
+  describe('createAccounts', () => {
+    const entropySource = '01JQCAKR17JARQXZ0NDP760N1K';
+
+    it('should send a request to create multiple accounts and return the response', async () => {
+      const expectedResponse: KeyringAccount[] = [
+        {
+          id: '49116980-0712-4fa5-b045-e4294f1d440e',
+          address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
+          options: {},
+          methods: [],
+          scopes: ['eip155:0'],
+          type: 'eip155:eoa',
+        },
+        {
+          id: '6d9e5e9a-8f9c-4b3a-9e3a-1e5c7f8a9b0c',
+          address: '0x1234567890123456789012345678901234567890',
+          options: {},
+          methods: [],
+          scopes: ['eip155:0'],
+          type: 'eip155:eoa',
+        },
+      ];
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndexRange,
+        entropySource,
+        range: {
+          from: 0,
+          to: 2,
+        },
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const accounts = await client.createAccounts(options);
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_createAccounts',
+        params: options,
+      });
+      expect(accounts).toStrictEqual(expectedResponse);
+    });
+
+    it('should handle creating accounts with a single index', async () => {
+      const expectedResponse: KeyringAccount[] = [
+        {
+          id: '49116980-0712-4fa5-b045-e4294f1d440e',
+          address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
+          options: {},
+          methods: [],
+          scopes: ['eip155:0'],
+          type: 'eip155:eoa',
+        },
+      ];
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        groupIndex: 0,
+        entropySource,
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const accounts = await client.createAccounts(options);
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_createAccounts',
+        params: options,
+      });
+      expect(accounts).toStrictEqual(expectedResponse);
+      expect(accounts).toHaveLength(1);
+    });
+
+    it('should handle creating accounts with custom options', async () => {
+      const expectedResponse: KeyringAccount[] = [
+        {
+          id: '49116980-0712-4fa5-b045-e4294f1d440e',
+          address: '0xE9A74AACd7df8112911ca93260fC5a046f8a64Ae',
+          options: {},
+          methods: [],
+          scopes: ['eip155:0'],
+          type: 'eip155:eoa',
+        },
+      ];
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Custom,
+      };
+
+      mockSender.send.mockResolvedValue(expectedResponse);
+      const accounts = await client.createAccounts(options);
+      expect(mockSender.send).toHaveBeenCalledWith({
+        jsonrpc: '2.0',
+        id: expect.any(String),
+        method: 'keyring_createAccounts',
+        params: options,
+      });
+      expect(accounts).toStrictEqual(expectedResponse);
+    });
+  });
 
   describe('discoverAccounts', () => {
     const scopes = [BtcScope.Mainnet, BtcScope.Testnet];
