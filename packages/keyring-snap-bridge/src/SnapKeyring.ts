@@ -983,7 +983,10 @@ export class SnapKeyring {
     } catch (error) {
       // Rollback Snap state if something went wrong during account creation.
       for (const account of snapAccounts) {
-        await this.#deleteAccount(snapId, account);
+        // Make sure to only delete accounts that were not part of the keyring state.
+        if (!this.#isAccountAlreadyKnown(snapId, account)) {
+          await this.#deleteAccount(snapId, account);
+        }
       }
 
       throw error;
