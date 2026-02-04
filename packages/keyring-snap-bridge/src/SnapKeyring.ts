@@ -900,6 +900,9 @@ export class SnapKeyring {
    * options should always return the same accounts, even if the accounts
    * already exist in the keyring.
    *
+   * NOTE: If generic accounts are not allowed, this method will skip their
+   * creation and ask the Snap to remove them from its state.
+   *
    * @param snapId - Snap ID to create the account(s) for.
    * @param options - Options describing how to create the account(s).
    * @returns An array of the created account objects.
@@ -913,24 +916,43 @@ export class SnapKeyring {
       snapId,
     });
 
-    // Add each returned account to the internal accounts map.
+    const unsupportedAccountIds = [];
+
     // NOTE: This method DOES NOT rely on the `AccountCreated` event to add
     // accounts to the keyring, since those accounts are created in batch.
-    const accounts = await client.createAccounts(options);
-    for (const account of accounts) {
+    const snapAccounts = await client.createAccounts(options);
+
+    // Add each returned account to the internal accounts map and maybe filter
+    // unsupported generic accounts.
+    const accounts = [];
+    for (const account of snapAccounts) {
       // The `AnyAccountType.Account` generic account type is allowed only during
       // development, so we check whether it's allowed before continuing.
       if (
         !this.#isAnyAccountTypeAllowed &&
         account.type === AnyAccountType.Account
       ) {
-        throw new Error(`Cannot create generic account '${account.id}'`);
+        console.warn(
+          `SnapKeyring - Found an unsupported generic account: ${account.id}`,
+        );
+        unsupportedAccountIds.push(account.id);
+
+        continue; // Skip adding this account.
       }
 
+      // Update the internal accounts map since `createAccounts` does not register
+      // them through the `AccountCreated` event.
       this.#accounts.set(account.id, { account, snapId });
+
+      accounts.push(account);
     }
 
-    // Save the state after adding all accounts.
+    // Cleanup if we found unsupported accounts to avoid avoid "dangling" accounts
+    // on the Snap side.
+    for (const accountId of unsupportedAccountIds) {
+      await client.deleteAccount(accountId);
+    }
+
     await this.#callbacks.saveState();
 
     return accounts;

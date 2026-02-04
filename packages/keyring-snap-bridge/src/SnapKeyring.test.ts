@@ -2739,9 +2739,11 @@ describe('SnapKeyring', () => {
       }
     });
 
-    it('throws an error when creating generic accounts if not allowed', async () => {
+    it('skips and cleans up unsupported generic accounts when not allowed', async () => {
       mockCallbacks.addAccount.mockClear();
       mockCallbacks.saveState.mockClear();
+
+      mockMessenger.get.mockReturnValue(snapMetadata);
 
       // Create a keyring with isAnyAccountTypeAllowed = false
       const restrictedKeyring = new SnapKeyring({
@@ -2752,11 +2754,26 @@ describe('SnapKeyring', () => {
 
       const genericAccount = {
         ...newAccount1,
+        id: 'aa11bb22-cc33-4d44-8e55-ff6677889900',
+        address: '0xaabbccddee00112233445566778899aabbccddee',
         type: AnyAccountType.Account,
       };
 
+      const supportedAccount = {
+        ...newAccount2,
+        id: 'bb11bb22-cc33-4d44-9e55-ff6677889900',
+        address: '0xbbccddee00112233445566778899aabbccddeeff',
+        type: EthAccountType.Eoa,
+      };
+
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
       mockMessengerHandleRequest({
-        [KeyringRpcMethod.CreateAccounts]: async () => [genericAccount],
+        [KeyringRpcMethod.CreateAccounts]: async () => [
+          genericAccount,
+          supportedAccount,
+        ],
+        [KeyringRpcMethod.DeleteAccount]: async () => null,
       });
 
       const options: CreateAccountOptions = {
@@ -2765,12 +2782,31 @@ describe('SnapKeyring', () => {
         groupIndex: 0,
       };
 
-      await expect(
-        restrictedKeyring.createAccounts(snapId, options),
-      ).rejects.toThrow(`Cannot create generic account '${genericAccount.id}'`);
+      const result = await restrictedKeyring.createAccounts(snapId, options);
 
-      // State should not be saved if validation fails
-      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
+      expect(result).toHaveLength(1);
+      expect(result).not.toContain(genericAccount);
+      expect(result).toContain(supportedAccount);
+      expect(
+        restrictedKeyring.getAccountByAddress(genericAccount.address),
+      ).toBeUndefined();
+      expect(
+        restrictedKeyring.getAccountByAddress(supportedAccount.address),
+      ).toBeDefined();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        `SnapKeyring - Found an unsupported generic account: ${genericAccount.id}`,
+      );
+
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith(
+        mockKeyringRpcRequest(KeyringRpcMethod.DeleteAccount, {
+          id: genericAccount.id,
+        }),
+      );
+
+      expect(mockCallbacks.saveState).toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
     });
   });
 
