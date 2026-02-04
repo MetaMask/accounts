@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.2.0]
+
 ### Added
 
 - Add `LedgerKeyringV2` class implementing `KeyringV2` interface ([#416](https://github.com/MetaMask/accounts/pull/416)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#453](https://github.com/MetaMask/accounts/pull/453))
@@ -352,7 +354,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.1.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.2.0...HEAD
+[11.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.1.2...@metamask/eth-ledger-bridge-keyring@11.2.0
 [11.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.1.1...@metamask/eth-ledger-bridge-keyring@11.1.2
 [11.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.1.0...@metamask/eth-ledger-bridge-keyring@11.1.1
 [11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.0.3...@metamask/eth-ledger-bridge-keyring@11.1.0
