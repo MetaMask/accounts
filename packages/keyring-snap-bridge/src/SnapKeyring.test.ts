@@ -2682,7 +2682,7 @@ describe('SnapKeyring', () => {
       const result = await keyring.createAccounts(snapId, options);
 
       expect(result).toStrictEqual([]);
-      expect(mockCallbacks.saveState).toHaveBeenCalled();
+      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(0);
       expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
     });
 
@@ -2795,7 +2795,7 @@ describe('SnapKeyring', () => {
       ).toBeDefined();
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        `SnapKeyring - Found an unsupported generic account: ${genericAccount.id}`,
+        `SnapKeyring - Cannot create generic account '${genericAccount.id}' - Skipping account: ${genericAccount.id}.`,
       );
 
       expect(mockMessenger.handleRequest).toHaveBeenCalledWith(
@@ -2807,6 +2807,85 @@ describe('SnapKeyring', () => {
       expect(mockCallbacks.saveState).toHaveBeenCalled();
 
       consoleSpy.mockRestore();
+    });
+
+    it('handles idempotent account creation by skipping existing accounts', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      mockMessenger.get.mockReturnValue(snapMetadata);
+
+      const accountsToCreate = [newAccount1, newAccount2];
+
+      // First call: create accounts
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => accountsToCreate,
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      const firstResult = await keyring.createAccounts(snapId, options);
+
+      // Verify accounts were created
+      expect(firstResult).toHaveLength(2);
+      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(1);
+
+      // Clear mocks for second call
+      mockCallbacks.saveState.mockClear();
+
+      // Second call: same accounts should be skipped (idempotent)
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => accountsToCreate,
+      });
+
+      const secondResult = await keyring.createAccounts(snapId, options);
+
+      // Should return the same accounts (idempotent behavior)
+      expect(secondResult).toHaveLength(2);
+      expect(secondResult).toStrictEqual(accountsToCreate);
+
+      // No new accounts should be added, so saveState should not be called again
+      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(0);
+
+      // Verify the original accounts still exist and weren't duplicated
+      for (const account of accountsToCreate) {
+        const existingAccount = keyring.getAccountByAddress(account.address);
+        expect(existingAccount).toBeDefined();
+        expect(existingAccount?.id).toBe(account.id);
+      }
+    });
+
+    it('throws non-AccountError exceptions during account validation', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      const accountToCreate = [newAccount1];
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => accountToCreate,
+      });
+
+      // Mock addressExists to throw a non-AccountError
+      const error = 'KeyringController is locked';
+      mockCallbacks.addressExists.mockRejectedValue(new Error(error));
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      // Should propagate non-AccountError exceptions
+      await expect(keyring.createAccounts(snapId, options)).rejects.toThrow(
+        error,
+      );
+
+      // State should not be saved when an unexpected error occurs
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
   });
 
