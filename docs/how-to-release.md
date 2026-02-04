@@ -66,5 +66,5 @@ way and commit those changes.
 
 If the release process errors out because of CHANGELOG validation issues, follow these steps:
 
-1. Correct the CHANGELOG entries that caused the error
-2. Run `yarn create-release-branch` to continue the release process
+1. Correct the CHANGELOG entries that caused the error.
+2. Run `yarn create-release-branch` to continue the release process.
