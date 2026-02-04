@@ -2739,11 +2739,9 @@ describe('SnapKeyring', () => {
       }
     });
 
-    it('skips and cleans up unsupported generic accounts when not allowed', async () => {
+    it('throws error and rolls back Snap state when encountering unsupported accounts', async () => {
       mockCallbacks.addAccount.mockClear();
       mockCallbacks.saveState.mockClear();
-
-      mockMessenger.get.mockReturnValue(snapMetadata);
 
       // Create a keyring with isAnyAccountTypeAllowed = false
       const restrictedKeyring = new SnapKeyring({
@@ -2752,26 +2750,24 @@ describe('SnapKeyring', () => {
         isAnyAccountTypeAllowed: false,
       });
 
-      const genericAccount = {
+      const supportedAccount = {
         ...newAccount1,
         id: 'aa11bb22-cc33-4d44-8e55-ff6677889900',
         address: '0xaabbccddee00112233445566778899aabbccddee',
-        type: AnyAccountType.Account,
-      };
-
-      const supportedAccount = {
-        ...newAccount2,
-        id: 'bb11bb22-cc33-4d44-9e55-ff6677889900',
-        address: '0xbbccddee00112233445566778899aabbccddeeff',
         type: EthAccountType.Eoa,
       };
 
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const genericAccount = {
+        ...newAccount2,
+        id: 'bb11bb22-cc33-4d44-9e55-ff6677889900',
+        address: '0xbbccddee00112233445566778899aabbccddeeff',
+        type: AnyAccountType.Account,
+      };
 
       mockMessengerHandleRequest({
         [KeyringRpcMethod.CreateAccounts]: async () => [
-          genericAccount,
           supportedAccount,
+          genericAccount,
         ],
         [KeyringRpcMethod.DeleteAccount]: async () => null,
       });
@@ -2782,31 +2778,42 @@ describe('SnapKeyring', () => {
         groupIndex: 0,
       };
 
-      const result = await restrictedKeyring.createAccounts(snapId, options);
+      // Should throw error when encountering unsupported account
+      await expect(
+        restrictedKeyring.createAccounts(snapId, options),
+      ).rejects.toThrow(`Cannot create generic account '${genericAccount.id}'`);
 
-      expect(result).toHaveLength(1);
-      expect(result).not.toContain(genericAccount);
-      expect(result).toContain(supportedAccount);
-      expect(
-        restrictedKeyring.getAccountByAddress(genericAccount.address),
-      ).toBeUndefined();
-      expect(
-        restrictedKeyring.getAccountByAddress(supportedAccount.address),
-      ).toBeDefined();
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        `SnapKeyring - Cannot create generic account '${genericAccount.id}' - Skipping account: ${genericAccount.id}.`,
+      // We still have sent a Snap request to create accounts
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        1,
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
       );
 
-      expect(mockMessenger.handleRequest).toHaveBeenCalledWith(
+      // BUT, we should roll back Snap state by deleting the accounts that were created
+      // since generic accounts are not allowed in this keyring configuration
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        2,
+        mockKeyringRpcRequest(KeyringRpcMethod.DeleteAccount, {
+          id: supportedAccount.id,
+        }),
+      );
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        3,
         mockKeyringRpcRequest(KeyringRpcMethod.DeleteAccount, {
           id: genericAccount.id,
         }),
       );
 
-      expect(mockCallbacks.saveState).toHaveBeenCalled();
+      // No accounts should be added to the keyring state
+      expect(
+        restrictedKeyring.getAccountByAddress(supportedAccount.address),
+      ).toBeUndefined();
+      expect(
+        restrictedKeyring.getAccountByAddress(genericAccount.address),
+      ).toBeUndefined();
 
-      consoleSpy.mockRestore();
+      // State should not be saved when operation fails
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
 
     it('handles idempotent account creation by skipping existing accounts', async () => {

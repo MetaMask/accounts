@@ -53,7 +53,6 @@ import { v4 as uuid } from 'uuid';
 
 import { transformAccount } from './account';
 import { DeferredPromise } from './DeferredPromise';
-import { AccountAssertError } from './errors';
 import {
   AccountCreatedEventStruct,
   AccountUpdatedEventStruct,
@@ -276,7 +275,7 @@ export class SnapKeyring {
       !this.#isAnyAccountTypeAllowed &&
       account.type === AnyAccountType.Account
     ) {
-      throw new AccountAssertError(`Cannot create generic account '${account.id}'`);
+      throw new Error(`Cannot create generic account '${account.id}'`);
     }
   }
 
@@ -318,13 +317,13 @@ export class SnapKeyring {
     // to block the creation of duplicate accounts for now to prevent accounts
     // from being overwritten.
     if (await this.#callbacks.addressExists(address)) {
-      throw new AccountAssertError(`Account address '${address}' already exists`);
+      throw new Error(`Account address '${address}' already exists`);
     }
 
     // A Snap could try to create an account with a different address but with
     // an existing ID, so the above test only is not enough.
     if (this.#accounts.has(snapId, account.id)) {
-      throw new AccountAssertError(`Account '${account.id}' already exists`);
+      throw new Error(`Account '${account.id}' already exists`);
     }
   }
 
@@ -960,11 +959,11 @@ export class SnapKeyring {
       snapId,
     });
 
-    const accounts = [];
+    const allAccounts = [];
     const newAccounts = [];
-    const unsupportedAccountIds = [];
-    for (const account of await client.createAccounts(options)) {
-      try {
+    const snapAccounts = await client.createAccounts(options);
+    try {
+      for (const account of snapAccounts) {
         // Check for account preconditions. Order matters here:
         // 1. Account type validity (e.g. generic accounts).
         // 2. Account existence (idempotency).
@@ -973,31 +972,21 @@ export class SnapKeyring {
         if (!this.#isAccountAlreadyKnown(snapId, account)) {
           await this.#assertAccountIsUnique(snapId, account);
 
+          // Keep track of newly created accounts to add them to the keyring
+          // state later.
           newAccounts.push(account);
         }
 
         // New AND existing accounts are returned to the caller no matter what.
-        accounts.push(account);
-      } catch (error) {
-        // Any account error means that the account cannot be used, so we
-        // just log a warning and continue.
-        if (error instanceof AccountAssertError) {
-          console.warn(
-            `SnapKeyring - ${error.message} - Skipping account: ${account.id}.`,
-          );
-
-          // Keep track of unsupported accounts to ask the Snap to delete them later.
-          unsupportedAccountIds.push(account.id);
-        } else {
-          throw error;
-        }
+        allAccounts.push(account);
       }
-    }
+    } catch (error) {
+      // Rollback Snap state if something went wrong during account creation.
+      for (const account of snapAccounts) {
+        await this.#deleteAccount(snapId, account);
+      }
 
-    // Cleanup if we found unsupported accounts to avoid avoid "dangling" accounts
-    // on the Snap side.
-    for (const accountId of unsupportedAccountIds) {
-      await client.deleteAccount(accountId);
+      throw error;
     }
 
     // NOTE: This method DOES NOT rely on the `AccountCreated` event to add
@@ -1010,7 +999,7 @@ export class SnapKeyring {
       await this.#callbacks.saveState();
     }
 
-    return accounts;
+    return allAccounts;
   }
 
   /**
