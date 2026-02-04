@@ -9,11 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.2.0]
 
-### Uncategorized
-
-- chore: fixup changelogs ([#452](https://github.com/MetaMask/accounts/pull/452))
-- fix: silent `@typescript-eslint/no-redundant-type-constituents` + fix local linting issues ([#437](https://github.com/MetaMask/accounts/pull/437))
-
 ### Added
 
 - Add `LedgerKeyringV2` class implementing `KeyringV2` interface ([#416](https://github.com/MetaMask/accounts/pull/416)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#453](https://github.com/MetaMask/accounts/pull/453))
