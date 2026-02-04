@@ -263,6 +263,18 @@ export class SnapKeyring {
   }
 
   /**
+   * Checks whether an account is supported by this keyring.
+   *
+   * @param account - The account to check.
+   * @returns True if the account is supported, false otherwise.
+   */
+  #isGenericAccountSupported(account: KeyringAccount): boolean {
+    return (
+      !this.#isAnyAccountTypeAllowed && account.type === AnyAccountType.Account
+    );
+  }
+
+  /**
    * Get internal options given a correlation ID.
    *
    * NOTE: The associated options will be deleted automatically.
@@ -328,10 +340,7 @@ export class SnapKeyring {
 
     // The `AnyAccountType.Account` generic account type is allowed only during
     // development, so we check whether it's allowed before continuing.
-    if (
-      !this.#isAnyAccountTypeAllowed &&
-      account.type === AnyAccountType.Account
-    ) {
+    if (!this.#isGenericAccountSupported(account)) {
       throw new Error(`Cannot create generic account '${account.id}'`);
     }
 
@@ -928,10 +937,7 @@ export class SnapKeyring {
     for (const account of snapAccounts) {
       // The `AnyAccountType.Account` generic account type is allowed only during
       // development, so we check whether it's allowed before continuing.
-      if (
-        !this.#isAnyAccountTypeAllowed &&
-        account.type === AnyAccountType.Account
-      ) {
+      if (!this.#isGenericAccountSupported(account)) {
         console.warn(
           `SnapKeyring - Found an unsupported generic account: ${account.id}`,
         );
