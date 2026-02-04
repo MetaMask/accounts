@@ -65,7 +65,7 @@
     "@keystonehq/metamask-airgapped-keyring": "^0.15.2",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@metamask/account-api": "workspace:^",
-    "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/auto-changelog": "^5.3.1",
     "@types/hdkey": "^2.0.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
