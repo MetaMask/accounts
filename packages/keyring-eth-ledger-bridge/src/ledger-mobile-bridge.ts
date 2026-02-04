@@ -1,6 +1,7 @@
 import type Transport from '@ledgerhq/hw-transport';
 
 import {
+  GetAppNameAndVersionResponse,
   GetPublicKeyParams,
   GetPublicKeyResponse,
   LedgerBridge,
@@ -13,10 +14,7 @@ import {
 } from './ledger-bridge';
 import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
 import { TransportMiddleware } from './ledger-transport-middleware';
-import {
-  GetAppNameAndVersionResponse,
-  LedgerMobileBridgeOptions,
-} from './type';
+import { LedgerMobileBridgeOptions } from './type';
 
 // MobileBridge Type will always use LedgerBridge with LedgerMobileBridgeOptions
 export type MobileBridge = LedgerBridge<LedgerMobileBridgeOptions> & {

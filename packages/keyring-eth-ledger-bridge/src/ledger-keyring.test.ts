@@ -801,7 +801,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('User rejected action on device');
       });
 
       it('throws blind signing error when TransportStatusError with code 27264 is thrown', async function () {
@@ -819,7 +819,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow('Ledger: Blind signing must be enabled');
+        ).rejects.toThrow('Invalid data received');
       });
 
       it('re-throws TransportStatusError with unknown status code', async function () {
@@ -837,7 +837,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
       });
     });
 
@@ -928,7 +928,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('User rejected action on device');
       });
 
       it('re-throws TransportStatusError with unknown status code in signPersonalMessage', async function () {
@@ -945,7 +945,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
       });
 
       it('normalizes v=0 to v=27 for proper signature recovery', async function () {
@@ -1427,7 +1427,7 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('User rejected action on device');
       });
 
       it('throws blind signing error when TransportStatusError with code 27264 is thrown in signTypedData', async function () {
@@ -1445,7 +1445,7 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow('Ledger: Blind signing must be enabled');
+        ).rejects.toThrow('Invalid data received');
       });
 
       it('re-throws TransportStatusError with unknown status code in signTypedData', async function () {
@@ -1463,7 +1463,39 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
+      });
+    });
+
+    describe('getAppNameAndVersion', function () {
+      it('returns app name and version from bridge', async function () {
+        const mockResponse = {
+          appName: 'Ethereum',
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(keyring.bridge, 'getAppNameAndVersion')
+          .mockResolvedValue(mockResponse);
+
+        const result = await keyring.getAppNameAndVersion();
+
+        expect(result).toStrictEqual(mockResponse);
+      });
+
+      it('handles TransportStatusError when getting app name and version', async function () {
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'getAppNameAndVersion')
+          .mockRejectedValue(transportError);
+
+        await expect(keyring.getAppNameAndVersion()).rejects.toThrow(
+          'User rejected action on device',
+        );
       });
     });
 

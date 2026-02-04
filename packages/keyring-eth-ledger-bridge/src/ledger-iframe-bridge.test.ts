@@ -571,6 +571,65 @@ describe('LedgerIframeBridge', function () {
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
+
+    describe('getAppNameAndVersion', function () {
+      it('sends and processes a successful ledger-get-app-name-and-version message', async function () {
+        const payload = {
+          appName: 'Ethereum',
+          version: '1.9.0',
+        };
+
+        stubKeyringIFramePostMessage(bridge, (message) => {
+          expect(message).toStrictEqual({
+            action: IFrameMessageAction.LedgerGetAppNameAndVersion,
+            messageId: 1,
+            target: LEDGER_IFRAME_ID,
+            params: {},
+          });
+
+          sendMessageToBridge(bridge, {
+            action: IFrameMessageAction.LedgerGetAppNameAndVersion,
+            messageId: 1,
+            success: true,
+            payload,
+          });
+        });
+
+        const result = await bridge.getAppNameAndVersion();
+
+        expect(result).toBe(payload);
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
+      });
+
+      it('throws an error when a ledger-get-app-name-and-version message is not successful', async function () {
+        const errorMessage = 'Ledger Error';
+
+        stubKeyringIFramePostMessage(bridge, (message) => {
+          expect(message).toStrictEqual({
+            action: IFrameMessageAction.LedgerGetAppNameAndVersion,
+            messageId: 1,
+            target: LEDGER_IFRAME_ID,
+            params: {},
+          });
+
+          sendMessageToBridge(bridge, {
+            action: IFrameMessageAction.LedgerGetAppNameAndVersion,
+            messageId: 1,
+            success: false,
+            payload: { error: new Error(errorMessage) },
+          });
+        });
+
+        await expect(bridge.getAppNameAndVersion()).rejects.toThrow(
+          errorMessage,
+        );
+
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
+      });
+    });
   });
 
   describe('setOption', function () {
