@@ -36,6 +36,7 @@ You will then be prompted with your `$EDITOR` to select which packages you want 
 # - "minor" (if you want to bump the minor part of the package's version)
 # - "patch" (if you want to bump the patch part of the package's version)
 # - an exact version with major, minor, and patch parts (e.g. "1.2.3")
+# - "intentionally-skip" (if you want to skip releasing this package)
 #
 # When you're finished, save this file and close it. The tool will update the
 # versions of the packages you've listed and will move the changelog entries to
@@ -51,10 +52,19 @@ packages:
 
 Select your packages alongside their version specifier, then save and close your `$EDITOR`.
 
+If a package is not going to be released, mark it as `intentionally-skip` instead of removing it from the list.
+
 Update each package's CHANGELOGs (the one you selected) and update them the usual
 way and commit those changes.
 
 > [!IMPORTANT]
 > Your PR **HAS TO BE NAMED**: `release: x.y.z`
 >
-> The CI will use this commit name when finalizing/publishing the release to NPM.
+> The [CI workflow](https://github.com/MetaMask/accounts/blob/f194ce6fd8a1c7383ef5d74ca30d6d33fe6bfcec/.github/workflows/main.yml#L64) uses this commit name to detect release commits and trigger publishing to NPM.
+
+## Handling Release Errors
+
+If the release process errors out because of CHANGELOG validation issues, follow these steps:
+
+1. Correct the CHANGELOG entries that caused the error
+2. Run `yarn create-release-branch` to continue the release process
