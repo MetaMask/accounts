@@ -314,7 +314,7 @@ describe('KeyringClient', () => {
         jsonrpc: '2.0',
         id: expect.any(String),
         method: 'keyring_createAccounts',
-        params: options,
+        params: { options },
       });
       expect(accounts).toStrictEqual(expectedResponse);
     });
@@ -343,7 +343,7 @@ describe('KeyringClient', () => {
         jsonrpc: '2.0',
         id: expect.any(String),
         method: 'keyring_createAccounts',
-        params: options,
+        params: { options },
       });
       expect(accounts).toStrictEqual(expectedResponse);
       expect(accounts).toHaveLength(1);
@@ -371,7 +371,7 @@ describe('KeyringClient', () => {
         jsonrpc: '2.0',
         id: expect.any(String),
         method: 'keyring_createAccounts',
-        params: options,
+        params: { options },
       });
       expect(accounts).toStrictEqual(expectedResponse);
     });
