@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `SnapKeyring.createAccounts` method ([#448](https://github.com/MetaMask/accounts/pull/448))
   - This method can be used to create one or more accounts using the new keyring v2 account creation typed options.
+  - Generic accounts will be filtered out if they are not allowed by the keyring configuration.
 
 ### Changed
 

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `keyring_createAccounts` method to RPC dispatcher ([#448](https://github.com/MetaMask/accounts/pull/448))
+  - This method SHOULD NOT use `notify:accountCreated`.
+  - Accounts returned by this method are will be automatically added to the internal keyring state.
+
 ### Changed
 
 - Bump `@metamask/snaps-sdk` from `^9.0.0` to `^10.3.0` ([#422](https://github.com/MetaMask/accounts/pull/422))
