@@ -36,7 +36,6 @@ You will then be prompted with your `$EDITOR` to select which packages you want 
 # - "minor" (if you want to bump the minor part of the package's version)
 # - "patch" (if you want to bump the patch part of the package's version)
 # - an exact version with major, minor, and patch parts (e.g. "1.2.3")
-# - "intentionally-skip" (if you want to skip releasing this package)
 #
 # When you're finished, save this file and close it. The tool will update the
 # versions of the packages you've listed and will move the changelog entries to
