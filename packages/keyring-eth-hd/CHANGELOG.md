@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.1.0]
+
 ### Uncategorized
 
 - feat: add `KeyringV2` wrapper + `HdKeyringV2` adapter ([#402](https://github.com/MetaMask/accounts/pull/402))
@@ -237,7 +239,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@13.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@13.1.0...HEAD
+[13.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@13.0.0...@metamask/eth-hd-keyring@13.1.0
 [13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.1.0...@metamask/eth-hd-keyring@13.0.0
 [12.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.0.0...@metamask/eth-hd-keyring@12.1.0
 [12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@11.0.0...@metamask/eth-hd-keyring@12.0.0
