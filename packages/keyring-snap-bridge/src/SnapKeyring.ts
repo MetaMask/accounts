@@ -893,14 +893,16 @@ export class SnapKeyring {
   }
 
   /**
-   * Create one or more accounts according to the provided options.
+   * Creates one or more new accounts according to the provided options.
    *
-   * This method supports batch account creation for BIP-44 derivation paths,
-   * allowing the creation of multiple accounts up to a specified maximum index.
+   * Deterministic account creation MUST be idempotent, meaning that for
+   * deterministic algorithms, like BIP-44, calling this method with the same
+   * options should always return the same accounts, even if the accounts
+   * already exist in the keyring.
    *
-   * @param snapId - Snap ID to create the accounts for.
-   * @param options - Account creation options.
-   * @returns A promise that resolves to an array of the created account objects.
+   * @param snapId - Snap ID to create the account(s) for.
+   * @param options - Options describing how to create the account(s).
+   * @returns An array of the created account objects.
    */
   async createAccounts(
     snapId: SnapId,
