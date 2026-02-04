@@ -51,7 +51,8 @@ packages:
 
 Select your packages alongside their version specifier, then save and close your `$EDITOR`.
 
-If a package is not going to be released, mark it as `intentionally-skip` instead of removing it from the list.
+> [!TIP]
+> If a package is not going to be released, mark it as `intentionally-skip` instead of removing it from the list.
 
 Update each package's CHANGELOGs (the one you selected) and update them the usual
 way and commit those changes.
