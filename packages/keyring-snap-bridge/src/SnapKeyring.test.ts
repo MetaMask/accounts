@@ -3012,6 +3012,104 @@ describe('SnapKeyring', () => {
       // Verify saveState was called (and failed)
       expect(mockCallbacks.saveState).toHaveBeenCalledTimes(1);
     });
+
+    it('throws error and rolls back when batch contains duplicate addresses', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+      mockCallbacks.addressExists.mockClear();
+
+      mockMessenger.get.mockReturnValue(snapMetadata);
+
+      // Create accounts where two accounts have the same address
+      const account1 = {
+        ...newAccount1,
+        address: '0xddee001122334455667788990abbccddee334455',
+      };
+
+      const account2 = {
+        ...newAccount2,
+        // Same address as account1 (duplicate)
+        address: '0xddee001122334455667788990abbccddee334455',
+      };
+
+      const account3 = {
+        ...newAccount3,
+        id: 'ff11bb22-cc33-4d44-be55-ff6677889955',
+        address: '0xffee001122334455667788990abbccddee556677',
+      };
+
+      const accountsWithDuplicates = [account1, account2, account3];
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => accountsWithDuplicates,
+        [KeyringRpcMethod.DeleteAccount]: async () => null,
+      });
+
+      mockCallbacks.addressExists.mockResolvedValue(false);
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      // Should throw error when encountering duplicate address in batch
+      await expect(keyring.createAccounts(snapId, options)).rejects.toThrow(
+        `Account '${account2.id}' already exists (part of this batch)`,
+      );
+
+      // Verify that createAccounts was called on the Snap
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          request: expect.objectContaining({
+            method: KeyringRpcMethod.CreateAccounts,
+          }),
+        }),
+      );
+
+      // Verify that ALL accounts in the batch were rolled back (deleted from Snap)
+      // since the operation failed
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          request: expect.objectContaining({
+            method: KeyringRpcMethod.DeleteAccount,
+            params: { id: account1.id },
+          }),
+        }),
+      );
+
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        3,
+        expect.objectContaining({
+          request: expect.objectContaining({
+            method: KeyringRpcMethod.DeleteAccount,
+            params: { id: account2.id },
+          }),
+        }),
+      );
+
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        4,
+        expect.objectContaining({
+          request: expect.objectContaining({
+            method: KeyringRpcMethod.DeleteAccount,
+            params: { id: account3.id },
+          }),
+        }),
+      );
+
+      // Should have 4 calls: 1 createAccounts + 3 deleteAccount
+      expect(mockMessenger.handleRequest).toHaveBeenCalledTimes(4);
+
+      // Verify that no accounts were added to the keyring
+      expect(keyring.getAccountByAddress(account1.address)).toBeUndefined();
+      expect(keyring.getAccountByAddress(account3.address)).toBeUndefined();
+
+      // Verify that saveState was NOT called (since operation failed before saving)
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
+    });
   });
 
   describe('resolveAccountAddress', () => {

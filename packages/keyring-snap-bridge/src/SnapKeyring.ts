@@ -967,11 +967,16 @@ export class SnapKeyring {
     // NOTE: To avoid unecessary state updates.
     let updated = false;
 
+    // Keep track of the addresses of each new accounts to prevent
+    // duplicate accounts addresses.
+    const addresses = new Set<string>();
+
     const accounts = [];
     const snapAccounts = await client.createAccounts(options);
     try {
       for (const snapAccount of snapAccounts) {
         const account = transformAccount(snapAccount);
+        const address = normalizeAccountAddress(account);
 
         // Check for account preconditions. Order matters here:
         // 1. Account type validity (e.g. generic accounts).
@@ -980,6 +985,15 @@ export class SnapKeyring {
         this.#assertAccountCanBeUsed(account);
         if (!this.#isAccountAlreadyKnown(snapId, account)) {
           await this.#assertAccountIsUnique(snapId, account);
+
+          // Also check for transient accounts that are not yet part of the keyring
+          // state.
+          if (addresses.has(address)) {
+            throw new Error(
+              `Account '${account.id}' already exists (part of this batch)`,
+            );
+          }
+          addresses.add(address);
 
           // NOTE: This method does not rely on the `AccountCreated` event to add
           // accounts to the keyring, so we have to add them to the state manually.
