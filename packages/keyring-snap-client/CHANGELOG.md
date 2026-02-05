@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- fix: remove `@typescript-eslint/no-redundant-type-constituents` directives ([#407](https://github.com/MetaMask/accounts/pull/407))
-
 ## [8.1.1]
 
 ### Changed
