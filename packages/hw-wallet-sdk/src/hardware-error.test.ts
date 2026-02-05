@@ -315,6 +315,26 @@ describe('HardwareWalletError', () => {
     });
   });
 
+  describe('isHardwareWalletError', () => {
+    it('returns true for HardwareWalletError instances', () => {
+      const error = new HardwareWalletError('Test error', mockOptions);
+      expect(HardwareWalletError.isHardwareWalletError(error)).toBe(true);
+    });
+
+    it('returns false for regular Error instances', () => {
+      const error = new Error('Regular error');
+      expect(HardwareWalletError.isHardwareWalletError(error)).toBe(false);
+    });
+
+    it('returns false for non-error values', () => {
+      expect(HardwareWalletError.isHardwareWalletError(null)).toBe(false);
+      expect(HardwareWalletError.isHardwareWalletError(undefined)).toBe(false);
+      expect(HardwareWalletError.isHardwareWalletError('string')).toBe(false);
+      expect(HardwareWalletError.isHardwareWalletError(123)).toBe(false);
+      expect(HardwareWalletError.isHardwareWalletError({})).toBe(false);
+    });
+  });
+
   describe('error scenarios', () => {
     it('handles critical authentication errors', () => {
       const error = new HardwareWalletError('Device blocked', {

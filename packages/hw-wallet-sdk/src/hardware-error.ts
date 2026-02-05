@@ -172,4 +172,8 @@ export class HardwareWalletError extends Error {
     const codeName = getErrorCodeName(this.code);
     return `${this.name} [${codeName}:${this.code}]`;
   }
+
+  static isHardwareWalletError(error: unknown): error is HardwareWalletError {
+    return error instanceof HardwareWalletError;
+  }
 }
