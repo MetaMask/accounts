@@ -2993,6 +2993,134 @@ describe('SnapKeyring', () => {
       // Verify that saveState was NOT called (since operation failed before saving)
       expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
+
+    it('serializes concurrent createAccounts calls using a lock', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+      mockCallbacks.addressExists.mockClear();
+
+      mockMessenger.get.mockReturnValue(snapMetadata);
+      mockCallbacks.addressExists.mockResolvedValue(false);
+
+      // Track the execution order to verify serial execution
+      const executionOrder: string[] = [];
+      let activeExecutions = 0;
+      let maxConcurrentExecutions = 0;
+
+      // Create different accounts for each concurrent call
+      const batch1Accounts: KeyringAccount[] = [
+        {
+          ...newAccount1,
+          id: 'a0000000-0000-4000-a000-000000000001',
+          address: '0xa000000000000000000000000000000000000001',
+        },
+      ];
+
+      const batch2Accounts: KeyringAccount[] = [
+        {
+          ...newAccount1,
+          id: 'b0000000-0000-4000-a000-000000000002',
+          address: '0xb000000000000000000000000000000000000002',
+        },
+      ];
+
+      const batch3Accounts: KeyringAccount[] = [
+        {
+          ...newAccount1,
+          id: 'c0000000-0000-4000-a000-000000000003',
+          address: '0xc000000000000000000000000000000000000003',
+        },
+      ];
+
+      // Mock the Snap's createAccounts to track execution and add artificial delay
+      const mockConcurrentCreateAccounts = (
+        batchNumber: number,
+        batchAccounts: KeyringAccount[],
+      ): (() => Promise<KeyringAccount[]>) => {
+        return async () => {
+          // Determine which batch based on the call order
+          const batchId = `batch${batchNumber + 1}`;
+
+          // Track when this execution starts
+          executionOrder.push(`${batchId}-start`);
+          activeExecutions += 1;
+
+          // Track max concurrent executions to verify that they are sequential (should never be >1)
+          maxConcurrentExecutions = Math.max(
+            maxConcurrentExecutions,
+            activeExecutions,
+          );
+
+          // Add a delay to simulate async work and increase chance of detecting concurrency issues
+          await new Promise((resolve) => setTimeout(resolve, 50));
+
+          // Track when this execution ends
+          activeExecutions -= 1;
+          executionOrder.push(`${batchId}-end`);
+
+          // Return the appropriate batch based on call order
+          return batchAccounts;
+        };
+      };
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: jest
+          .fn()
+          .mockImplementationOnce(
+            mockConcurrentCreateAccounts(0, batch1Accounts),
+          )
+          .mockImplementationOnce(
+            mockConcurrentCreateAccounts(1, batch2Accounts),
+          )
+          .mockImplementationOnce(
+            mockConcurrentCreateAccounts(2, batch3Accounts),
+          ),
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      // Launch 3 concurrent createAccounts calls
+      const [result1, result2, result3] = await Promise.all([
+        keyring.createAccounts(snapId, options),
+        keyring.createAccounts(snapId, options),
+        keyring.createAccounts(snapId, options),
+      ]);
+
+      // Verify that all calls completed successfully
+      expect(result1).toStrictEqual(batch1Accounts);
+      expect(result2).toStrictEqual(batch2Accounts);
+      expect(result3).toStrictEqual(batch3Accounts);
+
+      // Verify that operations were serialized (never more than 1 active at a time)
+      expect(maxConcurrentExecutions).toBe(1);
+
+      // Verify the execution order: each batch must complete before the next starts
+      expect(executionOrder).toStrictEqual([
+        'batch1-start',
+        'batch1-end',
+        'batch2-start',
+        'batch2-end',
+        'batch3-start',
+        'batch3-end',
+      ]);
+
+      // Verify all accounts were created
+      expect(
+        keyring.getAccountByAddress(batch1Accounts[0]?.address ?? ''),
+      ).toBeDefined();
+      expect(
+        keyring.getAccountByAddress(batch2Accounts[0]?.address ?? ''),
+      ).toBeDefined();
+      expect(
+        keyring.getAccountByAddress(batch3Accounts[0]?.address ?? ''),
+      ).toBeDefined();
+
+      // Verify saveState was called for each batch (3 times)
+      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(3);
+    });
   });
 
   describe('resolveAccountAddress', () => {

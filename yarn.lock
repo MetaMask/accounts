@@ -1871,6 +1871,7 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^20.12.12"
     "@types/uuid": "npm:^9.0.8"
+    async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
