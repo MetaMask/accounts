@@ -14,6 +14,7 @@ import type {
   CaipChainId,
   MetaMaskOptions,
   KeyringResponse,
+  CreateAccountOptions,
 } from '@metamask/keyring-api';
 import {
   EthBytesStruct,
@@ -48,6 +49,7 @@ import {
   KnownCaipNamespace,
   toCaipChainId,
 } from '@metamask/utils';
+import { Mutex } from 'async-mutex';
 import { v4 as uuid } from 'uuid';
 
 import { transformAccount } from './account';
@@ -215,6 +217,12 @@ export class SnapKeyring {
   readonly #isAnyAccountTypeAllowed: boolean;
 
   /**
+   * Mutex to ensure exclusive access to the inner keyring during
+   * operations that mutate its state.
+   */
+  readonly #lock;
+
+  /**
    * Create a new Snap keyring.
    *
    * @param options - Constructor options.
@@ -241,6 +249,17 @@ export class SnapKeyring {
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
     this.#selectedAccounts = new Map();
+    this.#lock = new Mutex();
+  }
+
+  /**
+   * Execute an operation behind a lock.
+   *
+   * @param callback - A function that performs the operation.
+   * @returns The result of the callback.
+   */
+  async #withLock<Result>(callback: () => Promise<Result>): Promise<Result> {
+    return this.#lock.runExclusive(callback);
   }
 
   /**
@@ -259,6 +278,71 @@ export class SnapKeyring {
       snapId,
       platformVersion,
     );
+  }
+
+  /**
+   * Asserts that an account can be used within the Snap keyring. (e.g. generic accounts, unique
+   * addresses, etc...).
+   *
+   * @param snapId - The account's Snap ID.
+   * @param account - The account to check.
+   * @throws If the account cannot be used.
+   */
+  async #assertAccountCanBeUsed(
+    snapId: SnapId,
+    account: KeyringAccount,
+  ): Promise<void> {
+    const address = normalizeAccountAddress(account);
+
+    // The `AnyAccountType.Account` generic account type is allowed only during
+    // development, so we check whether it's allowed before continuing.
+    if (
+      !this.#isAnyAccountTypeAllowed &&
+      account.type === AnyAccountType.Account
+    ) {
+      throw new Error(`Cannot create generic account '${account.id}'`);
+    }
+
+    // A Snap could try to create an account with a different address but with
+    // an existing ID, so the above test only is not enough.
+    if (this.#accounts.has(snapId, account.id)) {
+      throw new Error(`Account '${account.id}' already exists`);
+    }
+
+    // The UI still uses the account address to identify accounts, so we need
+    // to block the creation of duplicate accounts for now to prevent accounts
+    // from being overwritten.
+    if (await this.#callbacks.addressExists(address)) {
+      throw new Error(`Account address '${address}' already exists`);
+    }
+  }
+
+  /**
+   * Checks whether an account is known.
+   *
+   * @param snapId - The account's Snap ID.
+   * @param account - The account to check.
+   * @returns The existing account, or `undefined` if the account is not known.
+   */
+  #getExistingAccount(
+    snapId: SnapId,
+    account: KeyringAccount,
+  ): KeyringAccount | undefined {
+    const address = normalizeAccountAddress(account);
+
+    // Acount creation is idempotent, so we need to check whether the account already exists
+    // and that the right Snap is trying to "create" it again.
+    // NOTE: We are not checking account object equality here. If a Snap
+    // re-send this event with different account data, we will ignore it.
+    const accountEntry = this.#accounts.get(snapId, account.id);
+    if (
+      accountEntry !== undefined &&
+      normalizeAccountAddress(accountEntry.account) === address
+    ) {
+      return accountEntry.account;
+    }
+
+    return undefined; // Not a known account.
   }
 
   /**
@@ -325,39 +409,13 @@ export class SnapKeyring {
     const account = transformAccount(newAccountFromEvent);
     const address = normalizeAccountAddress(account);
 
-    // The `AnyAccountType.Account` generic account type is allowed only during
-    // development, so we check whether it's allowed before continuing.
-    if (
-      !this.#isAnyAccountTypeAllowed &&
-      account.type === AnyAccountType.Account
-    ) {
-      throw new Error(`Cannot create generic account '${account.id}'`);
-    }
-
-    // This is idempotent, so we need to check whether the account already exists
-    // and that the right Snap is trying to "create" it again.
-    const accountEntry = this.#accounts.get(snapId, account.id);
-    if (
-      accountEntry &&
-      normalizeAccountAddress(accountEntry.account) === address
-    ) {
-      // NOTE: We are not checking account object equality here. If a Snap
-      // re-send this event with different account data, we will ignore it.
+    if (this.#getExistingAccount(snapId, account)) {
+      // If the account already exists, we skip it.
       return null;
     }
 
-    // The UI still uses the account address to identify accounts, so we need
-    // to block the creation of duplicate accounts for now to prevent accounts
-    // from being overwritten.
-    if (await this.#callbacks.addressExists(address)) {
-      throw new Error(`Account address '${address}' already exists`);
-    }
-
-    // A Snap could try to create an account with a different address but with
-    // an existing ID, so the above test only is not enough.
-    if (this.#accounts.has(snapId, account.id)) {
-      throw new Error(`Account '${account.id}' already exists`);
-    }
+    // Make sure this new account is valid.
+    await this.#assertAccountCanBeUsed(snapId, account);
 
     // A deferred promise that will be resolved once the Snap keyring has saved
     // its internal state.
@@ -888,6 +946,98 @@ export class SnapKeyring {
           correlationId,
         },
       } as MetaMaskOptions),
+    });
+  }
+
+  /**
+   * Creates one or more new accounts according to the provided options.
+   *
+   * Deterministic account creation MUST be idempotent, meaning that for
+   * deterministic algorithms, like BIP-44, calling this method with the same
+   * options should always return the same accounts, even if the accounts
+   * already exist in the keyring.
+   *
+   * NOTE: If some accounts are not allowed (non-unique address, unsupported
+   * generic account), this method will skip their creation and ask the Snap
+   * to remove them from its state.
+   *
+   * @param snapId - Snap ID to create the account(s) for.
+   * @param options - Options describing how to create the account(s).
+   * @returns An array of the created account objects.
+   */
+  async createAccounts(
+    snapId: SnapId,
+    options: CreateAccountOptions,
+  ): Promise<KeyringAccount[]> {
+    return this.#withLock(async () => {
+      const client = new KeyringInternalSnapClient({
+        messenger: this.#messenger,
+        snapId,
+      });
+
+      // Keep track of address/account ID part of this batch, to avoid having duplicates.
+      const accountAddresses = new Set<string>();
+      const accountIds = new Set<string>();
+
+      const accounts = [];
+      const newAccounts = [];
+      const snapAccounts = await client.createAccounts(options);
+      try {
+        for (const snapAccount of snapAccounts) {
+          let account = transformAccount(snapAccount);
+          const address = normalizeAccountAddress(account);
+
+          // Check for idempotency.
+          const existingAccount = this.#getExistingAccount(snapId, account);
+          if (existingAccount) {
+            // NOTE: We re-use the account from the internal state to avoid having the Snap
+            // mutating the account object without updating the map.
+            account = existingAccount;
+          } else {
+            await this.#assertAccountCanBeUsed(snapId, account);
+
+            // Also check for transient accounts that are not yet part of the keyring
+            // state.
+            if (accountAddresses.has(address) || accountIds.has(account.id)) {
+              throw new Error(
+                `Account '${account.id}' is already part of this batch (same address or account ID)`,
+              );
+            }
+            accountAddresses.add(address);
+            accountIds.add(account.id);
+
+            // NOTE: This method does not rely on the `AccountCreated` event to add
+            // accounts to the keyring, so we have to add them to the state manually.
+            newAccounts.push(account);
+          }
+
+          // New AND existing accounts are returned to the caller no matter what.
+          accounts.push(account);
+        }
+
+        // We update the keyring state only if needed.
+        if (newAccounts.length > 0) {
+          for (const account of newAccounts) {
+            this.#accounts.set(account.id, { account, snapId });
+          }
+
+          // NOTE: We assume this will never fail, thus, we don't need to rollback the
+          // keyring state if anything goes wrong here.
+          await this.#callbacks.saveState();
+        }
+
+        return accounts;
+      } catch (error) {
+        // Rollback Snap state.
+        for (const account of snapAccounts) {
+          // Make sure to only delete accounts that were not part of the keyring state.
+          if (!this.#getExistingAccount(snapId, account)) {
+            await this.#deleteAccount(snapId, account);
+          }
+        }
+
+        throw error;
+      }
     });
   }
 

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `Keyring.createAccounts` optional method ([#448](https://github.com/MetaMask/accounts/pull/448))
+  - This method is part of the keyring v2 specification and set as optional for backwards compatibility.
+  - This method can be used to create one or more accounts using the new keyring v2 account creation typed options.
+  - Add RPC support for this method through `KeyringRpcMethod.CreateAccounts`.
 - Add support for account derivations using range of indices in `KeyringV2` ([#451](https://github.com/MetaMask/accounts/pull/451))
   - Add `bip44:derive-index-range` capability to `KeyringCapabilities`.
   - Add `AccountCreationType.Bip44DeriveIndexRange` and `CreateAccountBip44DeriveIndexRangeOptions`.

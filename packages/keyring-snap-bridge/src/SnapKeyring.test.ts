@@ -10,6 +10,7 @@ import type {
   AccountTransactionsUpdatedEventPayload,
   AccountAssetListUpdatedEventPayload,
   MetaMaskOptions,
+  CreateAccountOptions,
 } from '@metamask/keyring-api';
 import {
   EthScope,
@@ -28,6 +29,7 @@ import {
   TrxScope,
   TrxMethod,
   TrxAccountType,
+  AccountCreationType,
 } from '@metamask/keyring-api';
 import { SnapManageAccountsMethod } from '@metamask/keyring-snap-sdk';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
@@ -2517,6 +2519,607 @@ describe('SnapKeyring', () => {
       ).rejects.toThrow(
         `The '${reserved}' property is reserved for internal use`,
       );
+    });
+  });
+
+  describe('createAccounts', () => {
+    const newAccount1 = {
+      ...newEthEoaAccount,
+      id: 'aa11bb22-cc33-4d44-8e55-ff6677889900',
+      address: '0xaabbccddee00112233445566778899aabbccddee',
+    };
+    const newAccount2 = {
+      ...newEthEoaAccount,
+      id: 'bb11bb22-cc33-4d44-9e55-ff6677889900',
+      address: '0xbbccddee00112233445566778899aabbccddeeff',
+    };
+    const newAccount3 = {
+      ...newEthEoaAccount,
+      id: 'cc11bb22-cc33-4d44-ae55-ff6677889900',
+      address: '0xccddee00112233445566778899aabbccddee0011',
+    };
+
+    const entropySource = '01JQCAKR17JARQXZ0NDP760N1K';
+
+    const snapMetadata = {
+      manifest: {
+        proposedName: 'snap-name',
+      },
+      id: snapId,
+      enabled: true,
+    };
+
+    it('creates multiple accounts', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      mockMessenger.get.mockReturnValue(snapMetadata);
+
+      const accountsToCreate = [newAccount1, newAccount2, newAccount3];
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => {
+          // Unlike createAccount, createAccounts does NOT emit AccountCreated events
+          // for each account. It returns all accounts directly.
+          return accountsToCreate;
+        },
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndexRange,
+        entropySource,
+        range: {
+          from: 0,
+          to: 2,
+        },
+      };
+      const result = await keyring.createAccounts(snapId, options);
+
+      expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
+      );
+
+      // Verify all accounts were returned
+      expect(result).toStrictEqual(accountsToCreate);
+
+      // Verify all accounts were added to the internal state
+      for (const account of accountsToCreate) {
+        expect(keyring.getAccountByAddress(account.address)).toMatchObject({
+          ...account,
+          metadata: expect.objectContaining({
+            snap: expect.objectContaining({
+              id: snapId,
+            }),
+          }),
+        });
+      }
+
+      // Verify state was saved once after adding all accounts
+      expect(mockCallbacks.saveState).toHaveBeenCalled();
+
+      // IMPORTANT: Unlike createAccount, createAccounts does NOT call addAccount callback
+      // because accounts are created in batch
+      expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
+    });
+
+    it('creates a single account through createAccounts', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      mockMessenger.get.mockReturnValue(snapMetadata);
+
+      const accountToCreate = [newAccount1];
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => accountToCreate,
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        groupIndex: 0,
+        entropySource,
+      };
+      const result = await keyring.createAccounts(snapId, options);
+
+      expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
+      );
+
+      expect(result).toStrictEqual(accountToCreate);
+      expect(result).toHaveLength(1);
+
+      // Verify the account was added to the internal state
+      expect(keyring.getAccountByAddress(newAccount1.address)).toMatchObject({
+        ...newAccount1,
+        metadata: expect.objectContaining({
+          snap: expect.objectContaining({
+            id: snapId,
+          }),
+        }),
+      });
+
+      expect(mockCallbacks.saveState).toHaveBeenCalled();
+      expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
+    });
+
+    it('creates accounts with custom options', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      const accountsToCreate = [newAccount1, newAccount2];
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Custom,
+      };
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => accountsToCreate,
+      });
+
+      const result = await keyring.createAccounts(snapId, options);
+
+      expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
+      );
+
+      expect(result).toStrictEqual(accountsToCreate);
+      expect(mockCallbacks.saveState).toHaveBeenCalled();
+      expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
+    });
+
+    it('handles empty response from Snap', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => [],
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+      const result = await keyring.createAccounts(snapId, options);
+
+      expect(result).toStrictEqual([]);
+      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(0);
+      expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
+    });
+
+    it('handles errors from Snap', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      const errorMessage = 'Failed to create accounts';
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => {
+          throw new Error(errorMessage);
+        },
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+      await expect(keyring.createAccounts(snapId, options)).rejects.toThrow(
+        errorMessage,
+      );
+
+      // State should not be saved if account creation fails
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
+      expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
+    });
+
+    it('adds all accounts to the internal map with correct snapId', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      mockMessenger.get.mockReturnValue(snapMetadata);
+
+      const accountsToCreate = [newAccount1, newAccount2];
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => accountsToCreate,
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+      await keyring.createAccounts(snapId, options);
+
+      // Verify each account is mapped to the correct snapId
+      for (const account of accountsToCreate) {
+        const createdAccount = keyring.getAccountByAddress(account.address);
+        expect(createdAccount).toBeDefined();
+        expect(createdAccount?.metadata.snap?.id).toBe(snapId);
+      }
+    });
+
+    it('throws error and rolls back Snap state when encountering unsupported accounts', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      // Create a keyring with isAnyAccountTypeAllowed = false
+      const restrictedKeyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+        isAnyAccountTypeAllowed: false,
+      });
+
+      const supportedAccount = {
+        ...newAccount1,
+        id: 'aa11bb22-cc33-4d44-8e55-ff6677889900',
+        address: '0xaabbccddee00112233445566778899aabbccddee',
+        type: EthAccountType.Eoa,
+      };
+
+      const genericAccount = {
+        ...newAccount2,
+        id: 'bb11bb22-cc33-4d44-9e55-ff6677889900',
+        address: '0xbbccddee00112233445566778899aabbccddeeff',
+        type: AnyAccountType.Account,
+      };
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => [
+          supportedAccount,
+          genericAccount,
+        ],
+        [KeyringRpcMethod.DeleteAccount]: async () => null,
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      // Should throw error when encountering unsupported account
+      await expect(
+        restrictedKeyring.createAccounts(snapId, options),
+      ).rejects.toThrow(`Cannot create generic account '${genericAccount.id}'`);
+
+      // We still have sent a Snap request to create accounts
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        1,
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
+      );
+
+      // BUT, we should roll back Snap state by deleting the accounts that were created
+      // since generic accounts are not allowed in this keyring configuration
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        2,
+        mockKeyringRpcRequest(KeyringRpcMethod.DeleteAccount, {
+          id: supportedAccount.id,
+        }),
+      );
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        3,
+        mockKeyringRpcRequest(KeyringRpcMethod.DeleteAccount, {
+          id: genericAccount.id,
+        }),
+      );
+
+      // No accounts should be added to the keyring state
+      expect(
+        restrictedKeyring.getAccountByAddress(supportedAccount.address),
+      ).toBeUndefined();
+      expect(
+        restrictedKeyring.getAccountByAddress(genericAccount.address),
+      ).toBeUndefined();
+
+      // State should not be saved when operation fails
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
+    });
+
+    it('handles idempotent account creation by skipping existing accounts', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      mockMessenger.get.mockReturnValue(snapMetadata);
+
+      const accountsToCreate = [newAccount1, newAccount2];
+
+      // First call: create accounts
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => accountsToCreate,
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      const firstResult = await keyring.createAccounts(snapId, options);
+
+      // Verify accounts were created
+      expect(firstResult).toHaveLength(2);
+      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(1);
+
+      // Clear mocks for second call
+      mockCallbacks.saveState.mockClear();
+
+      // Second call: same accounts should be skipped (idempotent)
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => accountsToCreate,
+      });
+
+      const secondResult = await keyring.createAccounts(snapId, options);
+
+      // Should return the same accounts (idempotent behavior)
+      expect(secondResult).toHaveLength(2);
+      expect(secondResult).toStrictEqual(accountsToCreate);
+
+      // No new accounts should be added, so saveState should not be called again
+      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(0);
+
+      // Verify the original accounts still exist and weren't duplicated
+      for (const account of accountsToCreate) {
+        const existingAccount = keyring.getAccountByAddress(account.address);
+        expect(existingAccount).toBeDefined();
+        expect(existingAccount?.id).toBe(account.id);
+      }
+    });
+
+    it('throws non-AccountError exceptions during account validation', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+
+      const accountToCreate = [newAccount1];
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.DeleteAccount]: async () => null,
+        [KeyringRpcMethod.CreateAccounts]: async () => accountToCreate,
+      });
+
+      // Mock addressExists to throw a non-AccountError
+      const error = 'KeyringController is locked';
+      mockCallbacks.addressExists.mockRejectedValue(new Error(error));
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      // Should propagate non-AccountError exceptions
+      await expect(keyring.createAccounts(snapId, options)).rejects.toThrow(
+        error,
+      );
+
+      // State should not be saved when an unexpected error occurs
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
+    });
+
+    it('throws error and rolls back when batch contains duplicate addresses', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+      mockCallbacks.addressExists.mockClear();
+
+      mockMessenger.get.mockReturnValue(snapMetadata);
+
+      // Create accounts where two accounts have the same address
+      const account1 = {
+        ...newAccount1,
+        address: '0xddee001122334455667788990abbccddee334455',
+      };
+
+      const account2 = {
+        ...newAccount2,
+        // Same address as account1 (duplicate)
+        address: '0xddee001122334455667788990abbccddee334455',
+      };
+
+      const account3 = {
+        ...newAccount3,
+        id: 'ff11bb22-cc33-4d44-be55-ff6677889955',
+        address: '0xffee001122334455667788990abbccddee556677',
+      };
+
+      const accountsWithDuplicates = [account1, account2, account3];
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: async () => accountsWithDuplicates,
+        [KeyringRpcMethod.DeleteAccount]: async () => null,
+      });
+
+      mockCallbacks.addressExists.mockResolvedValue(false);
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      // Should throw error when encountering duplicate address in batch
+      await expect(keyring.createAccounts(snapId, options)).rejects.toThrow(
+        `Account '${account2.id}' is already part of this batch (same address or account ID)`,
+      );
+
+      // Verify that createAccounts was called on the Snap
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          request: expect.objectContaining({
+            method: KeyringRpcMethod.CreateAccounts,
+          }),
+        }),
+      );
+
+      // Verify that ALL accounts in the batch were rolled back (deleted from Snap)
+      // since the operation failed
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          request: expect.objectContaining({
+            method: KeyringRpcMethod.DeleteAccount,
+            params: { id: account1.id },
+          }),
+        }),
+      );
+
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        3,
+        expect.objectContaining({
+          request: expect.objectContaining({
+            method: KeyringRpcMethod.DeleteAccount,
+            params: { id: account2.id },
+          }),
+        }),
+      );
+
+      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
+        4,
+        expect.objectContaining({
+          request: expect.objectContaining({
+            method: KeyringRpcMethod.DeleteAccount,
+            params: { id: account3.id },
+          }),
+        }),
+      );
+
+      // Should have 4 calls: 1 createAccounts + 3 deleteAccount
+      expect(mockMessenger.handleRequest).toHaveBeenCalledTimes(4);
+
+      // Verify that no accounts were added to the keyring
+      expect(keyring.getAccountByAddress(account1.address)).toBeUndefined();
+      expect(keyring.getAccountByAddress(account3.address)).toBeUndefined();
+
+      // Verify that saveState was NOT called (since operation failed before saving)
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
+    });
+
+    it('serializes concurrent createAccounts calls using a lock', async () => {
+      mockCallbacks.addAccount.mockClear();
+      mockCallbacks.saveState.mockClear();
+      mockCallbacks.addressExists.mockClear();
+
+      mockMessenger.get.mockReturnValue(snapMetadata);
+      mockCallbacks.addressExists.mockResolvedValue(false);
+
+      // Track the execution order to verify serial execution
+      const executionOrder: string[] = [];
+      let activeExecutions = 0;
+      let maxConcurrentExecutions = 0;
+
+      // Create different accounts for each concurrent call
+      const batch1Accounts: KeyringAccount[] = [
+        {
+          ...newAccount1,
+          id: 'a0000000-0000-4000-a000-000000000001',
+          address: '0xa000000000000000000000000000000000000001',
+        },
+      ];
+
+      const batch2Accounts: KeyringAccount[] = [
+        {
+          ...newAccount1,
+          id: 'b0000000-0000-4000-a000-000000000002',
+          address: '0xb000000000000000000000000000000000000002',
+        },
+      ];
+
+      const batch3Accounts: KeyringAccount[] = [
+        {
+          ...newAccount1,
+          id: 'c0000000-0000-4000-a000-000000000003',
+          address: '0xc000000000000000000000000000000000000003',
+        },
+      ];
+
+      // Mock the Snap's createAccounts to track execution and add artificial delay
+      const mockConcurrentCreateAccounts = (
+        batchNumber: number,
+        batchAccounts: KeyringAccount[],
+      ): (() => Promise<KeyringAccount[]>) => {
+        return async () => {
+          // Determine which batch based on the call order
+          const batchId = `batch${batchNumber + 1}`;
+
+          // Track when this execution starts
+          executionOrder.push(`${batchId}-start`);
+          activeExecutions += 1;
+
+          // Track max concurrent executions to verify that they are sequential (should never be >1)
+          maxConcurrentExecutions = Math.max(
+            maxConcurrentExecutions,
+            activeExecutions,
+          );
+
+          // Add a delay to simulate async work and increase chance of detecting concurrency issues
+          await new Promise((resolve) => setTimeout(resolve, 50));
+
+          // Track when this execution ends
+          activeExecutions -= 1;
+          executionOrder.push(`${batchId}-end`);
+
+          // Return the appropriate batch based on call order
+          return batchAccounts;
+        };
+      };
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: jest
+          .fn()
+          .mockImplementationOnce(
+            mockConcurrentCreateAccounts(0, batch1Accounts),
+          )
+          .mockImplementationOnce(
+            mockConcurrentCreateAccounts(1, batch2Accounts),
+          )
+          .mockImplementationOnce(
+            mockConcurrentCreateAccounts(2, batch3Accounts),
+          ),
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      // Launch 3 concurrent createAccounts calls
+      const [result1, result2, result3] = await Promise.all([
+        keyring.createAccounts(snapId, options),
+        keyring.createAccounts(snapId, options),
+        keyring.createAccounts(snapId, options),
+      ]);
+
+      // Verify that all calls completed successfully
+      expect(result1).toStrictEqual(batch1Accounts);
+      expect(result2).toStrictEqual(batch2Accounts);
+      expect(result3).toStrictEqual(batch3Accounts);
+
+      // Verify that operations were serialized (never more than 1 active at a time)
+      expect(maxConcurrentExecutions).toBe(1);
+
+      // Verify the execution order: each batch must complete before the next starts
+      expect(executionOrder).toStrictEqual([
+        'batch1-start',
+        'batch1-end',
+        'batch2-start',
+        'batch2-end',
+        'batch3-start',
+        'batch3-end',
+      ]);
+
+      // Verify all accounts were created
+      expect(
+        keyring.getAccountByAddress(batch1Accounts[0]?.address ?? ''),
+      ).toBeDefined();
+      expect(
+        keyring.getAccountByAddress(batch2Accounts[0]?.address ?? ''),
+      ).toBeDefined();
+      expect(
+        keyring.getAccountByAddress(batch3Accounts[0]?.address ?? ''),
+      ).toBeDefined();
+
+      // Verify saveState was called for each batch (3 times)
+      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(3);
     });
   });
 

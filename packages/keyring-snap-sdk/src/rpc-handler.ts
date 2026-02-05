@@ -3,6 +3,7 @@ import {
   KeyringRpcMethod,
   GetAccountRequestStruct,
   CreateAccountRequestStruct,
+  CreateAccountsRequestStruct,
   ListAccountTransactionsRequestStruct,
   ApproveRequestRequestStruct,
   DeleteAccountRequestStruct,
@@ -64,6 +65,14 @@ async function dispatchRequest(
     case `${KeyringRpcMethod.CreateAccount}`: {
       assert(request, CreateAccountRequestStruct);
       return keyring.createAccount(request.params.options);
+    }
+
+    case `${KeyringRpcMethod.CreateAccounts}`: {
+      if (keyring.createAccounts === undefined) {
+        throw new MethodNotSupportedError(request.method);
+      }
+      assert(request, CreateAccountsRequestStruct);
+      return keyring.createAccounts(request.params.options);
     }
 
     case `${KeyringRpcMethod.DiscoverAccounts}`: {

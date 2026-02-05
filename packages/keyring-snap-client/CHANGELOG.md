@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `KeyringClient.createAccounts` method ([#448](https://github.com/MetaMask/accounts/pull/448))
+  - This method can be used to create one or more accounts using the new keyring v2 account creation typed options.
+
 ## [8.1.1]
 
 ### Changed
