@@ -2879,6 +2879,7 @@ describe('SnapKeyring', () => {
       const accountToCreate = [newAccount1];
 
       mockMessengerHandleRequest({
+        [KeyringRpcMethod.DeleteAccount]: async () => null,
         [KeyringRpcMethod.CreateAccounts]: async () => accountToCreate,
       });
 
