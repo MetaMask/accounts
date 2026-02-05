@@ -5,7 +5,7 @@ import { type HardwareWalletError } from './hardware-error';
 export enum HardwareWalletType {
   Ledger = 'ledger',
   Trezor = 'trezor',
-  OneKey = 'oneKey',
+  OneKey = 'onekey',
   Lattice = 'lattice',
   Qr = 'qr',
   Unknown = 'unknown',
