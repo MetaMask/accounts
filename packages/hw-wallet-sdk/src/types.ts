@@ -23,17 +23,17 @@ export enum ConnectionStatus {
 }
 
 export enum DeviceEvent {
-  Disconnected = 'disconnected',
-  DeviceLocked = 'device_locked',
-  ConnectionFailed = 'connection_failed',
-  OperationTimeout = 'operation_timeout',
   Connected = 'connected',
+  Disconnected = 'disconnected',
+  ConnectionFailed = 'connection_failed',
+  DeviceLocked = 'device_locked',
   AppOpened = 'app_opened',
   AppNotOpen = 'app_not_open',
   AppChanged = 'app_changed',
   ConfirmationRequired = 'confirmation_required',
   ConfirmationReceived = 'confirmation_received',
   ConfirmationRejected = 'confirmation_rejected',
+  OperationTimeout = 'operation_timeout',
   PermissionChanged = 'permission_changed',
 }
 
@@ -42,15 +42,14 @@ export type HardwareWalletConnectionState =
   | { status: ConnectionStatus.Scanning }
   | { status: ConnectionStatus.Connecting; deviceId?: string }
   | { status: ConnectionStatus.Connected; deviceId: string }
-  | { status: ConnectionStatus.Ready }
+  | { status: ConnectionStatus.Ready; deviceId?: string }
   | { status: ConnectionStatus.AwaitingApp; deviceId: string; appName?: string }
   | {
       status: ConnectionStatus.AwaitingConfirmation;
       deviceId: string;
       operationType?: string;
     }
-  | { status: ConnectionStatus.ErrorState; error: HardwareWalletError | Error }
-  | { status: ConnectionStatus.Ready; deviceId?: string };
+  | { status: ConnectionStatus.ErrorState; error: HardwareWalletError };
 
 export interface DeviceEventPayload {
   event: DeviceEvent;
