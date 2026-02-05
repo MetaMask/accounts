@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Use `LEDGER_ERROR_MAPPINGS` from the SDK for consistent error code mapping.
   - Re-export `HardwareWalletError`, `ErrorCode`, `Severity`, `Category`, and error mappings for consumer convenience.
   - Deprecate `LedgerStatusError` in favor of `HardwareWalletError`.
-  - Prefix Ledger transport error messages for compatibility
+  - Prefix Ledger transport error messages for compatibility.
 
 ## [11.2.0]
 
