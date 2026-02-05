@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- fix: remove `@typescript-eslint/no-redundant-type-constituents` directives ([#407](https://github.com/MetaMask/accounts.git/pull/407))
-
 ## [8.1.1]
 
 ### Changed
@@ -141,20 +137,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@8.1.1...HEAD
-[8.1.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@8.1.0...@metamask/keyring-snap-client@8.1.1
-[8.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@8.0.0...@metamask/keyring-snap-client@8.1.0
-[8.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@7.0.0...@metamask/keyring-snap-client@8.0.0
-[7.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@6.0.0...@metamask/keyring-snap-client@7.0.0
-[6.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@5.0.0...@metamask/keyring-snap-client@6.0.0
-[5.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@4.1.0...@metamask/keyring-snap-client@5.0.0
-[4.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@4.0.1...@metamask/keyring-snap-client@4.1.0
-[4.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@4.0.0...@metamask/keyring-snap-client@4.0.1
-[4.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@3.0.3...@metamask/keyring-snap-client@4.0.0
-[3.0.3]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@3.0.2...@metamask/keyring-snap-client@3.0.3
-[3.0.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@3.0.1...@metamask/keyring-snap-client@3.0.2
-[3.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@3.0.0...@metamask/keyring-snap-client@3.0.1
-[3.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@2.0.0...@metamask/keyring-snap-client@3.0.0
-[2.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@1.1.0...@metamask/keyring-snap-client@2.0.0
-[1.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-snap-client@1.0.0...@metamask/keyring-snap-client@1.1.0
-[1.0.0]: https://github.com/MetaMask/accounts.git/releases/tag/@metamask/keyring-snap-client@1.0.0
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.1...HEAD
+[8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.0...@metamask/keyring-snap-client@8.1.1
+[8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.0.0...@metamask/keyring-snap-client@8.1.0
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@7.0.0...@metamask/keyring-snap-client@8.0.0
+[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@6.0.0...@metamask/keyring-snap-client@7.0.0
+[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@5.0.0...@metamask/keyring-snap-client@6.0.0
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.1.0...@metamask/keyring-snap-client@5.0.0
+[4.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.0.1...@metamask/keyring-snap-client@4.1.0
+[4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@4.0.0...@metamask/keyring-snap-client@4.0.1
+[4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@3.0.3...@metamask/keyring-snap-client@4.0.0
+[3.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@3.0.2...@metamask/keyring-snap-client@3.0.3
+[3.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@3.0.1...@metamask/keyring-snap-client@3.0.2
+[3.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@3.0.0...@metamask/keyring-snap-client@3.0.1
+[3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@2.0.0...@metamask/keyring-snap-client@3.0.0
+[2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@1.1.0...@metamask/keyring-snap-client@2.0.0
+[1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@1.0.0...@metamask/keyring-snap-client@1.1.0
+[1.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/keyring-snap-client@1.0.0
