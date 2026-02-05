@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.0]
+
 ### Changed
 
 - **BREAKING:** Rename `KeyringRequestV1` type to `KeyringRequestWithoutOrigin` ([#423](https://github.com/MetaMask/accounts/pull/423))
 - **BREAKING:** Rename `toKeyringRequestV1` method to `toKeyringRequestWithoutOrigin` ([#423](https://github.com/MetaMask/accounts/pull/423))
+- Bump `@metamask/keyring-api` from `^21.2.0` to `^21.4.0` ([#460](https://github.com/MetaMask/accounts/pull/460))
 
 ### Removed
 
@@ -166,7 +169,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@9.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.0.0...HEAD
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@9.1.1...@metamask/keyring-internal-api@10.0.0
 [9.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@9.1.0...@metamask/keyring-internal-api@9.1.1
 [9.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@9.0.0...@metamask/keyring-internal-api@9.1.0
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@8.1.0...@metamask/keyring-internal-api@9.0.0

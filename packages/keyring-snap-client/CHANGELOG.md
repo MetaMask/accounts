@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.2.0]
+
 ### Added
 
 - Add `KeyringClient.createAccounts` method ([#448](https://github.com/MetaMask/accounts/pull/448))
   - This method can be used to create one or more accounts using the new keyring v2 account creation typed options.
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.2.0` to `^21.4.0` ([#460](https://github.com/MetaMask/accounts/pull/460))
 
 ## [8.1.1]
 
@@ -142,7 +148,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.2.0...HEAD
+[8.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.1...@metamask/keyring-snap-client@8.2.0
 [8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.0...@metamask/keyring-snap-client@8.1.1
 [8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.0.0...@metamask/keyring-snap-client@8.1.0
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@7.0.0...@metamask/keyring-snap-client@8.0.0

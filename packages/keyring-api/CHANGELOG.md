@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [21.4.0]
+
 ### Added
 
 - Add `Keyring.createAccounts` optional method ([#448](https://github.com/MetaMask/accounts/pull/448))
@@ -22,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add `AccountCreationType.Custom` and `CreateAccountCustomOptions` for custom account creation flows.
 - Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
   - Provides common Ethereum signing method routing (`submitRequest`) for all Ethereum-based keyrings.
-- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)), ([#410](https://github.com/MetaMask/accounts/pull/410))
+- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)),([#402](https://github.com/MetaMask/accounts/pull/402)), ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410))
 
 ### Changed
 
@@ -682,7 +684,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.3.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.4.0...HEAD
+[21.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.3.0...@metamask/keyring-api@21.4.0
 [21.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.2.0...@metamask/keyring-api@21.3.0
 [21.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.1.0...@metamask/keyring-api@21.2.0
 [21.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.0.0...@metamask/keyring-api@21.1.0
