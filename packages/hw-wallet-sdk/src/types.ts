@@ -1,6 +1,6 @@
 // istanbul ignore file
 
-import { HardwareWalletError } from './hardware-error';
+import { type HardwareWalletError } from './hardware-error';
 
 export enum HardwareWalletType {
   Ledger = 'ledger',
@@ -51,7 +51,7 @@ export type HardwareWalletConnectionState =
     }
   | { status: ConnectionStatus.ErrorState; error: HardwareWalletError };
 
-export interface DeviceEventPayload {
+export type DeviceEventPayload = {
   event: DeviceEvent;
   deviceId?: string;
   deviceName?: string;
@@ -59,4 +59,4 @@ export interface DeviceEventPayload {
   previousAppName?: string;
   error?: Error;
   metadata?: Record<string, unknown>;
-}
+};
