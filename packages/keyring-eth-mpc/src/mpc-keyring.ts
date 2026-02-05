@@ -28,7 +28,6 @@ import { bytesToHex, hexToBytes, type Hex, type Json } from '@metamask/utils';
 
 import { initCloudKeyGen, initCloudSign } from './cloud';
 import type {
-  InitRole,
   MPCKeyringOpts,
   MPCKeyringSerializer,
   ThresholdKeyId,
@@ -37,9 +36,10 @@ import {
   equalAddresses,
   getSignedTypedDataHash,
   parseEthSig,
-  parseInitRole,
+  parseSelectedVerifierIndex,
   parseSignedTypedDataVersion,
   parseThresholdKeyId,
+  parseVerifierIds,
   publicKeyToAddressHex,
   toEthSig,
 } from './util';
@@ -59,17 +59,21 @@ export class MPCKeyring implements Keyring {
 
   readonly #dkls19Lib: Dkls19WasmLib;
 
-  #initRole: InitRole;
-
   #networkIdentity?: MfaNetworkIdentity;
 
   #keyShare?: ThresholdKey;
 
   #keyId?: ThresholdKeyId;
 
+  #verifierIds?: string[];
+
+  #selectedVerifierIndex?: number;
+
   readonly #cloudURL: string;
 
   readonly #serializer: MPCKeyringSerializer;
+
+  readonly #getVerifierToken: (verifierId: string) => Promise<string>;
 
   constructor(opts: MPCKeyringOpts) {
     this.#rng = {
@@ -77,7 +81,6 @@ export class MPCKeyring implements Keyring {
     };
     this.#dkls19Lib = opts.dkls19Lib;
     this.#cloudURL = opts.cloudURL;
-    this.#initRole = opts.initRole;
     this.#serializer = {
       thresholdKey: new CL24ThresholdKeySerializer(),
       networkIdentity: new MfaNetworkIdentitySerializer(),
@@ -91,9 +94,12 @@ export class MPCKeyring implements Keyring {
           return array;
         },
       },
-      ...(opts.getToken && { getToken: opts.getToken }),
+      ...(opts.getTransportToken && {
+        getToken: opts.getTransportToken,
+      }),
       ...(opts.webSocket === undefined ? {} : { websocket: opts.webSocket }),
     });
+    this.#getVerifierToken = opts.getVerifierToken;
   }
 
   /**
@@ -102,9 +108,7 @@ export class MPCKeyring implements Keyring {
    * @returns The serialized state of the keyring.
    */
   async serialize(): Promise<Json> {
-    const state: Json = {
-      initRole: this.#initRole,
-    };
+    const state: Json = {};
     if (this.#networkIdentity) {
       state.networkIdentity = this.#serializer.networkIdentity.toJson(
         this.#networkIdentity,
@@ -115,6 +119,12 @@ export class MPCKeyring implements Keyring {
     }
     if (this.#keyId) {
       state.keyId = this.#keyId;
+    }
+    if (this.#verifierIds) {
+      state.verifierIds = this.#verifierIds;
+    }
+    if (this.#selectedVerifierIndex) {
+      state.selectedVerifierIndex = this.#selectedVerifierIndex;
     }
     return state;
   }
@@ -127,10 +137,6 @@ export class MPCKeyring implements Keyring {
   async deserialize(state: Json): Promise<void> {
     if (!state || typeof state !== 'object') {
       throw new Error('Invalid state');
-    }
-
-    if ('initRole' in state) {
-      this.#initRole = parseInitRole(state.initRole);
     }
 
     if ('networkIdentity' in state) {
@@ -146,11 +152,54 @@ export class MPCKeyring implements Keyring {
     if ('keyId' in state) {
       this.#keyId = parseThresholdKeyId(state.keyId);
     }
+
+    if ('verifierIds' in state) {
+      this.#verifierIds = parseVerifierIds(state.verifierIds);
+    }
+
+    if ('selectedVerifierIndex' in state) {
+      this.#selectedVerifierIndex = parseSelectedVerifierIndex(
+        state.selectedVerifierIndex,
+      );
+    }
   }
 
-  async init(): Promise<void> {
-    if (this.#keyShare && this.#networkIdentity && this.#keyId) {
-      return;
+  getVerifierIds(): string[] {
+    if (!this.#verifierIds) {
+      throw new Error('Verifier IDs not initialized');
+    }
+    return this.#verifierIds;
+  }
+
+  selectVerifier(verifierIndex: number): string {
+    if (!this.#verifierIds) {
+      throw new Error('Verifier IDs not initialized');
+    } else if (verifierIndex < 0 || verifierIndex >= this.#verifierIds.length) {
+      throw new Error('Invalid verifier index');
+    }
+    this.#selectedVerifierIndex = verifierIndex;
+    return this.#verifierIds[verifierIndex] as string;
+  }
+
+  getSelectedVerifierId(): string {
+    if (!this.#verifierIds) {
+      throw new Error('Verifier IDs not initialized');
+    } else if (!this.#selectedVerifierIndex) {
+      throw new Error('Selected verifier index not initialized');
+    } else if (
+      this.#selectedVerifierIndex < 0 ||
+      this.#selectedVerifierIndex >= this.#verifierIds.length
+    ) {
+      throw new Error('Invalid selected verifier index');
+    }
+    return this.#verifierIds[this.#selectedVerifierIndex] as string;
+  }
+
+  async setup({ verifierIds }: { verifierIds: string[] }): Promise<void> {
+    if (this.#keyShare || this.#networkIdentity || this.#keyId) {
+      throw new Error('Keyring already setup');
+    } else if (verifierIds.length < 1) {
+      throw new Error('At least one verifier ID is required');
     }
 
     const dkm = new CL24DKM(secp256k1Curve, this.#rng);
@@ -163,6 +212,7 @@ export class MPCKeyring implements Keyring {
       localId,
       sessionNonce,
       baseURL: this.#cloudURL,
+      verifierIds,
     });
     const custodians = [localId, cloudId];
     const threshold = 2;
@@ -177,6 +227,8 @@ export class MPCKeyring implements Keyring {
       networkSession,
     });
     this.#keyId = networkSession.sessionId;
+    this.#verifierIds = verifierIds;
+    this.#selectedVerifierIndex = 0;
 
     await networkSession.disconnect();
   }
@@ -294,6 +346,15 @@ export class MPCKeyring implements Keyring {
       throw new Error(`network credentials not initialized`);
     } else if (!this.#keyId) {
       throw new Error(`key id not initialized`);
+    } else if (!this.#verifierIds) {
+      throw new Error('Verifier IDs not initialized');
+    } else if (!this.#selectedVerifierIndex) {
+      throw new Error('Selected verifier index not initialized');
+    }
+
+    const verifierId = this.#verifierIds[this.#selectedVerifierIndex];
+    if (!verifierId) {
+      throw new Error('Selected verifier index out of bounds');
     }
 
     const { custodians, publicKey } = this.#keyShare;
@@ -306,6 +367,7 @@ export class MPCKeyring implements Keyring {
     const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
     const sessionId = createScopedSessionId(custodians, sessionNonce);
     const message = hash;
+    const token = await this.#getVerifierToken(verifierId);
 
     await initCloudSign({
       keyId: this.#keyId,
@@ -313,6 +375,7 @@ export class MPCKeyring implements Keyring {
       sessionNonce,
       message,
       baseURL: this.#cloudURL,
+      token,
     });
 
     const networkSession = await this.#networkManager.createSession(

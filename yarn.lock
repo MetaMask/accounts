@@ -2191,12 +2191,12 @@ __metadata:
 
 "@metamask/mfa-wallet-cl24-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
   version: 0.0.0
-  resolution: "@metamask/mfa-wallet-cl24-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz::hash=4ec4ea&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  resolution: "@metamask/mfa-wallet-cl24-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-lib-0.0.0.tgz::hash=6f19f0&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
   dependencies:
     "@msgpack/msgpack": "npm:^3.1.2"
     "@noble/curves": "npm:^1.9.2"
     "@noble/hashes": "npm:^1.8.0"
-  checksum: 10/cb58aed5eca46f0fb25fc66e83d5609818e2fb9c6a1b6766ba6d9e4bd49becc5eade784bf4d28a04c3967b70633be54f33764bf34dae81e1f7684dcf64fb4252
+  checksum: 10/3779f3d5d370082ea2dd27163670f6085f9863049a35f605019d4fc8883c7101f92726c37a5b12b2d6ab62e768b0f8cd297cd5076a9864a608c24c739cb132d1
   languageName: node
   linkType: hard
 
@@ -2212,32 +2212,32 @@ __metadata:
 
 "@metamask/mfa-wallet-e2ee@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
   version: 0.0.0
-  resolution: "@metamask/mfa-wallet-e2ee@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz::hash=7e9304&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  resolution: "@metamask/mfa-wallet-e2ee@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz::hash=adbb1d&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
   dependencies:
     "@msgpack/msgpack": "npm:^3.1.2"
     "@noble/ciphers": "npm:^1.3.0"
     "@noble/curves": "npm:^1.9.2"
     "@noble/hashes": "npm:^1.8.0"
-  checksum: 10/13ccf57849813e2ae7622d7d8cd056836571dbaccd39a52c9d729170c3933689a348b330af5dfe28a125fb22407653e847c458ba5edec8c1d7e07659d91c6065
+  checksum: 10/ce481bf5a802dc15f0d30fbb906c6157668485a532474eaf306019f19dc97b46e71fee6f716278143e2c59a2a7dcee2df1508e769d307657a37d3c54bc33f106
   languageName: node
   linkType: hard
 
 "@metamask/mfa-wallet-interface@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
   version: 0.0.0
-  resolution: "@metamask/mfa-wallet-interface@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz::hash=f21c99&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
-  checksum: 10/eba9cab297a83b7deb50027bb7321d394beb18ee806cfc0f103e00c0ebca6ed92364c80aeace7247c546afc0cfb176182b09d230823fd574a87e090e095a4131
+  resolution: "@metamask/mfa-wallet-interface@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz::hash=42e214&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  checksum: 10/f2396f9d3694c06c8e64f0f12e7c1eccf23cd90694d8214745e08d24c3b1540e4beb39d4b56577bf0ffa1ea55a76980bb7f9b275d2323712a6dc654617235ad4
   languageName: node
   linkType: hard
 
 "@metamask/mfa-wallet-network@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
   version: 0.0.0
-  resolution: "@metamask/mfa-wallet-network@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz::hash=437af8&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  resolution: "@metamask/mfa-wallet-network@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz::hash=702a02&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
   dependencies:
     "@metamask/mfa-wallet-e2ee": "npm:^0.0.0"
     "@msgpack/msgpack": "npm:^3.1.2"
     "@noble/hashes": "npm:^1.8.0"
     centrifuge: "npm:^5.5.2"
-  checksum: 10/68f59188d011bdc719d9d5be0be179e153e08719c6241d862c19315cce4bc5ed865af56076fc14636f5a15e92085d55e7a803c22c8b798dd19d2f1fe82383332
+  checksum: 10/60f759c20b21cd9c56fe78336a7a67cbffabe8a5a76801d504c6e3324285c80c4e5a3a20e1389c82f031b080b65da8ae56cd5df483e5860e267d3327e73c8be5
   languageName: node
   linkType: hard
 

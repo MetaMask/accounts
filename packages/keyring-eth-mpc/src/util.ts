@@ -19,7 +19,7 @@ import {
 import type { Hex, Json } from '@metamask/utils';
 import { add0x, assert, bytesToHex, hexToBytes } from '@metamask/utils';
 
-import type { InitRole, ThresholdKeyId } from './types';
+import type { ThresholdKeyId } from './types';
 
 const SECP256K1_N = BigInt(
   '0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
@@ -193,19 +193,6 @@ export function getSignedTypedDataHash<
 }
 
 /**
- * Parse the init role from a JSON object.
- *
- * @param initRole - The init role to parse.
- * @returns The parsed init role.
- */
-export function parseInitRole(initRole: Json): InitRole {
-  if (initRole !== 'initiator' && initRole !== 'responder') {
-    throw new Error('Invalid init role');
-  }
-  return initRole;
-}
-
-/**
  * Parse the key ID from a JSON object.
  *
  * @param keyId - The key ID to parse.
@@ -216,6 +203,44 @@ export function parseThresholdKeyId(keyId: Json): ThresholdKeyId {
     throw new Error('Invalid key ID');
   }
   return keyId;
+}
+
+/**
+ * Parse verifier IDs from a JSON object.
+ *
+ * @param verifierIds - The verifier IDs to parse.
+ * @returns The parsed verifier IDs.
+ */
+export function parseVerifierIds(verifierIds: Json): string[] {
+  if (!Array.isArray(verifierIds)) {
+    throw new Error('Invalid verifier IDs: expected an array');
+  }
+  for (const id of verifierIds) {
+    if (typeof id !== 'string') {
+      throw new Error('Invalid verifier ID: expected a string');
+    }
+  }
+  return verifierIds as string[];
+}
+
+/**
+ * Parse the selected verifier index from a JSON object.
+ *
+ * @param selectedVerifierIndex - The selected verifier index to parse.
+ * @returns The parsed selected verifier index.
+ */
+export function parseSelectedVerifierIndex(
+  selectedVerifierIndex: Json,
+): number {
+  if (typeof selectedVerifierIndex !== 'number') {
+    throw new Error('Invalid selected verifier index: expected a number');
+  }
+  if (!Number.isInteger(selectedVerifierIndex) || selectedVerifierIndex < 0) {
+    throw new Error(
+      'Invalid selected verifier index: expected a non-negative integer',
+    );
+  }
+  return selectedVerifierIndex;
 }
 
 /**

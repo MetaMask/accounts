@@ -8,8 +8,8 @@ export type MPCKeyringOpts = {
   dkls19Lib: Dkls19WasmLib;
   cloudURL: string;
   relayerURL: string;
-  initRole: InitRole;
-  getToken?: (partyId: string) => string;
+  getTransportToken?: () => Promise<string>;
+  getVerifierToken: (verifierId: string) => Promise<string>;
   webSocket?: unknown;
 };
 
@@ -19,8 +19,6 @@ type JsonSerializer<Value> = {
   toJson: (value: Value) => Json;
   fromJson: (value: Json) => Value;
 };
-
-export type InitRole = 'initiator' | 'responder';
 
 export type MPCKeyringSerializer = {
   thresholdKey: JsonSerializer<ThresholdKey>;

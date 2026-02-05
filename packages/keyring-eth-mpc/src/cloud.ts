@@ -8,12 +8,14 @@ import { bytesToBase64 } from '@metamask/utils';
  * @param opts.localId - The local ID of the device
  * @param opts.sessionNonce - The nonce of the session
  * @param opts.baseURL - The base URL of the cloud service
+ * @param opts.verifierIds - The IDs of the verifiers
  * @returns The cloud ID of the device
  */
 export async function initCloudKeyGen(opts: {
   baseURL: string;
   localId: PartyId;
   sessionNonce: string;
+  verifierIds: string[];
 }): Promise<{ cloudId: string }> {
   const response = await fetch(`${opts.baseURL}/create-key`, {
     method: 'POST',
@@ -24,7 +26,7 @@ export async function initCloudKeyGen(opts: {
       custodianId: opts.localId,
       nonce: opts.sessionNonce,
       protocol: 'cl24-secp256k1',
-      // verifierIds: [], // TODO add this once we get verifier ids from frontend
+      verifierIds: opts.verifierIds,
     }),
   });
 
@@ -47,6 +49,7 @@ export async function initCloudKeyGen(opts: {
  * @param opts.localId - The local ID of the device
  * @param opts.sessionNonce - The nonce of the session
  * @param opts.message - The message to sign
+ * @param opts.token - The token for the verifier
  */
 export async function initCloudSign(opts: {
   baseURL: string;
@@ -54,6 +57,7 @@ export async function initCloudSign(opts: {
   localId: PartyId;
   sessionNonce: string;
   message: Uint8Array;
+  token: string;
 }): Promise<void> {
   const response = await fetch(`${opts.baseURL}/sign`, {
     method: 'POST',
@@ -66,7 +70,7 @@ export async function initCloudSign(opts: {
       nonce: opts.sessionNonce,
       message: bytesToBase64(opts.message),
       protocol: 'dkls19',
-      // token: 'TODO', // TODO add this once we get token from frontend
+      token: opts.token,
     }),
   });
 
