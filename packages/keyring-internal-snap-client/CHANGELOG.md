@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore(deps-dev): bump @metamask/snaps-utils from 11.7.0 to 11.7.1 ([#424](https://github.com/MetaMask/accounts.git/pull/424))
+
 ### Changed
 
 - Bump `@metamask/snaps-controllers` from `^14.0.1` to `^17.2.0` ([#422](https://github.com/MetaMask/accounts/pull/422))
@@ -171,22 +175,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@8.0.1...HEAD
-[8.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@8.0.0...@metamask/keyring-internal-snap-client@8.0.1
-[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@7.2.0...@metamask/keyring-internal-snap-client@8.0.0
-[7.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@7.1.0...@metamask/keyring-internal-snap-client@7.2.0
-[7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@7.0.0...@metamask/keyring-internal-snap-client@7.1.0
-[7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@6.0.0...@metamask/keyring-internal-snap-client@7.0.0
-[6.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@5.0.0...@metamask/keyring-internal-snap-client@6.0.0
-[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.1.0...@metamask/keyring-internal-snap-client@5.0.0
-[4.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.0.2...@metamask/keyring-internal-snap-client@4.1.0
-[4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.0.1...@metamask/keyring-internal-snap-client@4.0.2
-[4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@4.0.0...@metamask/keyring-internal-snap-client@4.0.1
-[4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@3.0.3...@metamask/keyring-internal-snap-client@4.0.0
-[3.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@3.0.2...@metamask/keyring-internal-snap-client@3.0.3
-[3.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@3.0.1...@metamask/keyring-internal-snap-client@3.0.2
-[3.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@3.0.0...@metamask/keyring-internal-snap-client@3.0.1
-[3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@2.0.0...@metamask/keyring-internal-snap-client@3.0.0
-[2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@1.1.0...@metamask/keyring-internal-snap-client@2.0.0
-[1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@1.0.0...@metamask/keyring-internal-snap-client@1.1.0
-[1.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/keyring-internal-snap-client@1.0.0
+[Unreleased]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@8.0.1...HEAD
+[8.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@8.0.0...@metamask/keyring-internal-snap-client@8.0.1
+[8.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@7.2.0...@metamask/keyring-internal-snap-client@8.0.0
+[7.2.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@7.1.0...@metamask/keyring-internal-snap-client@7.2.0
+[7.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@7.0.0...@metamask/keyring-internal-snap-client@7.1.0
+[7.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@6.0.0...@metamask/keyring-internal-snap-client@7.0.0
+[6.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@5.0.0...@metamask/keyring-internal-snap-client@6.0.0
+[5.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@4.1.0...@metamask/keyring-internal-snap-client@5.0.0
+[4.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@4.0.2...@metamask/keyring-internal-snap-client@4.1.0
+[4.0.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@4.0.1...@metamask/keyring-internal-snap-client@4.0.2
+[4.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@4.0.0...@metamask/keyring-internal-snap-client@4.0.1
+[4.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@3.0.3...@metamask/keyring-internal-snap-client@4.0.0
+[3.0.3]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@3.0.2...@metamask/keyring-internal-snap-client@3.0.3
+[3.0.2]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@3.0.1...@metamask/keyring-internal-snap-client@3.0.2
+[3.0.1]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@3.0.0...@metamask/keyring-internal-snap-client@3.0.1
+[3.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@2.0.0...@metamask/keyring-internal-snap-client@3.0.0
+[2.0.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@1.1.0...@metamask/keyring-internal-snap-client@2.0.0
+[1.1.0]: https://github.com/MetaMask/accounts.git/compare/@metamask/keyring-internal-snap-client@1.0.0...@metamask/keyring-internal-snap-client@1.1.0
+[1.0.0]: https://github.com/MetaMask/accounts.git/releases/tag/@metamask/keyring-internal-snap-client@1.0.0
