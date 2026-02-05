@@ -9,11 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.1.2]
 
-### Uncategorized
-
-- fix: silent `@typescript-eslint/no-redundant-type-constituents` + fix local linting issues ([#437](https://github.com/MetaMask/accounts/pull/437))
-- fix: remove `@typescript-eslint/no-redundant-type-constituents` directives ([#407](https://github.com/MetaMask/accounts/pull/407))
-
 ### Changed
 
 - **BREAKING:** Rename `KeyringRequestV1` type to `KeyringRequestWithoutOrigin` ([#423](https://github.com/MetaMask/accounts/pull/423))

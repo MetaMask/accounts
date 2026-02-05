@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.2.0]
 
-### Uncategorized
-
-- fix: remove `@typescript-eslint/no-redundant-type-constituents` directives ([#407](https://github.com/MetaMask/accounts/pull/407))
-
 ### Added
 
 - Add `KeyringClient.createAccounts` method ([#448](https://github.com/MetaMask/accounts/pull/448))

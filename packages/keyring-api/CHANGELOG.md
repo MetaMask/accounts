@@ -9,14 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [21.4.0]
 
-### Uncategorized
-
-- chore: fixup changelogs ([#452](https://github.com/MetaMask/accounts/pull/452))
-- chore: organize KeyringRpcMethod enum by category ([#441](https://github.com/MetaMask/accounts/pull/441))
-- feat: add `SimpleKeyringV2` ([#409](https://github.com/MetaMask/accounts/pull/409))
-- fix: remove `@typescript-eslint/no-redundant-type-constituents` directives ([#407](https://github.com/MetaMask/accounts/pull/407))
-- feat: add `KeyringV2` wrapper + `HdKeyringV2` adapter ([#402](https://github.com/MetaMask/accounts/pull/402))
-
 ### Added
 
 - Add `Keyring.createAccounts` optional method ([#448](https://github.com/MetaMask/accounts/pull/448))
@@ -32,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add `AccountCreationType.Custom` and `CreateAccountCustomOptions` for custom account creation flows.
 - Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
   - Provides common Ethereum signing method routing (`submitRequest`) for all Ethereum-based keyrings.
-- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)), ([#410](https://github.com/MetaMask/accounts/pull/410))
+- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)),([#402](https://github.com/MetaMask/accounts/pull/402)), ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410))
 
 ### Changed
 

@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.3.0]
 
-### Uncategorized
-
-- chore: fixup changelogs ([#459](https://github.com/MetaMask/accounts/pull/459))
-
 ### Changed
 
 - Integrate `@metamask/hw-wallet-sdk` for standardized hardware wallet error handling ([#446](https://github.com/MetaMask/accounts/pull/446))
