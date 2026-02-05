@@ -2538,6 +2538,12 @@ describe('SnapKeyring', () => {
       id: 'cc11bb22-cc33-4d44-ae55-ff6677889900',
       address: '0xccddee00112233445566778899aabbccddee0011',
     };
+    const newAccount4 = {
+      ...newAccount2,
+      ...newEthEoaAccount,
+      id: 'dd11bb22-cc33-4d44-ae55-ff6677889900',
+      address: '0xddddee00112233445566778899aabbccddee0011',
+    };
 
     const entropySource = '01JQCAKR17JARQXZ0NDP760N1K';
 
@@ -2922,7 +2928,9 @@ describe('SnapKeyring', () => {
       });
 
       // Verify the existing account is in the keyring
-      expect(keyring.getAccountByAddress(existingAccount.address)).toBeDefined();
+      expect(
+        keyring.getAccountByAddress(existingAccount.address),
+      ).toBeDefined();
 
       // Clear the mocks for the second call
       mockCallbacks.saveState.mockClear();
@@ -2930,17 +2938,6 @@ describe('SnapKeyring', () => {
       mockMessenger.handleRequest.mockClear();
 
       // Now try to create new accounts, but make saveState fail
-      const newAccount3 = {
-        ...newAccount1,
-        id: 'bb11bb22-cc33-4d44-be55-ff6677889911',
-        address: '0xbbccddee00112233445566778899aabbccdd11',
-      };
-
-      const newAccount4 = {
-        ...newAccount2,
-        id: 'cc11bb22-cc33-4d44-8e55-ff6677889922',
-        address: '0xccddee00112233445566778899aabbccddee22',
-      };
 
       const accountsFromSnap = [existingAccount, newAccount3, newAccount4];
 
@@ -3003,7 +3000,9 @@ describe('SnapKeyring', () => {
 
       // Verify the keyring state was rolled back
       // The existing account should still be there
-      expect(keyring.getAccountByAddress(existingAccount.address)).toBeDefined();
+      expect(
+        keyring.getAccountByAddress(existingAccount.address),
+      ).toBeDefined();
 
       // The new accounts should NOT be in the keyring
       expect(keyring.getAccountByAddress(newAccount3.address)).toBeUndefined();
