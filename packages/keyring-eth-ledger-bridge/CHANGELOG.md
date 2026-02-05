@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Integrate `@metamask/hw-wallet-sdk` for standardized hardware wallet error handling ([#446](https://github.com/MetaMask/accounts/pull/446))
+  - Replace custom error handling with `HardwareWalletError` from the SDK.
+  - Use `LEDGER_ERROR_MAPPINGS` from the SDK for consistent error code mapping.
+  - Re-export `HardwareWalletError`, `ErrorCode`, `Severity`, `Category`, and error mappings for consumer convenience.
+  - Deprecate `LedgerStatusError` in favor of `HardwareWalletError`.
+  - Prefix Ledger transport error messages for compatibility
+
 ## [11.2.0]
 
 ### Added
@@ -15,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Wraps legacy `LedgerKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
   - Extends `EthKeyringWrapper` for common Ethereum logic.
 
-### Fixed
+### Changed
 
 - Normalize signature `v` value from Ledger devices for proper recovery ([#449](https://github.com/MetaMask/accounts/pull/449))
 

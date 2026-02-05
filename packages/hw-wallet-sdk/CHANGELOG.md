@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- export `ErrorMapping` type ([#446](https://github.com/MetaMask/accounts/pull/446))
 - Add hardware wallet connection types and improved error handling ([#456](https://github.com/MetaMask/accounts/pull/456))
   - Add `HardwareWalletType`, `ConnectionStatus`, `DeviceEvent` enums and `HardwareWalletConnectionState`, `DeviceEventPayload` types.
   - Add Ledger error mappings for device locked and Ethereum app closed states.

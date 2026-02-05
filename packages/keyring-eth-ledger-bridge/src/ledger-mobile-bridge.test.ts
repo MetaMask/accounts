@@ -26,6 +26,7 @@ describe('LedgerMobileBridge', function () {
     openEthApp: jest.fn(),
     closeApps: jest.fn(),
     getAppNameAndVersion: jest.fn(),
+    getAppConfiguration: jest.fn(),
   };
 
   const mockTransport = {
@@ -274,6 +275,24 @@ describe('LedgerMobileBridge', function () {
     it('sends the `getAppNameAndVersion` transport command correctly', async function () {
       await bridge.getAppNameAndVersion();
       expect(mockEthApp.getAppNameAndVersion).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getAppConfiguration', function () {
+    it('sends the `getAppConfiguration` transport command correctly', async function () {
+      const mockConfiguration = {
+        arbitraryDataEnabled: 1,
+        erc20ProvisioningNecessary: 0,
+        starkEnabled: 0,
+        starkv2Supported: 0,
+        version: '1.9.0',
+      };
+      mockEthApp.getAppConfiguration.mockResolvedValue(mockConfiguration);
+
+      const result = await bridge.getAppConfiguration();
+
+      expect(mockEthApp.getAppConfiguration).toHaveBeenCalledTimes(1);
+      expect(result).toStrictEqual(mockConfiguration);
     });
   });
 

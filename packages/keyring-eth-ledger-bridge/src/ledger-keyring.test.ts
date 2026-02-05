@@ -801,7 +801,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('Ledger: User rejected action on device');
       });
 
       it('throws blind signing error when TransportStatusError with code 27264 is thrown', async function () {
@@ -819,7 +819,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow('Ledger: Blind signing must be enabled');
+        ).rejects.toThrow('Ledger: Blind signing not supported');
       });
 
       it('re-throws TransportStatusError with unknown status code', async function () {
@@ -837,7 +837,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
       });
     });
 
@@ -928,7 +928,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('Ledger: User rejected action on device');
       });
 
       it('re-throws TransportStatusError with unknown status code in signPersonalMessage', async function () {
@@ -945,7 +945,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
       });
 
       it('normalizes v=0 to v=27 for proper signature recovery', async function () {
@@ -1427,7 +1427,7 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('Ledger: User rejected action on device');
       });
 
       it('throws blind signing error when TransportStatusError with code 27264 is thrown in signTypedData', async function () {
@@ -1445,7 +1445,7 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow('Ledger: Blind signing must be enabled');
+        ).rejects.toThrow('Ledger: Blind signing not supported');
       });
 
       it('re-throws TransportStatusError with unknown status code in signTypedData', async function () {
@@ -1463,7 +1463,94 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
+      });
+    });
+
+    describe('getAppNameAndVersion', function () {
+      it('returns app name and version from bridge', async function () {
+        const mockResponse = {
+          appName: 'Ethereum',
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(keyring.bridge, 'getAppNameAndVersion')
+          .mockResolvedValue(mockResponse);
+
+        const result = await keyring.getAppNameAndVersion();
+
+        expect(result).toStrictEqual(mockResponse);
+      });
+
+      it('handles TransportStatusError when getting app name and version', async function () {
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'getAppNameAndVersion')
+          .mockRejectedValue(transportError);
+
+        await expect(keyring.getAppNameAndVersion()).rejects.toThrow(
+          'Ledger: User rejected action on device',
+        );
+      });
+    });
+
+    describe('getAppConfiguration', function () {
+      it('returns app configuration from bridge', async function () {
+        const mockResponse = {
+          arbitraryDataEnabled: 1,
+          erc20ProvisioningNecessary: 0,
+          starkEnabled: 0,
+          starkv2Supported: 0,
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(keyring.bridge, 'getAppConfiguration')
+          .mockResolvedValue(mockResponse);
+
+        const result = await keyring.getAppConfiguration();
+
+        expect(result).toStrictEqual(mockResponse);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(keyring.bridge.getAppConfiguration).toHaveBeenCalledTimes(1);
+      });
+
+      it('returns app configuration with blind signing disabled', async function () {
+        const mockResponse = {
+          arbitraryDataEnabled: 0,
+          erc20ProvisioningNecessary: 1,
+          starkEnabled: 0,
+          starkv2Supported: 0,
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(keyring.bridge, 'getAppConfiguration')
+          .mockResolvedValue(mockResponse);
+
+        const result = await keyring.getAppConfiguration();
+
+        expect(result).toStrictEqual(mockResponse);
+        expect(result.arbitraryDataEnabled).toBe(0);
+      });
+
+      it('handles TransportStatusError when getting app configuration', async function () {
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'getAppConfiguration')
+          .mockRejectedValue(transportError);
+
+        await expect(keyring.getAppConfiguration()).rejects.toThrow(
+          'Ledger: User rejected action on device',
+        );
       });
     });
 

@@ -1723,6 +1723,7 @@ __metadata:
     "@metamask/account-api": "workspace:^"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
+    "@metamask/hw-wallet-sdk": "workspace:^"
     "@metamask/keyring-api": "workspace:^"
     "@metamask/keyring-utils": "workspace:^"
     "@metamask/utils": "npm:^11.1.0"
@@ -1939,7 +1940,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk":
+"@metamask/hw-wallet-sdk@workspace:^, @metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk":
   version: 0.0.0-use.local
   resolution: "@metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk"
   dependencies:

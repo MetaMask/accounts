@@ -25,6 +25,19 @@ export type LedgerSignTypedDataResponse = Awaited<
   ReturnType<LedgerHwAppEth['signEIP712HashedMessage']>
 >;
 
+export type GetAppNameAndVersionResponse = {
+  appName: string;
+  version: string;
+};
+
+export type AppConfigurationResponse = {
+  arbitraryDataEnabled: number; // this is the blind signing support
+  erc20ProvisioningNecessary: number;
+  starkEnabled: number;
+  starkv2Supported: number;
+  version: string;
+};
+
 export type LedgerBridgeOptions = Record<string, unknown>;
 
 export type LedgerBridge<T extends LedgerBridgeOptions> = {
@@ -63,4 +76,18 @@ export type LedgerBridge<T extends LedgerBridgeOptions> = {
   deviceSignTypedData(
     params: LedgerSignTypedDataParams,
   ): Promise<LedgerSignTypedDataResponse>;
+
+  /**
+   * Method to retrieve the name and version of the running application on the Ledger device.
+   *
+   * @returns An object containing appName and version.
+   */
+  getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse>;
+
+  /**
+   * Method to retrieve the configuration of the running application on the Ledger device.
+   *
+   * @returns An object containing the configuration of the running application.
+   */
+  getAppConfiguration(): Promise<AppConfigurationResponse>;
 };

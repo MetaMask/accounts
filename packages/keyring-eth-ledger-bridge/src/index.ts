@@ -6,3 +6,5 @@ export type * from './ledger-bridge';
 export * from './ledger-transport-middleware';
 export type * from './type';
 export * from './ledger-hw-app';
+export * from './errors';
+export * from './ledger-error-handler';

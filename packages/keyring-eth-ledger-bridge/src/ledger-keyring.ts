@@ -24,7 +24,12 @@ import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
+import {
+  AppConfigurationResponse,
+  GetAppNameAndVersionResponse,
+  LedgerBridge,
+  LedgerBridgeOptions,
+} from './ledger-bridge';
 import { handleLedgerTransportError } from './ledger-error-handler';
 import { LedgerIframeBridgeOptions } from './ledger-iframe-bridge';
 
@@ -327,6 +332,28 @@ export class LedgerKeyring implements Keyring {
 
   async updateTransportMethod(transportType: string): Promise<boolean> {
     return this.bridge.updateTransportMethod(transportType);
+  }
+
+  async getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse> {
+    try {
+      return await this.bridge.getAppNameAndVersion();
+    } catch (error: unknown) {
+      return handleLedgerTransportError(
+        error,
+        'Ledger: Unknown error while getting app name and version',
+      );
+    }
+  }
+
+  async getAppConfiguration(): Promise<AppConfigurationResponse> {
+    try {
+      return await this.bridge.getAppConfiguration();
+    } catch (error: unknown) {
+      return handleLedgerTransportError(
+        error,
+        'Ledger: Unknown error while getting app configuration',
+      );
+    }
   }
 
   // tx is an instance of the ethereumjs-transaction class.
