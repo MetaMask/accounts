@@ -1,3 +1,5 @@
+// istanbul ignore file
+
 import { HardwareWalletError } from './hardware-error';
 
 export enum HardwareWalletType {
