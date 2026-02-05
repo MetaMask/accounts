@@ -970,7 +970,9 @@ export class SnapKeyring {
     const accounts = [];
     const snapAccounts = await client.createAccounts(options);
     try {
-      for (const account of snapAccounts) {
+      for (const snapAccount of snapAccounts) {
+        const account = transformAccount(snapAccount);
+
         // Check for account preconditions. Order matters here:
         // 1. Account type validity (e.g. generic accounts).
         // 2. Account existence (idempotency).
