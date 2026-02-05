@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add hardware wallet connection types and improved error handling ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add hardware wallet connection types and improved error handling ([#456](https://github.com/MetaMask/accounts/pull/456))
   - Add `HardwareWalletType`, `ConnectionStatus`, `DeviceEvent` enums and `HardwareWalletConnectionState`, `DeviceEventPayload` types.
   - Add Ledger error mappings for device locked and Ethereum app closed states.
   - Add `isHardwareWalletError` static method to `HardwareWalletError` class for type-safe error checking.
