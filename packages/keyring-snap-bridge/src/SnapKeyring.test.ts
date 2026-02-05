@@ -2538,12 +2538,6 @@ describe('SnapKeyring', () => {
       id: 'cc11bb22-cc33-4d44-ae55-ff6677889900',
       address: '0xccddee00112233445566778899aabbccddee0011',
     };
-    const newAccount4 = {
-      ...newAccount2,
-      ...newEthEoaAccount,
-      id: 'dd11bb22-cc33-4d44-ae55-ff6677889900',
-      address: '0xddddee00112233445566778899aabbccddee0011',
-    };
 
     const entropySource = '01JQCAKR17JARQXZ0NDP760N1K';
 
@@ -2902,117 +2896,6 @@ describe('SnapKeyring', () => {
       expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
 
-    it('rolls back keyring state and only deletes new Snap accounts when saveState fails', async () => {
-      mockCallbacks.addAccount.mockClear();
-      mockCallbacks.saveState.mockClear();
-      mockCallbacks.addressExists.mockClear();
-
-      mockMessenger.get.mockReturnValue(snapMetadata);
-
-      // First, create an existing account that's already in the keyring
-      const existingAccount = {
-        ...newAccount1,
-        id: 'aa11bb22-cc33-4d44-ae55-ff6677889900',
-        address: '0xaabbccddee00112233445566778899aabbccdd00',
-      };
-
-      mockMessengerHandleRequest({
-        [KeyringRpcMethod.CreateAccounts]: async () => [existingAccount],
-      });
-
-      mockCallbacks.addressExists.mockResolvedValue(false);
-
-      await keyring.createAccounts(snapId, {
-        type: AccountCreationType.Bip44DeriveIndex,
-        entropySource,
-        groupIndex: 0,
-      });
-
-      // Verify the existing account is in the keyring
-      expect(
-        keyring.getAccountByAddress(existingAccount.address),
-      ).toBeDefined();
-
-      // Clear the mocks for the second call
-      mockCallbacks.saveState.mockClear();
-      mockCallbacks.addressExists.mockClear();
-      mockMessenger.handleRequest.mockClear();
-
-      // Now try to create new accounts, but make saveState fail
-
-      const accountsFromSnap = [existingAccount, newAccount3, newAccount4];
-
-      mockMessengerHandleRequest({
-        [KeyringRpcMethod.CreateAccounts]: async () => accountsFromSnap,
-        [KeyringRpcMethod.DeleteAccount]: async () => null,
-      });
-
-      mockCallbacks.addressExists.mockResolvedValue(false);
-
-      // Make saveState fail
-      const saveStateError = new Error('Failed to save state to disk');
-      mockCallbacks.saveState.mockRejectedValue(saveStateError);
-
-      const options: CreateAccountOptions = {
-        type: AccountCreationType.Bip44DeriveIndex,
-        entropySource,
-        groupIndex: 1,
-      };
-
-      // Should throw the saveState error
-      await expect(keyring.createAccounts(snapId, options)).rejects.toThrow(
-        saveStateError,
-      );
-
-      // Verify that createAccounts was called on the Snap
-      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({
-          request: expect.objectContaining({
-            method: KeyringRpcMethod.CreateAccounts,
-          }),
-        }),
-      );
-
-      // Verify that only the NEW accounts (not the pre-existing one) were deleted from the Snap
-      // The existing account should NOT be deleted because it was already in the keyring state
-      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({
-          request: expect.objectContaining({
-            method: KeyringRpcMethod.DeleteAccount,
-            params: { id: newAccount3.id },
-          }),
-        }),
-      );
-
-      expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
-        3,
-        expect.objectContaining({
-          request: expect.objectContaining({
-            method: KeyringRpcMethod.DeleteAccount,
-            params: { id: newAccount4.id },
-          }),
-        }),
-      );
-
-      // Should only have 3 delete calls (for the 2 new accounts, not the existing one)
-      expect(mockMessenger.handleRequest).toHaveBeenCalledTimes(3);
-
-      // Verify the keyring state was rolled back
-      // The existing account should still be there
-      expect(
-        keyring.getAccountByAddress(existingAccount.address),
-      ).toBeDefined();
-
-      // The new accounts should NOT be in the keyring
-      expect(keyring.getAccountByAddress(newAccount3.address)).toBeUndefined();
-      expect(keyring.getAccountByAddress(newAccount4.address)).toBeUndefined();
-
-      // Verify saveState was called (and failed)
-      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(1);
-    });
-
     it('throws error and rolls back when batch contains duplicate addresses', async () => {
       mockCallbacks.addAccount.mockClear();
       mockCallbacks.saveState.mockClear();
@@ -3055,7 +2938,7 @@ describe('SnapKeyring', () => {
 
       // Should throw error when encountering duplicate address in batch
       await expect(keyring.createAccounts(snapId, options)).rejects.toThrow(
-        `Account '${account2.id}' already exists (part of this batch)`,
+        `Account '${account2.id}' is already part of this batch (same address or account ID)`,
       );
 
       // Verify that createAccounts was called on the Snap
