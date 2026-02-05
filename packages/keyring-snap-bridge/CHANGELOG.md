@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore(deps-dev): bump @metamask/snaps-utils from 11.7.0 to 11.7.1 ([#424](https://github.com/MetaMask/accounts/pull/424))
+- fix: remove `@typescript-eslint/no-redundant-type-constituents` directives ([#407](https://github.com/MetaMask/accounts/pull/407))
+- feat: refine `EthAddressStruct` in order to make it compatible with the `Hex` type from `@metamask/utils` ([#405](https://github.com/MetaMask/accounts/pull/405))
+
 ### Added
 
 - Add `SnapKeyring.createAccounts` method ([#448](https://github.com/MetaMask/accounts/pull/448))
