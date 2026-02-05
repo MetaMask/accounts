@@ -959,8 +959,15 @@ export class SnapKeyring {
       snapId,
     });
 
-    const allAccounts = [];
-    const newAccounts = [];
+    // Make a backup so we can rollback if something goes wrong during the
+    // account creation process.
+    const backup = await this.serialize();
+
+    // Flag to track whether we need to update the keyring state at the end of the process.
+    // NOTE: To avoid unecessary state updates.
+    let updated = false;
+
+    const accounts = [];
     const snapAccounts = await client.createAccounts(options);
     try {
       for (const account of snapAccounts) {
@@ -972,16 +979,26 @@ export class SnapKeyring {
         if (!this.#isAccountAlreadyKnown(snapId, account)) {
           await this.#assertAccountIsUnique(snapId, account);
 
-          // Keep track of newly created accounts to add them to the keyring
-          // state later.
-          newAccounts.push(account);
+          // NOTE: This method does not rely on the `AccountCreated` event to add
+          // accounts to the keyring, so we have to add them to the state manually.
+          this.#accounts.set(account.id, { account, snapId });
+          updated = true;
         }
 
         // New AND existing accounts are returned to the caller no matter what.
-        allAccounts.push(account);
+        accounts.push(account);
       }
+
+      if (updated) {
+        await this.#callbacks.saveState();
+      }
+
+      return accounts;
     } catch (error) {
-      // Rollback Snap state if something went wrong during account creation.
+      // Rollback keyring state.
+      await this.deserialize(backup);
+
+      // Rollback Snap state.
       for (const account of snapAccounts) {
         // Make sure to only delete accounts that were not part of the keyring state.
         if (!this.#isAccountAlreadyKnown(snapId, account)) {
@@ -991,18 +1008,6 @@ export class SnapKeyring {
 
       throw error;
     }
-
-    // NOTE: This method DOES NOT rely on the `AccountCreated` event to add
-    // accounts to the keyring, since those accounts are created in batch.
-    if (newAccounts.length > 0) {
-      for (const account of newAccounts) {
-        this.#accounts.set(account.id, { account, snapId });
-      }
-
-      await this.#callbacks.saveState();
-    }
-
-    return allAccounts;
   }
 
   /**
