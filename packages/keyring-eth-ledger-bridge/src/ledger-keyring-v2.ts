@@ -32,8 +32,6 @@ const ledgerKeyringV2Capabilities: KeyringCapabilities = {
   bip44: {
     deriveIndex: true,
     derivePath: true,
-    deriveIndexRange: false,
-    discover: false,
   },
 };
 

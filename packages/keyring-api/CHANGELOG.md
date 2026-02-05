@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Make BIP-44 capabilities optional in `KeyringCapabilities` ([#453](https://github.com/MetaMask/accounts/pull/453))
+  - The `derivePath`, `deriveIndex`, `deriveIndexRange`, and `discover` capabilities are now optional.
+  - A capability set to `true` indicates support, while `false` or `undefined` indicates no support.
+  - Keyrings no longer need to explicitly set unsupported capabilities to `false`.
 - Change `KeyringWrapper.capabilities` from a readonly property to a getter ([#447](https://github.com/MetaMask/accounts/pull/447))
   - Allows subclasses to override and return capabilities dynamically based on runtime state.
 - Refine `EthAddressStruct` in order to make it compatible with the `Hex` type from `@metamask/utils` ([#405](https://github.com/MetaMask/accounts/pull/405))

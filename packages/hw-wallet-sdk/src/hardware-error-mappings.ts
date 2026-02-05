@@ -129,6 +129,27 @@ export const LEDGER_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
     userMessage:
       'Your device is not responding. Please disconnect and reconnect your device.',
   },
+  '0x6b0c': {
+    code: ErrorCode.AuthenticationDeviceLocked,
+    message: 'Device locked',
+    severity: Severity.Err,
+    category: Category.Authentication,
+    userMessage: 'Please unlock your Ledger device to continue.',
+  },
+  '0x6a15': {
+    code: ErrorCode.DeviceStateEthAppClosed,
+    message: 'Ethereum app closed',
+    severity: Severity.Err,
+    category: Category.DeviceState,
+    userMessage: 'Ethereum app is closed. Please open it to continue.',
+  },
+  '0x6511': {
+    code: ErrorCode.DeviceStateEthAppClosed,
+    message: 'Ethereum app closed',
+    severity: Severity.Err,
+    category: Category.DeviceState,
+    userMessage: 'Ethereum app is closed. Please open it to continue.',
+  },
 };
 
 export const BLE_ERROR_MAPPINGS = {
