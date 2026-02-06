@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** Use new `createAccounts` options for `AccountsProvider.createAccounts` ([#462](https://github.com/MetaMask/accounts/pull/462))
+  - This will allow to use various ways of constructing accounts (e.g. multiple indexes at once).
+- **BREAKING:** Narrow `Bip44AccountProvider.capabilities` to only allow BIP-44 compatible capabilities ([#462](https://github.com/MetaMask/accounts/pull/462))
+
 ## [0.12.0]
 
 ### Changed

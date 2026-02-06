@@ -62,24 +62,17 @@ export type AccountProvider<Account extends KeyringAccount> = {
 /**
  * A BIP-44 provider is a provider that can provide BIP-44 compatible accounts.
  *
- * Note: This is an alias for the `AccountProvider` type, but with a more specific
- * type for the account.
+ * NOTE: This is a narrow variant of the `AccountProvider` type for BIP-44.
  */
-export type Bip44AccountProvider = AccountProvider<
-  Bip44Account<KeyringAccount>
+export type Bip44AccountProvider = Omit<
+  AccountProvider<Bip44Account<KeyringAccount>>,
+  'capabilities'
 > & {
   /**
    * BIP-44 capabilities supported by this provider.
    */
   get capabilities(): Bip44KeyringCapabilities;
 
-  /**
-   * Creates BIP-44 compatible accounts according to the given options.
-   *
-   * @param options - Create accounts options.
-   * @returns The list of created BIP-44 accounts.
-   */
-  createAccounts: (
-    options: Bip44CreateAccountOptions,
-  ) => Promise<Bip44Account<KeyringAccount>>[];
+  // NOTE: We cannot narrow `createAccounts` here, otherwise it would become incompatible
+  // with the `AccountProvider` type.
 };
