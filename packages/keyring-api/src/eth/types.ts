@@ -17,6 +17,11 @@ export const EthAddressStruct = definePattern<Hex>(
   /^0x[0-9a-f]{40}$/iu,
 );
 
+export const EthAddressAsStringStruct = definePattern(
+  'EthAddress',
+  /^0x[0-9a-f]{40}$/iu,
+);
+
 export const EthUint256Struct = definePattern(
   'EthUint256',
   /^0x([1-9a-f][0-9a-f]*|0)$/iu,

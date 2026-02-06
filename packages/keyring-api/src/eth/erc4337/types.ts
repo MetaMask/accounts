@@ -1,7 +1,11 @@
 import { exactOptional, object, UrlStruct } from '@metamask/keyring-utils';
 import { type Infer } from '@metamask/superstruct';
 
-import { EthAddressStruct, EthBytesStruct, EthUint256Struct } from '../types';
+import {
+  EthAddressAsStringStruct,
+  EthBytesStruct,
+  EthUint256Struct,
+} from '../types';
 
 /**
  * Struct of a UserOperation as defined by ERC-4337.
@@ -9,7 +13,9 @@ import { EthAddressStruct, EthBytesStruct, EthUint256Struct } from '../types';
  * @see https://eips.ethereum.org/EIPS/eip-4337#definitions
  */
 export const EthUserOperationStruct = object({
-  sender: EthAddressStruct,
+  // FIXME: We use a `string` here instead of a `Hex` as this quickly bubbles up
+  // to other controllers/components.
+  sender: EthAddressAsStringStruct,
   nonce: EthUint256Struct,
   initCode: EthBytesStruct,
   callData: EthBytesStruct,
@@ -32,7 +38,9 @@ export const EthBaseTransactionStruct = object({
   /**
    * Address of the transaction recipient.
    */
-  to: EthAddressStruct,
+  // FIXME: We use a `string` here instead of a `Hex` as this quickly bubbles up
+  // to other controllers/components.
+  to: EthAddressAsStringStruct,
 
   /**
    * Amount of wei to transfer to the recipient.
