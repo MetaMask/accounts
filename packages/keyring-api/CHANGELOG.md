@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `assertCreateAccountOptionTypeIsSupported` helper ([#464](https://github.com/MetaMask/accounts/pull/464))
+  - This helper can be used to implement `createAccounts` and now down the `options` to the supported types based on the keyring capabilities.
+
 ## [21.4.0]
 
 ### Added
