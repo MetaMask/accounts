@@ -341,7 +341,7 @@ describe('assertCreateAccountOptionTypeIsSupported', () => {
       const type2: AccountCreationType = AccountCreationType.Custom;
       assertCreateAccountOptionTypeIsSupported(type2, supportedTypes);
       const narrowedType2: AccountCreationType.Custom = type2; // Compile-time check.
-      expect(narrowedType2).toBe(AccountCreationType.Bip44DeriveIndex);
+      expect(narrowedType2).toBe(AccountCreationType.Custom);
     });
 
     it('narrows CreateAccountOptions type based on supported type', () => {
