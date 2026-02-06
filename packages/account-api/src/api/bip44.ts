@@ -1,9 +1,6 @@
 import type {
-  CreateAccountOptions,
   KeyringAccount,
   KeyringAccountEntropyMnemonicOptions,
-  KeyringCapabilities,
-  AccountCreationType,
 } from '@metamask/keyring-api';
 
 /**
@@ -16,27 +13,6 @@ export type Bip44Account<Account extends KeyringAccount> = Account & {
     entropy: KeyringAccountEntropyMnemonicOptions;
   };
 };
-
-/**
- * BIP-44 compatible account creation options.
- */
-export type Bip44CreateAccountOptions = Extract<
-  CreateAccountOptions,
-  {
-    type:
-      | `${AccountCreationType.Bip44DerivePath}`
-      | `${AccountCreationType.Bip44DeriveIndex}`
-      | `${AccountCreationType.Bip44DeriveIndexRange}`
-      | `${AccountCreationType.Bip44Discover}`;
-  }
->;
-
-/**
- * BIP-44 compatible keyring capabilities.
- */
-export type Bip44KeyringCapabilities = Required<
-  Pick<KeyringCapabilities, 'scopes' | 'bip44'>
->;
 
 /**
  * Checks if an account is BIP-44 compatible.

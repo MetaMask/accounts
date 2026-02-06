@@ -5,11 +5,7 @@ import {
   type KeyringCapabilities,
 } from '@metamask/keyring-api';
 
-import type {
-  Bip44Account,
-  Bip44KeyringCapabilities,
-  Bip44CreateAccountOptions,
-} from './bip44';
+import type { Bip44Account } from './bip44';
 
 /**
  * An account provider is reponsible of providing accounts to an account group.
@@ -62,24 +58,9 @@ export type AccountProvider<Account extends KeyringAccount> = {
 /**
  * A BIP-44 provider is a provider that can provide BIP-44 compatible accounts.
  *
- * NOTE: This acts as a type alias and does not really narrow the provider base
- * type. Use it only to be more explicit about your provider implementation.
+ * NOTE: This is an alias for the `AccountProvider` type, but with a more specific
+ * type for the account.
  */
 export type Bip44AccountProvider = AccountProvider<
   Bip44Account<KeyringAccount>
-> & {
-  /**
-   * BIP-44 capabilities supported by this provider.
-   */
-  get capabilities(): Bip44KeyringCapabilities;
-
-  /**
-   * Creates BIP-44 compatible accounts according to the given options.
-   *
-   * @param options - Create accounts options.
-   * @returns The list of created BIP-44 accounts.
-   */
-  createAccounts: (
-    options: Bip44CreateAccountOptions,
-  ) => Promise<Bip44Account<KeyringAccount>[]>;
-};
+>;
