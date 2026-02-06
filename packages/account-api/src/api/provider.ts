@@ -1,8 +1,8 @@
-import type {
-  CreateAccountOptions,
-  EntropySourceId,
-  KeyringAccount,
-  KeyringCapabilities,
+import {
+  type CreateAccountOptions,
+  type EntropySourceId,
+  type KeyringAccount,
+  type KeyringCapabilities,
 } from '@metamask/keyring-api';
 
 import type {
@@ -62,17 +62,24 @@ export type AccountProvider<Account extends KeyringAccount> = {
 /**
  * A BIP-44 provider is a provider that can provide BIP-44 compatible accounts.
  *
- * NOTE: This is a narrow variant of the `AccountProvider` type for BIP-44.
+ * NOTE: This acts as a type alias and does not really narrow the provider base
+ * type. Use it only to be more explicit about your provider implementation.
  */
-export type Bip44AccountProvider = Omit<
-  AccountProvider<Bip44Account<KeyringAccount>>,
-  'capabilities'
+export type Bip44AccountProvider = AccountProvider<
+  Bip44Account<KeyringAccount>
 > & {
   /**
    * BIP-44 capabilities supported by this provider.
    */
   get capabilities(): Bip44KeyringCapabilities;
 
-  // NOTE: We cannot narrow `createAccounts` here, otherwise it would become incompatible
-  // with the `AccountProvider` type.
+  /**
+   * Creates BIP-44 compatible accounts according to the given options.
+   *
+   * @param options - Create accounts options.
+   * @returns The list of created BIP-44 accounts.
+   */
+  createAccounts: (
+    options: Bip44CreateAccountOptions,
+  ) => Promise<Bip44Account<KeyringAccount>[]>;
 };
