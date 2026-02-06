@@ -1,5 +1,9 @@
 import { assert, is } from '@metamask/superstruct';
 
+import type {
+  CreateAccountBip44DeriveIndexOptions,
+  CreateAccountOptions,
+} from '.';
 import {
   AccountCreationType,
   assertCreateAccountOptionTypeIsSupported,
@@ -338,6 +342,21 @@ describe('assertCreateAccountOptionTypeIsSupported', () => {
       assertCreateAccountOptionTypeIsSupported(type2, supportedTypes);
       const narrowedType2: AccountCreationType.Custom = type2; // Compile-time check.
       expect(narrowedType2).toBe(AccountCreationType.Bip44DeriveIndex);
+    });
+
+    it('narrows CreateAccountOptions type based on supported type', () => {
+      const options = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource: 'mock-entropy-source',
+        groupIndex: 0,
+      } as CreateAccountOptions;
+
+      const supportedTypes = [AccountCreationType.Bip44DeriveIndex] as const;
+      assertCreateAccountOptionTypeIsSupported(options.type, supportedTypes);
+
+      // After assertion, options should be narrowed to CreateAccountBip44DeriveIndexOptions
+      const narrowedOptions: CreateAccountBip44DeriveIndexOptions = options; // Compile-time check.
+      expect(narrowedOptions.type).toBe(AccountCreationType.Bip44DeriveIndex);
     });
   });
 });

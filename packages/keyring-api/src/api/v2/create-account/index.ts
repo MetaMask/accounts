@@ -96,6 +96,25 @@ export type CreateAccountOptions = Infer<typeof CreateAccountOptionsStruct>;
 /**
  * Asserts that a given create account option type is supported by the keyring.
  *
+ * @example
+ * ```ts
+ * createAccounts(options: CreateAccountOptions) {
+ *   assertCreateAccountOptionTypeIsSupported(options.type, [
+ *     AccountCreationType.Bip44DeriveIndex,
+ *     AccountCreationType.Bip44DeriveIndexRange,
+ *   ] as const);
+ *
+ *   // At this point, TypeScript knows that options.type is either Bip44DeriveIndex or Bip44DeriveIndexRange.
+ *   if (options.type === AccountCreationType.Bip44DeriveIndex) {
+ *     ... // Handle Bip44DeriveIndex case.
+ *   } else {
+ *     ... // Handle Bip44DeriveIndexRange case.
+ *   }
+ *   ...
+ *   return accounts;
+ * }
+ * ```
+ *
  * @param type - The create account option type to check.
  * @param supportedTypes - The list of supported create account option types for this keyring.
  * @throws Will throw an error if the provided type is not supported.
