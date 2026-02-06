@@ -92,3 +92,23 @@ export const CreateAccountOptionsStruct = selectiveUnion((value: any) => {
  * Represents the available options for creating a new account.
  */
 export type CreateAccountOptions = Infer<typeof CreateAccountOptionsStruct>;
+
+/**
+ * Asserts that a given create account option type is supported by the keyring.
+ *
+ * @param type - The create account option type to check.
+ * @param supportedTypes - The list of supported create account option types for this keyring.
+ * @throws Will throw an error if the provided type is not supported.
+ */
+export function assertCreateAccountOptionTypeIsSupported<
+  Type extends CreateAccountOptions['type'],
+>(
+  type: CreateAccountOptions['type'],
+  supportedTypes: readonly Type[],
+): asserts type is Type {
+  const types: readonly CreateAccountOptions['type'][] = supportedTypes;
+
+  if (!types.includes(type)) {
+    throw new Error(`Unsupported create account option type: ${type}`);
+  }
+}
