@@ -1,4 +1,4 @@
-import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
+import type { CreateAccountOptions, EntropySourceId, KeyringAccount, KeyringCapabilities } from '@metamask/keyring-api';
 
 import type { Bip44Account } from './bip44';
 
@@ -6,6 +6,8 @@ import type { Bip44Account } from './bip44';
  * An account provider is reponsible of providing accounts to an account group.
  */
 export type AccountProvider<Account extends KeyringAccount> = {
+  get capabilities(): KeyringCapabilities;
+
   /**
    * Gets an account for a given ID.
    *
@@ -24,15 +26,10 @@ export type AccountProvider<Account extends KeyringAccount> = {
    * Creates accounts for a given entropy source and a given group
    * index.
    *
-   * @param options - Options.
-   * @param options.entropySource - Entropy source to use.
-   * @param options.groupIndex - Group index to use.
+   * @param options - Create accounts Options.
    * @returns The list of created accounts.
    */
-  createAccounts: (options: {
-    entropySource: EntropySourceId;
-    groupIndex: number;
-  }) => Promise<Account[]>;
+  createAccounts: (options: CreateAccountOptions) => Promise<Account[]>;
 
   /**
    * Discover accounts for a given entropy source and a given group
