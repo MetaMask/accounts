@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** Use new `createAccounts` options for `AccountsProvider.createAccounts` ([#462](https://github.com/MetaMask/accounts/pull/462))
   - This will allow to use various ways of constructing accounts (e.g. multiple indexes at once).
+- Bump `@metamask/keyring-api` to `^21.4.0` ([#460](https://github.com/MetaMask/accounts/pull/460))
+- Bump `@metamask/keyring-utils` to `^7.2.0` ([#460](https://github.com/MetaMask/accounts/pull/460))
 
 ## [0.12.0]
 
