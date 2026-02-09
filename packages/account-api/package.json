@@ -56,8 +56,8 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-api": "workspace:^",
-    "@metamask/keyring-utils": "workspace:^",
+    "@metamask/keyring-api": "^21.4.0",
+    "@metamask/keyring-utils": "^3.2.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

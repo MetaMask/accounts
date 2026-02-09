@@ -45,10 +45,10 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-api": "workspace:^",
-    "@metamask/keyring-internal-api": "workspace:^",
-    "@metamask/keyring-snap-client": "workspace:^",
-    "@metamask/keyring-utils": "workspace:^",
+    "@metamask/keyring-api": "^21.4.0",
+    "@metamask/keyring-internal-api": "^10.0.0",
+    "@metamask/keyring-snap-client": "^8.2.0",
+    "@metamask/keyring-utils": "^3.2.0",
     "@metamask/messenger": "^0.3.0"
   },
   "devDependencies": {

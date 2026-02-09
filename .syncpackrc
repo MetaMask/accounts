@@ -32,20 +32,5 @@
       ],
       "range": "^"
     }
-  ],
-  "versionGroups": [
-    {
-      "label": "use workspace version of packages in the monorepo",
-      "dependencyTypes": [
-        "!local"
-      ],
-      "dependencies": [
-        "@metamask/account-**",
-        "@metamask/hw-wallet-sdk",
-        "@metamask/keyring-**",
-        "@metamask/eth-**-keyring"
-      ],
-      "pinVersion": "workspace:^"
-    }
   ]
 }

@@ -39,11 +39,11 @@
   "dependencies": {
     "@ethereumjs/tx": "^5.4.0",
     "@metamask/eth-sig-util": "^8.2.0",
-    "@metamask/keyring-api": "workspace:^",
-    "@metamask/keyring-internal-api": "workspace:^",
-    "@metamask/keyring-internal-snap-client": "workspace:^",
-    "@metamask/keyring-snap-sdk": "workspace:^",
-    "@metamask/keyring-utils": "workspace:^",
+    "@metamask/keyring-api": "^21.4.0",
+    "@metamask/keyring-internal-api": "^10.0.0",
+    "@metamask/keyring-internal-snap-client": "^9.0.0",
+    "@metamask/keyring-snap-sdk": "^7.2.0",
+    "@metamask/keyring-utils": "^3.2.0",
     "@metamask/messenger": "^0.3.0",
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^11.1.0",
@@ -72,7 +72,7 @@
     "typescript": "~5.6.3"
   },
   "peerDependencies": {
-    "@metamask/keyring-api": "workspace:^"
+    "@metamask/keyring-api": "^21.4.0"
   },
   "engines": {
     "node": "^18.18 || >=20"
