@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `EthAddressStrictStruct` struct and `EthAddressStrict` types ([#465](https://github.com/MetaMask/accounts/pull/465))
   - This is a stricter variant of `EthAddressStruct` which uses `Hex` instead of `string` for its inferred type.
+- Add `assertCreateAccountOptionIsSupported` helper ([#464](https://github.com/MetaMask/accounts/pull/464))
+  - This helper can be used to implement `createAccounts` and narrow down the `options` to the supported types (based on the keyring capabilities).
 
 ### Changed
 
