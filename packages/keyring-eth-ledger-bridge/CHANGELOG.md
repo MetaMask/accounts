@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update error handling for status code `0x650f` to reflect `DeviceStateEthAppClosed` instead of `ConnectionClosed` ([#446](https://github.com/MetaMask/accounts/pull/446))
+
 ## [11.3.0]
 
 ### Changed

@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Fix error mapping for status code `0x650f` from `ConnectionClosed` to `DeviceStateEthAppClosed` ([#446](https://github.com/MetaMask/accounts/pull/446))
+- Fix error mapping for status code `0x6d00` from `DeviceStateOnlyV4Supported` to `DeviceStateEthAppClosed` ([#446](https://github.com/MetaMask/accounts/pull/446))
+
+### Added
+
+- Add error mapping for status code `0x6a83` indicating Ethereum app closed while on Solana ([#446](https://github.com/MetaMask/accounts/pull/446))
+
 ## [0.4.0]
 
 ### Added
