@@ -12,14 +12,12 @@ import {
 
 export const EthBytesStruct = definePattern('EthBytes', /^0x[0-9a-f]*$/iu);
 
-export const EthAddressStruct = definePattern<Hex>(
+const ETH_ADDRESS_REGEX = /^0x[0-9a-f]{40}$/iu;
+export const EthAddressStruct = definePattern('EthAddress', ETH_ADDRESS_REGEX);
+// Stricter struct that uses `Hex` as final type.
+export const EthAddressStrictStruct = definePattern<Hex>(
   'EthAddress',
-  /^0x[0-9a-f]{40}$/iu,
-);
-
-export const EthAddressAsStringStruct = definePattern(
-  'EthAddress',
-  /^0x[0-9a-f]{40}$/iu,
+  ETH_ADDRESS_REGEX,
 );
 
 export const EthUint256Struct = definePattern(
