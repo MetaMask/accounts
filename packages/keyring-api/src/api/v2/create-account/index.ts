@@ -99,9 +99,9 @@ export type CreateAccountOptions = Infer<typeof CreateAccountOptionsStruct>;
  * @example
  * ```ts
  * createAccounts(options: CreateAccountOptions) {
- *   assertCreateAccountOptionTypeIsSupported(options.type, [
- *     AccountCreationType.Bip44DeriveIndex,
- *     AccountCreationType.Bip44DeriveIndexRange,
+ *   assertCreateAccountOptionIsSupported(options, [
+ *     ${AccountCreationType.Bip44DeriveIndex},
+ *     ${AccountCreationType.Bip44DeriveIndexRange},
  *   ] as const);
  *
  *   // At this point, TypeScript knows that options.type is either Bip44DeriveIndex or Bip44DeriveIndexRange.
@@ -115,16 +115,20 @@ export type CreateAccountOptions = Infer<typeof CreateAccountOptionsStruct>;
  * }
  * ```
  *
- * @param type - The create account option type to check.
+ * @param options - The create account option object to check.
  * @param supportedTypes - The list of supported create account option types for this keyring.
  * @throws Will throw an error if the provided type is not supported.
  */
-export function assertCreateAccountOptionTypeIsSupported<
-  Type extends CreateAccountOptions['type'],
+export function assertCreateAccountOptionIsSupported<
+  Options extends CreateAccountOptions,
+  // We use template literal types to enforce string-literal over strict enum values.
+  Type extends `${CreateAccountOptions['type']}`,
 >(
-  type: CreateAccountOptions['type'],
-  supportedTypes: readonly Type[],
-): asserts type is Type {
+  options: Options,
+  supportedTypes: readonly `${Type}`[],
+  // Use intersection to narrow the `type` based on the the static `Options['type']` field.
+): asserts options is Options & { type: `${Type}` & `${Options['type']}` } {
+  const { type } = options;
   const types: readonly CreateAccountOptions['type'][] = supportedTypes;
 
   if (!types.includes(type)) {
