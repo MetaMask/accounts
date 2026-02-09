@@ -76,9 +76,9 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       });
     });
     describe('connection errors', () => {
-      it('map 0x650f to connection issue', () => {
+      it('map 0x650f to eth app closed', () => {
         const mapping = getLedgerMapping('0x650f');
-        expect(mapping.code).toBe(ErrorCode.ConnectionClosed);
+        expect(mapping.code).toBe(ErrorCode.DeviceStateEthAppClosed);
         expect(mapping.category).toBe(Category.Connection);
       });
     });
@@ -90,6 +90,22 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(mapping.severity).toBe(Severity.Err);
         expect(mapping.category).toBe(Category.DeviceState);
         expect(mapping.userMessage).toContain('not responding');
+      });
+
+      it('maps 0x6a83 to eth app closed (on solana)', () => {
+        const mapping = getLedgerMapping('0x6a83');
+        expect(mapping.code).toBe(ErrorCode.DeviceStateEthAppClosed);
+        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.category).toBe(Category.DeviceState);
+        expect(mapping.userMessage).toContain('solana');
+      });
+
+      it('maps 0x6d00 to eth app closed (on bitcoin)', () => {
+        const mapping = getLedgerMapping('0x6d00');
+        expect(mapping.code).toBe(ErrorCode.DeviceStateEthAppClosed);
+        expect(mapping.severity).toBe(Severity.Err);
+        expect(mapping.category).toBe(Category.DeviceState);
+        expect(mapping.userMessage).toContain('bitcoin');
       });
     });
 
