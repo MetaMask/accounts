@@ -72,11 +72,11 @@ export const LEDGER_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
   },
   '0x650f': {
     code: ErrorCode.DeviceStateEthAppClosed,
-    message: 'App closed or connection issue',
+    message: 'Ethereum app closed',
     severity: Severity.Err,
-    category: Category.Connection,
+    category: Category.DeviceState,
     userMessage:
-      'Connection lost or app closed. Please open the corresponding app on your Ledger device.',
+      'Ethereum app is closed. Please open it on your Ledger device to continue.',
   },
   '0x5515': {
     code: ErrorCode.AuthenticationDeviceLocked,
@@ -110,7 +110,7 @@ export const LEDGER_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
   },
   '0x6d00': {
     code: ErrorCode.DeviceStateEthAppClosed,
-    message: 'Ledger Only V4 supported',
+    message: 'Ethereum app closed',
     severity: Severity.Err,
     category: Category.DeviceState,
     userMessage:

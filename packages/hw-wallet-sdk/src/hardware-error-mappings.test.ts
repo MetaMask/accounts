@@ -75,15 +75,13 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(mapping.severity).toBe(Severity.Warning);
       });
     });
-    describe('connection errors', () => {
+    describe('device state errors', () => {
       it('map 0x650f to eth app closed', () => {
         const mapping = getLedgerMapping('0x650f');
         expect(mapping.code).toBe(ErrorCode.DeviceStateEthAppClosed);
-        expect(mapping.category).toBe(Category.Connection);
+        expect(mapping.category).toBe(Category.DeviceState);
       });
-    });
 
-    describe('device state errors', () => {
       it('maps 0x6f00 to device unresponsive', () => {
         const mapping = getLedgerMapping('0x6f00');
         expect(mapping.code).toBe(ErrorCode.DeviceUnresponsive);
