@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Re-use `string` for ERC4337 address-like fields ([#465](https://github.com/MetaMask/accounts/pull/465))
   - This change reverts that and keeps using `string` for all address-like types.
-  - [#405] changed the associated type for `EthAddressStruct` from `string` to `Hex`, this was actually a small breaking change that went unnoticed and that would require some effort to adapt in upstream clients/controllers.
+  - Changes in [#405](https://github.com/MetaMask/accounts/pull/405) updated the associated type for `EthAddressStruct` from `string` to `Hex`, this was actually a small breaking change that went unnoticed and that would require some effort to adapt in upstream clients/controllers, for this reason, we are undoing this change for now.
   - Version [21.4.0] will be marked as **YANKED**, consumers are expected to use this new version that reverts this breaking change.
 
 ## [21.4.0]
