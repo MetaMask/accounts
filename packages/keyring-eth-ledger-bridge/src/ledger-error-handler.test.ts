@@ -91,8 +91,8 @@ describe('handleLedgerTransportError', () => {
         tc: 'app closed',
         inputMessage: 'App closed',
         status: 0x650f,
-        expectedCode: ErrorCodeEnum.ConnectionClosed,
-        expectedMessage: 'Ledger: App closed or connection issue',
+        expectedCode: ErrorCodeEnum.DeviceStateEthAppClosed,
+        expectedMessage: 'Ledger: Ethereum app closed',
       },
       {
         tc: 'unknown status codes by preserving original message',

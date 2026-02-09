@@ -71,12 +71,12 @@ export const LEDGER_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
       'Your device is blocked due to too many failed attempts. Please follow device recovery procedures.',
   },
   '0x650f': {
-    code: ErrorCode.ConnectionClosed,
-    message: 'App closed or connection issue',
+    code: ErrorCode.DeviceStateEthAppClosed,
+    message: 'Ethereum app closed',
     severity: Severity.Err,
-    category: Category.Connection,
+    category: Category.DeviceState,
     userMessage:
-      'Connection lost or app closed. Please open the corresponding app on your Ledger device.',
+      'Ethereum app is closed. Please open it on your Ledger device to continue.',
   },
   '0x5515': {
     code: ErrorCode.AuthenticationDeviceLocked,
@@ -100,12 +100,21 @@ export const LEDGER_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
     category: Category.DeviceState,
     userMessage: 'Blind signing is not supported on this device.',
   },
-  '0x6d00': {
-    code: ErrorCode.DeviceStateOnlyV4Supported,
-    message: 'Ledger Only V4 supported',
+  '0x6a83': {
+    code: ErrorCode.DeviceStateEthAppClosed,
+    message: 'Ethereum app closed',
     severity: Severity.Err,
     category: Category.DeviceState,
-    userMessage: 'Only V4 is supported on this device.',
+    userMessage:
+      'Ethereum app is closed. Currently on solana. Please open it to continue.',
+  },
+  '0x6d00': {
+    code: ErrorCode.DeviceStateEthAppClosed,
+    message: 'Ethereum app closed',
+    severity: Severity.Err,
+    category: Category.DeviceState,
+    userMessage:
+      'Ethereum app is closed. Currently on bitcoin. Please open it to continue.',
   },
   '0x6e00': {
     code: ErrorCode.DeviceStateEthAppClosed,
