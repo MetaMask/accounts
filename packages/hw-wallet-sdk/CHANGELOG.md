@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix error mapping for status code `0x650f` from `ConnectionClosed` to `DeviceStateEthAppClosed` ([#466](https://github.com/MetaMask/accounts/pull/466))
-
-- Fix error mapping for status code `0x6d00` from `DeviceStateOnlyV4Supported` to `DeviceStateEthAppClosed` ([#466](https://github.com/MetaMask/accounts/pull/466))
+- Fix error mappings for status codes `0x650f` and `0x6d00` to `DeviceStateEthAppClosed` ([#466](https://github.com/MetaMask/accounts/pull/466))
+  - `0x650f`: changed from `ConnectionClosed`.
+  - `0x6d00`: changed from `DeviceStateOnlyV4Supported`.
 
 ### Added
 
