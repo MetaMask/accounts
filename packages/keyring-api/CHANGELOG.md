@@ -9,8 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `EthAddressStrictStruct` struct and `EthAddressStrict` types ([#465](https://github.com/MetaMask/accounts/pull/465))
+  - This is a stricter variant of `EthAddressStruct` which uses `Hex` instead of `string` for its inferred type.
 - Add `assertCreateAccountOptionIsSupported` helper ([#464](https://github.com/MetaMask/accounts/pull/464))
   - This helper can be used to implement `createAccounts` and narrow down the `options` to the supported types (based on the keyring capabilities).
+
+### Changed
+
+- Re-use `string` for ERC4337 address-like fields ([#465](https://github.com/MetaMask/accounts/pull/465))
+  - This change reverts that and keeps using `string` for all address-like types.
+  - Changes in [#405](https://github.com/MetaMask/accounts/pull/405) updated the associated type for `EthAddressStruct` from `string` to `Hex`, this was actually a small breaking change that went unnoticed and that would require some effort to adapt in upstream clients/controllers, for this reason, we are undoing this change for now.
+  - Version [21.4.0] will be marked as **YANKED**, consumers are expected to use this new version that reverts this breaking change.
 
 ## [21.4.0]
 
