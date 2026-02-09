@@ -9,8 +9,6 @@ import { EthAddressStruct, EthBytesStruct, EthUint256Struct } from '../types';
  * @see https://eips.ethereum.org/EIPS/eip-4337#definitions
  */
 export const EthUserOperationStruct = object({
-  // FIXME: We use a `string` here instead of a `Hex` as this quickly bubbles up
-  // to other controllers/components.
   sender: EthAddressStruct,
   nonce: EthUint256Struct,
   initCode: EthBytesStruct,
@@ -34,8 +32,6 @@ export const EthBaseTransactionStruct = object({
   /**
    * Address of the transaction recipient.
    */
-  // FIXME: We use a `string` here instead of a `Hex` as this quickly bubbles up
-  // to other controllers/components.
   to: EthAddressStruct,
 
   /**
