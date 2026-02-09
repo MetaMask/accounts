@@ -16,7 +16,7 @@ const ETH_ADDRESS_REGEX = /^0x[0-9a-f]{40}$/iu;
 export const EthAddressStruct = definePattern('EthAddress', ETH_ADDRESS_REGEX);
 // Stricter struct that uses `Hex` as final type.
 export const EthAddressStrictStruct = definePattern<Hex>(
-  'EthAddress',
+  'EthAddressStrict',
   ETH_ADDRESS_REGEX,
 );
 
