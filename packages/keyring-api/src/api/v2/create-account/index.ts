@@ -117,7 +117,7 @@ export type CreateAccountOptions = Infer<typeof CreateAccountOptionsStruct>;
  *
  * @param options - The create account option object to check.
  * @param supportedTypes - The list of supported create account option types for this keyring.
- * @throws Will throw an error if the provided type is not supported.
+ * @throws Will throw an error if the provided options are not supported.
  */
 export function assertCreateAccountOptionIsSupported<
   Options extends CreateAccountOptions,
@@ -126,7 +126,7 @@ export function assertCreateAccountOptionIsSupported<
 >(
   options: Options,
   supportedTypes: readonly `${Type}`[],
-  // Use intersection to narrow the `type` based on the the static `Options['type']` field.
+  // Use intersection to avoid widening `type` beyond `Options['type']`.
 ): asserts options is Options & { type: `${Type}` & `${Options['type']}` } {
   const { type } = options;
   const types: readonly CreateAccountOptions['type'][] = supportedTypes;
