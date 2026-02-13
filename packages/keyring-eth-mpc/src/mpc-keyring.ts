@@ -14,6 +14,8 @@ import {
 } from '@metamask/mfa-wallet-cl24-lib';
 import { Dkls19TssLib } from '@metamask/mfa-wallet-dkls19-lib';
 import type {
+  PartyId,
+  PartialThresholdKey,
   RandomNumberGenerator,
   ThresholdKey,
 } from '@metamask/mfa-wallet-interface';
@@ -230,6 +232,28 @@ export class MPCKeyring implements Keyring {
 
     const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
 
+    // Send join data to the new custodian
+    const joinSessionId = createScopedSessionId([custodianId, localId], 'join');
+    const joinSession = await this.#networkManager.createSession(
+      this.#networkIdentity,
+      joinSessionId,
+    );
+
+    const partialKeyJson = this.#serializer.thresholdKey.toJson(this.#keyShare);
+    const joinData = JSON.stringify({
+      cloudCustodian: cloudCustodian.partyId,
+      nonce: sessionNonce,
+      partialKey: partialKeyJson,
+      keyId: this.#keyId,
+    });
+    joinSession.sendMessage(
+      custodianId,
+      'join-data',
+      new TextEncoder().encode(joinData),
+    );
+    await joinSession.disconnect();
+
+    // Notify the cloud custodian
     const verifierId = this.getSelectedVerifierId();
     const token = await this.#getVerifierToken(verifierId);
 
@@ -242,6 +266,7 @@ export class MPCKeyring implements Keyring {
       token,
     });
 
+    // Run the key update protocol
     const sessionId = createScopedSessionId(newCustodians, sessionNonce);
     const networkSession = await this.#networkManager.createSession(
       this.#networkIdentity,
@@ -296,18 +321,46 @@ export class MPCKeyring implements Keyring {
     return this.#verifierIds[this.#selectedVerifierIndex] as string;
   }
 
-  async setup({ verifierIds }: { verifierIds: string[] }): Promise<void> {
-    if (this.#keyShare || this.#networkIdentity || this.#keyId) {
+  /**
+   * Create or retrieve the network identity.
+   *
+   * @returns The party ID of the network identity.
+   */
+  async setupIdentity(): Promise<PartyId> {
+    if (!this.#networkIdentity) {
+      this.#networkIdentity = await this.#networkManager.createIdentity();
+    }
+    return this.#networkIdentity.partyId;
+  }
+
+  async setup(
+    opts: { verifierIds: string[] } & (
+      | { mode?: 'create' }
+      | { mode: 'join'; initiator: PartyId }
+    ),
+  ): Promise<void> {
+    const { verifierIds } = opts;
+    const mode = 'mode' in opts ? opts.mode ?? 'create' : 'create';
+
+    if (this.#keyShare || this.#keyId) {
       throw new Error('Keyring already setup');
     } else if (verifierIds.length < 1) {
       throw new Error('At least one verifier ID is required');
     }
 
-    const dkm = new CL24DKM(secp256k1Curve, this.#rng);
+    if (mode === 'join') {
+      const { initiator } = opts as { initiator: PartyId };
+      await this.#setupJoin({ verifierIds, initiator });
+    } else {
+      await this.#setupCreate(verifierIds);
+    }
+  }
 
-    const net = this.#networkManager;
-    const networkIdentity = await net.createIdentity();
-    const localId = networkIdentity.partyId;
+  async #setupCreate(verifierIds: string[]): Promise<void> {
+    const dkm = new CL24DKM(secp256k1Curve, this.#rng);
+    const localId = await this.setupIdentity();
+    const { networkIdentity } = this.#assertNetworkIdentity();
+
     const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
     const { cloudId } = await initCloudKeyGen({
       localId,
@@ -319,9 +372,11 @@ export class MPCKeyring implements Keyring {
     const threshold = 2;
 
     const sessionId = createScopedSessionId(custodians, sessionNonce);
-    const networkSession = await net.createSession(networkIdentity, sessionId);
+    const networkSession = await this.#networkManager.createSession(
+      networkIdentity,
+      sessionId,
+    );
 
-    this.#networkIdentity = networkIdentity;
     this.#keyShare = await dkm.createKey({
       custodians,
       threshold,
@@ -336,6 +391,70 @@ export class MPCKeyring implements Keyring {
     this.#selectedVerifierIndex = 0;
 
     await networkSession.disconnect();
+  }
+
+  async #setupJoin(opts: {
+    verifierIds: string[];
+    initiator: PartyId;
+  }): Promise<void> {
+    const { verifierIds, initiator } = opts;
+    const myId = await this.setupIdentity();
+    const { networkIdentity } = this.#assertNetworkIdentity();
+
+    // Open a network session with initiator tagged 'join'
+    const joinSessionId = createScopedSessionId([myId, initiator], 'join');
+    const joinSession = await this.#networkManager.createSession(
+      networkIdentity,
+      joinSessionId,
+    );
+
+    // Receive join data from initiator
+    const joinDataBytes = await joinSession.receiveMessage(
+      initiator,
+      'join-data',
+    );
+    await joinSession.disconnect();
+
+    const joinData = JSON.parse(new TextDecoder().decode(joinDataBytes));
+    const {
+      cloudCustodian,
+      nonce,
+      partialKey: partialKeyJson,
+      keyId,
+    } = joinData;
+
+    const partialKey = this.#serializer.thresholdKey.fromJson(
+      partialKeyJson,
+    ) as PartialThresholdKey;
+
+    const onlineCustodians = [initiator, cloudCustodian];
+    const newCustodians = [...onlineCustodians, myId];
+
+    const sessionId = createScopedSessionId(newCustodians, nonce);
+    const networkSession = await this.#networkManager.createSession(
+      networkIdentity,
+      sessionId,
+    );
+
+    const dkm = new CL24DKM(secp256k1Curve, this.#rng);
+    const key = await dkm.updateKey({
+      key: partialKey,
+      onlineCustodians,
+      newCustodians,
+      networkSession,
+    });
+
+    await networkSession.disconnect();
+
+    this.#keyShare = key;
+    this.#keyId = keyId;
+    this.#custodians = [
+      { partyId: initiator, type: 'user' },
+      { partyId: cloudCustodian, type: 'cloud' },
+      { partyId: myId, type: 'user' },
+    ];
+    this.#verifierIds = verifierIds;
+    this.#selectedVerifierIndex = 0;
   }
 
   /**
@@ -499,6 +618,13 @@ export class MPCKeyring implements Keyring {
     await networkSession.disconnect();
 
     return toEthSig(signature, hash, publicKey);
+  }
+
+  #assertNetworkIdentity(): { networkIdentity: MfaNetworkIdentity } {
+    if (!this.#networkIdentity) {
+      throw new Error('Network identity not initialized');
+    }
+    return { networkIdentity: this.#networkIdentity };
   }
 
   #address(): Hex {
