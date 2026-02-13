@@ -26,7 +26,7 @@ import {
 import type { WasmLib as Dkls19WasmLib } from '@metamask/tss-dkls19-lib';
 import { bytesToHex, hexToBytes, type Hex, type Json } from '@metamask/utils';
 
-import { initCloudKeyGen, initCloudSign } from './cloud';
+import { initCloudKeyGen, initCloudKeyUpdate, initCloudSign } from './cloud';
 import type {
   Custodian,
   MPCKeyringOpts,
@@ -197,6 +197,72 @@ export class MPCKeyring implements Keyring {
       throw new Error('Custodians not initialized');
     }
     return this.#custodians;
+  }
+
+  /**
+   * Add a new custodian to the keyring.
+   *
+   * @param custodianId - The party ID of the custodian to add.
+   */
+  async addCustodian(custodianId: string): Promise<void> {
+    if (!this.#keyShare) {
+      throw new Error('Key share not initialized');
+    } else if (!this.#networkIdentity) {
+      throw new Error('Network identity not initialized');
+    } else if (!this.#keyId) {
+      throw new Error('Key ID not initialized');
+    } else if (!this.#custodians) {
+      throw new Error('Custodians not initialized');
+    } else if (this.#keyShare.threshold !== 2) {
+      throw new Error('Key threshold must be 2');
+    }
+
+    const localId = this.#networkIdentity.partyId;
+    const cloudCustodian = this.#custodians.find(
+      (custodian) => custodian.type === 'cloud',
+    );
+    if (!cloudCustodian) {
+      throw new Error('Cloud custodian not found');
+    }
+
+    const onlineCustodians = [localId, cloudCustodian.partyId];
+    const newCustodians = [...onlineCustodians, custodianId];
+
+    const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
+
+    const verifierId = this.getSelectedVerifierId();
+    const token = await this.#getVerifierToken(verifierId);
+
+    await initCloudKeyUpdate({
+      keyId: this.#keyId,
+      onlineCustodians,
+      newCustodians,
+      sessionNonce,
+      baseURL: this.#cloudURL,
+      token,
+    });
+
+    const sessionId = createScopedSessionId(newCustodians, sessionNonce);
+    const networkSession = await this.#networkManager.createSession(
+      this.#networkIdentity,
+      sessionId,
+    );
+
+    const dkm = new CL24DKM(secp256k1Curve, this.#rng);
+    const newKey = await dkm.updateKey({
+      key: this.#keyShare,
+      onlineCustodians,
+      newCustodians,
+      networkSession,
+    });
+
+    await networkSession.disconnect();
+
+    this.#keyShare = newKey;
+    this.#custodians = [
+      ...this.#custodians,
+      { partyId: custodianId, type: 'user' },
+    ];
   }
 
   getVerifierIds(): string[] {
