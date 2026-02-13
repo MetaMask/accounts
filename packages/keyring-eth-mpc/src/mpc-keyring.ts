@@ -164,6 +164,18 @@ export class MPCKeyring implements Keyring {
     }
   }
 
+  /**
+   * Get the custodian identifier from the network identity.
+   *
+   * @returns The network identity party ID.
+   */
+  getCustodianId(): string {
+    if (!this.#networkIdentity) {
+      throw new Error('Network identity not initialized');
+    }
+    return this.#networkIdentity.partyId;
+  }
+
   getVerifierIds(): string[] {
     if (!this.#verifierIds) {
       throw new Error('Verifier IDs not initialized');
