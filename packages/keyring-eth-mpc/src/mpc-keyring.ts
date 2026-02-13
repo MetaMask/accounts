@@ -235,8 +235,8 @@ export class MPCKeyring implements Keyring {
 
     await initCloudKeyUpdate({
       keyId: this.#keyId,
-      onlineCustodians,
-      newCustodians,
+      custodianId: localId,
+      newCustodianId: custodianId,
       sessionNonce,
       baseURL: this.#cloudURL,
       token,

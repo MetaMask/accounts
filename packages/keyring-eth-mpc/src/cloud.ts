@@ -46,16 +46,16 @@ export async function initCloudKeyGen(opts: {
  * @param opts - The options for the cloud key update session
  * @param opts.baseURL - The base URL of the cloud service
  * @param opts.keyId - The ID of the key
- * @param opts.onlineCustodians - The party IDs of the online custodians
- * @param opts.newCustodians - The party IDs of the new custodian set
+ * @param opts.custodianId - The party ID of the calling custodian
+ * @param opts.newCustodianId - The party ID of the custodian to add
  * @param opts.sessionNonce - The nonce of the session
  * @param opts.token - The token for the verifier
  */
 export async function initCloudKeyUpdate(opts: {
   baseURL: string;
   keyId: string;
-  onlineCustodians: PartyId[];
-  newCustodians: PartyId[];
+  custodianId: PartyId;
+  newCustodianId: string;
   sessionNonce: string;
   token: string;
 }): Promise<void> {
@@ -66,10 +66,10 @@ export async function initCloudKeyUpdate(opts: {
     },
     body: JSON.stringify({
       keyId: opts.keyId,
-      onlineCustodians: opts.onlineCustodians,
-      newCustodians: opts.newCustodians,
+      custodianId: opts.custodianId,
+      newCustodianId: opts.newCustodianId,
       nonce: opts.sessionNonce,
-      protocol: 'cl24-secp256k1',
+      dkmProtocol: 'cl24-secp256k1',
       token: opts.token,
     }),
   });
