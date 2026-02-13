@@ -28,6 +28,7 @@ import { bytesToHex, hexToBytes, type Hex, type Json } from '@metamask/utils';
 
 import { initCloudKeyGen, initCloudSign } from './cloud';
 import type {
+  Custodian,
   MPCKeyringOpts,
   MPCKeyringSerializer,
   ThresholdKeyId,
@@ -35,6 +36,7 @@ import type {
 import {
   equalAddresses,
   getSignedTypedDataHash,
+  parseCustodians,
   parseEthSig,
   parseSelectedVerifierIndex,
   parseSignedTypedDataVersion,
@@ -64,6 +66,8 @@ export class MPCKeyring implements Keyring {
   #keyShare?: ThresholdKey;
 
   #keyId?: ThresholdKeyId;
+
+  #custodians?: Custodian[];
 
   #verifierIds?: string[];
 
@@ -120,6 +124,9 @@ export class MPCKeyring implements Keyring {
     if (this.#keyId) {
       state.keyId = this.#keyId;
     }
+    if (this.#custodians) {
+      state.custodians = this.#custodians;
+    }
     if (this.#verifierIds) {
       state.verifierIds = this.#verifierIds;
     }
@@ -153,6 +160,10 @@ export class MPCKeyring implements Keyring {
       this.#keyId = parseThresholdKeyId(state.keyId);
     }
 
+    if ('custodians' in state) {
+      this.#custodians = parseCustodians(state.custodians);
+    }
+
     if ('verifierIds' in state) {
       this.#verifierIds = parseVerifierIds(state.verifierIds);
     }
@@ -174,6 +185,18 @@ export class MPCKeyring implements Keyring {
       throw new Error('Network identity not initialized');
     }
     return this.#networkIdentity.partyId;
+  }
+
+  /**
+   * Get the custodians associated with the current threshold key.
+   *
+   * @returns The custodians with their party IDs and types.
+   */
+  getCustodians(): Custodian[] {
+    if (!this.#custodians) {
+      throw new Error('Custodians not initialized');
+    }
+    return this.#custodians;
   }
 
   getVerifierIds(): string[] {
@@ -239,6 +262,10 @@ export class MPCKeyring implements Keyring {
       networkSession,
     });
     this.#keyId = networkSession.sessionId;
+    this.#custodians = [
+      { partyId: localId, type: 'user' },
+      { partyId: cloudId, type: 'cloud' },
+    ];
     this.#verifierIds = verifierIds;
     this.#selectedVerifierIndex = 0;
 

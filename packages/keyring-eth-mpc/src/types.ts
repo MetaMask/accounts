@@ -15,6 +15,13 @@ export type MPCKeyringOpts = {
 
 export type ThresholdKeyId = string;
 
+export type CustodianType = 'user' | 'cloud';
+
+export type Custodian = {
+  partyId: string;
+  type: CustodianType;
+};
+
 type JsonSerializer<Value> = {
   toJson: (value: Value) => Json;
   fromJson: (value: Json) => Value;

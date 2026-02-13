@@ -19,7 +19,7 @@ import {
 import type { Hex, Json } from '@metamask/utils';
 import { add0x, assert, bytesToHex, hexToBytes } from '@metamask/utils';
 
-import type { ThresholdKeyId } from './types';
+import type { Custodian, ThresholdKeyId } from './types';
 
 const SECP256K1_N = BigInt(
   '0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
@@ -241,6 +241,36 @@ export function parseSelectedVerifierIndex(
     );
   }
   return selectedVerifierIndex;
+}
+
+/**
+ * Parse custodians from a JSON object.
+ *
+ * @param custodians - The custodians to parse.
+ * @returns The parsed custodians.
+ */
+export function parseCustodians(custodians: Json): Custodian[] {
+  if (!Array.isArray(custodians)) {
+    throw new Error('Invalid custodians: expected an array');
+  }
+  for (const custodian of custodians) {
+    if (
+      !custodian ||
+      typeof custodian !== 'object' ||
+      Array.isArray(custodian)
+    ) {
+      throw new Error('Invalid custodian: expected an object');
+    }
+    if (typeof custodian.partyId !== 'string') {
+      throw new Error('Invalid custodian partyId: expected a string');
+    }
+    if (custodian.type !== 'user' && custodian.type !== 'cloud') {
+      throw new Error(
+        "Invalid custodian type: expected 'user' or 'cloud'",
+      );
+    }
+  }
+  return custodians as Custodian[];
 }
 
 /**
