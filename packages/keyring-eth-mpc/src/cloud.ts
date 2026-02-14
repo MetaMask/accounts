@@ -59,7 +59,7 @@ export async function initCloudKeyUpdate(opts: {
   sessionNonce: string;
   token: string;
 }): Promise<void> {
-  const response = await fetch(`${opts.baseURL}/update-custodians`, {
+  const response = await fetch(`${opts.baseURL}/update-key`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export async function initCloudKeyUpdate(opts: {
       custodianId: opts.custodianId,
       newCustodianId: opts.newCustodianId,
       nonce: opts.sessionNonce,
-      dkmProtocol: 'cl24-secp256k1',
+      protocol: 'cl24-secp256k1',
       token: opts.token,
     }),
   });

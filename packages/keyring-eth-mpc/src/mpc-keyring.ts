@@ -132,7 +132,7 @@ export class MPCKeyring implements Keyring {
     if (this.#verifierIds) {
       state.verifierIds = this.#verifierIds;
     }
-    if (this.#selectedVerifierIndex) {
+    if (this.#selectedVerifierIndex !== undefined) {
       state.selectedVerifierIndex = this.#selectedVerifierIndex;
     }
     return state;
@@ -251,7 +251,6 @@ export class MPCKeyring implements Keyring {
       'join-data',
       new TextEncoder().encode(joinData),
     );
-    await joinSession.disconnect();
 
     // Notify the cloud custodian
     const verifierId = this.getSelectedVerifierId();
@@ -282,6 +281,7 @@ export class MPCKeyring implements Keyring {
     });
 
     await networkSession.disconnect();
+    await joinSession.disconnect();
 
     this.#keyShare = newKey;
     this.#custodians = [
@@ -310,7 +310,7 @@ export class MPCKeyring implements Keyring {
   getSelectedVerifierId(): string {
     if (!this.#verifierIds) {
       throw new Error('Verifier IDs not initialized');
-    } else if (!this.#selectedVerifierIndex) {
+    } else if (this.#selectedVerifierIndex === undefined) {
       throw new Error('Selected verifier index not initialized');
     } else if (
       this.#selectedVerifierIndex < 0 ||
@@ -572,7 +572,7 @@ export class MPCKeyring implements Keyring {
       throw new Error(`key id not initialized`);
     } else if (!this.#verifierIds) {
       throw new Error('Verifier IDs not initialized');
-    } else if (!this.#selectedVerifierIndex) {
+    } else if (this.#selectedVerifierIndex === undefined) {
       throw new Error('Selected verifier index not initialized');
     }
 
