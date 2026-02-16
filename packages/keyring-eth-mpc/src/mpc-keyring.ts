@@ -306,6 +306,8 @@ export class MPCKeyring implements Keyring {
     });
 
     await networkSession.disconnect();
+    // We disconnect session 2 after receiving message from custodian to avoid
+    // a bug where messages are not sent when disconnecting immediately.
     await joinSession2.disconnect();
 
     this.#keyShare = newKey;
@@ -474,7 +476,6 @@ export class MPCKeyring implements Keyring {
       'static-id',
       new TextEncoder().encode(myId),
     );
-    await joinSession1.disconnect();
 
     // Session 2: establish with initiator using static identity,
     // receive partial key, key id, and nonce
@@ -489,6 +490,9 @@ export class MPCKeyring implements Keyring {
       'join-data',
     );
     await joinSession2.disconnect();
+    // We disconnect session 1 after receiving message from initiator to avoid
+    // a bug where messages are not sent when disconnecting immediately.
+    await joinSession1.disconnect();
 
     const joinPayload = JSON.parse(new TextDecoder().decode(joinPayloadBytes));
     const {
