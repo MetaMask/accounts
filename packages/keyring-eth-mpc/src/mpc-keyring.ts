@@ -668,21 +668,34 @@ export class MPCKeyring implements Keyring {
       throw new Error('Selected verifier index out of bounds');
     }
 
-    const { custodians, publicKey } = this.#keyShare;
+    if (!this.#custodians) {
+      throw new Error('Custodians not initialized');
+    }
+
+    const { publicKey } = this.#keyShare;
 
     const addr = this.#address();
     if (!equalAddresses(address, addr)) {
       throw new Error(`account ${address} not found`);
     }
 
+    const localId = this.#networkIdentity.partyId;
+    const cloudCustodian = this.#custodians.find(
+      (custodian) => custodian.type === 'cloud',
+    );
+    if (!cloudCustodian) {
+      throw new Error('Cloud custodian not found');
+    }
+
+    const signers = [localId, cloudCustodian.partyId];
     const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
-    const sessionId = createScopedSessionId(custodians, sessionNonce);
+    const sessionId = createScopedSessionId(signers, sessionNonce);
     const message = hash;
     const token = await this.#getVerifierToken(verifierId);
 
     await initCloudSign({
       keyId: this.#keyId,
-      localId: this.#networkIdentity.partyId,
+      localId,
       sessionNonce,
       message,
       baseURL: this.#cloudURL,
@@ -697,7 +710,7 @@ export class MPCKeyring implements Keyring {
     const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
     const { signature } = await dkls19.sign({
       key: this.#keyShare,
-      signers: custodians,
+      signers,
       message,
       networkSession,
     });
