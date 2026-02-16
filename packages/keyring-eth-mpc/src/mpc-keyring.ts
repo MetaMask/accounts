@@ -9,6 +9,7 @@ import type {
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   CL24DKM,
+  CL24PartialThresholdKeySerializer,
   CL24ThresholdKeySerializer,
   secp256k1 as secp256k1Curve,
 } from '@metamask/mfa-wallet-cl24-lib';
@@ -25,7 +26,7 @@ import {
   MfaNetworkManager,
   createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
-import type { WasmLib as Dkls19WasmLib } from '@metamask/tss-dkls19-lib';
+import type { Dkls19Lib } from '@metamask/mpc-libs-interface';
 import { bytesToHex, hexToBytes, type Hex, type Json } from '@metamask/utils';
 
 import { initCloudKeyGen, initCloudKeyUpdate, initCloudSign } from './cloud';
@@ -61,7 +62,7 @@ export class MPCKeyring implements Keyring {
 
   readonly #networkManager: MfaNetworkManager;
 
-  readonly #dkls19Lib: Dkls19WasmLib;
+  readonly #dkls19Lib: Dkls19Lib;
 
   #networkIdentity?: MfaNetworkIdentity;
 
@@ -89,6 +90,7 @@ export class MPCKeyring implements Keyring {
     this.#cloudURL = opts.cloudURL;
     this.#serializer = {
       thresholdKey: new CL24ThresholdKeySerializer(),
+      partialThresholdKey: new CL24PartialThresholdKeySerializer(),
       networkIdentity: new MfaNetworkIdentitySerializer(),
     };
     this.#networkManager = new MfaNetworkManager({
@@ -261,7 +263,13 @@ export class MPCKeyring implements Keyring {
       joinSession2Id,
     );
 
-    const partialKeyJson = this.#serializer.thresholdKey.toJson(this.#keyShare);
+    const partialKey: PartialThresholdKey = {
+      custodians: this.#keyShare.custodians,
+      shareIndexes: this.#keyShare.shareIndexes,
+      threshold: this.#keyShare.threshold,
+    };
+    const partialKeyJson =
+      this.#serializer.partialThresholdKey.toJson(partialKey);
     const joinPayload = JSON.stringify({
       cloudCustodian: cloudCustodian.partyId,
       nonce: sessionNonce,
@@ -502,9 +510,8 @@ export class MPCKeyring implements Keyring {
       keyId,
     } = joinPayload;
 
-    const partialKey = this.#serializer.thresholdKey.fromJson(
-      partialKeyJson,
-    ) as PartialThresholdKey;
+    const partialKey =
+      this.#serializer.partialThresholdKey.fromJson(partialKeyJson);
 
     // Create DKM update session and run the protocol
     const onlineCustodians = [initiator, cloudCustodian];

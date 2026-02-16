@@ -45,7 +45,7 @@
     "@metamask/mfa-wallet-interface": "file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz",
     "@metamask/mfa-wallet-network": "file:./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz",
     "@metamask/mfa-wallet-util": "file:./packages/keyring-eth-mpc/metamask-mfa-wallet-util-0.0.0.tgz",
-    "@metamask/tss-dkls19-lib": "file:./packages/keyring-eth-mpc/metamask-tss-dkls19-lib-0.0.0.tgz"
+    "@metamask/mpc-libs-interface": "file:./packages/keyring-eth-mpc/metamask-mpc-libs-interface-0.0.0.tgz"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",

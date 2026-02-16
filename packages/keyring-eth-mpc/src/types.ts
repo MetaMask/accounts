@@ -1,11 +1,14 @@
-import type { ThresholdKey } from '@metamask/mfa-wallet-interface';
+import type {
+  PartialThresholdKey,
+  ThresholdKey,
+} from '@metamask/mfa-wallet-interface';
 import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
-import type { WasmLib as Dkls19WasmLib } from '@metamask/tss-dkls19-lib';
+import type { Dkls19Lib } from '@metamask/mpc-libs-interface';
 import type { Json } from '@metamask/utils';
 
 export type MPCKeyringOpts = {
   getRandomBytes: (size: number) => Uint8Array;
-  dkls19Lib: Dkls19WasmLib;
+  dkls19Lib: Dkls19Lib;
   cloudURL: string;
   relayerURL: string;
   getTransportToken?: () => Promise<string>;
@@ -29,5 +32,6 @@ type JsonSerializer<Value> = {
 
 export type MPCKeyringSerializer = {
   thresholdKey: JsonSerializer<ThresholdKey>;
+  partialThresholdKey: JsonSerializer<PartialThresholdKey>;
   networkIdentity: JsonSerializer<MfaNetworkIdentity>;
 };
