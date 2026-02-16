@@ -202,11 +202,11 @@ export class MPCKeyring implements Keyring {
   }
 
   /**
-   * Add a new custodian to the keyring.
+   * Add a new custodian to the keyring using serialized join data.
    *
-   * @param custodianId - The party ID of the custodian to add.
+   * @param joinData - The serialized join data from {@link createJoinData}.
    */
-  async addCustodian(custodianId: string): Promise<void> {
+  async addCustodian(joinData: string): Promise<void> {
     if (!this.#keyShare) {
       throw new Error('Key share not initialized');
     } else if (!this.#networkIdentity) {
@@ -227,32 +227,57 @@ export class MPCKeyring implements Keyring {
       throw new Error('Cloud custodian not found');
     }
 
-    const onlineCustodians = [localId, cloudCustodian.partyId];
-    const newCustodians = [...onlineCustodians, custodianId];
+    // Deserialize join data to get ephemeral joiner identity and nonce
+    const { joinerIdentity: joinerIdentityJson, nonce } = JSON.parse(joinData);
+    const ephemeralJoinerIdentity =
+      this.#serializer.networkIdentity.fromJson(joinerIdentityJson);
+    const ephemeralJoinerId = ephemeralJoinerIdentity.partyId;
 
+    // Session 1: establish with ephemeral joiner identity and nonce,
+    // receive the actual static joiner identity
+    const joinSession1Id = createScopedSessionId(
+      [ephemeralJoinerId, localId],
+      nonce,
+    );
+    const joinSession1 = await this.#networkManager.createSession(
+      this.#networkIdentity,
+      joinSession1Id,
+    );
+
+    const staticJoinerIdBytes = await joinSession1.receiveMessage(
+      ephemeralJoinerId,
+      'static-id',
+    );
+    const custodianId = new TextDecoder().decode(staticJoinerIdBytes);
+    await joinSession1.disconnect();
+
+    // Session 2: establish with static joiner identity,
+    // send partial key, key id, and fresh nonce
     const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
 
-    // Send join data to the new custodian
-    const joinSessionId = createScopedSessionId([custodianId, localId], 'join');
-    const joinSession = await this.#networkManager.createSession(
+    const joinSession2Id = createScopedSessionId([custodianId, localId], nonce);
+    const joinSession2 = await this.#networkManager.createSession(
       this.#networkIdentity,
-      joinSessionId,
+      joinSession2Id,
     );
 
     const partialKeyJson = this.#serializer.thresholdKey.toJson(this.#keyShare);
-    const joinData = JSON.stringify({
+    const joinPayload = JSON.stringify({
       cloudCustodian: cloudCustodian.partyId,
       nonce: sessionNonce,
       partialKey: partialKeyJson,
       keyId: this.#keyId,
     });
-    joinSession.sendMessage(
+    joinSession2.sendMessage(
       custodianId,
       'join-data',
-      new TextEncoder().encode(joinData),
+      new TextEncoder().encode(joinPayload),
     );
 
     // Notify the cloud custodian
+    const onlineCustodians = [localId, cloudCustodian.partyId];
+    const newCustodians = [...onlineCustodians, custodianId];
+
     const verifierId = this.getSelectedVerifierId();
     const token = await this.#getVerifierToken(verifierId);
 
@@ -281,7 +306,7 @@ export class MPCKeyring implements Keyring {
     });
 
     await networkSession.disconnect();
-    await joinSession.disconnect();
+    await joinSession2.disconnect();
 
     this.#keyShare = newKey;
     this.#custodians = [
@@ -326,17 +351,38 @@ export class MPCKeyring implements Keyring {
    *
    * @returns The party ID of the network identity.
    */
-  async setupIdentity(): Promise<PartyId> {
+  async #setupIdentity(): Promise<PartyId> {
     if (!this.#networkIdentity) {
       this.#networkIdentity = await this.#networkManager.createIdentity();
     }
     return this.#networkIdentity.partyId;
   }
 
+  /**
+   * Generate join data for a new custodian.
+   * Creates a fresh ephemeral joiner identity and session nonce,
+   * and serializes them along with the initiator's public ID.
+   *
+   * @returns Serialized join data string.
+   */
+  async createJoinData(): Promise<string> {
+    const initiatorId = await this.#setupIdentity();
+    const ephemeralJoinerIdentity = await this.#networkManager.createIdentity();
+    const nonce = bytesToHex(this.#rng.generateRandomBytes(32));
+
+    return JSON.stringify({
+      initiatorId,
+      joinerIdentity: this.#serializer.networkIdentity.toJson(
+        ephemeralJoinerIdentity,
+      ),
+      nonce,
+    });
+  }
+
   async setup(
     opts: { verifierIds: string[] } & (
       | { mode?: 'create' }
-      | { mode: 'join'; initiator: PartyId }
+      | { mode: 'join'; joinData: string }
     ),
   ): Promise<void> {
     const { verifierIds } = opts;
@@ -349,8 +395,8 @@ export class MPCKeyring implements Keyring {
     }
 
     if (mode === 'join') {
-      const { initiator } = opts as { initiator: PartyId };
-      await this.#setupJoin({ verifierIds, initiator });
+      const { joinData } = opts as { joinData: string };
+      await this.#setupJoin({ verifierIds, joinData });
     } else {
       await this.#setupCreate(verifierIds);
     }
@@ -358,7 +404,7 @@ export class MPCKeyring implements Keyring {
 
   async #setupCreate(verifierIds: string[]): Promise<void> {
     const dkm = new CL24DKM(secp256k1Curve, this.#rng);
-    const localId = await this.setupIdentity();
+    const localId = await this.#setupIdentity();
     const { networkIdentity } = this.#assertNetworkIdentity();
 
     const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
@@ -395,42 +441,72 @@ export class MPCKeyring implements Keyring {
 
   async #setupJoin(opts: {
     verifierIds: string[];
-    initiator: PartyId;
+    joinData: string;
   }): Promise<void> {
-    const { verifierIds, initiator } = opts;
-    const myId = await this.setupIdentity();
+    const { verifierIds, joinData } = opts;
+
+    // Deserialize join data to get initiator id, ephemeral joiner identity, nonce
+    const {
+      initiatorId: initiator,
+      joinerIdentity: joinerIdentityJson,
+      nonce,
+    } = JSON.parse(joinData);
+    const ephemeralJoinerIdentity =
+      this.#serializer.networkIdentity.fromJson(joinerIdentityJson);
+
+    // Setup own static identity
+    const myId = await this.#setupIdentity();
     const { networkIdentity } = this.#assertNetworkIdentity();
 
-    // Open a network session with initiator tagged 'join'
-    const joinSessionId = createScopedSessionId([myId, initiator], 'join');
-    const joinSession = await this.#networkManager.createSession(
-      networkIdentity,
-      joinSessionId,
+    // Session 1: establish with initiator using ephemeral joiner identity,
+    // send own static identity (public id)
+    const joinSession1Id = createScopedSessionId(
+      [ephemeralJoinerIdentity.partyId, initiator],
+      nonce,
+    );
+    const joinSession1 = await this.#networkManager.createSession(
+      ephemeralJoinerIdentity,
+      joinSession1Id,
     );
 
-    // Receive join data from initiator
-    const joinDataBytes = await joinSession.receiveMessage(
+    joinSession1.sendMessage(
+      initiator,
+      'static-id',
+      new TextEncoder().encode(myId),
+    );
+    await joinSession1.disconnect();
+
+    // Session 2: establish with initiator using static identity,
+    // receive partial key, key id, and nonce
+    const joinSession2Id = createScopedSessionId([myId, initiator], nonce);
+    const joinSession2 = await this.#networkManager.createSession(
+      networkIdentity,
+      joinSession2Id,
+    );
+
+    const joinPayloadBytes = await joinSession2.receiveMessage(
       initiator,
       'join-data',
     );
-    await joinSession.disconnect();
+    await joinSession2.disconnect();
 
-    const joinData = JSON.parse(new TextDecoder().decode(joinDataBytes));
+    const joinPayload = JSON.parse(new TextDecoder().decode(joinPayloadBytes));
     const {
       cloudCustodian,
-      nonce,
+      nonce: sessionNonce,
       partialKey: partialKeyJson,
       keyId,
-    } = joinData;
+    } = joinPayload;
 
     const partialKey = this.#serializer.thresholdKey.fromJson(
       partialKeyJson,
     ) as PartialThresholdKey;
 
+    // Create DKM update session and run the protocol
     const onlineCustodians = [initiator, cloudCustodian];
     const newCustodians = [...onlineCustodians, myId];
 
-    const sessionId = createScopedSessionId(newCustodians, nonce);
+    const sessionId = createScopedSessionId(newCustodians, sessionNonce);
     const networkSession = await this.#networkManager.createSession(
       networkIdentity,
       sessionId,
