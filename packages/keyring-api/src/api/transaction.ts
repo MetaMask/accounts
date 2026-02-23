@@ -211,7 +211,7 @@ export enum SecurityAlertResponse {
  * }
  * ```
  */
-const TransactionDetailsStruct = object({
+export const TransactionDetailsStruct = object({
   /**
    * Origin of the original transaction request.
    *
@@ -390,6 +390,13 @@ export const TransactionStruct = object({
    */
   details: exactOptional(TransactionDetailsStruct),
 });
+
+/**
+ * Transaction details object.
+ *
+ * See {@link TransactionDetailsStruct}.
+ */
+export type TransactionDetails = Infer<typeof TransactionDetailsStruct>;
 
 /**
  * Transaction object.
