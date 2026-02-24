@@ -179,17 +179,17 @@ export enum SecurityAlertResponse {
   /**
    * The transaction is considered safe with no detected security issues.
    */
-  Benign = 'benign',
+  Benign = 'Benign',
 
   /**
    * The transaction has potential security concerns that warrant user attention.
    */
-  Warning = 'warning',
+  Warning = 'Warning',
 
   /**
    * The transaction has been identified as malicious and should be avoided.
    */
-  Malicious = 'malicious',
+  Malicious = 'Malicious',
 }
 
 /**
