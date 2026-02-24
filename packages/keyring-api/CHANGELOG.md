@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add optional `details` field to `Transaction` type ([#445](https://github.com/MetaMask/accounts/pull/445))
+  - Add `SecurityAlertResponse` enum with values: `benign`, `warning`, `malicious`
+  - Add optional `origin` field (string) to track transaction request source
+  - Add optional `securityAlertResponse` field for Security Alert API responses
+
 ## [21.5.0]
 
 ### Added
