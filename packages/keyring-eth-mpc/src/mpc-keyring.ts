@@ -235,6 +235,9 @@ export class MPCKeyring implements Keyring {
       this.#serializer.networkIdentity.fromJson(joinerIdentityJson);
     const ephemeralJoinerId = ephemeralJoinerIdentity.partyId;
 
+    const totalStartTime = performance.now();
+    const session1StartTime = performance.now();
+
     // Session 1: establish with ephemeral joiner identity and nonce,
     // receive the actual static joiner identity
     const joinSession1Id = createScopedSessionId(
@@ -252,6 +255,10 @@ export class MPCKeyring implements Keyring {
     );
     const custodianId = new TextDecoder().decode(staticJoinerIdBytes);
     await joinSession1.disconnect();
+
+    const session1Time = performance.now() - session1StartTime;
+    console.log('addCustodian session1 time', session1Time);
+    const session2StartTime = performance.now();
 
     // Session 2: establish with static joiner identity,
     // send partial key, key id, and fresh nonce
@@ -282,6 +289,10 @@ export class MPCKeyring implements Keyring {
       new TextEncoder().encode(joinPayload),
     );
 
+    const session2Time = performance.now() - session2StartTime;
+    console.log('addCustodian session2 time', session2Time);
+    const initCloudStartTime = performance.now();
+
     // Notify the cloud custodian
     const onlineCustodians = [localId, cloudCustodian.partyId];
     const newCustodians = [...onlineCustodians, custodianId];
@@ -298,6 +309,10 @@ export class MPCKeyring implements Keyring {
       token,
     });
 
+    const initCloudTime = performance.now() - initCloudStartTime;
+    console.log('initCloudKeyUpdate time', initCloudTime);
+    const updateKeyStartTime = performance.now();
+
     // Run the key update protocol
     const sessionId = createScopedSessionId(newCustodians, sessionNonce);
     const networkSession = await this.#networkManager.createSession(
@@ -312,6 +327,12 @@ export class MPCKeyring implements Keyring {
       newCustodians,
       networkSession,
     });
+
+    const updateKeyTime = performance.now() - updateKeyStartTime;
+    console.log('dkm.updateKey time', updateKeyTime);
+
+    const totalTime = performance.now() - totalStartTime;
+    console.log('addCustodian total time', totalTime);
 
     await networkSession.disconnect();
     // We disconnect session 2 after receiving message from custodian to avoid
@@ -417,6 +438,9 @@ export class MPCKeyring implements Keyring {
     const localId = await this.#setupIdentity();
     const { networkIdentity } = this.#assertNetworkIdentity();
 
+    const totalStartTime = performance.now();
+    const initCloudStartTime = performance.now();
+
     const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
     const { cloudId } = await initCloudKeyGen({
       localId,
@@ -424,6 +448,11 @@ export class MPCKeyring implements Keyring {
       baseURL: this.#cloudURL,
       verifierIds,
     });
+
+    const initCloudTime = performance.now() - initCloudStartTime;
+    console.log('initCloudKeyGen time', initCloudTime);
+    const createKeyStartTime = performance.now();
+
     const custodians = [localId, cloudId];
     const threshold = 2;
 
@@ -438,6 +467,13 @@ export class MPCKeyring implements Keyring {
       threshold,
       networkSession,
     });
+
+    const createKeyTime = performance.now() - createKeyStartTime;
+    console.log('dkm.createKey time', createKeyTime);
+
+    const totalTime = performance.now() - totalStartTime;
+    console.log('setupCreate total time', totalTime);
+
     this.#keyId = networkSession.sessionId;
     this.#custodians = [
       { partyId: localId, type: 'user' },
@@ -468,6 +504,9 @@ export class MPCKeyring implements Keyring {
     const myId = await this.#setupIdentity();
     const { networkIdentity } = this.#assertNetworkIdentity();
 
+    const totalStartTime = performance.now();
+    const session1StartTime = performance.now();
+
     // Session 1: establish with initiator using ephemeral joiner identity,
     // send own static identity (public id)
     const joinSession1Id = createScopedSessionId(
@@ -484,6 +523,10 @@ export class MPCKeyring implements Keyring {
       'static-id',
       new TextEncoder().encode(myId),
     );
+
+    const session1Time = performance.now() - session1StartTime;
+    console.log('setupJoin session1 time', session1Time);
+    const session2StartTime = performance.now();
 
     // Session 2: establish with initiator using static identity,
     // receive partial key, key id, and nonce
@@ -502,6 +545,9 @@ export class MPCKeyring implements Keyring {
     // a bug where messages are not sent when disconnecting immediately.
     await joinSession1.disconnect();
 
+    const session2Time = performance.now() - session2StartTime;
+    console.log('setupJoin session2 time', session2Time);
+
     const joinPayload = JSON.parse(new TextDecoder().decode(joinPayloadBytes));
     const {
       cloudCustodian,
@@ -517,6 +563,8 @@ export class MPCKeyring implements Keyring {
     const onlineCustodians = [initiator, cloudCustodian];
     const newCustodians = [...onlineCustodians, myId];
 
+    const updateKeyStartTime = performance.now();
+
     const sessionId = createScopedSessionId(newCustodians, sessionNonce);
     const networkSession = await this.#networkManager.createSession(
       networkIdentity,
@@ -530,6 +578,12 @@ export class MPCKeyring implements Keyring {
       newCustodians,
       networkSession,
     });
+
+    const updateKeyTime = performance.now() - updateKeyStartTime;
+    console.log('dkm.updateKey time', updateKeyTime);
+
+    const totalTime = performance.now() - totalStartTime;
+    console.log('setupJoin total time', totalTime);
 
     await networkSession.disconnect();
 
@@ -693,6 +747,9 @@ export class MPCKeyring implements Keyring {
     const message = hash;
     const token = await this.#getVerifierToken(verifierId);
 
+    const totalStartTime = performance.now();
+    const initCloudStartTime = performance.now();
+
     await initCloudSign({
       keyId: this.#keyId,
       localId,
@@ -701,6 +758,10 @@ export class MPCKeyring implements Keyring {
       baseURL: this.#cloudURL,
       token,
     });
+
+    const initCloudTime = performance.now() - initCloudStartTime;
+    console.log('initCloudSign time', initCloudTime);
+    const dkls19StartTime = performance.now();
 
     const networkSession = await this.#networkManager.createSession(
       this.#networkIdentity,
@@ -714,6 +775,12 @@ export class MPCKeyring implements Keyring {
       message,
       networkSession,
     });
+
+    const dkls19SignTime = performance.now() - dkls19StartTime;
+    console.log('dkls19.sign time', dkls19SignTime);
+
+    const totalTime = performance.now() - totalStartTime;
+    console.log('total time', totalTime);
 
     await networkSession.disconnect();
 
