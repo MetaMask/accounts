@@ -34,7 +34,7 @@ describe('TransactionStruct', () => {
       {
         transaction: {
           ...baseTransaction,
-          details: { securityAlertResponse: 'benign' },
+          details: { securityAlertResponse: 'Benign' },
         },
         expected: true,
       },
@@ -42,7 +42,7 @@ describe('TransactionStruct', () => {
       {
         transaction: {
           ...baseTransaction,
-          details: { origin: 'metamask', securityAlertResponse: 'warning' },
+          details: { origin: 'metamask', securityAlertResponse: 'Warning' },
         },
         expected: true,
       },
@@ -50,21 +50,21 @@ describe('TransactionStruct', () => {
       {
         transaction: {
           ...baseTransaction,
-          details: { securityAlertResponse: 'benign' },
+          details: { securityAlertResponse: 'Benign' },
         },
         expected: true,
       },
       {
         transaction: {
           ...baseTransaction,
-          details: { securityAlertResponse: 'warning' },
+          details: { securityAlertResponse: 'Warning' },
         },
         expected: true,
       },
       {
         transaction: {
           ...baseTransaction,
-          details: { securityAlertResponse: 'malicious' },
+          details: { securityAlertResponse: 'Malicious' },
         },
         expected: true,
       },
@@ -72,7 +72,7 @@ describe('TransactionStruct', () => {
       {
         transaction: {
           ...baseTransaction,
-          details: { securityAlertResponse: 'invalid' },
+          details: { securityAlertResponse: 'Invalid' },
         },
         expected: false,
       },

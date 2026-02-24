@@ -255,7 +255,7 @@ expectAssignable<Transaction>({
   events: [],
   details: {
     origin: 'https://dapp.test',
-    securityAlertResponse: 'benign',
+    securityAlertResponse: 'Benign',
   },
 });
 
@@ -304,7 +304,7 @@ expectAssignable<Transaction>({
   fees: [],
   events: [],
   details: {
-    securityAlertResponse: 'warning',
+    securityAlertResponse: 'Warning',
   },
 });
 
@@ -336,6 +336,6 @@ expectNotAssignable<Transaction>({
   fees: [],
   events: [],
   details: {
-    securityAlertResponse: 'invalid',
+    securityAlertResponse: 'Invalid',
   },
 });

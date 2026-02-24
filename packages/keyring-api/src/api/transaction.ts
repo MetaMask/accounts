@@ -199,7 +199,7 @@ export enum SecurityAlertResponse {
  * ```ts
  * {
  *   origin: 'https://dapp.example.com',
- *   securityAlertResponse: 'benign',
+ *   securityAlertResponse: 'Benign',
  * }
  * ```
  *
@@ -207,7 +207,7 @@ export enum SecurityAlertResponse {
  * ```ts
  * {
  *   origin: 'metamask',
- *   securityAlertResponse: 'warning',
+ *   securityAlertResponse: 'Warning',
  * }
  * ```
  */
