@@ -1,11 +1,17 @@
-import type { Signer } from '../signer';
+import type { BitcoinSigner } from '../signer';
 
+/**
+ * The type of entropy source.
+ */
 export type EntropyType =
   // Entropies that use BIP-44 to derive signers.
   | 'bip44'
   // Entropies that expose basic private key signers.
   | 'private-key';
 
+/**
+ * Unique identifier for an entropy source.
+ */
 export type EntropyId = string;
 
 /**
@@ -23,16 +29,22 @@ export type Entropy = {
   type: EntropyType;
 
   /**
-   * Gets a signer from the entropy.
+   * Gets a Bitcoin signer from the entropy.
    *
    * @param options - Options for getting the signer.
-   * @returns The signer.
+   * @returns The Bitcoin signer.
    */
-  getSigner(options: unknown): Promise<Signer>;
+  getBitcoinSigner(options: unknown): Promise<BitcoinSigner>;
 };
 
+/**
+ * A single node in a BIP-32 derivation path, either normal or hardened (with `'`).
+ */
 export type Bip32PathNode = `${number}` | `${number}'`;
 
+/**
+ * Options for getting a signer from a BIP-44 entropy source.
+ */
 export type Bip44GetSignerOptions = {
   /**
    * The elliptic curve that should be used to derive the signer.
@@ -53,7 +65,7 @@ export type Bip44Entropy = Entropy & {
 
   id: EntropyId;
 
-  getSigner(options: Bip44GetSignerOptions): Promise<Signer>;
+  getBitcoinSigner(options: Bip44GetSignerOptions): Promise<BitcoinSigner>;
 };
 
 /**
@@ -74,7 +86,7 @@ export type PrivateKeyEntropy = Entropy & {
 
   id: EntropyId;
 
-  getSigner(): Promise<Signer>;
+  getBitcoinSigner(): Promise<BitcoinSigner>;
 };
 
 /**
@@ -89,14 +101,45 @@ export function isPrivateKeyEntropy(
   return entropy.type === 'private-key';
 }
 
+/**
+ * Controller for managing entropy sources.
+ */
 export type EntropyController = {
+  /**
+   * Adds a new entropy source.
+   *
+   * @param entropy - The entropy to add.
+   */
   addEntropy(entropy: Entropy): Promise<void>;
 
+  /**
+   * Updates an existing entropy source.
+   *
+   * @param entropyId - The ID of the entropy to update.
+   * @param entropy - The new entropy data.
+   */
   updateEntropy(entropyId: EntropyId, entropy: Entropy): Promise<void>;
 
+  /**
+   * Deletes an entropy source.
+   *
+   * @param entropyId - The ID of the entropy to delete.
+   */
   deleteEntropy(entropyId: EntropyId): Promise<void>;
 
+  /**
+   * Gets an entropy source by its ID.
+   *
+   * @param entropyId - The ID of the entropy to retrieve.
+   * @returns The matching entropy.
+   */
   getEntropyById(entropyId: EntropyId): Promise<Entropy>;
 
+  /**
+   * Gets all entropy sources of a given type.
+   *
+   * @param entropyType - The type of entropy to filter by.
+   * @returns The matching entropies.
+   */
   getEntropyByType(entropyType: EntropyType): Promise<Entropy[]>;
 };

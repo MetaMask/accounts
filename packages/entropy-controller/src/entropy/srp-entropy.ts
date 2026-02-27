@@ -5,7 +5,7 @@ import type {
   Bip44Entropy,
   Bip44GetSignerOptions,
 } from './entropy';
-import type { PrivateKeySigner } from '../signer/signer';
+import type { BitcoinSigner } from '../signer/bitcoin-signer';
 
 type KeyTreeBip32Node = `bip32:${number}` | `bip32:${number}'`;
 
@@ -32,7 +32,9 @@ export class SrpEntropy implements Bip44Entropy {
     this.#mnemonic = mnemonic;
   }
 
-  async getSigner(options: Bip44GetSignerOptions): Promise<PrivateKeySigner> {
+  async getBitcoinSigner(
+    options: Bip44GetSignerOptions,
+  ): Promise<BitcoinSigner> {
     await SLIP10Node.fromDerivationPath({
       curve: options.curve,
       derivationPath: [

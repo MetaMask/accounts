@@ -1628,6 +1628,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask/entropy-controller@workspace:packages/entropy-controller":
+  version: 0.0.0-use.local
+  resolution: "@metamask/entropy-controller@workspace:packages/entropy-controller"
+  dependencies:
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/auto-changelog": "npm:^3.4.4"
+    "@metamask/key-tree": "npm:^10.1.1"
+    "@metamask/keyring-api": "workspace:^"
+    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/superstruct": "npm:^3.1.0"
+    "@metamask/utils": "npm:^11.1.0"
+    "@ts-bridge/cli": "npm:^0.6.3"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.12.12"
+    "@types/webextension-polyfill": "npm:^0.12.1"
+    deepmerge: "npm:^4.2.2"
+    depcheck: "npm:^1.4.7"
+    jest: "npm:^29.5.0"
+    jest-it-up: "npm:^3.1.0"
+    ts-jest: "npm:^29.0.5"
+    ts-node: "npm:^10.9.2"
+    tsd: "npm:^0.31.0"
+    typedoc: "npm:^0.25.13"
+    typescript: "npm:~5.6.3"
+  languageName: unknown
+  linkType: soft
+
 "@metamask/eslint-config-jest@npm:^13.0.0":
   version: 13.0.0
   resolution: "@metamask/eslint-config-jest@npm:13.0.0"

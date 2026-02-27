@@ -1,6 +1,26 @@
 export type PrivateKey = string;
 
-export type PublicKey = string;
+/**
+ * Represents a signer's public key information.
+ *
+ * Can be one of:
+ * - An address only.
+ * - A public key with an optional chain code.
+ * - An address with a public key and an optional chain code.
+ */
+export type PublicKey =
+  | {
+      address: string;
+    }
+  | {
+      publicKey: string;
+      chainCode?: string;
+    }
+  | {
+      address: string;
+      publicKey: string;
+      chainCode?: string;
+    };
 
 export type SigningIntent = string;
 
@@ -56,35 +76,3 @@ export type PrivateKeySigner = DataSigner & {
    */
   getPrivateKey(): Promise<PrivateKey>;
 };
-
-export type Signer = PrivateKeySigner | IntentSigner | DataSigner;
-
-/**
- * Checks if the signer is an IntentSigner.
- *
- * @param signer - The signer to check.
- * @returns True if the signer is an IntentSigner, false otherwise.
- */
-export function isIntentSigner(signer: Signer): signer is IntentSigner {
-  return 'signIntent' in signer;
-}
-
-/**
- * Checks if the signer is a DataSigner.
- *
- * @param signer - The signer to check.
- * @returns True if the signer is a DataSigner, false otherwise.
- */
-export function isDataSigner(signer: Signer): signer is DataSigner {
-  return 'signData' in signer;
-}
-
-/**
- * Checks if the signer is a PrivateKeySigner.
- *
- * @param signer - The signer to check.
- * @returns True if the signer is a PrivateKeySigner, false otherwise.
- */
-export function isPrivateKeySigner(signer: Signer): signer is PrivateKeySigner {
-  return 'getPrivateKey' in signer;
-}
