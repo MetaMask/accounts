@@ -18,14 +18,14 @@ export type GetXpubResponse = {
  */
 export type GetAddressArguments = {
   /**
-   * Whether this is a change address (0 = receiving, 1 = change).
-   */
-  change: 0 | 1;
-
-  /**
    * The address index.
    */
   index: number;
+
+  /**
+   * Whether this is a change address (0 = receiving, 1 = change).
+   */
+  change: 0 | 1;
 };
 
 /**
