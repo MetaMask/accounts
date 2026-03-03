@@ -706,6 +706,7 @@ export class MPCKeyring implements Keyring {
       signers,
       message,
       networkSession,
+      setup: state.dkls19Setup,
     });
 
     const dkls19SignTime = performance.now() - dkls19StartTime;
