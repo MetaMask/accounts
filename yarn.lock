@@ -2202,11 +2202,11 @@ __metadata:
 
 "@metamask/mfa-wallet-dkls19-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
   version: 0.0.0
-  resolution: "@metamask/mfa-wallet-dkls19-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz::hash=4b0e4f&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  resolution: "@metamask/mfa-wallet-dkls19-lib@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls19-lib-0.0.0.tgz::hash=f33924&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
   dependencies:
     "@metamask/mfa-wallet-util": "npm:^0.0.0"
     "@noble/curves": "npm:^1.9.2"
-  checksum: 10/c6171512e90737102f190c152ae636ad5fade75ea0225eb0d008e19dd108e5b0cc0b2348a7301df6b0ef0df7661f2664662a4b947d2f06d865bf6535d8a60619
+  checksum: 10/ec6c5ef34943e64e89570618d5a714f37e82e9be37d8c1fdaf5a901a46e40322338554437ffefa232972182c8c936c1163604aa49bc1f60a5b492be4efdd5547
   languageName: node
   linkType: hard
 
@@ -2224,8 +2224,8 @@ __metadata:
 
 "@metamask/mfa-wallet-interface@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
   version: 0.0.0
-  resolution: "@metamask/mfa-wallet-interface@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz::hash=97a2c3&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
-  checksum: 10/7da4a2d06e67729b6386b7bc4d5aebd43090a4db23618aafc079e51f890cf00cf1aea336b1dc7877a8e138c89c63d54af7c164fa4b908cb5b5d23b9bc4c4e9cb
+  resolution: "@metamask/mfa-wallet-interface@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz::hash=b0172f&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  checksum: 10/c91acabafd1830b1e01ebb3f1e47fcc956233b105772c4891752efff5c19e5c4cbca3d50047aac6a3c71ce479339e733c8c0c8f542e48ba0ff9ea32f8b65e27d
   languageName: node
   linkType: hard
 
@@ -2250,8 +2250,8 @@ __metadata:
 
 "@metamask/mpc-libs-interface@file:./packages/keyring-eth-mpc/metamask-mpc-libs-interface-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
   version: 0.0.0
-  resolution: "@metamask/mpc-libs-interface@file:./packages/keyring-eth-mpc/metamask-mpc-libs-interface-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mpc-libs-interface-0.0.0.tgz::hash=c606bf&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
-  checksum: 10/737f6c569e66f21898262a2304bff7048b5a58ae93c4d42688081a8cf6c7d4fbaf669cc90b08fec09e75c959ce798ad5ba021e04e53f1567d6f05b2c101b4a9d
+  resolution: "@metamask/mpc-libs-interface@file:./packages/keyring-eth-mpc/metamask-mpc-libs-interface-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mpc-libs-interface-0.0.0.tgz::hash=95a8c1&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  checksum: 10/171a8bf0fc792376d7ab9422be94e43a11013f955cba1ed7c833b07b326d6accc947184fd929dfed7e2e3bdf7a0e34cac2bc6e693994c6491f40a1cf7ccc2668
   languageName: node
   linkType: hard
 
