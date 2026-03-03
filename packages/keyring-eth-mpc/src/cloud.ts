@@ -26,6 +26,7 @@ export async function initCloudKeyGen(opts: {
       custodianId: opts.localId,
       nonce: opts.sessionNonce,
       protocol: 'cl24-secp256k1',
+      withDkls19Setup: true,
       verifierIds: opts.verifierIds,
     }),
   });
