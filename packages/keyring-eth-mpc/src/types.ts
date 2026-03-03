@@ -30,6 +30,15 @@ type JsonSerializer<Value> = {
   fromJson: (value: Json) => Value;
 };
 
+export type MPCKeyringState = {
+  networkIdentity: MfaNetworkIdentity;
+  keyShare: ThresholdKey;
+  keyId: ThresholdKeyId;
+  custodians: Custodian[];
+  verifierIds: string[];
+  selectedVerifierIndex: number;
+};
+
 export type MPCKeyringSerializer = {
   thresholdKey: JsonSerializer<ThresholdKey>;
   partialThresholdKey: JsonSerializer<PartialThresholdKey>;
