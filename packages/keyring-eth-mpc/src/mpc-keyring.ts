@@ -64,6 +64,8 @@ export class MPCKeyring implements Keyring {
 
   readonly #dkls19Lib: Dkls19Lib;
 
+  readonly #dkm: CL24DKM;
+
   #networkIdentity?: MfaNetworkIdentity;
 
   #keyShare?: ThresholdKey;
@@ -86,6 +88,7 @@ export class MPCKeyring implements Keyring {
     this.#rng = {
       generateRandomBytes: opts.getRandomBytes,
     };
+    this.#dkm = new CL24DKM(secp256k1Curve, this.#rng);
     this.#dkls19Lib = opts.dkls19Lib;
     this.#cloudURL = opts.cloudURL;
     this.#serializer = {
@@ -313,19 +316,12 @@ export class MPCKeyring implements Keyring {
     console.log('initCloudKeyUpdate time', initCloudTime);
     const updateKeyStartTime = performance.now();
 
-    // Run the key update protocol
-    const sessionId = createScopedSessionId(newCustodians, sessionNonce);
-    const networkSession = await this.#networkManager.createSession(
-      this.#networkIdentity,
-      sessionId,
-    );
-
-    const dkm = new CL24DKM(secp256k1Curve, this.#rng);
-    const newKey = await dkm.updateKey({
+    const newKey = await this.#runKeyUpdate({
+      identity: this.#networkIdentity,
       key: this.#keyShare,
       onlineCustodians,
       newCustodians,
-      networkSession,
+      sessionNonce,
     });
 
     const updateKeyTime = performance.now() - updateKeyStartTime;
@@ -334,8 +330,7 @@ export class MPCKeyring implements Keyring {
     const totalTime = performance.now() - totalStartTime;
     console.log('addCustodian total time', totalTime);
 
-    await networkSession.disconnect();
-    // We disconnect session 2 after receiving message from custodian to avoid
+    // We disconnect session 2 after the key update to avoid
     // a bug where messages are not sent when disconnecting immediately.
     await joinSession2.disconnect();
 
@@ -434,7 +429,6 @@ export class MPCKeyring implements Keyring {
   }
 
   async #setupCreate(verifierIds: string[]): Promise<void> {
-    const dkm = new CL24DKM(secp256k1Curve, this.#rng);
     const localId = await this.#setupIdentity();
     const { networkIdentity } = this.#assertNetworkIdentity();
 
@@ -454,18 +448,11 @@ export class MPCKeyring implements Keyring {
     const createKeyStartTime = performance.now();
 
     const custodians = [localId, cloudId];
-    const threshold = 2;
-
-    const sessionId = createScopedSessionId(custodians, sessionNonce);
-    const networkSession = await this.#networkManager.createSession(
-      networkIdentity,
-      sessionId,
-    );
-
-    this.#keyShare = await dkm.createKey({
+    const { key, keyId } = await this.#runKeyGeneration({
+      identity: networkIdentity,
       custodians,
-      threshold,
-      networkSession,
+      threshold: 2,
+      sessionNonce,
     });
 
     const createKeyTime = performance.now() - createKeyStartTime;
@@ -474,15 +461,16 @@ export class MPCKeyring implements Keyring {
     const totalTime = performance.now() - totalStartTime;
     console.log('setupCreate total time', totalTime);
 
-    this.#keyId = networkSession.sessionId;
-    this.#custodians = [
-      { partyId: localId, type: 'user' },
-      { partyId: cloudId, type: 'cloud' },
-    ];
-    this.#verifierIds = verifierIds;
-    this.#selectedVerifierIndex = 0;
-
-    await networkSession.disconnect();
+    this.#applyKeyState({
+      keyShare: key,
+      keyId,
+      custodians: [
+        { partyId: localId, type: 'user' },
+        { partyId: cloudId, type: 'cloud' },
+      ],
+      verifierIds,
+      selectedVerifierIndex: 0,
+    });
   }
 
   async #setupJoin(opts: {
@@ -559,24 +547,17 @@ export class MPCKeyring implements Keyring {
     const partialKey =
       this.#serializer.partialThresholdKey.fromJson(partialKeyJson);
 
-    // Create DKM update session and run the protocol
     const onlineCustodians = [initiator, cloudCustodian];
     const newCustodians = [...onlineCustodians, myId];
 
     const updateKeyStartTime = performance.now();
 
-    const sessionId = createScopedSessionId(newCustodians, sessionNonce);
-    const networkSession = await this.#networkManager.createSession(
-      networkIdentity,
-      sessionId,
-    );
-
-    const dkm = new CL24DKM(secp256k1Curve, this.#rng);
-    const key = await dkm.updateKey({
+    const key = await this.#runKeyUpdate({
+      identity: networkIdentity,
       key: partialKey,
       onlineCustodians,
       newCustodians,
-      networkSession,
+      sessionNonce,
     });
 
     const updateKeyTime = performance.now() - updateKeyStartTime;
@@ -585,17 +566,17 @@ export class MPCKeyring implements Keyring {
     const totalTime = performance.now() - totalStartTime;
     console.log('setupJoin total time', totalTime);
 
-    await networkSession.disconnect();
-
-    this.#keyShare = key;
-    this.#keyId = keyId;
-    this.#custodians = [
-      { partyId: initiator, type: 'user' },
-      { partyId: cloudCustodian, type: 'cloud' },
-      { partyId: myId, type: 'user' },
-    ];
-    this.#verifierIds = verifierIds;
-    this.#selectedVerifierIndex = 0;
+    this.#applyKeyState({
+      keyShare: key,
+      keyId,
+      custodians: [
+        { partyId: initiator, type: 'user' },
+        { partyId: cloudCustodian, type: 'cloud' },
+        { partyId: myId, type: 'user' },
+      ],
+      verifierIds,
+      selectedVerifierIndex: 0,
+    });
   }
 
   /**
@@ -785,6 +766,70 @@ export class MPCKeyring implements Keyring {
     await networkSession.disconnect();
 
     return toEthSig(signature, hash, publicKey);
+  }
+
+  async #runKeyGeneration(opts: {
+    identity: MfaNetworkIdentity;
+    custodians: PartyId[];
+    threshold: number;
+    sessionNonce: string;
+  }): Promise<{ key: ThresholdKey; keyId: ThresholdKeyId }> {
+    const sessionId = createScopedSessionId(opts.custodians, opts.sessionNonce);
+    const networkSession = await this.#networkManager.createSession(
+      opts.identity,
+      sessionId,
+    );
+
+    const key = await this.#dkm.createKey({
+      custodians: opts.custodians,
+      threshold: opts.threshold,
+      networkSession,
+    });
+
+    const keyId = networkSession.sessionId;
+    await networkSession.disconnect();
+    return { key, keyId };
+  }
+
+  async #runKeyUpdate(opts: {
+    identity: MfaNetworkIdentity;
+    key: ThresholdKey | PartialThresholdKey;
+    onlineCustodians: PartyId[];
+    newCustodians: PartyId[];
+    sessionNonce: string;
+  }): Promise<ThresholdKey> {
+    const sessionId = createScopedSessionId(
+      opts.newCustodians,
+      opts.sessionNonce,
+    );
+    const networkSession = await this.#networkManager.createSession(
+      opts.identity,
+      sessionId,
+    );
+
+    const newKey = await this.#dkm.updateKey({
+      key: opts.key,
+      onlineCustodians: opts.onlineCustodians,
+      newCustodians: opts.newCustodians,
+      networkSession,
+    });
+
+    await networkSession.disconnect();
+    return newKey;
+  }
+
+  #applyKeyState(opts: {
+    keyShare: ThresholdKey;
+    keyId: ThresholdKeyId;
+    custodians: Custodian[];
+    verifierIds: string[];
+    selectedVerifierIndex: number;
+  }): void {
+    this.#keyShare = opts.keyShare;
+    this.#keyId = opts.keyId;
+    this.#custodians = opts.custodians;
+    this.#verifierIds = opts.verifierIds;
+    this.#selectedVerifierIndex = opts.selectedVerifierIndex;
   }
 
   #assertNetworkIdentity(): { networkIdentity: MfaNetworkIdentity } {
