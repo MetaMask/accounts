@@ -41,6 +41,7 @@ import {
   equalAddresses,
   getSignedTypedDataHash,
   parseCustodians,
+  parseDkls19Setup,
   parseEthSig,
   parseSelectedVerifierIndex,
   parseSignedTypedDataVersion,
@@ -139,6 +140,7 @@ export class MPCKeyring implements Keyring {
       'networkIdentity' in state &&
       'keyShare' in state &&
       'keyId' in state &&
+      'dkls19Setup' in state &&
       'custodians' in state &&
       'verifierIds' in state &&
       'selectedVerifierIndex' in state
@@ -149,6 +151,7 @@ export class MPCKeyring implements Keyring {
         ),
         keyShare: this.#serializer.thresholdKey.fromJson(state.keyShare),
         keyId: parseThresholdKeyId(state.keyId),
+        dkls19Setup: parseDkls19Setup(state.dkls19Setup),
         custodians: parseCustodians(state.custodians),
         verifierIds: parseVerifierIds(state.verifierIds),
         selectedVerifierIndex: parseSelectedVerifierIndex(
@@ -283,7 +286,7 @@ export class MPCKeyring implements Keyring {
     console.log('initCloudKeyUpdate time', initCloudTime);
     const updateKeyStartTime = performance.now();
 
-    const newKey = await this.#runKeyUpdate({
+    const { newKey, dkls19Setup } = await this.#runKeyUpdate({
       identity: networkIdentity,
       key: state.keyShare,
       onlineCustodians,
@@ -304,6 +307,7 @@ export class MPCKeyring implements Keyring {
     this.#state = {
       ...state,
       keyShare: newKey,
+      dkls19Setup,
       custodians: [...state.custodians, { partyId: custodianId, type: 'user' }],
     };
   }
@@ -404,7 +408,7 @@ export class MPCKeyring implements Keyring {
     const createKeyStartTime = performance.now();
 
     const custodians = [localId, cloudId];
-    const { key, keyId } = await this.#runKeyGeneration({
+    const { key, keyId, dkls19Setup } = await this.#runKeyGeneration({
       identity: networkIdentity,
       custodians,
       threshold: 2,
@@ -421,6 +425,7 @@ export class MPCKeyring implements Keyring {
       networkIdentity,
       keyShare: key,
       keyId,
+      dkls19Setup,
       custodians: [
         { partyId: localId, type: 'user' },
         { partyId: cloudId, type: 'cloud' },
@@ -509,7 +514,7 @@ export class MPCKeyring implements Keyring {
 
     const updateKeyStartTime = performance.now();
 
-    const key = await this.#runKeyUpdate({
+    const { newKey, dkls19Setup } = await this.#runKeyUpdate({
       identity: networkIdentity,
       key: partialKey,
       onlineCustodians,
@@ -525,7 +530,8 @@ export class MPCKeyring implements Keyring {
 
     this.#applyKeyState({
       networkIdentity,
-      keyShare: key,
+      keyShare: newKey,
+      dkls19Setup,
       keyId,
       custodians: [
         { partyId: initiator, type: 'user' },
@@ -718,22 +724,37 @@ export class MPCKeyring implements Keyring {
     custodians: PartyId[];
     threshold: number;
     sessionNonce: string;
-  }): Promise<{ key: ThresholdKey; keyId: ThresholdKeyId }> {
+  }): Promise<{
+    key: ThresholdKey;
+    keyId: ThresholdKeyId;
+    dkls19Setup: Uint8Array;
+  }> {
     const sessionId = createScopedSessionId(opts.custodians, opts.sessionNonce);
-    const networkSession = await this.#networkManager.createSession(
+    const rootSession = await this.#networkManager.createSession(
       opts.identity,
       sessionId,
     );
 
+    const createKeySession = rootSession.createSubsession('create-key');
+
     const key = await this.#dkm.createKey({
       custodians: opts.custodians,
       threshold: opts.threshold,
-      networkSession,
+      networkSession: createKeySession,
     });
 
-    const keyId = networkSession.sessionId;
-    await networkSession.disconnect();
-    return { key, keyId };
+    const dkls19SetupSession = rootSession.createSubsession('dkls19-setup');
+
+    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
+    const dkls19Setup = await dkls19.setup({
+      custodians: opts.custodians,
+      shareIndexes: key.shareIndexes,
+      networkSession: dkls19SetupSession,
+    });
+
+    const keyId = rootSession.sessionId;
+    await rootSession.disconnect();
+    return { key, keyId, dkls19Setup };
   }
 
   async #runKeyUpdate(opts: {
@@ -742,25 +763,33 @@ export class MPCKeyring implements Keyring {
     onlineCustodians: PartyId[];
     newCustodians: PartyId[];
     sessionNonce: string;
-  }): Promise<ThresholdKey> {
+  }): Promise<{ newKey: ThresholdKey; dkls19Setup: Uint8Array }> {
     const sessionId = createScopedSessionId(
       opts.newCustodians,
       opts.sessionNonce,
     );
-    const networkSession = await this.#networkManager.createSession(
+    const rootSession = await this.#networkManager.createSession(
       opts.identity,
       sessionId,
     );
 
+    const updateKeySession = rootSession.createSubsession('update-key');
     const newKey = await this.#dkm.updateKey({
       key: opts.key,
       onlineCustodians: opts.onlineCustodians,
       newCustodians: opts.newCustodians,
-      networkSession,
+      networkSession: updateKeySession,
     });
 
-    await networkSession.disconnect();
-    return newKey;
+    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
+    const dkls19Setup = await dkls19.setup({
+      custodians: opts.newCustodians,
+      shareIndexes: newKey.shareIndexes,
+      networkSession: updateKeySession,
+    });
+
+    await rootSession.disconnect();
+    return { newKey, dkls19Setup };
   }
 
   #applyKeyState(state: MPCKeyringState): void {

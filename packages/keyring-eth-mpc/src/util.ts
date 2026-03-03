@@ -265,12 +265,23 @@ export function parseCustodians(custodians: Json): Custodian[] {
       throw new Error('Invalid custodian partyId: expected a string');
     }
     if (custodian.type !== 'user' && custodian.type !== 'cloud') {
-      throw new Error(
-        "Invalid custodian type: expected 'user' or 'cloud'",
-      );
+      throw new Error("Invalid custodian type: expected 'user' or 'cloud'");
     }
   }
   return custodians as Custodian[];
+}
+
+/**
+ * Parse dkls19 setup from a JSON object.
+ *
+ * @param dkls19Setup - The dkls19 setup to parse.
+ * @returns The parsed dkls19 setup.
+ */
+export function parseDkls19Setup(dkls19Setup: Json): Uint8Array {
+  if (typeof dkls19Setup !== 'string') {
+    throw new Error('Invalid dkls19 setup: expected a string');
+  }
+  return hexToBytes(dkls19Setup);
 }
 
 /**

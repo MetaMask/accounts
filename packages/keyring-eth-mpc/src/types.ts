@@ -34,6 +34,7 @@ export type MPCKeyringState = {
   networkIdentity: MfaNetworkIdentity;
   keyShare: ThresholdKey;
   keyId: ThresholdKeyId;
+  dkls19Setup: Uint8Array;
   custodians: Custodian[];
   verifierIds: string[];
   selectedVerifierIndex: number;
