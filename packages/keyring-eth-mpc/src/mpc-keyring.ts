@@ -782,11 +782,12 @@ export class MPCKeyring implements Keyring {
       networkSession: updateKeySession,
     });
 
+    const dkls19SetupSession = rootSession.createSubsession('dkls19-setup');
     const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
     const dkls19Setup = await dkls19.setup({
       custodians: opts.newCustodians,
       shareIndexes: newKey.shareIndexes,
-      networkSession: updateKeySession,
+      networkSession: dkls19SetupSession,
     });
 
     await rootSession.disconnect();
