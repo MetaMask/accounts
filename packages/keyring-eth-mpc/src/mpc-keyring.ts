@@ -123,6 +123,7 @@ export class MPCKeyring implements Keyring {
       custodians: this.#state.custodians,
       verifierIds: this.#state.verifierIds,
       selectedVerifierIndex: this.#state.selectedVerifierIndex,
+      dkls19Setup: bytesToHex(this.#state.dkls19Setup),
     };
   }
 
