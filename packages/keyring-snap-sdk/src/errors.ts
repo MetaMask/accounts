@@ -3,7 +3,7 @@ import { SNAP_ERROR_CODE, SNAP_ERROR_MESSAGE } from '@metamask/snaps-sdk';
 import type { JsonRpcError } from '@metamask/utils';
 import { isJsonRpcError, isObject } from '@metamask/utils';
 
-// These were extracted from snaps-utils but should be available in snaps-sdk to reduce duplication.
+// These were extracted from snaps-utils but should be eventually be made available in snaps-sdk to reduce duplication.
 /**
  * Check if an object is a `SnapError`.
  *
