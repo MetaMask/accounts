@@ -831,8 +831,9 @@ describe('handleKeyringRequest', () => {
         handleKeyringRequest(partialKeyring, request),
       ).rejects.toThrow('Method not supported: keyring_getAccountBalances');
     });
-
-    it('allows Snaps to throw RPC-compliant errors', async () => {
+  });
+  
+  it('allows Snaps to throw RPC-compliant errors', async () => {
       const dappRequest = {
         id: 'c555de37-cf4b-4ff2-8273-39db7fb58f1c',
         scope: 'eip155:1',
@@ -860,7 +861,6 @@ describe('handleKeyringRequest', () => {
       expect(error.message).toBe(rejectError.message);
       expect(error.code).toBe(rejectError.code);
     });
-  });
 });
 
 describe('isKeyringRpcMethod', () => {
