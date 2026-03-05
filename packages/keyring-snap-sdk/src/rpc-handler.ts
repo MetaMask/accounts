@@ -25,6 +25,7 @@ import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
+import { isSnapError } from './errors';
 
 /**
  * Error thrown when a keyring JSON-RPC method is not supported.
@@ -231,6 +232,10 @@ export async function handleKeyringRequest(
   try {
     return await dispatchRequest(keyring, request);
   } catch (error) {
+    if (isSnapError(error)) {
+      throw error;
+    }
+
     const message =
       error instanceof Error && typeof error.message === 'string'
         ? error.message
