@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Throw RPC errors with proper error codes ([#469](https://github.com/MetaMask/accounts/pull/469))
+
 ## [7.2.0]
 
 ### Added

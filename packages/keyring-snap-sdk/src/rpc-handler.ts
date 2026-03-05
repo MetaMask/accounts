@@ -23,13 +23,19 @@ import {
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
+import { MethodNotSupportedError as MethodNotSupportedRpcError } from '@metamask/snaps-sdk';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
+
+import { isSnapError } from './errors';
+
+// ESLint does not like our custom error classes in this repo for some reason, they do extend Error, so unsure why.
+/* eslint-disable @typescript-eslint/only-throw-error */
 
 /**
  * Error thrown when a keyring JSON-RPC method is not supported.
  */
-export class MethodNotSupportedError extends Error {
+export class MethodNotSupportedError extends MethodNotSupportedRpcError {
   constructor(method: string) {
     super(`Method not supported: ${method}`);
   }
@@ -231,6 +237,11 @@ export async function handleKeyringRequest(
   try {
     return await dispatchRequest(keyring, request);
   } catch (error) {
+    if (isSnapError(error)) {
+      throw error;
+    }
+
+    // Treat other errors as unexpected, this will crash the Snap.
     const message =
       error instanceof Error && typeof error.message === 'string'
         ? error.message
