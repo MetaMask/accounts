@@ -25,12 +25,13 @@ import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
+import { InternalError, MethodNotSupportedError as MethodNotSupportedRpcError } from '@metamask/snaps-sdk';
 import { isSnapError } from './errors';
 
 /**
  * Error thrown when a keyring JSON-RPC method is not supported.
  */
-export class MethodNotSupportedError extends Error {
+export class MethodNotSupportedError extends MethodNotSupportedRpcError {
   constructor(method: string) {
     super(`Method not supported: ${method}`);
   }
@@ -241,6 +242,6 @@ export async function handleKeyringRequest(
         ? error.message
         : 'An unknown error occurred while handling the keyring request';
 
-    throw new Error(message);
+    throw new InternalError(message);
   }
 }
