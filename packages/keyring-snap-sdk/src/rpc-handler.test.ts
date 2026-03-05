@@ -832,35 +832,35 @@ describe('handleKeyringRequest', () => {
       ).rejects.toThrow('Method not supported: keyring_getAccountBalances');
     });
   });
-  
+
   it('allows Snaps to throw RPC-compliant errors', async () => {
-      const dappRequest = {
-        id: 'c555de37-cf4b-4ff2-8273-39db7fb58f1c',
-        scope: 'eip155:1',
-        account: '4abdd17e-8b0f-4d06-a017-947a64823b3d',
-        origin: 'metamask',
-        request: {
-          method: 'foo',
-          params: [1, 2, 3],
-        },
-      };
+    const dappRequest = {
+      id: 'c555de37-cf4b-4ff2-8273-39db7fb58f1c',
+      scope: 'eip155:1',
+      account: '4abdd17e-8b0f-4d06-a017-947a64823b3d',
+      origin: 'metamask',
+      request: {
+        method: 'foo',
+        params: [1, 2, 3],
+      },
+    };
 
-      const request: JsonRpcRequest = {
-        jsonrpc: '2.0',
-        id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-        method: 'keyring_submitRequest',
-        params: dappRequest,
-      };
+    const request: JsonRpcRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: 'keyring_submitRequest',
+      params: dappRequest,
+    };
 
-      const rejectError = new UserRejectedRequestError();
-      keyring.submitRequest.mockRejectedValue(rejectError);
-      const error = await handleKeyringRequest(keyring, request).catch(
-        (promiseError) => promiseError,
-      );
+    const rejectError = new UserRejectedRequestError();
+    keyring.submitRequest.mockRejectedValue(rejectError);
+    const error = await handleKeyringRequest(keyring, request).catch(
+      (promiseError) => promiseError,
+    );
 
-      expect(error.message).toBe(rejectError.message);
-      expect(error.code).toBe(rejectError.code);
-    });
+    expect(error.message).toBe(rejectError.message);
+    expect(error.code).toBe(rejectError.code);
+  });
 });
 
 describe('isKeyringRpcMethod', () => {

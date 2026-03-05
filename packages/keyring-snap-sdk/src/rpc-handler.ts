@@ -23,10 +23,7 @@ import {
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
-import {
-  InternalError,
-  MethodNotSupportedError as MethodNotSupportedRpcError,
-} from '@metamask/snaps-sdk';
+import { MethodNotSupportedError as MethodNotSupportedRpcError } from '@metamask/snaps-sdk';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
@@ -244,11 +241,12 @@ export async function handleKeyringRequest(
       throw error;
     }
 
+    // Treat other errors as unexpected, this will crash the Snap.
     const message =
       error instanceof Error && typeof error.message === 'string'
         ? error.message
         : 'An unknown error occurred while handling the keyring request';
 
-    throw new InternalError(message);
+    throw new Error(message);
   }
 }
