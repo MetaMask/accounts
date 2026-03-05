@@ -1,5 +1,7 @@
-import { SerializedSnapError, SNAP_ERROR_CODE, SNAP_ERROR_MESSAGE, SnapError } from "@metamask/snaps-sdk";
-import { isJsonRpcError, isObject, JsonRpcError } from "@metamask/utils";
+import type { SerializedSnapError, SnapError } from '@metamask/snaps-sdk';
+import { SNAP_ERROR_CODE, SNAP_ERROR_MESSAGE } from '@metamask/snaps-sdk';
+import type { JsonRpcError } from '@metamask/utils';
+import { isJsonRpcError, isObject } from '@metamask/utils';
 
 // These were extracted from snaps-utils but should be available in snaps-sdk to reduce duplication.
 /**

@@ -853,11 +853,13 @@ describe('handleKeyringRequest', () => {
 
       const rejectError = new UserRejectedRequestError();
       keyring.submitRequest.mockRejectedValue(rejectError);
-      const error = await handleKeyringRequest(keyring, request).catch((error) => error);
+      const error = await handleKeyringRequest(keyring, request).catch(
+        (promiseError) => promiseError,
+      );
 
       expect(error.message).toBe(rejectError.message);
       expect(error.code).toBe(rejectError.code);
-    })
+    });
   });
 });
 
