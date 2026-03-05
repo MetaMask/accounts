@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- fix: update mapping ([#466](https://github.com/MetaMask/accounts/pull/466))
-
 ## [11.3.0]
 
 ### Changed
