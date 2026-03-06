@@ -50,33 +50,66 @@ const config: GatsbyConfig = {
             // ----------------------------------------------------------------
             // Regular
             {
-              family: 'CentraNo1',
+              family: 'Geist',
               urls: {
-                woff2: `fonts/CentraNo1-Book.woff2`,
+                woff2: `fonts/Geist-Regular.woff2`,
               },
               fontStyle: 'normal',
               fontWeight: 400,
             },
 
             // ----------------------------------------------------------------
+            // Regular Italic
+            {
+              family: 'Geist',
+              urls: {
+                woff2: `fonts/Geist-RegularItalic.woff2`,
+              },
+              fontStyle: 'italic',
+              fontWeight: 400,
+            },
+
+            // ----------------------------------------------------------------
             // Medium
             {
-              family: 'CentraNo1',
+              family: 'Geist',
               urls: {
-                woff2: `fonts/CentraNo1-Medium.woff2`,
+                woff2: `fonts/Geist-Medium.woff2`,
               },
               fontStyle: 'normal',
               fontWeight: 500,
             },
 
             // ----------------------------------------------------------------
+            // Medium Italic
+            {
+              family: 'Geist',
+              urls: {
+                woff2: `fonts/Geist-MediumItalic.woff2`,
+              },
+              fontStyle: 'italic',
+              fontWeight: 500,
+            },
+
+            // ----------------------------------------------------------------
             // Bold
             {
-              family: 'CentraNo1',
+              family: 'Geist',
               urls: {
-                woff2: `fonts/CentraNo1-Bold.woff2`,
+                woff2: `fonts/Geist-Bold.woff2`,
               },
               fontStyle: 'normal',
+              fontWeight: 700,
+            },
+
+            // ----------------------------------------------------------------
+            // Bold Italic
+            {
+              family: 'Geist',
+              urls: {
+                woff2: `fonts/Geist-BoldItalic.woff2`,
+              },
+              fontStyle: 'italic',
               fontWeight: 700,
             },
           ],

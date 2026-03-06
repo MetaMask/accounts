@@ -27,7 +27,7 @@ export const Divider = styled.div`
   color: #24272a;
 
   /* Heading-MD */
-  font-family: CentraNo1, ui-sans-serif;
+  font-family: Geist, ui-sans-serif;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
@@ -88,7 +88,7 @@ export const AccountTitle = styled.p`
   display: flex;
   margin: 0px;
   color: #000;
-  font-family: CentraNo1, ui-sans-serif;
+  font-family: Geist, ui-sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
@@ -176,7 +176,7 @@ export const AccountRowTitle = styled.p`
   color: #000;
 
   /* H6 - Bold 14px */
-  font-family: CentraNo1, ui-sans-serif;
+  font-family: Geist, ui-sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 700;
@@ -189,7 +189,7 @@ export const AccountRowValue = styled.p`
   color: #6a737d;
 
   /* H6 - Normal 14px */
-  font-family: CentraNo1, ui-sans-serif;
+  font-family: Geist, ui-sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
