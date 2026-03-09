@@ -66,6 +66,7 @@ linkStyle default opacity:0.5
   eth_qr_keyring --> account_api;
   eth_simple_keyring --> keyring_api;
   eth_simple_keyring --> keyring_utils;
+  eth_trezor_keyring --> hw_wallet_sdk;
   eth_trezor_keyring --> keyring_api;
   eth_trezor_keyring --> keyring_utils;
   eth_trezor_keyring --> account_api;

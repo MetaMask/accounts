@@ -6,6 +6,7 @@ import {
 } from '@ethereumjs/tx';
 import { Address } from '@ethereumjs/util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
+import { ErrorCode, HardwareWalletError } from '@metamask/hw-wallet-sdk';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 import * as sinon from 'sinon';
@@ -556,6 +557,23 @@ describe('TrezorKeyring', function () {
         ...expectedRSV,
       });
     });
+
+    it('converts message-only failures to ErrorCode.Unknown', async function () {
+      const ethereumSignTransactionStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Trezor device disconnected' },
+      });
+      bridge.ethereumSignTransaction = ethereumSignTransactionStub;
+
+      await expect(
+        keyring.signTransaction(fakeAccounts[0], fakeTx),
+      ).rejects.toThrow(HardwareWalletError);
+      await expect(
+        keyring.signTransaction(fakeAccounts[0], fakeTx),
+      ).rejects.toMatchObject({
+        code: ErrorCode.Unknown,
+      });
+    });
   });
 
   describe('signMessage', function () {
@@ -587,6 +605,23 @@ describe('TrezorKeyring', function () {
       }
 
       expect(ethereumSignMessageStub.calledOnce).toBe(true);
+    });
+
+    it('converts message-only failures to ErrorCode.Unknown', async function () {
+      const ethereumSignMessageStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'User cancelled action' },
+      });
+      bridge.ethereumSignMessage = ethereumSignMessageStub;
+
+      await expect(
+        keyring.signPersonalMessage(fakeAccounts[0], 'some msg'),
+      ).rejects.toThrow(HardwareWalletError);
+      await expect(
+        keyring.signPersonalMessage(fakeAccounts[0], 'some msg'),
+      ).rejects.toMatchObject({
+        code: ErrorCode.Unknown,
+      });
     });
   });
 
@@ -657,6 +692,42 @@ describe('TrezorKeyring', function () {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         message_hash:
           'c9e71eb57cf9fa86ec670283b58cb15326bb6933c8d8e2ecb2c0849021b3ef42',
+      });
+    });
+
+    it('converts unknown typed-data signing failures to ErrorCode.Unknown', async function () {
+      const ethereumSignTypedDataStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Unexpected bridge failure' },
+      });
+      bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
+
+      await expect(
+        keyring.signTypedData(
+          fakeAccounts[0],
+          {
+            types: { EIP712Domain: [], EmptyMessage: [] },
+            primaryType: 'EmptyMessage',
+            domain: {},
+            message: {},
+          },
+          { version: SignTypedDataVersion.V4 },
+        ),
+      ).rejects.toThrow(HardwareWalletError);
+
+      await expect(
+        keyring.signTypedData(
+          fakeAccounts[0],
+          {
+            types: { EIP712Domain: [], EmptyMessage: [] },
+            primaryType: 'EmptyMessage',
+            domain: {},
+            message: {},
+          },
+          { version: SignTypedDataVersion.V4 },
+        ),
+      ).rejects.toMatchObject({
+        code: ErrorCode.Unknown,
       });
     });
   });
