@@ -43,4 +43,9 @@ export enum KeyringType {
    * Represents keyring backed by a OneKey hardware wallet.
    */
   OneKey = 'onekey',
+
+  /**
+   * A keyring for the cash account
+   */
+  CashAccount = 'cash-account',
 }

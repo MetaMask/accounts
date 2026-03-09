@@ -22,6 +22,7 @@ import type { ImportPrivateKeyFormat } from './private-key';
 
 // Test KeyringType enum
 expectAssignable<KeyringType>(KeyringType.Hd);
+expectAssignable<KeyringType>(KeyringType.CashAccount);
 expectAssignable<KeyringType>(KeyringType.PrivateKey);
 expectAssignable<KeyringType>(KeyringType.Qr);
 expectAssignable<KeyringType>(KeyringType.Snap);
