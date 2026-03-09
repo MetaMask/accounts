@@ -177,10 +177,8 @@ export class LedgerBitcoinSigner implements BitcoinSigner {
   /**
    * Creates a new LedgerBitcoinSigner.
    *
-   * @param session - The Ledger Bitcoin signer instance
-   * (from `@ledgerhq/device-signer-kit-bitcoin`).
-   * @param derivationPath - The full derivation path
-   * (e.g. `"84'/0'/0'/0/0"`).
+   * @param session - The Ledger Bitcoin signer session.
+   * @param derivationPath - The full derivation path.
    */
   constructor(session: SignerBtc, derivationPath: string) {
     const { path, change, index } = parseDerivationPath(derivationPath);
