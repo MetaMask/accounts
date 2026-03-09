@@ -2,7 +2,7 @@ import { KeyringRpcMethod, isKeyringRpcMethod } from './rpc';
 
 describe('isKeyringRpcMethod', () => {
   it.each(Object.values(KeyringRpcMethod))(
-    'returns true for: KeyringRpcMethod.$s',
+    'returns true for: "%s"',
     (method) => {
       expect(isKeyringRpcMethod(method)).toBe(true);
     },
