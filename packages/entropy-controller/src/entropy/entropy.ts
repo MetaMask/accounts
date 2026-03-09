@@ -1,13 +1,12 @@
-import type { BitcoinSigner } from '../signer';
+import type { Signer } from '../signer';
 
 /**
  * The type of entropy source.
+ *
+ * - `'bip44'` — Entropy that uses BIP-44 to derive signers.
+ * - `'private-key'` — Entropy that exposes a basic private key signer.
  */
-export type EntropyType =
-  // Entropies that use BIP-44 to derive signers.
-  | 'bip44'
-  // Entropies that expose basic private key signers.
-  | 'private-key';
+export type EntropyType = 'bip44' | 'private-key';
 
 /**
  * Unique identifier for an entropy source.
@@ -29,12 +28,14 @@ export type Entropy = {
   type: EntropyType;
 
   /**
-   * Gets a Bitcoin signer from the entropy.
+   * Gets a signer for a given scope from the entropy.
    *
-   * @param options - Options for getting the signer.
-   * @returns The Bitcoin signer.
+   * @param scope - The CAIP-2 scope for which to get the signer
+   * (e.g. `"bip122"` for Bitcoin, `"eip155"` for EVM).
+   * @param options - Scope-specific options for getting the signer.
+   * @returns The signer for the specified scope.
    */
-  getBitcoinSigner(options: unknown): Promise<BitcoinSigner>;
+  getSigner(scope: string, options: unknown): Promise<Signer>;
 };
 
 /**
@@ -47,14 +48,9 @@ export type Bip32PathNode = `${number}` | `${number}'`;
  */
 export type Bip44GetSignerOptions = {
   /**
-   * The elliptic curve that should be used to derive the signer.
-   */
-  curve: 'secp256k1' | 'ed25519';
-
-  /**
    * The derivation path that should be used to derive the signer.
    */
-  derivationPath: Bip32PathNode[];
+  path: Bip32PathNode[];
 };
 
 /**
@@ -65,7 +61,7 @@ export type Bip44Entropy = Entropy & {
 
   id: EntropyId;
 
-  getBitcoinSigner(options: Bip44GetSignerOptions): Promise<BitcoinSigner>;
+  getSigner(scope: string, options: Bip44GetSignerOptions): Promise<Signer>;
 };
 
 /**
@@ -86,7 +82,7 @@ export type PrivateKeyEntropy = Entropy & {
 
   id: EntropyId;
 
-  getBitcoinSigner(): Promise<BitcoinSigner>;
+  getSigner(scope: string): Promise<Signer>;
 };
 
 /**
@@ -100,46 +96,3 @@ export function isPrivateKeyEntropy(
 ): entropy is PrivateKeyEntropy {
   return entropy.type === 'private-key';
 }
-
-/**
- * Controller for managing entropy sources.
- */
-export type EntropyController = {
-  /**
-   * Adds a new entropy source.
-   *
-   * @param entropy - The entropy to add.
-   */
-  addEntropy(entropy: Entropy): Promise<void>;
-
-  /**
-   * Updates an existing entropy source.
-   *
-   * @param entropyId - The ID of the entropy to update.
-   * @param entropy - The new entropy data.
-   */
-  updateEntropy(entropyId: EntropyId, entropy: Entropy): Promise<void>;
-
-  /**
-   * Deletes an entropy source.
-   *
-   * @param entropyId - The ID of the entropy to delete.
-   */
-  deleteEntropy(entropyId: EntropyId): Promise<void>;
-
-  /**
-   * Gets an entropy source by its ID.
-   *
-   * @param entropyId - The ID of the entropy to retrieve.
-   * @returns The matching entropy.
-   */
-  getEntropyById(entropyId: EntropyId): Promise<Entropy>;
-
-  /**
-   * Gets all entropy sources of a given type.
-   *
-   * @param entropyType - The type of entropy to filter by.
-   * @returns The matching entropies.
-   */
-  getEntropyByType(entropyType: EntropyType): Promise<Entropy[]>;
-};

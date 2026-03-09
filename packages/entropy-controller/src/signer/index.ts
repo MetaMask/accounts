@@ -1,1 +1,3 @@
-export type * from './bitcoin-signer';
+export * from './bitcoin-signer';
+export type * from './signer';
+export * from './ledger-bitcoin-signer';

@@ -5,7 +5,7 @@ import type {
   Bip44Entropy,
   Bip44GetSignerOptions,
 } from './entropy';
-import type { BitcoinSigner } from '../signer/bitcoin-signer';
+import type { Signer } from '../signer/signer';
 
 type KeyTreeBip32Node = `bip32:${number}` | `bip32:${number}'`;
 
@@ -32,17 +32,25 @@ export class SrpEntropy implements Bip44Entropy {
     this.#mnemonic = mnemonic;
   }
 
-  async getBitcoinSigner(
+  async getSigner(
+    scope: string,
     options: Bip44GetSignerOptions,
-  ): Promise<BitcoinSigner> {
-    await SLIP10Node.fromDerivationPath({
-      curve: options.curve,
-      derivationPath: [
-        `bip39:${this.#mnemonic}`,
-        ...asKeyTreeBip32Path(options.derivationPath),
-      ],
-    });
+  ): Promise<Signer> {
+    switch (scope) {
+      case 'bip122': {
+        await SLIP10Node.fromDerivationPath({
+          curve: 'secp256k1',
+          derivationPath: [
+            `bip39:${this.#mnemonic}`,
+            ...asKeyTreeBip32Path(options.path),
+          ],
+        });
 
-    throw new Error('Method not implemented.');
+        throw new Error('Method not implemented.');
+      }
+
+      default:
+        throw new Error(`Unsupported scope: ${scope}`);
+    }
   }
 }

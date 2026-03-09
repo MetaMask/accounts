@@ -1,3 +1,5 @@
+import type { Signer } from './signer';
+
 /**
  * Response from {@link BitcoinSigner.getXpub}.
  */
@@ -11,21 +13,6 @@ export type GetXpubResponse = {
    * The fingerprint of the master root key (4 bytes, hex-encoded).
    */
   fingerprint: string;
-};
-
-/**
- * Arguments for {@link BitcoinSigner.getAddress}.
- */
-export type GetAddressArguments = {
-  /**
-   * The address index.
-   */
-  index: number;
-
-  /**
-   * Whether this is a change address (0 = receiving, 1 = change).
-   */
-  change: 0 | 1;
 };
 
 /**
@@ -86,10 +73,10 @@ export type SignMessageResponse = {
  * Defines the signing operations needed for Bitcoin, independent of the entropy source
  * (SRP, Ledger, Trezor, etc.).
  *
- * The derivation path and address type are bound at construction time, so a signer for
- * `m/84'/0'/0'` is a different instance than one for `m/86'/0'/0'`.
+ * The full derivation path (including change and index) is bound at construction time,
+ * so each signer instance corresponds to a single address (e.g. `m/84'/0'/0'/0/0`).
  */
-export type BitcoinSigner = {
+export type BitcoinSigner = Signer & {
   /**
    * Gets the extended public key for the account.
    *
@@ -98,15 +85,11 @@ export type BitcoinSigner = {
   getXpub(): Promise<GetXpubResponse>;
 
   /**
-   * Gets an address at a specific index.
+   * Gets the address for this signer's derivation path.
    *
-   * The signer already knows its account-level derivation path. The caller only needs
-   * to specify the final two path segments.
-   *
-   * @param args - The address derivation arguments.
    * @returns The address.
    */
-  getAddress(args: GetAddressArguments): Promise<GetAddressResponse>;
+  getAddress(): Promise<GetAddressResponse>;
 
   /**
    * Signs a PSBT (Partially Signed Bitcoin Transaction).
@@ -127,3 +110,13 @@ export type BitcoinSigner = {
    */
   signMessage(args: SignMessageArguments): Promise<SignMessageResponse>;
 };
+
+/**
+ * Checks if a signer is a {@link BitcoinSigner}.
+ *
+ * @param signer - The signer to check.
+ * @returns True if the signer's scope is `"bip122"`.
+ */
+export function isBitcoinSigner(signer: Signer): signer is BitcoinSigner {
+  return signer.scope === 'bip122';
+}

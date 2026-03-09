@@ -1,2 +1,2 @@
-export type * from './entropy';
-export type * from './signer';
+export * from './entropy';
+export * from './signer';
