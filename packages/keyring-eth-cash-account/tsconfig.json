@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "exactOptionalPropertyTypes": false,
+    "target": "es2017"
+  },
+  "references": [{ "path": "../keyring-eth-hd" }],
+  "include": ["./src"],
+  "exclude": ["./dist/**/*"]
+}
