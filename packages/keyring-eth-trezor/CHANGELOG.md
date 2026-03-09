@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Wraps legacy `TrezorKeyring` and `OneKeyKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
   - Extends `EthKeyringWrapper` for common Ethereum logic.
 
+### Changed
+
+- Harden Trezor unlock/signing failures by converting transport and user-action errors to typed `HardwareWalletError` instances ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [9.0.0]
 
 ### Changed

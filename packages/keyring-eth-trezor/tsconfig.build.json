@@ -11,6 +11,7 @@
     "target": "es2017"
   },
   "references": [
+    { "path": "../hw-wallet-sdk/tsconfig.build.json" },
     { "path": "../keyring-utils/tsconfig.build.json" },
     { "path": "../keyring-api/tsconfig.build.json" },
     {
