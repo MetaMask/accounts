@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-cash-keyring",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "A cash account keyring that extends the HD keyring with a different keyring type and derivation path.",
   "keywords": [
     "ethereum",
