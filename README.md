@@ -13,6 +13,7 @@ This repository contains the following packages [^fn1]:
 <!-- start package list -->
 
 - [`@metamask/account-api`](packages/account-api)
+- [`@metamask/eth-cash-keyring`](packages/keyring-eth-cash)
 - [`@metamask/eth-hd-keyring`](packages/keyring-eth-hd)
 - [`@metamask/eth-ledger-bridge-keyring`](packages/keyring-eth-ledger-bridge)
 - [`@metamask/eth-qr-keyring`](packages/keyring-eth-qr)
@@ -40,6 +41,7 @@ linkStyle default opacity:0.5
   account_api(["@metamask/account-api"]);
   hw_wallet_sdk(["@metamask/hw-wallet-sdk"]);
   keyring_api(["@metamask/keyring-api"]);
+  eth_cash_keyring(["@metamask/eth-cash-keyring"]);
   eth_hd_keyring(["@metamask/eth-hd-keyring"]);
   eth_ledger_bridge_keyring(["@metamask/eth-ledger-bridge-keyring"]);
   eth_qr_keyring(["@metamask/eth-qr-keyring"]);
@@ -54,6 +56,7 @@ linkStyle default opacity:0.5
   account_api --> keyring_api;
   account_api --> keyring_utils;
   keyring_api --> keyring_utils;
+  eth_cash_keyring --> keyring_eth_hd;
   eth_hd_keyring --> keyring_api;
   eth_hd_keyring --> keyring_utils;
   eth_hd_keyring --> account_api;
