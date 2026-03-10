@@ -108,28 +108,30 @@ describe('CashKeyring', () => {
   });
 
   describe('#addAccounts', () => {
-    it('adds a single account', async () => {
+    it('throws if an account already exists', async () => {
       const keyring = new CashKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
       });
 
-      await keyring.addAccounts();
-      const accounts = await keyring.getAccounts();
-      expect(accounts).toHaveLength(2);
+      await expect(keyring.addAccounts()).rejects.toThrow(
+        'Cash keyring already has an account',
+      );
     });
 
-    it('only adds one account per call', async () => {
+    it('adds an account when none exist', async () => {
       const keyring = new CashKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
       });
 
-      await keyring.addAccounts();
-      await keyring.addAccounts();
+      keyring.removeAccount(await getAddressAtIndex(keyring, 0));
+      const empty = await keyring.getAccounts();
+      expect(empty).toHaveLength(0);
+
       await keyring.addAccounts();
       const accounts = await keyring.getAccounts();
-      expect(accounts).toHaveLength(4);
+      expect(accounts).toHaveLength(1);
     });
   });
 

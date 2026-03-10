@@ -30,9 +30,11 @@ export class CashKeyring extends HdKeyring {
     });
   }
 
-  // This override ensures that we can only ever add a
-  // single account to this keyring
   override async addAccounts(): Promise<Hex[]> {
+    const existing = await this.getAccounts();
+    if (existing.length > 0) {
+      throw new Error('Cash keyring already has an account');
+    }
     return super.addAccounts(1);
   }
 }
