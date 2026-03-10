@@ -2,6 +2,7 @@ import {
   HdKeyring,
   type DeserializableHDKeyringState,
 } from '@metamask/eth-hd-keyring';
+import { Hex } from '@metamask/utils';
 
 // Based on the coin type created in [this PR](https://github.com/satoshilabs/slips/pull/1983)
 export const CASH_ACCOUNT_DERIVATION_PATH = `m/44'/4392018'/0'/0`;
@@ -24,5 +25,11 @@ export class CashAccountKeyring extends HdKeyring {
       ...opts,
       hdPath: opts.hdPath ?? CASH_ACCOUNT_DERIVATION_PATH,
     });
+  }
+
+  // This override ensures that we can only ever add a
+  // single account to this keyring
+  override async addAccounts(): Promise<Hex[]> {
+    return super.addAccounts(1);
   }
 }

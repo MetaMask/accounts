@@ -104,16 +104,30 @@ describe('CashAccountKeyring', () => {
   });
 
   describe('#addAccounts', () => {
-    it('creates accounts', async () => {
+    it('adds a single account', async () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
         numberOfAccounts: 1,
       });
 
-      await keyring.addAccounts(1);
+      await keyring.addAccounts();
       const accounts = await keyring.getAccounts();
       expect(accounts).toHaveLength(2);
+    });
+
+    it('only adds one account per call', async () => {
+      const keyring = new CashAccountKeyring();
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+        numberOfAccounts: 1,
+      });
+
+      await keyring.addAccounts();
+      await keyring.addAccounts();
+      await keyring.addAccounts();
+      const accounts = await keyring.getAccounts();
+      expect(accounts).toHaveLength(4);
     });
   });
 
@@ -222,7 +236,7 @@ describe('CashAccountKeyring', () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 2,
+        numberOfAccounts: 1,
       });
 
       const accounts = await keyring.getAccounts();
@@ -236,7 +250,7 @@ describe('CashAccountKeyring', () => {
 
       const restoredSerialized = await restored.serialize();
       expect(restoredSerialized.hdPath).toBe(cashAccountHdPath);
-      expect(restoredSerialized.numberOfAccounts).toBe(2);
+      expect(restoredSerialized.numberOfAccounts).toBe(1);
     });
   });
 });
