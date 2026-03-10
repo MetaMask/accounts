@@ -51,7 +51,6 @@ describe('CashAccountKeyring', () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
       });
 
       const serialized = await keyring.serialize();
@@ -64,7 +63,6 @@ describe('CashAccountKeyring', () => {
       const cashKeyring = new CashAccountKeyring();
       await cashKeyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
       });
       const cashAccounts = await cashKeyring.getAccounts();
 
@@ -82,24 +80,30 @@ describe('CashAccountKeyring', () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
       });
 
       const serialized = await keyring.serialize();
       expect(serialized.hdPath).toBe(cashAccountHdPath);
     });
 
-    it('respects an explicitly provided hdPath', async () => {
-      const customPath = `m/44'/60'/0'/0`;
+    it('always uses the cash account hd path', async () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
-        hdPath: customPath,
       });
 
       const serialized = await keyring.serialize();
-      expect(serialized.hdPath).toBe(customPath);
+      expect(serialized.hdPath).toBe(cashAccountHdPath);
+    });
+
+    it('always deserializes exactly one account', async () => {
+      const keyring = new CashAccountKeyring();
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+      });
+
+      const accounts = await keyring.getAccounts();
+      expect(accounts).toHaveLength(1);
     });
   });
 
@@ -108,7 +112,6 @@ describe('CashAccountKeyring', () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
       });
 
       await keyring.addAccounts();
@@ -120,7 +123,6 @@ describe('CashAccountKeyring', () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
       });
 
       await keyring.addAccounts();
@@ -136,7 +138,6 @@ describe('CashAccountKeyring', () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
       });
 
       const address = await getAddressAtIndex(keyring, 0);
@@ -156,7 +157,6 @@ describe('CashAccountKeyring', () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
       });
 
       const address = await getAddressAtIndex(keyring, 0);
@@ -181,7 +181,6 @@ describe('CashAccountKeyring', () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
       });
 
       const address = await getAddressAtIndex(keyring, 0);
@@ -211,7 +210,6 @@ describe('CashAccountKeyring', () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
       });
 
       const accounts = await keyring.getAccounts();
@@ -236,14 +234,15 @@ describe('CashAccountKeyring', () => {
       const keyring = new CashAccountKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
       });
 
       const accounts = await keyring.getAccounts();
       const serialized = await keyring.serialize();
 
       const restored = new CashAccountKeyring();
-      await restored.deserialize(serialized);
+      await restored.deserialize({
+        mnemonic: serialized.mnemonic,
+      });
 
       const restoredAccounts = await restored.getAccounts();
       expect(restoredAccounts).toStrictEqual(accounts);
