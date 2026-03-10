@@ -18,6 +18,7 @@ import type {
   SignPsbtArguments,
   SignPsbtResponse,
 } from './bitcoin-signer';
+import type { Bip32PathNode } from '../entropy/entropy';
 
 /**
  * Subscribes to a Ledger device action observable and returns a promise that resolves
@@ -110,45 +111,56 @@ const purposeToDescriptor: Record<string, DefaultDescriptorTemplate> = {
 /**
  * Infers the descriptor template from the BIP purpose in a derivation path.
  *
- * @param derivationPath - The derivation path (e.g. "84'/0'/0'/0/0").
+ * @param derivationPath - The derivation path segments
+ * (e.g. `["84'", "0'", "0'", "0", "0"]`).
  * @returns The matching descriptor template.
  */
 function inferDescriptorTemplate(
-  derivationPath: string,
+  derivationPath: Bip32PathNode[],
 ): DefaultDescriptorTemplate {
-  const purpose = derivationPath.split('/')[0];
+  const purpose = derivationPath[0];
   const template = purposeToDescriptor[purpose as string];
   if (!template) {
     throw new Error(
-      `Unsupported BIP purpose "${purpose}" in path "${derivationPath}"`,
+      `Unsupported BIP purpose "${purpose}" in path "${derivationPath.join(
+        '/',
+      )}"`,
     );
   }
   return template;
 }
 
 /**
+ * Ledger account descriptor.
+ */
+type LedgerAccountDescriptor = {
+  derivationPath: string;
+  index: number;
+  change: boolean;
+};
+
+/**
  * Parses a full BIP-44 derivation path into its account path, change, and
  * index components.
  *
- * @param derivationPath - The full derivation path
- * (e.g. `"84'/0'/0'/0/0"`).
+ * @param derivationPath - The derivation path segments
+ * (e.g. `["84'", "0'", "0'", "0", "0"]`).
  * @returns The parsed components.
  */
-function parseDerivationPath(derivationPath: string): {
-  path: string;
-  change: boolean;
-  index: number;
-} {
-  const segments = derivationPath.split('/');
-  if (segments.length < 5) {
+function parseDerivationPath(
+  derivationPath: Bip32PathNode[],
+): LedgerAccountDescriptor {
+  if (derivationPath.length !== 5) {
     throw new Error(
-      `Expected a full derivation path with at least 5 segments (e.g. "84'/0'/0'/0/0"), got "${derivationPath}"`,
+      `Expected a derivation path with exactly 5 segments, got ${derivationPath.length}`,
     );
   }
+
+  const segments = [...derivationPath];
   const indexSegment = segments.pop() as string;
   const changeSegment = segments.pop() as string;
   return {
-    path: segments.join('/'),
+    derivationPath: segments.join('/'),
     change: changeSegment === '1',
     index: parseInt(indexSegment, 10),
   };
@@ -164,13 +176,9 @@ function parseDerivationPath(derivationPath: string): {
 export class LedgerBitcoinSigner implements BitcoinSigner {
   readonly scope = 'bip122';
 
-  readonly path: string;
-
   readonly #session: SignerBtc;
 
-  readonly #change: boolean;
-
-  readonly #index: number;
+  readonly #account: LedgerAccountDescriptor;
 
   readonly #wallet: DefaultWallet;
 
@@ -178,23 +186,23 @@ export class LedgerBitcoinSigner implements BitcoinSigner {
    * Creates a new LedgerBitcoinSigner.
    *
    * @param session - The Ledger Bitcoin signer session.
-   * @param derivationPath - The full derivation path.
+   * @param derivationPath - The full derivation path segments
+   * (e.g. `["84'", "0'", "0'", "0", "0"]`).
    */
-  constructor(session: SignerBtc, derivationPath: string) {
-    const { path, change, index } = parseDerivationPath(derivationPath);
+  constructor(session: SignerBtc, derivationPath: Bip32PathNode[]) {
     this.#session = session;
-    this.path = path;
-    this.#change = change;
-    this.#index = index;
+    this.#account = parseDerivationPath(derivationPath);
     this.#wallet = new DefaultWallet(
-      path,
+      this.#account.derivationPath,
       inferDescriptorTemplate(derivationPath),
     );
   }
 
   async getXpub(): Promise<GetXpubResponse> {
     const [{ extendedPublicKey }, { masterFingerprint }] = await Promise.all([
-      resolveDeviceAction(this.#session.getExtendedPublicKey(this.path)),
+      resolveDeviceAction(
+        this.#session.getExtendedPublicKey(this.#account.derivationPath),
+      ),
       resolveDeviceAction(this.#session.getMasterFingerprint()),
     ]);
 
@@ -206,8 +214,8 @@ export class LedgerBitcoinSigner implements BitcoinSigner {
 
   async getAddress(): Promise<GetAddressResponse> {
     const { address } = await resolveDeviceAction(
-      this.#session.getWalletAddress(this.#wallet, this.#index, {
-        change: this.#change,
+      this.#session.getWalletAddress(this.#wallet, this.#account.index, {
+        change: this.#account.change,
       }),
     );
 
@@ -223,7 +231,7 @@ export class LedgerBitcoinSigner implements BitcoinSigner {
 
   async signMessage(args: SignMessageArguments): Promise<SignMessageResponse> {
     const ledgerSignature = await resolveDeviceAction(
-      this.#session.signMessage(this.path, args.message),
+      this.#session.signMessage(this.#account.derivationPath, args.message),
     );
 
     return {

@@ -34,7 +34,7 @@ export class LedgerEntropy implements Bip44Entropy {
   ): Promise<Signer> {
     switch (scope) {
       case 'bip122':
-        return new LedgerBitcoinSigner(this.#session, options.path.join('/'));
+        return new LedgerBitcoinSigner(this.#session, options.path);
       default:
         throw new Error(`Unsupported scope: ${scope}`);
     }
