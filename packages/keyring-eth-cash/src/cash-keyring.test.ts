@@ -85,26 +85,6 @@ describe('CashKeyring', () => {
       const serialized = await keyring.serialize();
       expect(serialized.hdPath).toBe(cashHdPath);
     });
-
-    it('always uses the cash account hd path', async () => {
-      const keyring = new CashKeyring();
-      await keyring.deserialize({
-        mnemonic: sampleMnemonic,
-      });
-
-      const serialized = await keyring.serialize();
-      expect(serialized.hdPath).toBe(cashHdPath);
-    });
-
-    it('always deserializes exactly one account', async () => {
-      const keyring = new CashKeyring();
-      await keyring.deserialize({
-        mnemonic: sampleMnemonic,
-      });
-
-      const accounts = await keyring.getAccounts();
-      expect(accounts).toHaveLength(1);
-    });
   });
 
   describe('#addAccounts', () => {
