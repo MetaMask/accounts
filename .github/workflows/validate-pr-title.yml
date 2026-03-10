@@ -43,7 +43,7 @@ jobs:
             deps-dev
             keyring-api
             keyring-eth-hd
-            keyring-cash
+            keyring-eth-cash
             keyring-eth-ledger-bridge
             keyring-eth-simple
             keyring-eth-trezor
