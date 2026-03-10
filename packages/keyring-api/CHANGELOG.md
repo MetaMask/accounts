@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `CashAccount` variant to `KeyringType` enum ([#472](https://github.com/MetaMask/accounts/pull/472))
+- Add `KeyringType.CashAccount` variant ([#472](https://github.com/MetaMask/accounts/pull/472))
 - Add optional `details` field to `Transaction` type ([#445](https://github.com/MetaMask/accounts/pull/445))
   - Add `SecurityAlertResponse` enum with values: `benign`, `warning`, `malicious`
   - Add optional `origin` field (string) to track transaction request source
