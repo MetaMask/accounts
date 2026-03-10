@@ -45,7 +45,7 @@ export enum KeyringType {
   OneKey = 'onekey',
 
   /**
-   * A keyring for the cash account
+   * Represents keyring for cash accounts.
    */
   CashAccount = 'cash-account',
 }
