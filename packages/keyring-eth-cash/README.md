@@ -1,4 +1,4 @@
-# Cash Account Keyring
+# Cash Keyring
 
 An Ethereum keyring that extends [`@metamask/eth-hd-keyring`](../keyring-eth-hd) with a distinct keyring type and derivation path for cash accounts.
 
@@ -6,21 +6,21 @@ Cash accounts use a separate HD derivation path to keep funds isolated from the 
 
 ## Installation
 
-`yarn add @metamask/eth-cash-account-keyring`
+`yarn add @metamask/eth-cash-keyring`
 
 or
 
-`npm install @metamask/eth-cash-account-keyring`
+`npm install @metamask/eth-cash-keyring`
 
 ## Usage
 
 ```ts
-import { CashAccountKeyring } from '@metamask/eth-cash-account-keyring';
+import { CashKeyring } from '@metamask/eth-cash-keyring';
 
-const keyring = new CashAccountKeyring();
+const keyring = new CashKeyring();
 ```
 
-The `CashAccountKeyring` class implements the same `Keyring` interface as `HdKeyring` — see the [HD Keyring README](../keyring-eth-hd/README.md) for full API documentation.
+The `CashKeyring` class implements the same `Keyring` interface as `HdKeyring` — see the [HD Keyring README](../keyring-eth-hd/README.md) for full API documentation.
 
 ## Contributing
 

@@ -47,5 +47,5 @@ export enum KeyringType {
   /**
    * Represents keyring for cash accounts.
    */
-  CashAccount = 'cash-account',
+  Cash = 'cash',
 }

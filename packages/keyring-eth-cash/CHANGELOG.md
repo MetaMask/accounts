@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add initial implementation of `CashAccountKeyring` ([#472](https://github.com/MetaMask/accounts/pull/472))
+- Add initial implementation of `CashKeyring` ([#472](https://github.com/MetaMask/accounts/pull/472))
   - Extends `HdKeyring` from `@metamask/eth-hd-keyring`.
-  - Uses keyring type `"Cash Account Keyring"`.
+  - Uses keyring type `"Cash Keyring"`.
   - Uses derivation path `"m/44'/4392018'/0'/0"`.
 
 [Unreleased]: https://github.com/MetaMask/accounts/

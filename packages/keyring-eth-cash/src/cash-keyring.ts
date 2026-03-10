@@ -5,18 +5,18 @@ import {
 import type { Hex } from '@metamask/utils';
 
 // Based on the coin type created in [this PR](https://github.com/satoshilabs/slips/pull/1983)
-export const CASH_ACCOUNT_DERIVATION_PATH = `m/44'/4392018'/0'/0`;
-const type = 'Cash Account Keyring';
+export const CASH_DERIVATION_PATH = `m/44'/4392018'/0'/0`;
+const type = 'Cash Keyring';
 
-export class CashAccountKeyring extends HdKeyring {
+export class CashKeyring extends HdKeyring {
   static override type: string = type;
 
   override readonly type: string = type;
 
-  override readonly hdPath: string = CASH_ACCOUNT_DERIVATION_PATH;
+  override readonly hdPath: string = CASH_DERIVATION_PATH;
 
   // This override is required because the deserialize method in the
-  // CashAccountKeyring falls back to it's own static value if no
+  // CashKeyring falls back to it's own static value if no
   // option is provided.
   override async deserialize(
     opts: Partial<
@@ -26,7 +26,7 @@ export class CashAccountKeyring extends HdKeyring {
     return super.deserialize({
       ...opts,
       numberOfAccounts: 1,
-      hdPath: CASH_ACCOUNT_DERIVATION_PATH,
+      hdPath: CASH_DERIVATION_PATH,
     });
   }
 
