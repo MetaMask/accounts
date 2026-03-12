@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Implement `getAppConfiguration` in `LedgerDMKBridge` to retrieve actual app configuration from the device ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Parse device flags to determine blind signing support (`arbitraryDataEnabled`).
+  - Return actual app version from the device instead of hardcoded value.
+
 ## [11.3.0]
 
 ### Changed

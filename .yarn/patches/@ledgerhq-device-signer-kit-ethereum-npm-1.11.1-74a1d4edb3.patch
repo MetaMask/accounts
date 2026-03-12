@@ -1,0 +1,13 @@
+diff --git a/package.json b/package.json
+index 4efc31ae748fd1aea4934a5bcad2b2718648b4a3..3c8350450a5c84e5070ea0b7fef5649163e006fc 100644
+--- a/package.json
++++ b/package.json
+@@ -36,6 +36,8 @@
+     "./lib"
+   ],
+   "license": "Apache-2.0",
++  "main": "./lib/cjs/index.js",
++  "types": "./lib/types/index.d.ts",
+   "name": "@ledgerhq/device-signer-kit-ethereum",
+   "peerDependencies": {
+     "@ledgerhq/device-management-kit": "^1.1.0",

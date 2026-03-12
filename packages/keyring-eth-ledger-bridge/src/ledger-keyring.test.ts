@@ -601,12 +601,13 @@ describe('LedgerKeyring', function () {
     describe('updateTransportMethod', function () {
       describe('when bridge is connected', function () {
         it('calls the bridge updateTransportMethod method', async function () {
-          jest.spyOn(bridge, 'updateTransportMethod').mockResolvedValue(true);
+          const updateTransportMethodSpy = jest
+            .spyOn(bridge, 'updateTransportMethod')
+            .mockResolvedValue(true);
 
           await keyring.updateTransportMethod('some-transport');
 
-          // eslint-disable-next-line @typescript-eslint/unbound-method
-          expect(bridge.updateTransportMethod).toHaveBeenCalledTimes(1);
+          expect(updateTransportMethodSpy.mock.calls).toHaveLength(1);
         });
       });
     });
