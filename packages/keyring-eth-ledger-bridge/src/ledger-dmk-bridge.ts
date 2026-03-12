@@ -29,9 +29,9 @@ import {
   LedgerSignTypedDataParams,
   LedgerSignTypedDataResponse,
 } from './ledger-bridge';
-import { LedgerDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
+import { LedgerMobileDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
 
-export type LedgerDMKBridgeOptions = Record<string, unknown>;
+export type LedgerMobileDMKBridgeOptions = Record<string, unknown>;
 
 type PublicKeyOutput = Pick<
   GetPublicKeyResponse,
@@ -39,24 +39,29 @@ type PublicKeyOutput = Pick<
 >;
 
 /**
- * LedgerDMKBridge is a bridge between the LedgerKeyring and the LedgerDMKTransportMiddleware.
+ * LedgerMobileDMKBridge is a bridge between the LedgerKeyring and the
+ * LedgerMobileDMKTransportMiddleware.
  * It initializes and manages the DeviceManagementKit internally.
  */
-export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
-  readonly #transportMiddleware: LedgerDMKTransportMiddleware;
+export class LedgerMobileDMKBridge
+  implements LedgerBridge<LedgerMobileDMKBridgeOptions>
+{
+  readonly #transportMiddleware: LedgerMobileDMKTransportMiddleware;
 
   readonly #sdk: DeviceManagementKit;
 
-  #opts: LedgerDMKBridgeOptions;
+  #opts: LedgerMobileDMKBridgeOptions;
 
   isDeviceConnected = false;
 
-  constructor(opts: LedgerDMKBridgeOptions = {}) {
+  constructor(opts: LedgerMobileDMKBridgeOptions = {}) {
     this.#opts = opts;
     this.#sdk = new DeviceManagementKitBuilder()
       .addTransport(RNBleTransportFactory)
       .build();
-    this.#transportMiddleware = new LedgerDMKTransportMiddleware(this.#sdk);
+    this.#transportMiddleware = new LedgerMobileDMKTransportMiddleware(
+      this.#sdk,
+    );
   }
 
   /**
@@ -88,7 +93,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    *
    * @returns A promise that resolves with the current bridge options.
    */
-  async getOptions(): Promise<LedgerDMKBridgeOptions> {
+  async getOptions(): Promise<LedgerMobileDMKBridgeOptions> {
     return this.#opts;
   }
 
@@ -98,7 +103,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @param opts - The options to set for the bridge.
    * @returns A promise that resolves when options are set.
    */
-  async setOptions(opts: LedgerDMKBridgeOptions): Promise<void> {
+  async setOptions(opts: LedgerMobileDMKBridgeOptions): Promise<void> {
     this.#opts = opts;
   }
 
@@ -121,8 +126,8 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @returns An observable that emits discovered devices.
    */
   startDiscovering(
-    ...args: Parameters<LedgerDMKTransportMiddleware['startDiscovering']>
-  ): ReturnType<LedgerDMKTransportMiddleware['startDiscovering']> {
+    ...args: Parameters<LedgerMobileDMKTransportMiddleware['startDiscovering']>
+  ): ReturnType<LedgerMobileDMKTransportMiddleware['startDiscovering']> {
     return this.#transportMiddleware.startDiscovering(...args);
   }
 
@@ -133,8 +138,8 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @returns The created session ID.
    */
   async connect(
-    ...args: Parameters<LedgerDMKTransportMiddleware['connect']>
-  ): ReturnType<LedgerDMKTransportMiddleware['connect']> {
+    ...args: Parameters<LedgerMobileDMKTransportMiddleware['connect']>
+  ): ReturnType<LedgerMobileDMKTransportMiddleware['connect']> {
     const sessionId = await this.#transportMiddleware.connect(...args);
     this.isDeviceConnected = true;
 

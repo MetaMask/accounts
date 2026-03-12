@@ -10,8 +10,8 @@ import { RNBleTransportFactory } from '@ledgerhq/device-transport-kit-react-nati
 import { EIP712Message } from '@ledgerhq/types-live';
 import { of } from 'rxjs';
 
-import { LedgerDMKBridge } from './ledger-dmk-bridge';
-import { LedgerDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
+import { LedgerMobileDMKBridge } from './ledger-dmk-bridge';
+import { LedgerMobileDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
 
 jest.mock('@ledgerhq/device-transport-kit-react-native-ble', () => ({
   RNBleTransportFactory: jest.fn(),
@@ -20,11 +20,11 @@ jest.mock('@ledgerhq/device-transport-kit-react-native-ble', () => ({
 // Mock the transport middleware
 jest.mock('./ledger-dmk-transport-middleware');
 
-describe('LedgerDMKBridge', () => {
-  let bridge: LedgerDMKBridge;
+describe('LedgerMobileDMKBridge', () => {
+  let bridge: LedgerMobileDMKBridge;
   let addTransportSpy: jest.SpyInstance;
   let buildSpy: jest.SpyInstance;
-  let mockTransportMiddleware: jest.Mocked<LedgerDMKTransportMiddleware>;
+  let mockTransportMiddleware: jest.Mocked<LedgerMobileDMKTransportMiddleware>;
   let mockSDK: {
     connect: jest.Mock;
     sendCommand: jest.Mock;
@@ -120,14 +120,14 @@ describe('LedgerDMKBridge', () => {
       dispose: jest.fn().mockResolvedValue(undefined),
       getEthSigner: jest.fn().mockReturnValue(mockEthSigner),
       startDiscovering: jest.fn().mockReturnValue(of({ id: 'device-id' })),
-    } as unknown as jest.Mocked<LedgerDMKTransportMiddleware>;
+    } as unknown as jest.Mocked<LedgerMobileDMKTransportMiddleware>;
 
     // Mock the constructor to return our mock
-    (LedgerDMKTransportMiddleware as unknown as jest.Mock).mockImplementation(
-      () => mockTransportMiddleware,
-    );
+    (
+      LedgerMobileDMKTransportMiddleware as unknown as jest.Mock
+    ).mockImplementation(() => mockTransportMiddleware);
 
-    bridge = new LedgerDMKBridge();
+    bridge = new LedgerMobileDMKBridge();
   });
 
   afterEach(() => {
@@ -149,7 +149,7 @@ describe('LedgerDMKBridge', () => {
     });
 
     it('creates transport middleware with SDK', () => {
-      expect(LedgerDMKTransportMiddleware).toHaveBeenCalledTimes(1);
+      expect(LedgerMobileDMKTransportMiddleware).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -241,7 +241,9 @@ describe('LedgerDMKBridge', () => {
     it('connects through the transport middleware and marks the device as connected', async () => {
       const params = {
         device: { id: 'device-id' },
-      } as unknown as Parameters<LedgerDMKTransportMiddleware['connect']>[0];
+      } as unknown as Parameters<
+        LedgerMobileDMKTransportMiddleware['connect']
+      >[0];
       const result = await bridge.connect(params);
 
       expect(mockTransportMiddleware.connect.mock.calls).toStrictEqual([
@@ -321,6 +323,18 @@ describe('LedgerDMKBridge', () => {
           RNBleTransportFactory: jest.fn(),
         }));
         jest.doMock('./ledger-dmk-transport-middleware', () => ({
+          LedgerMobileDMKTransportMiddleware: jest
+            .fn()
+            .mockImplementation(() => ({
+              dispose: jest.fn(),
+              getEthSigner: jest.fn().mockReturnValue({
+                getAddress: jest.fn().mockReturnValue({
+                  observable: of({ status: 'pending' }),
+                }),
+              }),
+              getSessionId: jest.fn().mockReturnValue('test-session-id'),
+              setSessionId: jest.fn(),
+            })),
           LedgerDMKTransportMiddleware: jest.fn().mockImplementation(() => ({
             dispose: jest.fn(),
             getEthSigner: jest.fn().mockReturnValue({
@@ -335,7 +349,7 @@ describe('LedgerDMKBridge', () => {
 
         isolatedTest = (async (): Promise<void> => {
           // eslint-disable-next-line @typescript-eslint/no-require-imports, n/global-require
-          const Bridge = require('./ledger-dmk-bridge').LedgerDMKBridge;
+          const Bridge = require('./ledger-dmk-bridge').LedgerMobileDMKBridge;
 
           await expect(
             new Bridge().getPublicKey({

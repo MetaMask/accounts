@@ -14,10 +14,11 @@ type ConnectParameters = Parameters<DeviceManagementKit['connect']>;
 type ConnectResult = ReturnType<DeviceManagementKit['connect']>;
 
 /**
- * LedgerDMKTransportMiddleware is a middleware to communicate with the Ledger device via DMK.
+ * LedgerMobileDMKTransportMiddleware is a middleware to communicate with the
+ * Ledger device via DMK on mobile.
  * It adapts the new DMK Signer ETH to the existing bridging architectural patterns.
  */
-export class LedgerDMKTransportMiddleware {
+export class LedgerMobileDMKTransportMiddleware {
   readonly #sdk: DeviceManagementKit;
 
   #sessionId?: string;
