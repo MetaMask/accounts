@@ -1,4 +1,10 @@
+import type {
+  DeviceManagementKit,
+  DeviceSessionId,
+} from '@ledgerhq/device-management-kit';
+import { SignerBtcBuilder } from '@ledgerhq/device-signer-kit-bitcoin';
 import type { SignerBtc } from '@ledgerhq/device-signer-kit-bitcoin';
+import type { Bip122Signer } from 'src/signer';
 
 import type { Bip44Entropy, Bip44GetSignerOptions } from './entropy';
 import { LedgerBitcoinSigner } from '../signer/ledger-bitcoin-signer';
@@ -21,22 +27,35 @@ export class LedgerEntropy implements Bip44Entropy {
    * Creates a new LedgerEntropy.
    *
    * @param id - A unique identifier for this entropy source.
-   * @param session - The Ledger DMK Bitcoin signer session.
+   * @param dmk - The Ledger Device Management Kit instance.
+   * @param sessionId - The active device session ID.
    */
-  constructor(id: string, session: SignerBtc) {
+  constructor(
+    id: string,
+    dmk: DeviceManagementKit,
+    sessionId: DeviceSessionId,
+  ) {
     this.id = id;
-    this.#session = session;
+    this.#session = new SignerBtcBuilder({ dmk, sessionId }).build();
   }
+
+  async getSigner(
+    scope: `bip122:${string}`,
+    options: Bip44GetSignerOptions,
+  ): Promise<Bip122Signer>;
 
   async getSigner(
     scope: string,
     options: Bip44GetSignerOptions,
   ): Promise<Signer> {
-    switch (scope) {
-      case 'bip122':
-        return new LedgerBitcoinSigner(this.#session, options.path);
-      default:
-        throw new Error(`Unsupported scope: ${scope}`);
+    if (scope.startsWith('bip122:')) {
+      return new LedgerBitcoinSigner(
+        this.#session,
+        scope as `bip122:${string}`,
+        options.path,
+      );
     }
+
+    throw new Error(`Unsupported scope: ${scope}`);
   }
 }

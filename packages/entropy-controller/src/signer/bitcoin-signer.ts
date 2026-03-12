@@ -1,7 +1,7 @@
 import type { Signer } from './signer';
 
 /**
- * Response from {@link BitcoinSigner.getXpub}.
+ * Response from {@link Bip122Signer.getXpub}.
  */
 export type GetXpubResponse = {
   /**
@@ -16,7 +16,7 @@ export type GetXpubResponse = {
 };
 
 /**
- * Response from {@link BitcoinSigner.getAddress}.
+ * Response from {@link Bip122Signer.getAddress}.
  */
 export type GetAddressResponse = {
   /**
@@ -26,7 +26,7 @@ export type GetAddressResponse = {
 };
 
 /**
- * Arguments for {@link BitcoinSigner.signPsbt}.
+ * Arguments for {@link Bip122Signer.signPsbt}.
  */
 export type SignPsbtArguments = {
   /**
@@ -36,18 +36,18 @@ export type SignPsbtArguments = {
 };
 
 /**
- * Response from {@link BitcoinSigner.signPsbt}.
+ * Response from {@link Bip122Signer.signPsbt}.
  */
 export type SignPsbtResponse = {
   /**
-   * The PSBT with signatures added (base64-encoded). May still be partially
-   * signed if the transaction requires multiple signers (e.g., multisig).
+   * The PSBT with signatures added (base64-encoded). May still be partially signed if
+   * the transaction requires multiple signers (e.g., multisig).
    */
   psbt: string;
 };
 
 /**
- * Arguments for {@link BitcoinSigner.signMessage}.
+ * Arguments for {@link Bip122Signer.signMessage}.
  */
 export type SignMessageArguments = {
   /**
@@ -57,7 +57,7 @@ export type SignMessageArguments = {
 };
 
 /**
- * Response from {@link BitcoinSigner.signMessage}.
+ * Response from {@link Bip122Signer.signMessage}.
  */
 export type SignMessageResponse = {
   /**
@@ -76,7 +76,7 @@ export type SignMessageResponse = {
  * The full derivation path (including change and index) is bound at construction time,
  * so each signer instance corresponds to a single address (e.g. `m/84'/0'/0'/0/0`).
  */
-export type BitcoinSigner = Signer & {
+export type Bip122Signer = Signer & {
   /**
    * Gets the extended public key for the account.
    *
@@ -112,11 +112,11 @@ export type BitcoinSigner = Signer & {
 };
 
 /**
- * Checks if a signer is a {@link BitcoinSigner}.
+ * Checks if a signer is a {@link Bip122Signer}.
  *
  * @param signer - The signer to check.
- * @returns True if the signer's scope is `"bip122"`.
+ * @returns True if the signer's scope starts with `"bip122:"`.
  */
-export function isBitcoinSigner(signer: Signer): signer is BitcoinSigner {
-  return signer.scope === 'bip122';
+export function isBip122Signer(signer: Signer): signer is Bip122Signer {
+  return signer.scope.startsWith('bip122:');
 }

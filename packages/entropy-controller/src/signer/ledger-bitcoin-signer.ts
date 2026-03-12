@@ -10,7 +10,7 @@ import {
 } from '@ledgerhq/device-signer-kit-bitcoin';
 
 import type {
-  BitcoinSigner,
+  Bip122Signer,
   GetAddressResponse,
   GetXpubResponse,
   SignMessageArguments,
@@ -167,14 +167,13 @@ function parseDerivationPath(
 }
 
 /**
- * {@link BitcoinSigner} implementation backed by a Ledger device.
+ * {@link Bip122Signer} implementation backed by a Ledger device.
  *
- * The full derivation path (including change and index) is bound at
- * construction time. Each instance corresponds to a single address
- * (e.g. `m/84'/0'/0'/0/0`).
+ * The full derivation path (including change and index) is bound at construction time.
+ * Each instance corresponds to a single address (e.g. `m/84'/0'/0'/0/0`).
  */
-export class LedgerBitcoinSigner implements BitcoinSigner {
-  readonly scope = 'bip122';
+export class LedgerBitcoinSigner implements Bip122Signer {
+  readonly scope: `bip122:${string}`;
 
   readonly #session: SignerBtc;
 
@@ -186,10 +185,15 @@ export class LedgerBitcoinSigner implements BitcoinSigner {
    * Creates a new LedgerBitcoinSigner.
    *
    * @param session - The Ledger Bitcoin signer session.
-   * @param derivationPath - The full derivation path segments
-   * (e.g. `["84'", "0'", "0'", "0", "0"]`).
+   * @param scope - The CAIP-2 chain ID.
+   * @param derivationPath - The full derivation path segments.
    */
-  constructor(session: SignerBtc, derivationPath: Bip32PathNode[]) {
+  constructor(
+    session: SignerBtc,
+    scope: `bip122:${string}`,
+    derivationPath: Bip32PathNode[],
+  ) {
+    this.scope = scope;
     this.#session = session;
     this.#account = parseDerivationPath(derivationPath);
     this.#wallet = new DefaultWallet(

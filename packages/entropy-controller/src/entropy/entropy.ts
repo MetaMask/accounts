@@ -30,8 +30,8 @@ export type Entropy = {
   /**
    * Gets a signer for a given scope from the entropy.
    *
-   * @param scope - The CAIP-2 scope for which to get the signer
-   * (e.g. `"bip122"` for Bitcoin, `"eip155"` for EVM).
+   * @param scope - The CAIP-2 chain ID for which to get the signer (e.g. `"eip155:1"`
+   * for Ethereum mainnet).
    * @param options - Scope-specific options for getting the signer.
    * @returns The signer for the specified scope.
    */
