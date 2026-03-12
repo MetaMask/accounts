@@ -1448,6 +1448,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/device-transport-kit-react-native-ble@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "@ledgerhq/device-transport-kit-react-native-ble@npm:1.3.2"
+  dependencies:
+    "@sentry/minimal": "npm:6.19.7"
+    js-base64: "npm:^3.7.8"
+    purify-ts: "npm:2.1.0"
+    uuid: "npm:11.0.3"
+  peerDependencies:
+    "@ledgerhq/device-management-kit": ^1.0.0
+    react-native: ">0.74.1"
+    react-native-ble-plx: 3.4.0
+    rxjs: 7.8.2
+  checksum: 10/50afe97ab1260f2537aa06ff107fddd3b1e906ca808c3a6bea672cfada8ef96a26088443a992a5795ec51441780225e84a8711b49e7987a720f4a8e02b9014ad
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/devices@npm:^8.4.4":
   version: 8.4.4
   resolution: "@ledgerhq/devices@npm:8.4.4"
@@ -1879,6 +1896,7 @@ __metadata:
     "@ledgerhq/context-module": "npm:^1.14.1"
     "@ledgerhq/device-management-kit": "patch:@ledgerhq/device-management-kit@npm%3A1.1.0#~/.yarn/patches/@ledgerhq-device-management-kit-npm-1.1.0-f7b6ce1433.patch"
     "@ledgerhq/device-signer-kit-ethereum": "patch:@ledgerhq/device-signer-kit-ethereum@npm%3A1.11.1#~/.yarn/patches/@ledgerhq-device-signer-kit-ethereum-npm-1.11.1-74a1d4edb3.patch"
+    "@ledgerhq/device-transport-kit-react-native-ble": "npm:^1.3.2"
     "@ledgerhq/hw-app-eth": "npm:^6.42.0"
     "@ledgerhq/hw-transport": "npm:^6.31.3"
     "@ledgerhq/types-cryptoassets": "npm:^7.15.1"
@@ -9158,6 +9176,13 @@ __metadata:
   bin:
     jest: bin/jest.js
   checksum: 10/97023d78446098c586faaa467fbf2c6b07ff06e2c85a19e3926adb5b0effe9ac60c4913ae03e2719f9c01ae8ffd8d92f6b262cedb9555ceeb5d19263d8c6362a
+  languageName: node
+  linkType: hard
+
+"js-base64@npm:^3.7.8":
+  version: 3.7.8
+  resolution: "js-base64@npm:3.7.8"
+  checksum: 10/4baa9a222bc094b072933e4894735653b59992477c731879784e3112f21862b08dd5c56b8b23b0b8e43bc5bb514d957621d1892a6c58950f29e12b731fe087b6
   languageName: node
   linkType: hard
 

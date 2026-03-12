@@ -6,20 +6,30 @@ import {
   DeviceManagementKit,
   DeviceManagementKitBuilder,
 } from '@ledgerhq/device-management-kit';
+import { RNBleTransportFactory } from '@ledgerhq/device-transport-kit-react-native-ble';
 import { EIP712Message } from '@ledgerhq/types-live';
 import { of } from 'rxjs';
 
 import { LedgerDMKBridge } from './ledger-dmk-bridge';
 import { LedgerDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
 
+jest.mock('@ledgerhq/device-transport-kit-react-native-ble', () => ({
+  RNBleTransportFactory: jest.fn(),
+}));
+
 // Mock the transport middleware
 jest.mock('./ledger-dmk-transport-middleware');
 
 describe('LedgerDMKBridge', () => {
   let bridge: LedgerDMKBridge;
+  let addTransportSpy: jest.SpyInstance;
   let buildSpy: jest.SpyInstance;
   let mockTransportMiddleware: jest.Mocked<LedgerDMKTransportMiddleware>;
-  let mockSDK: { sendCommand: jest.Mock };
+  let mockSDK: {
+    connect: jest.Mock;
+    sendCommand: jest.Mock;
+    startDiscovering: jest.Mock;
+  };
   let mockEthSigner: {
     getAddress: jest.Mock;
     signMessage: jest.Mock;
@@ -35,10 +45,12 @@ describe('LedgerDMKBridge', () => {
 
   beforeEach(() => {
     mockSDK = {
+      connect: jest.fn().mockResolvedValue('test-session-id'),
       sendCommand: jest.fn().mockResolvedValue({
         status: CommandResultStatus.Success,
         data: mockSendCommandResult,
       }),
+      startDiscovering: jest.fn().mockReturnValue(of({ id: 'device-id' })),
     };
 
     mockEthSigner = {
@@ -84,12 +96,22 @@ describe('LedgerDMKBridge', () => {
       }),
     };
 
+    addTransportSpy = jest
+      .spyOn(DeviceManagementKitBuilder.prototype, 'addTransport')
+      .mockImplementation(function mockAddTransport(
+        this: DeviceManagementKitBuilder,
+      ) {
+        // eslint-disable-next-line no-invalid-this
+        return this;
+      });
+
     buildSpy = jest
       .spyOn(DeviceManagementKitBuilder.prototype, 'build')
       .mockReturnValue(mockSDK as unknown as DeviceManagementKit);
 
     // Create mock transport middleware
     mockTransportMiddleware = {
+      connect: jest.fn().mockResolvedValue('test-session-id'),
       setSessionId: jest.fn(),
       getSessionId: jest.fn().mockReturnValue('test-session-id'),
       getSDK: jest
@@ -97,6 +119,7 @@ describe('LedgerDMKBridge', () => {
         .mockReturnValue(mockSDK as unknown as DeviceManagementKit),
       dispose: jest.fn().mockResolvedValue(undefined),
       getEthSigner: jest.fn().mockReturnValue(mockEthSigner),
+      startDiscovering: jest.fn().mockReturnValue(of({ id: 'device-id' })),
     } as unknown as jest.Mocked<LedgerDMKTransportMiddleware>;
 
     // Mock the constructor to return our mock
@@ -119,6 +142,10 @@ describe('LedgerDMKBridge', () => {
 
     it('initializes DMK with DeviceManagementKitBuilder', () => {
       expect(buildSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('registers the mobile BLE transport', () => {
+      expect(addTransportSpy).toHaveBeenCalledWith(RNBleTransportFactory);
     });
 
     it('creates transport middleware with SDK', () => {
@@ -190,10 +217,38 @@ describe('LedgerDMKBridge', () => {
   });
 
   describe('updateTransportMethod', () => {
-    it('throws error indicating method is not supported', async () => {
-      await expect(bridge.updateTransportMethod()).rejects.toThrow(
-        'updateTransportMethod is not supported in DMK bridge. Use updateSessionId instead.',
+    it('accepts the mobile transport type', async () => {
+      expect(await bridge.updateTransportMethod('mobile')).toBe(true);
+    });
+
+    it('remains compatible with legacy transport names', async () => {
+      expect(await bridge.updateTransportMethod('webhid')).toBe(true);
+    });
+  });
+
+  describe('startDiscovering', () => {
+    it('delegates device discovery to the transport middleware', () => {
+      const discovery = bridge.startDiscovering({});
+
+      expect(mockTransportMiddleware.startDiscovering.mock.calls).toStrictEqual(
+        [[{}]],
       );
+      expect(discovery).toBeDefined();
+    });
+  });
+
+  describe('connect', () => {
+    it('connects through the transport middleware and marks the device as connected', async () => {
+      const params = {
+        device: { id: 'device-id' },
+      } as unknown as Parameters<LedgerDMKTransportMiddleware['connect']>[0];
+      const result = await bridge.connect(params);
+
+      expect(mockTransportMiddleware.connect.mock.calls).toStrictEqual([
+        [params],
+      ]);
+      expect(result).toBe('test-session-id');
+      expect(bridge.isDeviceConnected).toBe(true);
     });
   });
 
@@ -225,6 +280,79 @@ describe('LedgerDMKBridge', () => {
         chainCode: '0xchainCode',
       });
     });
+
+    it('throws signer errors emitted by the device action observable', async () => {
+      const error = new Error('device action failed');
+      mockEthSigner.getAddress.mockReturnValueOnce({
+        observable: of({
+          status: DeviceActionStatus.Error,
+          error,
+        }),
+      });
+
+      await expect(
+        bridge.getPublicKey({ hdPath: "m/44'/60'/0'/0/0" }),
+      ).rejects.toThrow(error);
+    });
+
+    it('throws when a device action completes without a terminal status', async () => {
+      jest.resetModules();
+      let isolatedTest: Promise<void> | undefined;
+
+      jest.isolateModules(() => {
+        jest.doMock('rxjs/operators', () => ({
+          filter:
+            () =>
+            (source: unknown): unknown =>
+              source,
+        }));
+        jest.doMock('@ledgerhq/device-management-kit', () => {
+          const actual = jest.requireActual('@ledgerhq/device-management-kit');
+
+          return {
+            ...actual,
+            DeviceManagementKitBuilder: jest.fn().mockImplementation(() => ({
+              addTransport: jest.fn().mockReturnThis(),
+              build: jest.fn().mockReturnValue({}),
+            })),
+          };
+        });
+        jest.doMock('@ledgerhq/device-transport-kit-react-native-ble', () => ({
+          RNBleTransportFactory: jest.fn(),
+        }));
+        jest.doMock('./ledger-dmk-transport-middleware', () => ({
+          LedgerDMKTransportMiddleware: jest.fn().mockImplementation(() => ({
+            dispose: jest.fn(),
+            getEthSigner: jest.fn().mockReturnValue({
+              getAddress: jest.fn().mockReturnValue({
+                observable: of({ status: 'pending' }),
+              }),
+            }),
+            getSessionId: jest.fn().mockReturnValue('test-session-id'),
+            setSessionId: jest.fn(),
+          })),
+        }));
+
+        isolatedTest = (async (): Promise<void> => {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports, n/global-require
+          const Bridge = require('./ledger-dmk-bridge').LedgerDMKBridge;
+
+          await expect(
+            new Bridge().getPublicKey({
+              hdPath: "m/44'/60'/0'/0/0",
+            }),
+          ).rejects.toThrow('Ledger device action ended without completion.');
+        })();
+      });
+
+      await isolatedTest;
+
+      jest.resetModules();
+    });
+  });
+
+  afterAll(() => {
+    jest.resetModules();
   });
 
   describe('deviceSignTransaction', () => {
@@ -243,6 +371,26 @@ describe('LedgerDMKBridge', () => {
         s: 's-value',
       });
     });
+
+    it('normalizes hex string v values', async () => {
+      mockEthSigner.signTransaction.mockReturnValueOnce({
+        observable: of({
+          status: DeviceActionStatus.Completed,
+          output: {
+            v: '0x1c',
+            r: '0xr-value',
+            s: '0xs-value',
+          },
+        }),
+      });
+
+      const result = await bridge.deviceSignTransaction({
+        hdPath: "m/44'/60'/0'/0/0",
+        tx: 'f86d8202b38477359400825208',
+      });
+
+      expect(result.v).toBe('1c');
+    });
   });
 
   describe('deviceSignMessage', () => {
@@ -255,6 +403,30 @@ describe('LedgerDMKBridge', () => {
       expect(mockEthSigner.signMessage.mock.calls).toStrictEqual([
         [hdPath, message],
       ]);
+      expect(result).toStrictEqual({
+        v: 27,
+        r: 'r-value',
+        s: 's-value',
+      });
+    });
+
+    it('preserves signature parts that are already missing a hex prefix', async () => {
+      mockEthSigner.signMessage.mockReturnValueOnce({
+        observable: of({
+          status: DeviceActionStatus.Completed,
+          output: {
+            v: 27,
+            r: 'r-value',
+            s: 's-value',
+          },
+        }),
+      });
+
+      const result = await bridge.deviceSignMessage({
+        hdPath: "m/44'/60'/0'/0/0",
+        message: 'test message',
+      });
+
       expect(result).toStrictEqual({
         v: 27,
         r: 'r-value',
@@ -301,6 +473,16 @@ describe('LedgerDMKBridge', () => {
         version: '2.4.0',
       });
     });
+
+    it('rethrows SDK command errors when available', async () => {
+      const error = new Error('command failed');
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: 'error',
+        error,
+      });
+
+      await expect(bridge.getAppNameAndVersion()).rejects.toThrow(error);
+    });
   });
 
   describe('getAppConfiguration', () => {
@@ -346,6 +528,48 @@ describe('LedgerDMKBridge', () => {
 
       expect(result.arbitraryDataEnabled).toBe(1);
       expect(result.version).toBe('2.4.0');
+    });
+
+    it('defaults arbitraryDataEnabled when flags are not numeric', async () => {
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: CommandResultStatus.Success,
+        data: {
+          name: 'Ethereum',
+          version: '2.4.0',
+          flags: 'unexpected',
+        },
+      });
+
+      const result = await bridge.getAppConfiguration();
+
+      expect(result.arbitraryDataEnabled).toBe(1);
+      expect(result.version).toBe('2.4.0');
+    });
+
+    it('defaults missing flags to disabled blind signing', async () => {
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: CommandResultStatus.Success,
+        data: {
+          name: 'Ethereum',
+          version: '2.4.0',
+        },
+      });
+
+      const result = await bridge.getAppConfiguration();
+
+      expect(result.arbitraryDataEnabled).toBe(0);
+      expect(result.version).toBe('2.4.0');
+    });
+
+    it('falls back to a generic error for unknown SDK command failures', async () => {
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: 'error',
+        error: 'unknown failure',
+      });
+
+      await expect(bridge.getAppConfiguration()).rejects.toThrow(
+        'Ledger command failed.',
+      );
     });
   });
 });

@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implement `getAppConfiguration` in `LedgerDMKBridge` to retrieve actual app configuration from the device ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
   - Parse device flags to determine blind signing support (`arbitraryDataEnabled`).
   - Return actual app version from the device instead of hardcoded value.
+- Configure `LedgerDMKBridge` to use the React Native BLE `mobile` transport and expose DMK device discovery helpers ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Register `@ledgerhq/device-transport-kit-react-native-ble` with the DMK builder.
+  - Add DMK discovery and connect passthroughs on the transport middleware and bridge.
 
 ## [11.3.0]
 

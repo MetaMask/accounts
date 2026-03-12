@@ -10,6 +10,8 @@ import type {
   Signature,
   TypedData,
 } from '@ledgerhq/device-signer-kit-ethereum';
+import { RNBleTransportFactory } from '@ledgerhq/device-transport-kit-react-native-ble';
+import type Transport from '@ledgerhq/hw-transport';
 import type { Observable } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -51,17 +53,20 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
 
   constructor(opts: LedgerDMKBridgeOptions = {}) {
     this.#opts = opts;
-    this.#sdk = new DeviceManagementKitBuilder().build();
+    this.#sdk = new DeviceManagementKitBuilder()
+      .addTransport(RNBleTransportFactory)
+      .build();
     this.#transportMiddleware = new LedgerDMKTransportMiddleware(this.#sdk);
   }
 
   /**
-   * Initializes the bridge.
+   * Compatibility hook for the shared LedgerBridge interface.
+   * DMK session setup happens externally via updateSessionId.
    *
-   * @returns A promise that resolves when initialization is complete.
+   * @returns A promise that resolves immediately.
    */
   async init(): Promise<void> {
-    return Promise.resolve();
+    return undefined;
   }
 
   /**
@@ -110,15 +115,45 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   }
 
   /**
-   * Compatibility method for LedgerBridge interface.
-   * This method is not supported in DMK bridge - use updateSessionId instead.
+   * Starts BLE device discovery for the mobile DMK transport.
    *
-   * @throws Error indicating this method is not supported.
+   * @param args - Optional DMK discovery options.
+   * @returns An observable that emits discovered devices.
    */
-  async updateTransportMethod(): Promise<boolean> {
-    throw new Error(
-      'updateTransportMethod is not supported in DMK bridge. Use updateSessionId instead.',
-    );
+  startDiscovering(
+    ...args: Parameters<LedgerDMKTransportMiddleware['startDiscovering']>
+  ): ReturnType<LedgerDMKTransportMiddleware['startDiscovering']> {
+    return this.#transportMiddleware.startDiscovering(...args);
+  }
+
+  /**
+   * Connects to a discovered device using the configured mobile BLE transport.
+   *
+   * @param args - The DMK connection arguments.
+   * @returns The created session ID.
+   */
+  async connect(
+    ...args: Parameters<LedgerDMKTransportMiddleware['connect']>
+  ): ReturnType<LedgerDMKTransportMiddleware['connect']> {
+    const sessionId = await this.#transportMiddleware.connect(...args);
+    this.isDeviceConnected = true;
+
+    return sessionId;
+  }
+
+  /**
+   * Compatibility method for the shared LedgerBridge interface.
+   * DMK always uses the React Native BLE-based `mobile` transport.
+   * The provided transport argument is ignored to preserve backwards compatibility
+   * with existing callers that still pass legacy transport identifiers.
+   *
+   * @param _transportType - The requested transport type.
+   * @returns `true`.
+   */
+  async updateTransportMethod(
+    _transportType: string | Transport,
+  ): Promise<boolean> {
+    return true;
   }
 
   /**
