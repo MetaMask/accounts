@@ -1368,7 +1368,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/device-management-kit@npm:1.1.0":
+"@ledgerhq/device-management-kit@npm:^1.1.0":
   version: 1.1.0
   resolution: "@ledgerhq/device-management-kit@npm:1.1.0"
   dependencies:
@@ -1390,29 +1390,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/device-management-kit@patch:@ledgerhq/device-management-kit@npm%3A1.1.0#~/.yarn/patches/@ledgerhq-device-management-kit-npm-1.1.0-f7b6ce1433.patch":
-  version: 1.1.0
-  resolution: "@ledgerhq/device-management-kit@patch:@ledgerhq/device-management-kit@npm%3A1.1.0#~/.yarn/patches/@ledgerhq-device-management-kit-npm-1.1.0-f7b6ce1433.patch::version=1.1.0&hash=58c4d0"
-  dependencies:
-    "@noble/hashes": "npm:^1.8.0"
-    "@sentry/minimal": "npm:6.19.7"
-    axios: "npm:1.13.2"
-    inversify: "npm:7.5.1"
-    isomorphic-ws: "npm:^5.0.0"
-    purify-ts: "npm:2.1.0"
-    reflect-metadata: "npm:0.2.2"
-    semver: "npm:7.7.2"
-    url: "npm:^0.11.4"
-    uuid: "npm:11.0.3"
-    ws: "npm:^8.18.0"
-    xstate: "npm:5.19.2"
-  peerDependencies:
-    rxjs: 7.8.2
-  checksum: 10/dacd66bd75cfcbfe5f928b431807e71da82651825586c5885e4397d160648efbbdab8ee051d547433eaaa44af293b1b53a675cdca9b44c08fc758f3621412043
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/device-signer-kit-ethereum@npm:1.11.1":
+"@ledgerhq/device-signer-kit-ethereum@npm:^1.11.1":
   version: 1.11.1
   resolution: "@ledgerhq/device-signer-kit-ethereum@npm:1.11.1"
   dependencies:
@@ -1427,24 +1405,6 @@ __metadata:
     "@ledgerhq/context-module": ^1.14.1
     "@ledgerhq/device-management-kit": ^1.1.0
   checksum: 10/4123d1658d0eec8a73343afe95299e21cfc7fe4683030b3043e4dfc6acb92e1f62c5a4862de926bc5e65ecc65bb13b58da02d761e22d01f19a161445c0f2f06f
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/device-signer-kit-ethereum@patch:@ledgerhq/device-signer-kit-ethereum@npm%3A1.11.1#~/.yarn/patches/@ledgerhq-device-signer-kit-ethereum-npm-1.11.1-74a1d4edb3.patch":
-  version: 1.11.1
-  resolution: "@ledgerhq/device-signer-kit-ethereum@patch:@ledgerhq/device-signer-kit-ethereum@npm%3A1.11.1#~/.yarn/patches/@ledgerhq-device-signer-kit-ethereum-npm-1.11.1-74a1d4edb3.patch::version=1.11.1&hash=e8ab18"
-  dependencies:
-    "@ledgerhq/signer-utils": "npm:^1.1.2"
-    ethers: "npm:6.14.1"
-    inversify: "npm:7.5.1"
-    purify-ts: "npm:2.1.0"
-    reflect-metadata: "npm:0.2.2"
-    semver: "npm:7.7.2"
-    xstate: "npm:5.19.2"
-  peerDependencies:
-    "@ledgerhq/context-module": ^1.14.1
-    "@ledgerhq/device-management-kit": ^1.1.0
-  checksum: 10/2e19ecededfa8a00ee97f1c428a8aea0867449c89782e4d12cde7750f8a7bdc10aebb3edf61da3aba0c850ad6fff670df8328a9a098feb5c769a913bfa5056d5
   languageName: node
   linkType: hard
 
@@ -1894,8 +1854,8 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@ledgerhq/context-module": "npm:^1.14.1"
-    "@ledgerhq/device-management-kit": "patch:@ledgerhq/device-management-kit@npm%3A1.1.0#~/.yarn/patches/@ledgerhq-device-management-kit-npm-1.1.0-f7b6ce1433.patch"
-    "@ledgerhq/device-signer-kit-ethereum": "patch:@ledgerhq/device-signer-kit-ethereum@npm%3A1.11.1#~/.yarn/patches/@ledgerhq-device-signer-kit-ethereum-npm-1.11.1-74a1d4edb3.patch"
+    "@ledgerhq/device-management-kit": "npm:^1.1.0"
+    "@ledgerhq/device-signer-kit-ethereum": "npm:^1.11.1"
     "@ledgerhq/device-transport-kit-react-native-ble": "npm:^1.3.2"
     "@ledgerhq/hw-app-eth": "npm:^6.42.0"
     "@ledgerhq/hw-transport": "npm:^6.31.3"
