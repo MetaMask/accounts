@@ -31,7 +31,6 @@ import {
   LedgerBridgeOptions,
 } from './ledger-bridge';
 import { handleLedgerTransportError } from './ledger-error-handler';
-import { LedgerIframeBridgeOptions } from './ledger-iframe-bridge';
 
 const pathBase = 'm';
 const hdPathString = `${pathBase}/44'/60'/0'`;
@@ -48,7 +47,7 @@ enum NetworkApiUrls {
 }
 
 type SignTransactionPayload = Awaited<
-  ReturnType<LedgerBridge<LedgerIframeBridgeOptions>['deviceSignTransaction']>
+  ReturnType<LedgerBridge<LedgerBridgeOptions>['deviceSignTransaction']>
 >;
 
 export type AccountPageEntry = {
