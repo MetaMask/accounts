@@ -61,7 +61,6 @@ describe('handleTrezorTransportError', () => {
 
     expect(thrownError).toBeInstanceOf(HardwareWalletError);
     expect((thrownError as HardwareWalletError).code).toBe(code);
-    expect((thrownError as HardwareWalletError).cause).toBe(input);
   });
 
   it('prioritizes machine-readable code when present', () => {

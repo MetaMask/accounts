@@ -5,7 +5,7 @@ import {
   HardwareWalletError,
 } from '@metamask/hw-wallet-sdk';
 
-import { createTrezorError, getTrezorErrorIdentifier } from './trezor-errors';
+import { createTrezorError, isKnownTrezorError } from './trezor-errors';
 
 type ErrorDetails = {
   message?: string;
@@ -46,13 +46,13 @@ export function handleTrezorTransportError(
 
   if (error instanceof Error) {
     const details = getErrorDetails(error);
-    const identifier =
-      getTrezorErrorIdentifier(details.code) ??
-      getTrezorErrorIdentifier(details.name) ??
-      getTrezorErrorIdentifier(details.message);
+    const identifier = [details.code, details.name, details.message].find(
+      (value): value is string =>
+        value !== undefined && isKnownTrezorError(value),
+    );
 
     if (identifier) {
-      throw createTrezorError(identifier, details.message, error);
+      throw createTrezorError(identifier, details.message);
     }
 
     throw new HardwareWalletError(details.message ?? fallbackMessage, {
