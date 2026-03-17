@@ -3,8 +3,8 @@ import {
   ErrorCode,
   HardwareWalletError,
   Severity,
+  TREZOR_ERROR_MAPPINGS,
 } from '@metamask/hw-wallet-sdk';
-import { ERRORS } from '@trezor/connect-web';
 
 import {
   createTrezorError,
@@ -25,8 +25,8 @@ describe('trezor-errors', () => {
   });
 
   describe('getTrezorErrorMapping', () => {
-    it('maps all current TrezorConnect error codes', () => {
-      for (const identifier of Object.keys(ERRORS.ERROR_CODES)) {
+    it('maps all TREZOR_ERROR_MAPPINGS error codes', () => {
+      for (const identifier of Object.keys(TREZOR_ERROR_MAPPINGS)) {
         expect(getTrezorErrorMapping(identifier)).toBeDefined();
       }
     });
