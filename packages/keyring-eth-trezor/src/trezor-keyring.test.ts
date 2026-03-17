@@ -816,7 +816,7 @@ describe('TrezorKeyring', function () {
     });
   });
 
-  describe('forgetDevice', function () {
+  describe('forgetDevice state reset', function () {
     it('resets all keyring state', async function () {
       // Add an account
       keyring.setAccountToUnlock(0);
@@ -841,7 +841,7 @@ describe('TrezorKeyring', function () {
     });
   });
 
-  describe('signMessage', function () {
+  describe('signMessage delegation', function () {
     it('delegates to signPersonalMessage', async function () {
       const ethereumSignMessageStub = sinon.stub().resolves({
         success: true,
@@ -856,7 +856,7 @@ describe('TrezorKeyring', function () {
     });
   });
 
-  describe('signPersonalMessage', function () {
+  describe('signPersonalMessage error handling', function () {
     it('signs a personal message successfully', async function () {
       const ethereumSignMessageStub = sinon.stub().resolves({
         success: true,
@@ -898,7 +898,7 @@ describe('TrezorKeyring', function () {
     });
   });
 
-  describe('signTypedData', function () {
+  describe('signTypedData error handling', function () {
     it('signs typed data successfully', async function () {
       const ethereumSignTypedDataStub = sinon.stub().resolves({
         success: true,
@@ -964,7 +964,7 @@ describe('TrezorKeyring', function () {
     });
   });
 
-  describe('unlock', function () {
+  describe('unlock error handling', function () {
     it('handles unsuccessful response from getPublicKey', async function () {
       const getPublicKeyStub = sinon.stub().resolves({
         success: false,
@@ -989,7 +989,7 @@ describe('TrezorKeyring', function () {
     });
   });
 
-  describe('signTransaction', function () {
+  describe('signTransaction error handling', function () {
     it('throws HardwareWalletError on bridge failure', async function () {
       const ethereumSignTransactionStub = sinon.stub().resolves({
         success: false,
