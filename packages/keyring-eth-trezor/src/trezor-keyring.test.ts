@@ -803,4 +803,218 @@ describe('TrezorKeyring', function () {
       );
     });
   });
+
+  describe('getModel', function () {
+    it('returns the model from the bridge', function () {
+      bridge.model = 'Trezor Model T';
+      expect(keyring.getModel()).toBe('Trezor Model T');
+    });
+
+    it('returns undefined if model is not set', function () {
+      bridge.model = undefined;
+      expect(keyring.getModel()).toBeUndefined();
+    });
+  });
+
+  describe('forgetDevice', function () {
+    it('resets all keyring state', async function () {
+      // Add an account
+      keyring.setAccountToUnlock(0);
+      await keyring.addAccounts(1);
+
+      // Set some state
+      keyring.page = 5;
+      keyring.unlockedAccount = 3;
+      keyring.paths = { [fakeAccounts[0]]: 0 };
+
+      // Forget the device
+      keyring.forgetDevice();
+
+      expect(keyring.accounts).toHaveLength(0);
+      expect(keyring.hdk.publicKey).toBeNull();
+      expect(keyring.page).toBe(0);
+      expect(keyring.unlockedAccount).toBe(0);
+      expect(keyring.paths).toStrictEqual({});
+    });
+  });
+
+  describe('signMessage', function () {
+    it('delegates to signPersonalMessage', async function () {
+      const ethereumSignMessageStub = sinon.stub().resolves({
+        success: true,
+        payload: { signature: 'signature', address: fakeAccounts[0] },
+      });
+      bridge.ethereumSignMessage = ethereumSignMessageStub;
+
+      const result = await keyring.signMessage(fakeAccounts[0], '0xmessage');
+
+      expect(ethereumSignMessageStub.calledOnce).toBe(true);
+      expect(result).toBe('0xsignature');
+    });
+  });
+
+  describe('signPersonalMessage', function () {
+    it('signs a personal message successfully', async function () {
+      const ethereumSignMessageStub = sinon.stub().resolves({
+        success: true,
+        payload: { signature: 'signature', address: fakeAccounts[0] },
+      });
+      bridge.ethereumSignMessage = ethereumSignMessageStub;
+
+      const result = await keyring.signPersonalMessage(
+        fakeAccounts[0],
+        '0xmessage',
+      );
+
+      expect(ethereumSignMessageStub.calledOnce).toBe(true);
+      expect(result).toBe('0xsignature');
+    });
+
+    it('throws error when signature address does not match', async function () {
+      const ethereumSignMessageStub = sinon.stub().resolves({
+        success: true,
+        payload: { signature: 'signature', address: fakeAccounts[1] },
+      });
+      bridge.ethereumSignMessage = ethereumSignMessageStub;
+
+      await expect(
+        keyring.signPersonalMessage(fakeAccounts[0], '0xmessage'),
+      ).rejects.toThrow('signature doesnt match the right address');
+    });
+
+    it('converts non-address errors to HardwareWalletError', async function () {
+      const ethereumSignMessageStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Device disconnected' },
+      });
+      bridge.ethereumSignMessage = ethereumSignMessageStub;
+
+      await expect(
+        keyring.signPersonalMessage(fakeAccounts[0], '0xmessage'),
+      ).rejects.toThrow(HardwareWalletError);
+    });
+  });
+
+  describe('signTypedData', function () {
+    it('signs typed data successfully', async function () {
+      const ethereumSignTypedDataStub = sinon.stub().resolves({
+        success: true,
+        payload: { signature: '0xsignature', address: fakeAccounts[0] },
+      });
+      bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
+
+      const result = await keyring.signTypedData(
+        fakeAccounts[0],
+        {
+          types: { EIP712Domain: [], EmptyMessage: [] },
+          primaryType: 'EmptyMessage',
+          domain: {},
+          message: {},
+        },
+        { version: SignTypedDataVersion.V4 },
+      );
+
+      expect(ethereumSignTypedDataStub.calledOnce).toBe(true);
+      expect(result).toBe('0xsignature');
+    });
+
+    it('throws error when signature address does not match', async function () {
+      const ethereumSignTypedDataStub = sinon.stub().resolves({
+        success: true,
+        payload: { signature: '0xsignature', address: fakeAccounts[1] },
+      });
+      bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
+
+      await expect(
+        keyring.signTypedData(
+          fakeAccounts[0],
+          {
+            types: { EIP712Domain: [], EmptyMessage: [] },
+            primaryType: 'EmptyMessage',
+            domain: {},
+            message: {},
+          },
+          { version: SignTypedDataVersion.V4 },
+        ),
+      ).rejects.toThrow('signature doesnt match the right address');
+    });
+
+    it('converts non-address errors to HardwareWalletError', async function () {
+      const ethereumSignTypedDataStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Device disconnected' },
+      });
+      bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
+
+      await expect(
+        keyring.signTypedData(
+          fakeAccounts[0],
+          {
+            types: { EIP712Domain: [], EmptyMessage: [] },
+            primaryType: 'EmptyMessage',
+            domain: {},
+            message: {},
+          },
+          { version: SignTypedDataVersion.V4 },
+        ),
+      ).rejects.toThrow(HardwareWalletError);
+    });
+  });
+
+  describe('unlock', function () {
+    it('handles unsuccessful response from getPublicKey', async function () {
+      const getPublicKeyStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Device not connected' },
+      });
+      bridge.getPublicKey = getPublicKeyStub;
+
+      keyring.hdk = new HDKey();
+
+      await expect(keyring.unlock()).rejects.toThrow('Device not connected');
+    });
+
+    it('converts unlock errors to HardwareWalletError', async function () {
+      const getPublicKeyStub = sinon
+        .stub()
+        .rejects(new Error('Transport error'));
+      bridge.getPublicKey = getPublicKeyStub;
+
+      keyring.hdk = new HDKey();
+
+      await expect(keyring.unlock()).rejects.toThrow(HardwareWalletError);
+    });
+  });
+
+  describe('signTransaction', function () {
+    it('throws HardwareWalletError on bridge failure', async function () {
+      const ethereumSignTransactionStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Device disconnected' },
+      });
+      bridge.ethereumSignTransaction = ethereumSignTransactionStub;
+
+      await expect(
+        keyring.signTransaction(fakeAccounts[0], fakeTx),
+      ).rejects.toThrow(HardwareWalletError);
+    });
+
+    it('throws error when signature address does not match', async function () {
+      const ethereumSignTransactionStub = sinon.stub().resolves({
+        success: true,
+        payload: { v: '0x1', r: '0x0', s: '0x0' },
+      });
+      bridge.ethereumSignTransaction = ethereumSignTransactionStub;
+
+      sinon
+        .stub(fakeTx, 'getSenderAddress')
+        .callsFake(() =>
+          Buffer.from(Address.fromString(fakeAccounts[1]).bytes),
+        );
+
+      await expect(
+        keyring.signTransaction(fakeAccounts[0], fakeTx),
+      ).rejects.toThrow("signature doesn't match the right address");
+    });
+  });
 });
