@@ -426,5 +426,13 @@ export const TREZOR_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
     userMessage:
       'Trezor did not return a response. Reconnect your device and try again.',
   },
+  Device_InitializeFailed: {
+    code: ErrorCode.AuthenticationDeviceLocked,
+    message: 'Trezor device initialization failed',
+    severity: Severity.Err,
+    category: Category.Authentication,
+    userMessage:
+      'Your Trezor device failed to initialize. Please unlock it and try again.',
+  },
 };
 /* eslint-enable @typescript-eslint/naming-convention */
