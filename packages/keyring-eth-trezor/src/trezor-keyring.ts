@@ -403,6 +403,13 @@ export class TrezorKeyring implements Keyring {
       }
       throw new Error(response.payload?.error || 'Unknown error');
     } catch (error) {
+      // Re-throw address validation errors as plain Errors, not hardware errors
+      if (
+        error instanceof Error &&
+        error.message === "signature doesn't match the right address"
+      ) {
+        throw error;
+      }
       return handleTrezorTransportError(
         error,
         'Failed to sign transaction with Trezor device',
@@ -440,6 +447,13 @@ export class TrezorKeyring implements Keyring {
 
       return `0x${response.payload.signature}`;
     } catch (error) {
+      // Re-throw address validation errors as plain Errors, not hardware errors
+      if (
+        error instanceof Error &&
+        error.message === 'signature doesnt match the right address'
+      ) {
+        throw error;
+      }
       return handleTrezorTransportError(
         error,
         'Failed to sign personal message with Trezor device',
@@ -505,6 +519,13 @@ export class TrezorKeyring implements Keyring {
       }
       return response.payload.signature;
     } catch (error) {
+      // Re-throw address validation errors as plain Errors, not hardware errors
+      if (
+        error instanceof Error &&
+        error.message === 'signature doesnt match the right address'
+      ) {
+        throw error;
+      }
       return handleTrezorTransportError(
         error,
         'Failed to sign typed data with Trezor device',
