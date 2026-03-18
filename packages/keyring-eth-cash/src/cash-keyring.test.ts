@@ -8,12 +8,10 @@ import {
 import { normalize } from '@metamask/eth-sig-util';
 import { assert, type Hex } from '@metamask/utils';
 
-import { CashKeyring } from './cash-keyring';
+import { CASH_DERIVATION_PATH, CashKeyring } from './cash-keyring';
 
 const sampleMnemonic =
   'finish oppose decorate face calm tragic certain desk hour urge dinosaur mango';
-
-const cashHdPath = `m/44'/4392018'/0'/0`;
 
 const getAddressAtIndex = async (
   keyring: CashKeyring,
@@ -31,7 +29,7 @@ describe('CashKeyring', () => {
     });
   });
 
-  describe('#type', () => {
+  describe('type', () => {
     it('returns the correct value', () => {
       const keyring = new CashKeyring();
       expect(keyring.type).toBe('Cash Keyring');
@@ -39,14 +37,14 @@ describe('CashKeyring', () => {
     });
   });
 
-  describe('#hdPath', () => {
+  describe('hdPath', () => {
     it('uses the cash account derivation path', () => {
       const keyring = new CashKeyring();
-      expect(keyring.hdPath).toBe(cashHdPath);
+      expect(keyring.hdPath).toBe(CASH_DERIVATION_PATH);
     });
   });
 
-  describe('#deserialize', () => {
+  describe('deserialize', () => {
     it('derives accounts using the cash account hd path', async () => {
       const keyring = new CashKeyring();
       await keyring.deserialize({
@@ -54,7 +52,7 @@ describe('CashKeyring', () => {
       });
 
       const serialized = await keyring.serialize();
-      expect(serialized.hdPath).toBe(cashHdPath);
+      expect(serialized.hdPath).toBe(CASH_DERIVATION_PATH);
     });
 
     it('derives different addresses than the standard HD keyring path', async () => {
@@ -83,11 +81,11 @@ describe('CashKeyring', () => {
       });
 
       const serialized = await keyring.serialize();
-      expect(serialized.hdPath).toBe(cashHdPath);
+      expect(serialized.hdPath).toBe(CASH_DERIVATION_PATH);
     });
   });
 
-  describe('#addAccounts', () => {
+  describe('addAccounts', () => {
     it('throws if an account already exists', async () => {
       const keyring = new CashKeyring();
       await keyring.deserialize({
@@ -115,7 +113,7 @@ describe('CashKeyring', () => {
     });
   });
 
-  describe('#signPersonalMessage', () => {
+  describe('signPersonalMessage', () => {
     it('signs and the signature can be recovered', async () => {
       const keyring = new CashKeyring();
       await keyring.deserialize({
@@ -134,7 +132,7 @@ describe('CashKeyring', () => {
     });
   });
 
-  describe('#signTypedData', () => {
+  describe('signTypedData', () => {
     it('signs V1 typed data and the signature can be recovered', async () => {
       const keyring = new CashKeyring();
       await keyring.deserialize({
@@ -187,7 +185,7 @@ describe('CashKeyring', () => {
     });
   });
 
-  describe('#removeAccount', () => {
+  describe('removeAccount', () => {
     it('removes an existing account', async () => {
       const keyring = new CashKeyring();
       await keyring.deserialize({
@@ -211,7 +209,7 @@ describe('CashKeyring', () => {
     });
   });
 
-  describe('#serialize / #deserialize round-trip', () => {
+  describe('serialize / deserialize round-trip', () => {
     it('serializes what it deserializes', async () => {
       const keyring = new CashKeyring();
       await keyring.deserialize({
@@ -230,7 +228,7 @@ describe('CashKeyring', () => {
       expect(restoredAccounts).toStrictEqual(accounts);
 
       const restoredSerialized = await restored.serialize();
-      expect(restoredSerialized.hdPath).toBe(cashHdPath);
+      expect(restoredSerialized.hdPath).toBe(CASH_DERIVATION_PATH);
       expect(restoredSerialized.numberOfAccounts).toBe(1);
     });
   });
