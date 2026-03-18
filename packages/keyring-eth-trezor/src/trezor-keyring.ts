@@ -177,7 +177,7 @@ export class TrezorKeyring implements Keyring {
         coin: 'ETH',
       });
       if (!response.success) {
-        throw new Error(response.payload?.error || 'Unknown error');
+        throw new Error(response.payload?.error ?? 'Unknown error');
       }
 
       this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex');
@@ -401,7 +401,7 @@ export class TrezorKeyring implements Keyring {
 
         return newOrMutatedTx;
       }
-      throw new Error(response.payload?.error || 'Unknown error');
+      throw new Error(response.payload?.error ?? 'Unknown error');
     } catch (error) {
       // Re-throw address validation errors as plain Errors, not hardware errors
       if (
@@ -438,7 +438,7 @@ export class TrezorKeyring implements Keyring {
       });
 
       if (!response.success) {
-        throw new Error(response.payload?.error || 'Unknown error');
+        throw new Error(response.payload?.error ?? 'Unknown error');
       }
 
       if (response.payload.address !== getChecksumAddress(withAccount)) {
