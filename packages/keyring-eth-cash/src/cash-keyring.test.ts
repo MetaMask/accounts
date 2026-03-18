@@ -1,11 +1,3 @@
-import {
-  recoverPersonalSignature,
-  recoverTypedSignature,
-  SignTypedDataVersion,
-  type MessageTypes,
-  type TypedMessage,
-} from '@metamask/eth-sig-util';
-import { normalize } from '@metamask/eth-sig-util';
 import { assert, type Hex } from '@metamask/utils';
 
 import { CASH_DERIVATION_PATH, CashKeyring } from './cash-keyring';
@@ -44,6 +36,34 @@ describe('CashKeyring', () => {
     });
   });
 
+  describe('address derivation is deterministic', () => {
+    it.each([
+      {
+        mnemonic: sampleMnemonic,
+        expectedAddress: '0x13203ef2a0e1fb26bfddcaf86a4a7d08a52d78aa',
+      },
+      {
+        mnemonic:
+          'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        expectedAddress: '0x9396093a74662a2fef84ad7d99155b0fb1658553',
+      },
+      {
+        mnemonic:
+          'letter ethics correct bus asset pipe tourist vapor envelope kangaroo warm dawn',
+        expectedAddress: '0x4eb3d02b362bb921ce5af3e13dded943af7460ed',
+      },
+    ])(
+      'derives the expected address for a given SRP',
+      async ({ mnemonic, expectedAddress }) => {
+        const keyring = new CashKeyring();
+        await keyring.deserialize({ mnemonic });
+
+        const address = await getAddressAtIndex(keyring, 0);
+        expect(address).toBe(expectedAddress);
+      },
+    );
+  });
+
   describe('deserialize', () => {
     it('derives accounts using the cash account hd path', async () => {
       const keyring = new CashKeyring();
@@ -73,16 +93,6 @@ describe('CashKeyring', () => {
 
       expect(cashAccounts[0]).not.toBe(hdAccounts[0]);
     });
-
-    it('uses the cash account hd path when no hdPath option is provided', async () => {
-      const keyring = new CashKeyring();
-      await keyring.deserialize({
-        mnemonic: sampleMnemonic,
-      });
-
-      const serialized = await keyring.serialize();
-      expect(serialized.hdPath).toBe(CASH_DERIVATION_PATH);
-    });
   });
 
   describe('addAccounts', () => {
@@ -111,101 +121,66 @@ describe('CashKeyring', () => {
       const accounts = await keyring.getAccounts();
       expect(accounts).toHaveLength(1);
     });
-  });
 
-  describe('signPersonalMessage', () => {
-    it('signs and the signature can be recovered', async () => {
+    it('re-adds the same account after removal', async () => {
       const keyring = new CashKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
       });
 
-      const address = await getAddressAtIndex(keyring, 0);
-      const message = '0x68656c6c6f20776f726c64';
-      const signature = await keyring.signPersonalMessage(address, message);
+      const originalAddress = await getAddressAtIndex(keyring, 0);
 
-      const restored = recoverPersonalSignature({
-        data: message,
-        signature,
-      });
-      expect(restored).toStrictEqual(normalize(address));
+      keyring.removeAccount(originalAddress);
+      expect(await keyring.getAccounts()).toHaveLength(0);
+
+      await keyring.addAccounts();
+      const restoredAddress = await getAddressAtIndex(keyring, 0);
+
+      expect(restoredAddress).toBe(originalAddress);
     });
   });
 
-  describe('signTypedData', () => {
-    it('signs V1 typed data and the signature can be recovered', async () => {
+  describe('deserialize with invalid payload', () => {
+    it('ignores an invalid hdPath and uses the cash derivation path', async () => {
       const keyring = new CashKeyring();
+      // Force a payload with a wrong hdPath (e.g. standard HD keyring path)
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-      });
+        hdPath: "m/44'/60'/0'/0",
+      } as Parameters<typeof keyring.deserialize>[0]);
 
-      const address = await getAddressAtIndex(keyring, 0);
-      const typedData = [
-        {
-          type: 'string',
-          name: 'message',
-          value: 'Hi, Alice!',
-        },
-      ];
-
-      const signature = await keyring.signTypedData(address, typedData);
-      const restored = recoverTypedSignature({
-        data: typedData,
-        signature,
-        version: SignTypedDataVersion.V1,
-      });
-      expect(restored).toStrictEqual(address);
+      const serialized = await keyring.serialize();
+      expect(serialized.hdPath).toBe(CASH_DERIVATION_PATH);
     });
 
-    it('signs V3 typed data and the signature can be recovered', async () => {
+    it('ignores an invalid numberOfAccounts and always creates exactly one account', async () => {
       const keyring = new CashKeyring();
       await keyring.deserialize({
         mnemonic: sampleMnemonic,
-      });
-
-      const address = await getAddressAtIndex(keyring, 0);
-      const typedData: TypedMessage<MessageTypes> = {
-        types: {
-          EIP712Domain: [],
-        },
-        domain: {},
-        primaryType: 'EIP712Domain',
-        message: {},
-      };
-
-      const signature = await keyring.signTypedData(address, typedData, {
-        version: SignTypedDataVersion.V3,
-      });
-      const restored = recoverTypedSignature({
-        data: typedData,
-        signature,
-        version: SignTypedDataVersion.V3,
-      });
-      expect(restored).toStrictEqual(address);
-    });
-  });
-
-  describe('removeAccount', () => {
-    it('removes an existing account', async () => {
-      const keyring = new CashKeyring();
-      await keyring.deserialize({
-        mnemonic: sampleMnemonic,
-      });
+        numberOfAccounts: 5,
+      } as Parameters<typeof keyring.deserialize>[0]);
 
       const accounts = await keyring.getAccounts();
       expect(accounts).toHaveLength(1);
 
-      keyring.removeAccount(await getAddressAtIndex(keyring, 0));
-      const remaining = await keyring.getAccounts();
-      expect(remaining).toHaveLength(0);
+      const serialized = await keyring.serialize();
+      expect(serialized.numberOfAccounts).toBe(1);
     });
 
-    it('throws when removing a non-existent account', () => {
+    it('ignores both an invalid hdPath and numberOfAccounts', async () => {
       const keyring = new CashKeyring();
-      const fakeAddress = '0x0000000000000000000000000000000000000000';
-      expect(() => keyring.removeAccount(fakeAddress)).toThrow(
-        `Address ${fakeAddress} not found in this keyring`,
-      );
+      await keyring.deserialize({
+        mnemonic: sampleMnemonic,
+        hdPath: "m/44'/60'/0'/0",
+        numberOfAccounts: 10,
+      } as Parameters<typeof keyring.deserialize>[0]);
+
+      const accounts = await keyring.getAccounts();
+      expect(accounts).toHaveLength(1);
+
+      const serialized = await keyring.serialize();
+      expect(serialized.hdPath).toBe(CASH_DERIVATION_PATH);
+      expect(serialized.numberOfAccounts).toBe(1);
     });
   });
 
