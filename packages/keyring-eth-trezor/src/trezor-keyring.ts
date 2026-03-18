@@ -511,7 +511,7 @@ export class TrezorKeyring implements Keyring {
       });
 
       if (!response.success) {
-        throw new Error(response.payload?.error || 'Unknown error');
+        throw new Error(response.payload?.error ?? 'Unknown error');
       }
 
       if (getChecksumAddress(address) !== response.payload.address) {
