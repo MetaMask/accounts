@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `TREZOR_ERROR_MAPPINGS` static error data for Trezor hardware wallets ([#471](https://github.com/MetaMask/accounts/pull/471))
+
 ## [0.5.0]
 
 ### Added
