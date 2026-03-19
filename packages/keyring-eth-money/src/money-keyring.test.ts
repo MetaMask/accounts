@@ -12,7 +12,7 @@ const sampleMnemonic =
 const mnemonicToBytes = (mnemonic: string): number[] =>
   Array.from(new TextEncoder().encode(mnemonic));
 
-const sampleState = {
+const mockState = {
   mnemonic: mnemonicToBytes(sampleMnemonic),
   numberOfAccounts: 1,
   hdPath: MONEY_DERIVATION_PATH,
@@ -94,7 +94,7 @@ describe('MoneyKeyring', () => {
   describe('deserialize', () => {
     it('derives accounts using the money account hd path', async () => {
       const keyring = new MoneyKeyring();
-      await keyring.deserialize(sampleState);
+      await keyring.deserialize(mockState);
 
       const serialized = await keyring.serialize();
       expect(serialized.mnemonic).toStrictEqual(
@@ -123,7 +123,7 @@ describe('MoneyKeyring', () => {
       const { HdKeyring } = await import('@metamask/eth-hd-keyring');
 
       const moneyKeyring = new MoneyKeyring();
-      await moneyKeyring.deserialize(sampleState);
+      await moneyKeyring.deserialize(mockState);
       const moneyAccounts = await moneyKeyring.getAccounts();
 
       const hdKeyring = new HdKeyring();
@@ -140,7 +140,7 @@ describe('MoneyKeyring', () => {
       const keyring = new MoneyKeyring();
       await expect(
         keyring.deserialize({
-          ...sampleState,
+          ...mockState,
           numberOfAccounts: 5,
         } as unknown as MoneyKeyringSerializedState),
       ).rejects.toThrow('At path: numberOfAccounts');
@@ -150,7 +150,7 @@ describe('MoneyKeyring', () => {
       const keyring = new MoneyKeyring();
       await expect(
         keyring.deserialize({
-          ...sampleState,
+          ...mockState,
           mnemonic: sampleMnemonic,
         } as unknown as MoneyKeyringSerializedState),
       ).rejects.toThrow('At path: mnemonic');
@@ -160,7 +160,7 @@ describe('MoneyKeyring', () => {
       const keyring = new MoneyKeyring();
       await expect(
         keyring.deserialize({
-          ...sampleState,
+          ...mockState,
           hdPath: "m/44'/60'/0'/0",
         } as unknown as MoneyKeyringSerializedState),
       ).rejects.toThrow('At path: hdPath');
@@ -170,7 +170,7 @@ describe('MoneyKeyring', () => {
   describe('addAccounts', () => {
     it('throws if an account already exists', async () => {
       const keyring = new MoneyKeyring();
-      await keyring.deserialize(sampleState);
+      await keyring.deserialize(mockState);
 
       await expect(keyring.addAccounts()).rejects.toThrow(
         'Money keyring already has an account',
@@ -179,7 +179,7 @@ describe('MoneyKeyring', () => {
 
     it('adds an account when none exist', async () => {
       const keyring = new MoneyKeyring();
-      await keyring.deserialize(sampleState);
+      await keyring.deserialize(mockState);
 
       keyring.removeAccount(await getAddressAtIndex(keyring, 0));
       const empty = await keyring.getAccounts();
@@ -192,7 +192,7 @@ describe('MoneyKeyring', () => {
 
     it('re-adds the same account after removal', async () => {
       const keyring = new MoneyKeyring();
-      await keyring.deserialize(sampleState);
+      await keyring.deserialize(mockState);
 
       const originalAddress = await getAddressAtIndex(keyring, 0);
 
@@ -209,7 +209,7 @@ describe('MoneyKeyring', () => {
   describe('serialize / deserialize round-trip', () => {
     it('serializes what it deserializes', async () => {
       const keyring = new MoneyKeyring();
-      await keyring.deserialize(sampleState);
+      await keyring.deserialize(mockState);
 
       const accounts = await keyring.getAccounts();
       const serialized = await keyring.serialize();
