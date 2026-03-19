@@ -5,6 +5,9 @@ import { MONEY_DERIVATION_PATH, MoneyKeyring } from './money-keyring';
 const sampleMnemonic =
   'finish oppose decorate face calm tragic certain desk hour urge dinosaur mango';
 
+const mnemonicToBytes = (mnemonic: string): number[] =>
+  Array.from(new TextEncoder().encode(mnemonic));
+
 const getAddressAtIndex = async (
   keyring: MoneyKeyring,
   index: number,
@@ -56,7 +59,11 @@ describe('MoneyKeyring', () => {
       'derives the expected address for a given SRP',
       async ({ mnemonic, expectedAddress }) => {
         const keyring = new MoneyKeyring();
-        await keyring.deserialize({ mnemonic });
+        await keyring.deserialize({
+          mnemonic: mnemonicToBytes(mnemonic),
+          numberOfAccounts: 1,
+          hdPath: MONEY_DERIVATION_PATH,
+        });
 
         const address = await getAddressAtIndex(keyring, 0);
         expect(address).toBe(expectedAddress);
@@ -68,10 +75,16 @@ describe('MoneyKeyring', () => {
     it('derives accounts using the money account hd path', async () => {
       const keyring = new MoneyKeyring();
       await keyring.deserialize({
-        mnemonic: sampleMnemonic,
+        mnemonic: mnemonicToBytes(sampleMnemonic),
+        numberOfAccounts: 1,
+        hdPath: MONEY_DERIVATION_PATH,
       });
 
       const serialized = await keyring.serialize();
+      expect(serialized.mnemonic).toStrictEqual(
+        mnemonicToBytes(sampleMnemonic),
+      );
+      expect(serialized.numberOfAccounts).toBe(1);
       expect(serialized.hdPath).toBe(MONEY_DERIVATION_PATH);
     });
 
@@ -80,7 +93,9 @@ describe('MoneyKeyring', () => {
 
       const moneyKeyring = new MoneyKeyring();
       await moneyKeyring.deserialize({
-        mnemonic: sampleMnemonic,
+        mnemonic: mnemonicToBytes(sampleMnemonic),
+        numberOfAccounts: 1,
+        hdPath: MONEY_DERIVATION_PATH,
       });
       const moneyAccounts = await moneyKeyring.getAccounts();
 
@@ -99,7 +114,9 @@ describe('MoneyKeyring', () => {
     it('throws if an account already exists', async () => {
       const keyring = new MoneyKeyring();
       await keyring.deserialize({
-        mnemonic: sampleMnemonic,
+        mnemonic: mnemonicToBytes(sampleMnemonic),
+        numberOfAccounts: 1,
+        hdPath: MONEY_DERIVATION_PATH,
       });
 
       await expect(keyring.addAccounts()).rejects.toThrow(
@@ -110,7 +127,9 @@ describe('MoneyKeyring', () => {
     it('adds an account when none exist', async () => {
       const keyring = new MoneyKeyring();
       await keyring.deserialize({
-        mnemonic: sampleMnemonic,
+        mnemonic: mnemonicToBytes(sampleMnemonic),
+        numberOfAccounts: 1,
+        hdPath: MONEY_DERIVATION_PATH,
       });
 
       keyring.removeAccount(await getAddressAtIndex(keyring, 0));
@@ -125,7 +144,9 @@ describe('MoneyKeyring', () => {
     it('re-adds the same account after removal', async () => {
       const keyring = new MoneyKeyring();
       await keyring.deserialize({
-        mnemonic: sampleMnemonic,
+        mnemonic: mnemonicToBytes(sampleMnemonic),
+        numberOfAccounts: 1,
+        hdPath: MONEY_DERIVATION_PATH,
       });
 
       const originalAddress = await getAddressAtIndex(keyring, 0);
@@ -140,47 +161,65 @@ describe('MoneyKeyring', () => {
     });
   });
 
+  describe('serialize before deserialize', () => {
+    it('serializes a freshly constructed keyring with 0 accounts', async () => {
+      const keyring = new MoneyKeyring();
+      const serialized = await keyring.serialize();
+      expect(serialized.mnemonic).toStrictEqual([]);
+      expect(serialized.numberOfAccounts).toBe(0);
+      expect(serialized.hdPath).toBe(MONEY_DERIVATION_PATH);
+    });
+  });
+
+  describe('deserialize with numberOfAccounts: 0', () => {
+    it('deserializes with no accounts', async () => {
+      const keyring = new MoneyKeyring();
+      await keyring.deserialize({
+        mnemonic: mnemonicToBytes(sampleMnemonic),
+        numberOfAccounts: 0,
+        hdPath: MONEY_DERIVATION_PATH,
+      });
+
+      const accounts = await keyring.getAccounts();
+      expect(accounts).toHaveLength(0);
+
+      const serialized = await keyring.serialize();
+      expect(serialized.numberOfAccounts).toBe(0);
+    });
+  });
+
   describe('deserialize with invalid payload', () => {
-    it('ignores an invalid hdPath and uses the money derivation path', async () => {
+    it('rejects an invalid numberOfAccounts', async () => {
       const keyring = new MoneyKeyring();
-      // Force a payload with a wrong hdPath (e.g. standard HD keyring path)
-      await keyring.deserialize({
-        mnemonic: sampleMnemonic,
-        hdPath: "m/44'/60'/0'/0",
-      } as Parameters<typeof keyring.deserialize>[0]);
-
-      const serialized = await keyring.serialize();
-      expect(serialized.hdPath).toBe(MONEY_DERIVATION_PATH);
+      await expect(
+        keyring.deserialize({
+          mnemonic: mnemonicToBytes(sampleMnemonic),
+          numberOfAccounts: 5,
+          hdPath: MONEY_DERIVATION_PATH,
+        } as unknown as Parameters<typeof keyring.deserialize>[0]),
+      ).rejects.toThrow();
     });
 
-    it('ignores an invalid numberOfAccounts and always creates exactly one account', async () => {
+    it('rejects a string mnemonic', async () => {
       const keyring = new MoneyKeyring();
-      await keyring.deserialize({
-        mnemonic: sampleMnemonic,
-        numberOfAccounts: 5,
-      } as Parameters<typeof keyring.deserialize>[0]);
-
-      const accounts = await keyring.getAccounts();
-      expect(accounts).toHaveLength(1);
-
-      const serialized = await keyring.serialize();
-      expect(serialized.numberOfAccounts).toBe(1);
+      await expect(
+        keyring.deserialize({
+          mnemonic: sampleMnemonic,
+          numberOfAccounts: 1,
+          hdPath: MONEY_DERIVATION_PATH,
+        } as unknown as Parameters<typeof keyring.deserialize>[0]),
+      ).rejects.toThrow();
     });
 
-    it('ignores both an invalid hdPath and numberOfAccounts', async () => {
+    it('rejects an invalid hdPath', async () => {
       const keyring = new MoneyKeyring();
-      await keyring.deserialize({
-        mnemonic: sampleMnemonic,
-        hdPath: "m/44'/60'/0'/0",
-        numberOfAccounts: 10,
-      } as Parameters<typeof keyring.deserialize>[0]);
-
-      const accounts = await keyring.getAccounts();
-      expect(accounts).toHaveLength(1);
-
-      const serialized = await keyring.serialize();
-      expect(serialized.hdPath).toBe(MONEY_DERIVATION_PATH);
-      expect(serialized.numberOfAccounts).toBe(1);
+      await expect(
+        keyring.deserialize({
+          mnemonic: mnemonicToBytes(sampleMnemonic),
+          numberOfAccounts: 1,
+          hdPath: "m/44'/60'/0'/0",
+        } as unknown as Parameters<typeof keyring.deserialize>[0]),
+      ).rejects.toThrow();
     });
   });
 
@@ -188,23 +227,24 @@ describe('MoneyKeyring', () => {
     it('serializes what it deserializes', async () => {
       const keyring = new MoneyKeyring();
       await keyring.deserialize({
-        mnemonic: sampleMnemonic,
+        mnemonic: mnemonicToBytes(sampleMnemonic),
+        numberOfAccounts: 1,
+        hdPath: MONEY_DERIVATION_PATH,
       });
 
       const accounts = await keyring.getAccounts();
       const serialized = await keyring.serialize();
 
       const restored = new MoneyKeyring();
-      await restored.deserialize({
-        mnemonic: serialized.mnemonic,
-      });
+      await restored.deserialize(serialized);
 
       const restoredAccounts = await restored.getAccounts();
       expect(restoredAccounts).toStrictEqual(accounts);
 
       const restoredSerialized = await restored.serialize();
-      expect(restoredSerialized.hdPath).toBe(MONEY_DERIVATION_PATH);
       expect(restoredSerialized.numberOfAccounts).toBe(1);
+      expect(restoredSerialized.hdPath).toBe(MONEY_DERIVATION_PATH);
+      expect(restoredSerialized.mnemonic).toStrictEqual(serialized.mnemonic);
     });
   });
 });
