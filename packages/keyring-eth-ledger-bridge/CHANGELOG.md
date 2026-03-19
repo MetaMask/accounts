@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Set Ledger clear-sign `nft` from transaction calldata so ERC-20 `approve` and other shared selectors no longer show NFT allowance prompts ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Export `shouldUseNftLedgerClearSign` for reuse.
+  - Extend `LedgerSignTransactionParams` with optional `nft` (forwarded to iframe bridges).
+
 ## [11.3.0]
 
 ### Changed

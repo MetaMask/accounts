@@ -7,7 +7,16 @@ export type GetPublicKeyResponse = Awaited<
   ReturnType<LedgerHwAppEth['getAddress']>
 >;
 
-export type LedgerSignTransactionParams = { hdPath: string; tx: string };
+export type LedgerSignTransactionParams = {
+  hdPath: string;
+  tx: string;
+  /**
+   * Ledger clear-sign NFT resolution. When omitted, implementations should
+   * derive a safe default from the serialized transaction (see
+   * `shouldUseNftLedgerClearSign`).
+   */
+  nft?: boolean;
+};
 export type LedgerSignTransactionResponse = Awaited<
   ReturnType<LedgerHwAppEth['signTransaction']>
 >;
