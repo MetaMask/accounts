@@ -471,14 +471,14 @@ export class TrezorKeyring implements Keyring {
     data: TypedMessage<Types>,
     options?: Options,
   ): Promise<string> {
+    const { version } = options ?? { version: SignTypedDataVersion.V4 };
+
+    const dataWithHashes = transformTypedData(
+      data,
+      version === SignTypedDataVersion.V4,
+    );
+
     try {
-      const { version } = options ?? { version: SignTypedDataVersion.V4 };
-
-      const dataWithHashes = transformTypedData(
-        data,
-        version === SignTypedDataVersion.V4,
-      );
-
       // set default values for signTypedData
       // Trezor is stricter than @metamask/eth-sig-util in what it accepts
       const {

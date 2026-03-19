@@ -627,6 +627,12 @@ describe('TrezorKeyring', function () {
 
   describe('signTypedData', function () {
     it('should throw an error on signTypedData_v3 because it is not supported', async function () {
+      const ethereumSignTypedDataStub = sinon.stub().resolves({
+        success: true,
+        payload: { signature: '0x00', address: fakeAccounts[0] },
+      });
+      bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
+
       let error: unknown = null;
       try {
         await keyring.signTypedData(
@@ -646,9 +652,11 @@ describe('TrezorKeyring', function () {
       }
 
       expect(error).toBeInstanceOf(Error);
+      expect(error).not.toBeInstanceOf(HardwareWalletError);
       expect((error as Error).toString()).toContain(
         'Only version 4 of typed data signing is supported',
       );
+      expect(ethereumSignTypedDataStub.called).toBe(false);
     });
 
     it('should call TrezorConnect.ethereumSignTypedData', async function () {
