@@ -6,14 +6,14 @@ import {
   type MoneyKeyringSerializedState,
 } from './money-keyring';
 
-const sampleMnemonic =
+const mockMnemonic =
   'finish oppose decorate face calm tragic certain desk hour urge dinosaur mango';
 
 const mnemonicToBytes = (mnemonic: string): number[] =>
   Array.from(new TextEncoder().encode(mnemonic));
 
 const mockState = {
-  mnemonic: mnemonicToBytes(sampleMnemonic),
+  mnemonic: mnemonicToBytes(mockMnemonic),
   numberOfAccounts: 1,
   hdPath: MONEY_DERIVATION_PATH,
 } as const;
@@ -52,7 +52,7 @@ describe('MoneyKeyring', () => {
   describe('address derivation is deterministic', () => {
     it.each([
       {
-        mnemonic: sampleMnemonic,
+        mnemonic: mockMnemonic,
         expectedAddress: '0x13203ef2a0e1fb26bfddcaf86a4a7d08a52d78aa',
       },
       {
@@ -97,9 +97,7 @@ describe('MoneyKeyring', () => {
       await keyring.deserialize(mockState);
 
       const serialized = await keyring.serialize();
-      expect(serialized.mnemonic).toStrictEqual(
-        mnemonicToBytes(sampleMnemonic),
-      );
+      expect(serialized.mnemonic).toStrictEqual(mnemonicToBytes(mockMnemonic));
       expect(serialized.numberOfAccounts).toBe(1);
       expect(serialized.hdPath).toBe(MONEY_DERIVATION_PATH);
     });
@@ -107,7 +105,7 @@ describe('MoneyKeyring', () => {
     it('deserializes with numberOfAccounts: 0', async () => {
       const keyring = new MoneyKeyring();
       await keyring.deserialize({
-        mnemonic: mnemonicToBytes(sampleMnemonic),
+        mnemonic: mnemonicToBytes(mockMnemonic),
         numberOfAccounts: 0,
         hdPath: MONEY_DERIVATION_PATH,
       });
@@ -128,7 +126,7 @@ describe('MoneyKeyring', () => {
 
       const hdKeyring = new HdKeyring();
       await hdKeyring.deserialize({
-        mnemonic: sampleMnemonic,
+        mnemonic: mockMnemonic,
         numberOfAccounts: 1,
       });
       const hdAccounts = await hdKeyring.getAccounts();
@@ -151,7 +149,7 @@ describe('MoneyKeyring', () => {
       await expect(
         keyring.deserialize({
           ...mockState,
-          mnemonic: sampleMnemonic,
+          mnemonic: mockMnemonic,
         } as unknown as MoneyKeyringSerializedState),
       ).rejects.toThrow('At path: mnemonic');
     });
