@@ -57,9 +57,11 @@ export class MoneyKeyring extends HdKeyring {
     return state;
   }
 
-  override async deserialize(opts: MoneyKeyringSerializedState): Promise<void> {
-    assert(opts, MoneyKeyringSerializedStateStruct);
-    return super.deserialize(opts);
+  override async deserialize(
+    state: MoneyKeyringSerializedState,
+  ): Promise<void> {
+    assert(state, MoneyKeyringSerializedStateStruct);
+    return super.deserialize(state);
   }
 
   override async addAccounts(): Promise<Hex[]> {
