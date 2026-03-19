@@ -1,7 +1,7 @@
 {
-  "name": "@metamask/eth-cash-keyring",
+  "name": "@metamask/eth-money-keyring",
   "version": "0.0.0",
-  "description": "A cash account keyring that extends the HD keyring with a different keyring type and derivation path.",
+  "description": "A money account keyring that extends the HD keyring with a different keyring type and derivation path.",
   "keywords": [
     "ethereum",
     "keyring"
@@ -36,8 +36,8 @@
     "build": "ts-bridge --project tsconfig.build.json --no-references",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-cash-keyring",
-    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-cash-keyring",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-money-keyring",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-money-keyring",
     "publish:preview": "yarn npm publish --tag preview",
     "test": "jest",
     "test:clean": "jest --clearCache"
