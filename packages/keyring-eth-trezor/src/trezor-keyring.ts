@@ -93,6 +93,16 @@ function isOldStyleEthereumjsTx(
   return typeof (tx as OldEthJsTransaction).getChainId === 'function';
 }
 
+function isAddressValidationError(error: unknown): error is Error {
+  return (
+    error instanceof Error &&
+    [
+      "signature doesn't match the right address",
+      'signature doesnt match the right address',
+    ].includes(error.message)
+  );
+}
+
 export class TrezorKeyring implements Keyring {
   static type: string = keyringType;
 
@@ -404,10 +414,7 @@ export class TrezorKeyring implements Keyring {
       throw new Error(response.payload?.error ?? 'Unknown error');
     } catch (error) {
       // Re-throw address validation errors as plain Errors, not hardware errors
-      if (
-        error instanceof Error &&
-        error.message === "signature doesn't match the right address"
-      ) {
+      if (isAddressValidationError(error)) {
         throw error;
       }
       return handleTrezorTransportError(
@@ -448,10 +455,7 @@ export class TrezorKeyring implements Keyring {
       return `0x${response.payload.signature}`;
     } catch (error) {
       // Re-throw address validation errors as plain Errors, not hardware errors
-      if (
-        error instanceof Error &&
-        error.message === 'signature doesnt match the right address'
-      ) {
+      if (isAddressValidationError(error)) {
         throw error;
       }
       return handleTrezorTransportError(
@@ -520,10 +524,7 @@ export class TrezorKeyring implements Keyring {
       return response.payload.signature;
     } catch (error) {
       // Re-throw address validation errors as plain Errors, not hardware errors
-      if (
-        error instanceof Error &&
-        error.message === 'signature doesnt match the right address'
-      ) {
+      if (isAddressValidationError(error)) {
         throw error;
       }
       return handleTrezorTransportError(
