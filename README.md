@@ -15,6 +15,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/account-api`](packages/account-api)
 - [`@metamask/eth-hd-keyring`](packages/keyring-eth-hd)
 - [`@metamask/eth-ledger-bridge-keyring`](packages/keyring-eth-ledger-bridge)
+- [`@metamask/eth-money-keyring`](packages/keyring-eth-money)
 - [`@metamask/eth-qr-keyring`](packages/keyring-eth-qr)
 - [`@metamask/eth-simple-keyring`](packages/keyring-eth-simple)
 - [`@metamask/eth-snap-keyring`](packages/keyring-snap-bridge)
@@ -42,6 +43,7 @@ linkStyle default opacity:0.5
   keyring_api(["@metamask/keyring-api"]);
   eth_hd_keyring(["@metamask/eth-hd-keyring"]);
   eth_ledger_bridge_keyring(["@metamask/eth-ledger-bridge-keyring"]);
+  eth_money_keyring(["@metamask/eth-money-keyring"]);
   eth_qr_keyring(["@metamask/eth-qr-keyring"]);
   eth_simple_keyring(["@metamask/eth-simple-keyring"]);
   eth_trezor_keyring(["@metamask/eth-trezor-keyring"]);
@@ -61,6 +63,7 @@ linkStyle default opacity:0.5
   eth_ledger_bridge_keyring --> keyring_api;
   eth_ledger_bridge_keyring --> keyring_utils;
   eth_ledger_bridge_keyring --> account_api;
+  eth_money_keyring --> keyring_eth_hd;
   eth_qr_keyring --> keyring_api;
   eth_qr_keyring --> keyring_utils;
   eth_qr_keyring --> account_api;
