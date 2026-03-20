@@ -69,7 +69,7 @@ export enum KeyringRpcMethod {
  * @param method - Method to check.
  * @returns Whether the method is a keyring RPC method.
  */
-export function isKeyringRpcMethod(method: string): boolean {
+export function isKeyringRpcMethod(method: string): method is KeyringRpcMethod {
   return Object.values(KeyringRpcMethod).includes(method as KeyringRpcMethod);
 }
 
