@@ -5,12 +5,12 @@ import type { EthKeyring } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import { add0x, type Hex, type Json } from '@metamask/utils';
 
-import type { KeyringAccount } from '../../api/account';
-import type { KeyringRequest } from '../../api/request';
+import type { KeyringAccount } from '@metamask/keyring-api';
+import type { KeyringRequest } from '@metamask/keyring-api';
 import {
   KeyringWrapper,
   type KeyringWrapperOptions,
-} from '../../api/v2/wrapper/keyring-wrapper';
+} from '../keyring-wrapper';
 import {
   EthDecryptParamsStruct,
   EthGetAppKeyAddressParamsStruct,
@@ -21,8 +21,8 @@ import {
   EthSignTransactionParamsStruct,
   EthSignTypedDataParamsStruct,
   EthSignTypedDataV1ParamsStruct,
-} from '../rpc';
-import { EthMethod } from '../types';
+} from '@metamask/keyring-api';
+import { EthMethod } from '@metamask/keyring-api';
 
 /**
  * Additional Ethereum methods supported by Eth keyrings that are not in the standard EthMethod enum.

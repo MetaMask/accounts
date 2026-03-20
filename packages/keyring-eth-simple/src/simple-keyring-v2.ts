@@ -1,8 +1,10 @@
 import {
-  type CreateAccountOptions,
-  EthAccountType,
   EthKeyringMethod,
   EthKeyringWrapper,
+} from '@metamask/keyring-sdk';
+import {
+  type CreateAccountOptions,
+  EthAccountType,
   EthMethod,
   EthScope,
   type ExportAccountOptions,

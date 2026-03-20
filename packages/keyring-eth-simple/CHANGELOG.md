@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Wraps legacy `SimpleKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
   - Extends `EthKeyringWrapper` for common Ethereum logic.
 
+### Changed
+
+- Import `EthKeyringWrapper` and `EthKeyringMethod` from `@metamask/keyring-sdk` instead of `@metamask/keyring-api`
+
 ## [11.0.0]
 
 ### Changed

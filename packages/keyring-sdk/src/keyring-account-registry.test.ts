@@ -1,7 +1,7 @@
 import type { AccountId } from '@metamask/keyring-utils';
 
 import { KeyringAccountRegistry } from './keyring-account-registry';
-import type { KeyringAccount } from '../../account';
+import type { KeyringAccount } from '@metamask/keyring-api';
 
 /**
  * Creates a mock KeyringAccount for testing.

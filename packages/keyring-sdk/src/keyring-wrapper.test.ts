@@ -3,9 +3,9 @@ import type { Hex, Json } from '@metamask/utils';
 import { v4 as uuidv4 } from 'uuid';
 
 import { KeyringWrapper } from './keyring-wrapper';
-import type { KeyringAccount } from '../../account';
-import type { KeyringCapabilities } from '../keyring-capabilities';
-import { KeyringType } from '../keyring-type';
+import type { KeyringAccount } from '@metamask/keyring-api';
+import type { KeyringCapabilities } from '@metamask/keyring-api';
+import { KeyringType } from '@metamask/keyring-api';
 
 class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
   async getAccounts(): Promise<KeyringAccount[]> {

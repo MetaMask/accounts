@@ -4,22 +4,18 @@
     "baseUrl": "./",
     "outDir": "dist",
     "rootDir": "src",
-    "target": "es2020"
+    // FIXME: We should investigate how to get rid of this flag, as this will turn off type
+    // checking for all *.d.ts files
+    "skipLibCheck": true
   },
   "references": [
-    {
-      "path": "../keyring-utils/tsconfig.build.json"
-    },
     {
       "path": "../keyring-api/tsconfig.build.json"
     },
     {
-      "path": "../keyring-sdk/tsconfig.build.json"
-    },
-    {
-      "path": "../account-api/tsconfig.build.json"
+      "path": "../keyring-utils/tsconfig.build.json"
     }
   ],
   "include": ["./src/**/*.ts"],
-  "exclude": ["./src/**/*.test.ts", "./src/sample.ts"]
+  "exclude": ["./src/**/*.test.ts", "./src/**/*.test-d.ts"]
 }

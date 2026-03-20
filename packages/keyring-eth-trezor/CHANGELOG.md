@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Replace custom transport and user-action error handling with typed `HardwareWalletError` instances.
   - Move Trezor error mappings and utilities to `@metamask/hw-wallet-sdk` for reuse across packages.
 
+### Changed
+
+- Import `EthKeyringWrapper` from `@metamask/keyring-sdk` instead of `@metamask/keyring-api`
+
 ## [9.0.0]
 
 ### Changed

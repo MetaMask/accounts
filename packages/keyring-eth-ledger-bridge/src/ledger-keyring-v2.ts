@@ -1,8 +1,8 @@
 import type { Bip44Account } from '@metamask/account-api';
+import { EthKeyringWrapper } from '@metamask/keyring-sdk';
 import {
   type CreateAccountOptions,
   EthAccountType,
-  EthKeyringWrapper,
   EthMethod,
   EthScope,
   type KeyringAccount,

@@ -7,12 +7,12 @@ import type {
   CreateAccountOptions,
   ExportAccountOptions,
   ExportedAccount,
-} from '..';
-import type { KeyringAccount } from '../../account';
-import type { KeyringRequest } from '../../request';
-import type { KeyringV2 } from '../keyring';
-import type { KeyringCapabilities } from '../keyring-capabilities';
-import type { KeyringType } from '../keyring-type';
+} from '@metamask/keyring-api';
+import type { KeyringAccount } from '@metamask/keyring-api';
+import type { KeyringRequest } from '@metamask/keyring-api';
+import type { KeyringV2 } from '@metamask/keyring-api';
+import type { KeyringCapabilities } from '@metamask/keyring-api';
+import type { KeyringType } from '@metamask/keyring-api';
 
 /**
  * Basic options for constructing a {@link KeyringWrapper}.

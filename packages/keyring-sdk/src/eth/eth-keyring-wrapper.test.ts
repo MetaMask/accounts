@@ -4,13 +4,15 @@ import type { Keyring } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
 import { EthKeyringMethod, EthKeyringWrapper } from './eth-keyring-wrapper';
-import { EthAccountType } from '../../api/account';
-import type { KeyringAccount } from '../../api/account';
-import type { KeyringRequest } from '../../api/request';
-import type { CreateAccountOptions } from '../../api/v2/create-account';
-import { KeyringType } from '../../api/v2/keyring-type';
-import { EthScope } from '../constants';
-import { EthMethod } from '../types';
+import {
+  EthAccountType,
+  type KeyringAccount,
+  type KeyringRequest,
+  type CreateAccountOptions,
+  KeyringType,
+  EthScope,
+  EthMethod,
+} from '@metamask/keyring-api';
 
 const MOCK_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678' as Hex;
 const MOCK_ACCOUNT_ID = '00000000-0000-0000-0000-000000000001';
