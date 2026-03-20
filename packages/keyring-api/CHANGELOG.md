@@ -7,18 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **BREAKING:** Remove `EthKeyringWrapper`, `EthKeyringMethod`, `KeyringWrapper`, and `KeyringAccountRegistry` exports ([#478](https://github.com/MetaMask/accounts/pull/478))
+  - These have been moved to the new `@metamask/keyring-sdk` package.
+  - `@ethereumjs/tx`, `@metamask/eth-sig-util`, and `async-mutex` are no longer dependencies of this package.
+
 ## [21.6.0]
 
 ### Added
 
 - Add `KeyringType.Money` variant ([#472](https://github.com/MetaMask/accounts/pull/472))
 - Add optional `details` field to `Transaction` type ([#445](https://github.com/MetaMask/accounts/pull/445))
-
-### Removed
-
-- **BREAKING:** Remove `EthKeyringWrapper`, `EthKeyringMethod`, `KeyringWrapper`, and `KeyringAccountRegistry` exports
-  - These have been moved to the new `@metamask/keyring-sdk` package.
-  - `@ethereumjs/tx`, `@metamask/eth-sig-util`, and `async-mutex` are no longer dependencies of this package.
   - Add `SecurityAlertResponse` enum with values: `benign`, `warning`, `malicious`
   - Add optional `origin` field (string) to track transaction request source
   - Add optional `securityAlertResponse` field for Security Alert API responses

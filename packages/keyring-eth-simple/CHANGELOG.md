@@ -9,13 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `SimpleKeyringV2` class implementing `KeyringV2` interface ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410)), ([#413](https://github.com/MetaMask/accounts/pull/413)), ([#451](https://github.com/MetaMask/accounts/pull/451))
+- Add `SimpleKeyringV2` class implementing `KeyringV2` interface ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410)), ([#413](https://github.com/MetaMask/accounts/pull/413)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#478](https://github.com/MetaMask/accounts/pull/478))
+  - Add new dependency `@metamask/keyring-sdk`.
   - Wraps legacy `SimpleKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
   - Extends `EthKeyringWrapper` for common Ethereum logic.
-
-### Changed
-
-- Import `EthKeyringWrapper` and `EthKeyringMethod` from `@metamask/keyring-sdk` instead of `@metamask/keyring-api`
 
 ## [11.0.0]
 
