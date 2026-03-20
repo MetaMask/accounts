@@ -1,18 +1,18 @@
+import type {
+  CreateAccountOptions,
+  ExportAccountOptions,
+  ExportedAccount,
+  KeyringAccount,
+  KeyringRequest,
+  KeyringV2,
+  KeyringCapabilities,
+  KeyringType,
+} from '@metamask/keyring-api';
 import type { Keyring, AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
 import { KeyringAccountRegistry } from './keyring-account-registry';
-import type {
-  CreateAccountOptions,
-  ExportAccountOptions,
-  ExportedAccount,
-} from '@metamask/keyring-api';
-import type { KeyringAccount } from '@metamask/keyring-api';
-import type { KeyringRequest } from '@metamask/keyring-api';
-import type { KeyringV2 } from '@metamask/keyring-api';
-import type { KeyringCapabilities } from '@metamask/keyring-api';
-import type { KeyringType } from '@metamask/keyring-api';
 
 /**
  * Basic options for constructing a {@link KeyringWrapper}.

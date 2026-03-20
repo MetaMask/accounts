@@ -1,5 +1,4 @@
 import type { Bip44Account } from '@metamask/account-api';
-import { EthKeyringWrapper } from '@metamask/keyring-sdk';
 import {
   type CreateAccountOptions,
   EthAccountType,
@@ -12,6 +11,7 @@ import {
   KeyringType,
   type EntropySourceId,
 } from '@metamask/keyring-api';
+import { EthKeyringWrapper } from '@metamask/keyring-sdk';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 

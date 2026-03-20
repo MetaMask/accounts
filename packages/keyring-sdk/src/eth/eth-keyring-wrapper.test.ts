@@ -1,9 +1,5 @@
 import type { TypedTxData } from '@ethereumjs/tx';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
-import type { Keyring } from '@metamask/keyring-utils';
-import type { Hex, Json } from '@metamask/utils';
-
-import { EthKeyringMethod, EthKeyringWrapper } from './eth-keyring-wrapper';
 import {
   EthAccountType,
   type KeyringAccount,
@@ -13,6 +9,10 @@ import {
   EthScope,
   EthMethod,
 } from '@metamask/keyring-api';
+import type { Keyring } from '@metamask/keyring-utils';
+import type { Hex, Json } from '@metamask/utils';
+
+import { EthKeyringMethod, EthKeyringWrapper } from './eth-keyring-wrapper';
 
 const MOCK_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678' as Hex;
 const MOCK_ACCOUNT_ID = '00000000-0000-0000-0000-000000000001';

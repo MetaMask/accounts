@@ -1,11 +1,13 @@
+import type {
+  KeyringAccount,
+  KeyringCapabilities,
+} from '@metamask/keyring-api';
+import { KeyringType } from '@metamask/keyring-api';
 import type { Keyring, AccountId } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 import { v4 as uuidv4 } from 'uuid';
 
 import { KeyringWrapper } from './keyring-wrapper';
-import type { KeyringAccount } from '@metamask/keyring-api';
-import type { KeyringCapabilities } from '@metamask/keyring-api';
-import { KeyringType } from '@metamask/keyring-api';
 
 class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
   async getAccounts(): Promise<KeyringAccount[]> {
@@ -50,7 +52,7 @@ class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
     this.registry.delete(accountId);
   }
 
-  async submitRequest(): Promise<any> {
+  async submitRequest(): Promise<Json> {
     return {};
   }
 }
@@ -91,7 +93,7 @@ class NoCacheTestKeyringWrapper extends KeyringWrapper<TestKeyring> {
     // no-op
   }
 
-  async submitRequest(): Promise<any> {
+  async submitRequest(): Promise<Json> {
     return {};
   }
 }

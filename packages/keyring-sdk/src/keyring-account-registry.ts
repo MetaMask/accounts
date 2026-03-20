@@ -1,7 +1,6 @@
+import type { KeyringAccount } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import { v4 as uuidv4 } from 'uuid';
-
-import type { KeyringAccount } from '@metamask/keyring-api';
 
 /**
  * In-memory registry for KeyringAccount objects.
