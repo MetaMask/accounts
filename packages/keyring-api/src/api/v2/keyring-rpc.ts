@@ -27,21 +27,16 @@ export type KeyringRpcV2 = {
 };
 
 /**
- * Keyring RPC version identifier.
- */
-export const KEYRING_RPC_V2 = 'v2';
-const V2 = KEYRING_RPC_V2; // Local alias for easier usage.
-
-/**
  * Keyring RPC methods used by the API.
  */
 export enum KeyringRpcV2Method {
-  GetAccount = `${KeyringRpcMethod.GetAccount}.${V2}`,
-  GetAccounts = `keyring_getAccounts.${V2}`,
-  CreateAccounts = `keyring_createAccounts.${V2}`,
-  DeleteAccount = `${KeyringRpcMethod.DeleteAccount}.${V2}`,
-  ExportAccount = `${KeyringRpcMethod.ExportAccount}.${V2}`,
-  SubmitRequest = `${KeyringRpcMethod.SubmitRequest}.${V2}`,
+  GetAccounts = `keyring_getAccounts`,
+  CreateAccounts = `keyring_createAccounts`,
+  // Inherited from v1 (but method signatures may differ...):
+  GetAccount = `${KeyringRpcMethod.GetAccount}`,
+  DeleteAccount = `${KeyringRpcMethod.DeleteAccount}`,
+  ExportAccount = `${KeyringRpcMethod.ExportAccount}`,
+  SubmitRequest = `${KeyringRpcMethod.SubmitRequest}`,
 }
 
 /**
