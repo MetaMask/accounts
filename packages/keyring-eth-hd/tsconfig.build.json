@@ -15,6 +15,9 @@
       "path": "../keyring-api/tsconfig.build.json"
     },
     {
+      "path": "../keyring-sdk/tsconfig.build.json"
+    },
+    {
       "path": "../account-api/tsconfig.build.json"
     }
   ],

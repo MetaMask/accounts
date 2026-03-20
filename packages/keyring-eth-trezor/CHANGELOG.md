@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Add new dependency `@metamask/keyring-sdk` ([#478](https://github.com/MetaMask/accounts/pull/478))
+  - This package now contains the keyring v2 wrapper helpers (`EthKeyringWrapper`).
+
 ## [9.1.0]
 
 ### Added
