@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add initial implementation of `MoneyKeyring` ([#472](https://github.com/MetaMask/accounts/pull/472))
+- Add initial implementation of `MoneyKeyring` ([#472](https://github.com/MetaMask/accounts/pull/472), [#474](https://github.com/MetaMask/accounts/pull/474))
   - Extends `HdKeyring` from `@metamask/eth-hd-keyring`.
   - Uses keyring type `"Money Keyring"`.
   - Uses derivation path `"m/44'/4392018'/0'/0"`.
+  - Enforces that at most one Money account can exist.
 
 [Unreleased]: https://github.com/MetaMask/accounts/
