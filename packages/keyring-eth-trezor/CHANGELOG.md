@@ -21,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integrate `@metamask/hw-wallet-sdk` for standardized Trezor error handling ([#471](https://github.com/MetaMask/accounts/pull/471))
   - Replace custom transport and user-action error handling with typed `HardwareWalletError` instances.
   - Move Trezor error mappings and utilities to `@metamask/hw-wallet-sdk` for reuse across packages.
-- fix: silent `@typescript-eslint/no-redundant-type-constituents` + fix local linting issues ([#437](https://github.com/MetaMask/accounts/pull/437))
 
 ## [9.0.0]
 
