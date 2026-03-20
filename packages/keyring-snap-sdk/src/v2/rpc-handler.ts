@@ -15,6 +15,9 @@ import type { Json } from '@metamask/utils';
 
 import { MethodNotSupportedError } from '../rpc-handler';
 
+// ESLint does not like our custom error classes in this repo for some reason, they do extend Error, so unsure why.
+/* eslint-disable @typescript-eslint/only-throw-error */
+
 /**
  * Inner function that dispatches JSON-RPC request to the associated Keyring
  * methods.
