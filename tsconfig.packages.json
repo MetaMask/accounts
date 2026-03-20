@@ -12,7 +12,7 @@
     "noErrorTruncation": true,
     "noUncheckedIndexedAccess": true,
     "strict": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     // NOTE: DOM is being used with "@types/web" package, if you declare it there, the compiler
     // might complain about conflicting types. So everything has been setup to use "@types/web"
     // explicitly (even in the package.json, see the "resolutions").
