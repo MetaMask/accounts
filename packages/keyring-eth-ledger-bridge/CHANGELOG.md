@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.3.0]
+
+### Changed
+
+- Integrate `@metamask/hw-wallet-sdk` for standardized hardware wallet error handling ([#446](https://github.com/MetaMask/accounts/pull/446))
+  - Replace custom error handling with `HardwareWalletError` from the SDK.
+  - Use `LEDGER_ERROR_MAPPINGS` from the SDK for consistent error code mapping.
+  - Re-export `HardwareWalletError`, `ErrorCode`, `Severity`, `Category`, and error mappings for consumer convenience.
+  - Deprecate `LedgerStatusError` in favor of `HardwareWalletError`.
+  - Prefix Ledger transport error messages for compatibility.
+
+## [11.2.0]
+
+### Added
+
+- Add `LedgerKeyringV2` class implementing `KeyringV2` interface ([#416](https://github.com/MetaMask/accounts/pull/416)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#453](https://github.com/MetaMask/accounts/pull/453))
+  - Wraps legacy `LedgerKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
+  - Extends `EthKeyringWrapper` for common Ethereum logic.
+
+### Changed
+
+- Normalize signature `v` value from Ledger devices for proper recovery ([#449](https://github.com/MetaMask/accounts/pull/449))
+
 ## [11.1.2]
 
 ### Changed
@@ -342,7 +365,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.1.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.3.0...HEAD
+[11.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.2.0...@metamask/eth-ledger-bridge-keyring@11.3.0
+[11.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.1.2...@metamask/eth-ledger-bridge-keyring@11.2.0
 [11.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.1.1...@metamask/eth-ledger-bridge-keyring@11.1.2
 [11.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.1.0...@metamask/eth-ledger-bridge-keyring@11.1.1
 [11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.0.3...@metamask/eth-ledger-bridge-keyring@11.1.0

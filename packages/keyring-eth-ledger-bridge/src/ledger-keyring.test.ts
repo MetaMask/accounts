@@ -801,7 +801,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('Ledger: User rejected action on device');
       });
 
       it('throws blind signing error when TransportStatusError with code 27264 is thrown', async function () {
@@ -819,7 +819,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow('Ledger: Blind signing must be enabled');
+        ).rejects.toThrow('Ledger: Blind signing not supported');
       });
 
       it('re-throws TransportStatusError with unknown status code', async function () {
@@ -837,7 +837,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signTransaction(fakeAccounts[0], fakeTx),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
       });
     });
 
@@ -928,7 +928,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('Ledger: User rejected action on device');
       });
 
       it('re-throws TransportStatusError with unknown status code in signPersonalMessage', async function () {
@@ -945,7 +945,83 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signPersonalMessage(fakeAccounts[0], 'some message'),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
+      });
+
+      it('normalizes v=0 to v=27 for proper signature recovery', async function () {
+        await basicSetupToUnlockOneAccount();
+        jest
+          .spyOn(keyring.bridge, 'deviceSignMessage')
+          .mockResolvedValue({ v: 0, r: 'aabbccdd', s: '11223344' });
+
+        jest
+          .spyOn(sigUtil, 'recoverPersonalSignature')
+          .mockReturnValue(fakeAccounts[0]);
+
+        const result = await keyring.signPersonalMessage(
+          fakeAccounts[0],
+          'some message',
+        );
+
+        // v=0 should be normalized to v=27 (0x1b)
+        expect(result).toBe('0xaabbccdd112233441b');
+      });
+
+      it('normalizes v=1 to v=28 for proper signature recovery', async function () {
+        await basicSetupToUnlockOneAccount();
+        jest
+          .spyOn(keyring.bridge, 'deviceSignMessage')
+          .mockResolvedValue({ v: 1, r: 'aabbccdd', s: '11223344' });
+
+        jest
+          .spyOn(sigUtil, 'recoverPersonalSignature')
+          .mockReturnValue(fakeAccounts[0]);
+
+        const result = await keyring.signPersonalMessage(
+          fakeAccounts[0],
+          'some message',
+        );
+
+        // v=1 should be normalized to v=28 (0x1c)
+        expect(result).toBe('0xaabbccdd112233441c');
+      });
+
+      it('preserves v=27 unchanged', async function () {
+        await basicSetupToUnlockOneAccount();
+        jest
+          .spyOn(keyring.bridge, 'deviceSignMessage')
+          .mockResolvedValue({ v: 27, r: 'aabbccdd', s: '11223344' });
+
+        jest
+          .spyOn(sigUtil, 'recoverPersonalSignature')
+          .mockReturnValue(fakeAccounts[0]);
+
+        const result = await keyring.signPersonalMessage(
+          fakeAccounts[0],
+          'some message',
+        );
+
+        // v=27 should remain as 0x1b
+        expect(result).toBe('0xaabbccdd112233441b');
+      });
+
+      it('preserves v=28 unchanged', async function () {
+        await basicSetupToUnlockOneAccount();
+        jest
+          .spyOn(keyring.bridge, 'deviceSignMessage')
+          .mockResolvedValue({ v: 28, r: 'aabbccdd', s: '11223344' });
+
+        jest
+          .spyOn(sigUtil, 'recoverPersonalSignature')
+          .mockReturnValue(fakeAccounts[0]);
+
+        const result = await keyring.signPersonalMessage(
+          fakeAccounts[0],
+          'some message',
+        );
+
+        // v=28 should remain as 0x1c
+        expect(result).toBe('0xaabbccdd112233441c');
       });
     });
 
@@ -1279,7 +1355,9 @@ describe('LedgerKeyring', function () {
         ).rejects.toThrow('Ledger: Unknown error while signing message');
       });
 
-      it('returns signature when recoveryId length < 2', async function () {
+      it('normalizes v=0 to v=27 for proper signature recovery', async function () {
+        // Ledger may return v as 0 or 1 (modern format), but signature
+        // recovery expects 27 or 28 (legacy format)
         jest.spyOn(keyring.bridge, 'deviceSignTypedData').mockResolvedValue({
           v: 0,
           r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
@@ -1292,8 +1370,45 @@ describe('LedgerKeyring', function () {
             version: sigUtil.SignTypedDataVersion.V4,
           },
         );
+        // v=0 should be normalized to v=27 (0x1b)
         expect(result).toBe(
-          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e3200',
+          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e321b',
+        );
+      });
+
+      it('normalizes v=1 to v=28 for proper signature recovery', async function () {
+        jest.spyOn(keyring.bridge, 'deviceSignTypedData').mockResolvedValue({
+          v: 1,
+          r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+          s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+        });
+
+        // v=1 should be normalized to v=28 (0x1c), but this will fail
+        // address recovery since the correct v for this signature is 27
+        await expect(
+          keyring.signTypedData(fakeAccounts[15], fixtureData, {
+            version: sigUtil.SignTypedDataVersion.V4,
+          }),
+        ).rejects.toThrow(
+          'Ledger: The signature doesnt match the right address',
+        );
+      });
+
+      it('preserves v=27 unchanged', async function () {
+        jest.spyOn(keyring.bridge, 'deviceSignTypedData').mockResolvedValue({
+          v: 27,
+          r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+          s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+        });
+        const result = await keyring.signTypedData(
+          fakeAccounts[15],
+          fixtureData,
+          {
+            version: sigUtil.SignTypedDataVersion.V4,
+          },
+        );
+        expect(result).toBe(
+          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e321b',
         );
       });
 
@@ -1312,7 +1427,7 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow('Ledger: User rejected the transaction');
+        ).rejects.toThrow('Ledger: User rejected action on device');
       });
 
       it('throws blind signing error when TransportStatusError with code 27264 is thrown in signTypedData', async function () {
@@ -1330,7 +1445,7 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow('Ledger: Blind signing must be enabled');
+        ).rejects.toThrow('Ledger: Blind signing not supported');
       });
 
       it('re-throws TransportStatusError with unknown status code in signTypedData', async function () {
@@ -1348,7 +1463,94 @@ describe('LedgerKeyring', function () {
           keyring.signTypedData(fakeAccounts[15], fixtureData, {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
-        ).rejects.toThrow(transportError);
+        ).rejects.toThrow('Some other transport error');
+      });
+    });
+
+    describe('getAppNameAndVersion', function () {
+      it('returns app name and version from bridge', async function () {
+        const mockResponse = {
+          appName: 'Ethereum',
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(keyring.bridge, 'getAppNameAndVersion')
+          .mockResolvedValue(mockResponse);
+
+        const result = await keyring.getAppNameAndVersion();
+
+        expect(result).toStrictEqual(mockResponse);
+      });
+
+      it('handles TransportStatusError when getting app name and version', async function () {
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'getAppNameAndVersion')
+          .mockRejectedValue(transportError);
+
+        await expect(keyring.getAppNameAndVersion()).rejects.toThrow(
+          'Ledger: User rejected action on device',
+        );
+      });
+    });
+
+    describe('getAppConfiguration', function () {
+      it('returns app configuration from bridge', async function () {
+        const mockResponse = {
+          arbitraryDataEnabled: 1,
+          erc20ProvisioningNecessary: 0,
+          starkEnabled: 0,
+          starkv2Supported: 0,
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(keyring.bridge, 'getAppConfiguration')
+          .mockResolvedValue(mockResponse);
+
+        const result = await keyring.getAppConfiguration();
+
+        expect(result).toStrictEqual(mockResponse);
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        expect(keyring.bridge.getAppConfiguration).toHaveBeenCalledTimes(1);
+      });
+
+      it('returns app configuration with blind signing disabled', async function () {
+        const mockResponse = {
+          arbitraryDataEnabled: 0,
+          erc20ProvisioningNecessary: 1,
+          starkEnabled: 0,
+          starkv2Supported: 0,
+          version: '1.9.0',
+        };
+        jest
+          .spyOn(keyring.bridge, 'getAppConfiguration')
+          .mockResolvedValue(mockResponse);
+
+        const result = await keyring.getAppConfiguration();
+
+        expect(result).toStrictEqual(mockResponse);
+        expect(result.arbitraryDataEnabled).toBe(0);
+      });
+
+      it('handles TransportStatusError when getting app configuration', async function () {
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'getAppConfiguration')
+          .mockRejectedValue(transportError);
+
+        await expect(keyring.getAppConfiguration()).rejects.toThrow(
+          'Ledger: User rejected action on device',
+        );
       });
     });
 

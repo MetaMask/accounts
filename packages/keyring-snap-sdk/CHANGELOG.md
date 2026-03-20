@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [7.2.1]
+
+### Fixed
+
+- Throw RPC errors with proper error codes ([#469](https://github.com/MetaMask/accounts/pull/469))
+
+## [7.2.0]
+
+### Added
+
+- Add `keyring_createAccounts` method to RPC dispatcher ([#448](https://github.com/MetaMask/accounts/pull/448))
+  - This method SHOULD NOT use `notify:accountCreated`.
+  - Accounts returned by this method are will be automatically added to the internal keyring state.
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.2.0` to `^21.4.0` ([#460](https://github.com/MetaMask/accounts/pull/460))
+- Bump `@metamask/snaps-sdk` from `^9.0.0` to `^10.4.0` ([#422](https://github.com/MetaMask/accounts/pull/422), [#461](https://github.com/MetaMask/accounts/pull/461))
+
 ## [7.1.1]
 
 ### Changed
@@ -125,7 +144,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.2.1...HEAD
+[7.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.2.0...@metamask/keyring-snap-sdk@7.2.1
+[7.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.1.1...@metamask/keyring-snap-sdk@7.2.0
 [7.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.1.0...@metamask/keyring-snap-sdk@7.1.1
 [7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.0.0...@metamask/keyring-snap-sdk@7.1.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@6.0.0...@metamask/keyring-snap-sdk@7.0.0

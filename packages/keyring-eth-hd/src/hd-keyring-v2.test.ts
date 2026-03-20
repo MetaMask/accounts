@@ -66,8 +66,9 @@ describe('HdKeyringV2', () => {
       expect(wrapper.type).toBe(KeyringType.Hd);
       expect(wrapper.capabilities.scopes).toStrictEqual([EthScope.Eoa]);
       expect(wrapper.capabilities.bip44?.deriveIndex).toBe(true);
-      expect(wrapper.capabilities.bip44?.derivePath).toBe(false);
-      expect(wrapper.capabilities.bip44?.discover).toBe(false);
+      expect(wrapper.capabilities.bip44?.derivePath).toBeUndefined();
+      expect(wrapper.capabilities.bip44?.deriveIndexRange).toBeUndefined();
+      expect(wrapper.capabilities.bip44?.discover).toBeUndefined();
     });
   });
 
@@ -906,7 +907,7 @@ describe('HdKeyringV2', () => {
         const request = createMockRequest(
           accountId,
           'eth_getEncryptionPublicKey',
-          [],
+          ['0x0000000000000000000000000000000000000000'],
         );
 
         const result = await wrapper.submitRequest(request);
@@ -920,7 +921,7 @@ describe('HdKeyringV2', () => {
         const pubKeyRequest = createMockRequest(
           accountId,
           'eth_getEncryptionPublicKey',
-          [],
+          ['0x0000000000000000000000000000000000000000', {}],
         );
 
         const pubKey = await wrapper.submitRequest(pubKeyRequest);

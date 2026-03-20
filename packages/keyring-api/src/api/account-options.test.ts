@@ -1,11 +1,14 @@
 import { assert } from '@metamask/superstruct';
 
-import { KeyringAccountOptionsStruct } from './account-options';
+import {
+  KeyringAccountEntropyTypeOption,
+  KeyringAccountOptionsStruct,
+} from './account-options';
 
 describe('api', () => {
   describe('KeyringAccountOptionsStruct', () => {
     const baseEntropyMnemonicOptions = {
-      type: 'mnemonic',
+      type: KeyringAccountEntropyTypeOption.Mnemonic,
       id: '01K0BX6VDR5DPDPGGNA8PZVBVB',
       derivationPath: "m/44'/60'/0'/0/0",
     };
@@ -14,9 +17,22 @@ describe('api', () => {
       {},
       { exportable: true },
       { exportable: false },
-      { entropy: { type: 'private-key' } },
-      { entropy: { type: 'private-key' }, exportable: true },
-      { entropy: { type: 'private-key' }, exportable: false },
+      { entropy: { type: KeyringAccountEntropyTypeOption.PrivateKey } },
+      {
+        entropy: { type: KeyringAccountEntropyTypeOption.PrivateKey },
+        exportable: true,
+      },
+      {
+        entropy: { type: KeyringAccountEntropyTypeOption.PrivateKey },
+        exportable: false,
+      },
+      {
+        entropy: { type: KeyringAccountEntropyTypeOption.Custom },
+      },
+      {
+        entropy: { type: KeyringAccountEntropyTypeOption.Custom },
+        exportable: true,
+      },
       {
         entropy: {
           ...baseEntropyMnemonicOptions,
@@ -55,7 +71,7 @@ describe('api', () => {
     it('throws if legacy options partially matches options.entropy.type', () => {
       const options = {
         entropy: {
-          type: 'mnemonic',
+          type: KeyringAccountEntropyTypeOption.Mnemonic,
           // Nothing else, like if it was legacy.
         },
       };

@@ -99,12 +99,12 @@ export const HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS = {
     [EXPECTED_ACCOUNTS[1]]: 1,
     [EXPECTED_ACCOUNTS[2]]: 2,
   },
-};
+} as const;
 
 export const ACCOUNT_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS = {
-  initialized: true,
+  initialized: true as const,
   name: 'imToken-Account 01',
-  keyringMode: DeviceMode.ACCOUNT,
+  keyringMode: DeviceMode.ACCOUNT as const,
   keyringAccount: KNOWN_HDKEY.getNote(),
   xfp: '37b5eed4',
   paths: {

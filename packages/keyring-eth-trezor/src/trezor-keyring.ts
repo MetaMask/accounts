@@ -24,6 +24,7 @@ import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
 import { TrezorBridge } from './trezor-bridge';
+import { handleTrezorTransportError } from './trezor-error-handler';
 
 const hdPathString = `m/44'/60'/0'/0`;
 const SLIP0044TestnetPath = `m/44'/1'/0'/0`;
@@ -90,6 +91,16 @@ function isOldStyleEthereumjsTx(
   tx: TypedTransaction | OldEthJsTransaction,
 ): tx is OldEthJsTransaction {
   return typeof (tx as OldEthJsTransaction).getChainId === 'function';
+}
+
+function isAddressValidationError(error: unknown): error is Error {
+  return (
+    error instanceof Error &&
+    [
+      "signature doesn't match the right address",
+      'signature doesnt match the right address',
+    ].includes(error.message)
+  );
 }
 
 export class TrezorKeyring implements Keyring {
@@ -169,25 +180,25 @@ export class TrezorKeyring implements Keyring {
     if (this.isUnlocked()) {
       return Promise.resolve('already unlocked');
     }
-    return new Promise((resolve, reject) => {
-      this.bridge
-        .getPublicKey({
-          path: this.hdPath,
-          coin: 'ETH',
-        })
-        .then((response) => {
-          if (response.success) {
-            this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex');
-            this.hdk.chainCode = Buffer.from(response.payload.chainCode, 'hex');
-            resolve('just unlocked');
-          } else {
-            reject(new Error(response.payload?.error || 'Unknown error'));
-          }
-        })
-        .catch((e) => {
-          reject(new Error(e?.toString() || 'Unknown error'));
-        });
-    });
+
+    try {
+      const response = await this.bridge.getPublicKey({
+        path: this.hdPath,
+        coin: 'ETH',
+      });
+      if (!response.success) {
+        throw new Error(response.payload?.error ?? 'Unknown error');
+      }
+
+      this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex');
+      this.hdk.chainCode = Buffer.from(response.payload.chainCode, 'hex');
+      return 'just unlocked';
+    } catch (error) {
+      return handleTrezorTransportError(
+        error,
+        'Failed to unlock Trezor device',
+      );
+    }
   }
 
   setAccountToUnlock(index: number | string): void {
@@ -400,9 +411,16 @@ export class TrezorKeyring implements Keyring {
 
         return newOrMutatedTx;
       }
-      throw new Error(response.payload?.error || 'Unknown error');
-    } catch (e) {
-      throw new Error(e?.toString() ?? 'Unknown error');
+      throw new Error(response.payload?.error ?? 'Unknown error');
+    } catch (error) {
+      // Re-throw address validation errors as plain Errors, not hardware errors
+      if (isAddressValidationError(error)) {
+        throw error;
+      }
+      return handleTrezorTransportError(
+        error,
+        'Failed to sign transaction with Trezor device',
+      );
     }
   }
 
@@ -415,48 +433,36 @@ export class TrezorKeyring implements Keyring {
     withAccount: Hex,
     message: string,
   ): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.unlock()
-        .then((status) => {
-          setTimeout(
-            () => {
-              this.bridge
-                .ethereumSignMessage({
-                  path: this.#pathFromAddress(withAccount),
-                  message: remove0x(message),
-                  hex: true,
-                })
-                .then((response) => {
-                  if (response.success) {
-                    if (
-                      response.payload.address !==
-                      getChecksumAddress(withAccount)
-                    ) {
-                      reject(
-                        new Error('signature doesnt match the right address'),
-                      );
-                    }
-                    const signature = `0x${response.payload.signature}`;
-                    resolve(signature);
-                  } else {
-                    reject(
-                      new Error(response.payload?.error || 'Unknown error'),
-                    );
-                  }
-                })
-                .catch((e) => {
-                  reject(new Error(e?.toString() || 'Unknown error'));
-                });
-              // This is necessary to avoid popup collision
-              // between the unlock & sign trezor popups
-            },
-            status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0,
-          );
-        })
-        .catch((e) => {
-          reject(new Error(e?.toString() || 'Unknown error'));
-        });
-    });
+    try {
+      const status = await this.unlock();
+      // This is necessary to avoid popup collision
+      // between the unlock & sign trezor popups
+      await wait(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0);
+      const response = await this.bridge.ethereumSignMessage({
+        path: this.#pathFromAddress(withAccount),
+        message: remove0x(message),
+        hex: true,
+      });
+
+      if (!response.success) {
+        throw new Error(response.payload?.error ?? 'Unknown error');
+      }
+
+      if (response.payload.address !== getChecksumAddress(withAccount)) {
+        throw new Error('signature doesnt match the right address');
+      }
+
+      return `0x${response.payload.signature}`;
+    } catch (error) {
+      // Re-throw address validation errors as plain Errors, not hardware errors
+      if (isAddressValidationError(error)) {
+        throw error;
+      }
+      return handleTrezorTransportError(
+        error,
+        'Failed to sign personal message with Trezor device',
+      );
+    }
   }
 
   // EIP-712 Sign Typed Data
@@ -476,45 +482,56 @@ export class TrezorKeyring implements Keyring {
       version === SignTypedDataVersion.V4,
     );
 
-    // set default values for signTypedData
-    // Trezor is stricter than @metamask/eth-sig-util in what it accepts
-    const {
-      types,
-      message = {},
-      domain = {},
-      primaryType,
-      // snake_case since Trezor uses Protobuf naming conventions here
-      domain_separator_hash, // eslint-disable-line camelcase
-      message_hash, // eslint-disable-line camelcase
-    } = dataWithHashes;
-
-    // This is necessary to avoid popup collision
-    // between the unlock & sign trezor popups
-    const status = await this.unlock();
-    await wait(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0);
-
-    const response = await this.bridge.ethereumSignTypedData({
-      path: this.#pathFromAddress(address),
-      data: {
-        types: { ...types, EIP712Domain: types.EIP712Domain ?? [] },
-        message,
-        domain,
+    try {
+      // set default values for signTypedData
+      // Trezor is stricter than @metamask/eth-sig-util in what it accepts
+      const {
+        types,
+        message = {},
+        domain = {},
         primaryType,
-      },
-      metamask_v4_compat: true, // eslint-disable-line camelcase
-      // Trezor 1 only supports blindly signing hashes
-      domain_separator_hash, // eslint-disable-line camelcase
-      message_hash: message_hash ?? '', // eslint-disable-line camelcase
-    });
+        // snake_case since Trezor uses Protobuf naming conventions here
+        domain_separator_hash, // eslint-disable-line camelcase
+        message_hash, // eslint-disable-line camelcase
+      } = dataWithHashes;
 
-    if (response.success) {
+      // This is necessary to avoid popup collision
+      // between the unlock & sign trezor popups
+      const status = await this.unlock();
+      await wait(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0);
+
+      const response = await this.bridge.ethereumSignTypedData({
+        path: this.#pathFromAddress(address),
+        data: {
+          types: { ...types, EIP712Domain: types.EIP712Domain ?? [] },
+          message,
+          domain,
+          primaryType,
+        },
+        metamask_v4_compat: true, // eslint-disable-line camelcase
+        // Trezor 1 only supports blindly signing hashes
+        domain_separator_hash, // eslint-disable-line camelcase
+        message_hash: message_hash ?? '', // eslint-disable-line camelcase
+      });
+
+      if (!response.success) {
+        throw new Error(response.payload?.error ?? 'Unknown error');
+      }
+
       if (getChecksumAddress(address) !== response.payload.address) {
         throw new Error('signature doesnt match the right address');
       }
       return response.payload.signature;
+    } catch (error) {
+      // Re-throw address validation errors as plain Errors, not hardware errors
+      if (isAddressValidationError(error)) {
+        throw error;
+      }
+      return handleTrezorTransportError(
+        error,
+        'Failed to sign typed data with Trezor device',
+      );
     }
-
-    throw new Error(response.payload?.error || 'Unknown error');
   }
 
   forgetDevice(): void {
@@ -558,15 +575,33 @@ export class TrezorKeyring implements Keyring {
     return bytesToHex(buf);
   }
 
+  /**
+   * Derive an address at a specific index using the HDKey.
+   *
+   * @param basePath - The base derivation path (e.g., 'm').
+   * @param i - The derivation index.
+   * @returns The checksummed address.
+   */
   #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
     const address = bytesToHex(publicToAddress(dkey.publicKey, true));
     return toChecksumAddress(address);
   }
 
-  #pathFromAddress(address: Hex): string {
+  /**
+   * Get the account index for a given address.
+   *
+   * This method first checks the `paths` map, and if not found, derives
+   * addresses up to MAX_INDEX to find the matching index.
+   *
+   * @param address - The account address.
+   * @returns The account index.
+   * @throws If the address is not found.
+   */
+  getIndexForAddress(address: Hex): number {
     const checksummedAddress = getChecksumAddress(address);
     let index = this.paths[checksummedAddress];
+
     if (typeof index === 'undefined') {
       for (let i = 0; i < MAX_INDEX; i++) {
         if (checksummedAddress === this.#addressFromIndex(pathBase, i)) {
@@ -579,6 +614,12 @@ export class TrezorKeyring implements Keyring {
     if (typeof index === 'undefined') {
       throw new Error('Unknown address');
     }
+
+    return index;
+  }
+
+  #pathFromAddress(address: Hex): string {
+    const index = this.getIndexForAddress(address);
     return `${this.hdPath}/${index}`;
   }
 }

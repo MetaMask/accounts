@@ -1,10 +1,9 @@
-import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
 import type { Bip44Account } from '@metamask/account-api';
-import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
-import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
   type CreateAccountOptions,
   EthAccountType,
+  EthKeyringMethod,
+  EthKeyringWrapper,
   EthMethod,
   EthScope,
   type ExportAccountOptions,
@@ -12,67 +11,42 @@ import {
   type KeyringAccount,
   KeyringAccountEntropyTypeOption,
   type KeyringCapabilities,
-  type KeyringRequest,
-  KeyringType,
   type KeyringV2,
-  KeyringWrapper,
+  KeyringType,
   PrivateKeyEncoding,
-  EthDecryptParamsStruct,
-  EthGetAppKeyAddressParamsStruct,
-  EthPersonalSignParamsStruct,
-  EthSignEip7702AuthorizationParamsStruct,
-  EthSignParamsStruct,
-  EthSignTransactionParamsStruct,
-  EthSignTypedDataParamsStruct,
-  EthSignTypedDataV1ParamsStruct,
   type EntropySourceId,
 } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
-import { assert } from '@metamask/superstruct';
-import { add0x, type Hex, type Json } from '@metamask/utils';
-import { Mutex } from 'async-mutex';
+import { add0x, type Hex } from '@metamask/utils';
 
-import type { DeserializableHDKeyringState, HdKeyring } from './hd-keyring';
-
-/**
- * Additional Ethereum methods supported by HD keyring that are not in the standard EthMethod enum.
- * These are primarily encryption and utility methods.
- */
-enum HdKeyringEthMethod {
-  Decrypt = 'eth_decrypt',
-  GetEncryptionPublicKey = 'eth_getEncryptionPublicKey',
-  GetAppKeyAddress = 'eth_getAppKeyAddress',
-  SignEip7702Authorization = 'eth_signEip7702Authorization',
-}
-
-const hdKeyringV2Capabilities: KeyringCapabilities = {
-  scopes: [EthScope.Eoa],
-  bip44: {
-    deriveIndex: true,
-    derivePath: false,
-    discover: false,
-  },
-  privateKey: {
-    exportFormats: [{ encoding: PrivateKeyEncoding.Hexadecimal }],
-  },
-};
+import type { HdKeyring } from './hd-keyring';
 
 /**
  * Methods supported by HD keyring EOA accounts.
- * Combines standard Ethereum methods with HD keyring-specific methods.
+ * HD keyrings support all standard signing methods plus encryption and app keys.
  */
-const HD_KEYRING_EOA_METHODS = [
+const HD_KEYRING_METHODS = [
   EthMethod.SignTransaction,
   EthMethod.Sign,
   EthMethod.PersonalSign,
   EthMethod.SignTypedDataV1,
   EthMethod.SignTypedDataV3,
   EthMethod.SignTypedDataV4,
-  HdKeyringEthMethod.Decrypt,
-  HdKeyringEthMethod.GetEncryptionPublicKey,
-  HdKeyringEthMethod.GetAppKeyAddress,
-  HdKeyringEthMethod.SignEip7702Authorization,
+  EthKeyringMethod.Decrypt,
+  EthKeyringMethod.GetEncryptionPublicKey,
+  EthKeyringMethod.GetAppKeyAddress,
+  EthKeyringMethod.SignEip7702Authorization,
 ];
+
+const hdKeyringV2Capabilities: KeyringCapabilities = {
+  scopes: [EthScope.Eoa],
+  bip44: {
+    deriveIndex: true,
+  },
+  privateKey: {
+    exportFormats: [{ encoding: PrivateKeyEncoding.Hexadecimal }],
+  },
+};
 
 /**
  * Concrete {@link KeyringV2} adapter for {@link HdKeyring}.
@@ -86,12 +60,10 @@ export type HdKeyringV2Options = {
 };
 
 export class HdKeyringV2
-  extends KeyringWrapper<HdKeyring, Bip44Account<KeyringAccount>>
+  extends EthKeyringWrapper<HdKeyring, Bip44Account<KeyringAccount>>
   implements KeyringV2
 {
   protected readonly entropySource: EntropySourceId;
-
-  readonly #lock = new Mutex();
 
   constructor(options: HdKeyringV2Options) {
     super({
@@ -117,18 +89,6 @@ export class HdKeyringV2
   }
 
   /**
-   * Helper method to safely cast a KeyringAccount address to Hex type.
-   * The KeyringAccount.address is typed as string, but for Ethereum accounts
-   * it should always be a valid Hex address.
-   *
-   * @param address - The address from a KeyringAccount.
-   * @returns The address as Hex type.
-   */
-  #toHexAddress(address: string): Hex {
-    return add0x(address);
-  }
-
-  /**
    * Creates a KeyringAccount object for the given address and index.
    *
    * @param address - The account address.
@@ -146,7 +106,7 @@ export class HdKeyringV2
       type: EthAccountType.Eoa,
       address,
       scopes: [...this.capabilities.scopes],
-      methods: [...HD_KEYRING_EOA_METHODS],
+      methods: [...HD_KEYRING_METHODS],
       options: {
         entropy: {
           type: KeyringAccountEntropyTypeOption.Mnemonic,
@@ -154,6 +114,7 @@ export class HdKeyringV2
           groupIndex: addressIndex,
           derivationPath: `${this.inner.hdPath}/${addressIndex}`,
         },
+        exportable: true,
       },
     };
 
@@ -181,24 +142,10 @@ export class HdKeyringV2
     });
   }
 
-  async deserialize(state: Json): Promise<void> {
-    // Clear the registry when deserializing
-    this.registry.clear();
-
-    // Deserialize the legacy keyring
-    await this.inner.deserialize(
-      state as Partial<DeserializableHDKeyringState>,
-    );
-
-    // Rebuild the registry by populating it with all accounts
-    // We call getAccounts() which will repopulate the registry as a side effect
-    await this.getAccounts();
-  }
-
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<Bip44Account<KeyringAccount>[]> {
-    return this.#lock.runExclusive(async () => {
+    return this.withLock(async () => {
       // For HD keyring, we only support BIP-44 derive index
       if (options.type !== 'bip44:derive-index') {
         throw new Error(
@@ -255,10 +202,10 @@ export class HdKeyringV2
    * @param accountId - The account ID to delete.
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
-    await this.#lock.runExclusive(async () => {
+    await this.withLock(async () => {
       // Get the account first, before any registry operations
       const { address } = await this.getAccount(accountId);
-      const hexAddress = this.#toHexAddress(address);
+      const hexAddress = this.toHexAddress(address);
 
       // Assert that the account to delete is the last one in the inner keyring
       // We check against the inner keyring directly to avoid stale registry issues
@@ -276,6 +223,13 @@ export class HdKeyringV2
     });
   }
 
+  /**
+   * Export the private key for an account in hexadecimal format.
+   *
+   * @param accountId - The ID of the account to export.
+   * @param options - Export options (only hexadecimal encoding is supported).
+   * @returns The exported account with private key.
+   */
   async exportAccount(
     accountId: AccountId,
     options?: ExportAccountOptions,
@@ -294,116 +248,14 @@ export class HdKeyringV2
 
     // The legacy HdKeyring returns a hex string without 0x prefix.
     const privateKeyWithout0x = await this.inner.exportAccount(
-      this.#toHexAddress(account.address),
+      this.toHexAddress(account.address),
     );
     const privateKey = add0x(privateKeyWithout0x);
 
-    const exported: ExportedAccount = {
+    return {
       type: 'private-key',
       privateKey,
       encoding: PrivateKeyEncoding.Hexadecimal,
     };
-
-    return exported;
-  }
-
-  async submitRequest(request: KeyringRequest): Promise<Json> {
-    const { method, params = [] } = request.request;
-
-    const { address, methods } = await this.getAccount(request.account);
-    const hexAddress = this.#toHexAddress(address);
-
-    // Validate account can handle the method
-    if (!methods.includes(method)) {
-      throw new Error(
-        `Account ${request.account} cannot handle method: ${method}`,
-      );
-    }
-
-    switch (method) {
-      case `${EthMethod.SignTransaction}`: {
-        assert(params, EthSignTransactionParamsStruct);
-        const [txData] = params;
-        // Convert validated transaction data to TypedTransaction
-        // TODO: Improve typing to ensure txData matches TypedTxData
-        const tx = TransactionFactory.fromTxData(txData as TypedTxData);
-        // Note: Bigints are not directly representable in JSON
-        return (await this.inner.signTransaction(
-          hexAddress,
-          tx,
-        )) as unknown as Json; // FIXME: Should return type be unknown?
-      }
-
-      case `${EthMethod.Sign}`: {
-        assert(params, EthSignParamsStruct);
-        const [, data] = params;
-        return this.inner.signMessage(hexAddress, data);
-      }
-
-      case `${EthMethod.PersonalSign}`: {
-        assert(params, EthPersonalSignParamsStruct);
-        const [data] = params;
-        return this.inner.signPersonalMessage(hexAddress, data);
-      }
-
-      case `${EthMethod.SignTypedDataV1}`: {
-        assert(params, EthSignTypedDataV1ParamsStruct);
-        const [, data] = params;
-        return this.inner.signTypedData(hexAddress, data, {
-          version: SignTypedDataVersion.V1,
-        });
-      }
-
-      case `${EthMethod.SignTypedDataV3}`: {
-        assert(params, EthSignTypedDataParamsStruct);
-        const [, data] = params;
-        return this.inner.signTypedData(
-          hexAddress,
-          // TODO: Improve typing to ensure data matches MessageTypes
-          data as TypedMessage<MessageTypes>,
-          {
-            version: SignTypedDataVersion.V3,
-          },
-        );
-      }
-
-      case `${EthMethod.SignTypedDataV4}`: {
-        assert(params, EthSignTypedDataParamsStruct);
-        const [, data] = params;
-        return this.inner.signTypedData(
-          hexAddress,
-          // TODO: Improve typing to ensure data matches MessageTypes
-          data as TypedMessage<MessageTypes>,
-          {
-            version: SignTypedDataVersion.V4,
-          },
-        );
-      }
-
-      case `${HdKeyringEthMethod.Decrypt}`: {
-        assert(params, EthDecryptParamsStruct);
-        const [encryptedData] = params;
-        return this.inner.decryptMessage(hexAddress, encryptedData);
-      }
-
-      case `${HdKeyringEthMethod.GetEncryptionPublicKey}`: {
-        return this.inner.getEncryptionPublicKey(hexAddress);
-      }
-
-      case `${HdKeyringEthMethod.GetAppKeyAddress}`: {
-        assert(params, EthGetAppKeyAddressParamsStruct);
-        const [origin] = params;
-        return this.inner.getAppKeyAddress(hexAddress, origin);
-      }
-
-      case `${HdKeyringEthMethod.SignEip7702Authorization}`: {
-        assert(params, EthSignEip7702AuthorizationParamsStruct);
-        const [authorization] = params;
-        return this.inner.signEip7702Authorization(hexAddress, authorization);
-      }
-
-      default:
-        throw new Error(`Unsupported method for HdKeyringV2: ${method}`);
-    }
   }
 }

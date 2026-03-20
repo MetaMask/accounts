@@ -5,7 +5,12 @@
     "exactOptionalPropertyTypes": false,
     "target": "es2017"
   },
-  "references": [{ "path": "../keyring-utils" }],
+  "references": [
+    { "path": "../hw-wallet-sdk" },
+    { "path": "../keyring-utils" },
+    { "path": "../keyring-api" },
+    { "path": "../account-api" }
+  ],
   "include": ["./src"],
   "exclude": ["./dist/**/*"]
 }

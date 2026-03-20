@@ -4,6 +4,7 @@ import {
   exactOptional,
   nonempty,
   object,
+  partial,
   type Infer,
 } from '@metamask/superstruct';
 
@@ -29,15 +30,19 @@ export const KeyringCapabilitiesStruct = object({
       /**
        * Whether the keyring supports deriving accounts from a specific BIP-44 path.
        */
-      derivePath: boolean(),
+      derivePath: exactOptional(boolean()),
       /**
        * Whether the keyring supports deriving accounts from a BIP-44 account index.
        */
-      deriveIndex: boolean(),
+      deriveIndex: exactOptional(boolean()),
+      /**
+       * Whether the keyring supports deriving accounts from a range of BIP-44 account indices.
+       */
+      deriveIndexRange: exactOptional(boolean()),
       /**
        * Whether the keyring supports BIP-44 account discovery.
        */
-      discover: boolean(),
+      discover: exactOptional(boolean()),
     }),
   ),
   /**
@@ -55,6 +60,20 @@ export const KeyringCapabilitiesStruct = object({
       exportFormats: exactOptional(array(ExportPrivateKeyFormatStruct)),
     }),
   ),
+  /**
+   * Indicates which KeyringV2 methods accept non-standard options.
+   *
+   * When a method is set to `true`, it signals that the keyring implementation
+   * accepts custom options for that method, different from the standard API.
+   * This is a workaround for keyrings with very specific requirements.
+   */
+  custom: exactOptional(
+    partial(
+      object({
+        createAccounts: boolean(),
+      }),
+    ),
+  ),
 });
 
 /**
@@ -67,6 +86,7 @@ export const KeyringCapabilitiesStruct = object({
  *   bip44: {
  *     derivePath: true,
  *     deriveIndex: true,
+ *     deriveIndexRange: true,
  *     discover: true,
  *   },
  *   privateKey: {

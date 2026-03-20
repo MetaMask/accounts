@@ -1,6 +1,8 @@
 import { createDeferredPromise, DeferredPromise } from '@metamask/utils';
 
 import {
+  AppConfigurationResponse,
+  GetAppNameAndVersionResponse,
   GetPublicKeyParams,
   GetPublicKeyResponse,
   LedgerBridge,
@@ -25,6 +27,8 @@ export enum IFrameMessageAction {
   LedgerSignTransaction = 'ledger-sign-transaction',
   LedgerSignPersonalMessage = 'ledger-sign-personal-message',
   LedgerSignTypedData = 'ledger-sign-typed-data',
+  LedgerGetAppNameAndVersion = 'ledger-get-app-name-and-version',
+  LedgerGetAppConfiguration = 'ledger-get-app-configuration',
 }
 
 type IFrameMessageResponseStub<
@@ -70,6 +74,14 @@ type LedgerSignTypedDataActionResponse = {
   action: IFrameMessageAction.LedgerSignTypedData;
 } & IFrameMessageResponseStub<LedgerSignTypedDataResponse>;
 
+type LedgerGetAppNameAndVersionActionResponse = {
+  action: IFrameMessageAction.LedgerGetAppNameAndVersion;
+} & IFrameMessageResponseStub<GetAppNameAndVersionResponse>;
+
+type LedgerGetAppConfigurationActionResponse = {
+  action: IFrameMessageAction.LedgerGetAppConfiguration;
+} & IFrameMessageResponseStub<AppConfigurationResponse>;
+
 export type IFrameMessageResponse =
   | LedgerConnectionChangeActionResponse
   | LedgerMakeAppActionResponse
@@ -77,7 +89,9 @@ export type IFrameMessageResponse =
   | LedgerUnlockActionResponse
   | LedgerSignTransactionActionResponse
   | LedgerSignPersonalMessageActionResponse
-  | LedgerSignTypedDataActionResponse;
+  | LedgerSignTypedDataActionResponse
+  | LedgerGetAppNameAndVersionActionResponse
+  | LedgerGetAppConfigurationActionResponse;
 
 type IFrameMessage<TAction extends IFrameMessageAction> = {
   action: TAction;
@@ -226,6 +240,20 @@ export class LedgerIframeBridge
     );
   }
 
+  async getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse> {
+    return this.#deviceActionMessage(
+      IFrameMessageAction.LedgerGetAppNameAndVersion,
+      {},
+    );
+  }
+
+  async getAppConfiguration(): Promise<AppConfigurationResponse> {
+    return this.#deviceActionMessage(
+      IFrameMessageAction.LedgerGetAppConfiguration,
+      {},
+    );
+  }
+
   async #deviceActionMessage(
     action: IFrameMessageAction.LedgerUnlock,
     params: GetPublicKeyParams,
@@ -247,16 +275,30 @@ export class LedgerIframeBridge
   ): Promise<LedgerSignTypedDataResponse>;
 
   async #deviceActionMessage(
+    action: IFrameMessageAction.LedgerGetAppNameAndVersion,
+    params: Record<string, never>,
+  ): Promise<GetAppNameAndVersionResponse>;
+
+  async #deviceActionMessage(
+    action: IFrameMessageAction.LedgerGetAppConfiguration,
+    params: Record<string, never>,
+  ): Promise<AppConfigurationResponse>;
+
+  async #deviceActionMessage(
     ...[action, params]:
       | [IFrameMessageAction.LedgerUnlock, GetPublicKeyParams]
       | [IFrameMessageAction.LedgerSignTransaction, LedgerSignTransactionParams]
       | [IFrameMessageAction.LedgerSignPersonalMessage, LedgerSignMessageParams]
       | [IFrameMessageAction.LedgerSignTypedData, LedgerSignTypedDataParams]
+      | [IFrameMessageAction.LedgerGetAppNameAndVersion, Record<string, never>]
+      | [IFrameMessageAction.LedgerGetAppConfiguration, Record<string, never>]
   ): Promise<
     | GetPublicKeyResponse
     | LedgerSignTransactionResponse
     | LedgerSignMessageResponse
     | LedgerSignTypedDataResponse
+    | GetAppNameAndVersionResponse
+    | AppConfigurationResponse
   > {
     const response = await this.#sendMessage({ action, params });
 

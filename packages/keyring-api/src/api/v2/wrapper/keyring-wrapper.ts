@@ -1,5 +1,6 @@
 import type { Keyring, AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
+import { Mutex } from 'async-mutex';
 
 import { KeyringAccountRegistry } from './keyring-account-registry';
 import type {
@@ -50,9 +51,15 @@ export abstract class KeyringWrapper<
 {
   readonly type: `${KeyringType}`;
 
-  readonly capabilities: KeyringCapabilities;
+  readonly #capabilities: KeyringCapabilities;
 
   protected readonly inner: InnerKeyring;
+
+  /**
+   * Mutex to ensure exclusive access to the inner keyring during
+   * operations that mutate its state.
+   */
+  readonly #lock = new Mutex();
 
   /**
    * Registry for KeyringAccount objects.
@@ -67,7 +74,38 @@ export abstract class KeyringWrapper<
   constructor(options: KeyringWrapperOptions<InnerKeyring>) {
     this.inner = options.inner;
     this.type = `${options.type}`;
-    this.capabilities = options.capabilities;
+    this.#capabilities = options.capabilities;
+  }
+
+  /**
+   * Get the capabilities of this keyring.
+   *
+   * Subclasses can override this getter to return capabilities dynamically
+   * based on runtime state.
+   *
+   * @returns The keyring's capabilities.
+   */
+  get capabilities(): KeyringCapabilities {
+    return this.#capabilities;
+  }
+
+  /**
+   * Execute an operation with exclusive access to the inner keyring.
+   *
+   * This method ensures thread-safety for operations that read or mutate
+   * the inner keyring state. All operations that modify the keyring
+   * (createAccounts, deleteAccount, deserialize) should use this method
+   * to prevent race conditions.
+   *
+   * Within the callback, use `this.inner` to access the inner keyring.
+   *
+   * @param callback - A function that performs the operation.
+   * @returns The result of the callback.
+   */
+  protected async withLock<Result>(
+    callback: () => Promise<Result>,
+  ): Promise<Result> {
+    return this.#lock.runExclusive(callback);
   }
 
   /**
@@ -85,13 +123,25 @@ export abstract class KeyringWrapper<
   /**
    * Hydrate the underlying keyring from a previously serialized state.
    *
-   * This simply delegates to the legacy keyring's {@link Keyring.deserialize}
-   * implementation.
+   * This clears the registry, delegates to the legacy keyring's
+   * {@link Keyring.deserialize} implementation, and rebuilds the registry
+   * by calling {@link getAccounts}.
    *
    * @param state - The serialized keyring state.
    */
   async deserialize(state: Json): Promise<void> {
-    await this.inner.deserialize(state);
+    await this.withLock(async () => {
+      // Clear the registry when deserializing
+      this.registry.clear();
+
+      // Deserialize the legacy keyring
+      await this.inner.deserialize(state);
+
+      // Rebuild the registry by calling getAccounts().
+      // Subclass implementations of getAccounts() should populate the registry
+      // as a side effect (see the abstract method's documentation).
+      await this.getAccounts();
+    });
   }
 
   /**
@@ -142,7 +192,7 @@ export abstract class KeyringWrapper<
    * Implementations are responsible for interpreting the
    * {@link CreateAccountOptions} (for example BIP-44 derivation or
    * private-key import) and returning the resulting {@link KeyringAccount}
-   * objects. Implementors should also ensure that the resolver is updated so
+   * objects. Implementors should also ensure that the registry is updated so
    * that {@link getAccount} works for newly created accounts.
    */
   abstract createAccounts(
@@ -154,7 +204,7 @@ export abstract class KeyringWrapper<
    * keyring.
    *
    * Implementations are expected to translate the ID to an underlying
-   * address (typically via the resolver) and then invoke the appropriate
+   * address (typically via the registry) and then invoke the appropriate
    * removal mechanism on the legacy keyring.
    */
   abstract deleteAccount(accountId: AccountId): Promise<void>;

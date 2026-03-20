@@ -7,15 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [21.6.0]
+
 ### Added
 
-- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398))
+- Add `KeyringType.Money` variant ([#472](https://github.com/MetaMask/accounts/pull/472))
+- Add optional `details` field to `Transaction` type ([#445](https://github.com/MetaMask/accounts/pull/445))
+  - Add `SecurityAlertResponse` enum with values: `benign`, `warning`, `malicious`
+  - Add optional `origin` field (string) to track transaction request source
+  - Add optional `securityAlertResponse` field for Security Alert API responses
+
+## [21.5.0]
+
+### Added
+
+- Add `EthAddressStrictStruct` struct and `EthAddressStrict` types ([#465](https://github.com/MetaMask/accounts/pull/465))
+  - This is a stricter variant of `EthAddressStruct` which uses `Hex` instead of `string` for its inferred type.
+- Add `assertCreateAccountOptionIsSupported` helper ([#464](https://github.com/MetaMask/accounts/pull/464))
+  - This helper can be used to implement `createAccounts` and narrow down the `options` to the supported types (based on the keyring capabilities).
+
+### Changed
+
+- Re-use `string` for ERC4337 address-like fields ([#465](https://github.com/MetaMask/accounts/pull/465))
+  - This change reverts that and keeps using `string` for all address-like types.
+  - Changes in [#405](https://github.com/MetaMask/accounts/pull/405) updated the associated type for `EthAddressStruct` from `string` to `Hex`, this was actually a small breaking change that went unnoticed and that would require some effort to adapt in upstream clients/controllers, for this reason, we are undoing this change for now.
+  - Version [21.4.0] is marked as **DEPRECATED**, consumers are expected to use version [21.5.0] instead, that reverts this breaking change.
+
+## [21.4.0] - 2026-02-09 [DEPRECATED]
+
+### Added
+
+- Add `Keyring.createAccounts` optional method ([#448](https://github.com/MetaMask/accounts/pull/448))
+  - This method is part of the keyring v2 specification and set as optional for backwards compatibility.
+  - This method can be used to create one or more accounts using the new keyring v2 account creation typed options.
+  - Add RPC support for this method through `KeyringRpcMethod.CreateAccounts`.
+- Add support for account derivations using range of indices in `KeyringV2` ([#451](https://github.com/MetaMask/accounts/pull/451))
+  - Add `bip44:derive-index-range` capability to `KeyringCapabilities`.
+  - Add `AccountCreationType.Bip44DeriveIndexRange` and `CreateAccountBip44DeriveIndexRangeOptions`.
+- Add support for custom capabilities and entropy types in `KeyringV2` ([#415](https://github.com/MetaMask/accounts/pull/415))
+  - Add `custom` capability to `KeyringCapabilities` for keyrings with non-standard `createAccounts` method.
+  - Add `KeyringAccountEntropyTypeOption.Custom` for custom/opaque entropy sources.
+  - Add `AccountCreationType.Custom` and `CreateAccountCustomOptions` for custom account creation flows.
+- Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
+  - Provides common Ethereum signing method routing (`submitRequest`) for all Ethereum-based keyrings.
+- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)),([#402](https://github.com/MetaMask/accounts/pull/402)), ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410))
+
+### Changed
+
+- Make BIP-44 capabilities optional in `KeyringCapabilities` ([#453](https://github.com/MetaMask/accounts/pull/453))
+  - The `derivePath`, `deriveIndex`, `deriveIndexRange`, and `discover` capabilities are now optional.
+  - A capability set to `true` indicates support, while `false` or `undefined` indicates no support.
+  - Keyrings no longer need to explicitly set unsupported capabilities to `false`.
+- Change `KeyringWrapper.capabilities` from a readonly property to a getter ([#447](https://github.com/MetaMask/accounts/pull/447))
+  - Allows subclasses to override and return capabilities dynamically based on runtime state.
+- Refine `EthAddressStruct` in order to make it compatible with the `Hex` type from `@metamask/utils` ([#405](https://github.com/MetaMask/accounts/pull/405))
 
 ## [21.3.0]
 
 ### Added
 
-- Add initial `Keyringv2` interface ([#397](https://github.com/MetaMask/accounts/pull/397))
+- Add initial `KeyringV2` interface ([#397](https://github.com/MetaMask/accounts/pull/397))
   - This is an on-going work and should not be used for now.
 - Add new Tron methods `signMessage` and `signTransaction` ([#401](https://github.com/MetaMask/accounts/pull/401))
 
@@ -659,7 +710,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.3.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.6.0...HEAD
+[21.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.5.0...@metamask/keyring-api@21.6.0
+[21.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.4.0...@metamask/keyring-api@21.5.0
+[21.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.3.0...@metamask/keyring-api@21.4.0
 [21.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.2.0...@metamask/keyring-api@21.3.0
 [21.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.1.0...@metamask/keyring-api@21.2.0
 [21.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.0.0...@metamask/keyring-api@21.1.0

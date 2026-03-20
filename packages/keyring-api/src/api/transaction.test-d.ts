@@ -240,3 +240,102 @@ expectNotAssignable<Transaction>({
     },
   ],
 });
+
+// Transaction with full details (valid)
+expectAssignable<Transaction>({
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+  timestamp: null,
+  chain: 'eip155:1',
+  status: 'submitted',
+  type: 'send',
+  account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+  from: [],
+  to: [],
+  fees: [],
+  events: [],
+  details: {
+    origin: 'https://dapp.test',
+    securityAlertResponse: 'Benign',
+  },
+});
+
+// Transaction with empty details object (valid)
+expectAssignable<Transaction>({
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+  timestamp: null,
+  chain: 'eip155:1',
+  status: 'submitted',
+  type: 'send',
+  account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+  from: [],
+  to: [],
+  fees: [],
+  events: [],
+  details: {},
+});
+
+// Transaction with only origin in details (valid)
+expectAssignable<Transaction>({
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+  timestamp: null,
+  chain: 'eip155:1',
+  status: 'submitted',
+  type: 'send',
+  account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+  from: [],
+  to: [],
+  fees: [],
+  events: [],
+  details: {
+    origin: 'metamask',
+  },
+});
+
+// Transaction with only securityAlertResponse in details (valid)
+expectAssignable<Transaction>({
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+  timestamp: null,
+  chain: 'eip155:1',
+  status: 'submitted',
+  type: 'send',
+  account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+  from: [],
+  to: [],
+  fees: [],
+  events: [],
+  details: {
+    securityAlertResponse: 'Warning',
+  },
+});
+
+// Transaction with undefined details (invalid - exactOptional doesn't allow undefined)
+expectNotAssignable<Transaction>({
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+  timestamp: null,
+  chain: 'eip155:1',
+  status: 'submitted',
+  type: 'send',
+  account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+  from: [],
+  to: [],
+  fees: [],
+  events: [],
+  details: undefined,
+});
+
+// Transaction with invalid securityAlertResponse (invalid - must be 'benign', 'warning', or 'malicious')
+expectNotAssignable<Transaction>({
+  id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',
+  timestamp: null,
+  chain: 'eip155:1',
+  status: 'submitted',
+  type: 'send',
+  account: '5cd17616-ea18-4d72-974f-6dbaa3c56d15',
+  from: [],
+  to: [],
+  fees: [],
+  events: [],
+  details: {
+    securityAlertResponse: 'Invalid',
+  },
+});

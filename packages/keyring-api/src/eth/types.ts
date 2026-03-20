@@ -1,7 +1,7 @@
 import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { nonempty, array, enums, literal } from '@metamask/superstruct';
-import { definePattern } from '@metamask/utils';
+import { definePattern, type Hex } from '@metamask/utils';
 
 import { EthScope } from '.';
 import {
@@ -12,9 +12,12 @@ import {
 
 export const EthBytesStruct = definePattern('EthBytes', /^0x[0-9a-f]*$/iu);
 
-export const EthAddressStruct = definePattern(
-  'EthAddress',
-  /^0x[0-9a-f]{40}$/iu,
+const ETH_ADDRESS_REGEX = /^0x[0-9a-f]{40}$/iu;
+export const EthAddressStruct = definePattern('EthAddress', ETH_ADDRESS_REGEX);
+// Stricter struct that uses `Hex` as final type.
+export const EthAddressStrictStruct = definePattern<Hex>(
+  'EthAddressStrict',
+  ETH_ADDRESS_REGEX,
 );
 
 export const EthUint256Struct = definePattern(

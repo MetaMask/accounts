@@ -6,7 +6,12 @@
     "rootDir": "src",
     "exactOptionalPropertyTypes": false
   },
-  "references": [{ "path": "../keyring-utils/tsconfig.build.json" }],
+  "references": [
+    { "path": "../hw-wallet-sdk/tsconfig.build.json" },
+    { "path": "../keyring-utils/tsconfig.build.json" },
+    { "path": "../keyring-api/tsconfig.build.json" },
+    { "path": "../account-api/tsconfig.build.json" }
+  ],
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/**/*.test.ts"]
 }

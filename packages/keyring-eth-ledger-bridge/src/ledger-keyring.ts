@@ -24,7 +24,12 @@ import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
+import {
+  AppConfigurationResponse,
+  GetAppNameAndVersionResponse,
+  LedgerBridge,
+  LedgerBridgeOptions,
+} from './ledger-bridge';
 import { handleLedgerTransportError } from './ledger-error-handler';
 import { LedgerIframeBridgeOptions } from './ledger-iframe-bridge';
 
@@ -329,6 +334,28 @@ export class LedgerKeyring implements Keyring {
     return this.bridge.updateTransportMethod(transportType);
   }
 
+  async getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse> {
+    try {
+      return await this.bridge.getAppNameAndVersion();
+    } catch (error: unknown) {
+      return handleLedgerTransportError(
+        error,
+        'Ledger: Unknown error while getting app name and version',
+      );
+    }
+  }
+
+  async getAppConfiguration(): Promise<AppConfigurationResponse> {
+    try {
+      return await this.bridge.getAppConfiguration();
+    } catch (error: unknown) {
+      return handleLedgerTransportError(
+        error,
+        'Ledger: Unknown error while getting app configuration',
+      );
+    }
+  }
+
   // tx is an instance of the ethereumjs-transaction class.
   async signTransaction(
     address: Hex,
@@ -458,10 +485,9 @@ export class LedgerKeyring implements Keyring {
       );
     }
 
-    let modifiedV = parseInt(String(payload.v), 10).toString(16);
-    if (modifiedV.length < 2) {
-      modifiedV = `0${modifiedV}`;
-    }
+    const modifiedV = this.#normalizeRecoveryParam(
+      parseInt(String(payload.v), 10),
+    );
 
     const signature = `0x${payload.r}${payload.s}${modifiedV}`;
     const addressSignedWith = recoverPersonalSignature({
@@ -551,10 +577,9 @@ export class LedgerKeyring implements Keyring {
       );
     }
 
-    let recoveryId = parseInt(String(payload.v), 10).toString(16);
-    if (recoveryId.length < 2) {
-      recoveryId = `0${recoveryId}`;
-    }
+    const recoveryId = this.#normalizeRecoveryParam(
+      parseInt(String(payload.v), 10),
+    );
     const signature = `0x${payload.r}${payload.s}${recoveryId}`;
     const addressSignedWith = recoverTypedSignature({
       data,
@@ -696,5 +721,20 @@ export class LedgerKeyring implements Keyring {
 
   #getChecksumHexAddress(address: string): Hex {
     return getChecksumAddress(add0x(address));
+  }
+
+  /**
+   * Normalizes the signature recovery parameter (v) to legacy format.
+   * Ledger devices may return v as 0 or 1 (modern format), but signature
+   * recovery expects 27 or 28 (legacy format per EIP-191/EIP-712).
+   *
+   * @param recoveryParam - The recovery parameter from Ledger.
+   * @returns The normalized recovery parameter as a hex string.
+   */
+  #normalizeRecoveryParam(recoveryParam: number): string {
+    if (recoveryParam === 0 || recoveryParam === 1) {
+      return (recoveryParam + 27).toString(16);
+    }
+    return recoveryParam.toString(16);
   }
 }

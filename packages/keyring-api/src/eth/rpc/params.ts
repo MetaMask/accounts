@@ -23,7 +23,11 @@ import {
   unknown,
 } from '@metamask/superstruct';
 
-import { EthAddressStruct, EthBytesStruct } from '../types';
+import {
+  EthAddressStrictStruct,
+  EthAddressStruct,
+  EthBytesStruct,
+} from '../types';
 
 /**
  * A struct for validating Ethereum transaction data.
@@ -118,13 +122,21 @@ export type EthEncryptedData = Infer<typeof EthEncryptedDataStruct>;
  */
 export const EthEip7702AuthorizationStruct = tuple([
   number(), // chainId
-  EthAddressStruct, // address (contract to delegate to)
+  EthAddressStrictStruct, // address (contract to delegate to)
   number(), // nonce
 ]);
 
 export type EthEip7702Authorization = Infer<
   typeof EthEip7702AuthorizationStruct
 >;
+
+/**
+ * A struct for getEncryptionPublicKey options.
+ */
+export const EthGetEncryptionPublicKeyOptionsStruct = record(
+  string(),
+  unknown(),
+);
 
 // ============================================================================
 // RPC Method Parameter Structs
@@ -214,3 +226,11 @@ export const EthSignEip7702AuthorizationParamsStruct = tuple([
 export type EthSignEip7702AuthorizationParams = Infer<
   typeof EthSignEip7702AuthorizationParamsStruct
 >;
+
+/**
+ * Parameters for `eth_getEncryptionPublicKey`.
+ */
+export const EthGetEncryptionPublicKeyParamsStruct = tuple([
+  EthAddressStruct, // address
+  optional(EthGetEncryptionPublicKeyOptionsStruct), // options
+]);

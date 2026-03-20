@@ -20,7 +20,7 @@ import {
   mnemonicToSeed,
 } from '@metamask/key-tree';
 import type { Keyring } from '@metamask/keyring-utils';
-import { generateMnemonic } from '@metamask/scure-bip39';
+import { generateMnemonic, validateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import {
   add0x,
@@ -37,6 +37,8 @@ import { keccak256 } from 'ethereum-cryptography/keccak';
 // Options:
 const hdPathString = `m/44'/60'/0'/0`;
 const type = 'HD Key Tree';
+
+type Mnemonic = string | number[] | SerializedBuffer | Buffer | Uint8Array;
 
 export type HDKeyringOptions = {
   cryptographicFunctions?: CryptographicFunctions;
@@ -481,9 +483,7 @@ export class HdKeyring implements Keyring {
    * @param mnemonic - The mnemonic seed phrase.
    * @returns The Uint8Array mnemonic.
    */
-  #mnemonicToUint8Array(
-    mnemonic: Buffer | SerializedBuffer | string | Uint8Array | number[],
-  ): Uint8Array {
+  #mnemonicToUint8Array(mnemonic: Mnemonic): Uint8Array {
     let mnemonicData: unknown = mnemonic;
     // When using `Buffer.toJSON()`, the Buffer is serialized into an object
     // with the structure `{ type: 'Buffer', data: [...] }`
@@ -601,16 +601,18 @@ export class HdKeyring implements Keyring {
    * as a string, an array of UTF-8 bytes, or a Buffer. Mnemonic input
    * passed as type buffer or array of UTF-8 bytes must be NFKD normalized.
    */
-  async #initFromMnemonic(
-    mnemonic: string | number[] | SerializedBuffer | Buffer | Uint8Array,
-  ): Promise<void> {
+  async #initFromMnemonic(mnemonic: Mnemonic): Promise<void> {
     if (this.root) {
       throw new Error(
         'Eth-Hd-Keyring: Secret recovery phrase already provided',
       );
     }
 
-    this.mnemonic = this.#mnemonicToUint8Array(mnemonic);
+    // Convert and validate before assigning to instance property
+    // to avoid inconsistent state if validation fails
+    const mnemonicAsUint8Array = this.#mnemonicToUint8Array(mnemonic);
+    this.#assertValidMnemonic(mnemonicAsUint8Array);
+    this.mnemonic = mnemonicAsUint8Array;
 
     this.seed = await mnemonicToSeed(
       this.mnemonic,
@@ -643,5 +645,21 @@ export class HdKeyring implements Keyring {
     const normalized = normalize(address);
     assert(normalized, 'Expected address to be set');
     return add0x(normalized);
+  }
+
+  /**
+   * Assert that the mnemonic seed phrase is valid.
+   * Throws an error if the mnemonic is not a valid BIP39 phrase.
+   *
+   * @param mnemonic - The mnemonic seed phrase to validate (as Uint8Array).
+   * @throws If the mnemonic is not a valid BIP39 secret recovery phrase.
+   */
+  #assertValidMnemonic(mnemonic: Uint8Array): void {
+    const mnemonicString = this.#uint8ArrayToString(mnemonic);
+    if (!validateMnemonic(mnemonicString, wordlist)) {
+      throw new Error(
+        'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
+      );
+    }
   }
 }

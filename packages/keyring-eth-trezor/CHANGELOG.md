@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.1.0]
+
+### Added
+
+- Add `TrezorKeyringV2` and `OneKeyKeyringV2` classes implementing `KeyringV2` interface ([#412](https://github.com/MetaMask/accounts/pull/412)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#453](https://github.com/MetaMask/accounts/pull/453))
+  - Wraps legacy `TrezorKeyring` and `OneKeyKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
+  - Extends `EthKeyringWrapper` for common Ethereum logic.
+- Add `createTrezorError` and `getTrezorErrorIdentifier` error helpers ([#471](https://github.com/MetaMask/accounts/pull/471))
+
+### Changed
+
+- Integrate `@metamask/hw-wallet-sdk` for standardized Trezor error handling ([#471](https://github.com/MetaMask/accounts/pull/471))
+  - Replace custom transport and user-action error handling with typed `HardwareWalletError` instances.
+  - Move Trezor error mappings and utilities to `@metamask/hw-wallet-sdk` for reuse across packages.
+
 ## [9.0.0]
 
 ### Changed
@@ -211,7 +226,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@9.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@9.1.0...HEAD
+[9.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@9.0.0...@metamask/eth-trezor-keyring@9.1.0
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@8.0.0...@metamask/eth-trezor-keyring@9.0.0
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@7.0.0...@metamask/eth-trezor-keyring@8.0.0
 [7.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@6.1.1...@metamask/eth-trezor-keyring@7.0.0

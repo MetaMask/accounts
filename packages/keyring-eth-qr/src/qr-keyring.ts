@@ -158,6 +158,17 @@ export class QrKeyring implements Keyring {
   }
 
   /**
+   * Get the derivation path for a given address.
+   *
+   * @param address - The address to get the derivation path for.
+   * @returns The derivation path for the address, or undefined if the device
+   * is not paired or the address is not found.
+   */
+  getPathFromAddress(address: Hex): string | undefined {
+    return this.#device?.pathFromAddress(address);
+  }
+
+  /**
    * Adds accounts to the QrKeyring
    *
    * @param accountsToAdd - The number of accounts to add
@@ -240,6 +251,15 @@ export class QrKeyring implements Keyring {
     }
     const source = this.#device.getDeviceDetails();
     return source.name;
+  }
+
+  /**
+   * Get the mode of the paired device.
+   *
+   * @returns The device mode, or undefined if no device is paired.
+   */
+  getMode(): DeviceMode | undefined {
+    return this.#device?.getDeviceDetails().keyringMode;
   }
 
   /**

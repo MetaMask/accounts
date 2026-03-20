@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-ledger-bridge-keyring",
-  "version": "11.1.2",
+  "version": "11.3.0",
   "description": "A MetaMask compatible keyring, for ledger hardware wallets",
   "keywords": [
     "ethereum",
@@ -51,6 +51,9 @@
     "@ethereumjs/util": "^9.1.0",
     "@ledgerhq/hw-app-eth": "^6.42.0",
     "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/hw-wallet-sdk": "workspace:^",
+    "@metamask/keyring-api": "workspace:^",
+    "@metamask/keyring-utils": "workspace:^",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
@@ -61,6 +64,7 @@
     "@ledgerhq/types-cryptoassets": "^7.15.1",
     "@ledgerhq/types-devices": "^6.25.3",
     "@ledgerhq/types-live": "^6.52.0",
+    "@metamask/account-api": "workspace:^",
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/keyring-utils": "workspace:^",
     "@metamask/utils": "^11.1.0",

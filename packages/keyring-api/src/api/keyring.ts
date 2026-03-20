@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-// This rule seems to be triggering a false positive on the `KeyringAccount`.
-
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
@@ -16,6 +13,7 @@ import type { Paginated, Pagination } from './pagination';
 import type { KeyringRequest } from './request';
 import type { KeyringResponse } from './response';
 import type { Transaction } from './transaction';
+import type { CreateAccountOptions } from './v2';
 
 /**
  * Keyring interface.
@@ -58,6 +56,19 @@ export type Keyring = {
   createAccount(
     options?: Record<string, Json> & MetaMaskOptions,
   ): Promise<KeyringAccount>;
+
+  /**
+   * Creates one or more new accounts according to the provided options.
+   *
+   * Deterministic account creation MUST be idempotent, meaning that for
+   * deterministic algorithms, like BIP-44, calling this method with the same
+   * options should always return the same accounts, even if the accounts
+   * already exist in the keyring.
+   *
+   * @param options - Options describing how to create the account(s).
+   * @returns A promise that resolves to an array of the created account objects.
+   */
+  createAccounts?(options: CreateAccountOptions): Promise<KeyringAccount[]>;
 
   /**
    * Lists the assets of an account (fungibles and non-fungibles) represented

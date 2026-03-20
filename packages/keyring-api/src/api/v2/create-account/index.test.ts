@@ -1,6 +1,12 @@
 import { assert, is } from '@metamask/superstruct';
 
-import { AccountCreationType, CreateAccountOptionsStruct } from '.';
+import {
+  AccountCreationType,
+  assertCreateAccountOptionIsSupported,
+  CreateAccountOptionsStruct,
+  type CreateAccountBip44DeriveIndexOptions,
+  type CreateAccountOptions,
+} from '.';
 
 describe('CreateAccountOptionsStruct', () => {
   describe('valid account creation types', () => {
@@ -192,6 +198,225 @@ describe('CreateAccountOptionsStruct', () => {
         expect(is(option, CreateAccountOptionsStruct)).toBe(true);
         expect(() => assert(option, CreateAccountOptionsStruct)).not.toThrow();
       });
+    });
+  });
+});
+
+describe('assertCreateAccountOptionIsSupported', () => {
+  describe('when type is supported', () => {
+    it('does not throw when type is in supportedTypes array', () => {
+      const options = {
+        type: AccountCreationType.Bip44DerivePath,
+        entropySource: 'user-input',
+        derivationPath: "m/44'/0'/0'/0/0",
+      } as CreateAccountOptions;
+      const supportedTypes = [
+        AccountCreationType.Bip44DerivePath,
+        AccountCreationType.Bip44DeriveIndex,
+      ];
+
+      expect(() =>
+        assertCreateAccountOptionIsSupported(options, supportedTypes),
+      ).not.toThrow();
+    });
+
+    it('does not throw when type is the only supported type', () => {
+      const options = {
+        type: AccountCreationType.PrivateKeyImport,
+        privateKey: '0x1234567890abcdef',
+        encoding: 'hexadecimal',
+      } as CreateAccountOptions;
+      const supportedTypes = [AccountCreationType.PrivateKeyImport];
+
+      expect(() =>
+        assertCreateAccountOptionIsSupported(options, supportedTypes),
+      ).not.toThrow();
+    });
+
+    it('does not throw when all types are supported', () => {
+      const options = {
+        type: AccountCreationType.Custom,
+        scope: 'scope',
+      } as CreateAccountOptions;
+      const supportedTypes = [
+        AccountCreationType.Bip44DerivePath,
+        AccountCreationType.Bip44DeriveIndex,
+        AccountCreationType.Bip44DeriveIndexRange,
+        AccountCreationType.Bip44Discover,
+        AccountCreationType.PrivateKeyImport,
+        AccountCreationType.Custom,
+      ];
+
+      expect(() =>
+        assertCreateAccountOptionIsSupported(options, supportedTypes),
+      ).not.toThrow();
+    });
+
+    it('does not throw for each supported BIP-44 type', () => {
+      const supportedTypes = [
+        AccountCreationType.Bip44DerivePath,
+        AccountCreationType.Bip44DeriveIndex,
+        AccountCreationType.Bip44DeriveIndexRange,
+        AccountCreationType.Bip44Discover,
+      ];
+
+      const optionsMap: Record<AccountCreationType, CreateAccountOptions> = {
+        [AccountCreationType.Bip44DerivePath]: {
+          type: AccountCreationType.Bip44DerivePath,
+          entropySource: 'user-input',
+          derivationPath: "m/44'/0'/0'/0/0",
+        },
+        [AccountCreationType.Bip44DeriveIndex]: {
+          type: AccountCreationType.Bip44DeriveIndex,
+          entropySource: 'user-input',
+          groupIndex: 0,
+        },
+        [AccountCreationType.Bip44DeriveIndexRange]: {
+          type: AccountCreationType.Bip44DeriveIndexRange,
+          entropySource: 'user-input',
+          range: {
+            from: 0,
+            to: 1,
+          },
+        },
+        [AccountCreationType.Bip44Discover]: {
+          type: AccountCreationType.Bip44Discover,
+          entropySource: 'user-input',
+          groupIndex: 0,
+        },
+        [AccountCreationType.PrivateKeyImport]: {
+          type: AccountCreationType.PrivateKeyImport,
+          privateKey: '0x1234567890abcdef',
+          encoding: 'hexadecimal',
+        },
+        [AccountCreationType.Custom]: {
+          type: AccountCreationType.Custom,
+          // FIXME: We cannot use custom fields currently with `CreateAccountOptions` type.
+          // We need to define a struct manually to open up the type for custom options to
+          // allow additional fields.
+        },
+      };
+
+      supportedTypes.forEach((type) => {
+        expect(() =>
+          assertCreateAccountOptionIsSupported(
+            optionsMap[type],
+            supportedTypes,
+          ),
+        ).not.toThrow();
+      });
+    });
+  });
+
+  describe('when type is not supported', () => {
+    it('throws error with correct message when type is not in supportedTypes', () => {
+      const options = {
+        type: AccountCreationType.Custom,
+        scope: 'scope',
+      } as CreateAccountOptions;
+      const supportedTypes = [
+        AccountCreationType.Bip44DerivePath,
+        AccountCreationType.Bip44DeriveIndex,
+      ];
+
+      expect(() =>
+        assertCreateAccountOptionIsSupported(options, supportedTypes),
+      ).toThrow('Unsupported create account option type: custom');
+    });
+
+    it('throws error when supportedTypes is empty', () => {
+      const options = {
+        type: AccountCreationType.Bip44DerivePath,
+        entropySource: 'user-input',
+        derivationPath: "m/44'/0'/0'/0/0",
+      } as CreateAccountOptions;
+      const supportedTypes: AccountCreationType[] = [];
+
+      expect(() =>
+        assertCreateAccountOptionIsSupported(options, supportedTypes),
+      ).toThrow('Unsupported create account option type: bip44:derive-path');
+    });
+
+    it('throws error for PrivateKeyImport when only BIP-44 types are supported', () => {
+      const options = {
+        type: AccountCreationType.PrivateKeyImport,
+        privateKey: '0x1234567890abcdef',
+        encoding: 'hexadecimal',
+      } as CreateAccountOptions;
+      const supportedTypes = [
+        AccountCreationType.Bip44DerivePath,
+        AccountCreationType.Bip44DeriveIndex,
+      ];
+
+      expect(() =>
+        assertCreateAccountOptionIsSupported(options, supportedTypes),
+      ).toThrow('Unsupported create account option type: private-key:import');
+    });
+
+    it('throws error for Bip44Discover when not in supportedTypes', () => {
+      const options = {
+        type: AccountCreationType.Bip44Discover,
+        entropySource: 'user-input',
+        groupIndex: 0,
+      } as CreateAccountOptions;
+      const supportedTypes = [
+        AccountCreationType.Bip44DerivePath,
+        AccountCreationType.Custom,
+      ];
+
+      expect(() =>
+        assertCreateAccountOptionIsSupported(options, supportedTypes),
+      ).toThrow('Unsupported create account option type: bip44:discover');
+    });
+
+    it('includes the unsupported type value in error message', () => {
+      const options = {
+        type: AccountCreationType.Bip44DeriveIndexRange,
+        entropySource: 'user-input',
+        range: {
+          from: 0,
+          to: 1,
+        },
+      } as CreateAccountOptions;
+      const supportedTypes = [AccountCreationType.PrivateKeyImport];
+
+      expect(() =>
+        assertCreateAccountOptionIsSupported(options, supportedTypes),
+      ).toThrow(/bip44:derive-index-range/u);
+    });
+  });
+
+  describe('type narrowing behavior', () => {
+    it('narrows type correctly after assertion passes', () => {
+      const options = {
+        type: AccountCreationType.Bip44DerivePath,
+        entropySource: 'user-input',
+        derivationPath: "m/44'/0'/0'/0/0",
+      } as CreateAccountOptions;
+      const supportedTypes = [
+        `${AccountCreationType.Bip44DerivePath}`,
+      ] as const;
+
+      assertCreateAccountOptionIsSupported(options, supportedTypes);
+
+      // After the assertion, TypeScript should narrow the type.
+      const narrowedType: (typeof supportedTypes)[number] = options.type; // Compile-time check.
+      expect(narrowedType).toBe(AccountCreationType.Bip44DerivePath);
+    });
+
+    it('narrows CreateAccountOptions type based on supported type', () => {
+      const options = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource: 'mock-entropy-source',
+        groupIndex: 0,
+      } as CreateAccountOptions;
+
+      const supportedTypes = [AccountCreationType.Bip44DeriveIndex] as const;
+      assertCreateAccountOptionIsSupported(options, supportedTypes);
+
+      // After assertion, options should be narrowed to CreateAccountBip44DeriveIndexOptions
+      const narrowedOptions: CreateAccountBip44DeriveIndexOptions = options; // Compile-time check.
+      expect(narrowedOptions.type).toBe(AccountCreationType.Bip44DeriveIndex);
     });
   });
 });
