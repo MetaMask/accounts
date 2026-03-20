@@ -30,9 +30,15 @@ export class MyKeyringV2 extends EthKeyringWrapper<MyLegacyKeyring> {
     });
   }
 
-  async getAccounts() { /* ... */ }
-  async createAccounts(options) { /* ... */ }
-  async deleteAccount(accountId) { /* ... */ }
+  async getAccounts() {
+    /* ... */
+  }
+  async createAccounts(options) {
+    /* ... */
+  }
+  async deleteAccount(accountId) {
+    /* ... */
+  }
 }
 ```
 
