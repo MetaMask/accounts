@@ -53,6 +53,7 @@
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/hw-wallet-sdk": "workspace:^",
     "@metamask/keyring-api": "workspace:^",
+    "@metamask/keyring-sdk": "workspace:^",
     "@metamask/keyring-utils": "workspace:^",
     "hdkey": "^2.1.0"
   },

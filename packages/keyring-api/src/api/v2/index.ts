@@ -5,4 +5,3 @@ export * from './keyring-rpc';
 export * from './create-account';
 export * from './export-account';
 export * from './private-key';
-export * from './wrapper';

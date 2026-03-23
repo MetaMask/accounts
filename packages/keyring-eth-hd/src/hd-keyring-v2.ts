@@ -2,8 +2,6 @@ import type { Bip44Account } from '@metamask/account-api';
 import {
   type CreateAccountOptions,
   EthAccountType,
-  EthKeyringMethod,
-  EthKeyringWrapper,
   EthMethod,
   EthScope,
   type ExportAccountOptions,
@@ -16,6 +14,7 @@ import {
   PrivateKeyEncoding,
   type EntropySourceId,
 } from '@metamask/keyring-api';
+import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import { add0x, type Hex } from '@metamask/utils';
 
