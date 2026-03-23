@@ -9,7 +9,6 @@ import {
   PrivateKeyExportedAccountStruct,
 } from './export-account';
 import type { KeyringV2 } from './keyring';
-import { KeyringRpcMethod } from '../../rpc';
 import { KeyringAccountStruct } from '../account';
 import { KeyringRequestStruct } from '../request';
 
@@ -30,13 +29,14 @@ export type KeyringRpcV2 = {
  * Keyring RPC methods used by the API.
  */
 export enum KeyringRpcV2Method {
-  GetAccounts = `keyring_getAccounts`,
-  CreateAccounts = `keyring_createAccounts`,
+  GetAccounts = 'keyring_getAccounts',
+  CreateAccounts = 'keyring_createAccounts',
   // Inherited from v1 (but method signatures may differ...):
-  GetAccount = `${KeyringRpcMethod.GetAccount}`,
-  DeleteAccount = `${KeyringRpcMethod.DeleteAccount}`,
-  ExportAccount = `${KeyringRpcMethod.ExportAccount}`,
-  SubmitRequest = `${KeyringRpcMethod.SubmitRequest}`,
+  // NOTE: We use literals here to avoid circular dependencies.
+  GetAccount = 'keyring_getAccount',
+  DeleteAccount = 'keyring_deleteAccount',
+  ExportAccount = 'keyring_exportAccount',
+  SubmitRequest = 'keyring_submitRequest',
 }
 
 /**
