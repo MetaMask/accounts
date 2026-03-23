@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `KeyringClientV2` class implementing the keyring v2 RPC client ([#408](https://github.com/MetaMask/accounts/pull/408))
+
 ## [8.2.0]
 
 ### Added

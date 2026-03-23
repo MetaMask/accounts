@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `KeyringInternalSnapClientV2` class for communicating with a Snap using the keyring v2 RPC protocol ([#408](https://github.com/MetaMask/accounts/pull/408))
+
 ## [9.0.0]
 
 ### Changed
