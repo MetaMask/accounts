@@ -35,9 +35,9 @@
   ],
   "versionGroups": [
     {
-      "label": "use workspace version of packages in the monorepo",
+      "label": "local packages in peer dependencies use same-major range (ignored by version checks)",
       "dependencyTypes": [
-        "!local"
+        "peer"
       ],
       "dependencies": [
         "@metamask/account-**",
@@ -45,7 +45,22 @@
         "@metamask/keyring-**",
         "@metamask/eth-**-keyring"
       ],
-      "pinVersion": "workspace:^"
+      "isIgnored": true
+    },
+    {
+      "label": "local packages must use the highest semver version",
+      "dependencyTypes": [
+        "dev",
+        "prod",
+        "local"
+      ],
+      "dependencies": [
+        "@metamask/account-**",
+        "@metamask/hw-wallet-sdk",
+        "@metamask/keyring-**",
+        "@metamask/eth-**-keyring"
+      ],
+      "policy": "highestSemver"
     }
   ]
 }

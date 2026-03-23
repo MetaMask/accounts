@@ -43,7 +43,7 @@
     "test:clean": "jest --clearCache"
   },
   "dependencies": {
-    "@metamask/eth-hd-keyring": "workspace:^",
+    "@metamask/eth-hd-keyring": "^13.1.0",
     "@metamask/superstruct": "^3.1.0"
   },
   "devDependencies": {
