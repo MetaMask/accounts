@@ -1,7 +1,7 @@
 import {
   array,
   boolean,
-  exactOptional,
+  optional,
   nonempty,
   object,
   partial,
@@ -25,39 +25,39 @@ export const KeyringCapabilitiesStruct = object({
   /**
    * BIP-44 capabilities supported by this keyring.
    */
-  bip44: exactOptional(
+  bip44: optional(
     object({
       /**
        * Whether the keyring supports deriving accounts from a specific BIP-44 path.
        */
-      derivePath: exactOptional(boolean()),
+      derivePath: optional(boolean()),
       /**
        * Whether the keyring supports deriving accounts from a BIP-44 account index.
        */
-      deriveIndex: exactOptional(boolean()),
+      deriveIndex: optional(boolean()),
       /**
        * Whether the keyring supports deriving accounts from a range of BIP-44 account indices.
        */
-      deriveIndexRange: exactOptional(boolean()),
+      deriveIndexRange: optional(boolean()),
       /**
        * Whether the keyring supports BIP-44 account discovery.
        */
-      discover: exactOptional(boolean()),
+      discover: optional(boolean()),
     }),
   ),
   /**
    * Private key capabilities supported by this keyring.
    */
-  privateKey: exactOptional(
+  privateKey: optional(
     object({
       /**
        * List of supported formats for importing private keys.
        */
-      importFormats: exactOptional(array(ImportPrivateKeyFormatStruct)),
+      importFormats: optional(array(ImportPrivateKeyFormatStruct)),
       /**
        * List of supported formats for exporting private keys.
        */
-      exportFormats: exactOptional(array(ExportPrivateKeyFormatStruct)),
+      exportFormats: optional(array(ExportPrivateKeyFormatStruct)),
     }),
   ),
   /**
@@ -67,7 +67,7 @@ export const KeyringCapabilitiesStruct = object({
    * accepts custom options for that method, different from the standard API.
    * This is a workaround for keyrings with very specific requirements.
    */
-  custom: exactOptional(
+  custom: optional(
     partial(
       object({
         createAccounts: boolean(),
