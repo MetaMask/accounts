@@ -57,9 +57,7 @@
     {
       "label": "local packages must use the highest semver version",
       "dependencyTypes": [
-        "dev",
-        "prod",
-        "local"
+        "!peer"
       ],
       "dependencies": [
         "@metamask/account-**",
