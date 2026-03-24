@@ -52,7 +52,7 @@
         "@metamask/keyring-**",
         "@metamask/eth-**-keyring"
       ],
-      "isIgnored": true
+      "preferVersion": "sameRange"
     },
     {
       "label": "local packages must use the highest semver version",
