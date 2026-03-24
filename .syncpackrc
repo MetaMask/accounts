@@ -35,6 +35,13 @@
   ],
   "versionGroups": [
     {
+      "label": "ignore keyring-sdk (not yet published)",
+      "dependencies": [
+        "@metamask/keyring-sdk"
+      ],
+      "isIgnored": true
+    },
+    {
       "label": "ban workspace protocol dependencies",
       "specifierTypes": [
         "workspace-protocol"

@@ -51,7 +51,7 @@
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/hw-wallet-sdk": "^0.6.0",
     "@metamask/keyring-api": "^21.6.0",
-    "@metamask/keyring-sdk": "^0.0.0",
+    "@metamask/keyring-sdk": "workspace:^",
     "@metamask/keyring-utils": "^3.2.0",
     "@metamask/utils": "^11.1.0",
     "@trezor/connect-plugin-ethereum": "^9.0.5",
