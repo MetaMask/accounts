@@ -9,8 +9,10 @@
     "target": "es2017"
   },
   "references": [
+    { "path": "../hw-wallet-sdk" },
     { "path": "../keyring-utils" },
     { "path": "../keyring-api" },
+    { "path": "../keyring-sdk" },
     { "path": "../account-api" }
   ],
   "include": ["./src"],

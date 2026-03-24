@@ -15,6 +15,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/account-api`](packages/account-api)
 - [`@metamask/eth-hd-keyring`](packages/keyring-eth-hd)
 - [`@metamask/eth-ledger-bridge-keyring`](packages/keyring-eth-ledger-bridge)
+- [`@metamask/eth-money-keyring`](packages/keyring-eth-money)
 - [`@metamask/eth-qr-keyring`](packages/keyring-eth-qr)
 - [`@metamask/eth-simple-keyring`](packages/keyring-eth-simple)
 - [`@metamask/eth-snap-keyring`](packages/keyring-snap-bridge)
@@ -23,6 +24,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/keyring-api`](packages/keyring-api)
 - [`@metamask/keyring-internal-api`](packages/keyring-internal-api)
 - [`@metamask/keyring-internal-snap-client`](packages/keyring-internal-snap-client)
+- [`@metamask/keyring-sdk`](packages/keyring-sdk)
 - [`@metamask/keyring-snap-client`](packages/keyring-snap-client)
 - [`@metamask/keyring-snap-sdk`](packages/keyring-snap-sdk)
 - [`@metamask/keyring-utils`](packages/keyring-utils)
@@ -42,11 +44,13 @@ linkStyle default opacity:0.5
   keyring_api(["@metamask/keyring-api"]);
   eth_hd_keyring(["@metamask/eth-hd-keyring"]);
   eth_ledger_bridge_keyring(["@metamask/eth-ledger-bridge-keyring"]);
+  eth_money_keyring(["@metamask/eth-money-keyring"]);
   eth_qr_keyring(["@metamask/eth-qr-keyring"]);
   eth_simple_keyring(["@metamask/eth-simple-keyring"]);
   eth_trezor_keyring(["@metamask/eth-trezor-keyring"]);
   keyring_internal_api(["@metamask/keyring-internal-api"]);
   keyring_internal_snap_client(["@metamask/keyring-internal-snap-client"]);
+  keyring_sdk(["@metamask/keyring-sdk"]);
   eth_snap_keyring(["@metamask/eth-snap-keyring"]);
   keyring_snap_client(["@metamask/keyring-snap-client"]);
   keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
@@ -55,18 +59,25 @@ linkStyle default opacity:0.5
   account_api --> keyring_utils;
   keyring_api --> keyring_utils;
   eth_hd_keyring --> keyring_api;
+  eth_hd_keyring --> keyring_sdk;
   eth_hd_keyring --> keyring_utils;
   eth_hd_keyring --> account_api;
   eth_ledger_bridge_keyring --> hw_wallet_sdk;
   eth_ledger_bridge_keyring --> keyring_api;
+  eth_ledger_bridge_keyring --> keyring_sdk;
   eth_ledger_bridge_keyring --> keyring_utils;
   eth_ledger_bridge_keyring --> account_api;
+  eth_money_keyring --> keyring_eth_hd;
   eth_qr_keyring --> keyring_api;
+  eth_qr_keyring --> keyring_sdk;
   eth_qr_keyring --> keyring_utils;
   eth_qr_keyring --> account_api;
   eth_simple_keyring --> keyring_api;
+  eth_simple_keyring --> keyring_sdk;
   eth_simple_keyring --> keyring_utils;
+  eth_trezor_keyring --> hw_wallet_sdk;
   eth_trezor_keyring --> keyring_api;
+  eth_trezor_keyring --> keyring_sdk;
   eth_trezor_keyring --> keyring_utils;
   eth_trezor_keyring --> account_api;
   keyring_internal_api --> keyring_api;
@@ -75,6 +86,8 @@ linkStyle default opacity:0.5
   keyring_internal_snap_client --> keyring_internal_api;
   keyring_internal_snap_client --> keyring_snap_client;
   keyring_internal_snap_client --> keyring_utils;
+  keyring_sdk --> keyring_api;
+  keyring_sdk --> keyring_utils;
   eth_snap_keyring --> keyring_api;
   eth_snap_keyring --> keyring_internal_api;
   eth_snap_keyring --> keyring_internal_snap_client;

@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add new dependency `@metamask/keyring-sdk` ([#478](https://github.com/MetaMask/accounts/pull/478))
+  - This package now contains the keyring v2 wrapper helpers (`EthKeyringWrapper`).
+
 ### Fixed
 
-- Set Ledger clear-sign `nft` from transaction calldata so ERC-20 `approve` and other shared selectors no longer show NFT allowance prompts ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Set Ledger clear-sign `nft` from transaction calldata so ERC-20 `approve` and other shared selectors no longer show NFT allowance prompts ([#475](https://github.com/MetaMask/accounts/pull/475))
   - Export `shouldUseNftLedgerClearSign` for reuse.
   - Extend `LedgerSignTransactionParams` with optional `nft` (forwarded to iframe bridges).
 

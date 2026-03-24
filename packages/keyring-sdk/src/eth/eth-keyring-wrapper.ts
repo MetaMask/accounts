@@ -1,16 +1,7 @@
 import { TransactionFactory, type TypedTxData } from '@ethereumjs/tx';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
-import type { EthKeyring } from '@metamask/keyring-utils';
-import { assert } from '@metamask/superstruct';
-import { add0x, type Hex, type Json } from '@metamask/utils';
-
-import type { KeyringAccount } from '../../api/account';
-import type { KeyringRequest } from '../../api/request';
-import {
-  KeyringWrapper,
-  type KeyringWrapperOptions,
-} from '../../api/v2/wrapper/keyring-wrapper';
+import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import {
   EthDecryptParamsStruct,
   EthGetAppKeyAddressParamsStruct,
@@ -21,8 +12,13 @@ import {
   EthSignTransactionParamsStruct,
   EthSignTypedDataParamsStruct,
   EthSignTypedDataV1ParamsStruct,
-} from '../rpc';
-import { EthMethod } from '../types';
+  EthMethod,
+} from '@metamask/keyring-api';
+import type { EthKeyring } from '@metamask/keyring-utils';
+import { assert } from '@metamask/superstruct';
+import { add0x, type Hex, type Json } from '@metamask/utils';
+
+import { KeyringWrapper, type KeyringWrapperOptions } from '../keyring-wrapper';
 
 /**
  * Additional Ethereum methods supported by Eth keyrings that are not in the standard EthMethod enum.

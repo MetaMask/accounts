@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **BREAKING:** Remove `EthKeyringWrapper`, `EthKeyringMethod`, `KeyringWrapper`, and `KeyringAccountRegistry` exports ([#478](https://github.com/MetaMask/accounts/pull/478))
+  - These have been moved to the new `@metamask/keyring-sdk` package.
+  - `@ethereumjs/tx`, `@metamask/eth-sig-util`, and `async-mutex` are no longer dependencies of this package.
+
+## [21.6.0]
+
 ### Added
 
+- Add `KeyringType.Money` variant ([#472](https://github.com/MetaMask/accounts/pull/472))
 - Add optional `details` field to `Transaction` type ([#445](https://github.com/MetaMask/accounts/pull/445))
   - Add `SecurityAlertResponse` enum with values: `benign`, `warning`, `malicious`
   - Add optional `origin` field (string) to track transaction request source
@@ -707,7 +716,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.5.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.6.0...HEAD
+[21.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.5.0...@metamask/keyring-api@21.6.0
 [21.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.4.0...@metamask/keyring-api@21.5.0
 [21.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.3.0...@metamask/keyring-api@21.4.0
 [21.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.2.0...@metamask/keyring-api@21.3.0
