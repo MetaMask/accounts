@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.0.0]
+
 ### Uncategorized
 
 - build: remove use of workspace versions ([#479](https://github.com/MetaMask/accounts/pull/479))
@@ -152,7 +154,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@9.0.0...HEAD
+[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.2.0...@metamask/keyring-snap-client@9.0.0
 [8.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.1...@metamask/keyring-snap-client@8.2.0
 [8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.0...@metamask/keyring-snap-client@8.1.1
 [8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.0.0...@metamask/keyring-snap-client@8.1.0

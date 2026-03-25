@@ -7,11 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- build: remove use of workspace versions ([#479](https://github.com/MetaMask/accounts/pull/479))
-- fix: update mapping ([#466](https://github.com/MetaMask/accounts/pull/466))
-
 ### Added
 
 - Add new dependency `@metamask/keyring-sdk` ([#478](https://github.com/MetaMask/accounts/pull/478))

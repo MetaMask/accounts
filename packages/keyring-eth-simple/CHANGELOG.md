@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- build: remove use of workspace versions ([#479](https://github.com/MetaMask/accounts/pull/479))
-
 ### Added
 
 - Add `SimpleKeyringV2` class implementing `KeyringV2` interface ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410)), ([#413](https://github.com/MetaMask/accounts/pull/413)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#478](https://github.com/MetaMask/accounts/pull/478))
