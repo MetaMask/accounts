@@ -75,8 +75,8 @@ module.exports = defineConfig({
         // All non-root packages must have a description that ends in a period.
         expectWorkspaceDescription(workspace);
 
-        // All non-root packages must have the same set of NPM keywords.
-        expectWorkspaceField(workspace, 'keywords', ['MetaMask', 'Ethereum']);
+        // All non-root packages must have NPM keywords.
+        expectWorkspaceField(workspace, 'keywords');
 
         // All non-root packages must have a homepage URL that includes its name.
         expectWorkspaceField(
