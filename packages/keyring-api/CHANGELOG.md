@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add Stellar account types and scopes (`XlmScope`, `XlmAccountType`, `XlmEoaAccount`, etc.) ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ### Removed
 
 - **BREAKING:** Remove `EthKeyringWrapper`, `EthKeyringMethod`, `KeyringWrapper`, and `KeyringAccountRegistry` exports ([#478](https://github.com/MetaMask/accounts/pull/478))
