@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [22.0.0]
 
-### Uncategorized
-
-- build: remove use of workspace versions ([#479](https://github.com/MetaMask/accounts/pull/479))
-
 ### Removed
 
 - **BREAKING:** Remove `EthKeyringWrapper`, `EthKeyringMethod`, `KeyringWrapper`, and `KeyringAccountRegistry` exports ([#478](https://github.com/MetaMask/accounts/pull/478))
