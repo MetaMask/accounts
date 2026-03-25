@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add internal Stellar EOA account struct (`InternalXlmEoaAccount`) ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add internal Stellar EOA account struct (`InternalXlmEoaAccount`) ([#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [10.0.0]
 
