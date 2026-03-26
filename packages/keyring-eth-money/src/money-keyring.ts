@@ -94,14 +94,15 @@ export class MoneyKeyring implements Keyring {
 
   async deserialize(state: MoneyKeyringSerializedState): Promise<void> {
     assert(state, MoneyKeyringSerializedStateStruct);
-    this.#entropySourceId = state.entropySourceId;
 
-    const mnemonic = await this.#getMnemonic(this.#entropySourceId);
-    return this.#inner.deserialize({
+    const mnemonic = await this.#getMnemonic(state.entropySourceId);
+    await this.#inner.deserialize({
       mnemonic,
       numberOfAccounts: state.numberOfAccounts,
       hdPath: MONEY_DERIVATION_PATH,
     });
+
+    this.#entropySourceId = state.entropySourceId;
   }
 
   /**
