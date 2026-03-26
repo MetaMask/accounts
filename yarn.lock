@@ -1882,7 +1882,7 @@ __metadata:
     "@metamask/keyring-api": "npm:^22.0.0"
     "@metamask/keyring-internal-api": "npm:^10.0.1"
     "@metamask/keyring-internal-snap-client": "npm:^9.0.1"
-    "@metamask/keyring-snap-sdk": "npm:^7.2.2"
+    "@metamask/keyring-snap-sdk": "npm:^8.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/messenger": "npm:^0.3.0"
     "@metamask/snaps-controllers": "npm:^18.0.0"
@@ -2176,7 +2176,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-snap-sdk@npm:^7.2.2, @metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk":
+"@metamask/keyring-snap-sdk@npm:^8.0.0, @metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk"
   dependencies:
@@ -2204,7 +2204,7 @@ __metadata:
     typescript: "npm:~5.6.3"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
-    "@metamask/keyring-api": ^21.0.0
+    "@metamask/keyring-api": ^22.0.0
     "@metamask/providers": ^19.0.0
   languageName: unknown
   linkType: soft
