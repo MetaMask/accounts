@@ -228,6 +228,14 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       expect(mapping.category).toBe(Category.DeviceState);
     });
 
+    it('maps CAMERA_PERMISSION_DENIED correctly', () => {
+      const mapping = errorMappings.CAMERA_PERMISSION_DENIED;
+      expect(mapping.code).toBe(ErrorCode.PermissionCameraDenied);
+      expect(mapping.severity).toBe(Severity.Err);
+      expect(mapping.category).toBe(Category.Configuration);
+      expect(mapping.userMessage).toContain('Camera');
+    });
+
     it('has valid structure for all mappings', () => {
       Object.values(errorMappings).forEach((mapping) => {
         expect(mapping).toHaveProperty('code');
