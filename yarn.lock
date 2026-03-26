@@ -1880,9 +1880,9 @@ __metadata:
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-internal-api": "npm:^11.0.0"
-    "@metamask/keyring-internal-snap-client": "npm:^10.0.0"
-    "@metamask/keyring-snap-sdk": "npm:^8.0.0"
+    "@metamask/keyring-internal-api": "npm:^10.0.1"
+    "@metamask/keyring-internal-snap-client": "npm:^9.0.1"
+    "@metamask/keyring-snap-sdk": "npm:^7.2.2"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/messenger": "npm:^0.3.0"
     "@metamask/snaps-controllers": "npm:^18.0.0"
@@ -2053,7 +2053,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-internal-api@npm:^11.0.0, @metamask/keyring-internal-api@workspace:packages/keyring-internal-api":
+"@metamask/keyring-internal-api@npm:^10.0.1, @metamask/keyring-internal-api@workspace:packages/keyring-internal-api":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-internal-api@workspace:packages/keyring-internal-api"
   dependencies:
@@ -2079,7 +2079,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-internal-snap-client@npm:^10.0.0, @metamask/keyring-internal-snap-client@workspace:packages/keyring-internal-snap-client":
+"@metamask/keyring-internal-snap-client@npm:^9.0.1, @metamask/keyring-internal-snap-client@workspace:packages/keyring-internal-snap-client":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-internal-snap-client@workspace:packages/keyring-internal-snap-client"
   dependencies:
@@ -2087,8 +2087,8 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-internal-api": "npm:^11.0.0"
-    "@metamask/keyring-snap-client": "npm:^9.0.0"
+    "@metamask/keyring-internal-api": "npm:^10.0.1"
+    "@metamask/keyring-snap-client": "npm:^8.2.1"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/messenger": "npm:^0.3.0"
     "@metamask/snaps-controllers": "npm:^18.0.0"
@@ -2143,7 +2143,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-snap-client@npm:^9.0.0, @metamask/keyring-snap-client@workspace:packages/keyring-snap-client":
+"@metamask/keyring-snap-client@npm:^8.2.1, @metamask/keyring-snap-client@workspace:packages/keyring-snap-client":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-snap-client@workspace:packages/keyring-snap-client"
   dependencies:
@@ -2176,7 +2176,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-snap-sdk@npm:^8.0.0, @metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk":
+"@metamask/keyring-snap-sdk@npm:^7.2.2, @metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk"
   dependencies:
