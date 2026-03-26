@@ -182,7 +182,7 @@ describe('MoneyKeyring', () => {
       await keyring.deserialize(mockState);
 
       await expect(keyring.addAccounts()).rejects.toThrow(
-        'Money keyring already has an account',
+        'MoneyKeyring: already has an account',
       );
     });
 
@@ -191,7 +191,7 @@ describe('MoneyKeyring', () => {
       await keyring.deserialize({ ...mockState, numberOfAccounts: 0 });
 
       await expect(keyring.addAccounts(2)).rejects.toThrow(
-        'Money keyring supports adding exactly one account',
+        'MoneyKeyring: supports adding exactly one account',
       );
     });
 
@@ -226,12 +226,17 @@ describe('MoneyKeyring', () => {
 
   describe('signing pass-through', () => {
     it('signPersonalMessage delegates to the inner keyring', async () => {
+      const { HdKeyring } = await import('@metamask/eth-hd-keyring');
+      const spy = jest.spyOn(HdKeyring.prototype, 'signPersonalMessage');
+
       const keyring = createKeyring();
       await keyring.deserialize(mockState);
 
       const address = await getAddressAtIndex(keyring, 0);
       const message = '0x68656c6c6f'; // "hello" in hex
       const signature = await keyring.signPersonalMessage(address, message);
+
+      expect(spy).toHaveBeenCalledWith(address, message);
       expect(signature).toMatch(/^0x[0-9a-f]+$/u);
     });
   });

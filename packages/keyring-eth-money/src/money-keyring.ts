@@ -120,12 +120,12 @@ export class MoneyKeyring implements Keyring {
    */
   async addAccounts(numberOfAccounts = 1): Promise<Hex[]> {
     if (numberOfAccounts !== 1) {
-      throw new Error('Money keyring supports adding exactly one account');
+      throw new Error('MoneyKeyring: supports adding exactly one account');
     }
 
     const existing = await this.#inner.getAccounts();
     if (existing.length > 0) {
-      throw new Error('Money keyring already has an account');
+      throw new Error('MoneyKeyring: already has an account');
     }
 
     return this.#inner.addAccounts(1);
