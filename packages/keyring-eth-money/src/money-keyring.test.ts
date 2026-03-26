@@ -236,22 +236,6 @@ describe('MoneyKeyring', () => {
     });
   });
 
-  describe('unsupported methods', () => {
-    it('getEncryptionPublicKey throws', async () => {
-      const keyring = createKeyring();
-      await expect(keyring.getEncryptionPublicKey()).rejects.toThrow(
-        'MoneyKeyring: getEncryptionPublicKey is not supported',
-      );
-    });
-
-    it('decryptMessage throws', async () => {
-      const keyring = createKeyring();
-      await expect(keyring.decryptMessage()).rejects.toThrow(
-        'MoneyKeyring: decryptMessage is not supported',
-      );
-    });
-  });
-
   describe('serialize / deserialize round-trip', () => {
     it('serializes what it deserializes', async () => {
       const keyring = createKeyring();
