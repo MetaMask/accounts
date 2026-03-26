@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `PermissionCameraDenied` error code and `CAMERA_PERMISSION_DENIED` mapping for mobile camera permission handling
+- Add `PermissionCameraDenied` error code and `CAMERA_PERMISSION_DENIED` mapping for mobile camera permission handling ([#485](https://github.com/MetaMask/accounts/pull/485))
 
 ## [0.6.0]
 
