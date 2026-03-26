@@ -92,6 +92,15 @@ export class MoneyKeyring implements Keyring {
   async deserialize(state: MoneyKeyringSerializedState): Promise<void> {
     assert(state, MoneyKeyringSerializedStateStruct);
 
+    if (
+      this.#entropySourceId !== undefined &&
+      this.#entropySourceId !== state.entropySourceId
+    ) {
+      throw new Error(
+        'MoneyKeyring: cannot change entropy source ID after initialization',
+      );
+    }
+
     const mnemonic = await this.#getMnemonic(state.entropySourceId);
     await this.#inner.deserialize({
       mnemonic,

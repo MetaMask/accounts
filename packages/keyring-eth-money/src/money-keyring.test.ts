@@ -154,6 +154,17 @@ describe('MoneyKeyring', () => {
       );
     });
 
+    it('throws if called with a different entropySourceId than already set', async () => {
+      const keyring = createKeyring();
+      await keyring.deserialize(mockState);
+
+      await expect(
+        keyring.deserialize({ ...mockState, entropySourceId: 'different-id' }),
+      ).rejects.toThrow(
+        'MoneyKeyring: cannot change entropy source ID after initialization',
+      );
+    });
+
     it('rejects an invalid numberOfAccounts', async () => {
       const keyring = createKeyring();
       await expect(
