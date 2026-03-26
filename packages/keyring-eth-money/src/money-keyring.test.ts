@@ -16,10 +16,7 @@ const mnemonicToBytes = (mnemonic: string): number[] =>
 const mockGetMnemonic = jest.fn<Promise<number[]>, [string]>();
 
 const createKeyring = (): MoneyKeyring =>
-  new MoneyKeyring({
-    entropySourceId: mockEntropySourceId,
-    getMnemonic: mockGetMnemonic,
-  });
+  new MoneyKeyring({ getMnemonic: mockGetMnemonic });
 
 const mockState: MoneyKeyringSerializedState = {
   entropySourceId: mockEntropySourceId,
@@ -78,10 +75,7 @@ describe('MoneyKeyring', () => {
         const getMnemonic = jest
           .fn<Promise<number[]>, [string]>()
           .mockResolvedValue(mnemonicToBytes(mnemonic));
-        const keyring = new MoneyKeyring({
-          entropySourceId,
-          getMnemonic,
-        });
+        const keyring = new MoneyKeyring({ getMnemonic });
         await keyring.deserialize({ entropySourceId, numberOfAccounts: 1 });
 
         const address = await getAddressAtIndex(keyring, 0);
@@ -91,13 +85,11 @@ describe('MoneyKeyring', () => {
   });
 
   describe('serialize', () => {
-    it('serializes a freshly constructed keyring with 0 accounts', async () => {
+    it('throws if called before deserialize', async () => {
       const keyring = createKeyring();
-      const serialized = await keyring.serialize();
-      expect(serialized).toStrictEqual({
-        entropySourceId: mockEntropySourceId,
-        numberOfAccounts: 0,
-      });
+      await expect(keyring.serialize()).rejects.toThrow(
+        'At path: entropySourceId',
+      );
     });
 
     it('never includes a mnemonic in the serialized state', async () => {
@@ -155,10 +147,7 @@ describe('MoneyKeyring', () => {
       const getMnemonic = jest
         .fn<Promise<number[]>, [string]>()
         .mockRejectedValue(new Error('vault locked'));
-      const keyring = new MoneyKeyring({
-        entropySourceId: mockEntropySourceId,
-        getMnemonic,
-      });
+      const keyring = new MoneyKeyring({ getMnemonic });
 
       await expect(keyring.deserialize(mockState)).rejects.toThrow(
         'vault locked',

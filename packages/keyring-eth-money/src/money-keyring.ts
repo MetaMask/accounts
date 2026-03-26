@@ -33,11 +33,9 @@ export type GetMnemonicCallback = (
 /**
  * Options for constructing a {@link MoneyKeyring}.
  *
- * @property entropySourceId - The entropy source identifier.
  * @property getMnemonic - Callback to resolve the mnemonic from an entropy source ID.
  */
 export type MoneyKeyringOptions = {
-  entropySourceId: string;
   getMnemonic: GetMnemonicCallback;
 };
 
@@ -72,12 +70,11 @@ export class MoneyKeyring implements Keyring {
 
   readonly #getMnemonic: GetMnemonicCallback;
 
-  #entropySourceId: string;
+  #entropySourceId: string | undefined;
 
   readonly #inner: HdKeyring;
 
-  constructor({ entropySourceId, getMnemonic }: MoneyKeyringOptions) {
-    this.#entropySourceId = entropySourceId;
+  constructor({ getMnemonic }: MoneyKeyringOptions) {
     this.#getMnemonic = getMnemonic;
     this.#inner = new HdKeyring();
   }

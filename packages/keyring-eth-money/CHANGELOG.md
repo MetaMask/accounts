@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING:** Replace inheritance with composition; `MoneyKeyring` now wraps an inner `HdKeyring` instead of extending it ([#484](https://github.com/MetaMask/accounts/pull/484))
-  - Constructor now requires a `MoneyKeyringOptions` object with `entropySourceId` and `getMnemonic` callback.
+  - Constructor now requires a `MoneyKeyringOptions` object with a `getMnemonic` callback. The `entropySourceId` is set by `deserialize()` from the serialized state.
   - Serialized state stores `entropySourceId` instead of `mnemonic`; the mnemonic is resolved at deserialization time via the callback.
   - `hdPath` is no longer part of the serialized state; it is always `MONEY_DERIVATION_PATH`.
   - `signMessage`, `getEncryptionPublicKey`, `decryptMessage`, `exportAccount`, and `getAppKeyAddress` are no longer exposed.
