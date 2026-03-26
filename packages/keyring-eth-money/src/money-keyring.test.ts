@@ -154,14 +154,12 @@ describe('MoneyKeyring', () => {
       );
     });
 
-    it('throws if called with a different entropySourceId than already set', async () => {
+    it('throws if called after initialization', async () => {
       const keyring = createKeyring();
       await keyring.deserialize(mockState);
 
-      await expect(
-        keyring.deserialize({ ...mockState, entropySourceId: 'different-id' }),
-      ).rejects.toThrow(
-        'MoneyKeyring: cannot change entropy source ID after initialization',
+      await expect(keyring.deserialize(mockState)).rejects.toThrow(
+        'MoneyKeyring: cannot deserialize after initialization',
       );
     });
 
