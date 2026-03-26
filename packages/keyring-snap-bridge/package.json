@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-snap-keyring",
-  "version": "20.0.0",
+  "version": "19.0.1",
   "description": "Snaps keyring bridge.",
   "repository": {
     "type": "git",
@@ -40,9 +40,9 @@
     "@ethereumjs/tx": "^5.4.0",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/keyring-api": "^22.0.0",
-    "@metamask/keyring-internal-api": "^11.0.0",
-    "@metamask/keyring-internal-snap-client": "^10.0.0",
-    "@metamask/keyring-snap-sdk": "^8.0.0",
+    "@metamask/keyring-internal-api": "^10.0.1",
+    "@metamask/keyring-internal-snap-client": "^9.0.1",
+    "@metamask/keyring-snap-sdk": "^7.2.2",
     "@metamask/keyring-utils": "^3.2.0",
     "@metamask/messenger": "^0.3.0",
     "@metamask/superstruct": "^3.1.0",
