@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `handleKeyringRequestV2` function for dispatching keyring v2 JSON-RPC requests ([#408](https://github.com/MetaMask/accounts/pull/408))
+
 ## [7.2.1]
 
 ### Fixed
