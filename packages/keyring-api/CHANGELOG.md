@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - These have been moved to the new `@metamask/keyring-sdk` package.
   - `@ethereumjs/tx`, `@metamask/eth-sig-util`, and `async-mutex` are no longer dependencies of this package.
 
+### Fixed
+
+- Change `KeyringCapabilitiesStruct` to use `optional` instead of `exactOptional` for nested fields ([#481](https://github.com/MetaMask/accounts/pull/481))
+  - No runtime behavior change for JSON-sourced data; `undefined` cannot appear in JSON.
+
 ## [21.6.0]
 
 ### Added
