@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-snap-sdk",
-  "version": "7.2.1",
+  "version": "8.0.0",
   "description": "MetaMask Keyring Snap SDK",
   "keywords": [
     "metamask",
@@ -55,7 +55,7 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
-    "@metamask/keyring-api": "^21.6.0",
+    "@metamask/keyring-api": "^22.0.0",
     "@metamask/providers": "^19.0.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
@@ -72,7 +72,7 @@
     "typescript": "~5.6.3"
   },
   "peerDependencies": {
-    "@metamask/keyring-api": "^21.0.0",
+    "@metamask/keyring-api": "^22.0.0",
     "@metamask/providers": "^19.0.0"
   },
   "engines": {

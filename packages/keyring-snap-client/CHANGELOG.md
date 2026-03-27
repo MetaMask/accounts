@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [8.2.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.6.0` to `^22.0.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
+
 ## [8.2.0]
 
 ### Added
@@ -148,7 +154,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.2.1...HEAD
+[8.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.2.0...@metamask/keyring-snap-client@8.2.1
 [8.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.1...@metamask/keyring-snap-client@8.2.0
 [8.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.1.0...@metamask/keyring-snap-client@8.1.1
 [8.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@8.0.0...@metamask/keyring-snap-client@8.1.0
