@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `QrKeyringV2` class implementing `KeyringV2` interface ([#411](https://github.com/MetaMask/accounts/pull/411)), ([#447](https://github.com/MetaMask/accounts/pull/447)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#453](https://github.com/MetaMask/accounts/pull/453)), ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482)), ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `QrKeyringV2` class implementing `KeyringV2` interface ([#411](https://github.com/MetaMask/accounts/pull/411)), ([#447](https://github.com/MetaMask/accounts/pull/447)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#453](https://github.com/MetaMask/accounts/pull/453)), ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482)), ([#487](https://github.com/MetaMask/accounts/pull/487))
   - Add new dependency `@metamask/keyring-api@22.0.0`.
   - Add new dependency `@metamask/keyring-sdk@1.0.0`.
   - Add new dependency `@metamask/account-api@1.0.1`.
