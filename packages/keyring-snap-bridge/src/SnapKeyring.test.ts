@@ -40,7 +40,7 @@ import {
   type MessengerEvents,
   type MockAnyNamespace,
 } from '@metamask/messenger';
-import type { HandleSnapRequest } from '@metamask/snaps-controllers';
+import type { SnapControllerHandleRequestAction } from '@metamask/snaps-controllers';
 import { type SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 import { assert } from '@metamask/superstruct';
@@ -55,7 +55,9 @@ import { DeferredPromise } from './DeferredPromise';
 import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 
-type SnapRpcRequest = Parameters<HandleSnapRequest['handler']>[0];
+type SnapRpcRequest = Parameters<
+  SnapControllerHandleRequestAction['handler']
+>[0];
 
 const regexForUUIDInRequiredSyncErrorMessage =
   /Request '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}' to Snap 'local:snap.mock' is pending and noPending is true/u;
@@ -273,7 +275,7 @@ describe('SnapKeyring', () => {
     MessengerActions<SnapKeyringMessenger>,
     MessengerEvents<SnapKeyringMessenger>
   > = new Messenger({ namespace: MOCK_ANY_NAMESPACE });
-  messenger.registerActionHandler('SnapController:get', mockMessenger.get);
+  messenger.registerActionHandler('SnapController:getSnap', mockMessenger.get);
   messenger.registerActionHandler(
     'SnapController:handleRequest',
     mockMessenger.handleRequest,
@@ -291,7 +293,7 @@ describe('SnapKeyring', () => {
   messenger.delegate({
     messenger: mockSnapKeyringMessenger,
     actions: [
-      'SnapController:get',
+      'SnapController:getSnap',
       'SnapController:handleRequest',
       'SnapController:isMinimumPlatformVersion',
     ],
