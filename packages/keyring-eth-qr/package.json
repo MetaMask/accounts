@@ -65,7 +65,7 @@
     "@ethereumjs/common": "^4.4.0",
     "@keystonehq/metamask-airgapped-keyring": "^0.15.2",
     "@lavamoat/allow-scripts": "^3.2.1",
-    "@metamask/account-api": "^1.0.0",
+    "@metamask/account-api": "^1.0.1",
     "@metamask/auto-changelog": "^3.4.4",
     "@types/hdkey": "^2.0.1",
     "@types/jest": "^29.5.12",

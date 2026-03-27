@@ -65,7 +65,7 @@
     "@ledgerhq/types-cryptoassets": "^7.15.1",
     "@ledgerhq/types-devices": "^6.25.3",
     "@ledgerhq/types-live": "^6.52.0",
-    "@metamask/account-api": "^1.0.0",
+    "@metamask/account-api": "^1.0.1",
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/keyring-utils": "^3.2.0",
     "@metamask/utils": "^11.1.0",
