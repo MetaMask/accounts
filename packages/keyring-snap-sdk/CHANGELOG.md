@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING:** Bump `@metamask/keyring-api` from `^21.0.0` to `^22.0.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
+- Bump `@metamask/snaps-sdk` from `^10.4.0` to `^11.0.0` ([#486](https://github.com/MetaMask/accounts/pull/486))
 
 ## [7.2.1]
 

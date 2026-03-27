@@ -1718,8 +1718,8 @@ export class SnapKeyring {
    * @param snapId - Snap ID.
    * @returns The Snap or undefined if the Snap cannot be found.
    */
-  #getSnap(snapId: SnapId): Snap | undefined {
-    return this.#messenger.call('SnapController:get', snapId);
+  #getSnap(snapId: SnapId): Snap | null {
+    return this.#messenger.call('SnapController:getSnap', snapId);
   }
 
   /**

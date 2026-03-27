@@ -5,9 +5,9 @@ import type {
 } from '@metamask/keyring-api';
 import type { Messenger } from '@metamask/messenger';
 import type {
-  HandleSnapRequest as SnapControllerHandleSnapRequest,
-  GetSnap as SnapControllerGetSnap,
-  IsMinimumPlatformVersion as SnapControllerIsMinimumPlatformVersion,
+  SnapControllerHandleRequestAction,
+  SnapControllerGetSnapAction,
+  SnapControllerIsMinimumPlatformVersionAction,
 } from '@metamask/snaps-controllers';
 
 export type SnapKeyringGetAccountsAction = {
@@ -36,9 +36,9 @@ export type SnapKeyringEvents =
   | SnapKeyringAccountTransactionsUpdatedEvent;
 
 export type SnapKeyringAllowedActions =
-  | SnapControllerHandleSnapRequest
-  | SnapControllerGetSnap
-  | SnapControllerIsMinimumPlatformVersion;
+  | SnapControllerHandleRequestAction
+  | SnapControllerGetSnapAction
+  | SnapControllerIsMinimumPlatformVersionAction;
 
 export const SNAP_KEYRING_NAME = 'SnapKeyring';
 
