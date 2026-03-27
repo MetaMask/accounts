@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support Stellar (`xlm:eoa`) accounts in account assertions and v1 migrations ([#483](https://github.com/MetaMask/accounts/pull/483))
+
 ## [19.0.0]
 
 ### Added

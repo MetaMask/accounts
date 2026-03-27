@@ -29,6 +29,9 @@ import {
   TrxScope,
   TrxMethod,
   TrxAccountType,
+  XlmScope,
+  XlmMethod,
+  XlmAccountType,
   AccountCreationType,
 } from '@metamask/keyring-api';
 import { SnapManageAccountsMethod } from '@metamask/keyring-snap-sdk';
@@ -214,6 +217,15 @@ describe('SnapKeyring', () => {
     type: TrxAccountType.Eoa,
   };
 
+  const xlmEoaAccount = {
+    id: '890ee179-5ab5-449d-9c25-34e12c1ada68',
+    address: 'GDRF6HX6GXUA74N7LFSXVYPPINW5QRLFPQS4PNFG7HJF6DFQQNT2TI4F',
+    options: {},
+    methods: [...Object.values(XlmMethod)],
+    scopes: [XlmScope.Mainnet, XlmScope.Testnet],
+    type: XlmAccountType.Eoa,
+  };
+
   // This is an example generic chain, its scope and address are bogus.
   const anyGenericAccount: KeyringAccount = {
     id: '6131c205-26b5-40a8-9626-4761423bb1d5',
@@ -260,6 +272,7 @@ describe('SnapKeyring', () => {
     btcAccountP2tr,
     solDataAccount,
     trxEoaAccount,
+    xlmEoaAccount,
     anyGenericAccount,
   ] as const;
 
@@ -1226,6 +1239,7 @@ describe('SnapKeyring', () => {
           btcAccountP2tr.address,
           solDataAccount.address,
           trxEoaAccount.address,
+          xlmEoaAccount.address,
           anyGenericAccount.address,
         ]);
       });
@@ -1246,6 +1260,7 @@ describe('SnapKeyring', () => {
           btcAccountP2tr.address,
           solDataAccount.address,
           trxEoaAccount.address,
+          xlmEoaAccount.address,
           anyGenericAccount.address,
         ]);
       });
@@ -1458,6 +1473,7 @@ describe('SnapKeyring', () => {
         btcAccountP2tr.address,
         solDataAccount.address,
         trxEoaAccount.address,
+        xlmEoaAccount.address,
         anyGenericAccount.address,
       ]);
     });
@@ -1504,6 +1520,7 @@ describe('SnapKeyring', () => {
           [btcAccountP2tr.id]: { account: btcAccountP2tr, snapId },
           [solDataAccount.id]: { account: solDataAccount, snapId },
           [trxEoaAccount.id]: { account: trxEoaAccount, snapId },
+          [xlmEoaAccount.id]: { account: xlmEoaAccount, snapId },
           [anyGenericAccount.id]: { account: anyGenericAccount, snapId },
         },
       };
@@ -1558,6 +1575,7 @@ describe('SnapKeyring', () => {
       btcTestnetAccount,
       solDataAccount,
       trxEoaAccount,
+      xlmEoaAccount,
     ])('migrates accounts v1: %s', async (expectedAccount: KeyringAccount) => {
       // A v1 account has no scopes, so remove it.
       const state = {
@@ -1581,6 +1599,7 @@ describe('SnapKeyring', () => {
       btcTestnetAccount,
       solDataAccount,
       trxEoaAccount,
+      xlmEoaAccount,
       anyGenericAccount,
     ])(
       'migrates v2 accounts to v1 accounts is noop: %s',
@@ -2241,6 +2260,7 @@ describe('SnapKeyring', () => {
         accounts[8].address,
         accounts[9].address,
         accounts[10].address,
+        accounts[11].address,
       ]);
     });
 
@@ -2259,6 +2279,7 @@ describe('SnapKeyring', () => {
         accounts[8].address,
         accounts[9].address,
         accounts[10].address,
+        accounts[11].address,
       ]);
       expect(console.error).toHaveBeenCalledWith(
         "Account '0xc728514df8a7f9271f4b7a4dd2aa6d2d723d3ee3' may not have been removed from snap 'local:snap.mock':",
