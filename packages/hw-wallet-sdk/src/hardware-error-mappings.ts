@@ -212,6 +212,14 @@ export const BLE_ERROR_MAPPINGS = {
 };
 
 export const MOBILE_ERROR_MAPPINGS = {
+  CAMERA_PERMISSION_DENIED: {
+    code: ErrorCode.PermissionCameraDenied,
+    message: 'Camera permission denied',
+    severity: Severity.Err,
+    category: Category.Configuration,
+    userMessage:
+      'Camera permission is required to scan QR codes. Please enable it in your device settings.',
+  },
   NOT_SUPPORTED: {
     code: ErrorCode.MobileNotSupported,
     message: 'Operation not supported on mobile',
