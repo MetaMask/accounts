@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/hw-wallet-sdk` from `^0.6.0` to `^0.7.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
 - Bump `@metamask/keyring-api` from `^21.6.0` to `^22.0.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
-- Add new dependency `@metamask/keyring-sdk` ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482))
+- Add new dependency `@metamask/keyring-sdk@1.0.0` ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482))
   - This package now contains the keyring v2 wrapper helpers (`EthKeyringWrapper`).
 
 ## [11.3.0]
