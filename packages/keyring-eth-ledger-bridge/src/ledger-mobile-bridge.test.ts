@@ -165,6 +165,37 @@ describe('LedgerMobileBridge', function () {
       expect(mockEthApp.clearSignTransaction).toHaveBeenCalledWith(hdPath, tx, {
         externalPlugins: true,
         erc20: true,
+        nft: false,
+      });
+    });
+
+    it('enables NFT clear-sign resolution for setApprovalForAll calldata', async function () {
+      const hdPath = "m/44'/60'/0'/0/0";
+      const tx =
+        '02f86b0180843b9aca00843b9aca0082520894111111111111111111111111111111111111111180b840a22cb465000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0808080';
+      await bridge.deviceSignTransaction({
+        hdPath,
+        tx,
+      });
+      expect(mockEthApp.clearSignTransaction).toHaveBeenCalledWith(hdPath, tx, {
+        externalPlugins: true,
+        erc20: true,
+        nft: true,
+      });
+    });
+
+    it('uses explicit nft when provided', async function () {
+      const hdPath = "m/44'/60'/0'/0/0";
+      const tx =
+        '02f86b0180843b9aca00843b9aca0082520894111111111111111111111111111111111111111180b840095ea7b3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0808080';
+      await bridge.deviceSignTransaction({
+        hdPath,
+        tx,
+        nft: true,
+      });
+      expect(mockEthApp.clearSignTransaction).toHaveBeenCalledWith(hdPath, tx, {
+        externalPlugins: true,
+        erc20: true,
         nft: true,
       });
     });
@@ -183,7 +214,7 @@ describe('LedgerMobileBridge', function () {
       expect(mockEthApp.clearSignTransaction).toHaveBeenCalledWith(hdPath, tx, {
         externalPlugins: true,
         erc20: true,
-        nft: true,
+        nft: false,
       });
     });
   });

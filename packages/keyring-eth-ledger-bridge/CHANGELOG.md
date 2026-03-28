@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump `@metamask/keyring-api` from `^21.6.0` to `^22.0.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
 - Bump `@metamask/account-api` from `^1.0.0` to `^1.0.1` ([#487](https://github.com/MetaMask/accounts/pull/487))
 
+### Fixed
+
+- Set Ledger clear-sign `nft` from transaction calldata so ERC-20 `approve` and other shared selectors no longer show NFT allowance prompts ([#475](https://github.com/MetaMask/accounts/pull/475))
+  - Export `shouldUseNftLedgerClearSign` for reuse.
+  - Extend `LedgerSignTransactionParams` with optional `nft` (forwarded to iframe bridges).
+
 ## [11.3.0]
 
 ### Changed
