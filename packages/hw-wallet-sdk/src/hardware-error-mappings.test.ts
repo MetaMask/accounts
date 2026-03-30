@@ -2,6 +2,7 @@ import {
   LEDGER_ERROR_MAPPINGS,
   BLE_ERROR_MAPPINGS,
   MOBILE_ERROR_MAPPINGS,
+  QR_WALLET_ERROR_MAPPINGS,
   TREZOR_ERROR_MAPPINGS,
 } from './hardware-error-mappings';
 import type { ErrorMapping } from './hardware-error-mappings';
@@ -234,6 +235,48 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       expect(mapping.severity).toBe(Severity.Err);
       expect(mapping.category).toBe(Category.Configuration);
       expect(mapping.userMessage).toContain('Camera');
+    });
+
+    it('has valid structure for all mappings', () => {
+      Object.values(errorMappings).forEach((mapping) => {
+        expect(mapping).toHaveProperty('code');
+        expect(mapping).toHaveProperty('message');
+        expect(mapping).toHaveProperty('severity');
+        expect(mapping).toHaveProperty('category');
+
+        const numericErrorCodes = Object.values(ErrorCode).filter(
+          (value): value is number => typeof value === 'number',
+        );
+        expect(numericErrorCodes).toContain(mapping.code);
+        expect(Object.values(Severity)).toContain(mapping.severity);
+        expect(Object.values(Category)).toContain(mapping.category);
+        expect(typeof mapping.message).toBe('string');
+      });
+    });
+  });
+
+  describe('QR wallet mappings', () => {
+    const errorMappings = QR_WALLET_ERROR_MAPPINGS;
+
+    it('has errorMappings object', () => {
+      expect(errorMappings).toBeDefined();
+      expect(typeof errorMappings).toBe('object');
+    });
+
+    it('maps CAMERA_PERMISSION_PROMPT_DISMISSED for State 1 (dialog dismissed)', () => {
+      const mapping = errorMappings.CAMERA_PERMISSION_PROMPT_DISMISSED;
+      expect(mapping).toBeDefined();
+      expect(mapping?.code).toBe(ErrorCode.PermissionCameraPromptDismissed);
+      expect(mapping?.severity).toBe(Severity.Warning);
+      expect(mapping?.userMessage).toContain('QR code');
+    });
+
+    it('maps CAMERA_PERMISSION_BLOCKED for State 2 (persistent block)', () => {
+      const mapping = errorMappings.CAMERA_PERMISSION_BLOCKED;
+      expect(mapping).toBeDefined();
+      expect(mapping?.code).toBe(ErrorCode.PermissionCameraDenied);
+      expect(mapping?.severity).toBe(Severity.Err);
+      expect(mapping?.userMessage).toContain('browser settings');
     });
 
     it('has valid structure for all mappings', () => {

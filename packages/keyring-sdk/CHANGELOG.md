@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `@metamask/utils` from `^11.1.0` to `^11.10.0` ([#489](https://github.com/MetaMask/accounts/pull/489))
+
+## [1.0.0]
+
 ### Added
 
-- Initial release, extracted from `@metamask/keyring-api` ([#478](https://github.com/MetaMask/accounts/pull/478))
+- Initial release, extracted from `@metamask/keyring-api` ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482))
 
-[Unreleased]: https://github.com/MetaMask/accounts/
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@1.0.0...HEAD
+[1.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/keyring-sdk@1.0.0

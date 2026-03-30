@@ -7,13 +7,13 @@ import { SubmitRequestResponseV1Struct } from '@metamask/keyring-internal-api';
 import { KeyringClient, type Sender } from '@metamask/keyring-snap-client';
 import { strictMask, type JsonRpcRequest } from '@metamask/keyring-utils';
 import type { Messenger } from '@metamask/messenger';
-import type { HandleSnapRequest } from '@metamask/snaps-controllers';
+import type { SnapControllerHandleRequestAction } from '@metamask/snaps-controllers';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 import type { Json } from '@metamask/utils';
 
 // We only need to dispatch Snap request to the Snaps controller for now.
-type AllowedActions = HandleSnapRequest;
+type AllowedActions = SnapControllerHandleRequestAction;
 
 /**
  * A restricted-`Messenger` used by `KeyringInternalSnapClient` to dispatch

@@ -229,6 +229,27 @@ export const MOBILE_ERROR_MAPPINGS = {
   },
 };
 
+/**
+ * QR error mappings - static error data for QR hardware wallets and their related flows.
+ */
+export const QR_WALLET_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
+  CAMERA_PERMISSION_PROMPT_DISMISSED: {
+    code: ErrorCode.PermissionCameraPromptDismissed,
+    message: 'Camera permission prompt dismissed without granting access',
+    severity: Severity.Warning,
+    category: Category.Configuration,
+    userMessage:
+      'MetaMask needs camera access to scan the QR code on your device.',
+  },
+  CAMERA_PERMISSION_BLOCKED: {
+    code: ErrorCode.PermissionCameraDenied,
+    message: 'Camera permission blocked by the browser',
+    severity: Severity.Err,
+    category: Category.Configuration,
+    userMessage: 'To continue, allow camera access in your browser settings.',
+  },
+};
+
 /* eslint-disable @typescript-eslint/naming-convention */
 /**
  * Trezor error mappings - static error data for Trezor hardware wallets.
