@@ -19,7 +19,7 @@ const createKeyring = (): MoneyKeyring =>
   new MoneyKeyring({ getMnemonic: mockGetMnemonic });
 
 const mockState: MoneyKeyringSerializedState = {
-  entropySourceId: mockEntropySourceId,
+  entropySource: mockEntropySourceId,
   numberOfAccounts: 1,
 };
 
@@ -53,30 +53,30 @@ describe('MoneyKeyring', () => {
   describe('address derivation is deterministic', () => {
     it.each([
       {
-        entropySourceId: 'srp-1',
+        entropySource: 'srp-1',
         mnemonic: mockMnemonic,
         expectedAddress: '0x13203ef2a0e1fb26bfddcaf86a4a7d08a52d78aa',
       },
       {
-        entropySourceId: 'srp-2',
+        entropySource: 'srp-2',
         mnemonic:
           'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
         expectedAddress: '0x9396093a74662a2fef84ad7d99155b0fb1658553',
       },
       {
-        entropySourceId: 'srp-3',
+        entropySource: 'srp-3',
         mnemonic:
           'letter ethics correct bus asset pipe tourist vapor envelope kangaroo warm dawn',
         expectedAddress: '0x4eb3d02b362bb921ce5af3e13dded943af7460ed',
       },
     ])(
       'derives the expected address for a given SRP',
-      async ({ entropySourceId, mnemonic, expectedAddress }) => {
+      async ({ entropySource, mnemonic, expectedAddress }) => {
         const getMnemonic = jest
           .fn<Promise<number[]>, [string]>()
           .mockResolvedValue(mnemonicToBytes(mnemonic));
         const keyring = new MoneyKeyring({ getMnemonic });
-        await keyring.deserialize({ entropySourceId, numberOfAccounts: 1 });
+        await keyring.deserialize({ entropySource, numberOfAccounts: 1 });
 
         const address = await getAddressAtIndex(keyring, 0);
         expect(address).toBe(expectedAddress);
@@ -88,7 +88,7 @@ describe('MoneyKeyring', () => {
     it('throws if called before deserialize', async () => {
       const keyring = createKeyring();
       await expect(keyring.serialize()).rejects.toThrow(
-        'At path: entropySourceId',
+        'At path: entropySource',
       );
     });
 
@@ -108,7 +108,7 @@ describe('MoneyKeyring', () => {
       await keyring.deserialize(mockState);
 
       const serialized = await keyring.serialize();
-      expect(serialized.entropySourceId).toBe(mockEntropySourceId);
+      expect(serialized.entropySource).toBe(mockEntropySourceId);
       expect(serialized.numberOfAccounts).toBe(1);
     });
 
@@ -222,6 +222,19 @@ describe('MoneyKeyring', () => {
     });
   });
 
+  describe('entropySource', () => {
+    it('returns undefined before deserialize', () => {
+      const keyring = createKeyring();
+      expect(keyring.entropySource).toBeUndefined();
+    });
+
+    it('returns the entropy source after deserialize', async () => {
+      const keyring = createKeyring();
+      await keyring.deserialize(mockState);
+      expect(keyring.entropySource).toBe(mockEntropySourceId);
+    });
+  });
+
   describe('signing pass-through', () => {
     it('signPersonalMessage delegates to the inner keyring', async () => {
       const { HdKeyring } = await import('@metamask/eth-hd-keyring');
@@ -255,7 +268,7 @@ describe('MoneyKeyring', () => {
 
       const restoredSerialized = await restored.serialize();
       expect(restoredSerialized).toStrictEqual({
-        entropySourceId: mockEntropySourceId,
+        entropySource: mockEntropySourceId,
         numberOfAccounts: 1,
       });
     });

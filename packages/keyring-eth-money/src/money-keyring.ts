@@ -23,12 +23,10 @@ export const MONEY_KEYRING_TYPE = 'Money Keyring';
 /**
  * Callback used to resolve a mnemonic from an entropy source ID.
  *
- * @param entropySourceId - The entropy source identifier.
+ * @param entropySource - The entropy source identifier.
  * @returns The mnemonic as an array of UTF-8 byte values.
  */
-export type GetMnemonicCallback = (
-  entropySourceId: string,
-) => Promise<number[]>;
+export type GetMnemonicCallback = (entropySource: string) => Promise<number[]>;
 
 /**
  * Options for constructing a {@link MoneyKeyring}.
@@ -42,11 +40,11 @@ export type MoneyKeyringOptions = {
 /**
  * Struct for validating the serialized state of a {@link MoneyKeyring}.
  *
- * @property entropySourceId - The entropy source identifier.
+ * @property entropySource - The entropy source identifier.
  * @property numberOfAccounts - The number of accounts; must be 0 or 1.
  */
 const MoneyKeyringSerializedStateStruct = object({
-  entropySourceId: stringStruct(),
+  entropySource: stringStruct(),
   numberOfAccounts: union([literal(0), literal(1)]),
 });
 
@@ -70,7 +68,7 @@ export class MoneyKeyring implements Keyring {
 
   readonly #getMnemonic: GetMnemonicCallback;
 
-  #entropySourceId: string | undefined;
+  #entropySource: string | undefined;
 
   readonly #inner: HdKeyring;
 
@@ -79,10 +77,14 @@ export class MoneyKeyring implements Keyring {
     this.#inner = new HdKeyring();
   }
 
+  get entropySource(): string | undefined {
+    return this.#entropySource;
+  }
+
   async serialize(): Promise<MoneyKeyringSerializedState> {
     const innerState = await this.#inner.serialize();
     const state = {
-      entropySourceId: this.#entropySourceId,
+      entropySource: this.#entropySource,
       numberOfAccounts: innerState.numberOfAccounts,
     };
     assert(state, MoneyKeyringSerializedStateStruct);
@@ -92,18 +94,18 @@ export class MoneyKeyring implements Keyring {
   async deserialize(state: MoneyKeyringSerializedState): Promise<void> {
     assert(state, MoneyKeyringSerializedStateStruct);
 
-    if (this.#entropySourceId !== undefined) {
+    if (this.#entropySource !== undefined) {
       throw new Error('MoneyKeyring: cannot deserialize after initialization');
     }
 
-    const mnemonic = await this.#getMnemonic(state.entropySourceId);
+    const mnemonic = await this.#getMnemonic(state.entropySource);
     await this.#inner.deserialize({
       mnemonic,
       numberOfAccounts: state.numberOfAccounts,
       hdPath: MONEY_DERIVATION_PATH,
     });
 
-    this.#entropySourceId = state.entropySourceId;
+    this.#entropySource = state.entropySource;
   }
 
   /**
