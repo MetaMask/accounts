@@ -1,12 +1,21 @@
-import type { Signer } from '../signer';
+import type { CaipChainId, KeyringAccountType } from '@metamask/keyring-api';
+
+import type { Bip122Signer, Signer } from '../signer';
 
 /**
- * The type of entropy source.
+ * The category of entropy source.
  *
  * - `'bip44'` — Entropy that uses BIP-44 to derive signers.
- * - `'private-key'` — Entropy that exposes a basic private key signer.
+ * - `'raw'` — Entropy that exposes a single key directly, without derivation.
  */
-export type EntropyType = 'bip44' | 'private-key';
+export type EntropyCategory = 'bip44' | 'raw';
+
+/**
+ * The type of entropy source, expressed as `category:implementation`.
+ *
+ * Examples: `'bip44:srp'`, `'bip44:ledger'`, `'raw:private-key'`, `'raw:mpc'`.
+ */
+export type EntropyType = `${EntropyCategory}:${string}`;
 
 /**
  * Unique identifier for an entropy source.
@@ -35,7 +44,7 @@ export type Entropy = {
    * @param options - Scope-specific options for getting the signer.
    * @returns The signer for the specified scope.
    */
-  getSigner(scope: string, options: unknown): Promise<Signer>;
+  getSigner(scope: CaipChainId, options: unknown): Promise<Signer>;
 };
 
 /**
@@ -50,18 +59,26 @@ export type Bip44GetSignerOptions = {
   /**
    * The derivation path that should be used to derive the signer.
    */
-  path: Bip32PathNode[];
+  derivationPath: Bip32PathNode[];
 };
 
 /**
  * BIP-44 entropy interface.
  */
 export type Bip44Entropy = Entropy & {
-  type: 'bip44';
+  type: `bip44:${string}`;
 
   id: EntropyId;
 
-  getSigner(scope: string, options: Bip44GetSignerOptions): Promise<Signer>;
+  getSigner(
+    scope: `bip122:${string}`,
+    options: Bip44GetSignerOptions,
+  ): Promise<Bip122Signer>;
+
+  getSigner(
+    scope: CaipChainId,
+    options: Bip44GetSignerOptions,
+  ): Promise<Signer>;
 };
 
 /**
@@ -71,28 +88,36 @@ export type Bip44Entropy = Entropy & {
  * @returns True if the entropy is a Bip44Entropy, false otherwise.
  */
 export function isBip44Entropy(entropy: Entropy): entropy is Bip44Entropy {
-  return entropy.type === 'bip44';
+  return entropy.type.startsWith('bip44:');
 }
 
 /**
- * Private key entropy interface.
+ * Options for getting a signer from a raw entropy source.
  */
-export type PrivateKeyEntropy = Entropy & {
-  type: 'private-key';
-
-  id: EntropyId;
-
-  getSigner(scope: string): Promise<Signer>;
+export type RawGetSignerOptions = {
+  /**
+   * The type of account to get the signer for.
+   */
+  accountType: KeyringAccountType;
 };
 
 /**
- * Checks if the entropy is a PrivateKeyEntropy.
+ * Raw entropy interface.
+ */
+export type RawEntropy = Entropy & {
+  type: `raw:${string}`;
+
+  id: EntropyId;
+
+  getSigner(scope: CaipChainId, options: RawGetSignerOptions): Promise<Signer>;
+};
+
+/**
+ * Checks if the entropy is a RawEntropy.
  *
  * @param entropy - The entropy to check.
- * @returns True if the entropy is a PrivateKeyEntropy, false otherwise.
+ * @returns True if the entropy is a RawEntropy, false otherwise.
  */
-export function isPrivateKeyEntropy(
-  entropy: Entropy,
-): entropy is PrivateKeyEntropy {
-  return entropy.type === 'private-key';
+export function isRawEntropy(entropy: Entropy): entropy is RawEntropy {
+  return entropy.type.startsWith('raw:');
 }

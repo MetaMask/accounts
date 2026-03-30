@@ -1,3 +1,5 @@
+import type { CaipChainId } from '@metamask/keyring-api';
+
 /**
  * Base type for all signers.
  */
@@ -8,5 +10,5 @@ export type Signer = {
    *
    * @see https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
    */
-  scope: string;
+  scope: CaipChainId;
 };

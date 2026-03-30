@@ -4,6 +4,7 @@ import type {
 } from '@ledgerhq/device-management-kit';
 import { SignerBtcBuilder } from '@ledgerhq/device-signer-kit-bitcoin';
 import type { SignerBtc } from '@ledgerhq/device-signer-kit-bitcoin';
+import type { CaipChainId } from '@metamask/keyring-api';
 import type { Bip122Signer } from 'src/signer';
 
 import type { Bip44Entropy, Bip44GetSignerOptions } from './entropy';
@@ -17,7 +18,7 @@ import type { Signer } from '../signer/signer';
  * scope and derivation path.
  */
 export class LedgerEntropy implements Bip44Entropy {
-  readonly type = 'bip44';
+  readonly type = 'bip44:ledger';
 
   readonly id: string;
 
@@ -45,14 +46,14 @@ export class LedgerEntropy implements Bip44Entropy {
   ): Promise<Bip122Signer>;
 
   async getSigner(
-    scope: string,
+    scope: CaipChainId,
     options: Bip44GetSignerOptions,
   ): Promise<Signer> {
     if (scope.startsWith('bip122:')) {
       return new LedgerBitcoinSigner(
         this.#session,
         scope as `bip122:${string}`,
-        options.path,
+        options.derivationPath,
       );
     }
 
