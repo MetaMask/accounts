@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `@metamask/messenger` from `^0.3.0` to `^1.0.0` ([#489](https://github.com/MetaMask/accounts/pull/489))
+- Bump `@metamask/utils` from `^11.1.0` to `^11.10.0` ([#489](https://github.com/MetaMask/accounts/pull/489))
+
 ## [20.0.0]
 
 ### Changed
