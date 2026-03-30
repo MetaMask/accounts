@@ -58,6 +58,7 @@ export enum ErrorCode {
   BluetoothConnectionFailed = 7102,
   MobileNotSupported = 7300,
   PermissionCameraDenied = 7301,
+  PermissionCameraPromptDismissed = 7302,
 
   // Transaction
   TxInsufficientFunds = 10000,

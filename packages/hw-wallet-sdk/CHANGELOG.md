@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `PermissionCameraPromptDismissed` error code and `QR_WALLET_ERROR_MAPPINGS` used for extension QR hardware wallet camera flows ([#490](https://github.com/MetaMask/accounts/pull/490))
+
 ## [0.7.0]
 
 ### Added
