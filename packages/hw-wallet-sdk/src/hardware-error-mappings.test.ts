@@ -236,6 +236,23 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       expect(mapping.category).toBe(Category.Configuration);
       expect(mapping.userMessage).toContain('Camera');
     });
+
+    it('has valid structure for all mappings', () => {
+      Object.values(errorMappings).forEach((mapping) => {
+        expect(mapping).toHaveProperty('code');
+        expect(mapping).toHaveProperty('message');
+        expect(mapping).toHaveProperty('severity');
+        expect(mapping).toHaveProperty('category');
+
+        const numericErrorCodes = Object.values(ErrorCode).filter(
+          (value): value is number => typeof value === 'number',
+        );
+        expect(numericErrorCodes).toContain(mapping.code);
+        expect(Object.values(Severity)).toContain(mapping.severity);
+        expect(Object.values(Category)).toContain(mapping.category);
+        expect(typeof mapping.message).toBe('string');
+      });
+    });
   });
 
   describe('QR wallet mappings', () => {
