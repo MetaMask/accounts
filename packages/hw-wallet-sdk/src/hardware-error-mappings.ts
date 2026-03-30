@@ -230,7 +230,7 @@ export const MOBILE_ERROR_MAPPINGS = {
 };
 
 /**
- * QR hardware wallet flows in the browser.
+ * QR error mappings - static error data for QR hardware wallets and their related flows.
  */
 export const QR_WALLET_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
   CAMERA_PERMISSION_PROMPT_DISMISSED: {
