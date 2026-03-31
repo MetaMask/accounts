@@ -84,12 +84,50 @@ describe('MoneyKeyring', () => {
     );
   });
 
+  describe('#getSigner (lazy initialization)', () => {
+    it('initializes the inner keyring exactly once under concurrent calls', async () => {
+      const getMnemonic = jest
+        .fn<Promise<number[]>, [string]>()
+        .mockResolvedValue(mnemonicToBytes(mockMnemonic));
+      const keyring = new MoneyKeyring({ getMnemonic });
+      await keyring.deserialize(mockState);
+
+      // Fire multiple concurrent getAccounts calls to exercise the mutex path.
+      await Promise.all([
+        keyring.getAccounts(),
+        keyring.getAccounts(),
+        keyring.getAccounts(),
+      ]);
+
+      expect(getMnemonic).toHaveBeenCalledTimes(1);
+    });
+
+    it('throws if a signing method is called before deserialize', async () => {
+      const keyring = createKeyring();
+      await expect(keyring.getAccounts()).rejects.toThrow(
+        'MoneyKeyring: not yet deserialized',
+      );
+    });
+  });
+
   describe('serialize', () => {
     it('throws if called before deserialize', async () => {
       const keyring = createKeyring();
       await expect(keyring.serialize()).rejects.toThrow(
         'At path: entropySource',
       );
+    });
+
+    it('does not trigger getMnemonic before any account or signing call', async () => {
+      const getMnemonic = jest
+        .fn<Promise<number[]>, [string]>()
+        .mockResolvedValue(mnemonicToBytes(mockMnemonic));
+      const keyring = new MoneyKeyring({ getMnemonic });
+      await keyring.deserialize(mockState);
+
+      await keyring.serialize();
+
+      expect(getMnemonic).not.toHaveBeenCalled();
     });
 
     it('never includes a mnemonic in the serialized state', async () => {
@@ -143,15 +181,23 @@ describe('MoneyKeyring', () => {
       expect(moneyAccounts[0]).not.toBe(hdAccounts[0]);
     });
 
-    it('propagates getMnemonic callback failures', async () => {
+    it('does not call getMnemonic during deserialize (lazy initialization)', async () => {
+      const getMnemonic = jest.fn<Promise<number[]>, [string]>();
+      const keyring = new MoneyKeyring({ getMnemonic });
+
+      await keyring.deserialize(mockState);
+
+      expect(getMnemonic).not.toHaveBeenCalled();
+    });
+
+    it('propagates getMnemonic callback failures on first use', async () => {
       const getMnemonic = jest
         .fn<Promise<number[]>, [string]>()
         .mockRejectedValue(new Error('vault locked'));
       const keyring = new MoneyKeyring({ getMnemonic });
+      await keyring.deserialize(mockState);
 
-      await expect(keyring.deserialize(mockState)).rejects.toThrow(
-        'vault locked',
-      );
+      await expect(keyring.getAccounts()).rejects.toThrow('vault locked');
     });
 
     it('throws if called after initialization', async () => {
@@ -195,30 +241,11 @@ describe('MoneyKeyring', () => {
 
     it('adds an account when none exist', async () => {
       const keyring = createKeyring();
-      await keyring.deserialize(mockState);
-
-      keyring.removeAccount(await getAddressAtIndex(keyring, 0));
-      const empty = await keyring.getAccounts();
-      expect(empty).toHaveLength(0);
+      await keyring.deserialize({ ...mockState, numberOfAccounts: 0 });
 
       await keyring.addAccounts();
       const accounts = await keyring.getAccounts();
       expect(accounts).toHaveLength(1);
-    });
-
-    it('re-adds the same account after removal', async () => {
-      const keyring = createKeyring();
-      await keyring.deserialize(mockState);
-
-      const originalAddress = await getAddressAtIndex(keyring, 0);
-
-      keyring.removeAccount(originalAddress);
-      expect(await keyring.getAccounts()).toHaveLength(0);
-
-      await keyring.addAccounts();
-      const restoredAddress = await getAddressAtIndex(keyring, 0);
-
-      expect(restoredAddress).toBe(originalAddress);
     });
   });
 

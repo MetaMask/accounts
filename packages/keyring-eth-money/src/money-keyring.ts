@@ -10,6 +10,7 @@ import {
   union,
 } from '@metamask/superstruct';
 import type { Hex } from '@metamask/utils';
+import { Mutex } from 'async-mutex';
 
 /**
  * Based on the SLIP-10 coin type: https://github.com/satoshilabs/slips/pull/1983
@@ -62,6 +63,10 @@ export type MoneyKeyringSerializedState = Infer<
  * and enforces a specific HD path and a limit on the number of accounts. The mnemonic
  * is never stored in the serialized state; instead, it is resolved at deserialization
  * time via a callback.
+ *
+ * The inner {@link HdKeyring} is instantiated lazily on the first operation that requires
+ * it (via {@link MoneyKeyring.#getSigner}). A mutex ensures that concurrent callers never
+ * trigger more than one initialization.
  */
 export class MoneyKeyring implements Keyring {
   static type: string = MONEY_KEYRING_TYPE;
@@ -70,13 +75,19 @@ export class MoneyKeyring implements Keyring {
 
   readonly #getMnemonic: GetMnemonicCallback;
 
+  readonly #cryptographicFunctions: CryptographicFunctions | undefined;
+
   #entropySource: string | undefined;
 
-  readonly #inner: HdKeyring;
+  #numberOfAccounts: 0 | 1 = 0;
+
+  #inner: HdKeyring | undefined;
+
+  readonly #lock = new Mutex();
 
   constructor({ getMnemonic, cryptographicFunctions }: MoneyKeyringOptions) {
     this.#getMnemonic = getMnemonic;
-    this.#inner = new HdKeyring({ cryptographicFunctions });
+    this.#cryptographicFunctions = cryptographicFunctions;
   }
 
   get entropySource(): string | undefined {
@@ -84,12 +95,12 @@ export class MoneyKeyring implements Keyring {
   }
 
   async serialize(): Promise<MoneyKeyringSerializedState> {
-    const innerState = await this.#inner.serialize();
     const state = {
       entropySource: this.#entropySource,
-      numberOfAccounts: innerState.numberOfAccounts,
+      numberOfAccounts: this.#numberOfAccounts,
     };
     assert(state, MoneyKeyringSerializedStateStruct);
+
     return state;
   }
 
@@ -100,14 +111,54 @@ export class MoneyKeyring implements Keyring {
       throw new Error('MoneyKeyring: cannot deserialize after initialization');
     }
 
-    const mnemonic = await this.#getMnemonic(state.entropySource);
-    await this.#inner.deserialize({
-      mnemonic,
-      numberOfAccounts: state.numberOfAccounts,
-      hdPath: MONEY_DERIVATION_PATH,
-    });
-
     this.#entropySource = state.entropySource;
+    this.#numberOfAccounts = state.numberOfAccounts;
+  }
+
+  /**
+   * Returns the inner {@link HdKeyring}, initializing it on first call.
+   *
+   * The initialization is deferred until the signer is first needed so that
+   * the potentially expensive {@link GetMnemonicCallback} is not invoked during
+   * {@link MoneyKeyring.deserialize}. A mutex guarantees that concurrent callers
+   * trigger exactly one initialization.
+   *
+   * Also, we might not be able to have access to the memonic at the time of
+   * deserialization, so we need to defer it until it's actually needed.
+   *
+   * @returns The inner {@link HdKeyring} instance.
+   */
+  async #getSigner(): Promise<HdKeyring> {
+    const entropySource = this.#entropySource;
+    if (!entropySource) {
+      // Without an entropy source, we cannot initialize the inner keyring.
+      throw new Error('MoneyKeyring: not yet deserialized');
+    }
+
+    if (this.#inner) {
+      return this.#inner;
+    }
+
+    return this.#lock.runExclusive(async () => {
+      // Check if another caller initialized the inner keyring while we
+      // were waiting for the lock.
+      if (this.#inner) {
+        return this.#inner;
+      }
+
+      const mnemonic = await this.#getMnemonic(entropySource);
+      const inner = new HdKeyring({
+        cryptographicFunctions: this.#cryptographicFunctions,
+      });
+      await inner.deserialize({
+        mnemonic,
+        numberOfAccounts: this.#numberOfAccounts,
+        hdPath: MONEY_DERIVATION_PATH,
+      });
+      this.#inner = inner;
+
+      return inner;
+    });
   }
 
   /**
@@ -122,12 +173,15 @@ export class MoneyKeyring implements Keyring {
       throw new Error('MoneyKeyring: supports adding exactly one account');
     }
 
-    const existing = await this.#inner.getAccounts();
+    const signer = await this.#getSigner();
+    const existing = await signer.getAccounts();
     if (existing.length > 0) {
       throw new Error('MoneyKeyring: already has an account');
     }
 
-    return this.#inner.addAccounts(1);
+    const accounts = await signer.addAccounts(1);
+    this.#numberOfAccounts = 1;
+    return accounts;
   }
 
   // -----------------------------------------------------------------------------------
@@ -136,36 +190,30 @@ export class MoneyKeyring implements Keyring {
   async getAccounts(
     ...args: Parameters<HdKeyring['getAccounts']>
   ): ReturnType<HdKeyring['getAccounts']> {
-    return this.#inner.getAccounts(...args);
-  }
-
-  removeAccount(
-    ...args: Parameters<HdKeyring['removeAccount']>
-  ): ReturnType<HdKeyring['removeAccount']> {
-    this.#inner.removeAccount(...args);
+    return (await this.#getSigner()).getAccounts(...args);
   }
 
   async signTransaction(
     ...args: Parameters<HdKeyring['signTransaction']>
   ): ReturnType<HdKeyring['signTransaction']> {
-    return this.#inner.signTransaction(...args);
+    return (await this.#getSigner()).signTransaction(...args);
   }
 
   async signPersonalMessage(
     ...args: Parameters<HdKeyring['signPersonalMessage']>
   ): ReturnType<HdKeyring['signPersonalMessage']> {
-    return this.#inner.signPersonalMessage(...args);
+    return (await this.#getSigner()).signPersonalMessage(...args);
   }
 
   async signTypedData(
     ...args: Parameters<HdKeyring['signTypedData']>
   ): ReturnType<HdKeyring['signTypedData']> {
-    return this.#inner.signTypedData(...args);
+    return (await this.#getSigner()).signTypedData(...args);
   }
 
   async signEip7702Authorization(
     ...args: Parameters<HdKeyring['signEip7702Authorization']>
   ): ReturnType<HdKeyring['signEip7702Authorization']> {
-    return this.#inner.signEip7702Authorization(...args);
+    return (await this.#getSigner()).signEip7702Authorization(...args);
   }
 }
