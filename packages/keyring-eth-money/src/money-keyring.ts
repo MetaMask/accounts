@@ -1,15 +1,15 @@
 import { HdKeyring } from '@metamask/eth-hd-keyring';
 import { type CryptographicFunctions } from '@metamask/key-tree';
+import { EthAddressStrictStruct } from '@metamask/keyring-api';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   assert,
   type Infer,
-  literal,
   object,
+  optional,
   string as stringStruct,
-  union,
 } from '@metamask/superstruct';
-import type { Hex } from '@metamask/utils';
+import { type Hex } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
 /**
@@ -44,11 +44,11 @@ export type MoneyKeyringOptions = {
  * Struct for validating the serialized state of a {@link MoneyKeyring}.
  *
  * @property entropySource - The entropy source identifier.
- * @property numberOfAccounts - The number of accounts; must be 0 or 1.
+ * @property account - The account address, if one has been added.
  */
 const MoneyKeyringSerializedStateStruct = object({
   entropySource: stringStruct(),
-  numberOfAccounts: union([literal(0), literal(1)]),
+  account: optional(EthAddressStrictStruct),
 });
 
 /**
@@ -64,8 +64,8 @@ export type MoneyKeyringSerializedState = Infer<
  * is never stored in the serialized state; instead, it is resolved at deserialization
  * time via a callback.
  *
- * The inner {@link HdKeyring} is instantiated lazily on the first operation that requires
- * it (via {@link MoneyKeyring.#getSigner}). A mutex ensures that concurrent callers never
+ * The inner {@link HdKeyring} is instantiated lazily on the first signing operation
+ * (via {@link MoneyKeyring.#getSigner}). A mutex ensures that concurrent callers never
  * trigger more than one initialization.
  */
 export class MoneyKeyring implements Keyring {
@@ -79,7 +79,7 @@ export class MoneyKeyring implements Keyring {
 
   #entropySource: string | undefined;
 
-  #numberOfAccounts: 0 | 1 = 0;
+  #account: Hex | undefined;
 
   #inner: HdKeyring | undefined;
 
@@ -97,7 +97,7 @@ export class MoneyKeyring implements Keyring {
   async serialize(): Promise<MoneyKeyringSerializedState> {
     const state = {
       entropySource: this.#entropySource,
-      numberOfAccounts: this.#numberOfAccounts,
+      account: this.#account,
     };
     assert(state, MoneyKeyringSerializedStateStruct);
 
@@ -112,21 +112,21 @@ export class MoneyKeyring implements Keyring {
     }
 
     this.#entropySource = state.entropySource;
-    this.#numberOfAccounts = state.numberOfAccounts;
+    this.#account = state.account;
   }
 
   /**
    * Returns the inner {@link HdKeyring}, initializing it on first call.
    *
-   * The initialization is deferred until the signer is first needed so that
-   * the potentially expensive {@link GetMnemonicCallback} is not invoked during
-   * {@link MoneyKeyring.deserialize}. A mutex guarantees that concurrent callers
-   * trigger exactly one initialization.
+   * The initialization is deferred until a signing operation is first needed so
+   * that the potentially expensive {@link GetMnemonicCallback} is not invoked
+   * during {@link MoneyKeyring.deserialize} or {@link MoneyKeyring.getAccounts}.
+   * A mutex guarantees that concurrent callers trigger exactly one initialization.
    *
    * Also, we might not be able to have access to the memonic at the time of
    * deserialization, so we need to defer it until it's actually needed.
    *
-   * @returns The inner {@link HdKeyring} instance.
+   * @returns The inner {@link HdKeyring} (signer) instance.
    */
   async #getSigner(): Promise<HdKeyring> {
     const entropySource = this.#entropySource;
@@ -152,7 +152,7 @@ export class MoneyKeyring implements Keyring {
       });
       await inner.deserialize({
         mnemonic,
-        numberOfAccounts: this.#numberOfAccounts,
+        numberOfAccounts: this.#account ? 1 : 0,
         hdPath: MONEY_DERIVATION_PATH,
       });
       this.#inner = inner;
@@ -173,24 +173,25 @@ export class MoneyKeyring implements Keyring {
       throw new Error('MoneyKeyring: supports adding exactly one account');
     }
 
-    const signer = await this.#getSigner();
-    const existing = await signer.getAccounts();
-    if (existing.length > 0) {
+    if (this.#account !== undefined) {
       throw new Error('MoneyKeyring: already has an account');
     }
 
-    const accounts = await signer.addAccounts(1);
-    this.#numberOfAccounts = 1;
-    return accounts;
+    const signer = await this.#getSigner();
+    const [account] = await signer.addAccounts(1);
+    if (!account) {
+      throw new Error('MoneyKeyring: failed to add account');
+    }
+    this.#account = account;
+
+    return [account];
   }
 
   // -----------------------------------------------------------------------------------
   // The methods below are pass-throughs to the inner HdKeyring.
 
-  async getAccounts(
-    ...args: Parameters<HdKeyring['getAccounts']>
-  ): ReturnType<HdKeyring['getAccounts']> {
-    return (await this.#getSigner()).getAccounts(...args);
+  async getAccounts(): Promise<Hex[]> {
+    return this.#account ? [this.#account] : [];
   }
 
   async signTransaction(
