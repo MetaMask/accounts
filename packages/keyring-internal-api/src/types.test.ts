@@ -13,7 +13,7 @@ describe('InternalAccount', () => {
     },
     {
       type: 'xlm:account',
-      address: 'DRF6HX6XUA74N7LFSXVYPPINW5QRLFPQS4PNFG7HJF6DFQQNT2TI4F',
+      address: 'GDRF6HX6XUA74N7LFSXVYPPINW5QRLFPQS4PNFG7HJF6DFQQNT2TI4F',
       scopes: ['stellar:pubnet', 'stellar:testnet'],
     },
   ])('should have the correct structure: %s', ({ type, address, scopes }) => {
