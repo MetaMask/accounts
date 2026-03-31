@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support custom cryptographic functions ([#491](https://github.com/MetaMask/accounts/pull/491))
+  - Those functions are forwarded to the inner `HdKeyring`.
+
 ### Changed
 
 - **BREAKING:** Replace inheritance with composition; `MoneyKeyring` now wraps an inner `HdKeyring` instead of extending it ([#484](https://github.com/MetaMask/accounts/pull/484), [#488](https://github.com/MetaMask/accounts/pull/488))

@@ -1,4 +1,5 @@
 import { HdKeyring } from '@metamask/eth-hd-keyring';
+import { type CryptographicFunctions } from '@metamask/key-tree';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   assert,
@@ -35,6 +36,7 @@ export type GetMnemonicCallback = (entropySource: string) => Promise<number[]>;
  */
 export type MoneyKeyringOptions = {
   getMnemonic: GetMnemonicCallback;
+  cryptographicFunctions?: CryptographicFunctions;
 };
 
 /**
@@ -72,9 +74,9 @@ export class MoneyKeyring implements Keyring {
 
   readonly #inner: HdKeyring;
 
-  constructor({ getMnemonic }: MoneyKeyringOptions) {
+  constructor({ getMnemonic, cryptographicFunctions }: MoneyKeyringOptions) {
     this.#getMnemonic = getMnemonic;
-    this.#inner = new HdKeyring();
+    this.#inner = new HdKeyring({ cryptographicFunctions });
   }
 
   get entropySource(): string | undefined {
