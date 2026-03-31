@@ -21,14 +21,9 @@ export const XlmAddressStruct = definePattern('XlmAddress', /^G[A-Z2-7]{55}$/u);
 export enum XlmMethod {
   SignMessage = 'signMessage',
   SignTransaction = 'signTransaction',
-
-  // @deprecated Use `SignMessage` instead.
-  SignMessageV2 = 'signMessageV2',
-  // @deprecated Not supported anymore.
-  VerifyMessageV2 = 'verifyMessageV2',
 }
 
-export const XlmEoaAccountStruct = object({
+export const XlmAccountStruct = object({
   ...KeyringAccountStruct.schema,
   /**
    * Account address.
@@ -37,7 +32,7 @@ export const XlmEoaAccountStruct = object({
   /**
    * Account type.
    */
-  type: literal(`${XlmAccountType.Eoa}`),
+  type: literal(`${XlmAccountType.Account}`),
   /**
    * Account supported scopes (CAIP-2 chain IDs).
    */
@@ -48,4 +43,4 @@ export const XlmEoaAccountStruct = object({
   methods: array(enums(Object.values(XlmMethod))),
 });
 
-export type XlmEoaAccount = Infer<typeof XlmEoaAccountStruct>;
+export type XlmAccount = Infer<typeof XlmAccountStruct>;

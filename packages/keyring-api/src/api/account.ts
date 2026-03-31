@@ -41,7 +41,7 @@ export enum TrxAccountType {
  * Supported Stellar account types.
  */
 export enum XlmAccountType {
-  Eoa = 'xlm:eoa',
+  Account = 'xlm:account',
 }
 
 /**
@@ -64,7 +64,7 @@ export type KeyringAccountType =
   | `${BtcAccountType.P2tr}`
   | `${SolAccountType.DataAccount}`
   | `${TrxAccountType.Eoa}`
-  | `${XlmAccountType.Eoa}`
+  | `${XlmAccountType.Account}`
   | `${AnyAccountType.Account}`;
 
 /**
@@ -79,7 +79,7 @@ export const KeyringAccountTypeStruct = enums([
   `${BtcAccountType.P2tr}`,
   `${SolAccountType.DataAccount}`,
   `${TrxAccountType.Eoa}`,
-  `${XlmAccountType.Eoa}`,
+  `${XlmAccountType.Account}`,
   `${AnyAccountType.Account}`,
 ]);
 
@@ -108,7 +108,7 @@ export const KeyringAccountStruct = object({
     `${BtcAccountType.P2tr}`,
     `${SolAccountType.DataAccount}`,
     `${TrxAccountType.Eoa}`,
-    `${XlmAccountType.Eoa}`,
+    `${XlmAccountType.Account}`,
     `${AnyAccountType.Account}`,
   ]),
 

@@ -15,7 +15,7 @@ import {
   TrxAccountType,
   TrxEoaAccountStruct,
   XlmAccountType,
-  XlmEoaAccountStruct,
+  XlmAccountStruct,
 } from '@metamask/keyring-api';
 import { assert, omit, type Infer } from '@metamask/superstruct';
 
@@ -74,8 +74,8 @@ export function assertKeyringAccount<
       assert(account, TrxEoaAccountStruct);
       return account;
     }
-    case XlmAccountType.Eoa: {
-      assert(account, XlmEoaAccountStruct);
+    case XlmAccountType.Account: {
+      assert(account, XlmAccountStruct);
       return account;
     }
     case AnyAccountType.Account: {

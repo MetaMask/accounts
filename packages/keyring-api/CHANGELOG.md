@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add Stellar account types and scopes (`XlmScope`, `XlmAccountType`, `XlmEoaAccount`, etc.) ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Add Stellar account types and scopes (`XlmScope`, `XlmAccountType`, `XlmAccount`, etc.) ([#483](https://github.com/MetaMask/accounts/pull/483))
 
 ### Changed
 

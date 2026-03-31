@@ -219,13 +219,13 @@ describe('SnapKeyring', () => {
     type: TrxAccountType.Eoa,
   };
 
-  const xlmEoaAccount = {
+  const XlmAccount = {
     id: '890ee179-5ab5-449d-9c25-34e12c1ada68',
     address: 'GDRF6HX6GXUA74N7LFSXVYPPINW5QRLFPQS4PNFG7HJF6DFQQNT2TI4F',
     options: {},
     methods: [...Object.values(XlmMethod)],
     scopes: [XlmScope.Mainnet, XlmScope.Testnet],
-    type: XlmAccountType.Eoa,
+    type: XlmAccountType.Account,
   };
 
   // This is an example generic chain, its scope and address are bogus.
@@ -274,7 +274,7 @@ describe('SnapKeyring', () => {
     btcAccountP2tr,
     solDataAccount,
     trxEoaAccount,
-    xlmEoaAccount,
+    XlmAccount,
     anyGenericAccount,
   ] as const;
 
@@ -1241,7 +1241,7 @@ describe('SnapKeyring', () => {
           btcAccountP2tr.address,
           solDataAccount.address,
           trxEoaAccount.address,
-          xlmEoaAccount.address,
+          XlmAccount.address,
           anyGenericAccount.address,
         ]);
       });
@@ -1262,7 +1262,7 @@ describe('SnapKeyring', () => {
           btcAccountP2tr.address,
           solDataAccount.address,
           trxEoaAccount.address,
-          xlmEoaAccount.address,
+          XlmAccount.address,
           anyGenericAccount.address,
         ]);
       });
@@ -1475,7 +1475,7 @@ describe('SnapKeyring', () => {
         btcAccountP2tr.address,
         solDataAccount.address,
         trxEoaAccount.address,
-        xlmEoaAccount.address,
+        XlmAccount.address,
         anyGenericAccount.address,
       ]);
     });
@@ -1522,7 +1522,7 @@ describe('SnapKeyring', () => {
           [btcAccountP2tr.id]: { account: btcAccountP2tr, snapId },
           [solDataAccount.id]: { account: solDataAccount, snapId },
           [trxEoaAccount.id]: { account: trxEoaAccount, snapId },
-          [xlmEoaAccount.id]: { account: xlmEoaAccount, snapId },
+          [XlmAccount.id]: { account: XlmAccount, snapId },
           [anyGenericAccount.id]: { account: anyGenericAccount, snapId },
         },
       };
@@ -1577,7 +1577,7 @@ describe('SnapKeyring', () => {
       btcTestnetAccount,
       solDataAccount,
       trxEoaAccount,
-      xlmEoaAccount,
+      XlmAccount,
     ])('migrates accounts v1: %s', async (expectedAccount: KeyringAccount) => {
       // A v1 account has no scopes, so remove it.
       const state = {
@@ -1601,7 +1601,7 @@ describe('SnapKeyring', () => {
       btcTestnetAccount,
       solDataAccount,
       trxEoaAccount,
-      xlmEoaAccount,
+      XlmAccount,
       anyGenericAccount,
     ])(
       'migrates v2 accounts to v1 accounts is noop: %s',

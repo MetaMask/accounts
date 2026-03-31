@@ -76,7 +76,7 @@ export function getScopesForAccountV1(
       // TRON account supports multiple chains.
       return [TrxScope.Mainnet, TrxScope.Nile, TrxScope.Shasta];
     }
-    case XlmAccountType.Eoa: {
+    case XlmAccountType.Account: {
       // Stellar account supports mainnet and testnet.
       return [XlmScope.Mainnet, XlmScope.Testnet];
     }
