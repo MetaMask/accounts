@@ -136,7 +136,7 @@ export class MoneyKeyring implements Keyring {
    * @param callback - Function to execute with the initialized inner keyring.
    * @returns The result of the callback.
    */
-  async #withInner<ReturnType>(
+  async #withLockedInner<ReturnType>(
     callback: (inner: HdKeyring) => Promise<ReturnType> | ReturnType,
   ): Promise<ReturnType> {
     const entropySource = this.#entropySource;
@@ -174,7 +174,7 @@ export class MoneyKeyring implements Keyring {
    * Returns the initialized inner {@link HdKeyring}.
    *
    * Uses a fast path if already initialized, otherwise delegates to
-   * {@link MoneyKeyring.#withInner}.
+   * {@link MoneyKeyring.#withLockedInner}.
    *
    * @returns The EVM signer instance.
    */
@@ -185,7 +185,7 @@ export class MoneyKeyring implements Keyring {
 
     // We use the mutex-protected method to initialize the inner keyring if needed, but once
     // initialized, we can return it directly and use it as the signer instance.
-    return this.#withInner((inner) => inner);
+    return this.#withLockedInner((inner) => inner);
   }
 
   /**
@@ -200,7 +200,7 @@ export class MoneyKeyring implements Keyring {
       throw new Error('MoneyKeyring: supports adding exactly one account');
     }
 
-    return this.#withInner(async (inner) => {
+    return this.#withLockedInner(async (inner) => {
       if (this.#account !== undefined) {
         throw new Error('MoneyKeyring: already has an account');
       }
