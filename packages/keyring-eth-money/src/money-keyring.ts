@@ -200,7 +200,7 @@ export class MoneyKeyring implements Keyring {
       throw new Error('MoneyKeyring: supports adding exactly one account');
     }
 
-    return this.#withLockedInner(async (inner) => {
+    return await this.#withLockedInner(async (inner) => {
       if (this.#account !== undefined) {
         throw new Error('MoneyKeyring: already has an account');
       }
