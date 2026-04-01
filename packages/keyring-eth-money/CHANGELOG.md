@@ -14,13 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Replace inheritance with composition; `MoneyKeyring` now wraps an inner `HdKeyring` instead of extending it ([#484](https://github.com/MetaMask/accounts/pull/484), [#488](https://github.com/MetaMask/accounts/pull/488))
+- **BREAKING:** Replace inheritance with composition; `MoneyKeyring` now wraps an inner `HdKeyring` instead of extending it ([#484](https://github.com/MetaMask/accounts/pull/484)), ([#492](https://github.com/MetaMask/accounts/pull/488), [#488](https://github.com/MetaMask/accounts/pull/492))
   - Constructor now requires a `MoneyKeyringOptions` object with a `getMnemonic` callback. The `entropySource` is set by `deserialize()` from the serialized state.
-  - Serialized state stores `entropySource` instead of `mnemonic`; the mnemonic is resolved at deserialization time via the callback.
+  - The inner `HdKeyring` is created on the first signing call (lazily), protected by a mutex to ensure single initialization under concurrency.
+  - Serialized state now stores `entropySource` instead of `mnemonic`; the mnemonic is resolved at deserialization time via the callback.
+  - Serialized state now stores `account` (the derived address) instead of `numberOfAccounts`; the account is restored directly from state without calling `getMnemonic`.
   - `hdPath` is no longer part of the serialized state; it is always `MONEY_DERIVATION_PATH`.
   - `signMessage`, `getEncryptionPublicKey`, `decryptMessage`, `exportAccount`, and `getAppKeyAddress` are no longer exposed.
+  - `removeAccount()` has been removed; accounts are permanent once added.
+  - `getAccounts()` is now a cheap synchronous-like read that never triggers `getMnemonic`.
   - New exports: `GetMnemonicCallback`, `MoneyKeyringOptions` types.
   - New dependency: `@metamask/keyring-utils` (for `Keyring` interface).
+  - New dependency: `async-mutex`.
 
 ## [1.0.0]
 
