@@ -8,7 +8,10 @@ import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
  */
 export function encodeMnemonic(mnemonicIndicesBytes: Uint8Array): number[] {
   const mnemonicIndices = Array.from(
-    new Uint16Array(mnemonicIndicesBytes.buffer),
+    // Create a new `Uint8Array` to ensure we have a proper view on the buffer
+    // without having to worry about `byteOffset` and `byteLength` of
+    // the inner buffer.
+    new Uint16Array(new Uint8Array(mnemonicIndicesBytes).buffer),
   );
   const mnemonic = mnemonicIndices.map((i) => wordlist[i]).join(' ');
   return Array.from(new TextEncoder().encode(mnemonic));
