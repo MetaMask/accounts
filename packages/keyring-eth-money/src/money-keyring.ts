@@ -185,7 +185,7 @@ export class MoneyKeyring implements Keyring {
 
     // We use the mutex-protected method to initialize the inner keyring if needed, but once
     // initialized, we can return it directly and use it as the signer instance.
-    return this.#withLockedInner((inner) => inner);
+    return await this.#withLockedInner((inner) => inner);
   }
 
   /**
