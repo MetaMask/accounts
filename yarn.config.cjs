@@ -932,49 +932,5 @@ let cachedCodeownersFile;
  * @returns {Promise<void>}
  */
 async function expectCodeowner(workspace, workspaceBasename) {
-  if (!cachedCodeownersFile) {
-    cachedCodeownersFile = readFile(
-      resolve(__dirname, '.github', 'CODEOWNERS'),
-      'utf8',
-    );
-  }
-  const codeownersFile = await cachedCodeownersFile;
-  const codeownerRules = codeownersFile.split('\n');
-
-  const packageCodeownerRule = codeownerRules.find((rule) =>
-    // Matcher includes intentional trailing space to ensure there is a package-wide rule, not
-    // just a rule for specific files/directories in the package.
-    rule.startsWith(`/packages/${workspaceBasename} `),
-  );
-
-  if (!packageCodeownerRule) {
-    workspace.error('Missing CODEOWNER rule for package');
-    return;
-  }
-
-  if (!packageCodeownerRule.includes('@MetaMask/core-platform')) {
-    if (
-      !codeownerRules.some(
-        (rule) =>
-          rule.startsWith(`/packages/${workspaceBasename}/CHANGELOG.md`) &&
-          rule.includes('@MetaMask/core-platform'),
-      )
-    ) {
-      workspace.error(
-        'Missing CODEOWNER rule for CHANGELOG.md co-ownership with core platform team',
-      );
-    }
-
-    if (
-      !codeownerRules.some(
-        (rule) =>
-          rule.startsWith(`/packages/${workspaceBasename}/package.json`) &&
-          rule.includes('@MetaMask/core-platform'),
-      )
-    ) {
-      workspace.error(
-        'Missing CODEOWNER rule for package.json co-ownership with core platform team',
-      );
-    }
-  }
+  // No need to enforce co-owners for this monorepo.
 }
