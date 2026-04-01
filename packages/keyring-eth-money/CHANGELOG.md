@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore: bump @metamask/messenger and @metamask/utils ([#489](https://github.com/MetaMask/accounts/pull/489))
+- build: remove use of workspace versions ([#479](https://github.com/MetaMask/accounts/pull/479))
+
 ### Added
 
 - Support custom cryptographic functions ([#491](https://github.com/MetaMask/accounts/pull/491))
