@@ -117,7 +117,7 @@ describe('MoneyKeyring', () => {
       const keyring = createKeyring();
       await expect(
         keyring.signPersonalMessage(mockAccount, '0x'),
-      ).rejects.toThrow('MoneyKeyring: no account available');
+      ).rejects.toThrow('MoneyKeyring: not yet deserialized');
     });
 
     it('uses the cached inner keyring on subsequent calls', async () => {
@@ -326,70 +326,36 @@ describe('MoneyKeyring', () => {
   });
 
   describe('signing', () => {
-    const unknownAddress = '0xdeadbeef00000000000000000000000000000000' as Hex;
+    it('throws if the derived account does not match the stored account', async () => {
+      const getMnemonic = jest
+        .fn<Promise<number[]>, [string]>()
+        .mockResolvedValue(mnemonicToBytes(mockMnemonic));
 
-    it.each([
-      [
-        'signPersonalMessage',
-        async (k: MoneyKeyring): Promise<unknown> =>
-          k.signPersonalMessage(mockAccount, '0x'),
-      ] as const,
-      [
-        'signTransaction',
-        async (k: MoneyKeyring): Promise<unknown> =>
-          k.signTransaction(mockAccount, {} as never),
-      ] as const,
-      [
-        'signTypedData',
-        async (k: MoneyKeyring): Promise<unknown> =>
-          k.signTypedData(mockAccount, {} as never),
-      ] as const,
-      [
-        'signEip7702Authorization',
-        async (k: MoneyKeyring): Promise<unknown> =>
-          k.signEip7702Authorization(mockAccount, {} as never),
-      ] as const,
-    ])('%s throws if no account has been added', async (_, call) => {
-      const keyring = createKeyring();
-      await keyring.deserialize(mockEmptyState);
+      // Construct a state with an account address that won't match the derived one.
+      const tampered: MoneyKeyringSerializedState = {
+        entropySource: mockEntropySourceId,
+        account: '0x0000000000000000000000000000000000000001',
+      };
 
-      await expect(call(keyring)).rejects.toThrow(
-        'MoneyKeyring: no account available',
-      );
+      const keyring = new MoneyKeyring({ getMnemonic });
+      await keyring.deserialize(tampered);
+
+      await expect(
+        keyring.signPersonalMessage(tampered.account as Hex, '0x'),
+      ).rejects.toThrow('MoneyKeyring: signer account mismatch');
     });
 
-    it.each([
-      [
-        'signPersonalMessage',
-        async (k: MoneyKeyring): Promise<unknown> =>
-          k.signPersonalMessage(unknownAddress, '0x'),
-      ] as const,
-      [
-        'signTransaction',
-        async (k: MoneyKeyring): Promise<unknown> =>
-          k.signTransaction(unknownAddress, {} as never),
-      ] as const,
-      [
-        'signTypedData',
-        async (k: MoneyKeyring): Promise<unknown> =>
-          k.signTypedData(unknownAddress, {} as never),
-      ] as const,
-      [
-        'signEip7702Authorization',
-        async (k: MoneyKeyring): Promise<unknown> =>
-          k.signEip7702Authorization(unknownAddress, {} as never),
-      ] as const,
-    ])(
-      '%s throws if the address does not match the account',
-      async (_, call) => {
-        const keyring = createKeyring();
-        await keyring.deserialize(mockState);
+    it('throws if the inner keyring derives no account despite one being expected', async () => {
+      const { HdKeyring } = await import('@metamask/eth-hd-keyring');
+      jest.spyOn(HdKeyring.prototype, 'getAccounts').mockResolvedValue([]);
 
-        await expect(call(keyring)).rejects.toThrow(
-          'MoneyKeyring: unknown address',
-        );
-      },
-    );
+      const keyring = createKeyring();
+      await keyring.deserialize(mockState);
+
+      await expect(
+        keyring.signPersonalMessage(mockAccount, '0x'),
+      ).rejects.toThrow('MoneyKeyring: signer account mismatch');
+    });
   });
 
   describe('signing pass-through', () => {

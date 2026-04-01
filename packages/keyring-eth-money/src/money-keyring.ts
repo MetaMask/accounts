@@ -155,8 +155,15 @@ export class MoneyKeyring implements Keyring {
         numberOfAccounts: this.#account ? 1 : 0,
         hdPath: MONEY_DERIVATION_PATH,
       });
-      this.#inner = inner;
 
+      if (this.#account) {
+        const [derivedAccount] = await inner.getAccounts();
+        if (derivedAccount?.toLowerCase() !== this.#account.toLowerCase()) {
+          throw new Error('MoneyKeyring: signer account mismatch');
+        }
+      }
+
+      this.#inner = inner;
       return inner;
     });
   }
@@ -194,40 +201,27 @@ export class MoneyKeyring implements Keyring {
     return this.#account ? [this.#account] : [];
   }
 
-  #assertAddress(address: Hex): void {
-    if (!this.#account) {
-      throw new Error('MoneyKeyring: no account available');
-    }
-    if (address.toLowerCase() !== this.#account.toLowerCase()) {
-      throw new Error('MoneyKeyring: unknown address');
-    }
-  }
-
   async signTransaction(
     ...args: Parameters<HdKeyring['signTransaction']>
   ): ReturnType<HdKeyring['signTransaction']> {
-    this.#assertAddress(args[0]);
     return (await this.#getSigner()).signTransaction(...args);
   }
 
   async signPersonalMessage(
     ...args: Parameters<HdKeyring['signPersonalMessage']>
   ): ReturnType<HdKeyring['signPersonalMessage']> {
-    this.#assertAddress(args[0]);
     return (await this.#getSigner()).signPersonalMessage(...args);
   }
 
   async signTypedData(
     ...args: Parameters<HdKeyring['signTypedData']>
   ): ReturnType<HdKeyring['signTypedData']> {
-    this.#assertAddress(args[0]);
     return (await this.#getSigner()).signTypedData(...args);
   }
 
   async signEip7702Authorization(
     ...args: Parameters<HdKeyring['signEip7702Authorization']>
   ): ReturnType<HdKeyring['signEip7702Authorization']> {
-    this.#assertAddress(args[0]);
     return (await this.#getSigner()).signEip7702Authorization(...args);
   }
 }
