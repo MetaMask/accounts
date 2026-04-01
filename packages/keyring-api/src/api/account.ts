@@ -41,7 +41,7 @@ export enum TrxAccountType {
  * Supported Stellar account types.
  */
 export enum XlmAccountType {
-  Account = 'xlm:account',
+  Account = 'stellar:account',
 }
 
 /**
