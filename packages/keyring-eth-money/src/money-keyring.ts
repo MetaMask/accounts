@@ -199,7 +199,7 @@ export class MoneyKeyring implements Keyring {
       throw new Error('MoneyKeyring: no account available');
     }
     if (address.toLowerCase() !== this.#account.toLowerCase()) {
-      throw new Error(`MoneyKeyring: unknown address ${address}`);
+      throw new Error('MoneyKeyring: unknown address');
     }
   }
 
