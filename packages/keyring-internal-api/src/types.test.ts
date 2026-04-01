@@ -12,7 +12,7 @@ describe('InternalAccount', () => {
       scopes: ['bip122:000000000019d6689c085ae165831e93'],
     },
     {
-      type: 'xlm:account',
+      type: 'stellar:account',
       address: 'GDRF6HX6XUA74N7LFSXVYPPINW5QRLFPQS4PNFG7HJF6DFQQNT2TI4F',
       scopes: ['stellar:pubnet', 'stellar:testnet'],
     },

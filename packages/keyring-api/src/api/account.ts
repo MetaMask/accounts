@@ -39,6 +39,11 @@ export enum TrxAccountType {
 
 /**
  * Supported Stellar account types.
+ *
+ * We currently model only the standard Stellar account (G-address).
+ * This excludes advanced formats such as muxed (M...) accounts.
+ *
+ * See: https://developers.stellar.org/docs/build/guides/transactions/pooled-accounts-muxed-accounts-memos
  */
 export enum XlmAccountType {
   Account = 'stellar:account',
