@@ -1,6 +1,11 @@
 import type { CaipChainId } from '@metamask/keyring-api';
 
 /**
+ * A single node in a BIP-32 derivation path, either normal or hardened (with `'`).
+ */
+export type Bip32PathNode = `${number}` | `${number}'`;
+
+/**
  * Base type for all signers.
  */
 export type Signer = {

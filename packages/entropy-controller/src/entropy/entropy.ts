@@ -1,6 +1,8 @@
 import type { CaipChainId, KeyringAccountType } from '@metamask/keyring-api';
 
-import type { Bip122Signer, Signer } from '../signer';
+import type { Signer } from '../signer';
+import type { Eip155Scope, Eip155Signer } from '../signer/eip155-signer';
+import type { Bip32PathNode } from '../signer/signer';
 
 /**
  * The category of entropy source.
@@ -13,7 +15,7 @@ export type EntropyCategory = 'bip44' | 'raw';
 /**
  * The type of entropy source, expressed as `category:implementation`.
  *
- * Examples: `'bip44:srp'`, `'bip44:ledger'`, `'raw:private-key'`, `'raw:mpc'`.
+ * Examples: `'bip44:mnemonic'`, `'bip44:ledger'`, `'raw:private-key'`, `'raw:mpc'`.
  */
 export type EntropyType = `${EntropyCategory}:${string}`;
 
@@ -44,13 +46,10 @@ export type Entropy = {
    * @param options - Scope-specific options for getting the signer.
    * @returns The signer for the specified scope.
    */
+  getSigner(scope: Eip155Scope, options: unknown): Promise<Eip155Signer>;
+
   getSigner(scope: CaipChainId, options: unknown): Promise<Signer>;
 };
-
-/**
- * A single node in a BIP-32 derivation path, either normal or hardened (with `'`).
- */
-export type Bip32PathNode = `${number}` | `${number}'`;
 
 /**
  * Options for getting a signer from a BIP-44 entropy source.
@@ -69,11 +68,6 @@ export type Bip44Entropy = Entropy & {
   type: `bip44:${string}`;
 
   id: EntropyId;
-
-  getSigner(
-    scope: `bip122:${string}`,
-    options: Bip44GetSignerOptions,
-  ): Promise<Bip122Signer>;
 
   getSigner(
     scope: CaipChainId,
