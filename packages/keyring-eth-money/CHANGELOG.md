@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0]
+
 ### Added
 
 - Support custom cryptographic functions ([#491](https://github.com/MetaMask/accounts/pull/491))
@@ -27,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New dependency: `@metamask/keyring-utils` (for `Keyring` interface).
   - New dependency: `async-mutex`.
 
-## [1.0.0]
+## [1.0.0] - 2026-04-01 [DEPRECATED]
 
 ### Added
 
@@ -37,5 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Uses derivation path `"m/44'/4392018'/0'/0"`.
   - Enforces that at most one Money account can exist.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@1.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.0...HEAD
+[2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@1.0.0...@metamask/eth-money-keyring@2.0.0
 [1.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-money-keyring@1.0.0
