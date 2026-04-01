@@ -31,6 +31,16 @@ export const MONEY_KEYRING_TYPE = 'Money Keyring';
 export type GetMnemonicCallback = (entropySource: string) => Promise<number[]>;
 
 /**
+ * EVM signer interface, a subset of {@link HdKeyring} methods.
+ */
+export type EvmSigner = {
+  signTransaction: HdKeyring['signTransaction'];
+  signPersonalMessage: HdKeyring['signPersonalMessage'];
+  signTypedData: HdKeyring['signTypedData'];
+  signEip7702Authorization: HdKeyring['signEip7702Authorization'];
+};
+
+/**
  * Options for constructing a {@link MoneyKeyring}.
  *
  * @property getMnemonic - Callback to resolve the mnemonic from an entropy source ID.
@@ -116,56 +126,66 @@ export class MoneyKeyring implements Keyring {
   }
 
   /**
-   * Returns the inner {@link HdKeyring}, initializing it on first call.
+   * Runs a callback with the initialized inner {@link HdKeyring}, always within
+   * the mutex lock. Initializes {@link HdKeyring} on the first call.
    *
-   * The initialization is deferred until a signing operation is first needed so
-   * that the potentially expensive {@link GetMnemonicCallback} is not invoked
-   * during {@link MoneyKeyring.deserialize} or {@link MoneyKeyring.getAccounts}.
-   * A mutex guarantees that concurrent callers trigger exactly one initialization.
+   * The initialization is deferred until first needed so that the potentially
+   * expensive {@link GetMnemonicCallback} is not invoked during
+   * {@link MoneyKeyring.deserialize} or {@link MoneyKeyring.getAccounts}.
    *
-   * Also, we might not be able to have access to the memonic at the time of
-   * deserialization, so we need to defer it until it's actually needed.
-   *
-   * @returns The inner {@link HdKeyring} (signer) instance.
+   * @param callback - Function to execute with the initialized inner keyring.
+   * @returns The result of the callback.
    */
-  async #getSigner(): Promise<HdKeyring> {
+  async #withInner<ReturnType>(
+    callback: (inner: HdKeyring) => Promise<ReturnType> | ReturnType,
+  ): Promise<ReturnType> {
     const entropySource = this.#entropySource;
     if (!entropySource) {
-      // Without an entropy source, we cannot initialize the inner keyring.
       throw new Error('MoneyKeyring: not yet deserialized');
     }
 
+    return this.#lock.runExclusive(async () => {
+      if (!this.#inner) {
+        const mnemonic = await this.#getMnemonic(entropySource);
+        const inner = new HdKeyring({
+          cryptographicFunctions: this.#cryptographicFunctions,
+        });
+        await inner.deserialize({
+          mnemonic,
+          numberOfAccounts: this.#account ? 1 : 0,
+          hdPath: MONEY_DERIVATION_PATH,
+        });
+
+        if (this.#account) {
+          const [derivedAccount] = await inner.getAccounts();
+          if (derivedAccount?.toLowerCase() !== this.#account.toLowerCase()) {
+            throw new Error('MoneyKeyring: signer account mismatch');
+          }
+        }
+
+        this.#inner = inner;
+      }
+
+      return callback(this.#inner);
+    });
+  }
+
+  /**
+   * Returns the initialized inner {@link HdKeyring}.
+   *
+   * Uses a fast path if already initialized, otherwise delegates to
+   * {@link MoneyKeyring.#withInner}.
+   *
+   * @returns The EVM signer instance.
+   */
+  async #getSigner(): Promise<EvmSigner> {
     if (this.#inner) {
       return this.#inner;
     }
 
-    return this.#lock.runExclusive(async () => {
-      // Check if another caller initialized the inner keyring while we
-      // were waiting for the lock.
-      if (this.#inner) {
-        return this.#inner;
-      }
-
-      const mnemonic = await this.#getMnemonic(entropySource);
-      const inner = new HdKeyring({
-        cryptographicFunctions: this.#cryptographicFunctions,
-      });
-      await inner.deserialize({
-        mnemonic,
-        numberOfAccounts: this.#account ? 1 : 0,
-        hdPath: MONEY_DERIVATION_PATH,
-      });
-
-      if (this.#account) {
-        const [derivedAccount] = await inner.getAccounts();
-        if (derivedAccount?.toLowerCase() !== this.#account.toLowerCase()) {
-          throw new Error('MoneyKeyring: signer account mismatch');
-        }
-      }
-
-      this.#inner = inner;
-      return inner;
-    });
+    // We use the mutex-protected method to initialize the inner keyring if needed, but once
+    // initialized, we can return it directly and use it as the signer instance.
+    return this.#withInner((inner) => inner);
   }
 
   /**
@@ -180,18 +200,19 @@ export class MoneyKeyring implements Keyring {
       throw new Error('MoneyKeyring: supports adding exactly one account');
     }
 
-    if (this.#account !== undefined) {
-      throw new Error('MoneyKeyring: already has an account');
-    }
+    return this.#withInner(async (inner) => {
+      if (this.#account !== undefined) {
+        throw new Error('MoneyKeyring: already has an account');
+      }
 
-    const signer = await this.#getSigner();
-    const [account] = await signer.addAccounts(1);
-    if (!account) {
-      throw new Error('MoneyKeyring: failed to add account');
-    }
-    this.#account = account;
+      const [account] = await inner.addAccounts(1);
+      if (!account) {
+        throw new Error('MoneyKeyring: failed to add account');
+      }
+      this.#account = account;
 
-    return [account];
+      return [account];
+    });
   }
 
   // -----------------------------------------------------------------------------------

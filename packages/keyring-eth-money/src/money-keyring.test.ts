@@ -302,6 +302,29 @@ describe('MoneyKeyring', () => {
       );
     });
 
+    it('is race-free under concurrent calls', async () => {
+      const keyring = createKeyring();
+      await keyring.deserialize(mockEmptyState);
+
+      const results = await Promise.allSettled([
+        keyring.addAccounts(),
+        keyring.addAccounts(),
+      ]);
+
+      const fulfilled = results.filter(
+        (result) => result.status === 'fulfilled',
+      );
+      const rejected = results.filter((result) => result.status === 'rejected');
+
+      expect(fulfilled).toHaveLength(1);
+      expect(rejected).toHaveLength(1);
+      expect((rejected[0] as PromiseRejectedResult).reason.message).toBe(
+        'MoneyKeyring: already has an account',
+      );
+      expect(mockGetMnemonic).toHaveBeenCalledTimes(1);
+      expect(await keyring.getAccounts()).toHaveLength(1);
+    });
+
     it('adds an account when none exist', async () => {
       const keyring = createKeyring();
       await keyring.deserialize(mockEmptyState);
