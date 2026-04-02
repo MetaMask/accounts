@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0]
+
 ### Added
 
 - Add `PermissionCameraPromptDismissed` error code and `QR_WALLET_ERROR_MAPPINGS` used for extension QR hardware wallet camera flows ([#490](https://github.com/MetaMask/accounts/pull/490))
@@ -63,7 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add hardware related error mappings and custom hardware error ([#421](https://github.com/MetaMask/accounts/pull/421))
 - Add BLE and mobile error mappings with new error codes for Bluetooth permissions, connection states, and mobile support ([#433](https://github.com/MetaMask/accounts/pull/433))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.7.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.8.0...HEAD
+[0.8.0]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.7.0...@metamask/hw-wallet-sdk@0.8.0
 [0.7.0]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.6.0...@metamask/hw-wallet-sdk@0.7.0
 [0.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.5.0...@metamask/hw-wallet-sdk@0.6.0
 [0.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.4.0...@metamask/hw-wallet-sdk@0.5.0
