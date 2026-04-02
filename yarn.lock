@@ -1692,7 +1692,7 @@ __metadata:
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/key-tree": "npm:^10.0.2"
     "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-sdk": "npm:^1.0.0"
+    "@metamask/keyring-sdk": "npm:^1.1.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/scure-bip39": "npm:^2.1.1"
     "@metamask/superstruct": "npm:^3.1.0"
@@ -1724,9 +1724,9 @@ __metadata:
     "@metamask/account-api": "npm:^1.0.1"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
-    "@metamask/hw-wallet-sdk": "npm:^0.7.0"
+    "@metamask/hw-wallet-sdk": "npm:^0.8.0"
     "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-sdk": "npm:^1.0.0"
+    "@metamask/keyring-sdk": "npm:^1.1.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/utils": "npm:^11.10.0"
     "@ts-bridge/cli": "npm:^0.6.3"
@@ -1757,11 +1757,14 @@ __metadata:
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-hd-keyring": "npm:^13.1.0"
     "@metamask/eth-sig-util": "npm:^8.2.0"
+    "@metamask/key-tree": "npm:^10.0.2"
+    "@metamask/keyring-api": "npm:^22.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^11.10.0"
     "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
+    async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     jest: "npm:^29.5.0"
   languageName: unknown
@@ -1782,7 +1785,7 @@ __metadata:
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-sdk": "npm:^1.0.0"
+    "@metamask/keyring-sdk": "npm:^1.1.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/utils": "npm:^11.10.0"
     "@types/hdkey": "npm:^2.0.1"
@@ -1850,7 +1853,7 @@ __metadata:
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-sdk": "npm:^1.0.0"
+    "@metamask/keyring-sdk": "npm:^1.1.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/utils": "npm:^11.10.0"
     "@ts-bridge/cli": "npm:^0.6.3"
@@ -1923,9 +1926,9 @@ __metadata:
     "@metamask/account-api": "npm:^1.0.1"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
-    "@metamask/hw-wallet-sdk": "npm:^0.7.0"
+    "@metamask/hw-wallet-sdk": "npm:^0.8.0"
     "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-sdk": "npm:^1.0.0"
+    "@metamask/keyring-sdk": "npm:^1.1.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/utils": "npm:^11.10.0"
     "@trezor/connect-plugin-ethereum": "npm:^9.0.5"
@@ -1965,7 +1968,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/hw-wallet-sdk@npm:^0.7.0, @metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk":
+"@metamask/hw-wallet-sdk@npm:^0.8.0, @metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk":
   version: 0.0.0-use.local
   resolution: "@metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk"
   dependencies:
@@ -2112,7 +2115,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-sdk@npm:^1.0.0, @metamask/keyring-sdk@workspace:packages/keyring-sdk":
+"@metamask/keyring-sdk@npm:^1.1.0, @metamask/keyring-sdk@workspace:packages/keyring-sdk":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-sdk@workspace:packages/keyring-sdk"
   dependencies:
@@ -2123,6 +2126,7 @@ __metadata:
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/keyring-api": "npm:^22.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
+    "@metamask/scure-bip39": "npm:^2.1.1"
     "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^11.10.0"
     "@ts-bridge/cli": "npm:^0.6.3"
