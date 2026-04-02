@@ -1968,7 +1968,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/hw-wallet-sdk@npm:^0.7.0, @metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk":
+"@metamask/hw-wallet-sdk@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@metamask/hw-wallet-sdk@npm:0.7.0"
+  checksum: 10/2381f6fd8d3c3f74153345a63148c0cabb150b764822bd336ec855cc2d63dada0b8866568a87e68a3266fd63c7c7dc5845e33975afd6fc88d32efe6258fe0633
+  languageName: node
+  linkType: hard
+
+"@metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk":
   version: 0.0.0-use.local
   resolution: "@metamask/hw-wallet-sdk@workspace:packages/hw-wallet-sdk"
   dependencies:
