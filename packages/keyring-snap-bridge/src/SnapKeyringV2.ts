@@ -1,6 +1,6 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
-import type { AccountId } from '@metamask/keyring-utils';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
+import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 
 import { isAccountV1, migrateAccountV1 } from './migrations';
