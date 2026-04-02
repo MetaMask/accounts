@@ -62,13 +62,13 @@ import {
   RequestRejectedEventStruct,
 } from './events';
 import { projectLogger as log } from './logger';
-import { isAccountV1, migrateAccountV1 } from './migrations';
 import {
   getInternalOptionsOf,
   type SnapKeyringInternalOptions,
 } from './options';
 import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions';
 import { SnapIdMap } from './SnapIdMap';
+import { SnapKeyringV2 } from './SnapKeyringV2';
 import type {
   SnapKeyringEvents,
   SnapKeyringMessenger,
@@ -174,13 +174,21 @@ export class SnapKeyring {
   readonly #snapClient: KeyringInternalSnapClient;
 
   /**
-   * Mapping between account IDs and an object that contains the associated
-   * account object and Snap ID.
+   * Per-snap keyring wrappers.
+   *
+   * Each entry owns the registry for a single Snap. Accounts are stored and
+   * looked up through these wrappers rather than through the old flat map.
    */
-  #accounts: SnapIdMap<{
-    account: KeyringAccount;
-    snapId: SnapId;
-  }>;
+  readonly #snapKeyrings: Map<SnapId, SnapKeyringV2>;
+
+  /**
+   * Reverse index from account ID to the owning Snap ID.
+   *
+   * Populated and kept in sync via the `onRegister` / `onUnregister`
+   * callbacks injected into each `SnapKeyringV2`. Enables O(1) routing for
+   * any "which snap owns this account?" query.
+   */
+  readonly #accountIndex: Map<AccountId, SnapId>;
 
   /**
    * Mapping between Snap IDs and the selected accounts.
@@ -244,7 +252,8 @@ export class SnapKeyring {
     this.#messenger = messenger;
     this.#snapClient = new KeyringInternalSnapClient({ messenger });
     this.#requests = new SnapIdMap();
-    this.#accounts = new SnapIdMap();
+    this.#snapKeyrings = new Map();
+    this.#accountIndex = new Map();
     this.#options = new SnapIdMap();
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
@@ -260,6 +269,26 @@ export class SnapKeyring {
    */
   async #withLock<Result>(callback: () => Promise<Result>): Promise<Result> {
     return this.#lock.runExclusive(callback);
+  }
+
+  /**
+   * Get the SnapKeyringV2 wrapper for a Snap, creating it if it does not
+   * exist yet.
+   *
+   * @param snapId - Snap ID.
+   * @returns The SnapKeyringV2 wrapper for the given Snap.
+   */
+  #getOrCreateKeyringV2(snapId: SnapId): SnapKeyringV2 {
+    let keyring = this.#snapKeyrings.get(snapId);
+    if (!keyring) {
+      keyring = new SnapKeyringV2({
+        snapId,
+        onRegister: (id) => this.#accountIndex.set(id, snapId),
+        onUnregister: (id) => this.#accountIndex.delete(id),
+      });
+      this.#snapKeyrings.set(snapId, keyring);
+    }
+    return keyring;
   }
 
   /**
@@ -284,14 +313,10 @@ export class SnapKeyring {
    * Asserts that an account can be used within the Snap keyring. (e.g. generic accounts, unique
    * addresses, etc...).
    *
-   * @param snapId - The account's Snap ID.
    * @param account - The account to check.
    * @throws If the account cannot be used.
    */
-  async #assertAccountCanBeUsed(
-    snapId: SnapId,
-    account: KeyringAccount,
-  ): Promise<void> {
+  async #assertAccountCanBeUsed(account: KeyringAccount): Promise<void> {
     const address = normalizeAccountAddress(account);
 
     // The `AnyAccountType.Account` generic account type is allowed only during
@@ -305,7 +330,8 @@ export class SnapKeyring {
 
     // A Snap could try to create an account with a different address but with
     // an existing ID, so the above test only is not enough.
-    if (this.#accounts.has(snapId, account.id)) {
+    // Account IDs are globally unique across all snaps.
+    if (this.#accountIndex.has(account.id)) {
       throw new Error(`Account '${account.id}' already exists`);
     }
 
@@ -330,16 +356,17 @@ export class SnapKeyring {
   ): KeyringAccount | undefined {
     const address = normalizeAccountAddress(account);
 
-    // Acount creation is idempotent, so we need to check whether the account already exists
-    // and that the right Snap is trying to "create" it again.
+    // Account creation is idempotent, so we need to check whether the account
+    // already exists and that the right Snap is trying to "create" it again.
     // NOTE: We are not checking account object equality here. If a Snap
-    // re-send this event with different account data, we will ignore it.
-    const accountEntry = this.#accounts.get(snapId, account.id);
+    // re-sends this event with different account data, we will ignore it.
+    const wrapper = this.#snapKeyrings.get(snapId);
+    const existing = wrapper?.lookupAccount(account.id);
     if (
-      accountEntry !== undefined &&
-      normalizeAccountAddress(accountEntry.account) === address
+      existing !== undefined &&
+      normalizeAccountAddress(existing) === address
     ) {
-      return accountEntry.account;
+      return existing;
     }
 
     return undefined; // Not a known account.
@@ -415,7 +442,7 @@ export class SnapKeyring {
     }
 
     // Make sure this new account is valid.
-    await this.#assertAccountCanBeUsed(snapId, account);
+    await this.#assertAccountCanBeUsed(account);
 
     // A deferred promise that will be resolved once the Snap keyring has saved
     // its internal state.
@@ -440,7 +467,7 @@ export class SnapKeyring {
           //
           // e.g The account creation dialog crashed on MetaMask, this callback
           // will never be called, but the Snap still has the account.
-          this.#accounts.set(account.id, { account, snapId });
+          this.#getOrCreateKeyringV2(snapId).setAccount(account);
 
           // This is the "true async part". We do not `await` for this call, mainly
           // because this callback will persist the account on the client side
@@ -500,8 +527,9 @@ export class SnapKeyring {
   ): Promise<null> {
     assert(message, AccountUpdatedEventStruct);
     const { account: newAccountFromEvent } = message.params;
-    const { account: oldAccount } =
-      this.#accounts.get(snapId, newAccountFromEvent.id) ??
+    const wrapper = this.#snapKeyrings.get(snapId);
+    const oldAccount =
+      wrapper?.lookupAccount(newAccountFromEvent.id) ??
       throwError(`Account '${newAccountFromEvent.id}' not found`);
 
     // Potentially migrate the account.
@@ -527,7 +555,7 @@ export class SnapKeyring {
       throw new Error(`Cannot change address of account '${newAccount.id}'`);
     }
 
-    this.#accounts.set(newAccount.id, { account: newAccount, snapId });
+    this.#getOrCreateKeyringV2(snapId).setAccount(newAccount);
     await this.#callbacks.saveState();
     return null;
   }
@@ -545,20 +573,16 @@ export class SnapKeyring {
   ): Promise<null> {
     assert(message, AccountDeletedEventStruct);
     const { id } = message.params;
-    const entry = this.#accounts.get(snapId, id);
+    const account = this.#snapKeyrings.get(snapId)?.lookupAccount(id);
 
     // We can ignore the case where the account was already removed from the
     // keyring, making the deletion idempotent.
     //
     // This happens when the keyring calls the Snap to delete an account, and
     // the Snap calls the keyring back with an `AccountDeleted` event.
-    if (entry === undefined) {
+    if (account === undefined) {
       return null;
     }
-
-    // At this point we know that the account exists, so we can safely
-    // destructure it.
-    const { account } = entry;
 
     await this.#callbacks.removeAccount(
       normalizeAccountAddress(account),
@@ -653,7 +677,7 @@ export class SnapKeyring {
     ): Record<AccountId, Entry> => {
       return Object.entries(accountMapping).reduce<Record<AccountId, Entry>>(
         (filtered, [accountId, entry]) => {
-          if (this.#accounts.has(snapId, accountId)) {
+          if (this.#accountIndex.get(accountId) === snapId) {
             // If the Snap owns this account, we can use it.
             filtered[accountId] = entry;
           } else {
@@ -803,16 +827,27 @@ export class SnapKeyring {
   /**
    * Serialize the keyring state.
    *
+   * Delegates to each per-snap wrapper and flattens back into the original
+   * external format so that `KeyringController` sees no change.
+   *
    * @returns Serialized keyring state.
    */
   async serialize(): Promise<KeyringState> {
-    return {
-      accounts: this.#accounts.toObject(),
-    };
+    const accounts: KeyringState['accounts'] = {};
+    for (const wrapper of this.#snapKeyrings.values()) {
+      for (const account of wrapper.accounts()) {
+        accounts[account.id] = { account, snapId: wrapper.snapId };
+      }
+    }
+    return { accounts };
   }
 
   /**
    * Deserialize the keyring state into this keyring.
+   *
+   * Groups the flat persisted state by `snapId`, clears both indexes, then
+   * rebuilds each per-snap wrapper. The `onRegister` callbacks fired during
+   * `wrapper.deserialize()` automatically repopulate `#accountIndex`.
    *
    * @param state - Serialized keyring state.
    */
@@ -823,28 +858,25 @@ export class SnapKeyring {
       return;
     }
 
-    // Running Snap keyring migrations. We might have some accounts that have a
-    // different "version" than the one we expect.
-    //
-    // In this case, we "transform" then directly when deserializing to convert
-    // them in the final account version.
-    const accounts: KeyringState['accounts'] = {};
-    for (const [snapId, entry] of Object.entries(state.accounts)) {
-      // V1 accounts are missing the scopes.
-      if (isAccountV1(entry.account)) {
-        console.info(
-          `SnapKeyring - Found a KeyringAccountV1, migrating to V2: ${entry.account.id}`,
-        );
-        accounts[snapId] = {
-          ...entry,
-          account: migrateAccountV1(entry.account),
-        };
-      } else {
-        accounts[snapId] = entry;
-      }
+    // Group flat state by snapId. Migrations and migration logging are handled
+    // inside wrapper.deserialize().
+    const bySnap = new Map<SnapId, Record<AccountId, KeyringAccount>>();
+    for (const entry of Object.values(state.accounts)) {
+      const snapAccounts = bySnap.get(entry.snapId) ?? {};
+      snapAccounts[entry.account.id] = entry.account;
+      bySnap.set(entry.snapId, snapAccounts);
     }
 
-    this.#accounts = SnapIdMap.fromObject(accounts);
+    // Clear both indexes before rebuilding — they must always be consistent.
+    this.#snapKeyrings.clear();
+    this.#accountIndex.clear();
+
+    // Rebuild per-snap wrappers. Migrations run inside wrapper.deserialize().
+    for (const [snapId, accounts] of bySnap) {
+      const wrapper = this.#getOrCreateKeyringV2(snapId);
+      wrapper.deserialize({ snapId, accounts });
+      // onRegister callbacks fired above have repopulated #accountIndex.
+    }
   }
 
   /**
@@ -855,14 +887,15 @@ export class SnapKeyring {
    * @returns The account associated with the given account ID in this keyring.
    */
   #getAccount(id: string): { account: KeyringAccount; snapId: SnapId } {
-    const found = [...this.#accounts.values()].find(
-      (entry) => entry.account.id === id,
-    );
+    const snapId = this.#accountIndex.get(id);
+    const account = snapId
+      ? this.#snapKeyrings.get(snapId)?.lookupAccount(id)
+      : undefined;
 
-    if (!found) {
+    if (!snapId || !account) {
       throw new Error(`Unable to get account: unknown account ID: '${id}'`);
     }
-    return found;
+    return { account, snapId };
   }
 
   /**
@@ -871,11 +904,13 @@ export class SnapKeyring {
    * @returns The addresses of the accounts in this keyring.
    */
   async getAccounts(): Promise<string[]> {
-    return unique(
-      [...this.#accounts.values()].map(({ account }) =>
-        normalizeAccountAddress(account),
-      ),
-    );
+    const addresses: string[] = [];
+    for (const wrapper of this.#snapKeyrings.values()) {
+      for (const account of wrapper.accounts()) {
+        addresses.push(normalizeAccountAddress(account));
+      }
+    }
+    return unique(addresses);
   }
 
   /**
@@ -886,9 +921,9 @@ export class SnapKeyring {
    */
   async getAccountsBySnapId(snapId: SnapId): Promise<string[]> {
     return unique(
-      [...this.#accounts.values()]
-        .filter(({ snapId: accountSnapId }) => accountSnapId === snapId)
-        .map(({ account }) => normalizeAccountAddress(account)),
+      (this.#snapKeyrings.get(snapId)?.accounts() ?? []).map(
+        normalizeAccountAddress,
+      ),
     );
   }
 
@@ -994,7 +1029,7 @@ export class SnapKeyring {
             // mutating the account object without updating the map.
             account = existingAccount;
           } else {
-            await this.#assertAccountCanBeUsed(snapId, account);
+            await this.#assertAccountCanBeUsed(account);
 
             // Also check for transient accounts that are not yet part of the keyring
             // state.
@@ -1017,8 +1052,9 @@ export class SnapKeyring {
 
         // We update the keyring state only if needed.
         if (newAccounts.length > 0) {
+          const wrapper = this.#getOrCreateKeyringV2(snapId);
           for (const account of newAccounts) {
-            this.#accounts.set(account.id, { account, snapId });
+            wrapper.setAccount(account);
           }
 
           // NOTE: We assume this will never fail, thus, we don't need to rollback the
@@ -1048,7 +1084,8 @@ export class SnapKeyring {
    * @returns `true` if the Snap ID is known, `false` otherwise.
    */
   hasSnapId(snapId: SnapId): boolean {
-    return this.#accounts.hasSnapId(snapId);
+    const wrapper = this.#snapKeyrings.get(snapId);
+    return wrapper !== undefined && wrapper.accounts().length > 0;
   }
 
   /**
@@ -1636,8 +1673,8 @@ export class SnapKeyring {
    */
   async #deleteAccount(snapId: SnapId, account: KeyringAccount): Promise<void> {
     // Always remove the account from the maps, even if the Snap is going to
-    // fail to delete it.
-    this.#accounts.delete(snapId, account.id);
+    // fail to delete it. removeAccount fires onUnregister to clean #accountIndex.
+    this.#snapKeyrings.get(snapId)?.removeAccount(account.id);
 
     try {
       await this.#snapClient.withSnapId(snapId).deleteAccount(account.id);
@@ -1663,11 +1700,13 @@ export class SnapKeyring {
     account: KeyringAccount;
     snapId: SnapId;
   } {
-    return (
-      [...this.#accounts.values()].find(({ account }) =>
-        equalsIgnoreCase(account.address, address),
-      ) ?? throwError(`Account '${address}' not found`)
-    );
+    for (const wrapper of this.#snapKeyrings.values()) {
+      const account = wrapper.lookupByAddress(address);
+      if (account) {
+        return { account, snapId: wrapper.snapId };
+      }
+    }
+    return throwError(`Account '${address}' not found`);
   }
 
   /**
@@ -1679,7 +1718,7 @@ export class SnapKeyring {
     const selectedAccounts = this.#selectedAccounts;
     selectedAccounts.clear();
     for (const account of accounts) {
-      const snapId = this.#accounts.getSnapId(account);
+      const snapId = this.#accountIndex.get(account);
       if (!snapId) {
         continue;
       }
@@ -1786,14 +1825,13 @@ export class SnapKeyring {
    * @returns An internal account object for the given address.
    */
   getAccountByAddress(address: string): InternalAccount | undefined {
-    const accounts = [...this.#accounts.values()];
-    const account = accounts.find(({ account: { address: accountAddress } }) =>
-      equalsIgnoreCase(accountAddress, address),
-    );
-
-    return account
-      ? this.#transformToInternalAccount(account.account, account.snapId)
-      : undefined;
+    for (const wrapper of this.#snapKeyrings.values()) {
+      const account = wrapper.lookupByAddress(address);
+      if (account) {
+        return this.#transformToInternalAccount(account, wrapper.snapId);
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -1804,8 +1842,12 @@ export class SnapKeyring {
    * @returns An array containing all Snap keyring accounts.
    */
   listAccounts(): InternalAccount[] {
-    return [...this.#accounts.values()].map(({ account, snapId }) =>
-      this.#transformToInternalAccount(account, snapId),
-    );
+    const accounts: InternalAccount[] = [];
+    for (const wrapper of this.#snapKeyrings.values()) {
+      for (const account of wrapper.accounts()) {
+        accounts.push(this.#transformToInternalAccount(account, wrapper.snapId));
+      }
+    }
+    return accounts;
   }
 }

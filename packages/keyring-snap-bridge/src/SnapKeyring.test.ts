@@ -510,7 +510,7 @@ describe('SnapKeyring', () => {
             },
           }),
         ).rejects.toThrow(
-          'Snap "a-different-snap-id" is not allowed to set "b05d918a-b37c-497a-bb28-3d15c0d56b7a"',
+          `Account '${ethEoaAccount1.id}' already exists`,
         );
       });
 
@@ -2305,6 +2305,13 @@ describe('SnapKeyring', () => {
     it('returns the list of addresses of a Snap', async () => {
       const addresses = await keyring.getAccountsBySnapId(snapId);
       expect(addresses).toStrictEqual(accounts.map((a) => a.address));
+    });
+
+    it('returns an empty array for an unknown Snap', async () => {
+      const addresses = await keyring.getAccountsBySnapId(
+        'unknown-snap' as SnapId,
+      );
+      expect(addresses).toStrictEqual([]);
     });
   });
 
