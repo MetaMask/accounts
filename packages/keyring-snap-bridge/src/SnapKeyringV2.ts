@@ -41,7 +41,7 @@ type SnapKeyringV2Options = {
 export class SnapKeyringV2 {
   readonly #snapId: SnapId;
 
-  readonly #registry: KeyringAccountRegistry<KeyringAccount>;
+  readonly #registry: KeyringAccountRegistry;
 
   readonly #onRegister: (accountId: AccountId) => void;
 
@@ -56,6 +56,8 @@ export class SnapKeyringV2 {
 
   /**
    * The Snap ID that owns all accounts in this keyring.
+   *
+   * @returns The owning Snap ID.
    */
   get snapId(): SnapId {
     return this.#snapId;
@@ -132,8 +134,7 @@ export class SnapKeyringV2 {
     return this.#registry
       .values()
       .find(
-        (account) =>
-          account.address.toLowerCase() === address.toLowerCase(),
+        (account) => account.address.toLowerCase() === address.toLowerCase(),
       );
   }
 

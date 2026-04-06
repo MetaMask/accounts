@@ -509,9 +509,7 @@ describe('SnapKeyring', () => {
               account: { ...(ethEoaAccount1 as unknown as KeyringAccount) },
             },
           }),
-        ).rejects.toThrow(
-          `Account '${ethEoaAccount1.id}' already exists`,
-        );
+        ).rejects.toThrow(`Account '${ethEoaAccount1.id}' already exists`);
       });
 
       describe('with options', () => {

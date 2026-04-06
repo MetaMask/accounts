@@ -24,13 +24,27 @@ const account2: KeyringAccount = {
   type: EthAccountType.Eoa,
 };
 
-function makeKeyring(snapId: SnapId = SNAP_ID) {
+/**
+ * Create a `SnapKeyringV2` test instance with tracking arrays for callbacks.
+ *
+ * @param snapId - The Snap ID used to construct the keyring.
+ * @returns The keyring and arrays of registered/unregistered account IDs.
+ */
+function makeKeyring(snapId: SnapId = SNAP_ID): {
+  keyring: SnapKeyringV2;
+  registered: string[];
+  unregistered: string[];
+} {
   const registered: string[] = [];
   const unregistered: string[] = [];
   const keyring = new SnapKeyringV2({
     snapId,
-    onRegister: (id) => registered.push(id),
-    onUnregister: (id) => unregistered.push(id),
+    onRegister: (id): void => {
+      registered.push(id);
+    },
+    onUnregister: (id): void => {
+      unregistered.push(id);
+    },
   });
   return { keyring, registered, unregistered };
 }

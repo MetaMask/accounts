@@ -68,12 +68,12 @@ import {
 } from './options';
 import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions';
 import { SnapIdMap } from './SnapIdMap';
-import { SnapKeyringV2 } from './SnapKeyringV2';
 import type {
   SnapKeyringEvents,
   SnapKeyringMessenger,
 } from './SnapKeyringMessenger';
 import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
+import { SnapKeyringV2 } from './SnapKeyringV2';
 import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
@@ -283,8 +283,12 @@ export class SnapKeyring {
     if (!keyring) {
       keyring = new SnapKeyringV2({
         snapId,
-        onRegister: (id) => this.#accountIndex.set(id, snapId),
-        onUnregister: (id) => this.#accountIndex.delete(id),
+        onRegister: (id: AccountId): void => {
+          this.#accountIndex.set(id, snapId);
+        },
+        onUnregister: (id: AccountId): void => {
+          this.#accountIndex.delete(id);
+        },
       });
       this.#snapKeyrings.set(snapId, keyring);
     }
@@ -1845,7 +1849,9 @@ export class SnapKeyring {
     const accounts: InternalAccount[] = [];
     for (const wrapper of this.#snapKeyrings.values()) {
       for (const account of wrapper.accounts()) {
-        accounts.push(this.#transformToInternalAccount(account, wrapper.snapId));
+        accounts.push(
+          this.#transformToInternalAccount(account, wrapper.snapId),
+        );
       }
     }
     return accounts;
