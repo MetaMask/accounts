@@ -44,11 +44,6 @@ export class MnemonicEntropy implements Bip44Entropy {
   async getSigner(
     scope: CaipChainId,
     options: Bip44GetSignerOptions,
-  ): Promise<Signer>;
-
-  async getSigner(
-    scope: CaipChainId,
-    options: Bip44GetSignerOptions,
   ): Promise<Signer> {
     const { derivationPath } = options;
 
