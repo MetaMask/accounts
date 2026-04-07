@@ -154,8 +154,10 @@ async function updateWorkspacePackagesWithPreviewInfo(
       const peerDeps: DependenciesRecord = pkgJson.content[peerDepKey] ?? {};
 
       for (const { name, version } of previewPkgs) {
-        // Only consider dependenc that refers to a local workspace package
-        if (name in peerDeps && peerDeps[name] === 'workspace:^') {
+        // Only consider dependencies that refer to a local workspace package.
+        // Accept both `workspace:^` and plain semver ranges (e.g. `^x.y.z`),
+        // since commit 62aece4 removed `workspace:^` in favour of pinned ranges.
+        if (name in peerDeps) {
           // Move this dependency as a normal dependency with a "fixed" version
           deps[name] = version;
           delete peerDeps[name];
@@ -176,8 +178,10 @@ async function updateWorkspacePackagesWithPreviewInfo(
       const deps: DependenciesRecord = pkgJson.content[depKey] ?? {};
 
       for (const { name, version } of previewPkgs) {
-        // Only consider dependenc that refers to a local workspace package
-        if (name in deps && deps[name] === 'workspace:^') {
+        // Only consider dependencies that refer to a local workspace package.
+        // Accept both `workspace:^` and plain semver ranges (e.g. `^x.y.z`),
+        // since commit 62aece4 removed `workspace:^` in favour of pinned ranges.
+        if (name in deps) {
           // Override this dependency with a "fixed" version,
           // `yarn` will resolve this using the global resolutions being injected by
           // `updateWorkspaceResolutions`
