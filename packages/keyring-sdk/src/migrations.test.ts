@@ -116,6 +116,47 @@ describe('defineMigration', () => {
     expect(migration.version).toBe(1);
     expect(migration.validate).toBeUndefined();
   });
+
+  describe('inputSchema', () => {
+    it('passes when input matches inputSchema', async () => {
+      const V0Schema = object({ oldCount: number() });
+      type StateV0 = Infer<typeof V0Schema>;
+      type StateV1 = { count: number };
+
+      const migration = defineMigration<StateV1, StateV0>({
+        version: 1,
+        inputSchema: V0Schema,
+        migrate: (state) => ({ count: state.oldCount }),
+      });
+
+      const result = await applyMigrations({ oldCount: 7 }, [migration]);
+
+      expect(result).toStrictEqual({
+        version: 1,
+        data: { count: 7 },
+        migrated: true,
+      });
+    });
+
+    it('throws before calling migrate when input does not match inputSchema', async () => {
+      const V0Schema = object({ oldCount: number() });
+      type StateV0 = Infer<typeof V0Schema>;
+      type StateV1 = { count: number };
+
+      const migrateFn = jest.fn();
+      const migration = defineMigration<StateV1, StateV0>({
+        version: 1,
+        inputSchema: V0Schema,
+        migrate: migrateFn,
+      });
+
+      await expect(
+        applyMigrations({ wrongField: 'oops' }, [migration]),
+      ).rejects.toThrow('Expected a number');
+
+      expect(migrateFn).not.toHaveBeenCalled();
+    });
+  });
 });
 
 describe('applyMigrations', () => {
@@ -154,6 +195,7 @@ describe('applyMigrations', () => {
           newField: 'added',
           renamedField: 'value',
         } satisfies HdStateV2,
+        migrated: true,
       });
     });
 
@@ -179,6 +221,7 @@ describe('applyMigrations', () => {
           keys: ['key1', 'key2'],
           format: 'v1',
         } satisfies PrivateKeysV1,
+        migrated: true,
       });
     });
 
@@ -188,6 +231,7 @@ describe('applyMigrations', () => {
       expect(result).toStrictEqual({
         version: 0,
         data: { foo: 'bar' },
+        migrated: false,
       });
     });
 
@@ -197,6 +241,7 @@ describe('applyMigrations', () => {
       expect(result).toStrictEqual({
         version: 0,
         data: ['a', 'b'],
+        migrated: false,
       });
     });
   });
@@ -224,6 +269,7 @@ describe('applyMigrations', () => {
       expect(result).toStrictEqual({
         version: 2,
         data: { existing: true, v2: true } satisfies StateV2,
+        migrated: true,
       });
     });
 
@@ -243,6 +289,7 @@ describe('applyMigrations', () => {
       expect(result).toStrictEqual({
         version: 1,
         data: { foo: 'bar' },
+        migrated: false,
       });
     });
 
@@ -285,6 +332,7 @@ describe('applyMigrations', () => {
       expect(result).toStrictEqual({
         version: 3,
         data: { original: true, migrated: true } satisfies StateV3,
+        migrated: true,
       });
     });
   });
@@ -309,6 +357,7 @@ describe('applyMigrations', () => {
       expect(result).toStrictEqual({
         version: 1,
         data: { foo: 'bar', async: true } satisfies StateV1,
+        migrated: true,
       });
     });
   });
@@ -332,6 +381,7 @@ describe('applyMigrations', () => {
       expect(result).toStrictEqual({
         version: 1,
         data: { name: 'test', count: 42 },
+        migrated: true,
       });
     });
 
@@ -381,6 +431,7 @@ describe('applyMigrations', () => {
       expect(result).toStrictEqual({
         version: 2,
         data: { items: ['a', 'b'], total: 2 } satisfies StateV2,
+        migrated: true,
       });
     });
   });

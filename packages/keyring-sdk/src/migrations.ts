@@ -64,36 +64,51 @@ export type KeyringMigration<Output extends Json = Json> = {
  * The `schema` is a superstruct `Struct<Output>`. `defineMigration` wires it into the
  * `validate` callback automatically using `assert`.
  *
+ * When `inputSchema` is provided, state is validated against it before `migrate` is
+ * called, and the `Input` type parameter is inferred so `migrate` receives a typed
+ * argument with no manual cast needed.
+ *
  * Returns `KeyringMigration` for array compatibility.
  *
  * @param config - The migration configuration.
  * @param config.version - The version this migration produces.
  * @param config.migrate - Transform state from the previous version.
  * @param config.schema - Optional superstruct schema to validate the migration output.
+ * @param config.inputSchema - Optional superstruct schema to validate the migration input.
  * @returns A type-erased migration for use in arrays.
  * @example
  * ```typescript
+ * const V0Schema = object({ numberOfItems: number() });
+ * type V0 = Infer<typeof V0Schema>;
  * const V1Schema = object({ count: number() });
  * type V1 = Infer<typeof V1Schema>;
  *
- * const migration = defineMigration<V1>({
+ * const migration = defineMigration<V1, V0>({
  *   version: 1,
+ *   inputSchema: V0Schema,
  *   schema: V1Schema,
- *   migrate: (state) => {
- *     const prev = state as V0;
- *     return { count: prev.numberOfItems };
- *   },
+ *   migrate: (state) => ({ count: state.numberOfItems }), // state is V0, no cast needed
  * });
  * ```
  */
-export function defineMigration<Output extends Json>(config: {
+export function defineMigration<
+  Output extends Json,
+  Input extends Json = Json,
+>(config: {
   version: number;
-  migrate: (state: Json) => Output | Promise<Output>;
+  migrate: (state: Input) => Output | Promise<Output>;
   schema?: Struct<Output>;
+  inputSchema?: Struct<Input>;
 }): KeyringMigration {
-  const { schema, ...rest } = config;
+  const { version, schema, inputSchema, migrate } = config;
   return {
-    ...rest,
+    version,
+    migrate: inputSchema
+      ? (state: Json): Output | Promise<Output> => {
+          assert(state, inputSchema);
+          return migrate(state);
+        }
+      : (state: Json): Output | Promise<Output> => migrate(state as Input),
     validate: schema
       ? (data: unknown): void => assert(data, schema)
       : undefined,
@@ -120,6 +135,18 @@ export type VersionedState<Data extends Json = Json> = Omit<
   'data'
 > & {
   data: Data;
+};
+
+/**
+ * Return value of {@link applyMigrations}.
+ *
+ * Extends {@link VersionedState} with a `migrated` flag that is `true` when at least
+ * one migration was applied during the call. Callers can use this to detect that the
+ * in-memory state has been upgraded and schedule a persist so the new version is
+ * written to storage — even when no other state change happens in the session.
+ */
+export type MigrationResult<Data extends Json = Json> = VersionedState<Data> & {
+  migrated: boolean;
 };
 
 /**
@@ -183,12 +210,12 @@ function getVersionAndData(state: Json | VersionedState): {
  *
  * @param state - The serialized keyring state (from vault or previous serialize).
  * @param migrations - Ordered array of migrations to apply.
- * @returns The migrated state wrapped in a versioned envelope.
+ * @returns The migrated state wrapped in a versioned envelope, plus a `migrated` flag.
  */
 export async function applyMigrations(
   state: Json,
   migrations: KeyringMigration[],
-): Promise<VersionedState> {
+): Promise<MigrationResult> {
   validateMigrations(migrations);
 
   const latestVersion = getLatestVersion(migrations);
@@ -200,9 +227,11 @@ export async function applyMigrations(
     );
   }
 
+  let migrated = false;
   for (const migration of migrations) {
     if (version < migration.version) {
       version = migration.version;
+      migrated = true;
       data = await migration.migrate(data);
 
       if (migration.validate) {
@@ -211,5 +240,5 @@ export async function applyMigrations(
     }
   }
 
-  return { version, data };
+  return { version, data, migrated };
 }
