@@ -38,7 +38,7 @@ export class MnemonicEip155Signer implements Eip155Signer {
   readonly #node: SLIP10NodeInterface;
 
   /**
-   * Creates a new MnemonicEthSigner.
+   * Creates a new MnemonicEip155Signer.
    *
    * @param scope - The CAIP-2 chain ID (e.g. `"eip155:1"` for Ethereum mainnet).
    * @param node - The address-level SLIP10 node (e.g. at m/44'/60'/0'/0/0).
@@ -48,31 +48,32 @@ export class MnemonicEip155Signer implements Eip155Signer {
     this.#node = node;
   }
 
+  #requirePrivateKey(): Uint8Array {
+    const { privateKeyBytes } = this.#node;
+    if (!privateKeyBytes) {
+      throw new Error('Private key is not available on the node');
+    }
+    return privateKeyBytes;
+  }
+
   async getAddress(): Promise<GetEthAddressResponse> {
-    const pubKeyBytes = new Uint8Array(this.#node.publicKeyBytes);
     const address = add0x(
-      bytesToHex(publicToAddress(pubKeyBytes, true)).toLowerCase(),
+      bytesToHex(
+        publicToAddress(this.#node.publicKeyBytes, true),
+      ).toLowerCase(),
     );
     return { address };
   }
 
   async signTransaction(tx: TypedTransaction): Promise<TypedTransaction> {
-    const { privateKeyBytes } = this.#node;
-    if (!privateKeyBytes) {
-      throw new Error('Private key is not available on the node');
-    }
-    return tx.sign(new Uint8Array(privateKeyBytes));
+    return tx.sign(this.#requirePrivateKey());
   }
 
   async signPersonalMessage(
     args: SignPersonalMessageArguments,
   ): Promise<string> {
-    const { privateKeyBytes } = this.#node;
-    if (!privateKeyBytes) {
-      throw new Error('Private key is not available on the node');
-    }
     return personalSign({
-      privateKey: Buffer.from(privateKeyBytes),
+      privateKey: Buffer.from(this.#requirePrivateKey()),
       data: args.msgHex,
     });
   }
@@ -81,18 +82,13 @@ export class MnemonicEip155Signer implements Eip155Signer {
     Version extends SignTypedDataVersion,
     Types extends MessageTypes,
   >(args: SignTypedDataArguments<Version, Types>): Promise<string> {
-    const { privateKeyBytes } = this.#node;
-    if (!privateKeyBytes) {
-      throw new Error('Private key is not available on the node');
-    }
-
     const version =
-      args.version && Object.keys(SignTypedDataVersion).includes(args.version)
+      args.version && Object.values(SignTypedDataVersion).includes(args.version)
         ? args.version
         : SignTypedDataVersion.V1;
 
     return signTypedData({
-      privateKey: Buffer.from(privateKeyBytes),
+      privateKey: Buffer.from(this.#requirePrivateKey()),
       data: args.data as unknown as Version extends 'V1'
         ? TypedDataV1
         : TypedMessage<Types>,
@@ -103,31 +99,21 @@ export class MnemonicEip155Signer implements Eip155Signer {
   async signEip7702Authorization(
     args: SignEip7702AuthorizationArguments,
   ): Promise<string> {
-    const { privateKeyBytes } = this.#node;
-    if (!privateKeyBytes) {
-      throw new Error('Private key is not available on the node');
-    }
     return signEIP7702Authorization({
-      privateKey: Buffer.from(privateKeyBytes),
+      privateKey: Buffer.from(this.#requirePrivateKey()),
       authorization: args.authorization,
     });
   }
 
   async getEncryptionPublicKey(): Promise<string> {
-    const { privateKeyBytes } = this.#node;
-    if (!privateKeyBytes) {
-      throw new Error('Private key is not available on the node');
-    }
-    return getEncryptionPublicKey(remove0x(bytesToHex(privateKeyBytes)));
+    return getEncryptionPublicKey(
+      remove0x(bytesToHex(this.#requirePrivateKey())),
+    );
   }
 
   async decryptMessage(args: DecryptMessageArguments): Promise<string> {
-    const { privateKeyBytes } = this.#node;
-    if (!privateKeyBytes) {
-      throw new Error('Private key is not available on the node');
-    }
     return decrypt({
-      privateKey: remove0x(bytesToHex(privateKeyBytes)),
+      privateKey: remove0x(bytesToHex(this.#requirePrivateKey())),
       encryptedData: args.encryptedData,
     });
   }
