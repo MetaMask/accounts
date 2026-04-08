@@ -9,8 +9,8 @@ import { JsonStruct, type Json } from '@metamask/utils';
  * {@link defineMigration} to create migrations with compile-time type binding between
  * `migrate` and `schema`.
  *
- * Migrations arrays should be typed as `KeyringMigration[]` and can contain
- * migrations with different output types.
+ * Use {@link defineMigrations} to build the array so that `applyMigrations` can infer
+ * the last migration's output type and return a typed `data` field.
  *
  * @example
  * ```typescript
@@ -68,14 +68,81 @@ export type KeyringMigration<Output extends Json = Json> = {
  * called, and the `Input` type parameter is inferred so `migrate` receives a typed
  * argument with no manual cast needed.
  *
- * Returns `KeyringMigration` for array compatibility.
+ * Returns `KeyringMigration<Output>` so that `applyMigrations` can infer the last
+ * migration's output type when the array is declared with `satisfies
+ * KeyringMigration[]`.
+ *
+ * @param config - The migration configuration.
+ * @param config.version - The version this migration produces.
+ * @param config.migrate - Transform state from the previous version.
+ * @param config.schema - Optional superstruct schema to validate the output state.
+ * @param config.inputSchema - Optional superstruct schema to validate the input state.
+ * @returns A typed migration for use in arrays.
+ * @example
+ * ```typescript
+ * const V0Schema = object({ numberOfItems: number() });
+ * type V0 = Infer<typeof V0Schema>;
+ * const V1Schema = object({ count: number() });
+ * type V1 = Infer<typeof V1Schema>;
+ *
+ * const migration = defineMigration<V1, V0>({
+ *   version: 1,
+ *   inputSchema: V0Schema,
+ *   schema: V1Schema,
+ *   migrate: (state) => ({ count: state.numberOfItems }), // state is V0, no cast needed
+ * });
+ * ```
+ */
+/**
+ * Define a typed migrations array.
+ *
+ * Using rest parameters forces TypeScript to infer a tuple type, which lets
+ * {@link applyMigrations} infer `data` as the last migration's output type, no `as
+ * const` or manual cast needed.
+ *
+ * @param migrations - Ordered migrations created with {@link defineMigration}.
+ * @returns The same migrations as a typed tuple.
+ * @example
+ * ```typescript
+ * const migrations = defineMigrations(
+ *   defineMigration<V1, V0>({ version: 1, ... }),
+ *   defineMigration<V2, V1>({ version: 2, ... }),
+ * );
+ *
+ * const { data } = await applyMigrations(state, migrations);
+ * // data is V2
+ * ```
+ */
+export function defineMigrations<Migrations extends KeyringMigration[]>(
+  ...migrations: Migrations
+): Migrations {
+  return migrations;
+}
+
+/**
+ * Create a migration with compile-time type binding between `migrate` and `schema`.
+ *
+ * Unlike constructing a {@link KeyringMigration} directly, `defineMigration` ensures
+ * that `schema` validates the same `Output` type that `migrate` returns. This prevents
+ * mismatched schemas at compile time.
+ *
+ * The `schema` is a superstruct `Struct<Output>`. `defineMigration` wires it into the
+ * `validate` callback automatically using `assert`.
+ *
+ * When `inputSchema` is provided, state is validated against it before `migrate` is
+ * called, and the `Input` type parameter is inferred so `migrate` receives a typed
+ * argument with no manual cast needed.
+ *
+ * Returns `KeyringMigration<Output>` so that {@link defineMigrations} and
+ * {@link applyMigrations} can infer the output type.
  *
  * @param config - The migration configuration.
  * @param config.version - The version this migration produces.
  * @param config.migrate - Transform state from the previous version.
  * @param config.schema - Optional superstruct schema to validate the migration output.
- * @param config.inputSchema - Optional superstruct schema to validate the migration input.
- * @returns A type-erased migration for use in arrays.
+ * @param config.inputSchema - Optional superstruct schema to validate the migration
+ * input.
+ * @returns A typed migration for use in arrays.
  * @example
  * ```typescript
  * const V0Schema = object({ numberOfItems: number() });
@@ -99,7 +166,7 @@ export function defineMigration<
   migrate: (state: Input) => Output | Promise<Output>;
   schema?: Struct<Output>;
   inputSchema?: Struct<Input>;
-}): KeyringMigration {
+}): KeyringMigration<Output> {
   const { version, schema, inputSchema, migrate } = config;
   return {
     version,
@@ -112,7 +179,7 @@ export function defineMigration<
     validate: schema
       ? (data: unknown): void => assert(data, schema)
       : undefined,
-  } as KeyringMigration;
+  } as KeyringMigration<Output>;
 }
 
 /**
@@ -144,6 +211,9 @@ export type VersionedState<Data extends Json = Json> = Omit<
  * one migration was applied during the call. Callers can use this to detect that the
  * in-memory state has been upgraded and schedule a persist so the new version is
  * written to storage — even when no other state change happens in the session.
+ *
+ * `Data` is inferred as the last migration's output type when the migrations array is
+ * declared with `as const` — see {@link applyMigrations}.
  */
 export type MigrationResult<Data extends Json = Json> = VersionedState<Data> & {
   migrated: boolean;
@@ -165,7 +235,9 @@ export function isVersionedState(state: Json): state is VersionedState {
  * @param migrations - The migrations array.
  * @returns The latest version number.
  */
-export function getLatestVersion(migrations: KeyringMigration[]): number {
+export function getLatestVersion(
+  migrations: readonly KeyringMigration[],
+): number {
   return Math.max(0, ...migrations.map((migration) => migration.version));
 }
 
@@ -175,7 +247,7 @@ export function getLatestVersion(migrations: KeyringMigration[]): number {
  * @param migrations - The migrations array to validate.
  * @throws If migrations are invalid.
  */
-function validateMigrations(migrations: KeyringMigration[]): void {
+function validateMigrations(migrations: readonly KeyringMigration[]): void {
   for (const [index, migration] of migrations.entries()) {
     const expectedVersion = index + 1;
 
@@ -203,19 +275,50 @@ function getVersionAndData(state: Json | VersionedState): {
 }
 
 /**
+ * Extracts the output type of the last migration in a readonly tuple.
+ *
+ * Used by {@link applyMigrations} to infer the `data` type of the result when the
+ * migrations array is declared with `as const`.
+ */
+type LastOutput<Migrations extends readonly KeyringMigration[]> =
+  Migrations extends readonly [...KeyringMigration[], infer Last]
+    ? Last extends KeyringMigration<infer Output>
+      ? Output
+      : Json
+    : Json;
+
+/**
  * Apply pending migrations to keyring state.
  *
  * Handles both versioned state (wrapped in `{ version, data }` envelope) and
  * unversioned legacy state (treated as version 0).
  *
+ * Use {@link defineMigrations} to declare the array and get a typed `data` field
+ * without a cast in `deserialize()`:
+ *
+ * ```typescript
+ * const migrations = defineMigrations(
+ *   defineMigration<V1, V0>({ version: 1, ... }),
+ *   defineMigration<V2, V1>({ version: 2, ... }),
+ * );
+ *
+ * const { data } = await applyMigrations(state, migrations);
+ * // data is V2
+ * ```
+ *
+ * Without `defineMigrations` (array typed as `KeyringMigration[]`), `data` falls back
+ * to `Json`.
+ *
  * @param state - The serialized keyring state (from vault or previous serialize).
  * @param migrations - Ordered array of migrations to apply.
  * @returns The migrated state wrapped in a versioned envelope, plus a `migrated` flag.
  */
-export async function applyMigrations(
+export async function applyMigrations<
+  Migrations extends readonly KeyringMigration[],
+>(
   state: Json,
-  migrations: KeyringMigration[],
-): Promise<MigrationResult> {
+  migrations: Migrations,
+): Promise<MigrationResult<LastOutput<Migrations>>> {
   validateMigrations(migrations);
 
   const latestVersion = getLatestVersion(migrations);
@@ -240,5 +343,5 @@ export async function applyMigrations(
     }
   }
 
-  return { version, data, migrated };
+  return { version, data, migrated } as MigrationResult<LastOutput<Migrations>>;
 }

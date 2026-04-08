@@ -35,6 +35,7 @@ Import from `@metamask/keyring-sdk`:
 import {
   applyMigrations,
   defineMigration,
+  defineMigrations,
   getLatestVersion,
   type KeyringMigration,
 } from '@metamask/keyring-sdk';
@@ -82,7 +83,8 @@ const HdStateV2Schema = object({
 });
 type HdStateV2 = Infer<typeof HdStateV2Schema>;
 
-const migrations: KeyringMigration[] = [
+// defineMigrations infers a tuple so applyMigrations types `data` as HdStateV2.
+const migrations = defineMigrations(
   defineMigration<HdStateV1, HdStateV0>({
     version: 1,
     inputSchema: HdStateV0Schema, // validates legacy state; state typed as HdStateV0
@@ -99,7 +101,7 @@ const migrations: KeyringMigration[] = [
     schema: HdStateV2Schema,
     migrate: (state) => ({ ...state, createdAt: Date.now() }),
   }),
-];
+);
 ```
 
 Both `schema` and `inputSchema` are optional.
@@ -112,6 +114,7 @@ Update `deserialize()` and `serialize()`:
 import {
   applyMigrations,
   defineMigration,
+  defineMigrations,
   getLatestVersion,
 } from '@metamask/keyring-sdk';
 import type { Json } from '@metamask/utils';
@@ -122,9 +125,9 @@ type MyKeyringState = {
   hdPath: string;
 };
 
-const migrations = [
+const migrations = defineMigrations(
   // ... your migrations created with defineMigration()
-];
+);
 
 class MyKeyring {
   #mnemonic: number[] = [];
@@ -134,7 +137,7 @@ class MyKeyring {
   #hdPath: string = '';
 
   async deserialize(state: Json): Promise<void> {
-    // Apply pending migrations. Handles both versioned and unversioned state.
+    // Apply pending migrations. `data` is typed as MyKeyringState via defineMigrations.
     const { data, migrated } = await applyMigrations(state, migrations);
 
     if (migrated) {
@@ -143,11 +146,10 @@ class MyKeyring {
       // How you trigger this depends on your keyring's persistence mechanism.
     }
 
-    // Use `data` (not `state`) for the rest of deserialization.
-    const typed = data as MyKeyringState;
-    this.#mnemonic = typed.mnemonic;
-    this.#accountCount = typed.accountCount;
-    this.#hdPath = typed.hdPath;
+    // `data` is MyKeyringState — no cast needed.
+    this.#mnemonic = data.mnemonic;
+    this.#accountCount = data.accountCount;
+    this.#hdPath = data.hdPath;
   }
 
   async serialize(): Promise<Json> {
@@ -177,7 +179,15 @@ Applies pending migrations to keyring state.
 - Calls `validate(result)` after each step that has validation (via `defineMigration`
   schema)
 - Returns `{ version, data, migrated }` — `migrated` is `true` if any migration ran
+- `data` is inferred as the last migration's output type when the array is built with
+  `defineMigrations`; falls back to `Json` otherwise
 - Throws if state version is newer than the latest migration
+
+### `defineMigrations(...migrations): Migrations`
+
+Wraps an ordered list of migrations in a typed tuple so that `applyMigrations` can infer
+`data` as the last migration's output type. Use this instead of a plain array literal or
+`KeyringMigration[]` annotation.
 
 ### `defineMigration<Output, Input>(config): KeyringMigration`
 
