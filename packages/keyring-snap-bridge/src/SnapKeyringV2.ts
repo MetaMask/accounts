@@ -479,9 +479,9 @@ export class SnapKeyringV2 implements KeyringV2 {
   /**
    * Restore this keyring from a serialized state.
    *
-   * Clears the current registry, then repopulates it via `setAccount` so that
-   * each `onRegister` callback fires -- automatically rebuilding the parent's
-   * `#accountIndex` without any extra coordination.
+   * Removes all existing accounts via `removeAccount` (firing `onUnregister`
+   * for each), then repopulates via `setAccount` (firing `onRegister` for
+   * each) -- keeping the parent's `#accountIndex` in sync automatically.
    *
    * Account migrations (v1 → v2) are applied before storage.
    *
@@ -490,7 +490,14 @@ export class SnapKeyringV2 implements KeyringV2 {
    */
   async deserialize(state: Json): Promise<void> {
     const typed = state as SnapKeyringV2State;
-    this.#registry.clear();
+
+    // Remove existing accounts via removeAccount so that onUnregister fires
+    // for each one, keeping the parent's #accountIndex in sync even if this
+    // method is called outside of SnapKeyring.deserialize.
+    for (const id of [...this.#registry.keys()]) {
+      this.removeAccount(id);
+    }
+
     for (const rawAccount of Object.values(typed.accounts)) {
       let account = rawAccount;
       if (isAccountV1(rawAccount)) {
