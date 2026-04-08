@@ -1,5 +1,5 @@
 import type { Infer, Struct } from '@metamask/superstruct';
-import { assert, is, number, object } from '@metamask/superstruct';
+import { assert, integer, is, object } from '@metamask/superstruct';
 import { JsonStruct, type Json } from '@metamask/utils';
 
 /**
@@ -137,17 +137,15 @@ export function defineMigration<
           return migrate(state);
         }
       : (state: Json): Output | Promise<Output> => migrate(state as Input),
-    validate: schema
-      ? (data: unknown): void => assert(data, schema)
-      : undefined,
-  } as KeyringMigration<Output>;
+    ...(schema && { validate: (data: unknown): void => assert(data, schema) }),
+  };
 }
 
 /**
  * Superstruct schema for the versioned state envelope.
  */
 export const VersionedStateStruct = object({
-  version: number(),
+  version: integer(),
   data: JsonStruct,
 });
 
