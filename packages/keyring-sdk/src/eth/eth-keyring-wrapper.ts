@@ -64,6 +64,8 @@ export abstract class EthKeyringWrapper<
   constructor(options: EthKeyringWrapperOptions<InnerKeyring>) {
     super({
       ...options,
+      // We use a custom ID generator to ensure that account IDs are deterministic based on
+      // the Ethereum address.
       registryOptions: { generateId: generateEthAccountId },
     });
   }
