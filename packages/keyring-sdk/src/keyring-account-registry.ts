@@ -2,6 +2,19 @@ import type { KeyringAccount } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import { v4 as uuidv4 } from 'uuid';
 
+export type KeyringAccountRegistryOptions = {
+  /**
+   * Custom ID generator invoked when registering a new address.
+   *
+   * Receives the address being registered and must return a unique account ID.
+   * Defaults to a random UUID v4 when not provided.
+   *
+   * @param address - The address for which to generate an account ID.
+   * @returns A unique account ID string.
+   */
+  generateId?: (address: string) => AccountId;
+};
+
 /**
  * In-memory registry for KeyringAccount objects.
  *
@@ -14,6 +27,18 @@ export class KeyringAccountRegistry<
   readonly #accountById = new Map<AccountId, KeyringAccountType>();
 
   readonly #idByAddress = new Map<string, AccountId>();
+
+  readonly #generateId: (address: string) => AccountId;
+
+  /**
+   * Create a new KeyringAccountRegistry.
+   *
+   * @param options - Optional configuration.
+   * @param options.generateId - Custom ID generator. Defaults to `uuidv4`.
+   */
+  constructor(options?: KeyringAccountRegistryOptions) {
+    this.#generateId = options?.generateId ?? ((): AccountId => uuidv4());
+  }
 
   /**
    * Get an account by its account ID.
@@ -57,7 +82,7 @@ export class KeyringAccountRegistry<
     if (existing) {
       return existing;
     }
-    const id = uuidv4();
+    const id = this.#generateId(address);
     this.#idByAddress.set(address, id);
     return id;
   }
