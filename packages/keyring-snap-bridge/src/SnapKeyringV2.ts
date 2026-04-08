@@ -4,15 +4,33 @@ import type {
   KeyringV2,
   KeyringCapabilities,
 } from '@metamask/keyring-api';
-import { KeyringType } from '@metamask/keyring-api';
+import { KeyringAccountStruct, KeyringType } from '@metamask/keyring-api';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
+import {
+  assert,
+  object,
+  record,
+  string,
+  type Infer,
+} from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
 import { transformAccount } from './account';
 import { isAccountV1, migrateAccountV1 } from './migrations';
-import { normalizeAccountAddress } from './util';
+import { equalsIgnoreCase, normalizeAccountAddress } from './util';
+
+/**
+ * Superstruct schema for {@link SnapKeyringV2State}.
+ *
+ * Validates the fully migrated state — accounts must conform to
+ * `KeyringAccountStruct`. Migration from v1 is applied before validation.
+ */
+export const SnapKeyringV2StateStruct = object({
+  snapId: string(),
+  accounts: record(string(), KeyringAccountStruct),
+});
 
 /**
  * Serialized state of a single SnapKeyringV2 instance.
@@ -20,11 +38,12 @@ import { normalizeAccountAddress } from './util';
  * Note: this is an internal format only used between SnapKeyringV2 and its
  * parent SnapKeyring. The external KeyringState format (flat `{ account,
  * snapId }` map) is preserved by SnapKeyring.serialize / deserialize.
+ *
+ * Inferred from {@link SnapKeyringV2StateStruct}: `snapId` is `string`
+ * (not the branded `SnapId`) so the shape stays JSON-compatible without
+ * unsafe casts.
  */
-export type SnapKeyringV2State = {
-  snapId: SnapId;
-  accounts: Record<AccountId, KeyringAccount>;
-};
+export type SnapKeyringV2State = Infer<typeof SnapKeyringV2StateStruct>;
 
 /**
  * Callbacks injected by the parent `SnapKeyring` to delegate snap
@@ -442,13 +461,17 @@ export class SnapKeyringV2 implements KeyringV2 {
     }
     return this.#registry
       .values()
-      .find(
-        (account) => account.address.toLowerCase() === address.toLowerCase(),
+      .find((account) =>
+        equalsIgnoreCase(normalizeAccountAddress(account), address),
       );
   }
 
   /**
-   * Get all accounts in this keyring.
+   * Get all accounts in this keyring (synchronous).
+   *
+   * This exists alongside the async `getAccounts()` (from `KeyringV2`) because
+   * `SnapKeyring` needs synchronous access for iteration in `serialize`,
+   * `listAccounts`, `hasSnapId`, etc. without awaiting.
    *
    * @returns An array of all accounts.
    */
@@ -465,15 +488,16 @@ export class SnapKeyringV2 implements KeyringV2 {
    *
    * @returns The serialized state.
    */
-  async serialize(): Promise<Json> {
-    const accounts: Record<AccountId, KeyringAccount> = {};
+  async serialize(): Promise<SnapKeyringV2State> {
+    const accounts: SnapKeyringV2State['accounts'] = {};
     for (const account of this.#registry.values()) {
       accounts[account.id] = account;
     }
-    return {
-      snapId: this.#snapId,
+    const state: SnapKeyringV2State = {
+      snapId: this.#snapId as string,
       accounts,
-    } as unknown as Json;
+    };
+    return state;
   }
 
   /**
@@ -489,6 +513,9 @@ export class SnapKeyringV2 implements KeyringV2 {
    * @returns A promise that resolves when deserialization is complete.
    */
   async deserialize(state: Json): Promise<void> {
+    // We treat the incoming payload as untyped until after migration +
+    // validation. The cast to SnapKeyringV2State is safe because the shape
+    // is identical — only individual accounts may be v1 (missing `scopes`).
     const typed = state as SnapKeyringV2State;
 
     // Remove existing accounts via removeAccount so that onUnregister fires
@@ -498,14 +525,27 @@ export class SnapKeyringV2 implements KeyringV2 {
       this.removeAccount(id);
     }
 
-    for (const rawAccount of Object.values(typed.accounts)) {
-      let account = rawAccount;
+    // Migrate v1 accounts before validation.
+    const migratedAccounts: SnapKeyringV2State['accounts'] = {};
+    for (const [id, rawAccount] of Object.entries(typed.accounts)) {
       if (isAccountV1(rawAccount)) {
         console.info(
           `SnapKeyring - Found a KeyringAccountV1, migrating to V2: ${rawAccount.id}`,
         );
-        account = migrateAccountV1(rawAccount);
+        migratedAccounts[id] = migrateAccountV1(rawAccount);
+      } else {
+        migratedAccounts[id] = rawAccount;
       }
+    }
+
+    // Validate the fully migrated state.
+    const migrated: SnapKeyringV2State = {
+      snapId: typed.snapId,
+      accounts: migratedAccounts,
+    };
+    assert(migrated, SnapKeyringV2StateStruct);
+
+    for (const account of Object.values(migrated.accounts)) {
       this.setAccount(account);
     }
   }
