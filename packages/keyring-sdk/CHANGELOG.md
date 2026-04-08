@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `generateId` option to `KeyringAccountRegistry` ([#503](https://github.com/MetaMask/accounts/pull/503))
+- Add `generateEthAccountId` to generate deterministic account IDs for EVM addresses, and use it by default in `EthKeyringWrapper` ([#504](https://github.com/MetaMask/accounts/pull/504))
+- Add keyring state migration framework (`applyMigrations`, `defineMigration`, `KeyringMigration`, `VersionedState`, `isVersionedState`, `getLatestVersion`) ([#505](https://github.com/MetaMask/accounts/pull/505))
+
 ## [1.2.0]
 
 ### Added
