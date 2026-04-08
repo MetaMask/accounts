@@ -4,7 +4,7 @@ import type {
   KeyringV2,
   KeyringCapabilities,
 } from '@metamask/keyring-api';
-import { isEvmAccountType, KeyringType } from '@metamask/keyring-api';
+import { KeyringType } from '@metamask/keyring-api';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -12,6 +12,7 @@ import type { Json } from '@metamask/utils';
 
 import { transformAccount } from './account';
 import { isAccountV1, migrateAccountV1 } from './migrations';
+import { normalizeAccountAddress } from './util';
 
 /**
  * Serialized state of a single SnapKeyringV2 instance.
@@ -31,7 +32,18 @@ export type SnapKeyringV2State = {
  */
 export type SnapKeyringV2Callbacks = {
   /**
-   * Call the snap to create accounts. Returns raw snap accounts.
+   * Call the snap to create a single account (v1 event-driven flow).
+   * Handles correlation IDs, internal options, and the reserved 'metamask'
+   * field. The account is ultimately added to the wrapper via the
+   * `AccountCreated` event, not the return value.
+   */
+  createSnapAccount: (
+    options: Record<string, Json>,
+    internalOptions?: Record<string, Json>,
+  ) => Promise<KeyringAccount>;
+
+  /**
+   * Call the snap to create accounts (v2 batch flow). Returns raw snap accounts.
    */
   createSnapAccounts: (
     options: CreateAccountOptions,
@@ -70,7 +82,7 @@ export type SnapKeyringV2Callbacks = {
   /**
    * Run a callback under the keyring lock.
    */
-  withLock: <T>(cb: () => Promise<T>) => Promise<T>;
+  withLock: <Result>(callback: () => Promise<Result>) => Promise<Result>;
 };
 
 type SnapKeyringV2Options = {
@@ -90,18 +102,6 @@ type SnapKeyringV2Options = {
    */
   callbacks: SnapKeyringV2Callbacks;
 };
-
-/**
- * Normalize account's address.
- *
- * @param account - The account.
- * @returns The normalized account address.
- */
-function normalizeAccountAddress(account: KeyringAccount): string {
-  return isEvmAccountType(account.type)
-    ? account.address.toLowerCase()
-    : account.address;
-}
 
 /**
  * Per-snap keyring wrapper that implements `KeyringV2`.
@@ -188,6 +188,24 @@ export class SnapKeyringV2 implements KeyringV2 {
   }
 
   /**
+   * Create a single account (v1 event-driven flow).
+   *
+   * Delegates to the parent's snap communication which handles correlation
+   * IDs and internal options. The account is added to this wrapper
+   * asynchronously via the `AccountCreated` event, not the return value.
+   *
+   * @param options - Account creation options.
+   * @param internalOptions - Internal Snap keyring options.
+   * @returns The account object returned by the snap.
+   */
+  async createAccount(
+    options: Record<string, Json>,
+    internalOptions?: Record<string, Json>,
+  ): Promise<KeyringAccount> {
+    return this.#callbacks.createSnapAccount(options, internalOptions);
+  }
+
+  /**
    * Creates one or more new accounts according to the provided options.
    *
    * Deterministic account creation MUST be idempotent, meaning that for
@@ -212,8 +230,7 @@ export class SnapKeyringV2 implements KeyringV2 {
 
       const accounts: KeyringAccount[] = [];
       const newAccounts: KeyringAccount[] = [];
-      const snapAccounts =
-        await this.#callbacks.createSnapAccounts(options);
+      const snapAccounts = await this.#callbacks.createSnapAccounts(options);
 
       try {
         for (const snapAccount of snapAccounts) {
@@ -298,7 +315,9 @@ export class SnapKeyringV2 implements KeyringV2 {
       // with the account deletion, otherwise the account will be stuck in the
       // keyring.
       console.error(
-        `Account '${accountId}' may not have been removed from snap '${this.#snapId}':`,
+        `Account '${accountId}' may not have been removed from snap '${
+          this.#snapId
+        }':`,
         error,
       );
     }
@@ -311,6 +330,13 @@ export class SnapKeyringV2 implements KeyringV2 {
    * to the parent's request handling infrastructure.
    *
    * @param request - The keyring request to submit.
+   * @param request.id - The request ID.
+   * @param request.origin - The sender origin.
+   * @param request.scope - The CAIP-2 chain ID.
+   * @param request.account - The account ID.
+   * @param request.request - The inner JSON-RPC request.
+   * @param request.request.method - The method to call.
+   * @param request.request.params - The method parameters.
    * @returns A promise that resolves to the response.
    */
   async submitRequest(request: {
@@ -439,15 +465,15 @@ export class SnapKeyringV2 implements KeyringV2 {
    *
    * @returns The serialized state.
    */
-  serialize(): Promise<Json> {
+  async serialize(): Promise<Json> {
     const accounts: Record<AccountId, KeyringAccount> = {};
     for (const account of this.#registry.values()) {
       accounts[account.id] = account;
     }
-    return Promise.resolve({
+    return {
       snapId: this.#snapId,
       accounts,
-    } as unknown as Json);
+    } as unknown as Json;
   }
 
   /**
@@ -460,8 +486,9 @@ export class SnapKeyringV2 implements KeyringV2 {
    * Account migrations (v1 → v2) are applied before storage.
    *
    * @param state - The state to deserialize.
+   * @returns A promise that resolves when deserialization is complete.
    */
-  deserialize(state: Json): Promise<void> {
+  async deserialize(state: Json): Promise<void> {
     const typed = state as SnapKeyringV2State;
     this.#registry.clear();
     for (const rawAccount of Object.values(typed.accounts)) {
@@ -474,7 +501,6 @@ export class SnapKeyringV2 implements KeyringV2 {
       }
       this.setAccount(account);
     }
-    return Promise.resolve();
   }
 
   // ──────────────────────────────────────────────

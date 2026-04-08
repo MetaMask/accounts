@@ -21,7 +21,6 @@ import {
   EthMethod,
   EthBaseUserOperationStruct,
   EthUserOperationPatchStruct,
-  isEvmAccountType,
   KeyringEvent,
   AccountAssetListUpdatedEventStruct,
   AccountBalancesUpdatedEventStruct,
@@ -78,6 +77,7 @@ import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
   equalsIgnoreCase,
+  normalizeAccountAddress,
   sanitizeUrl,
   throwError,
   toJson,
@@ -134,21 +134,6 @@ export type SnapKeyringCallbacks = {
 type FilterAccountIdFunction = <Entry>(
   accountMapping: Record<AccountId, Entry>,
 ) => Record<AccountId, Entry>;
-
-/**
- * Normalize account's address.
- *
- * @param account - The account.
- * @returns The normalized account address.
- */
-function normalizeAccountAddress(account: KeyringAccount): string {
-  // FIXME: Is it required to lowercase the address here? For now we'll keep this behavior
-  // only for Ethereum addresses and use the original address for other non-EVM accounts.
-  // For example, Solana addresses are case-sensitives.
-  return isEvmAccountType(account.type)
-    ? account.address.toLowerCase()
-    : account.address;
-}
 
 /**
  * Keyring bridge implementation to support Snaps.
@@ -295,15 +280,23 @@ export class SnapKeyring {
           this.#accountIndex.delete(id);
         },
         callbacks: {
-          createSnapAccounts: (options) => client.createAccounts(options),
-          deleteSnapAccount: (id) => client.deleteAccount(id),
-          submitSnapRequest: (request) =>
+          createSnapAccount: async (
+            options,
+            internalOptions,
+          ): Promise<KeyringAccount> =>
+            this.#createSnapAccount(snapId, client, options, internalOptions),
+          createSnapAccounts: async (options): Promise<KeyringAccount[]> =>
+            client.createAccounts(options),
+          deleteSnapAccount: async (id): Promise<void> =>
+            client.deleteAccount(id),
+          submitSnapRequest: async (request): Promise<Json> =>
             this.#submitSnapRequest({
               origin: request.origin,
               snapId,
-              account: this.#snapKeyrings
-                .get(snapId)
-                ?.lookupAccount(request.account) ??
+              account:
+                this.#snapKeyrings
+                  .get(snapId)
+                  ?.lookupAccount(request.account) ??
                 throwError(
                   `Account '${request.account}' not found for snap '${snapId}'`,
                 ),
@@ -312,10 +305,12 @@ export class SnapKeyring {
               scope: request.scope,
               noPending: false,
             }),
-          assertAccountCanBeUsed: (account) =>
+          assertAccountCanBeUsed: async (account): Promise<void> =>
             this.#assertAccountCanBeUsed(account),
-          saveState: () => this.#callbacks.saveState(),
-          withLock: (cb) => this.#withLock(cb),
+          saveState: async (): Promise<void> => this.#callbacks.saveState(),
+          withLock: async <Result>(
+            callback: () => Promise<Result>,
+          ): Promise<Result> => this.#withLock(callback),
         },
       });
       this.#snapKeyrings.set(snapId, keyring);
@@ -960,7 +955,9 @@ export class SnapKeyring {
   }
 
   /**
-   * Create an account.
+   * Create an account (v1 event-driven flow).
+   *
+   * Delegates to the per-snap `SnapKeyringV2` wrapper.
    *
    * @param snapId - Snap ID to create the account for.
    * @param options - Account creation options. Differs between keyrings.
@@ -972,11 +969,32 @@ export class SnapKeyring {
     options: Record<string, Json>,
     internalOptions?: SnapKeyringInternalOptions,
   ): Promise<KeyringAccount> {
-    const client = new KeyringInternalSnapClient({
-      messenger: this.#messenger,
-      snapId,
-    });
+    return this.#getOrCreateKeyringV2(snapId).createAccount(
+      options,
+      internalOptions,
+    );
+  }
 
+  /**
+   * Core logic for the v1 `createAccount` flow. Called via the injected
+   * callback in each `SnapKeyringV2` wrapper.
+   *
+   * Handles the reserved 'metamask' field, correlation IDs, and internal
+   * options registration. The account is ultimately added to the wrapper
+   * via the `AccountCreated` event handler, not the return value.
+   *
+   * @param snapId - Snap ID.
+   * @param client - Snap client for this snap.
+   * @param options - Account creation options.
+   * @param internalOptions - Internal Snap keyring options.
+   * @returns The account object returned by the snap.
+   */
+  async #createSnapAccount(
+    snapId: SnapId,
+    client: KeyringInternalSnapClient,
+    options: Record<string, Json>,
+    internalOptions?: SnapKeyringInternalOptions,
+  ): Promise<KeyringAccount> {
     // The 'metamask' field is reserved, so we have to prevent use of it on
     // the "normal options".
     const reserved = 'metamask';

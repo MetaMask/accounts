@@ -1,5 +1,8 @@
 import { EthAccountType, EthScope } from '@metamask/keyring-api';
-import type { KeyringAccount, CreateAccountOptions } from '@metamask/keyring-api';
+import type {
+  KeyringAccount,
+  CreateAccountOptions,
+} from '@metamask/keyring-api';
 import type { SnapId } from '@metamask/snaps-sdk';
 
 import type { SnapKeyringV2Callbacks } from './SnapKeyringV2';
@@ -25,15 +28,6 @@ const account2: KeyringAccount = {
   type: EthAccountType.Eoa,
 };
 
-const account3: KeyringAccount = {
-  id: 'c6697bcf-5710-4751-a1cb-340e4b50617a',
-  address: '0xf7bde8609231033c69e502c08f85153f8a1548f2',
-  options: {},
-  methods: [],
-  scopes: [EthScope.Eoa],
-  type: EthAccountType.Eoa,
-};
-
 /**
  * Create mock callbacks for `SnapKeyringV2`.
  *
@@ -41,15 +35,25 @@ const account3: KeyringAccount = {
  */
 function makeMockCallbacks(): SnapKeyringV2Callbacks {
   return {
+    createSnapAccount: jest.fn<
+      Promise<KeyringAccount>,
+      [Record<string, unknown>, Record<string, unknown> | undefined]
+    >(),
     createSnapAccounts: jest.fn<
       Promise<KeyringAccount[]>,
       [CreateAccountOptions]
     >(),
-    deleteSnapAccount: jest.fn<Promise<void>, [string]>().mockResolvedValue(undefined),
+    deleteSnapAccount: jest
+      .fn<Promise<void>, [string]>()
+      .mockResolvedValue(undefined),
     submitSnapRequest: jest.fn(),
-    assertAccountCanBeUsed: jest.fn<Promise<void>, [KeyringAccount]>().mockResolvedValue(undefined),
+    assertAccountCanBeUsed: jest
+      .fn<Promise<void>, [KeyringAccount]>()
+      .mockResolvedValue(undefined),
     saveState: jest.fn<Promise<void>, []>().mockResolvedValue(undefined),
-    withLock: jest.fn(<T>(cb: () => Promise<T>) => cb()),
+    withLock: jest.fn(async <Result>(callback: () => Promise<Result>) =>
+      callback(),
+    ),
   };
 }
 
@@ -284,6 +288,39 @@ describe('SnapKeyringV2', () => {
       });
     });
 
+    describe('createAccount', () => {
+      it('delegates to the createSnapAccount callback', async () => {
+        const { keyring, callbacks } = makeKeyring(SNAP_ID, {
+          createSnapAccount: jest.fn().mockResolvedValue(account1),
+        });
+
+        const options = { entropySource: 'test', index: 0 };
+        const internalOptions = { displayConfirmation: false };
+        const result = await keyring.createAccount(options, internalOptions);
+
+        expect(result).toStrictEqual(account1);
+        expect(callbacks.createSnapAccount).toHaveBeenCalledWith(
+          options,
+          internalOptions,
+        );
+      });
+
+      it('works without internal options', async () => {
+        const { keyring, callbacks } = makeKeyring(SNAP_ID, {
+          createSnapAccount: jest.fn().mockResolvedValue(account1),
+        });
+
+        const options = { entropySource: 'test', index: 0 };
+        const result = await keyring.createAccount(options);
+
+        expect(result).toStrictEqual(account1);
+        expect(callbacks.createSnapAccount).toHaveBeenCalledWith(
+          options,
+          undefined,
+        );
+      });
+    });
+
     describe('createAccounts', () => {
       const options = {
         type: 'bip44:derive-index',
@@ -322,9 +359,7 @@ describe('SnapKeyringV2', () => {
 
       it('rolls back on error', async () => {
         const { keyring, callbacks } = makeKeyring(SNAP_ID, {
-          createSnapAccounts: jest
-            .fn()
-            .mockResolvedValue([account1, account2]),
+          createSnapAccounts: jest.fn().mockResolvedValue([account1, account2]),
           assertAccountCanBeUsed: jest
             .fn<Promise<void>, [KeyringAccount]>()
             .mockResolvedValueOnce(undefined)
@@ -340,9 +375,7 @@ describe('SnapKeyringV2', () => {
 
       it('rejects duplicate accounts within a batch', async () => {
         const { keyring } = makeKeyring(SNAP_ID, {
-          createSnapAccounts: jest
-            .fn()
-            .mockResolvedValue([account1, account1]),
+          createSnapAccounts: jest.fn().mockResolvedValue([account1, account1]),
         });
 
         await expect(keyring.createAccounts(options)).rejects.toThrow(
