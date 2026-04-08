@@ -94,7 +94,7 @@ describe('getLatestVersion', () => {
 });
 
 describe('defineMigration', () => {
-  it('binds migrate and schema to the same output type', () => {
+  it('attaches a validate function when schema is provided', () => {
     const V1Schema = object({ count: number() });
     type StateV1 = Infer<typeof V1Schema>;
 
@@ -108,7 +108,7 @@ describe('defineMigration', () => {
     expect(migration.validate).toBeDefined();
   });
 
-  it('works without schema', () => {
+  it('does not attach a validate function when schema is omitted', () => {
     const migration = defineMigration({
       version: 1,
       migrate: () => ({ count: 42 }),
@@ -118,8 +118,8 @@ describe('defineMigration', () => {
     expect(migration.validate).toBeUndefined();
   });
 
-  describe('inputSchema', () => {
-    it('passes when input matches inputSchema', async () => {
+  describe('when inputSchema is provided', () => {
+    it('applies the migration when input matches the inputSchema', async () => {
       const V0Schema = object({ oldCount: number() });
       type StateV0 = Infer<typeof V0Schema>;
       type StateV1 = { count: number };
@@ -161,7 +161,7 @@ describe('defineMigration', () => {
 });
 
 describe('applyMigrations', () => {
-  describe('with unversioned state', () => {
+  describe('when given unversioned state', () => {
     it('applies all migrations to an unversioned object', async () => {
       const migrations = [
         defineMigration<HdStateV1>({
@@ -247,7 +247,7 @@ describe('applyMigrations', () => {
     });
   });
 
-  describe('with versioned state', () => {
+  describe('when given versioned state', () => {
     it('skips already-applied migrations', async () => {
       type StateV2 = { existing: boolean; v2: boolean };
 
@@ -338,8 +338,8 @@ describe('applyMigrations', () => {
     });
   });
 
-  describe('async migrations', () => {
-    it('supports async migrate functions', async () => {
+  describe('when migrate is async', () => {
+    it('applies the migration successfully', async () => {
       type StateV1 = { foo: string; async: boolean };
 
       const migrations = [
@@ -363,8 +363,8 @@ describe('applyMigrations', () => {
     });
   });
 
-  describe('typed result', () => {
-    it('infers data type from the last migration when using defineMigrations', async () => {
+  describe('when inferring the result data type', () => {
+    it('infers the data type from the last migration when using defineMigrations', async () => {
       type StateV1 = { count: number };
       type StateV2 = { count: number; label: string };
 
@@ -403,8 +403,8 @@ describe('applyMigrations', () => {
     });
   });
 
-  describe('schema validation', () => {
-    it('passes when output matches schema', async () => {
+  describe('when a schema is provided', () => {
+    it('completes the migration when output matches the schema', async () => {
       const OutputSchema = object({
         name: string(),
         count: number(),
@@ -426,7 +426,7 @@ describe('applyMigrations', () => {
       });
     });
 
-    it('throws when output does not match schema', async () => {
+    it('throws when the migration output does not match the schema', async () => {
       const OutputSchema = object({
         name: string(),
         count: number(),
@@ -477,8 +477,8 @@ describe('applyMigrations', () => {
     });
   });
 
-  describe('validation errors', () => {
-    it('throws for non-sequential versions', async () => {
+  describe('when given invalid input', () => {
+    it('throws when migration versions are not sequential', async () => {
       const migrations: KeyringMigration[] = [
         { version: 1, migrate: (state) => state },
         { version: 3, migrate: (state) => state },
@@ -489,7 +489,7 @@ describe('applyMigrations', () => {
       );
     });
 
-    it('throws for duplicate versions', async () => {
+    it('throws when migration versions contain duplicates', async () => {
       const migrations: KeyringMigration[] = [
         { version: 1, migrate: (state) => state },
         { version: 1, migrate: (state) => state },
@@ -500,7 +500,7 @@ describe('applyMigrations', () => {
       );
     });
 
-    it('throws for versions not starting at 1', async () => {
+    it('throws when migrations do not start at version 1', async () => {
       const migrations: KeyringMigration[] = [
         { version: 2, migrate: (state) => state },
       ];
