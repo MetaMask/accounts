@@ -6,6 +6,7 @@ import type { KeyringMigration } from './migrations';
 import {
   applyMigrations,
   defineMigration,
+  defineMigrations,
   getLatestVersion,
   isVersionedState,
 } from './migrations';
@@ -359,6 +360,46 @@ describe('applyMigrations', () => {
         data: { foo: 'bar', async: true } satisfies StateV1,
         migrated: true,
       });
+    });
+  });
+
+  describe('typed result', () => {
+    it('infers data type from the last migration when using defineMigrations', async () => {
+      type StateV1 = { count: number };
+      type StateV2 = { count: number; label: string };
+
+      const migrations = defineMigrations(
+        defineMigration<StateV1>({
+          version: 1,
+          migrate: () => ({ count: 1 }),
+        }),
+        defineMigration<StateV2, StateV1>({
+          version: 2,
+          migrate: (state) => ({ ...state, label: 'hello' }),
+        }),
+      );
+
+      const { data } = await applyMigrations({}, migrations);
+
+      // data is inferred as StateV2 — typed fields accessible without a cast
+      expect(data.count).toBe(1);
+      expect(data.label).toBe('hello');
+    });
+
+    it('falls back to Json when array is typed as KeyringMigration[]', async () => {
+      type StateV1 = { count: number };
+
+      const migrations: KeyringMigration[] = [
+        defineMigration<StateV1>({
+          version: 1,
+          migrate: () => ({ count: 1 }),
+        }),
+      ];
+
+      const { data } = await applyMigrations({}, migrations);
+
+      // data is Json — explicit cast required
+      expect((data as StateV1).count).toBe(1);
     });
   });
 
