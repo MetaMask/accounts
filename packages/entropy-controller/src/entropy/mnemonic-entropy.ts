@@ -1,3 +1,4 @@
+import type { SLIP10Node } from '@metamask/key-tree';
 import {
   createBip39KeyFromSeed,
   mnemonicToSeed,
@@ -16,8 +17,8 @@ import { toBip32KeyTreePath } from '../utils';
 /**
  * {@link Entropy} implementation backed by a BIP-39 mnemonic phrase.
  *
- * Derives keys from the mnemonic using BIP-32 and creates signers on demand for a
- * given scope and derivation path.
+ * Derives keys from the mnemonic using BIP-32 and creates signers on demand for a given
+ * scope and derivation path.
  */
 export class MnemonicEntropy implements Bip44Entropy<Eip155Scope> {
   readonly type = 'bip44:mnemonic' as const;
@@ -25,6 +26,14 @@ export class MnemonicEntropy implements Bip44Entropy<Eip155Scope> {
   readonly id: string;
 
   readonly #mnemonic: string;
+
+  // Lazily cached: seed derivation (PBKDF2) and root node creation are expensive, so we
+  // compute them once and reuse across getSigner calls.
+  //
+  // Stored as a Promise (not the resolved value) so that concurrent getSigner calls
+  // share a single in-flight computation rather than each kicking off a duplicate
+  // derivation.
+  #root?: Promise<SLIP10Node>;
 
   /**
    * Creates a new MnemonicEntropy.
@@ -43,8 +52,13 @@ export class MnemonicEntropy implements Bip44Entropy<Eip155Scope> {
   ): Promise<ScopeToSigner<Scope>> {
     const { derivationPath } = options;
 
-    const seed = await mnemonicToSeed(this.#mnemonic);
-    const root = await createBip39KeyFromSeed(seed, secp256k1);
+    if (!this.#root) {
+      this.#root = mnemonicToSeed(this.#mnemonic).then(async (seed) =>
+        createBip39KeyFromSeed(seed, secp256k1),
+      );
+    }
+
+    const root = await this.#root;
     const accountNode = await root.derive(toBip32KeyTreePath(derivationPath));
 
     return new MnemonicEip155Signer(scope, accountNode) as ScopeToSigner<Scope>;

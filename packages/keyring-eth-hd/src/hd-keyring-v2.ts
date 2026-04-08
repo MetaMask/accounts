@@ -23,18 +23,15 @@ import type { HdKeyring } from './hd-keyring';
 
 /**
  * Methods supported by HD keyring EOA accounts.
- * HD keyrings support all standard signing methods plus encryption and app keys.
  */
 const HD_KEYRING_METHODS = [
   EthMethod.SignTransaction,
-  EthMethod.Sign,
   EthMethod.PersonalSign,
   EthMethod.SignTypedDataV1,
   EthMethod.SignTypedDataV3,
   EthMethod.SignTypedDataV4,
   EthKeyringMethod.Decrypt,
   EthKeyringMethod.GetEncryptionPublicKey,
-  EthKeyringMethod.GetAppKeyAddress,
   EthKeyringMethod.SignEip7702Authorization,
 ];
 

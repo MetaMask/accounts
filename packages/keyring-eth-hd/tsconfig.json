@@ -9,7 +9,8 @@
   "references": [
     { "path": "../keyring-utils" },
     { "path": "../keyring-api" },
-    { "path": "../account-api" }
+    { "path": "../account-api" },
+    { "path": "../entropy-controller" }
   ],
   "include": ["./src", "./types"],
   "exclude": ["./dist/**/*"]

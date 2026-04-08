@@ -750,29 +750,6 @@ describe('HdKeyringV2', () => {
       });
     });
 
-    describe('eth_sign', () => {
-      it('signs a message', async () => {
-        const request = createMockRequest(accountId, EthMethod.Sign, [
-          '0x0000000000000000000000000000000000000000',
-          '0x68656c6c6f',
-        ]);
-
-        const result = await wrapper.submitRequest(request);
-        expect(typeof result).toBe('string');
-        expect((result as string).startsWith('0x')).toBe(true);
-      });
-
-      it('throws error for missing params', async () => {
-        const request = createMockRequest(accountId, EthMethod.Sign, [
-          '0x0000000000000000000000000000000000000000',
-        ]);
-
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          expect.any(Error),
-        );
-      });
-    });
-
     describe('personal_sign', () => {
       it('signs a personal message', async () => {
         const request = createMockRequest(accountId, EthMethod.PersonalSign, [
@@ -946,29 +923,6 @@ describe('HdKeyringV2', () => {
 
       it('throws error for missing params', async () => {
         const request = createMockRequest(accountId, 'eth_decrypt', []);
-
-        await expect(wrapper.submitRequest(request)).rejects.toThrow(
-          expect.any(Error),
-        );
-      });
-    });
-
-    describe('eth_getAppKeyAddress', () => {
-      it('gets app key address', async () => {
-        const request = createMockRequest(accountId, 'eth_getAppKeyAddress', [
-          'https://example.com',
-        ]);
-
-        const result = await wrapper.submitRequest(request);
-        expect(typeof result).toBe('string');
-      });
-
-      it('throws error for missing params', async () => {
-        const request = createMockRequest(
-          accountId,
-          'eth_getAppKeyAddress',
-          [],
-        );
 
         await expect(wrapper.submitRequest(request)).rejects.toThrow(
           expect.any(Error),

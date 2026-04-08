@@ -29,7 +29,7 @@ export type EntropyId = string;
  *
  * Add a branch here when introducing a new scope/signer pair.
  */
-export type ScopeToSigner<S extends CaipChainId> = S extends Eip155Scope
+export type ScopeToSigner<Scope extends CaipChainId> = Scope extends Eip155Scope
   ? Eip155Signer
   : Signer;
 
@@ -86,8 +86,6 @@ export type Bip44Entropy<Scopes extends CaipChainId = CaipChainId> =
   Entropy<Scopes> & {
     type: `bip44:${string}`;
 
-    id: EntropyId;
-
     getSigner<Scope extends Scopes>(
       scope: Scope,
       options: Bip44GetSignerOptions,
@@ -123,8 +121,6 @@ export type RawGetSignerOptions = {
 export type RawEntropy<Scopes extends CaipChainId = CaipChainId> =
   Entropy<Scopes> & {
     type: `raw:${string}`;
-
-    id: EntropyId;
 
     getSigner<Scope extends Scopes>(
       scope: Scope,
