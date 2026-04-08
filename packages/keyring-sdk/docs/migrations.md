@@ -166,42 +166,6 @@ class MyKeyring {
 }
 ```
 
-## API reference
-
-### `applyMigrations(state, migrations): Promise<MigrationResult>`
-
-Applies pending migrations to keyring state.
-
-- If `state` has a `version` envelope, extracts current version and inner data
-- If `state` has no envelope (legacy), treats as version 0
-- Validates migrations are sequential (1, 2, 3, ...)
-- Applies each migration where `migration.version > currentVersion`
-- Calls `validate(result)` after each step that has validation (via `defineMigration`
-  schema)
-- Returns `{ version, data, migrated }` — `migrated` is `true` if any migration ran
-- `data` is inferred as the last migration's output type when the array is built with
-  `defineMigrations`; falls back to `Json` otherwise
-- Throws if state version is newer than the latest migration
-
-### `defineMigrations(...migrations): Migrations`
-
-Wraps an ordered list of migrations in a typed tuple so that `applyMigrations` can infer
-`data` as the last migration's output type. Use this instead of a plain array literal or
-`KeyringMigration[]` annotation.
-
-### `defineMigration<Output, Input>(config): KeyringMigration`
-
-Creates a migration with compile-time type binding between `migrate` and `schema`.
-TypeScript enforces that `schema` validates the same `Output` type that `migrate`
-returns. Wires the schema into a `validate` callback via `assert` automatically.
-
-- `inputSchema` — optional `Struct<Input>`: validated before `migrate` is called.
-  `migrate` then receives a typed `Input` argument with no manual cast needed.
-
-### `getLatestVersion(migrations): number`
-
-Returns the highest version from the migrations array, or 0 if empty.
-
 ## Constraints
 
 - **Sequential versions**: migrations must be numbered 1, 2, 3, ... with no gaps
