@@ -1548,6 +1548,31 @@ describe('SnapKeyring', () => {
       expect(await keyring.getAccounts()).toStrictEqual([]);
     });
 
+    it('does not clear existing state when a snap fails validation', async () => {
+      const otherSnapId = 'local:snap.other' as SnapId;
+      await keyring.deserialize({
+        accounts: {
+          [ethEoaAccount1.id]: { account: ethEoaAccount1, snapId },
+        },
+      } as unknown as KeyringState);
+
+      await expect(
+        keyring.deserialize({
+          accounts: {
+            [ethEoaAccount1.id]: { account: ethEoaAccount1, snapId },
+            [ethEoaAccount2.id]: {
+              account: {} as KeyringAccount,
+              snapId: otherSnapId,
+            },
+          },
+        } as unknown as KeyringState),
+      ).rejects.toThrow(/Expected/u);
+
+      expect(await keyring.getAccounts()).toStrictEqual([
+        ethEoaAccount1.address,
+      ]);
+    });
+
     it.each([
       ethEoaAccount1,
       ethErc4337Account,

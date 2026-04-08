@@ -46,6 +46,42 @@ export const SnapKeyringV2StateStruct = object({
 export type SnapKeyringV2State = Infer<typeof SnapKeyringV2StateStruct>;
 
 /**
+ * Migrate v1 accounts to v2, then validate the full payload against
+ * {@link SnapKeyringV2StateStruct}.
+ *
+ * Call this before mutating any registry or parent indexes so deserialization
+ * failures do not wipe existing state.
+ *
+ * @param state - Untyped JSON (typically `{ snapId, accounts }`).
+ * @returns Fully migrated and validated state.
+ * @throws If migration or validation fails.
+ */
+export function migrateAndValidateSnapKeyringV2State(
+  state: Json,
+): SnapKeyringV2State {
+  const typed = state as SnapKeyringV2State;
+
+  const migratedAccounts: SnapKeyringV2State['accounts'] = {};
+  for (const [id, rawAccount] of Object.entries(typed.accounts)) {
+    if (isAccountV1(rawAccount)) {
+      console.info(
+        `SnapKeyring - Found a KeyringAccountV1, migrating to V2: ${rawAccount.id}`,
+      );
+      migratedAccounts[id] = migrateAccountV1(rawAccount);
+    } else {
+      migratedAccounts[id] = rawAccount;
+    }
+  }
+
+  const migrated: SnapKeyringV2State = {
+    snapId: typed.snapId,
+    accounts: migratedAccounts,
+  };
+  assert(migrated, SnapKeyringV2StateStruct);
+  return migrated;
+}
+
+/**
  * Callbacks injected by the parent `SnapKeyring` to delegate snap
  * communication and parent coordination.
  */
@@ -501,53 +537,47 @@ export class SnapKeyringV2 implements KeyringV2 {
   }
 
   /**
+   * Replace all accounts with an already migrated and validated state.
+   *
+   * Removes existing accounts via `removeAccount` (firing `onUnregister` for
+   * each), then repopulates via `setAccount` (firing `onRegister` for each).
+   *
+   * Prefer {@link migrateAndValidateSnapKeyringV2State} to produce the
+   * argument; callers must validate before invoking this method when failure
+   * must not destroy prior registry contents.
+   *
+   * @param migrated - Migrated state whose `snapId` matches this instance.
+   */
+  applyValidatedState(migrated: SnapKeyringV2State): void {
+    if (migrated.snapId !== (this.#snapId as string)) {
+      throw new Error(
+        `SnapKeyringV2 state snapId '${
+          migrated.snapId
+        }' does not match wrapper '${String(this.#snapId)}'`,
+      );
+    }
+
+    for (const id of [...this.#registry.keys()]) {
+      this.removeAccount(id);
+    }
+
+    for (const account of Object.values(migrated.accounts)) {
+      this.setAccount(account);
+    }
+  }
+
+  /**
    * Restore this keyring from a serialized state.
    *
-   * Removes all existing accounts via `removeAccount` (firing `onUnregister`
-   * for each), then repopulates via `setAccount` (firing `onRegister` for
-   * each) -- keeping the parent's `#accountIndex` in sync automatically.
-   *
-   * Account migrations (v1 → v2) are applied before storage.
+   * Migrates and validates the payload before mutating the registry so corrupt
+   * snapshots do not clear existing accounts.
    *
    * @param state - The state to deserialize.
    * @returns A promise that resolves when deserialization is complete.
    */
   async deserialize(state: Json): Promise<void> {
-    // We treat the incoming payload as untyped until after migration +
-    // validation. The cast to SnapKeyringV2State is safe because the shape
-    // is identical — only individual accounts may be v1 (missing `scopes`).
-    const typed = state as SnapKeyringV2State;
-
-    // Remove existing accounts via removeAccount so that onUnregister fires
-    // for each one, keeping the parent's #accountIndex in sync even if this
-    // method is called outside of SnapKeyring.deserialize.
-    for (const id of [...this.#registry.keys()]) {
-      this.removeAccount(id);
-    }
-
-    // Migrate v1 accounts before validation.
-    const migratedAccounts: SnapKeyringV2State['accounts'] = {};
-    for (const [id, rawAccount] of Object.entries(typed.accounts)) {
-      if (isAccountV1(rawAccount)) {
-        console.info(
-          `SnapKeyring - Found a KeyringAccountV1, migrating to V2: ${rawAccount.id}`,
-        );
-        migratedAccounts[id] = migrateAccountV1(rawAccount);
-      } else {
-        migratedAccounts[id] = rawAccount;
-      }
-    }
-
-    // Validate the fully migrated state.
-    const migrated: SnapKeyringV2State = {
-      snapId: typed.snapId,
-      accounts: migratedAccounts,
-    };
-    assert(migrated, SnapKeyringV2StateStruct);
-
-    for (const account of Object.values(migrated.accounts)) {
-      this.setAccount(account);
-    }
+    const migrated = migrateAndValidateSnapKeyringV2State(state);
+    this.applyValidatedState(migrated);
   }
 
   // ──────────────────────────────────────────────

@@ -250,6 +250,34 @@ describe('SnapKeyringV2', () => {
       // v1 migration should have added scopes back.
       expect(restored?.scopes).toBeDefined();
     });
+
+    it('does not clear existing accounts when validation fails', async () => {
+      const { keyring } = makeKeyring();
+      keyring.setAccount(account1);
+      // Empty object does not satisfy `KeyringAccountStruct`.
+      const invalidState = {
+        snapId: SNAP_ID,
+        accounts: {
+          [account1.id]: {} as KeyringAccount,
+        },
+      };
+      await expect(keyring.deserialize(invalidState)).rejects.toThrow(
+        /Expected/u,
+      );
+      expect(keyring.lookupAccount(account1.id)).toStrictEqual(account1);
+    });
+  });
+
+  describe('applyValidatedState', () => {
+    it('throws when state snapId does not match the wrapper', () => {
+      const { keyring } = makeKeyring();
+      expect(() =>
+        keyring.applyValidatedState({
+          snapId: 'wrong-snap-id',
+          accounts: {},
+        }),
+      ).toThrow(/does not match wrapper/u);
+    });
   });
 
   describe('KeyringV2 interface', () => {

@@ -72,7 +72,11 @@ import type {
   SnapKeyringMessenger,
 } from './SnapKeyringMessenger';
 import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
-import { SnapKeyringV2 } from './SnapKeyringV2';
+import {
+  SnapKeyringV2,
+  migrateAndValidateSnapKeyringV2State,
+  type SnapKeyringV2State,
+} from './SnapKeyringV2';
 import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
 import {
@@ -878,9 +882,10 @@ export class SnapKeyring {
   /**
    * Deserialize the keyring state into this keyring.
    *
-   * Groups the flat persisted state by `snapId`, clears both indexes, then
-   * rebuilds each per-snap wrapper. The `onRegister` callbacks fired during
-   * `wrapper.deserialize()` automatically repopulate `#accountIndex`.
+   * Groups the flat persisted state by `snapId`, validates every Snap’s
+   * payload (migration + struct) before clearing, then rebuilds each wrapper.
+   * The `onRegister` callbacks fired during `applyValidatedState` repopulate
+   * `#accountIndex`.
    *
    * @param state - Serialized keyring state.
    */
@@ -891,8 +896,7 @@ export class SnapKeyring {
       return;
     }
 
-    // Group flat state by snapId. Migrations and migration logging are handled
-    // inside wrapper.deserialize().
+    // Group flat state by snapId.
     const bySnap = new Map<SnapId, Record<AccountId, KeyringAccount>>();
     for (const entry of Object.values(state.accounts)) {
       const snapAccounts = bySnap.get(entry.snapId) ?? {};
@@ -900,15 +904,21 @@ export class SnapKeyring {
       bySnap.set(entry.snapId, snapAccounts);
     }
 
-    // Clear both indexes before rebuilding — they must always be consistent.
+    // Validate every Snap before mutating — same idea as atomically replacing
+    // the old SnapIdMap only after building the new object.
+    const validated = new Map<SnapId, SnapKeyringV2State>();
+    for (const [snapId, accounts] of bySnap) {
+      validated.set(
+        snapId,
+        migrateAndValidateSnapKeyringV2State({ snapId, accounts }),
+      );
+    }
+
     this.#snapKeyrings.clear();
     this.#accountIndex.clear();
 
-    // Rebuild per-snap wrappers. Migrations run inside wrapper.deserialize().
-    for (const [snapId, accounts] of bySnap) {
-      const wrapper = this.#getOrCreateKeyringV2(snapId);
-      await wrapper.deserialize({ snapId, accounts });
-      // onRegister callbacks fired above have repopulated #accountIndex.
+    for (const [snapId, migrated] of validated) {
+      this.#getOrCreateKeyringV2(snapId).applyValidatedState(migrated);
     }
   }
 
