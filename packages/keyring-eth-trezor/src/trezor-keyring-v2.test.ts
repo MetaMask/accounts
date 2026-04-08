@@ -27,17 +27,28 @@ type TrezorAccount = Bip44Account<KeyringAccount>;
  * Test addresses derived from the fake HD key.
  */
 const EXPECTED_ACCOUNTS = [
-  '0xF30952A1c534CDE7bC471380065726fa8686dfB3',
-  '0x44fe3Cf56CaF651C4bD34Ae6dbcffa34e9e3b84B',
-  '0x8Ee3374Fa705C1F939715871faf91d4348D5b906',
-  '0xEF69e24dE9CdEe93C4736FE29791E45d5D4CFd6A',
-  '0xC668a5116A045e9162902795021907Cb15aa2620',
-  '0xbF519F7a6D8E72266825D770C60dbac55a3baeb9',
+  '0x1c96099350f13D558464eC79B9bE4445AA0eF579',
+  '0x1b00AeD43a693F3a957F9FeB5cC08AFA031E37a0',
+  '0x8C9bA4F86ae12250eE1c3676ee925c77426D0B68',
+  '0xfFe45DbC6C1bEe8f211dA2ec961F73B82e9ab42c',
+  '0xb8a13c465c9a0a46f262a1ad666a752923e65b8c',
+  '0xBB9603A1660F796182BA28819Dee475AFC356Dcf',
 ] as const;
 
-const fakeXPubKey =
-  'xpub6FnCn6nSzZAw5Tw7cgR9bi15UV96gLZhjDstkXXxvCLsUXBGXPdSnLFbdpq8p9HmGsApME5hQTZ3emM2rnY5agb9rXpVGyy3bdW6EEgAtqt';
-const fakeHdKey = HDKey.fromExtendedKey(fakeXPubKey);
+// Test mnemonic: "finish oppose decorate face calm tragic certain desk hour urge dinosaur mango".
+const fakeXPubKeys = {
+  [BIP44_HD_PATH_PREFIX]:
+    'xpub6FCjt1vawWNJRoqG4EPJmG2vA3VNry6MfSTbXKDLqT2RkK9R1h13EW6k5ajXNCtCY9ygsmcB2kKPKpKkSkouzRvFyQLA3yn1N86c7Cau7G1',
+  [LEGACY_MEW_PATH_PREFIX]:
+    'xpub6FnCn6nSzZAw5Tw7cgR9bi15UV96gLZhjDstkXXxvCLsUXBGXPdSnLFbdpq8p9HmGsApME5hQTZ3emM2rnY5agb9rXpVGyy3bdW6EEgAtqt',
+  [SLIP0044_TESTNET_PATH_PREFIX]:
+    'xpub6ED6Su5fxghtTbgPrWgSXaxz9qubTjopMwYToxPNMtrtgGgoKbefjRMxZjMx1VNfMtxjGQpf1VwqNv7UiB71rMCkbea5aNoWFSXKhsZxwpv',
+};
+
+const fakeHdKey = HDKey.fromExtendedKey(fakeXPubKeys[BIP44_HD_PATH_PREFIX]);
+const fakeMewHdKey = HDKey.fromExtendedKey(
+  fakeXPubKeys[LEGACY_MEW_PATH_PREFIX],
+);
 
 /**
  * Fake entropy source representing the device fingerprint.
@@ -688,7 +699,7 @@ describe('TrezorKeyringV2', () => {
     it('uses the correct derivation path from the inner keyring', async () => {
       const inner = createInnerKeyring();
       inner.setHdPath(LEGACY_MEW_PATH_PREFIX);
-      inner.hdk = fakeHdKey; // Reset after setHdPath clears it
+      inner.hdk = fakeMewHdKey; // Reset after setHdPath clears it
       inner.setAccountToUnlock(0);
       await inner.addAccounts(1);
 
@@ -709,7 +720,8 @@ describe('TrezorKeyringV2', () => {
       // Create wrapper with account on BIP44 standard path
       const inner = createInnerKeyring(); // Uses m/44'/60'/0'/0 by default
       inner.setAccountToUnlock(0);
-      await inner.addAccounts(1);
+      const fakeAddress = await inner.addAccounts(1);
+      console.log('Fake address added to inner keyring:', fakeAddress);
 
       const wrapper = new TrezorKeyringV2({
         legacyKeyring: inner,
@@ -731,10 +743,12 @@ describe('TrezorKeyringV2', () => {
       const originalSetHdPath = inner.setHdPath.bind(inner);
       jest.spyOn(inner, 'setHdPath').mockImplementation((path) => {
         originalSetHdPath(path);
-        inner.hdk = fakeHdKey;
+        inner.hdk = fakeMewHdKey;
       });
 
-      await wrapper.createAccounts(derivePathOptions(`m/44'/60'/0'/0`));
+      await wrapper.createAccounts(
+        derivePathOptions(`${LEGACY_MEW_PATH_PREFIX}/0`),
+      );
 
       // Verify registry.clear was called
       expect(clearSpy).toHaveBeenCalled();
