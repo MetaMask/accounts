@@ -281,6 +281,11 @@ export class SnapKeyring {
   #getOrCreateKeyringV2(snapId: SnapId): SnapKeyringV2 {
     let keyring = this.#snapKeyrings.get(snapId);
     if (!keyring) {
+      const client = new KeyringInternalSnapClient({
+        messenger: this.#messenger,
+        snapId,
+      });
+
       keyring = new SnapKeyringV2({
         snapId,
         onRegister: (id: AccountId): void => {
@@ -288,6 +293,29 @@ export class SnapKeyring {
         },
         onUnregister: (id: AccountId): void => {
           this.#accountIndex.delete(id);
+        },
+        callbacks: {
+          createSnapAccounts: (options) => client.createAccounts(options),
+          deleteSnapAccount: (id) => client.deleteAccount(id),
+          submitSnapRequest: (request) =>
+            this.#submitSnapRequest({
+              origin: request.origin,
+              snapId,
+              account: this.#snapKeyrings
+                .get(snapId)
+                ?.lookupAccount(request.account) ??
+                throwError(
+                  `Account '${request.account}' not found for snap '${snapId}'`,
+                ),
+              method: request.request.method as AccountMethod,
+              params: request.request.params,
+              scope: request.scope,
+              noPending: false,
+            }),
+          assertAccountCanBeUsed: (account) =>
+            this.#assertAccountCanBeUsed(account),
+          saveState: () => this.#callbacks.saveState(),
+          withLock: (cb) => this.#withLock(cb),
         },
       });
       this.#snapKeyrings.set(snapId, keyring);
@@ -878,7 +906,7 @@ export class SnapKeyring {
     // Rebuild per-snap wrappers. Migrations run inside wrapper.deserialize().
     for (const [snapId, accounts] of bySnap) {
       const wrapper = this.#getOrCreateKeyringV2(snapId);
-      wrapper.deserialize({ snapId, accounts });
+      await wrapper.deserialize({ snapId, accounts });
       // onRegister callbacks fired above have repopulated #accountIndex.
     }
   }
@@ -991,14 +1019,8 @@ export class SnapKeyring {
   /**
    * Creates one or more new accounts according to the provided options.
    *
-   * Deterministic account creation MUST be idempotent, meaning that for
-   * deterministic algorithms, like BIP-44, calling this method with the same
-   * options should always return the same accounts, even if the accounts
-   * already exist in the keyring.
-   *
-   * NOTE: If some accounts are not allowed (non-unique address, unsupported
-   * generic account), this method will skip their creation and ask the Snap
-   * to remove them from its state.
+   * Delegates to the per-snap `SnapKeyringV2` wrapper which handles
+   * idempotency, validation, batch tracking, state persistence, and rollback.
    *
    * @param snapId - Snap ID to create the account(s) for.
    * @param options - Options describing how to create the account(s).
@@ -1008,77 +1030,7 @@ export class SnapKeyring {
     snapId: SnapId,
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
-    return this.#withLock(async () => {
-      const client = new KeyringInternalSnapClient({
-        messenger: this.#messenger,
-        snapId,
-      });
-
-      // Keep track of address/account ID part of this batch, to avoid having duplicates.
-      const accountAddresses = new Set<string>();
-      const accountIds = new Set<string>();
-
-      const accounts = [];
-      const newAccounts = [];
-      const snapAccounts = await client.createAccounts(options);
-      try {
-        for (const snapAccount of snapAccounts) {
-          let account = transformAccount(snapAccount);
-          const address = normalizeAccountAddress(account);
-
-          // Check for idempotency.
-          const existingAccount = this.#getExistingAccount(snapId, account);
-          if (existingAccount) {
-            // NOTE: We re-use the account from the internal state to avoid having the Snap
-            // mutating the account object without updating the map.
-            account = existingAccount;
-          } else {
-            await this.#assertAccountCanBeUsed(account);
-
-            // Also check for transient accounts that are not yet part of the keyring
-            // state.
-            if (accountAddresses.has(address) || accountIds.has(account.id)) {
-              throw new Error(
-                `Account '${account.id}' is already part of this batch (same address or account ID)`,
-              );
-            }
-            accountAddresses.add(address);
-            accountIds.add(account.id);
-
-            // NOTE: This method does not rely on the `AccountCreated` event to add
-            // accounts to the keyring, so we have to add them to the state manually.
-            newAccounts.push(account);
-          }
-
-          // New AND existing accounts are returned to the caller no matter what.
-          accounts.push(account);
-        }
-
-        // We update the keyring state only if needed.
-        if (newAccounts.length > 0) {
-          const wrapper = this.#getOrCreateKeyringV2(snapId);
-          for (const account of newAccounts) {
-            wrapper.setAccount(account);
-          }
-
-          // NOTE: We assume this will never fail, thus, we don't need to rollback the
-          // keyring state if anything goes wrong here.
-          await this.#callbacks.saveState();
-        }
-
-        return accounts;
-      } catch (error) {
-        // Rollback Snap state.
-        for (const account of snapAccounts) {
-          // Make sure to only delete accounts that were not part of the keyring state.
-          if (!this.#getExistingAccount(snapId, account)) {
-            await this.#deleteAccount(snapId, account);
-          }
-        }
-
-        throw error;
-      }
-    });
+    return this.#getOrCreateKeyringV2(snapId).createAccounts(options);
   }
 
   /**
@@ -1672,25 +1624,14 @@ export class SnapKeyring {
   /**
    * Removes an account.
    *
+   * Delegates to the per-snap `SnapKeyringV2` wrapper which handles
+   * registry removal, index cleanup, and snap communication.
+   *
    * @param snapId - Snap ID.
    * @param account - Account to delete.
    */
   async #deleteAccount(snapId: SnapId, account: KeyringAccount): Promise<void> {
-    // Always remove the account from the maps, even if the Snap is going to
-    // fail to delete it. removeAccount fires onUnregister to clean #accountIndex.
-    this.#snapKeyrings.get(snapId)?.removeAccount(account.id);
-
-    try {
-      await this.#snapClient.withSnapId(snapId).deleteAccount(account.id);
-    } catch (error) {
-      // If the Snap failed to delete the account, log the error and continue
-      // with the account deletion, otherwise the account will be stuck in the
-      // keyring.
-      console.error(
-        `Account '${account.address}' may not have been removed from snap '${snapId}':`,
-        error,
-      );
-    }
+    await this.#getOrCreateKeyringV2(snapId).deleteAccount(account.id);
   }
 
   /**

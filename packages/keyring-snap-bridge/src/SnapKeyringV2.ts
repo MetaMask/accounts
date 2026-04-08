@@ -1,8 +1,16 @@
-import type { KeyringAccount } from '@metamask/keyring-api';
+import type {
+  KeyringAccount,
+  CreateAccountOptions,
+  KeyringV2,
+  KeyringCapabilities,
+} from '@metamask/keyring-api';
+import { isEvmAccountType, KeyringType } from '@metamask/keyring-api';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
+import type { Json } from '@metamask/utils';
 
+import { transformAccount } from './account';
 import { isAccountV1, migrateAccountV1 } from './migrations';
 
 /**
@@ -17,6 +25,54 @@ export type SnapKeyringV2State = {
   accounts: Record<AccountId, KeyringAccount>;
 };
 
+/**
+ * Callbacks injected by the parent `SnapKeyring` to delegate snap
+ * communication and parent coordination.
+ */
+export type SnapKeyringV2Callbacks = {
+  /**
+   * Call the snap to create accounts. Returns raw snap accounts.
+   */
+  createSnapAccounts: (
+    options: CreateAccountOptions,
+  ) => Promise<KeyringAccount[]>;
+
+  /**
+   * Call the snap to delete an account from its state.
+   */
+  deleteSnapAccount: (accountId: AccountId) => Promise<void>;
+
+  /**
+   * Submit a signing/method request to the snap.
+   * The full lifecycle (sync/async/redirect) is handled by the parent.
+   */
+  submitSnapRequest: (request: {
+    id: string;
+    origin: string;
+    scope: string;
+    account: AccountId;
+    request: {
+      method: string;
+      params?: Json[] | Record<string, Json>;
+    };
+  }) => Promise<Json>;
+
+  /**
+   * Check global uniqueness (address + ID). Throws if not usable.
+   */
+  assertAccountCanBeUsed: (account: KeyringAccount) => Promise<void>;
+
+  /**
+   * Persist keyring state to disk via KeyringController.
+   */
+  saveState: () => Promise<void>;
+
+  /**
+   * Run a callback under the keyring lock.
+   */
+  withLock: <T>(cb: () => Promise<T>) => Promise<T>;
+};
+
 type SnapKeyringV2Options = {
   snapId: SnapId;
   /**
@@ -29,16 +85,51 @@ type SnapKeyringV2Options = {
    * The parent uses this to clean up its global index.
    */
   onUnregister: (accountId: AccountId) => void;
+  /**
+   * Callbacks for snap communication and parent coordination.
+   */
+  callbacks: SnapKeyringV2Callbacks;
 };
 
 /**
- * Per-snap keyring wrapper.
+ * Normalize account's address.
+ *
+ * @param account - The account.
+ * @returns The normalized account address.
+ */
+function normalizeAccountAddress(account: KeyringAccount): string {
+  return isEvmAccountType(account.type)
+    ? account.address.toLowerCase()
+    : account.address;
+}
+
+/**
+ * Per-snap keyring wrapper that implements `KeyringV2`.
  *
  * Each instance is responsible for exactly one `SnapId` and uses a
  * `KeyringAccountRegistry` as its sole backing store, providing O(1) lookups
  * by account ID and address.
+ *
+ * Business-logic operations (createAccounts, deleteAccount, submitRequest) are
+ * delegated to the parent `SnapKeyring` via injected callbacks.
  */
-export class SnapKeyringV2 {
+export class SnapKeyringV2 implements KeyringV2 {
+  // ──────────────────────────────────────────────
+  // KeyringV2 properties
+  // ──────────────────────────────────────────────
+
+  readonly type = `${KeyringType.Snap}` as const;
+
+  /**
+   * Capabilities are snap-specific. Initialized empty and can be updated
+   * by the parent when snap metadata becomes available.
+   */
+  capabilities: KeyringCapabilities;
+
+  // ──────────────────────────────────────────────
+  // Private fields
+  // ──────────────────────────────────────────────
+
   readonly #snapId: SnapId;
 
   readonly #registry: KeyringAccountRegistry;
@@ -47,12 +138,204 @@ export class SnapKeyringV2 {
 
   readonly #onUnregister: (accountId: AccountId) => void;
 
-  constructor({ snapId, onRegister, onUnregister }: SnapKeyringV2Options) {
+  readonly #callbacks: SnapKeyringV2Callbacks;
+
+  constructor({
+    snapId,
+    onRegister,
+    onUnregister,
+    callbacks,
+  }: SnapKeyringV2Options) {
     this.#snapId = snapId;
     this.#registry = new KeyringAccountRegistry();
     this.#onRegister = onRegister;
     this.#onUnregister = onUnregister;
+    this.#callbacks = callbacks;
+
+    // Default capabilities — parent updates this when snap metadata is available.
+    // We cast here because KeyringCapabilities requires a non-empty scopes array,
+    // but we don't have the snap metadata at construction time (e.g. during deserialization).
+    this.capabilities = { scopes: [] } as unknown as KeyringCapabilities;
   }
+
+  // ──────────────────────────────────────────────
+  // KeyringV2 methods
+  // ──────────────────────────────────────────────
+
+  /**
+   * Returns all accounts managed by this keyring.
+   *
+   * @returns A promise that resolves to an array of all accounts.
+   */
+  async getAccounts(): Promise<KeyringAccount[]> {
+    return this.accounts();
+  }
+
+  /**
+   * Returns the account with the specified ID.
+   *
+   * @param accountId - ID of the account to retrieve.
+   * @returns A promise that resolves to the account.
+   */
+  async getAccount(accountId: AccountId): Promise<KeyringAccount> {
+    const account = this.lookupAccount(accountId);
+    if (!account) {
+      throw new Error(
+        `Account '${accountId}' not found in snap '${this.#snapId}'`,
+      );
+    }
+    return account;
+  }
+
+  /**
+   * Creates one or more new accounts according to the provided options.
+   *
+   * Deterministic account creation MUST be idempotent, meaning that for
+   * deterministic algorithms, like BIP-44, calling this method with the same
+   * options should always return the same accounts, even if the accounts
+   * already exist in the keyring.
+   *
+   * NOTE: If some accounts are not allowed (non-unique address, unsupported
+   * generic account), this method will skip their creation and ask the Snap
+   * to remove them from its state.
+   *
+   * @param options - Options describing how to create the account(s).
+   * @returns A promise that resolves to an array of the created account objects.
+   */
+  async createAccounts(
+    options: CreateAccountOptions,
+  ): Promise<KeyringAccount[]> {
+    return this.#callbacks.withLock(async () => {
+      // Keep track of address/account ID part of this batch, to avoid having duplicates.
+      const batchAddresses = new Set<string>();
+      const batchIds = new Set<string>();
+
+      const accounts: KeyringAccount[] = [];
+      const newAccounts: KeyringAccount[] = [];
+      const snapAccounts =
+        await this.#callbacks.createSnapAccounts(options);
+
+      try {
+        for (const snapAccount of snapAccounts) {
+          let account = transformAccount(snapAccount);
+          const address = normalizeAccountAddress(account);
+
+          // Check for idempotency.
+          const existingAccount = this.#getExistingAccount(account);
+          if (existingAccount) {
+            // NOTE: We re-use the account from the internal state to avoid having the Snap
+            // mutating the account object without updating the map.
+            account = existingAccount;
+          } else {
+            await this.#callbacks.assertAccountCanBeUsed(account);
+
+            // Also check for transient accounts that are not yet part of the keyring
+            // state.
+            if (batchAddresses.has(address) || batchIds.has(account.id)) {
+              throw new Error(
+                `Account '${account.id}' is already part of this batch (same address or account ID)`,
+              );
+            }
+            batchAddresses.add(address);
+            batchIds.add(account.id);
+
+            // NOTE: This method does not rely on the `AccountCreated` event to add
+            // accounts to the keyring, so we have to add them to the state manually.
+            newAccounts.push(account);
+          }
+
+          // New AND existing accounts are returned to the caller no matter what.
+          accounts.push(account);
+        }
+
+        // We update the keyring state only if needed.
+        if (newAccounts.length > 0) {
+          for (const account of newAccounts) {
+            this.setAccount(account);
+          }
+
+          // NOTE: We assume this will never fail, thus, we don't need to rollback the
+          // keyring state if anything goes wrong here.
+          await this.#callbacks.saveState();
+        }
+
+        return accounts;
+      } catch (error) {
+        // Rollback Snap state.
+        for (const snapAccount of snapAccounts) {
+          // Make sure to only delete accounts that were not part of the keyring state.
+          if (!this.#getExistingAccount(snapAccount)) {
+            try {
+              await this.#callbacks.deleteSnapAccount(snapAccount.id);
+            } catch {
+              // Swallow — best-effort rollback.
+            }
+          }
+        }
+
+        throw error;
+      }
+    });
+  }
+
+  /**
+   * Deletes the account with the specified ID.
+   *
+   * Removes the account from the local registry (firing `onUnregister` so the
+   * parent can update its index), then asks the snap to delete it.
+   *
+   * @param accountId - ID of the account to delete.
+   */
+  async deleteAccount(accountId: AccountId): Promise<void> {
+    // Always remove the account from the registry, even if the Snap is going to
+    // fail to delete it. removeAccount fires onUnregister to clean #accountIndex.
+    this.removeAccount(accountId);
+
+    try {
+      await this.#callbacks.deleteSnapAccount(accountId);
+    } catch (error) {
+      // If the Snap failed to delete the account, log the error and continue
+      // with the account deletion, otherwise the account will be stuck in the
+      // keyring.
+      console.error(
+        `Account '${accountId}' may not have been removed from snap '${this.#snapId}':`,
+        error,
+      );
+    }
+  }
+
+  /**
+   * Submits a request to the keyring.
+   *
+   * Validates that the account belongs to this wrapper, then delegates
+   * to the parent's request handling infrastructure.
+   *
+   * @param request - The keyring request to submit.
+   * @returns A promise that resolves to the response.
+   */
+  async submitRequest(request: {
+    id: string;
+    origin: string;
+    scope: string;
+    account: AccountId;
+    request: {
+      method: string;
+      params?: Json[] | Record<string, Json>;
+    };
+  }): Promise<Json> {
+    // Validate the account belongs to this wrapper.
+    const account = this.lookupAccount(request.account);
+    if (!account) {
+      throw new Error(
+        `Account '${request.account}' not found in snap '${this.#snapId}'`,
+      );
+    }
+    return this.#callbacks.submitSnapRequest(request);
+  }
+
+  // ──────────────────────────────────────────────
+  // Internal API (used by parent SnapKeyring for event handling, routing, etc.)
+  // ──────────────────────────────────────────────
 
   /**
    * The Snap ID that owns all accounts in this keyring.
@@ -156,12 +439,15 @@ export class SnapKeyringV2 {
    *
    * @returns The serialized state.
    */
-  serialize(): SnapKeyringV2State {
+  serialize(): Promise<Json> {
     const accounts: Record<AccountId, KeyringAccount> = {};
     for (const account of this.#registry.values()) {
       accounts[account.id] = account;
     }
-    return { snapId: this.#snapId, accounts };
+    return Promise.resolve({
+      snapId: this.#snapId,
+      accounts,
+    } as unknown as Json);
   }
 
   /**
@@ -175,9 +461,10 @@ export class SnapKeyringV2 {
    *
    * @param state - The state to deserialize.
    */
-  deserialize(state: SnapKeyringV2State): void {
+  deserialize(state: Json): Promise<void> {
+    const typed = state as SnapKeyringV2State;
     this.#registry.clear();
-    for (const rawAccount of Object.values(state.accounts)) {
+    for (const rawAccount of Object.values(typed.accounts)) {
       let account = rawAccount;
       if (isAccountV1(rawAccount)) {
         console.info(
@@ -187,5 +474,25 @@ export class SnapKeyringV2 {
       }
       this.setAccount(account);
     }
+    return Promise.resolve();
+  }
+
+  // ──────────────────────────────────────────────
+  // Private helpers
+  // ──────────────────────────────────────────────
+
+  /**
+   * Idempotency check: account exists in this wrapper with same address.
+   *
+   * @param account - The account to check.
+   * @returns The existing account if found, `undefined` otherwise.
+   */
+  #getExistingAccount(account: KeyringAccount): KeyringAccount | undefined {
+    const address = normalizeAccountAddress(account);
+    const existing = this.lookupAccount(account.id);
+    if (existing && normalizeAccountAddress(existing) === address) {
+      return existing;
+    }
+    return undefined;
   }
 }

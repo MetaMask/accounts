@@ -2261,7 +2261,7 @@ describe('SnapKeyring', () => {
         accounts[10].address,
       ]);
       expect(console.error).toHaveBeenCalledWith(
-        "Account '0xc728514df8a7f9271f4b7a4dd2aa6d2d723d3ee3' may not have been removed from snap 'local:snap.mock':",
+        `Account '${ethEoaAccount1.id}' may not have been removed from snap '${snapId}':`,
         'some error',
       );
       spy.mockRestore();
