@@ -21,5 +21,5 @@ export function generateEthAccountId(address: string): AccountId {
   const normalized = normalize(address) as string;
   return uuidv4({
     random: sha256(hexToBytes(normalized)).slice(0, 16),
-  }) as AccountId;
+  });
 }
