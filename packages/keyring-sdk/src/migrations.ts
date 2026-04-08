@@ -1,6 +1,6 @@
-import type { Struct } from '@metamask/superstruct';
-import { assert } from '@metamask/superstruct';
-import type { Json } from '@metamask/utils';
+import type { Infer, Struct } from '@metamask/superstruct';
+import { assert, is, number, object } from '@metamask/superstruct';
+import { JsonStruct, type Json } from '@metamask/utils';
 
 /**
  * A single migration step that transforms keyring state from one version to the next.
@@ -101,14 +101,24 @@ export function defineMigration<Output extends Json>(config: {
 }
 
 /**
+ * Superstruct schema for the versioned state envelope.
+ */
+export const VersionedStateStruct = object({
+  version: number(),
+  data: JsonStruct,
+});
+
+/**
  * Versioned state envelope wrapping the actual keyring data.
  *
  * After migrations are applied, state is always wrapped in this format. `serialize()`
  * should produce this envelope so that subsequent `deserialize()` calls can detect the
  * version.
  */
-export type VersionedState<Data extends Json = Json> = {
-  version: number;
+export type VersionedState<Data extends Json = Json> = Omit<
+  Infer<typeof VersionedStateStruct>,
+  'data'
+> & {
   data: Data;
 };
 
@@ -119,14 +129,7 @@ export type VersionedState<Data extends Json = Json> = {
  * @returns `true` if the value is a versioned state envelope.
  */
 export function isVersionedState(state: Json): state is VersionedState {
-  return (
-    typeof state === 'object' &&
-    state !== null &&
-    !Array.isArray(state) &&
-    'version' in state &&
-    typeof state.version === 'number' &&
-    'data' in state
-  );
+  return is(state, VersionedStateStruct);
 }
 
 /**
