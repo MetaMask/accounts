@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add keyring state migration framework (`applyMigrations`, `defineMigration`, `KeyringMigration`, `VersionedState`, `isVersionedState`, `getLatestVersion`) ([#505](https://github.com/MetaMask/accounts/pull/505))
+
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^23.2.0` to `^23.5.0` ([#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587))
