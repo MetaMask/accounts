@@ -3,15 +3,12 @@ import {
   LegacyTransaction,
   type TypedTxData,
 } from '@ethereumjs/tx';
-import { isValidAddress, ecrecover, pubToAddress } from '@ethereumjs/util';
 import * as oldMMForkBIP39 from '@metamask/bip39';
 import {
   normalize,
-  personalSign,
   recoverEIP7702Authorization,
   recoverPersonalSignature,
   recoverTypedSignature,
-  signTypedData,
   SignTypedDataVersion,
   encrypt,
   type EthEncryptedData,
@@ -19,29 +16,16 @@ import {
   type MessageTypes,
   type EIP7702Authorization,
 } from '@metamask/eth-sig-util';
-import { mnemonicPhraseToBytes } from '@metamask/key-tree';
-import { assert, bytesToHex, hexToBytes, type Hex } from '@metamask/utils';
-import { webcrypto } from 'crypto';
-// eslint-disable-next-line n/no-sync
-import { mnemonicToSeedSync } from 'ethereum-cryptography/bip39';
-import { keccak256 } from 'ethereum-cryptography/keccak';
+import { assert, type Hex } from '@metamask/utils';
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import OldHdKeyring from 'old-hd-keyring';
 
 import { HdKeyring } from '.';
 
-// Sample account:
-const privKeyHex =
-  'b8a9c05beeedb25df85f8d641538cbffedf67216048de9c678ee26260eb91952';
-
 const sampleMnemonic =
   'finish oppose decorate face calm tragic certain desk hour urge dinosaur mango';
 const firstAcct = '0x1c96099350f13d558464ec79b9be4445aa0ef579';
 const secondAcct = '0x1b00aed43a693f3a957f9feb5cc08afa031e37a0';
-
-const sampleMnemonicBytes = mnemonicPhraseToBytes(sampleMnemonic);
-// eslint-disable-next-line n/no-sync
-const sampleMnemonicSeed = mnemonicToSeedSync(sampleMnemonic);
 
 const notKeyringAddress = '0xbD20F6F5F1616947a39E11926E78ec94817B3931';
 
@@ -137,28 +121,14 @@ describe('hd-keyring', () => {
   });
 
   describe('#serialize mnemonic.', () => {
-    it('serializes the mnemonic in the same format as previous version (an array of utf8 encoded bytes)', async () => {
-      const keyring = new HdKeyring();
-      await keyring.deserialize({ mnemonic: sampleMnemonic });
-      // uses previous version of eth-hd-keyring to ensure backwards compatibility
-      const oldHDKeyring = new OldHdKeyring({ mnemonic: sampleMnemonic });
-      const { mnemonic: oldKeyringSerializedMnemonic } =
-        await oldHDKeyring.serialize();
-
-      const output = await keyring.serialize();
-      expect(output.mnemonic).toStrictEqual(oldKeyringSerializedMnemonic);
-    });
-
-    it('serializes mnemonic passed in as a string to an array of utf8 encoded bytes', async () => {
+    it('serializes the mnemonic as a plain string', async () => {
       const keyring = new HdKeyring();
       await keyring.deserialize({ mnemonic: sampleMnemonic });
       const output = await keyring.serialize();
-      // this Buffer.from(...).toString() is the method of converting from an array of utf8 encoded bytes back to a string
-      const mnemonicAsString = Buffer.from(output.mnemonic).toString();
-      expect(mnemonicAsString).toStrictEqual(sampleMnemonic);
+      expect(output.mnemonic).toStrictEqual(sampleMnemonic);
     });
 
-    it('serializes mnemonic passed in as a an array of utf8 encoded bytes in the same format', async () => {
+    it('round-trips a mnemonic deserialized from a legacy UTF-8 byte array', async () => {
       const uint8Array = new TextEncoder().encode(sampleMnemonic);
       const mnemonicAsArrayOfUtf8EncodedBytes = Array.from(uint8Array);
       const keyring = new HdKeyring();
@@ -167,14 +137,12 @@ describe('hd-keyring', () => {
       });
 
       const output = await keyring.serialize();
-      // this Buffer.from(...).toString() is the method of converting from an array of utf8 encoded bytes back to a string
-      const mnemonicAsString = Buffer.from(output.mnemonic).toString();
-      expect(mnemonicAsString).toStrictEqual(sampleMnemonic);
+      expect(output.mnemonic).toStrictEqual(sampleMnemonic);
     });
   });
 
   describe('#deserialize mnemonics', () => {
-    it('deserializes with a typeof string mnemonic', async () => {
+    it('deserializes with a string mnemonic', async () => {
       const keyring = new HdKeyring();
 
       await keyring.deserialize({
@@ -185,11 +153,10 @@ describe('hd-keyring', () => {
       const accounts = await keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
-      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
-      // seed is no longer a public field after migrating to MnemonicEntropy
+      expect(keyring.mnemonic).toStrictEqual(sampleMnemonic);
     });
 
-    it('deserializes with a typeof buffer mnemonic', async () => {
+    it('deserializes with a legacy SerializedBuffer mnemonic', async () => {
       const keyring = new HdKeyring();
 
       await keyring.deserialize({
@@ -200,55 +167,7 @@ describe('hd-keyring', () => {
       const accounts = await keyring.getAccounts();
       expect(accounts[0]).toStrictEqual(firstAcct);
       expect(accounts[1]).toStrictEqual(secondAcct);
-      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
-      // seed is no longer a public field after migrating to MnemonicEntropy
-    });
-
-    it('deserializes using custom cryptography', async () => {
-      const pbkdf2Sha512 = async (
-        password: string,
-        salt: BufferSource,
-        iterations: number,
-        keyLength: number,
-      ): Promise<Uint8Array> => {
-        const key = await webcrypto.subtle.importKey(
-          'raw',
-          Buffer.from(password),
-          { name: 'PBKDF2' },
-          false,
-          ['deriveBits'],
-        );
-
-        const derivedBits = await webcrypto.subtle.deriveBits(
-          {
-            name: 'PBKDF2',
-            salt,
-            iterations,
-            hash: { name: 'SHA-512' },
-          },
-          key,
-          keyLength * 8,
-        );
-
-        return new Uint8Array(derivedBits);
-      };
-
-      const cryptographicFunctions = {
-        pbkdf2Sha512: jest.fn().mockImplementation(pbkdf2Sha512),
-      };
-      const keyring = new HdKeyring({ cryptographicFunctions });
-
-      await keyring.deserialize({
-        mnemonic: sampleMnemonic,
-        numberOfAccounts: 2,
-      });
-
-      const accounts = await keyring.getAccounts();
-      expect(accounts[0]).toStrictEqual(firstAcct);
-      expect(accounts[1]).toStrictEqual(secondAcct);
-      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
-      // cryptographicFunctions are no longer used; MnemonicEntropy handles crypto internally
-      expect(cryptographicFunctions.pbkdf2Sha512).toHaveBeenCalledTimes(0);
+      expect(keyring.mnemonic).toStrictEqual(sampleMnemonic);
     });
 
     it('throws on invalid mnemonic with wrong number of words', async () => {
@@ -294,76 +213,6 @@ describe('hd-keyring', () => {
       );
     });
 
-    it('throws on invalid mnemonic passed as Buffer', async () => {
-      const keyring = new HdKeyring();
-
-      // Invalid mnemonic as raw Buffer
-      await expect(
-        keyring.deserialize({
-          // @ts-expect-error testing Buffer mnemonic directly
-          mnemonic: Buffer.from('invalid mnemonic phrase here', 'utf8'),
-          numberOfAccounts: 1,
-        }),
-      ).rejects.toThrow(
-        'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
-      );
-    });
-
-    it('deserializes valid mnemonic passed as Buffer', async () => {
-      const keyring = new HdKeyring();
-
-      await keyring.deserialize({
-        // @ts-expect-error testing Buffer mnemonic directly
-        mnemonic: Buffer.from(sampleMnemonic, 'utf8'),
-        numberOfAccounts: 1,
-      });
-
-      const accounts = await keyring.getAccounts();
-      expect(accounts[0]).toStrictEqual(firstAcct);
-    });
-
-    it('validates mnemonic passed as Uint8Array with valid mnemonic', async () => {
-      const keyring = new HdKeyring();
-
-      // Serialize a valid keyring to get the Uint8Array format
-      const tempKeyring = new HdKeyring();
-      await tempKeyring.deserialize({ mnemonic: sampleMnemonic });
-      const { mnemonic } = tempKeyring;
-      assert(mnemonic, 'Mnemonic should be defined');
-
-      await keyring.deserialize({
-        // @ts-expect-error testing Uint8Array mnemonic directly
-        mnemonic,
-        numberOfAccounts: 1,
-      });
-
-      const accounts = await keyring.getAccounts();
-      expect(accounts[0]).toStrictEqual(firstAcct);
-    });
-
-    it('validates mnemonic passed as plain object (simulating encryption/decryption cycle)', async () => {
-      const keyring = new HdKeyring();
-
-      const tempKeyring = new HdKeyring();
-      await tempKeyring.deserialize({ mnemonic: sampleMnemonic });
-      const { mnemonic } = tempKeyring;
-      assert(mnemonic, 'Mnemonic should be defined');
-
-      const mnemonicAsPlainObject: Record<string, number> = {};
-      mnemonic.forEach((value, index) => {
-        mnemonicAsPlainObject[index] = value;
-      });
-
-      await keyring.deserialize({
-        // @ts-expect-error testing plain object mnemonic directly
-        mnemonic: mnemonicAsPlainObject,
-        numberOfAccounts: 1,
-      });
-
-      const accounts = await keyring.getAccounts();
-      expect(accounts[0]).toStrictEqual(firstAcct);
-    });
-
     it('throws when numberOfAccounts is passed with no mnemonic', async () => {
       const keyring = new HdKeyring();
 
@@ -391,9 +240,7 @@ describe('hd-keyring', () => {
       expect(accountsSecondCheck[1]).toStrictEqual(secondAcct);
       expect(accountsSecondCheck).toHaveLength(2);
       const serialized = await keyring.serialize();
-      expect(Buffer.from(serialized.mnemonic).toString()).toStrictEqual(
-        sampleMnemonic,
-      );
+      expect(serialized.mnemonic).toStrictEqual(sampleMnemonic);
     });
   });
 
@@ -454,7 +301,6 @@ describe('hd-keyring', () => {
   describe('#signTypedData', () => {
     it('can recover a basic signature', async () => {
       const keyring = new HdKeyring();
-      Buffer.from(privKeyHex, 'hex');
       const typedData = [
         {
           type: 'string',
@@ -616,59 +462,6 @@ describe('hd-keyring', () => {
       expect(addresses[0]).not.toBe(firstAcct);
       const serialized = await keyring.serialize();
       expect(serialized.hdPath).toStrictEqual(hdPathString);
-    });
-  });
-
-  // eslint-disable-next-line
-  /*
-  describe('create and restore 1k accounts', function () {
-    it('should restore same accounts with no problem', async function () {
-      this.timeout(20000)
-
-      for (let i = 0; i < 1e3; i++) {
-
-        const keyring = new HdKeyring({
-          numberOfAccounts: 1,
-        })
-        const originalAccounts = keyring.getAccounts()
-        const serialized = await keyring.serialize()
-        const mnemonic = serialized.mnemonic
-
-        const keyring = new HdKeyring({
-          numberOfAccounts: 1,
-          mnemonic,
-        })
-        const restoredAccounts = keyring.getAccounts()
-
-        const first = originalAccounts[0]
-        const restored = restoredAccounts[0]
-        const msg = `Should restore same account from mnemonic: "${mnemonic}"`
-        assert.equal(restoredAccounts[0], originalAccounts[0], msg)
-
-      }
-
-      return true
-    })
-  })
-  */
-
-  describe('signing methods withAppKeyOrigin option', () => {
-    it('withAppKeyOrigin is ignored; signs with the account key', async () => {
-      const keyring = new HdKeyring();
-      await keyring.deserialize({
-        mnemonic: sampleMnemonic,
-        numberOfAccounts: 1,
-      });
-      const message = '0x68656c6c6f20776f726c64';
-      const normalSig = await keyring.signPersonalMessage(firstAcct, message);
-      const withOriginSig = await keyring.signPersonalMessage(
-        firstAcct,
-        message,
-        { withAppKeyOrigin: 'someapp.origin.io' },
-      );
-      // withAppKeyOrigin no longer affects key derivation; both calls use the
-      // same account key and must produce the same signature.
-      expect(withOriginSig).toStrictEqual(normalSig);
     });
   });
 

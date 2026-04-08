@@ -15,7 +15,6 @@ import type {
 } from '@metamask/eth-sig-util';
 import { normalize } from '@metamask/eth-sig-util';
 import {
-  type CryptographicFunctions,
   createBip39KeyFromSeed,
   mnemonicToSeed,
   secp256k1,
@@ -25,51 +24,27 @@ import { generateMnemonic, validateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { add0x, assert, bytesToHex, type Hex, remove0x } from '@metamask/utils';
 
-// Options:
 const hdPathString = `m/44'/60'/0'/0`;
 const type = 'HD Key Tree';
 
-type Mnemonic = string | number[] | SerializedBuffer | Buffer | Uint8Array;
-
-export type HDKeyringOptions = {
-  cryptographicFunctions?: CryptographicFunctions;
-};
-
 /**
  * The serialized state of an `HDKeyring` instance.
- *
- * @property mnemonic - The mnemonic seed phrase as an array of numbers.
- * @property numberOfAccounts - The number of accounts in the keyring.
- * @property hdPath - The HD path used to derive accounts.
  */
 export type SerializedHDKeyringState = {
-  mnemonic: number[];
+  mnemonic: string;
   numberOfAccounts: number;
   hdPath: string;
 };
 
 /**
- * An object that can be passed to the Keyring.deserialize method to initialize
- * an `HDKeyring` instance.
- *
- * @property mnemonic - The mnemonic seed phrase as an array of numbers.
- * @property numberOfAccounts - The number of accounts in the keyring.
- * @property hdPath - The HD path used to derive accounts.
+ * State accepted by {@link HdKeyring.deserialize}. Supports legacy formats
+ * (UTF-8 byte arrays, serialized Buffers) for backwards compatibility.
  */
 export type DeserializableHDKeyringState = Omit<
   SerializedHDKeyringState,
   'mnemonic'
 > & {
-  mnemonic: number[] | SerializedBuffer | string;
-};
-
-/**
- * Options for selecting an account from an `HDKeyring` instance.
- *
- * @property withAppKeyOrigin - Deprecated. No longer has any effect.
- */
-export type HDKeyringAccountSelectionOptions = {
-  withAppKeyOrigin?: string;
+  mnemonic: string | number[] | SerializedBuffer;
 };
 
 type SerializedBuffer = ReturnType<Buffer['toJSON']>;
@@ -97,12 +72,39 @@ function isSerializedBuffer(value: unknown): value is SerializedBuffer {
   );
 }
 
+/**
+ * Decodes a Uint8Array of Uint16 wordlist indices into a mnemonic string.
+ * This is the format returned by `@metamask/scure-bip39`'s `generateMnemonic`.
+ *
+ * @param encoded - The Uint8Array containing Uint16 wordlist indices.
+ * @returns The mnemonic as a space-separated string of words.
+ */
+function decodeMnemonicIndices(encoded: Uint8Array): string {
+  const indices = Array.from(new Uint16Array(new Uint8Array(encoded).buffer));
+  return indices.map((i) => wordlist[i]).join(' ');
+}
+
+/**
+ * Converts a legacy mnemonic representation to a plain string.
+ *
+ * @param mnemonic - The mnemonic in any accepted format.
+ * @returns The mnemonic as a plain string.
+ */
+function parseMnemonic(mnemonic: string | number[] | SerializedBuffer): string {
+  if (typeof mnemonic === 'string') {
+    return mnemonic;
+  }
+  // Both number[] and SerializedBuffer.data are UTF-8 byte arrays
+  const bytes = isSerializedBuffer(mnemonic) ? mnemonic.data : mnemonic;
+  return Buffer.from(bytes).toString('utf-8');
+}
+
 export class HdKeyring implements Keyring {
   static type: string = type;
 
   type: string = type;
 
-  mnemonic?: Uint8Array | null;
+  mnemonic: string | null = null;
 
   hdPath: string = hdPathString;
 
@@ -110,17 +112,15 @@ export class HdKeyring implements Keyring {
 
   #mnemonicEntropy?: MnemonicEntropy;
 
-  // Kept for backward compatibility with callers passing HDKeyringOptions.
-  // eslint-disable-next-line @typescript-eslint/no-useless-constructor, no-empty-function
-  constructor(_opts: HDKeyringOptions = {}) {}
-
   /**
    * Initialize the keyring with a random mnemonic.
    *
    * @returns A promise that resolves when the process is complete.
    */
   async generateRandomMnemonic(): Promise<void> {
-    await this.#initFromMnemonic(generateMnemonic(wordlist));
+    await this.#initFromMnemonic(
+      decodeMnemonicIndices(generateMnemonic(wordlist)),
+    );
   }
 
   /**
@@ -129,15 +129,8 @@ export class HdKeyring implements Keyring {
    * @returns The serialized state of the keyring.
    */
   async serialize(): Promise<SerializedHDKeyringState> {
-    let mnemonic: number[] = [];
-
-    if (this.mnemonic) {
-      const mnemonicAsString = this.#uint8ArrayToString(this.mnemonic);
-      mnemonic = Array.from(new TextEncoder().encode(mnemonicAsString));
-    }
-
     return {
-      mnemonic,
+      mnemonic: this.mnemonic ?? '',
       numberOfAccounts: this.#walletMap.size,
       hdPath: this.hdPath,
     };
@@ -147,7 +140,6 @@ export class HdKeyring implements Keyring {
    * Initialize the keyring with the given serialized state.
    *
    * @param opts - The serialized state of the keyring.
-   * @returns An empty array.
    */
   async deserialize(
     opts: Partial<DeserializableHDKeyringState>,
@@ -169,7 +161,7 @@ export class HdKeyring implements Keyring {
     this.hdPath = opts.hdPath ?? hdPathString;
 
     if (opts.mnemonic) {
-      await this.#initFromMnemonic(opts.mnemonic);
+      await this.#initFromMnemonic(parseMnemonic(opts.mnemonic));
     }
 
     if (opts.numberOfAccounts) {
@@ -231,8 +223,7 @@ export class HdKeyring implements Keyring {
       `${index}` as Bip32PathNode,
     ];
     assert(this.mnemonic, 'Eth-Hd-Keyring: No secret recovery phrase provided');
-    const mnemonicString = this.#uint8ArrayToString(this.mnemonic);
-    const seed = await mnemonicToSeed(mnemonicString);
+    const seed = await mnemonicToSeed(this.mnemonic);
     const root = await createBip39KeyFromSeed(seed, secp256k1);
     const node = await root.derive(toBip32KeyTreePath(derivationPath));
     assert(node.privateKeyBytes, 'Private key not available');
@@ -244,13 +235,11 @@ export class HdKeyring implements Keyring {
    *
    * @param address - The address of the account.
    * @param tx - The transaction to sign.
-   * @param _opts - Unused. Kept for interface compatibility.
    * @returns The signed transaction.
    */
   async signTransaction(
     address: Hex,
     tx: TypedTransaction,
-    _opts = {},
   ): Promise<TypedTransaction> {
     const { signer } = this.#getWalletData(address);
     return signer.signTransaction(tx);
@@ -262,32 +251,25 @@ export class HdKeyring implements Keyring {
    *
    * @param address - The address of the account.
    * @param msgHex - The message to sign.
-   * @param _opts - Unused. Kept for interface compatibility.
    * @returns The signature of the message.
    */
-  async signPersonalMessage(
-    address: Hex,
-    msgHex: string,
-    _opts: HDKeyringAccountSelectionOptions = {},
-  ): Promise<string> {
+  async signPersonalMessage(address: Hex, msgHex: string): Promise<string> {
     const { signer } = this.#getWalletData(address);
     return signer.signPersonalMessage({ msgHex });
   }
 
   /**
    * Decrypt an encrypted message using the private key of the specified account.
-   * The message must be encrypted using the public key of the account.
-   * This method is compatible with the `eth_decryptMessage` RPC method
    *
-   * @param withAccount - The address of the account.
+   * @param address - The address of the account.
    * @param encryptedData - The encrypted data.
    * @returns The decrypted message.
    */
   async decryptMessage(
-    withAccount: Hex,
+    address: Hex,
     encryptedData: EthEncryptedData,
   ): Promise<string> {
-    const { signer } = this.#getWalletData(withAccount);
+    const { signer } = this.#getWalletData(address);
     return signer.decryptMessage({ encryptedData });
   }
 
@@ -298,16 +280,16 @@ export class HdKeyring implements Keyring {
    * @param address - The address of the account.
    * @param data - The typed data to sign.
    * @param options - The options for signing the message.
+   * @param options.version - The version of the typed data signing scheme.
    * @returns The signature of the message.
    */
   async signTypedData<
     Version extends SignTypedDataVersion,
     Types extends MessageTypes,
-    Options extends { version?: Version },
   >(
     address: Hex,
     data: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
-    options?: HDKeyringAccountSelectionOptions & Options,
+    options?: { version?: Version },
   ): Promise<string> {
     const { signer } = this.#getWalletData(address);
     return signer.signTypedData({
@@ -319,17 +301,15 @@ export class HdKeyring implements Keyring {
   /**
    * Sign an EIP-7702 authorization using the private key of the specified account.
    *
-   * @param withAccount - The address of the account.
+   * @param address - The address of the account.
    * @param authorization - The EIP-7702 authorization to sign.
-   * @param _opts - Unused. Kept for interface compatibility.
    * @returns The signature of the authorization.
    */
   async signEip7702Authorization(
-    withAccount: Hex,
+    address: Hex,
     authorization: EIP7702Authorization,
-    _opts?: HDKeyringAccountSelectionOptions,
   ): Promise<string> {
-    const { signer } = this.#getWalletData(withAccount);
+    const { signer } = this.#getWalletData(address);
     return signer.signEip7702Authorization({ authorization });
   }
 
@@ -351,24 +331,14 @@ export class HdKeyring implements Keyring {
   /**
    * Get the public key of the account to be used for encryption.
    *
-   * @param withAccount - The address of the account.
-   * @param _opts - Unused. Kept for interface compatibility.
+   * @param address - The address of the account.
    * @returns The public key of the account.
    */
-  async getEncryptionPublicKey(
-    withAccount: Hex,
-    _opts: HDKeyringAccountSelectionOptions = {},
-  ): Promise<string> {
-    const { signer } = this.#getWalletData(withAccount);
+  async getEncryptionPublicKey(address: Hex): Promise<string> {
+    const { signer } = this.#getWalletData(address);
     return signer.getEncryptionPublicKey();
   }
 
-  /**
-   * Get the wallet data for the specified account.
-   *
-   * @param account - The address of the account.
-   * @returns The wallet data for the account.
-   */
   #getWalletData(account: Hex): WalletData {
     const address = this.#normalizeAddress(account);
     const walletData = this.#walletMap.get(address);
@@ -378,132 +348,30 @@ export class HdKeyring implements Keyring {
     return walletData;
   }
 
-  /**
-   * Parse the HD path string into an array of BIP-32 path nodes.
-   *
-   * @returns The HD path as an array of path nodes.
-   */
   #hdPathToNodes(): Bip32PathNode[] {
     return this.hdPath.replace(/^m\//u, '').split('/') as Bip32PathNode[];
   }
 
-  /**
-   * Convert a Uint8Array mnemonic to a secret recovery phrase,
-   * using the english wordlist.
-   *
-   * @param mnemonic - The Uint8Array mnemonic.
-   * @returns The string mnemonic.
-   */
-  #uint8ArrayToString(mnemonic: Uint8Array): string {
-    const recoveredIndices = Array.from(
-      new Uint16Array(new Uint8Array(mnemonic).buffer),
-    );
-    return recoveredIndices.map((i) => wordlist[i]).join(' ');
-  }
-
-  /**
-   * Convert a secret recovery phrase to a Uint8Array mnemonic,
-   * using the english wordlist.
-   *
-   * @param mnemonic - The string mnemonic.
-   * @returns The Uint8Array mnemonic.
-   */
-  #stringToUint8Array(mnemonic: string): Uint8Array {
-    const indices = mnemonic.split(' ').map((word) => wordlist.indexOf(word));
-    return new Uint8Array(new Uint16Array(indices).buffer);
-  }
-
-  /**
-   * Convert a mnemonic to a Uint8Array mnemonic.
-   *
-   * @param mnemonic - The mnemonic seed phrase.
-   * @returns The Uint8Array mnemonic.
-   */
-  #mnemonicToUint8Array(mnemonic: Mnemonic): Uint8Array {
-    let mnemonicData: unknown = mnemonic;
-    // When using `Buffer.toJSON()`, the Buffer is serialized into an object
-    // with the structure `{ type: 'Buffer', data: [...] }`
-    if (isSerializedBuffer(mnemonic)) {
-      mnemonicData = mnemonic.data;
-    }
-
-    if (
-      // this block is for backwards compatibility with vaults that were previously stored as buffers, number arrays or plain text strings
-      typeof mnemonicData === 'string' ||
-      Buffer.isBuffer(mnemonicData) ||
-      Array.isArray(mnemonicData)
-    ) {
-      let mnemonicAsString: string;
-      if (Array.isArray(mnemonicData)) {
-        mnemonicAsString = Buffer.from(mnemonicData).toString();
-      } else if (Buffer.isBuffer(mnemonicData)) {
-        mnemonicAsString = mnemonicData.toString();
-      } else {
-        mnemonicAsString = mnemonicData;
-      }
-      return this.#stringToUint8Array(mnemonicAsString);
-    } else if (
-      mnemonicData instanceof Object &&
-      !(mnemonicData instanceof Uint8Array)
-    ) {
-      // when encrypted/decrypted the Uint8Array becomes a js object we need to cast back to a Uint8Array
-      return Uint8Array.from(Object.values(mnemonicData));
-    }
-
-    assert(mnemonicData instanceof Uint8Array, 'Expected Uint8Array mnemonic');
-    return mnemonicData;
-  }
-
-  /**
-   * Normalize an address to a lower-cased '0x'-prefixed hex string.
-   *
-   * @param address - The address to normalize.
-   * @returns The normalized address.
-   */
   #normalizeAddress(address: string): Hex {
     const normalized = normalize(address);
     assert(normalized, 'Expected address to be set');
     return add0x(normalized);
   }
 
-  /**
-   * Sets appropriate properties for the keyring based on the given
-   * BIP39-compliant mnemonic.
-   *
-   * @param mnemonic - A seed phrase represented
-   * as a string, an array of UTF-8 bytes, or a Buffer. Mnemonic input
-   * passed as type buffer or array of UTF-8 bytes must be NFKD normalized.
-   */
-  async #initFromMnemonic(mnemonic: Mnemonic): Promise<void> {
+  async #initFromMnemonic(mnemonic: string): Promise<void> {
     if (this.#mnemonicEntropy) {
       throw new Error(
         'Eth-Hd-Keyring: Secret recovery phrase already provided',
       );
     }
 
-    // Convert and validate before assigning to instance property
-    // to avoid inconsistent state if validation fails
-    const mnemonicAsUint8Array = this.#mnemonicToUint8Array(mnemonic);
-    this.#assertValidMnemonic(mnemonicAsUint8Array);
-    this.mnemonic = mnemonicAsUint8Array;
-
-    const mnemonicString = this.#uint8ArrayToString(mnemonicAsUint8Array);
-    this.#mnemonicEntropy = new MnemonicEntropy('hd', mnemonicString);
-  }
-
-  /**
-   * Assert that the mnemonic seed phrase is valid.
-   * Throws an error if the mnemonic is not a valid BIP39 phrase.
-   *
-   * @param mnemonic - The mnemonic seed phrase to validate (as Uint8Array).
-   * @throws If the mnemonic is not a valid BIP39 secret recovery phrase.
-   */
-  #assertValidMnemonic(mnemonic: Uint8Array): void {
-    const mnemonicString = this.#uint8ArrayToString(mnemonic);
-    if (!validateMnemonic(mnemonicString, wordlist)) {
+    if (!validateMnemonic(mnemonic, wordlist)) {
       throw new Error(
         'Eth-Hd-Keyring: Invalid secret recovery phrase provided',
       );
     }
+
+    this.mnemonic = mnemonic;
+    this.#mnemonicEntropy = new MnemonicEntropy('hd', mnemonic);
   }
 }
