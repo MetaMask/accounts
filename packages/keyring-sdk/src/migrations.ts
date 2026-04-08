@@ -55,45 +55,6 @@ export type KeyringMigration<Output extends Json = Json> = {
 };
 
 /**
- * Create a migration with compile-time type binding between `migrate` and `schema`.
- *
- * Unlike constructing a {@link KeyringMigration} directly, `defineMigration` ensures
- * that `schema` validates the same `Output` type that `migrate` returns. This prevents
- * mismatched schemas at compile time.
- *
- * The `schema` is a superstruct `Struct<Output>`. `defineMigration` wires it into the
- * `validate` callback automatically using `assert`.
- *
- * When `inputSchema` is provided, state is validated against it before `migrate` is
- * called, and the `Input` type parameter is inferred so `migrate` receives a typed
- * argument with no manual cast needed.
- *
- * Returns `KeyringMigration<Output>` so that `applyMigrations` can infer the last
- * migration's output type when the array is declared with `satisfies
- * KeyringMigration[]`.
- *
- * @param config - The migration configuration.
- * @param config.version - The version this migration produces.
- * @param config.migrate - Transform state from the previous version.
- * @param config.schema - Optional superstruct schema to validate the output state.
- * @param config.inputSchema - Optional superstruct schema to validate the input state.
- * @returns A typed migration for use in arrays.
- * @example
- * ```typescript
- * const V0Schema = object({ numberOfItems: number() });
- * type V0 = Infer<typeof V0Schema>;
- * const V1Schema = object({ count: number() });
- * type V1 = Infer<typeof V1Schema>;
- *
- * const migration = defineMigration<V1, V0>({
- *   version: 1,
- *   inputSchema: V0Schema,
- *   schema: V1Schema,
- *   migrate: (state) => ({ count: state.numberOfItems }), // state is V0, no cast needed
- * });
- * ```
- */
-/**
  * Define a typed migrations array.
  *
  * Using rest parameters forces TypeScript to infer a tuple type, which lets
