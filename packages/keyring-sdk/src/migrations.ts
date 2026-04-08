@@ -100,9 +100,8 @@ export function defineMigrations<Migrations extends KeyringMigration[]>(
  * @param config - The migration configuration.
  * @param config.version - The version this migration produces.
  * @param config.migrate - Transform state from the previous version.
- * @param config.schema - Optional superstruct schema to validate the migration output.
- * @param config.inputSchema - Optional superstruct schema to validate the migration
- * input.
+ * @param config.schema - Optional schema to validate the migration output.
+ * @param config.inputSchema - Optional schema to validate the migration input.
  * @returns A typed migration for use in arrays.
  * @example
  * ```typescript
