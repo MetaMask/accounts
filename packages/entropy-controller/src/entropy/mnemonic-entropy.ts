@@ -10,7 +10,7 @@ import type {
   ScopeToSigner,
 } from './entropy';
 import type { Eip155Scope } from '../signer/eip155-signer';
-import { MnemonicEip155Signer } from '../signer/mnemonic-eth-signer';
+import { MnemonicEip155Signer } from '../signer/mnemonic-eip155-signer';
 import { toBip32KeyTreePath } from '../utils';
 
 /**
