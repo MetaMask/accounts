@@ -43,8 +43,6 @@ import {
 Define explicit types for each version of the state, then define an ordered array of
 migrations. Versions must be sequential starting from 1.
 
-### With `defineMigration` (recommended)
-
 Use `defineMigration<OutputType>()` to create migrations with compile-time type binding
 between `migrate` and `schema`. TypeScript enforces that both use the same output type.
 The `schema` is passed as a superstruct `Struct<Output>`, and `defineMigration` wires
@@ -105,48 +103,7 @@ const migrations: KeyringMigration[] = [
 ];
 ```
 
-### Without validation
-
-For simple migrations that don't need runtime validation, omit the `schema`:
-
-```typescript
-const migrations = [
-  defineMigration<HdStateV1>({
-    version: 1,
-    migrate: (state) => {
-      const prev = state as HdStateV0;
-      return {
-        mnemonic: prev.mnemonic,
-        accountCount: prev.numberOfAccounts,
-        hdPath: prev.hdPath,
-      };
-    },
-  }),
-];
-```
-
-### Async migrations
-
-`migrate` can be async for complex operations like re-deriving data:
-
-```typescript
-type HdStateV3 = HdStateV2 & {
-  cachedAddresses: string[];
-};
-
-defineMigration<HdStateV3>({
-  version: 3,
-  migrate: async (state) => {
-    const prev = state as HdStateV2;
-    const addresses = await deriveAddresses(
-      prev.mnemonic,
-      prev.accountCount,
-      prev.hdPath,
-    );
-    return { ...prev, cachedAddresses: addresses };
-  },
-});
-```
+`schema` is optional — omit it for migrations that don't need runtime validation.
 
 ## Integrating into a keyring
 
@@ -200,54 +157,6 @@ class MyKeyring {
     } as Json;
   }
 }
-```
-
-## API reference
-
-### `applyMigrations(state, migrations): Promise<VersionedState>`
-
-Applies pending migrations to keyring state.
-
-- If `state` has a `version` envelope, extracts current version and inner data
-- If `state` has no envelope (legacy), treats as version 0
-- Validates migrations are sequential (1, 2, 3, ...)
-- Applies each migration where `migration.version > currentVersion`
-- Calls `validate(result)` after each step that has validation (via `defineMigration`
-  schema)
-- Returns `{ version, data }` with the latest version and migrated data
-- Throws if state version is newer than the latest migration
-
-### `defineMigration<Output extends Json>(config): KeyringMigration`
-
-Creates a migration with compile-time type binding between `migrate` and `schema`.
-TypeScript enforces that `schema` validates the same `Output` type that `migrate`
-returns. Wires the schema into a `validate` callback via `assert` automatically.
-
-### `isVersionedState(state: Json): state is VersionedState`
-
-Type guard. Returns `true` if `state` is `{ version: number, data: Json }`.
-
-### `getLatestVersion(migrations): number`
-
-Returns the highest version from the migrations array, or 0 if empty.
-
-### `KeyringMigration<Output>`
-
-```typescript
-type KeyringMigration<Output extends Json = Json> = {
-  version: number;
-  migrate: (state: Json) => Output | Promise<Output>;
-  validate?: (data: unknown) => void;
-};
-```
-
-### `VersionedState<Data>`
-
-```typescript
-type VersionedState<Data extends Json = Json> = {
-  version: number;
-  data: Data;
-};
 ```
 
 ## Constraints
