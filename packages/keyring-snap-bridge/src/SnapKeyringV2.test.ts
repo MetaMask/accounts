@@ -401,6 +401,39 @@ describe('SnapKeyringV2', () => {
         expect(callbacks.deleteSnapAccount).toHaveBeenCalledTimes(2);
       });
 
+      it('logs rollback errors when snap delete fails during rollback', async () => {
+        const consoleSpy = jest
+          .spyOn(console, 'error')
+          .mockImplementation(() => undefined);
+        const rollbackError = new Error('snap rollback failed');
+        const { keyring, callbacks } = makeKeyring(SNAP_ID, {
+          createSnapAccounts: jest.fn().mockResolvedValue([account1, account2]),
+          assertAccountCanBeUsed: jest
+            .fn<Promise<void>, [KeyringAccount]>()
+            .mockResolvedValueOnce(undefined)
+            .mockRejectedValueOnce(new Error('validation failed')),
+          deleteSnapAccount: jest.fn().mockRejectedValue(rollbackError),
+        });
+
+        await expect(keyring.createAccounts(options)).rejects.toThrow(
+          'validation failed',
+        );
+
+        expect(callbacks.deleteSnapAccount).toHaveBeenCalledTimes(2);
+        expect(consoleSpy).toHaveBeenCalledTimes(2);
+        expect(consoleSpy).toHaveBeenNthCalledWith(
+          1,
+          `Account '${account1.id}' may not have been removed from snap '${SNAP_ID}' during createAccounts rollback:`,
+          rollbackError,
+        );
+        expect(consoleSpy).toHaveBeenNthCalledWith(
+          2,
+          `Account '${account2.id}' may not have been removed from snap '${SNAP_ID}' during createAccounts rollback:`,
+          rollbackError,
+        );
+        consoleSpy.mockRestore();
+      });
+
       it('rejects duplicate accounts within a batch', async () => {
         const { keyring } = makeKeyring(SNAP_ID, {
           createSnapAccounts: jest.fn().mockResolvedValue([account1, account1]),

@@ -329,6 +329,22 @@ export class SnapKeyring {
   }
 
   /**
+   * Drop a per-snap wrapper from {@link #snapKeyrings} when it has no accounts.
+   *
+   * Without this, deleting every account for a Snap would leave an empty
+   * `SnapKeyringV2` in the map for the rest of the session (unlike the old
+   * `SnapIdMap`, which dropped entries on delete).
+   *
+   * @param snapId - Snap ID whose wrapper may be removed.
+   */
+  #removeSnapKeyringIfEmpty(snapId: SnapId): void {
+    const wrapper = this.#snapKeyrings.get(snapId);
+    if (wrapper !== undefined && wrapper.accounts().length === 0) {
+      this.#snapKeyrings.delete(snapId);
+    }
+  }
+
+  /**
    * Checks whether a Snap meets a minimum platform version.
    *
    * @param snapId - The Snap ID.
@@ -919,6 +935,7 @@ export class SnapKeyring {
 
     for (const [snapId, migrated] of validated) {
       this.#getOrCreateKeyringV2(snapId).applyValidatedState(migrated);
+      this.#removeSnapKeyringIfEmpty(snapId);
     }
   }
 
@@ -1666,6 +1683,7 @@ export class SnapKeyring {
    */
   async #deleteAccount(snapId: SnapId, account: KeyringAccount): Promise<void> {
     await this.#getOrCreateKeyringV2(snapId).deleteAccount(account.id);
+    this.#removeSnapKeyringIfEmpty(snapId);
   }
 
   /**

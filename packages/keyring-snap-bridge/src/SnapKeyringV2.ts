@@ -339,8 +339,16 @@ export class SnapKeyringV2 implements KeyringV2 {
           if (!this.#getExistingAccount(snapAccount)) {
             try {
               await this.#callbacks.deleteSnapAccount(snapAccount.id);
-            } catch {
-              // Swallow — best-effort rollback.
+            } catch (rollbackError) {
+              // Best-effort rollback; log snap-side failures for observability.
+              console.error(
+                `Account '${
+                  snapAccount.id
+                }' may not have been removed from snap '${
+                  this.#snapId
+                }' during createAccounts rollback:`,
+                rollbackError,
+              );
             }
           }
         }
