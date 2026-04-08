@@ -18,6 +18,7 @@ import type { EthKeyring } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import { add0x, type Hex, type Json } from '@metamask/utils';
 
+import { generateEthAccountId } from './account-id';
 import { KeyringWrapper, type KeyringWrapperOptions } from '../keyring-wrapper';
 
 /**
@@ -32,10 +33,16 @@ export enum EthKeyringMethod {
 }
 
 /**
- * Options for constructing an EthKeyringWrapper.
+ * Options for constructing an {@link EthKeyringWrapper}.
+ *
+ * `registryOptions` is intentionally omitted: the registry is always
+ * configured with {@link generateEthAccountId} to produce deterministic
+ * account IDs for Ethereum addresses.
  */
-export type EthKeyringWrapperOptions<InnerKeyring extends EthKeyring> =
-  KeyringWrapperOptions<InnerKeyring>;
+export type EthKeyringWrapperOptions<InnerKeyring extends EthKeyring> = Omit<
+  KeyringWrapperOptions<InnerKeyring>,
+  'registryOptions'
+>;
 
 /**
  * Abstract wrapper for Ethereum-based keyrings that extends KeyringWrapper, that itself implements KeyringV2.
@@ -54,6 +61,13 @@ export abstract class EthKeyringWrapper<
   InnerKeyring extends EthKeyring,
   KeyringAccountType extends KeyringAccount = KeyringAccount,
 > extends KeyringWrapper<InnerKeyring, KeyringAccountType> {
+  constructor(options: EthKeyringWrapperOptions<InnerKeyring>) {
+    super({
+      ...options,
+      registryOptions: { generateId: generateEthAccountId },
+    });
+  }
+
   /**
    * Helper method to safely cast a KeyringAccount address to Hex type.
    * The KeyringAccount.address is typed as string, but for Ethereum accounts
