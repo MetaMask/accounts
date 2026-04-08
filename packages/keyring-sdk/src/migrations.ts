@@ -139,8 +139,7 @@ export function isVersionedState(state: Json): state is VersionedState {
  * @returns The latest version number.
  */
 export function getLatestVersion(migrations: KeyringMigration[]): number {
-  const last = migrations[migrations.length - 1];
-  return last ? last.version : 0;
+  return Math.max(0, ...migrations.map((migration) => migration.version));
 }
 
 /**
@@ -150,16 +149,30 @@ export function getLatestVersion(migrations: KeyringMigration[]): number {
  * @throws If migrations are invalid.
  */
 function validateMigrations(migrations: KeyringMigration[]): void {
-  for (let i = 0; i < migrations.length; i++) {
-    const migration = migrations[i];
-    const expectedVersion = i + 1;
+  for (const [index, migration] of migrations.entries()) {
+    const expectedVersion = index + 1;
 
-    if (!migration || migration.version !== expectedVersion) {
+    if (migration.version !== expectedVersion) {
       throw new Error(
-        `Invalid migration: expected version ${expectedVersion} at index ${i}, got ${migration?.version}`,
+        `Invalid migration: expected version ${expectedVersion} at index ${index}, got ${migration.version}`,
       );
     }
   }
+}
+
+/**
+ * Get the version number from state, treating unversioned state as version 0.
+ *
+ * @param state - The state to check.
+ * @returns The version number.
+ */
+function getVersionAndData(state: Json | VersionedState): {
+  version: number;
+  data: Json;
+} {
+  return isVersionedState(state)
+    ? { version: state.version, data: state.data }
+    : { version: 0, data: state };
 }
 
 /**
@@ -178,27 +191,18 @@ export async function applyMigrations(
 ): Promise<VersionedState> {
   validateMigrations(migrations);
 
-  let currentVersion: number;
-  let data: Json;
-
-  if (isVersionedState(state)) {
-    currentVersion = state.version;
-    data = state.data;
-  } else {
-    currentVersion = 0;
-    data = state;
-  }
-
   const latestVersion = getLatestVersion(migrations);
+  let { version, data } = getVersionAndData(state);
 
-  if (currentVersion > latestVersion) {
+  if (version > latestVersion) {
     throw new Error(
-      `State version ${currentVersion} is newer than the latest migration version ${latestVersion}`,
+      `State version ${version} is newer than the latest migration version ${latestVersion}`,
     );
   }
 
   for (const migration of migrations) {
-    if (migration.version > currentVersion) {
+    if (version < migration.version) {
+      version = migration.version;
       data = await migration.migrate(data);
 
       if (migration.validate) {
@@ -207,8 +211,5 @@ export async function applyMigrations(
     }
   }
 
-  return {
-    version: latestVersion,
-    data,
-  };
+  return { version, data };
 }
