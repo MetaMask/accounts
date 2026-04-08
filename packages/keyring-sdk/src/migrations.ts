@@ -333,9 +333,9 @@ export async function applyMigrations<
   let migrated = false;
   for (const migration of migrations) {
     if (version < migration.version) {
+      data = await migration.migrate(data);
       version = migration.version;
       migrated = true;
-      data = await migration.migrate(data);
 
       if (migration.validate) {
         migration.validate(data);
