@@ -322,7 +322,7 @@ describe('applyMigrations', () => {
             return { ...prev, migrated: true };
           },
         }),
-      ];
+      ] as const;
 
       const result = await applyMigrations(
         { version: 1, data: { original: true } },
