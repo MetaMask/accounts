@@ -3,13 +3,14 @@ import {
   mnemonicToSeed,
   secp256k1,
 } from '@metamask/key-tree';
-import type { CaipChainId } from '@metamask/keyring-api';
 
-import type { Bip44Entropy, Bip44GetSignerOptions } from './entropy';
-import { isEip155Scope } from '../signer/eip155-signer';
-import type { Eip155Scope, Eip155Signer } from '../signer/eip155-signer';
+import type {
+  Bip44Entropy,
+  Bip44GetSignerOptions,
+  ScopeToSigner,
+} from './entropy';
+import type { Eip155Scope } from '../signer/eip155-signer';
 import { MnemonicEip155Signer } from '../signer/mnemonic-eth-signer';
-import type { Signer } from '../signer/signer';
 import { toBip32KeyTreePath } from '../utils';
 
 /**
@@ -18,7 +19,7 @@ import { toBip32KeyTreePath } from '../utils';
  * Derives keys from the mnemonic using BIP-32 and creates signers on demand for a
  * given scope and derivation path.
  */
-export class MnemonicEntropy implements Bip44Entropy {
+export class MnemonicEntropy implements Bip44Entropy<Eip155Scope> {
   readonly type = 'bip44:mnemonic' as const;
 
   readonly id: string;
@@ -36,25 +37,16 @@ export class MnemonicEntropy implements Bip44Entropy {
     this.#mnemonic = mnemonic;
   }
 
-  async getSigner(
-    scope: Eip155Scope,
+  async getSigner<Scope extends Eip155Scope>(
+    scope: Scope,
     options: Bip44GetSignerOptions,
-  ): Promise<Eip155Signer>;
-
-  async getSigner(
-    scope: CaipChainId,
-    options: Bip44GetSignerOptions,
-  ): Promise<Signer> {
+  ): Promise<ScopeToSigner<Scope>> {
     const { derivationPath } = options;
 
     const seed = await mnemonicToSeed(this.#mnemonic);
     const root = await createBip39KeyFromSeed(seed, secp256k1);
     const accountNode = await root.derive(toBip32KeyTreePath(derivationPath));
 
-    if (isEip155Scope(scope)) {
-      return new MnemonicEip155Signer(scope, accountNode);
-    }
-
-    throw new Error(`Unsupported scope: ${scope}`);
+    return new MnemonicEip155Signer(scope, accountNode) as ScopeToSigner<Scope>;
   }
 }

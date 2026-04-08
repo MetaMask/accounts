@@ -25,9 +25,21 @@ export type EntropyType = `${EntropyCategory}:${string}`;
 export type EntropyId = string;
 
 /**
- * Represents a source of entropy that can provide signers.
+ * Maps a CAIP-2 scope to its corresponding signer type.
+ *
+ * Add a branch here when introducing a new scope/signer pair.
  */
-export type Entropy = {
+export type ScopeToSigner<S extends CaipChainId> = S extends Eip155Scope
+  ? Eip155Signer
+  : Signer;
+
+/**
+ * Represents a source of entropy that can provide signers.
+ *
+ * The `Scopes` type parameter constrains which scopes this entropy source
+ * accepts. Defaults to `CaipChainId` for use in collections (e.g. {@link EntropyController}).
+ */
+export type Entropy<Scopes extends CaipChainId = CaipChainId> = {
   /**
    * The unique identifier for the entropy.
    */
@@ -41,14 +53,17 @@ export type Entropy = {
   /**
    * Gets a signer for a given scope from the entropy.
    *
-   * @param scope - The CAIP-2 chain ID for which to get the signer (e.g. `"eip155:1"`
-   * for Ethereum mainnet).
-   * @param options - Scope-specific options for getting the signer.
+   * The return type is automatically narrowed to the signer bound to `Scope` via
+   * {@link ScopeToSigner}.
+   *
+   * @param scope - The CAIP-2 chain ID for which to get the signer.
+   * @param options - Entropy-specific options for getting the signer.
    * @returns The signer for the specified scope.
    */
-  getSigner(scope: Eip155Scope, options: unknown): Promise<Eip155Signer>;
-
-  getSigner(scope: CaipChainId, options: unknown): Promise<Signer>;
+  getSigner<Scope extends Scopes>(
+    scope: Scope,
+    options: unknown,
+  ): Promise<ScopeToSigner<Scope>>;
 };
 
 /**
@@ -63,17 +78,21 @@ export type Bip44GetSignerOptions = {
 
 /**
  * BIP-44 entropy interface.
+ *
+ * The `Scopes` type parameter declares which scopes this entropy source
+ * accepts (e.g. `Bip44Entropy<Eip155Scope>`).
  */
-export type Bip44Entropy = Entropy & {
-  type: `bip44:${string}`;
+export type Bip44Entropy<Scopes extends CaipChainId = CaipChainId> =
+  Entropy<Scopes> & {
+    type: `bip44:${string}`;
 
-  id: EntropyId;
+    id: EntropyId;
 
-  getSigner(
-    scope: CaipChainId,
-    options: Bip44GetSignerOptions,
-  ): Promise<Signer>;
-};
+    getSigner<Scope extends Scopes>(
+      scope: Scope,
+      options: Bip44GetSignerOptions,
+    ): Promise<ScopeToSigner<Scope>>;
+  };
 
 /**
  * Checks if the entropy is a Bip44Entropy.
@@ -97,14 +116,21 @@ export type RawGetSignerOptions = {
 
 /**
  * Raw entropy interface.
+ *
+ * The `Scopes` type parameter declares which scopes this entropy source
+ * accepts (e.g. `RawEntropy<Eip155Scope>`).
  */
-export type RawEntropy = Entropy & {
-  type: `raw:${string}`;
+export type RawEntropy<Scopes extends CaipChainId = CaipChainId> =
+  Entropy<Scopes> & {
+    type: `raw:${string}`;
 
-  id: EntropyId;
+    id: EntropyId;
 
-  getSigner(scope: CaipChainId, options: RawGetSignerOptions): Promise<Signer>;
-};
+    getSigner<Scope extends Scopes>(
+      scope: Scope,
+      options: RawGetSignerOptions,
+    ): Promise<ScopeToSigner<Scope>>;
+  };
 
 /**
  * Checks if the entropy is a RawEntropy.
