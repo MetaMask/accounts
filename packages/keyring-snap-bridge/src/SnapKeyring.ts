@@ -289,7 +289,13 @@ export class SnapKeyring {
             client.createAccounts(options),
           deleteSnapAccount: async (id): Promise<void> =>
             client.deleteAccount(id),
-          submitSnapRequest: async (request): Promise<Json> =>
+          // This callback is only invoked via SnapKeyringV2.submitRequest,
+          // which is not called through SnapKeyring's public API today.
+          // SnapKeyring.submitRequest routes through #submitSnapRequest directly.
+          // Coverage is excluded until consumers interact with SnapKeyringV2 directly.
+          submitSnapRequest: /* istanbul ignore next */ async (
+            request,
+          ): Promise<Json> =>
             this.#submitSnapRequest({
               origin: request.origin,
               snapId,
