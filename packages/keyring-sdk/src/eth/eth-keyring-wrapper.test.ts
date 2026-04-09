@@ -12,6 +12,7 @@ import {
 import type { Keyring } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
+import { generateEthAccountId } from './account-id';
 import { EthKeyringMethod, EthKeyringWrapper } from './eth-keyring-wrapper';
 
 const MOCK_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678' as Hex;
@@ -134,7 +135,47 @@ function createMockRequest(
   };
 }
 
+/**
+ * Minimal EthKeyringWrapper subclass that exposes registry.register for testing.
+ */
+class TestEthKeyringWrapperWithRegister extends EthKeyringWrapper<Keyring> {
+  constructor(inner: Keyring) {
+    super({
+      type: KeyringType.Hd,
+      inner,
+      capabilities: { scopes: [EthScope.Eoa] },
+    });
+  }
+
+  async getAccounts(): Promise<KeyringAccount[]> {
+    return [];
+  }
+
+  async createAccounts(_opts: CreateAccountOptions): Promise<KeyringAccount[]> {
+    return [];
+  }
+
+  async deleteAccount(_id: string): Promise<void> {
+    // noop
+  }
+
+  testRegister(address: string): string {
+    return this.registry.register(address);
+  }
+}
+
 describe('EthKeyringWrapper', () => {
+  describe('createRegistry', () => {
+    it('uses generateEthAccountId for deterministic account IDs', () => {
+      const wrapper = new TestEthKeyringWrapperWithRegister(
+        createMockKeyring(),
+      );
+      const id = wrapper.testRegister(MOCK_ADDRESS);
+
+      expect(id).toBe(generateEthAccountId(MOCK_ADDRESS));
+    });
+  });
+
   describe('toHexAddress', () => {
     it('adds 0x prefix to address without prefix', () => {
       const wrapper = new TestEthKeyringWrapper(createMockKeyring());
