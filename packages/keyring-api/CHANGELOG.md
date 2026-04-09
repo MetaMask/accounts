@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Improve return type of `isKeyringRpcMethod` to use type predicate `method is KeyringRpcMethod` ([#408](https://github.com/MetaMask/accounts/pull/408))
+- Bump `@metamask/utils` from `^11.1.0` to `^11.10.0` ([#489](https://github.com/MetaMask/accounts/pull/489))
+
+## [22.0.0]
 
 ### Removed
 
@@ -724,7 +727,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.6.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@22.0.0...HEAD
+[22.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.6.0...@metamask/keyring-api@22.0.0
 [21.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.5.0...@metamask/keyring-api@21.6.0
 [21.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.4.0...@metamask/keyring-api@21.5.0
 [21.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.3.0...@metamask/keyring-api@21.4.0

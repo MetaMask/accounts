@@ -212,12 +212,41 @@ export const BLE_ERROR_MAPPINGS = {
 };
 
 export const MOBILE_ERROR_MAPPINGS = {
+  CAMERA_PERMISSION_DENIED: {
+    code: ErrorCode.PermissionCameraDenied,
+    message: 'Camera permission denied',
+    severity: Severity.Err,
+    category: Category.Configuration,
+    userMessage:
+      'Camera permission is required to scan QR codes. Please enable it in your device settings.',
+  },
   NOT_SUPPORTED: {
     code: ErrorCode.MobileNotSupported,
     message: 'Operation not supported on mobile',
     severity: Severity.Err,
     category: Category.DeviceState,
     userMessage: 'This operation is not supported on mobile devices.',
+  },
+};
+
+/**
+ * QR error mappings - static error data for QR hardware wallets and their related flows.
+ */
+export const QR_WALLET_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
+  CAMERA_PERMISSION_PROMPT_DISMISSED: {
+    code: ErrorCode.PermissionCameraPromptDismissed,
+    message: 'Camera permission prompt dismissed without granting access',
+    severity: Severity.Warning,
+    category: Category.Configuration,
+    userMessage:
+      'MetaMask needs camera access to scan the QR code on your device.',
+  },
+  CAMERA_PERMISSION_BLOCKED: {
+    code: ErrorCode.PermissionCameraDenied,
+    message: 'Camera permission blocked by the browser',
+    severity: Severity.Err,
+    category: Category.Configuration,
+    userMessage: 'To continue, allow camera access in your browser settings.',
   },
 };
 

@@ -1,7 +1,7 @@
 {
   "name": "@metamask/eth-money-keyring",
-  "version": "1.0.0",
-  "description": "A money account keyring that extends the HD keyring with a different keyring type and derivation path.",
+  "version": "2.0.0",
+  "description": "A money account keyring that wraps the HD keyring with a different keyring type and derivation path.",
   "keywords": [
     "ethereum",
     "keyring"
@@ -43,15 +43,19 @@
     "test:clean": "jest --clearCache"
   },
   "dependencies": {
-    "@metamask/eth-hd-keyring": "workspace:^",
-    "@metamask/superstruct": "^3.1.0"
+    "@metamask/eth-hd-keyring": "^13.1.0",
+    "@metamask/keyring-api": "^22.0.0",
+    "@metamask/keyring-utils": "^3.2.0",
+    "@metamask/superstruct": "^3.1.0",
+    "async-mutex": "^0.5.0"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^3.4.4",
     "@metamask/eth-sig-util": "^8.2.0",
-    "@metamask/utils": "^11.1.0",
+    "@metamask/key-tree": "^10.0.2",
+    "@metamask/utils": "^11.10.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "deepmerge": "^4.2.2",
