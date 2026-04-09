@@ -201,6 +201,29 @@ describe('HdKeyringV2', () => {
       // Should be a different instance after deserialize
       expect(accounts2[0]).not.toBe(accounts1[0]);
     });
+
+    it('properly repopulates registry after deserialize with deterministic IDs', async () => {
+      await inner.addAccounts(2);
+      const accounts1 = await wrapper.getAccounts();
+      const firstAccountId = accounts1[0]?.id;
+
+      // Create a fresh wrapper with the same mnemonic but only 1 account
+      const newInner = new HdKeyring();
+      const newWrapper = new HdKeyringV2({
+        legacyKeyring: newInner,
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+      });
+      await newWrapper.deserialize({
+        mnemonic: Array.from(Buffer.from(TEST_MNEMONIC, 'utf8')),
+        numberOfAccounts: 1,
+        hdPath: "m/44'/60'/0'/0",
+      });
+
+      const accounts2 = await newWrapper.getAccounts();
+      expect(accounts2).toHaveLength(1);
+      // Same mnemonic + same path + same index -> same deterministic ID
+      expect(accounts2[0]?.id).toBe(firstAccountId);
+    });
   });
 
   describe('createAccounts', () => {

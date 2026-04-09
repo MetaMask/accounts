@@ -12,7 +12,10 @@ import type { Keyring, AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
-import { KeyringAccountRegistry } from './keyring-account-registry';
+import {
+  KeyringAccountRegistry,
+  type KeyringAccountRegistryOptions,
+} from './keyring-account-registry';
 
 /**
  * Basic options for constructing a {@link KeyringWrapper}.
@@ -32,6 +35,11 @@ export type KeyringWrapperOptions<InnerKeyring extends Keyring> = {
    * Capabilities of the underlying keyring.
    */
   capabilities: KeyringCapabilities;
+
+  /**
+   * Options forwarded to the {@link KeyringAccountRegistry} constructor.
+   */
+  registryOptions?: KeyringAccountRegistryOptions;
 };
 
 /**
@@ -68,13 +76,13 @@ export abstract class KeyringWrapper<
    * Subclasses should use this registry when creating accounts and
    * clear/update it when deleting accounts or deserializing state.
    */
-  protected readonly registry =
-    new KeyringAccountRegistry<KeyringAccountType>();
+  protected readonly registry: KeyringAccountRegistry<KeyringAccountType>;
 
   constructor(options: KeyringWrapperOptions<InnerKeyring>) {
     this.inner = options.inner;
     this.type = `${options.type}`;
     this.#capabilities = options.capabilities;
+    this.registry = new KeyringAccountRegistry(options.registryOptions);
   }
 
   /**
