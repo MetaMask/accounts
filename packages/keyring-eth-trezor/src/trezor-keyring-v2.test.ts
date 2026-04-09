@@ -720,8 +720,7 @@ describe('TrezorKeyringV2', () => {
       // Create wrapper with account on BIP44 standard path
       const inner = createInnerKeyring(); // Uses m/44'/60'/0'/0 by default
       inner.setAccountToUnlock(0);
-      const fakeAddress = await inner.addAccounts(1);
-      console.log('Fake address added to inner keyring:', fakeAddress);
+      await inner.addAccounts(1);
 
       const wrapper = new TrezorKeyringV2({
         legacyKeyring: inner,
