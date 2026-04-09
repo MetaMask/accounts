@@ -32,7 +32,6 @@ export type KeyringMigration<Output extends Json = Json> = {
    * The version this migration produces. Must be sequential starting from 1.
    */
   version: number;
-
   /**
    * Transform state from the previous version to this version.
    *
@@ -43,7 +42,6 @@ export type KeyringMigration<Output extends Json = Json> = {
    * @returns The migrated state.
    */
   migrate: (state: Json) => Output | Promise<Output>;
-
   /**
    * Optional validation function called by `applyMigrations` after this migration step.
    *
@@ -51,7 +49,7 @@ export type KeyringMigration<Output extends Json = Json> = {
    *
    * @param data - The output of `migrate` to validate.
    */
-  validate?: (data: unknown) => void;
+  validate?: ((data: unknown) => void) | undefined;
 };
 
 /**
@@ -136,7 +134,9 @@ export function defineMigration<
           return migrate(state);
         }
       : (state: Json): Output | Promise<Output> => migrate(state as Input),
-    ...(schema && { validate: (data: unknown): void => assert(data, schema) }),
+    validate: schema
+      ? (data: unknown): void => assert(data, schema)
+      : undefined,
   };
 }
 
