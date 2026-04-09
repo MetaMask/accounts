@@ -162,7 +162,7 @@ describe('SimpleKeyringV2', () => {
       expect(accounts).toHaveLength(0);
     });
 
-    it('properly repopulates registry after deserialize (IDs are deterministic based on the address)', async () => {
+    it('properly repopulates registry after deserialize with deterministic IDs', async () => {
       await inner.deserialize([TEST_PRIVATE_KEY_1, TEST_PRIVATE_KEY_2]);
 
       const accounts1 = await wrapper.getAccounts();

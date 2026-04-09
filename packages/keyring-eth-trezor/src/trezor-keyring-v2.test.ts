@@ -375,6 +375,25 @@ describe('TrezorKeyringV2', () => {
         expect(account.address).toBe(EXPECTED_ACCOUNTS[index]);
       });
     });
+
+    it('properly repopulates registry after deserialize with deterministic IDs', async () => {
+      const { wrapper } = await createWrapperWithAccounts(2);
+      const accounts1 = await wrapper.getAccounts();
+      const firstAccountId = accounts1[0]?.id;
+
+      // Re-deserialize with only the first account
+      await wrapper.deserialize({
+        hdPath: `m/44'/60'/0'/0`,
+        accounts: [EXPECTED_ACCOUNTS[0]],
+        page: 0,
+        perPage: 5,
+      });
+
+      const accounts2 = await wrapper.getAccounts();
+      expect(accounts2).toHaveLength(1);
+      // Same address -> same deterministic ID
+      expect(accounts2[0]?.id).toBe(firstAccountId);
+    });
   });
 
   describe('createAccounts', () => {
