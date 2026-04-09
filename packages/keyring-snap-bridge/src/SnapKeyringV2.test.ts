@@ -35,10 +35,6 @@ const account2: KeyringAccount = {
  */
 function makeMockCallbacks(): SnapKeyringV2Callbacks {
   return {
-    createSnapAccount: jest.fn<
-      Promise<KeyringAccount>,
-      [Record<string, unknown>, Record<string, unknown> | undefined]
-    >(),
     createSnapAccounts: jest.fn<
       Promise<KeyringAccount[]>,
       [CreateAccountOptions]
@@ -300,39 +296,6 @@ describe('SnapKeyringV2', () => {
         const { keyring } = makeKeyring();
         await expect(keyring.getAccount('does-not-exist')).rejects.toThrow(
           "Account 'does-not-exist' not found",
-        );
-      });
-    });
-
-    describe('createAccount', () => {
-      it('delegates to the createSnapAccount callback', async () => {
-        const { keyring, callbacks } = makeKeyring(SNAP_ID, {
-          createSnapAccount: jest.fn().mockResolvedValue(account1),
-        });
-
-        const options = { entropySource: 'test', index: 0 };
-        const internalOptions = { displayConfirmation: false };
-        const result = await keyring.createAccount(options, internalOptions);
-
-        expect(result).toStrictEqual(account1);
-        expect(callbacks.createSnapAccount).toHaveBeenCalledWith(
-          options,
-          internalOptions,
-        );
-      });
-
-      it('works without internal options', async () => {
-        const { keyring, callbacks } = makeKeyring(SNAP_ID, {
-          createSnapAccount: jest.fn().mockResolvedValue(account1),
-        });
-
-        const options = { entropySource: 'test', index: 0 };
-        const result = await keyring.createAccount(options);
-
-        expect(result).toStrictEqual(account1);
-        expect(callbacks.createSnapAccount).toHaveBeenCalledWith(
-          options,
-          undefined,
         );
       });
     });

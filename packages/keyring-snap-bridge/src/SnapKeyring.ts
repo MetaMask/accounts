@@ -280,11 +280,6 @@ export class SnapKeyring {
           this.#accountIndex.delete(id);
         },
         callbacks: {
-          createSnapAccount: async (
-            options,
-            internalOptions,
-          ): Promise<KeyringAccount> =>
-            this.#createSnapAccount(snapId, client, options, internalOptions),
           createSnapAccounts: async (options): Promise<KeyringAccount[]> =>
             client.createAccounts(options),
           deleteSnapAccount: async (id): Promise<void> =>
@@ -980,7 +975,11 @@ export class SnapKeyring {
   /**
    * Create an account (v1 event-driven flow).
    *
-   * Delegates to the per-snap `SnapKeyringV2` wrapper.
+   * This method stays on `SnapKeyring` rather than being delegated to
+   * `SnapKeyringV2` because it relies on the event-driven flow
+   * (`AccountCreated` event) and correlation ID management that are
+   * owned by the parent. The account is added to the correct wrapper
+   * asynchronously via `#handleAccountCreated` → `setAccount`.
    *
    * @param snapId - Snap ID to create the account for.
    * @param options - Account creation options. Differs between keyrings.
@@ -992,15 +991,15 @@ export class SnapKeyring {
     options: Record<string, Json>,
     internalOptions?: SnapKeyringInternalOptions,
   ): Promise<KeyringAccount> {
-    return this.#getOrCreateKeyringV2(snapId).createAccount(
-      options,
-      internalOptions,
-    );
+    const client = new KeyringInternalSnapClient({
+      messenger: this.#messenger,
+      snapId,
+    });
+    return this.#createSnapAccount(snapId, client, options, internalOptions);
   }
 
   /**
-   * Core logic for the v1 `createAccount` flow. Called via the injected
-   * callback in each `SnapKeyringV2` wrapper.
+   * Core logic for the v1 `createAccount` flow.
    *
    * Handles the reserved 'metamask' field, correlation IDs, and internal
    * options registration. The account is ultimately added to the wrapper

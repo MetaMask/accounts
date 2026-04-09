@@ -55,17 +55,6 @@ export type SnapKeyringV2State = Infer<typeof SnapKeyringV2StateStruct>;
  */
 export type SnapKeyringV2Callbacks = {
   /**
-   * Call the snap to create a single account (v1 event-driven flow).
-   * Handles correlation IDs, internal options, and the reserved 'metamask'
-   * field. The account is ultimately added to the wrapper via the
-   * `AccountCreated` event, not the return value.
-   */
-  createSnapAccount: (
-    options: Record<string, Json>,
-    internalOptions?: Record<string, Json>,
-  ) => Promise<KeyringAccount>;
-
-  /**
    * Call the snap to create accounts (v2 batch flow). Returns raw snap accounts.
    */
   createSnapAccounts: (
@@ -208,24 +197,6 @@ export class SnapKeyringV2 implements KeyringV2 {
       );
     }
     return account;
-  }
-
-  /**
-   * Create a single account (v1 event-driven flow).
-   *
-   * Delegates to the parent's snap communication which handles correlation
-   * IDs and internal options. The account is added to this wrapper
-   * asynchronously via the `AccountCreated` event, not the return value.
-   *
-   * @param options - Account creation options.
-   * @param internalOptions - Internal Snap keyring options.
-   * @returns The account object returned by the snap.
-   */
-  async createAccount(
-    options: Record<string, Json>,
-    internalOptions?: Record<string, Json>,
-  ): Promise<KeyringAccount> {
-    return this.#callbacks.createSnapAccount(options, internalOptions);
   }
 
   /**
