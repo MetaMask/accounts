@@ -471,11 +471,13 @@ export class SnapKeyringV2 implements KeyringV2 {
     if (id !== undefined) {
       return this.#registry.get(id);
     }
+    // The fallback only runs when the exact-match branch above misses,
+    // which in practice only happens for EVM addresses with casing
+    // differences (checksummed vs lowercase). Non-EVM addresses are
+    // case-sensitive and always resolve on the exact branch.
     return this.#registry
       .values()
-      .find((account) =>
-        equalsIgnoreCase(normalizeAccountAddress(account), address),
-      );
+      .find((account) => equalsIgnoreCase(account.address, address));
   }
 
   /**
