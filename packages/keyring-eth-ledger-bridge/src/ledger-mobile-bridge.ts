@@ -14,6 +14,7 @@ import {
   LedgerSignTypedDataResponse,
 } from './ledger-bridge';
 import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
+import { shouldUseNftLedgerClearSign } from './ledger-nft-clear-sign';
 import { TransportMiddleware } from './ledger-transport-middleware';
 import { LedgerMobileBridgeOptions } from './type';
 
@@ -104,16 +105,19 @@ export class LedgerMobileBridge implements MobileBridge {
    * @param params - An object contains tx, hdPath.
    * @param params.tx - The raw ethereum transaction in hexadecimal to sign.
    * @param params.hdPath - The BIP 32 path of the account.
+   * @param params.nft - Whether to enable NFT clear-sign resolution for the transaction.
    * @returns Retrieve v, r, s from the signed transaction.
    */
   async deviceSignTransaction({
     tx,
     hdPath,
+    nft,
   }: LedgerSignTransactionParams): Promise<LedgerSignTransactionResponse> {
+    const nftResolution = nft ?? shouldUseNftLedgerClearSign(tx);
     return this.#getEthApp().clearSignTransaction(hdPath, tx, {
       externalPlugins: true,
       erc20: true,
-      nft: true,
+      nft: nftResolution,
     });
   }
 

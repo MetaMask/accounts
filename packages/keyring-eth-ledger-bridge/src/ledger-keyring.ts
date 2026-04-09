@@ -32,6 +32,7 @@ import {
 } from './ledger-bridge';
 import { handleLedgerTransportError } from './ledger-error-handler';
 import { LedgerIframeBridgeOptions } from './ledger-iframe-bridge';
+import { shouldUseNftLedgerClearSign } from './ledger-nft-clear-sign';
 
 const pathBase = 'm';
 const hdPathString = `${pathBase}/44'/60'/0'`;
@@ -441,6 +442,7 @@ export class LedgerKeyring implements Keyring {
       payload = await this.bridge.deviceSignTransaction({
         tx: remove0x(rawTxHex),
         hdPath,
+        nft: shouldUseNftLedgerClearSign(rawTxHex),
       });
     } catch (error: unknown) {
       handleLedgerTransportError(

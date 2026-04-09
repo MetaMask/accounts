@@ -11,6 +11,7 @@ import HDKey from 'hdkey';
 import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
 import { LedgerIframeBridge } from './ledger-iframe-bridge';
 import { AccountDetails, LedgerKeyring } from './ledger-keyring';
+import { shouldUseNftLedgerClearSign } from './ledger-nft-clear-sign';
 
 jest.mock('@metamask/eth-sig-util', () => {
   return {
@@ -618,9 +619,11 @@ describe('LedgerKeyring', function () {
           jest
             .spyOn(keyring.bridge, 'deviceSignTransaction')
             .mockImplementation(async (params) => {
+              const expectedTxHex = fakeTx.serialize().toString('hex');
               expect(params).toStrictEqual({
                 hdPath: "m/44'/60'/0'/0",
-                tx: fakeTx.serialize().toString('hex'),
+                tx: expectedTxHex,
+                nft: shouldUseNftLedgerClearSign(expectedTxHex),
               });
               return { v: '0x1', r: '0x0', s: '0x0' };
             });
@@ -670,11 +673,13 @@ describe('LedgerKeyring', function () {
           jest
             .spyOn(keyring.bridge, 'deviceSignTransaction')
             .mockImplementation(async (params) => {
+              const expectedTxHex = Buffer.from(
+                RLP.encode(newFakeTx.getMessageToSign()),
+              ).toString('hex');
               expect(params).toStrictEqual({
                 hdPath: "m/44'/60'/0'/0",
-                tx: Buffer.from(
-                  RLP.encode(newFakeTx.getMessageToSign()),
-                ).toString('hex'),
+                tx: expectedTxHex,
+                nft: shouldUseNftLedgerClearSign(expectedTxHex),
               });
               return expectedRSV;
             });
@@ -718,11 +723,14 @@ describe('LedgerKeyring', function () {
           jest
             .spyOn(keyring.bridge, 'deviceSignTransaction')
             .mockImplementation(async (params) => {
+              const messageHex = bytesToHex(
+                fakeTypeTwoTx.getMessageToSign() as Uint8Array,
+              );
+              const expectedTxHex = remove0x(messageHex);
               expect(params).toStrictEqual({
                 hdPath: "m/44'/60'/0'/0",
-                tx: remove0x(
-                  bytesToHex(fakeTypeTwoTx.getMessageToSign() as Uint8Array),
-                ),
+                tx: expectedTxHex,
+                nft: shouldUseNftLedgerClearSign(messageHex),
               });
               return expectedRSV;
             });
