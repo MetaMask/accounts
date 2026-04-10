@@ -96,7 +96,7 @@ export class KeyringClientV2 implements KeyringRpcV2 {
         jsonrpc: '2.0',
         id: uuid(),
         method: KeyringRpcV2Method.ExportAccount,
-        params: { id, ...(options ? { options } : {}) },
+        params: { id, ...(options && { options }) },
       }),
       ExportAccountV2ResponseStruct,
     );
