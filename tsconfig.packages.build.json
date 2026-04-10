@@ -5,8 +5,7 @@
     "declarationMap": true,
     "noEmit": false,
     "inlineSources": true,
-    "sourceMap": true,
-    "types": []
+    "sourceMap": true
   },
   "exclude": ["./jest.config.packages.ts", "**/*.test.ts", "**/jest.config.ts"]
 }
