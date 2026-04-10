@@ -740,8 +740,11 @@ export class SnapKeyringV1 {
                 await this.client
                   .deleteAccount(account.id)
                   /* istanbul ignore next */
-                  .catch(() => {
-                    // Swallow — best-effort cleanup.
+                  .catch((deleteError: unknown) => {
+                    console.error(
+                      `Account '${account.id}' may not have been removed from snap '${this.snapId}':`,
+                      deleteError,
+                    );
                   });
 
                 // This allows the MetaMask client to be "notified" that something went
