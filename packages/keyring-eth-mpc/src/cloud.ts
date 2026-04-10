@@ -47,37 +47,32 @@ export async function initCloudKeyGen(opts: {
  * @param opts - The options for the cloud key update session
  * @param opts.baseURL - The base URL of the cloud service
  * @param opts.keyId - The ID of the key
- * @param opts.custodianId - The party ID of the calling custodian
- * @param opts.newCustodianId - The party ID of the new custodian to add. When
- * omitted, new custodians will be set to online custodians.
+ * @param opts.onlineCustodians - Party IDs participating in the update round
+ * @param opts.newCustodians - Target custodian set after the update
  * @param opts.sessionNonce - The nonce of the session
  * @param opts.token - The token for the verifier
  */
 export async function initCloudKeyUpdate(opts: {
   baseURL: string;
   keyId: string;
-  custodianId: PartyId;
-  newCustodianId?: string;
+  onlineCustodians: PartyId[];
+  newCustodians: PartyId[];
   sessionNonce: string;
   token: string;
 }): Promise<void> {
-  const body: Record<string, string> = {
-    keyId: opts.keyId,
-    custodianId: opts.custodianId,
-    nonce: opts.sessionNonce,
-    protocol: 'cl24-secp256k1',
-    token: opts.token,
-  };
-  if (opts.newCustodianId !== undefined) {
-    body.newCustodianId = opts.newCustodianId;
-  }
-
   const response = await fetch(`${opts.baseURL}/update-key`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      keyId: opts.keyId,
+      onlineCustodians: opts.onlineCustodians,
+      newCustodians: opts.newCustodians,
+      nonce: opts.sessionNonce,
+      protocol: 'cl24-secp256k1',
+      token: opts.token,
+    }),
   });
 
   if (!response.ok) {

@@ -276,8 +276,8 @@ export class MPCKeyring implements Keyring {
 
     await initCloudKeyUpdate({
       keyId: state.keyId,
-      custodianId: localId,
-      newCustodianId: custodianId,
+      onlineCustodians,
+      newCustodians,
       sessionNonce,
       baseURL: this.#cloudURL,
       token,
@@ -364,9 +364,11 @@ export class MPCKeyring implements Keyring {
     const totalStartTime = performance.now();
     const initCloudStartTime = performance.now();
 
+    const newCustodians = onlineCustodians;
     await initCloudKeyUpdate({
       keyId: state.keyId,
-      custodianId: localId,
+      onlineCustodians,
+      newCustodians,
       sessionNonce,
       baseURL: this.#cloudURL,
       token,
@@ -380,7 +382,7 @@ export class MPCKeyring implements Keyring {
       identity: networkIdentity,
       key: keyShare,
       onlineCustodians,
-      newCustodians: onlineCustodians,
+      newCustodians,
       sessionNonce,
     });
 
