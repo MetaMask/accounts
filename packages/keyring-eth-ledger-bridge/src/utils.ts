@@ -14,7 +14,7 @@ export function getTransactionSelector(rawTxHex: string): string | undefined {
     const prefixedHex = add0x(rawTxHex);
     const tx = TransactionFactory.fromSerializedData(hexToBytes(prefixedHex));
     const dataHex = bytesToHex(tx.data);
-    const selectorSize = 2 /* 0x */ + (4 * 2) /* 4 bytes (hex) */; 
+    const selectorSize = 2 /* 0x */ + 4 * 2; /* 4 bytes (hex) */
     if (dataHex.length >= selectorSize) {
       return dataHex.slice(0, selectorSize).toLowerCase();
     }
