@@ -90,7 +90,7 @@ import type { Json } from '@metamask/utils';
 
 class MyKeyring {
   async deserialize(state: Json): Promise<void> {
-    const { data, migrated } = await applyMigrations(state, migrations);
+    const { data } = await applyMigrations(state, migrations);
 
     // data is typed as HdStateV2
     this.#mnemonic = data.mnemonic;
