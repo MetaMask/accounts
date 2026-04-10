@@ -2,14 +2,14 @@ import type { Infer } from '@metamask/superstruct';
 import { object, number, string, array } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
-import type { KeyringMigration } from './migrations';
+import type { KeyringMigration } from './migration';
 import {
   applyMigrations,
   defineMigration,
   defineMigrations,
   getLatestVersion,
   isVersionedState,
-} from './migrations';
+} from './migration';
 
 // -- State types used across tests -----------------------------------------------
 
