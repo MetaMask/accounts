@@ -342,9 +342,7 @@ export class SnapKeyringV1 {
 
       if (noPending && response.pending) {
         throw new Error(
-          `Request '${requestId}' to Snap '${
-            this.snapId
-          }' is pending and noPending is true.`,
+          `Request '${requestId}' to Snap '${this.snapId}' is pending and noPending is true.`,
         );
       }
 
@@ -376,9 +374,7 @@ export class SnapKeyringV1 {
       await this.client.setSelectedAccounts(accountIds);
     } catch (error: any) {
       console.error(
-        `Failed to set selected accounts for ${this.snapId} snap: '${
-          error.message
-        }'`,
+        `Failed to set selected accounts for ${this.snapId} snap: '${error.message}'`,
       );
     }
   }
@@ -482,22 +478,23 @@ export class SnapKeyringV1 {
             .catch(
               /* istanbul ignore next */
               async (error: unknown) => {
-              // FIXME: There's a potential race condition here, if the Snap did
-              // not persist the account yet (this should mostly be for older Snaps).
-              this.registry.delete(account.id);
-              this.#callbacks.onUnregister?.(account.id);
-              await this.client
-                .deleteAccount(account.id)
-                /* istanbul ignore next */
-                .catch(() => {
-                  // Swallow — best-effort cleanup.
-                });
+                // FIXME: There's a potential race condition here, if the Snap did
+                // not persist the account yet (this should mostly be for older Snaps).
+                this.registry.delete(account.id);
+                this.#callbacks.onUnregister?.(account.id);
+                await this.client
+                  .deleteAccount(account.id)
+                  /* istanbul ignore next */
+                  .catch(() => {
+                    // Swallow — best-effort cleanup.
+                  });
 
-              // This allows the MetaMask client to be "notified" that something went
-              // wrong with the Snap keyring. (e.g. useful to display account creation
-              // error dialogs).
-              onceSaved.reject(error);
-            });
+                // This allows the MetaMask client to be "notified" that something went
+                // wrong with the Snap keyring. (e.g. useful to display account creation
+                // error dialogs).
+                onceSaved.reject(error);
+              },
+            );
         }
       },
       onceSaved.promise,
@@ -541,7 +538,10 @@ export class SnapKeyringV1 {
       newAccount.type === AnyAccountType.Account ||
       oldAccount.type === AnyAccountType.Account;
 
-    if (!this.#callbacks.isAnyAccountTypeAllowed() && isGenericAccountInvolved) {
+    if (
+      !this.#callbacks.isAnyAccountTypeAllowed() &&
+      isGenericAccountInvolved
+    ) {
       throw new Error(`Cannot update generic account '${newAccount.id}'`);
     }
 
@@ -722,9 +722,7 @@ export class SnapKeyringV1 {
             filtered[accountId] = entry;
           } else {
             console.warn(
-              `SnapKeyring - ${event} - Found an unknown account ID "${accountId}" for Snap ID "${
-                this.snapId
-              }". Skipping.`,
+              `SnapKeyring - ${event} - Found an unknown account ID "${accountId}" for Snap ID "${this.snapId}". Skipping.`,
             );
           }
           return filtered;
@@ -866,9 +864,7 @@ export class SnapKeyringV1 {
       [];
     if (!allowedOrigins.includes(origin)) {
       throw new Error(
-        `Redirect URL domain '${origin}' is not an allowed origin by snap '${
-          this.snapId
-        }'`,
+        `Redirect URL domain '${origin}' is not an allowed origin by snap '${this.snapId}'`,
       );
     }
   }

@@ -6,9 +6,9 @@ import type {
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import type { SnapId } from '@metamask/snaps-sdk';
 
+import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 import type { SnapKeyringV2Callbacks } from './SnapKeyringV2';
 import { SnapKeyringV2 } from './SnapKeyringV2';
-import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 
@@ -39,13 +39,9 @@ function makeMockCallbacks(): SnapKeyringV2Callbacks {
   return {
     // V1 base callbacks
     addAccount: jest.fn<Promise<void>, any[]>().mockResolvedValue(undefined),
-    removeAccount: jest
-      .fn<Promise<void>, any[]>()
-      .mockResolvedValue(undefined),
+    removeAccount: jest.fn<Promise<void>, any[]>().mockResolvedValue(undefined),
     saveState: jest.fn<Promise<void>, []>().mockResolvedValue(undefined),
-    redirectUser: jest
-      .fn<Promise<void>, any[]>()
-      .mockResolvedValue(undefined),
+    redirectUser: jest.fn<Promise<void>, any[]>().mockResolvedValue(undefined),
     assertAccountCanBeUsed: jest
       .fn<Promise<void>, [KeyringAccount]>()
       .mockResolvedValue(undefined),
@@ -331,7 +327,7 @@ describe('SnapKeyringV2', () => {
       });
 
       it('rolls back on error', async () => {
-        const { keyring, callbacks } = makeKeyring(SNAP_ID, {
+        const { keyring } = makeKeyring(SNAP_ID, {
           assertAccountCanBeUsed: jest
             .fn<Promise<void>, [KeyringAccount]>()
             .mockResolvedValueOnce(undefined)

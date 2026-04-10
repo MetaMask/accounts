@@ -44,7 +44,6 @@ import { normalizeAccountAddress, throwError, toJson, unique } from './util';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 
-
 /**
  * Snap keyring state.
  *
@@ -82,7 +81,6 @@ export type SnapKeyringCallbacks = {
 
   redirectUser(snapId: SnapId, url: string, message: string): Promise<void>;
 };
-
 
 /**
  * Keyring bridge implementation to support Snaps.
@@ -202,7 +200,7 @@ export class SnapKeyring {
             onceSaved,
             accountNameSuggestion,
             internalOptions,
-          ) =>
+          ): Promise<void> =>
             this.#callbacks.addAccount(
               address,
               snapId,
@@ -211,15 +209,17 @@ export class SnapKeyring {
               accountNameSuggestion,
               internalOptions,
             ),
-          removeAccount: async (address, handleUserInput) =>
+          removeAccount: async (address, handleUserInput): Promise<void> =>
             this.#callbacks.removeAccount(address, snapId, handleUserInput),
-          saveState: async () => this.#callbacks.saveState(),
-          redirectUser: async (url, message) =>
+          saveState: async (): Promise<void> => this.#callbacks.saveState(),
+          redirectUser: async (url, message): Promise<void> =>
             this.#callbacks.redirectUser(snapId, url, message),
-          assertAccountCanBeUsed: async (account) =>
+          assertAccountCanBeUsed: async (account): Promise<void> =>
             this.#assertAccountCanBeUsed(account),
-          isAnyAccountTypeAllowed: () => this.#isAnyAccountTypeAllowed,
-          withLock: async (callback) => this.#withLock(callback),
+          isAnyAccountTypeAllowed: (): boolean => this.#isAnyAccountTypeAllowed,
+          withLock: async <Result>(
+            callback: () => Promise<Result>,
+          ): Promise<Result> => this.#withLock(callback),
         },
       });
 
