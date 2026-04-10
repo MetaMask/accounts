@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/eth-hd-keyring` from `^13.1.0` to `^13.1.1` ([#509](https://github.com/MetaMask/accounts/pull/509))
 
 ## [2.0.0]
 
