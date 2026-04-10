@@ -4,7 +4,8 @@
     "baseUrl": "./",
     "outDir": "dist",
     "rootDir": "src",
-    "exactOptionalPropertyTypes": false
+    "exactOptionalPropertyTypes": false,
+    "types": ["node", "web"]
   },
   "references": [
     { "path": "../hw-wallet-sdk/tsconfig.build.json" },
