@@ -18,6 +18,7 @@ import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
 import type { Json } from '@metamask/utils';
+import { Mutex } from 'async-mutex';
 
 import { type SnapKeyringInternalOptions } from './options';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
@@ -114,6 +115,18 @@ export class SnapKeyring {
   readonly #isAnyAccountTypeAllowed: boolean;
 
   /**
+   * Global mutex that serializes `createAccounts` calls across all snaps.
+   *
+   * `assertAccountCanBeUsed` checks global state (`#accountIndex` for ID
+   * uniqueness, `addressExists` for address uniqueness). Without serialization,
+   * two concurrent `createAccounts` calls from different snaps could both pass
+   * the uniqueness check before either one calls `setAccount`, leading to
+   * duplicate accounts. Injected into each `SnapKeyringV2` via the optional
+   * `withLock` callback.
+   */
+  readonly #lock: Mutex;
+
+  /**
    * Create a new Snap keyring.
    *
    * @param options - Constructor options.
@@ -137,6 +150,7 @@ export class SnapKeyring {
     this.#accountIndex = new Map();
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
+    this.#lock = new Mutex();
   }
 
   /**
@@ -185,6 +199,9 @@ export class SnapKeyring {
             this.#callbacks.redirectUser(snapId, url, message),
           assertAccountCanBeUsed: async (account): Promise<void> =>
             this.#assertAccountCanBeUsed(account),
+          withLock: async <Result>(
+            callback: () => Promise<Result>,
+          ): Promise<Result> => this.#lock.runExclusive(callback),
         },
       });
 

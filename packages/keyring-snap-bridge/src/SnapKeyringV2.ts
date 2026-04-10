@@ -51,12 +51,21 @@ export type SnapKeyringV2State = Infer<typeof SnapKeyringV2StateStruct>;
 /**
  * Callbacks injected by the parent `SnapKeyring` for global coordination.
  */
-export type SnapKeyringV2Callbacks = SnapKeyringV1Callbacks;
+export type SnapKeyringV2Callbacks = SnapKeyringV1Callbacks & {
+  /**
+   * Run a callback under a global lock to prevent TOCTOU races in
+   * `createAccounts` when multiple snaps call `assertAccountCanBeUsed`
+   * concurrently.
+   *
+   * Optional: if omitted, `SnapKeyringV2` falls back to its own per-instance
+   * `Mutex`, which is sufficient when the keyring is used standalone.
+   */
+  withLock?: <Result>(callback: () => Promise<Result>) => Promise<Result>;
+};
 
-/**
- * Options for creating a `SnapKeyringV2` instance.
- */
-type SnapKeyringV2Options = SnapKeyringV1Options;
+type SnapKeyringV2Options = Omit<SnapKeyringV1Options, 'callbacks'> & {
+  callbacks: SnapKeyringV2Callbacks;
+};
 
 /**
  * Per-snap keyring wrapper that implements `KeyringV2`.
@@ -106,6 +115,25 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
     this.capabilities = { scopes: [] } as unknown as KeyringCapabilities;
   }
 
+  /**
+   * Run a callback under the appropriate lock.
+   *
+   * Prefers the injected `withLock` callback (global lock provided by
+   * `SnapKeyring`) so that `createAccounts` calls across different snaps
+   * are serialized. Falls back to the per-instance `#lock` when no global
+   * lock is provided.g. standalone use in tests).
+   *
+   * @param callback - Operation to run under the lock.
+   * @returns The result of the callback.
+   */
+  async #withLock<Result>(callback: () => Promise<Result>): Promise<Result> {
+    return (
+      this.#callbacks.withLock ??
+      (async (operation: () => Promise<Result>): Promise<Result> =>
+        this.#lock.runExclusive(operation))
+    )(callback);
+  }
+
   // ──────────────────────────────────────────────
   // KeyringV2 methods
   // ──────────────────────────────────────────────
@@ -153,7 +181,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
-    return this.#lock.runExclusive(async () => {
+    return this.#withLock(async () => {
       // Keep track of address/account ID part of this batch, to avoid having duplicates.
       const batchAddresses = new Set<string>();
       const batchIds = new Set<string>();
