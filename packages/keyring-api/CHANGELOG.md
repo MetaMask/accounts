@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add keyring v2 RPC types and structs (`KeyringRpcV2`, `KeyringRpcV2Method`, `isKeyringRpcV2Method`, and request/response structs) ([#408](https://github.com/MetaMask/accounts/pull/408))
+
 ### Changed
 
+- Improve return type of `isKeyringRpcMethod` to use type predicate `method is KeyringRpcMethod` ([#408](https://github.com/MetaMask/accounts/pull/408))
 - Bump `@metamask/utils` from `^11.1.0` to `^11.10.0` ([#489](https://github.com/MetaMask/accounts/pull/489))
 
 ## [22.0.0]
