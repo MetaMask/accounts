@@ -96,12 +96,11 @@ describe('getLatestVersion', () => {
 describe('defineMigration', () => {
   it('attaches a validate function when schema is provided', () => {
     const V1Schema = object({ count: number() });
-    type StateV1 = Infer<typeof V1Schema>;
 
-    const migration = defineMigration<StateV1>({
+    const migration = defineMigration({
       version: 1,
       schema: V1Schema,
-      migrate: (): StateV1 => ({ count: 42 }),
+      migrate: () => ({ count: 42 }),
     });
 
     expect(migration.version).toBe(1);
@@ -121,10 +120,8 @@ describe('defineMigration', () => {
   describe('when inputSchema is provided', () => {
     it('applies the migration when input matches the inputSchema', async () => {
       const V0Schema = object({ oldCount: number() });
-      type StateV0 = Infer<typeof V0Schema>;
-      type StateV1 = { count: number };
 
-      const migration = defineMigration<StateV1, StateV0>({
+      const migration = defineMigration({
         version: 1,
         inputSchema: V0Schema,
         migrate: (state) => ({ count: state.oldCount }),
@@ -141,11 +138,9 @@ describe('defineMigration', () => {
 
     it('throws before calling migrate when input does not match inputSchema', async () => {
       const V0Schema = object({ oldCount: number() });
-      type StateV0 = Infer<typeof V0Schema>;
-      type StateV1 = { count: number };
 
       const migrateFn = jest.fn();
-      const migration = defineMigration<StateV1, StateV0>({
+      const migration = defineMigration({
         version: 1,
         inputSchema: V0Schema,
         migrate: migrateFn,
@@ -409,12 +404,11 @@ describe('applyMigrations', () => {
         name: string(),
         count: number(),
       });
-      type OutputState = Infer<typeof OutputSchema>;
 
-      const migration = defineMigration<OutputState>({
+      const migration = defineMigration({
         version: 1,
         schema: OutputSchema,
-        migrate: (): OutputState => ({ name: 'test', count: 42 }),
+        migrate: () => ({ name: 'test', count: 42 }),
       });
 
       const result = await applyMigrations({}, [migration]);
@@ -437,7 +431,7 @@ describe('applyMigrations', () => {
         version: 1,
         schema: OutputSchema,
         // @ts-expect-error - intentionally invalid return for test
-        migrate: (): OutputState => ({ name: 'test', count: 'not a number' }),
+        migrate: () => ({ name: 'test', count: 'not a number' }),
       });
 
       await expect(applyMigrations({}, [migration])).rejects.toThrow(
@@ -452,16 +446,16 @@ describe('applyMigrations', () => {
       const V2Schema = object({ items: array(string()), total: number() });
       type StateV2 = Infer<typeof V2Schema>;
 
-      const migration1 = defineMigration<StateV1>({
+      const migration1 = defineMigration({
         version: 1,
         schema: V1Schema,
-        migrate: (): StateV1 => ({ items: ['a', 'b'] }),
+        migrate: () => ({ items: ['a', 'b'] }),
       });
 
-      const migration2 = defineMigration<StateV2>({
+      const migration2 = defineMigration({
         version: 2,
         schema: V2Schema,
-        migrate: (state): StateV2 => {
+        migrate: (state) => {
           const prev = state as StateV1;
           return { ...prev, total: prev.items.length };
         },

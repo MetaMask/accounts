@@ -59,7 +59,7 @@ type HdStateV2 = Infer<typeof HdStateV2Schema>;
 import { defineMigration, defineMigrations } from '@metamask/keyring-sdk';
 
 const migrations = defineMigrations(
-  defineMigration<HdStateV1, HdStateV0>({
+  defineMigration({
     version: 1,
     inputSchema: HdStateV0Schema,
     schema: HdStateV1Schema,
