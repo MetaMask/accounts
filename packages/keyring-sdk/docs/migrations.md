@@ -114,7 +114,7 @@ class MyKeyring {
 ## Best Practices
 
 - **Idempotent migrations**: Design migrations so re-running them on already-migrated
-  data is harmless. Use the `migrated` flag to trigger a write to storage.
+  data is harmless.
 - **Immutability**: Treat the input `state` as immutable within the `migrate` function.
 - **Schema coverage**: Ensure `schema` covers all fields expected in the new version to
   prevent runtime errors.
