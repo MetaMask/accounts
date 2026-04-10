@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Add explicit `types` to tsconfig to restore DOM type access after root tsconfig restriction ([#510](https://github.com/MetaMask/accounts/pull/510))
+
 ### Changed
 
 - Add new dependency `@metamask/keyring-sdk@1.1.0` ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482)), ([#496](https://github.com/MetaMask/accounts/pull/496))
