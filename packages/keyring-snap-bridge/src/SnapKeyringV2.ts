@@ -7,6 +7,7 @@ import type {
 import { KeyringType } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
+import { Mutex } from 'async-mutex';
 
 import { transformAccount } from './account';
 import { isAccountV1, migrateAccountV1 } from './migrations';
@@ -32,17 +33,8 @@ export type SnapKeyringV2State = {
 
 /**
  * Callbacks injected by the parent `SnapKeyring` for global coordination.
- *
- * Extends the v1 callbacks with the global keyring lock needed by the
- * batch `createAccounts` path.
  */
-export type SnapKeyringV2Callbacks = SnapKeyringV1Callbacks & {
-  /**
-   * Run a callback under the global keyring lock.
-   * Required by `createAccounts` for cross-snap uniqueness checks.
-   */
-  withLock: <Result>(callback: () => Promise<Result>) => Promise<Result>;
-};
+export type SnapKeyringV2Callbacks = SnapKeyringV1Callbacks;
 
 type SnapKeyringV2Options = Omit<SnapKeyringV1Options, 'callbacks'> & {
   callbacks: SnapKeyringV2Callbacks;
@@ -62,10 +54,16 @@ type SnapKeyringV2Options = Omit<SnapKeyringV1Options, 'callbacks'> & {
 export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
   /**
    * V2-typed view of the callbacks. Stored separately from the V1 private
-   * field so that V2-specific callbacks (e.g. `withLock`) are accessible
-   * without casting. Both fields hold the same object reference.
+   * field so that V2-specific callbacks are accessible without casting.
+   * Both fields hold the same object reference.
    */
   readonly #callbacks: SnapKeyringV2Callbacks;
+
+  /**
+   * Mutex that serializes `createAccounts` calls on this snap instance.
+   * Owned here so that each `SnapKeyringV2` is fully self-contained.
+   */
+  readonly #lock: Mutex;
 
   // ──────────────────────────────────────────────
   // KeyringV2 properties
@@ -82,6 +80,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
   constructor(options: SnapKeyringV2Options) {
     super(options);
     this.#callbacks = options.callbacks;
+    this.#lock = new Mutex();
 
     // Default capabilities — parent updates this when snap metadata is available.
     // We cast here because KeyringCapabilities requires a non-empty scopes array,
@@ -136,7 +135,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
-    return this.#callbacks.withLock(async () => {
+    return this.#lock.runExclusive(async () => {
       // Keep track of address/account ID part of this batch, to avoid having duplicates.
       const batchAddresses = new Set<string>();
       const batchIds = new Set<string>();
