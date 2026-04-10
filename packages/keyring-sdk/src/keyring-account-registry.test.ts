@@ -1,7 +1,10 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 
-import { KeyringAccountRegistry } from './keyring-account-registry';
+import {
+  KeyringAccountRegistry,
+  type KeyringAccountRegistryOptions,
+} from './keyring-account-registry';
 
 /**
  * Creates a mock KeyringAccount for testing.
@@ -22,6 +25,29 @@ function createMockAccount(id: AccountId, address: string): KeyringAccount {
 }
 
 describe('KeyringAccountRegistry', () => {
+  describe('constructor', () => {
+    it('uses uuidv4 by default', () => {
+      const registry = new KeyringAccountRegistry();
+      const id = registry.register('0xaBc');
+
+      expect(id).toMatch(
+        /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/u,
+      );
+    });
+
+    it('uses the provided generateId callback', () => {
+      const generateId = jest
+        .fn<AccountId, [string]>()
+        .mockReturnValue('custom-id' as AccountId);
+      const options: KeyringAccountRegistryOptions = { generateId };
+      const registry = new KeyringAccountRegistry(options);
+      const id = registry.register('0xaBc');
+
+      expect(generateId).toHaveBeenCalledWith('0xaBc');
+      expect(id).toBe('custom-id');
+    });
+  });
+
   describe('register', () => {
     it('registers an address and returns an account ID', () => {
       const registry = new KeyringAccountRegistry();

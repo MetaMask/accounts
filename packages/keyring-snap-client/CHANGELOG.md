@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+### Added
+
+- Add `KeyringClientV2` class implementing the keyring v2 RPC client ([#408](https://github.com/MetaMask/accounts/pull/408))
 
 ## [8.2.1]
 

@@ -400,6 +400,20 @@ describe('QrKeyringV2', () => {
         },
       });
     });
+
+    it('properly repopulates registry after deserialize with deterministic IDs', async () => {
+      const { wrapper } = await createWrapperWithAccounts(3);
+      const accounts1 = await wrapper.getAccounts();
+      const firstAccountId = accounts1[0]?.id;
+
+      // Re-deserialize with the same data
+      await wrapper.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS);
+
+      const accounts2 = await wrapper.getAccounts();
+      expect(accounts2).toHaveLength(3);
+      // Same address -> same deterministic ID
+      expect(accounts2[0]?.id).toBe(firstAccountId);
+    });
   });
 
   describe('createAccounts', () => {

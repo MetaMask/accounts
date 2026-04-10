@@ -162,7 +162,7 @@ describe('SimpleKeyringV2', () => {
       expect(accounts).toHaveLength(0);
     });
 
-    it('properly repopulates registry after deserialize', async () => {
+    it('properly repopulates registry after deserialize with deterministic IDs', async () => {
       await inner.deserialize([TEST_PRIVATE_KEY_1, TEST_PRIVATE_KEY_2]);
 
       const accounts1 = await wrapper.getAccounts();
@@ -174,7 +174,7 @@ describe('SimpleKeyringV2', () => {
       // Old account IDs should no longer be in registry
       const accounts2 = await wrapper.getAccounts();
       expect(accounts2).toHaveLength(1);
-      expect(accounts2[0]?.id).not.toBe(firstAccountId);
+      expect(accounts2[0]?.id).toBe(firstAccountId);
     });
   });
 
