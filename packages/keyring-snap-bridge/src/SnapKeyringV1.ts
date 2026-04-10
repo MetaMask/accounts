@@ -158,7 +158,7 @@ export class SnapKeyringV1 {
   protected readonly client: KeyringInternalSnapClient;
 
   /** Injected callbacks for parent-level coordination. */
-  protected readonly callbacks: SnapKeyringV1Callbacks;
+  readonly #callbacks: SnapKeyringV1Callbacks;
 
   /**
    * Pending async request promises, keyed by request ID.
@@ -181,7 +181,7 @@ export class SnapKeyringV1 {
     this.snapId = snapId;
     this.registry = new KeyringAccountRegistry();
     this.messenger = messenger;
-    this.callbacks = callbacks;
+    this.#callbacks = callbacks;
     this.client = new KeyringInternalSnapClient({ messenger, snapId });
     this.#requests = new Map();
     this.#options = new Map();
@@ -416,7 +416,7 @@ export class SnapKeyringV1 {
     }
 
     // Make sure this new account is valid.
-    await this.callbacks.assertAccountCanBeUsed(account);
+    await this.#callbacks.assertAccountCanBeUsed(account);
 
     // A deferred promise that will be resolved once the Snap keyring has saved
     // its internal state.
@@ -428,7 +428,7 @@ export class SnapKeyringV1 {
 
     // Add the account to the keyring, but wait for the MetaMask client to
     // approve the account creation first.
-    await this.callbacks.addAccount(
+    await this.#callbacks.addAccount(
       address,
       // This callback is passed to the MetaMask client, it will be called whenever
       // the end user will accept or not the account creation.
@@ -441,7 +441,7 @@ export class SnapKeyringV1 {
           // e.g The account creation dialog crashed on MetaMask, this callback
           // will never be called, but the Snap still has the account.
           this.registry.set(account);
-          this.callbacks.onRegister?.(account.id);
+          this.#callbacks.onRegister?.(account.id);
 
           // This is the "true async part". We do not `await` for this call, mainly
           // because this callback will persist the account on the client side
@@ -451,7 +451,7 @@ export class SnapKeyringV1 {
           // event, if anything goes wrong, we will delete the account by
           // calling `deleteAccount` on the Snap.
           // eslint-disable-next-line no-void
-          void this.callbacks
+          void this.#callbacks
             .saveState()
             .then(() => {
               // This allows the MetaMask client to be "notified" when then
@@ -460,12 +460,13 @@ export class SnapKeyringV1 {
               // confirmation dialogs).
               onceSaved.resolve(account.id);
             })
-            /* istanbul ignore next */
-            .catch(async (error: unknown) => {
+            .catch(
+              /* istanbul ignore next */
+              async (error: unknown) => {
               // FIXME: There's a potential race condition here, if the Snap did
               // not persist the account yet (this should mostly be for older Snaps).
               this.registry.delete(account.id);
-              this.callbacks.onUnregister?.(account.id);
+              this.#callbacks.onUnregister?.(account.id);
               await this.client
                 .deleteAccount(account.id)
                 /* istanbul ignore next */
@@ -521,7 +522,7 @@ export class SnapKeyringV1 {
       newAccount.type === AnyAccountType.Account ||
       oldAccount.type === AnyAccountType.Account;
 
-    if (!this.callbacks.isAnyAccountTypeAllowed() && isGenericAccountInvolved) {
+    if (!this.#callbacks.isAnyAccountTypeAllowed() && isGenericAccountInvolved) {
       throw new Error(`Cannot update generic account '${newAccount.id}'`);
     }
 
@@ -533,7 +534,7 @@ export class SnapKeyringV1 {
     }
 
     this.registry.set(newAccount);
-    await this.callbacks.saveState();
+    await this.#callbacks.saveState();
     return null;
   }
 
@@ -557,11 +558,11 @@ export class SnapKeyringV1 {
       return null;
     }
 
-    await this.callbacks.removeAccount(
+    await this.#callbacks.removeAccount(
       normalizeAccountAddress(account),
       async (accepted) => {
         if (accepted) {
-          await this.callbacks.saveState();
+          await this.#callbacks.saveState();
         }
       },
     );
@@ -826,7 +827,7 @@ export class SnapKeyringV1 {
     if (url) {
       this.#validateRedirectUrl(url);
     }
-    await this.callbacks.redirectUser(url, message);
+    await this.#callbacks.redirectUser(url, message);
   }
 
   /**

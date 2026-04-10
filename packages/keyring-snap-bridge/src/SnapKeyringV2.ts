@@ -61,11 +61,11 @@ type SnapKeyringV2Options = Omit<SnapKeyringV1Options, 'callbacks'> & {
  */
 export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
   /**
-   * Narrows the inherited `callbacks` field to `SnapKeyringV2Callbacks` so
-   * V2-specific callbacks (e.g. `withLock`) are accessible without casting.
-   * The `declare` keyword means no new runtime property is introduced.
+   * V2-typed view of the callbacks. Stored separately from the V1 private
+   * field so that V2-specific callbacks (e.g. `withLock`) are accessible
+   * without casting. Both fields hold the same object reference.
    */
-  protected declare readonly callbacks: SnapKeyringV2Callbacks;
+  readonly #callbacks: SnapKeyringV2Callbacks;
 
   // ──────────────────────────────────────────────
   // KeyringV2 properties
@@ -81,6 +81,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
 
   constructor(options: SnapKeyringV2Options) {
     super(options);
+    this.#callbacks = options.callbacks;
 
     // Default capabilities — parent updates this when snap metadata is available.
     // We cast here because KeyringCapabilities requires a non-empty scopes array,
@@ -135,7 +136,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
-    return this.callbacks.withLock(async () => {
+    return this.#callbacks.withLock(async () => {
       // Keep track of address/account ID part of this batch, to avoid having duplicates.
       const batchAddresses = new Set<string>();
       const batchIds = new Set<string>();
@@ -156,7 +157,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
             // mutating the account object without updating the map.
             account = existingAccount;
           } else {
-            await this.callbacks.assertAccountCanBeUsed(account);
+            await this.#callbacks.assertAccountCanBeUsed(account);
 
             // Also check for transient accounts that are not yet part of the keyring
             // state.
@@ -185,7 +186,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
 
           // NOTE: We assume this will never fail, thus, we don't need to rollback the
           // keyring state if anything goes wrong here.
-          await this.callbacks.saveState();
+          await this.#callbacks.saveState();
         }
 
         return accounts;
@@ -293,7 +294,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
     const isNew = !this.registry.has(account.id);
     this.registry.set(account);
     if (isNew) {
-      this.callbacks.onRegister?.(account.id);
+      this.#callbacks.onRegister?.(account.id);
     }
   }
 
@@ -310,7 +311,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
       return false;
     }
     this.registry.delete(id);
-    this.callbacks.onUnregister?.(id);
+    this.#callbacks.onUnregister?.(id);
     return true;
   }
 
