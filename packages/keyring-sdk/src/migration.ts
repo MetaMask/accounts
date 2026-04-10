@@ -27,7 +27,10 @@ import { JsonStruct, type Json } from '@metamask/utils';
  * });
  * ```
  */
-export type KeyringMigration<Output extends Json = Json> = {
+export type KeyringMigration<
+  Output extends Json = Json,
+  Input extends Json = Json,
+> = {
   /**
    * The version this migration produces. Must be sequential starting from 1.
    */
@@ -41,7 +44,7 @@ export type KeyringMigration<Output extends Json = Json> = {
    * @param state - The state from the previous version.
    * @returns The migrated state.
    */
-  migrate: (state: Json) => Output | Promise<Output>;
+  migrate: (state: Input) => Output | Promise<Output>;
   /**
    * Optional validation function called by `applyMigrations` after this migration step.
    *
@@ -96,16 +99,21 @@ export function defineMigration<
   migrate: (state: Input) => Output | Promise<Output>;
   schema?: Struct<Output>;
   inputSchema?: Struct<Input>;
-}): KeyringMigration<Output> {
+}): KeyringMigration<Output, Input> {
   const { version, schema, inputSchema, migrate } = config;
   return {
     version,
-    migrate: inputSchema
-      ? (state: Json): Output | Promise<Output> => {
-          assert(state, inputSchema);
-          return migrate(state);
-        }
-      : (state: Json): Output | Promise<Output> => migrate(state as Input),
+    migrate: (state: Input): Output | Promise<Output> => {
+      // Split into branches instead of `inputSchema ?? JsonStruct` to avoid a
+      // `Struct<Input> | Struct<Json>` union that `assert` can't resolve (`Struct` is
+      // invariant in its type parameter).
+      if (inputSchema) {
+        assert(state, inputSchema);
+      } else {
+        assert(state, JsonStruct);
+      }
+      return migrate(state);
+    },
     validate: schema
       ? (data: unknown): void => assert(data, schema)
       : undefined,
