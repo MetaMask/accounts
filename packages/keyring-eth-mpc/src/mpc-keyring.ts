@@ -313,6 +313,93 @@ export class MPCKeyring implements Keyring {
     };
   }
 
+  /**
+   * Remove a user custodian from the threshold key via resharing.
+   * The local device and cloud custodian must remain; only additional
+   * user custodians (added with {@link addCustodian}) can be removed.
+   *
+   * @param custodianId - Party ID of the custodian to remove.
+   */
+  async removeCustodian(custodianId: string): Promise<void> {
+    const state = this.#assertState();
+    const { networkIdentity, keyShare } = state;
+    if (keyShare.threshold !== 2) {
+      throw new Error('Key threshold must be 2');
+    }
+
+    const localId = networkIdentity.partyId;
+    if (custodianId === localId) {
+      throw new Error('Cannot remove local custodian');
+    }
+
+    const cloudCustodian = state.custodians.find(
+      (custodian) => custodian.type === 'cloud',
+    );
+    if (!cloudCustodian) {
+      throw new Error('Cloud custodian not found');
+    }
+    if (custodianId === cloudCustodian.partyId) {
+      throw new Error('Cannot remove cloud custodian');
+    }
+
+    const toRemove = state.custodians.find(
+      (custodian) => custodian.partyId === custodianId,
+    );
+    if (!toRemove) {
+      throw new Error('Custodian not found');
+    }
+    if (toRemove.type !== 'user') {
+      throw new Error('Only user custodians can be removed');
+    }
+    if (!keyShare.custodians.includes(custodianId)) {
+      throw new Error('Custodian not part of threshold key');
+    }
+
+    const onlineCustodians = [localId, cloudCustodian.partyId];
+
+    const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
+    const verifierId = this.getSelectedVerifierId();
+    const token = await this.#getVerifierToken(verifierId);
+
+    const totalStartTime = performance.now();
+    const initCloudStartTime = performance.now();
+
+    await initCloudKeyUpdate({
+      keyId: state.keyId,
+      custodianId: localId,
+      sessionNonce,
+      baseURL: this.#cloudURL,
+      token,
+    });
+
+    const initCloudTime = performance.now() - initCloudStartTime;
+    console.log('initCloudKeyUpdate time', initCloudTime);
+    const updateKeyStartTime = performance.now();
+
+    const { newKey, dkls19Setup } = await this.#runKeyUpdate({
+      identity: networkIdentity,
+      key: keyShare,
+      onlineCustodians,
+      newCustodians: onlineCustodians,
+      sessionNonce,
+    });
+
+    const updateKeyTime = performance.now() - updateKeyStartTime;
+    console.log('dkm.updateKey (removeCustodian) time', updateKeyTime);
+
+    const totalTime = performance.now() - totalStartTime;
+    console.log('removeCustodian total time', totalTime);
+
+    this.#state = {
+      ...state,
+      keyShare: newKey,
+      dkls19Setup,
+      custodians: state.custodians.filter(
+        (custodian) => custodian.partyId !== custodianId,
+      ),
+    };
+  }
+
   getVerifierIds(): string[] {
     if (!this.#state) {
       throw new Error('Keyring not initialized');
