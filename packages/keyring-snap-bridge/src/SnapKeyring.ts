@@ -502,8 +502,8 @@ export class SnapKeyring {
     transaction: TypedTransaction,
     _opts = {},
   ): Promise<Json | TypedTransaction> {
-    const { account, entry } = this.#resolveAddress(address);
-    return entry.signTransaction(account, transaction, _opts);
+    const { account, keyring } = this.#resolveAddress(address);
+    return keyring.signTransaction(account, transaction, _opts);
   }
 
   /**
@@ -519,8 +519,8 @@ export class SnapKeyring {
     data: Record<string, unknown>[] | TypedDataV1 | TypedMessage<any>,
     opts = { version: SignTypedDataVersion.V1 },
   ): Promise<string> {
-    const { account, entry } = this.#resolveAddress(address);
-    return entry.signTypedData(account, data, opts);
+    const { account, keyring } = this.#resolveAddress(address);
+    return keyring.signTypedData(account, data, opts);
   }
 
   /**
@@ -531,8 +531,8 @@ export class SnapKeyring {
    * @returns The signature.
    */
   async signMessage(address: string, hash: any): Promise<string> {
-    const { account, entry } = this.#resolveAddress(address);
-    return entry.signMessage(account, hash);
+    const { account, keyring } = this.#resolveAddress(address);
+    return keyring.signMessage(account, hash);
   }
 
   /**
@@ -546,8 +546,8 @@ export class SnapKeyring {
    * @returns Promise of the signature.
    */
   async signPersonalMessage(address: string, data: any): Promise<string> {
-    const { account, entry } = this.#resolveAddress(address);
-    return entry.signPersonalMessage(account, data);
+    const { account, keyring } = this.#resolveAddress(address);
+    return keyring.signPersonalMessage(account, data);
   }
 
   /**
@@ -563,8 +563,8 @@ export class SnapKeyring {
     transactions: EthBaseTransaction[],
     context: KeyringExecutionContext,
   ): Promise<EthBaseUserOperation> {
-    const { account, entry } = this.#resolveAddress(address);
-    return entry.prepareUserOperation(account, transactions, context);
+    const { account, keyring } = this.#resolveAddress(address);
+    return keyring.prepareUserOperation(account, transactions, context);
   }
 
   /**
@@ -581,8 +581,8 @@ export class SnapKeyring {
     userOp: EthUserOperation,
     context: KeyringExecutionContext,
   ): Promise<EthUserOperationPatch> {
-    const { account, entry } = this.#resolveAddress(address);
-    return entry.patchUserOperation(account, userOp, context);
+    const { account, keyring } = this.#resolveAddress(address);
+    return keyring.patchUserOperation(account, userOp, context);
   }
 
   /**
@@ -598,8 +598,8 @@ export class SnapKeyring {
     userOp: EthUserOperation,
     context: KeyringExecutionContext,
   ): Promise<string> {
-    const { account, entry } = this.#resolveAddress(address);
-    return entry.signUserOperation(account, userOp, context);
+    const { account, keyring } = this.#resolveAddress(address);
+    return keyring.signUserOperation(account, userOp, context);
   }
 
   /**
@@ -626,8 +626,8 @@ export class SnapKeyring {
    * @param address - Address of the account to remove.
    */
   async removeAccount(address: string): Promise<void> {
-    const { account, entry } = this.#resolveAddress(address);
-    await entry.deleteAccount(account.id);
+    const { account, keyring } = this.#resolveAddress(address);
+    await keyring.deleteAccount(account.id);
   }
 
   /**
@@ -639,12 +639,12 @@ export class SnapKeyring {
    */
   #resolveAddress(address: string): {
     account: KeyringAccount;
-    entry: SnapKeyringV2;
+    keyring: SnapKeyringV2;
   } {
-    for (const entry of this.#snapKeyrings.values()) {
-      const account = entry.lookupByAddress(address);
+    for (const keyring of this.#snapKeyrings.values()) {
+      const account = keyring.lookupByAddress(address);
       if (account) {
-        return { account, entry };
+        return { account, keyring };
       }
     }
     return throwError(`Account '${address}' not found`);
