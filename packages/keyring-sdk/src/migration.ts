@@ -104,9 +104,8 @@ export function defineMigration<
   return {
     version,
     migrate: (state: Input): Output | Promise<Output> => {
-      // Split into branches instead of `inputSchema ?? JsonStruct` to avoid a
-      // `Struct<Input> | Struct<Json>` union that `assert` can't resolve (`Struct` is
-      // invariant in its type parameter).
+      // Branched to avoid a `Struct<Input> | Struct<Json>` union that `assert` can't
+      // resolve.
       if (inputSchema) {
         assert(state, inputSchema);
       } else {
