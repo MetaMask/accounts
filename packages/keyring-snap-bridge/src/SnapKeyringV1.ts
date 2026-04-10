@@ -2,6 +2,8 @@ import type {
   KeyringAccount,
   BtcMethod,
   EthMethod,
+  CaipChainId,
+  ResolvedAccountAddress,
 } from '@metamask/keyring-api';
 import {
   AnyAccountType,
@@ -18,7 +20,7 @@ import {
   GetSelectedAccountsRequestStruct,
   SnapManageAccountsMethod,
 } from '@metamask/keyring-snap-sdk';
-import type { AccountId } from '@metamask/keyring-utils';
+import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import type { ExtractEventPayload } from '@metamask/messenger';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { assert } from '@metamask/superstruct';
@@ -379,6 +381,23 @@ export class SnapKeyringV1 {
         }'`,
       );
     }
+  }
+
+  /**
+   * Resolve the account address associated with a signing request.
+   *
+   * Delegates directly to the snap-scoped client, which already has the
+   * snap ID baked in from construction time.
+   *
+   * @param scope - CAIP-2 chain ID.
+   * @param request - Signing request object.
+   * @returns The resolved address if found, `null` otherwise.
+   */
+  async resolveAccountAddress(
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+  ): Promise<ResolvedAccountAddress | null> {
+    return this.client.resolveAccountAddress(scope, request);
   }
 
   // ──────────────────────────────────────────────

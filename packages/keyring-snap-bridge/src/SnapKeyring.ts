@@ -21,7 +21,6 @@ import {
   AnyAccountType,
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
-import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -104,11 +103,6 @@ export class SnapKeyring {
   readonly #messenger: SnapKeyringMessenger;
 
   /**
-   * Client used to call the Snap keyring (used for resolveAccountAddress).
-   */
-  readonly #snapClient: KeyringInternalSnapClient;
-
-  /**
    * Per-snap keyring instances. Each `SnapKeyringV2` (which extends
    * `SnapKeyringV1`) owns a single `KeyringAccountRegistry` and handles
    * both the event-driven v1 flow and the `KeyringV2` batch interface.
@@ -162,7 +156,6 @@ export class SnapKeyring {
   }) {
     this.type = SnapKeyring.type;
     this.#messenger = messenger;
-    this.#snapClient = new KeyringInternalSnapClient({ messenger });
     this.#snapKeyrings = new Map();
     this.#accountIndex = new Map();
     this.#callbacks = callbacks;
@@ -458,9 +451,10 @@ export class SnapKeyring {
       );
     }
 
-    return await this.#snapClient
-      .withSnapId(snapId)
-      .resolveAccountAddress(scope, request);
+    return this.#getOrCreateKeyring(snapId).resolveAccountAddress(
+      scope,
+      request,
+    );
   }
 
   /**
