@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `getTransactionSelector` to read the 4-byte calldata selector from serialized transaction hex (legacy and typed txs) ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `getTransactionSelector` to read the 4-byte calldata selector from serialized transaction hex (legacy and typed txs) ([#506](https://github.com/MetaMask/accounts/pull/506))
   - Ledger mobile bridge passes `nft: true` to `clearSignTransaction` when that selector is NFT-only (ERC-721 / ERC-1155).
   - Add `ERC20_WRITE_SELECTORS` for the three EIP-20 write functions (`transfer`, `transferFrom`, `approve`).
-  - Add unit tests for selector constants, `getTransactionSelector`, and Ledger mobile `clearSignTransaction` clear-sign flags ([#TODO](https://github.com/MetaMask/accounts/pull/TODO)).
+  - Add unit tests for selector constants, `getTransactionSelector`, and Ledger mobile `clearSignTransaction` clear-sign flags ([#506](https://github.com/MetaMask/accounts/pull/506)).
 
 ### Changed
 
