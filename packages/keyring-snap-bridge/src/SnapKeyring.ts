@@ -193,19 +193,16 @@ export class SnapKeyring {
   #getOrCreateKeyring(snapId: SnapId): SnapKeyringV2 {
     let entry = this.#snapKeyrings.get(snapId);
     if (!entry) {
-      const onRegister = (id: AccountId): void => {
-        this.#accountIndex.set(id, snapId);
-      };
-      const onUnregister = (id: AccountId): void => {
-        this.#accountIndex.delete(id);
-      };
-
       entry = new SnapKeyringV2({
         snapId,
         messenger: this.#messenger,
-        onRegister,
-        onUnregister,
         callbacks: {
+          onRegister: (id: AccountId): void => {
+            this.#accountIndex.set(id, snapId);
+          },
+          onUnregister: (id: AccountId): void => {
+            this.#accountIndex.delete(id);
+          },
           addAccount: async (
             address,
             handleUserInput,

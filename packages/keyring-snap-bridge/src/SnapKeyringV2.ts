@@ -10,7 +10,6 @@ import type { Json } from '@metamask/utils';
 
 import { transformAccount } from './account';
 import { isAccountV1, migrateAccountV1 } from './migrations';
-import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 import { SnapKeyringV1 } from './SnapKeyringV1';
 import type {
   AccountMethod,
@@ -45,7 +44,9 @@ export type SnapKeyringV2Callbacks = SnapKeyringV1Callbacks & {
   withLock: <Result>(callback: () => Promise<Result>) => Promise<Result>;
 };
 
-type SnapKeyringV2Options = SnapKeyringV1Options<SnapKeyringV2Callbacks>;
+type SnapKeyringV2Options = Omit<SnapKeyringV1Options, 'callbacks'> & {
+  callbacks: SnapKeyringV2Callbacks;
+};
 
 /**
  * Per-snap keyring wrapper that implements `KeyringV2`.
@@ -58,10 +59,14 @@ type SnapKeyringV2Options = SnapKeyringV1Options<SnapKeyringV2Callbacks>;
  * The `KeyringAccountRegistry`, snap client, and messenger are all inherited
  * from `SnapKeyringV1` so there is no duplicated state.
  */
-export class SnapKeyringV2
-  extends SnapKeyringV1<SnapKeyringV2Callbacks>
-  implements KeyringV2
-{
+export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
+  /**
+   * Narrows the inherited `callbacks` field to `SnapKeyringV2Callbacks` so
+   * V2-specific callbacks (e.g. `withLock`) are accessible without casting.
+   * The `declare` keyword means no new runtime property is introduced.
+   */
+  protected declare readonly callbacks: SnapKeyringV2Callbacks;
+
   // ──────────────────────────────────────────────
   // KeyringV2 properties
   // ──────────────────────────────────────────────
@@ -288,7 +293,7 @@ export class SnapKeyringV2
     const isNew = !this.registry.has(account.id);
     this.registry.set(account);
     if (isNew) {
-      this.onRegister(account.id);
+      this.callbacks.onRegister?.(account.id);
     }
   }
 
@@ -305,7 +310,7 @@ export class SnapKeyringV2
       return false;
     }
     this.registry.delete(id);
-    this.onUnregister(id);
+    this.callbacks.onUnregister?.(id);
     return true;
   }
 

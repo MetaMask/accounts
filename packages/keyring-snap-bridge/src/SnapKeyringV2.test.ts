@@ -49,7 +49,7 @@ function makeMockCallbacks(): SnapKeyringV2Callbacks {
     assertAccountCanBeUsed: jest
       .fn<Promise<void>, [KeyringAccount]>()
       .mockResolvedValue(undefined),
-    isAnyAccountTypeAllowed: false,
+    isAnyAccountTypeAllowed: jest.fn().mockReturnValue(false),
     // V2 additional callback
     withLock: jest.fn(async <Result>(callback: () => Promise<Result>) =>
       callback(),
@@ -75,22 +75,21 @@ function makeKeyring(
 } {
   const registered: string[] = [];
   const unregistered: string[] = [];
-  const callbacks = { ...makeMockCallbacks(), ...callbackOverrides };
-  const messenger = {
-    call: jest.fn(),
-    publish: jest.fn(),
-  } as unknown as SnapKeyringMessenger;
-  const keyring = new SnapKeyringV2({
-    snapId,
-    messenger,
+  const callbacks: SnapKeyringV2Callbacks = {
+    ...makeMockCallbacks(),
+    ...callbackOverrides,
     onRegister: (id): void => {
       registered.push(id);
     },
     onUnregister: (id): void => {
       unregistered.push(id);
     },
-    callbacks,
-  });
+  };
+  const messenger = {
+    call: jest.fn(),
+    publish: jest.fn(),
+  } as unknown as SnapKeyringMessenger;
+  const keyring = new SnapKeyringV2({ snapId, messenger, callbacks });
   return { keyring, registered, unregistered, callbacks };
 }
 

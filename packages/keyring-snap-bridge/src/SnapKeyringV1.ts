@@ -114,24 +114,24 @@ export type SnapKeyringV1Callbacks = {
    * Whether to allow the creation and update of generic accounts.
    */
   isAnyAccountTypeAllowed: () => boolean;
-};
 
-export type SnapKeyringV1Options<
-  TCallbacks extends SnapKeyringV1Callbacks = SnapKeyringV1Callbacks,
-> = {
-  snapId: SnapId;
-  messenger: SnapKeyringMessenger;
   /**
    * Called synchronously whenever a new account is added to the registry.
-   * The parent uses this to maintain the global account-ID → snap-ID index.
+   * Optional — consumers that don't need cross-instance indexing can omit this.
    */
-  onRegister: (accountId: AccountId) => void;
+  onRegister?: (accountId: AccountId) => void;
+
   /**
    * Called synchronously whenever an account is removed from the registry.
-   * The parent uses this to clean up the global index.
+   * Optional — consumers that don't need cross-instance indexing can omit this.
    */
-  onUnregister: (accountId: AccountId) => void;
-  callbacks: TCallbacks;
+  onUnregister?: (accountId: AccountId) => void;
+};
+
+export type SnapKeyringV1Options = {
+  snapId: SnapId;
+  messenger: SnapKeyringMessenger;
+  callbacks: SnapKeyringV1Callbacks;
 };
 
 /**
@@ -144,9 +144,7 @@ export type SnapKeyringV1Options<
  * Designed to be subclassed: `SnapKeyringV2` extends this class and adds the
  * `KeyringV2` interface on top, sharing the same registry and client.
  */
-export class SnapKeyringV1<
-  TCallbacks extends SnapKeyringV1Callbacks = SnapKeyringV1Callbacks,
-> {
+export class SnapKeyringV1 {
   /** The snap ID this instance is scoped to. */
   readonly snapId: SnapId;
 
@@ -159,14 +157,8 @@ export class SnapKeyringV1<
   /** Snap client for keyring RPC calls. */
   protected readonly client: KeyringInternalSnapClient;
 
-  /** Fires when an account is added to the registry. */
-  protected readonly onRegister: (accountId: AccountId) => void;
-
-  /** Fires when an account is removed from the registry. */
-  protected readonly onUnregister: (accountId: AccountId) => void;
-
   /** Injected callbacks for parent-level coordination. */
-  protected readonly callbacks: TCallbacks;
+  protected readonly callbacks: SnapKeyringV1Callbacks;
 
   /**
    * Pending async request promises, keyed by request ID.
@@ -185,18 +177,10 @@ export class SnapKeyringV1<
    */
   #selectedAccounts: AccountId[];
 
-  constructor({
-    snapId,
-    messenger,
-    onRegister,
-    onUnregister,
-    callbacks,
-  }: SnapKeyringV1Options<TCallbacks>) {
+  constructor({ snapId, messenger, callbacks }: SnapKeyringV1Options) {
     this.snapId = snapId;
     this.registry = new KeyringAccountRegistry();
     this.messenger = messenger;
-    this.onRegister = onRegister;
-    this.onUnregister = onUnregister;
     this.callbacks = callbacks;
     this.client = new KeyringInternalSnapClient({ messenger, snapId });
     this.#requests = new Map();
@@ -457,7 +441,7 @@ export class SnapKeyringV1<
           // e.g The account creation dialog crashed on MetaMask, this callback
           // will never be called, but the Snap still has the account.
           this.registry.set(account);
-          this.onRegister(account.id);
+          this.callbacks.onRegister?.(account.id);
 
           // This is the "true async part". We do not `await` for this call, mainly
           // because this callback will persist the account on the client side
@@ -476,11 +460,12 @@ export class SnapKeyringV1<
               // confirmation dialogs).
               onceSaved.resolve(account.id);
             })
+            /* istanbul ignore next */
             .catch(async (error: unknown) => {
               // FIXME: There's a potential race condition here, if the Snap did
               // not persist the account yet (this should mostly be for older Snaps).
               this.registry.delete(account.id);
-              this.onUnregister(account.id);
+              this.callbacks.onUnregister?.(account.id);
               await this.client
                 .deleteAccount(account.id)
                 /* istanbul ignore next */
