@@ -1,13 +1,25 @@
+import type { TypedTransaction } from '@ethereumjs/tx';
+import { TransactionFactory } from '@ethereumjs/tx';
+import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
+import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
   KeyringAccount,
   BtcMethod,
-  EthMethod,
   CaipChainId,
   ResolvedAccountAddress,
+  KeyringExecutionContext,
+  EthBaseTransaction,
+  EthBaseUserOperation,
+  EthUserOperation,
+  EthUserOperationPatch,
 } from '@metamask/keyring-api';
 import {
   AnyAccountType,
+  EthMethod,
   KeyringEvent,
+  EthBytesStruct,
+  EthBaseUserOperationStruct,
+  EthUserOperationPatchStruct,
   AccountBalancesUpdatedEventStruct,
   AccountAssetListUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
@@ -21,11 +33,17 @@ import {
   SnapManageAccountsMethod,
 } from '@metamask/keyring-snap-sdk';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
+import { strictMask } from '@metamask/keyring-utils';
 import type { ExtractEventPayload } from '@metamask/messenger';
 import type { SnapId } from '@metamask/snaps-sdk';
-import { assert } from '@metamask/superstruct';
-import type { Json } from '@metamask/utils';
-import { hasProperty } from '@metamask/utils';
+import { assert, mask, object, string } from '@metamask/superstruct';
+import type { Hex, Json } from '@metamask/utils';
+import {
+  bigIntToHex,
+  hasProperty,
+  KnownCaipNamespace,
+  toCaipChainId,
+} from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
 import { transformAccount } from './account';
@@ -54,6 +72,7 @@ import {
   normalizeAccountAddress,
   sanitizeUrl,
   throwError,
+  toJson,
 } from './util';
 
 // TODO: to be removed when this is added to the keyring-api
@@ -403,6 +422,229 @@ export class SnapKeyringV1 {
     request: JsonRpcRequest,
   ): Promise<ResolvedAccountAddress | null> {
     return this.client.resolveAccountAddress(scope, request);
+  }
+
+  /**
+   * Sign a transaction for the given account.
+   *
+   * @param account - The account to sign the transaction for.
+   * @param transaction - The transaction to sign.
+   * @param _opts - Transaction options (unused).
+   * @returns A promise that resolves to the signed transaction.
+   */
+  async signTransaction(
+    account: KeyringAccount,
+    transaction: TypedTransaction,
+    _opts = {},
+  ): Promise<Json | TypedTransaction> {
+    const chainId = transaction.common.chainId();
+    const tx = toJson({
+      ...transaction.toJSON(),
+      from: normalizeAccountAddress(account),
+      type: `0x${transaction.type.toString(16)}`,
+      chainId: bigIntToHex(chainId),
+    });
+
+    const signedTx = await this.submitSnapRequest({
+      origin: 'metamask',
+      account,
+      method: EthMethod.SignTransaction,
+      params: [tx],
+      scope: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
+      noPending: false,
+    });
+
+    // ! It's *** CRITICAL *** that we mask the signature here, otherwise the
+    // ! Snap could overwrite the transaction.
+    const signature = mask(
+      signedTx,
+      object({
+        r: string(),
+        s: string(),
+        v: string(),
+      }),
+    );
+
+    return TransactionFactory.fromTxData({
+      ...(tx as Record<string, Json>),
+      r: signature.r as Hex,
+      s: signature.s as Hex,
+      v: signature.v as Hex,
+    });
+  }
+
+  /**
+   * Sign a typed data message for the given account.
+   *
+   * @param account - The account to sign the typed data for.
+   * @param data - The typed data to sign.
+   * @param opts - Signing options.
+   * @param opts.version - The typed data version to use.
+   * @returns A promise that resolves to the signature.
+   */
+  async signTypedData(
+    account: KeyringAccount,
+    data: Record<string, unknown>[] | TypedDataV1 | TypedMessage<any>,
+    opts: { version: SignTypedDataVersion },
+  ): Promise<string> {
+    const methods = {
+      [SignTypedDataVersion.V1]: EthMethod.SignTypedDataV1,
+      [SignTypedDataVersion.V3]: EthMethod.SignTypedDataV3,
+      [SignTypedDataVersion.V4]: EthMethod.SignTypedDataV4,
+    };
+
+    // Use 'V1' by default to match other keyring implementations. V1 will be
+    // used if the version is not specified or not supported.
+    const method = methods[opts.version] || EthMethod.SignTypedDataV1;
+
+    // Extract chain ID as if it was a typed message (as defined by EIP-712), if
+    // input is not a typed message, then chain ID will be undefined!
+    const chainId = (data as TypedMessage<any>).domain?.chainId;
+
+    const address = normalizeAccountAddress(account);
+    return strictMask(
+      await this.submitSnapRequest({
+        origin: 'metamask',
+        account,
+        method,
+        params: toJson<Json[]>([address, data]),
+        scope:
+          chainId === undefined
+            ? ''
+            : toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
+        noPending: false,
+      }),
+      EthBytesStruct,
+    );
+  }
+
+  /**
+   * Sign a message (eth_sign) for the given account.
+   *
+   * @param account - The account to sign the message for.
+   * @param hash - The data to sign.
+   * @returns A promise that resolves to the signature.
+   */
+  async signMessage(account: KeyringAccount, hash: any): Promise<string> {
+    const address = normalizeAccountAddress(account);
+    return strictMask(
+      await this.submitSnapRequest({
+        origin: 'metamask',
+        account,
+        method: EthMethod.Sign,
+        params: toJson<Json[]>([address, hash]),
+        scope: '',
+        noPending: false,
+      }),
+      EthBytesStruct,
+    );
+  }
+
+  /**
+   * Sign a personal message for the given account.
+   *
+   * Note: KeyringController says this should return a Buffer but it actually
+   * expects a string.
+   *
+   * @param account - The account to sign the message for.
+   * @param data - The data to sign.
+   * @returns A promise that resolves to the signature.
+   */
+  async signPersonalMessage(
+    account: KeyringAccount,
+    data: any,
+  ): Promise<string> {
+    const address = normalizeAccountAddress(account);
+    return strictMask(
+      await this.submitSnapRequest({
+        origin: 'metamask',
+        account,
+        method: EthMethod.PersonalSign,
+        params: toJson<Json[]>([data, address]),
+        scope: '',
+        noPending: false,
+      }),
+      EthBytesStruct,
+    );
+  }
+
+  /**
+   * Convert a base transaction to a base UserOperation.
+   *
+   * @param account - The account to prepare the user operation for.
+   * @param transactions - Base transactions to include in the UserOperation.
+   * @param context - Keyring execution context.
+   * @returns A pseudo-UserOperation that can be used to construct a real one.
+   */
+  async prepareUserOperation(
+    account: KeyringAccount,
+    transactions: EthBaseTransaction[],
+    context: KeyringExecutionContext,
+  ): Promise<EthBaseUserOperation> {
+    return strictMask(
+      await this.submitSnapRequest({
+        origin: 'metamask',
+        account,
+        method: EthMethod.PrepareUserOperation,
+        params: toJson<Json[]>(transactions),
+        noPending: true,
+        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
+      }),
+      EthBaseUserOperationStruct,
+    );
+  }
+
+  /**
+   * Patches properties of a UserOperation. Currently, only the
+   * `paymasterAndData` can be patched.
+   *
+   * @param account - The account to patch the user operation for.
+   * @param userOp - UserOperation to patch.
+   * @param context - Keyring execution context.
+   * @returns A patch to apply to the UserOperation.
+   */
+  async patchUserOperation(
+    account: KeyringAccount,
+    userOp: EthUserOperation,
+    context: KeyringExecutionContext,
+  ): Promise<EthUserOperationPatch> {
+    return strictMask(
+      await this.submitSnapRequest({
+        origin: 'metamask',
+        account,
+        method: EthMethod.PatchUserOperation,
+        params: toJson<Json[]>([userOp]),
+        noPending: true,
+        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
+      }),
+      EthUserOperationPatchStruct,
+    );
+  }
+
+  /**
+   * Signs a UserOperation.
+   *
+   * @param account - The account to sign the user operation for.
+   * @param userOp - UserOperation to sign.
+   * @param context - Keyring execution context.
+   * @returns A promise that resolves to the signature.
+   */
+  async signUserOperation(
+    account: KeyringAccount,
+    userOp: EthUserOperation,
+    context: KeyringExecutionContext,
+  ): Promise<string> {
+    return strictMask(
+      await this.submitSnapRequest({
+        origin: 'metamask',
+        account,
+        method: EthMethod.SignUserOperation,
+        params: toJson<Json[]>([userOp]),
+        noPending: false,
+        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
+      }),
+      EthBytesStruct,
+    );
   }
 
   // ──────────────────────────────────────────────

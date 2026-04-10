@@ -1,5 +1,4 @@
 import type { TypedTransaction } from '@ethereumjs/tx';
-import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
@@ -13,25 +12,12 @@ import type {
   CaipChainId,
   CreateAccountOptions,
 } from '@metamask/keyring-api';
-import {
-  EthBytesStruct,
-  EthMethod,
-  EthBaseUserOperationStruct,
-  EthUserOperationPatchStruct,
-  AnyAccountType,
-} from '@metamask/keyring-api';
+import { AnyAccountType } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
-import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
-import { mask, object, string } from '@metamask/superstruct';
-import type { Hex, Json } from '@metamask/utils';
-import {
-  bigIntToHex,
-  KnownCaipNamespace,
-  toCaipChainId,
-} from '@metamask/utils';
+import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
 import { type SnapKeyringInternalOptions } from './options';
@@ -40,7 +26,7 @@ import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
 import type { AccountMethod } from './SnapKeyringV1';
 import { SnapKeyringV2 } from './SnapKeyringV2';
 import type { SnapMessage } from './types';
-import { normalizeAccountAddress, throwError, toJson, unique } from './util';
+import { normalizeAccountAddress, throwError, unique } from './util';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 
@@ -504,49 +490,6 @@ export class SnapKeyring {
   }
 
   /**
-   * Submit a request to a Snap from an account address.
-   *
-   * @param opts - Request options.
-   * @param opts.origin - Sender origin.
-   * @param opts.address - Account address.
-   * @param opts.method - Method to call.
-   * @param opts.params - Method parameters.
-   * @param opts.scope - Selected chain ID (CAIP-2).
-   * @param opts.noPending - Whether the response is allowed to be pending.
-   * @returns Promise that resolves to the result of the method call.
-   */
-  async #submitRequest<Response extends Json>({
-    origin,
-    address,
-    method,
-    params,
-    scope = '',
-    noPending = false,
-  }: {
-    origin: string;
-    address: string;
-    method: string;
-    params?: Json[] | Record<string, Json>;
-    scope?: string;
-    noPending?: boolean;
-  }): Promise<Response> {
-    const { account, snapId } = this.#resolveAddress(address);
-    /* istanbul ignore next */
-    const entry =
-      this.#snapKeyrings.get(snapId) ??
-      throwError(`No keyring found for snap '${snapId}'`);
-
-    return await entry.submitSnapRequest<Response>({
-      origin,
-      account,
-      method: method as AccountMethod,
-      params,
-      scope,
-      noPending,
-    });
-  }
-
-  /**
    * Sign a transaction.
    *
    * @param address - Sender's address.
@@ -559,39 +502,8 @@ export class SnapKeyring {
     transaction: TypedTransaction,
     _opts = {},
   ): Promise<Json | TypedTransaction> {
-    const chainId = transaction.common.chainId();
-    const tx = toJson({
-      ...transaction.toJSON(),
-      from: address,
-      type: `0x${transaction.type.toString(16)}`,
-      chainId: bigIntToHex(chainId),
-    });
-
-    const signedTx = await this.#submitRequest({
-      origin: 'metamask',
-      address,
-      method: EthMethod.SignTransaction,
-      params: [tx],
-      scope: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
-    });
-
-    // ! It's *** CRITICAL *** that we mask the signature here, otherwise the
-    // ! Snap could overwrite the transaction.
-    const signature = mask(
-      signedTx,
-      object({
-        r: string(),
-        s: string(),
-        v: string(),
-      }),
-    );
-
-    return TransactionFactory.fromTxData({
-      ...(tx as Record<string, Json>),
-      r: signature.r as Hex,
-      s: signature.s as Hex,
-      v: signature.v as Hex,
-    });
+    const { account, entry } = this.#resolveAddress(address);
+    return entry.signTransaction(account, transaction, _opts);
   }
 
   /**
@@ -607,34 +519,8 @@ export class SnapKeyring {
     data: Record<string, unknown>[] | TypedDataV1 | TypedMessage<any>,
     opts = { version: SignTypedDataVersion.V1 },
   ): Promise<string> {
-    const methods = {
-      [SignTypedDataVersion.V1]: EthMethod.SignTypedDataV1,
-      [SignTypedDataVersion.V3]: EthMethod.SignTypedDataV3,
-      [SignTypedDataVersion.V4]: EthMethod.SignTypedDataV4,
-    };
-
-    // Use 'V1' by default to match other keyring implementations. V1 will be
-    // used if the version is not specified or not supported.
-    const method = methods[opts.version] || EthMethod.SignTypedDataV1;
-
-    // Extract chain ID as if it was a typed message (as defined by EIP-712), if
-    // input is not a typed message, then chain ID will be undefined!
-    const chainId = (data as TypedMessage<any>).domain?.chainId;
-
-    return strictMask(
-      await this.#submitRequest({
-        origin: 'metamask',
-        address,
-        method,
-        params: toJson<Json[]>([address, data]),
-        ...(chainId === undefined
-          ? {}
-          : {
-              scope: toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
-            }),
-      }),
-      EthBytesStruct,
-    );
+    const { account, entry } = this.#resolveAddress(address);
+    return entry.signTypedData(account, data, opts);
   }
 
   /**
@@ -645,15 +531,8 @@ export class SnapKeyring {
    * @returns The signature.
    */
   async signMessage(address: string, hash: any): Promise<string> {
-    return strictMask(
-      await this.#submitRequest({
-        origin: 'metamask',
-        address,
-        method: EthMethod.Sign,
-        params: toJson<Json[]>([address, hash]),
-      }),
-      EthBytesStruct,
-    );
+    const { account, entry } = this.#resolveAddress(address);
+    return entry.signMessage(account, hash);
   }
 
   /**
@@ -667,15 +546,8 @@ export class SnapKeyring {
    * @returns Promise of the signature.
    */
   async signPersonalMessage(address: string, data: any): Promise<string> {
-    return strictMask(
-      await this.#submitRequest({
-        origin: 'metamask',
-        address,
-        method: EthMethod.PersonalSign,
-        params: toJson<Json[]>([data, address]),
-      }),
-      EthBytesStruct,
-    );
+    const { account, entry } = this.#resolveAddress(address);
+    return entry.signPersonalMessage(account, data);
   }
 
   /**
@@ -691,18 +563,8 @@ export class SnapKeyring {
     transactions: EthBaseTransaction[],
     context: KeyringExecutionContext,
   ): Promise<EthBaseUserOperation> {
-    return strictMask(
-      await this.#submitRequest({
-        origin: 'metamask',
-        address,
-        method: EthMethod.PrepareUserOperation,
-        params: toJson<Json[]>(transactions),
-        noPending: true,
-        // We assume the chain ID is already well formatted
-        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
-      }),
-      EthBaseUserOperationStruct,
-    );
+    const { account, entry } = this.#resolveAddress(address);
+    return entry.prepareUserOperation(account, transactions, context);
   }
 
   /**
@@ -719,26 +581,16 @@ export class SnapKeyring {
     userOp: EthUserOperation,
     context: KeyringExecutionContext,
   ): Promise<EthUserOperationPatch> {
-    return strictMask(
-      await this.#submitRequest({
-        origin: 'metamask',
-        address,
-        method: EthMethod.PatchUserOperation,
-        params: toJson<Json[]>([userOp]),
-        noPending: true,
-        // We assume the chain ID is already well formatted
-        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
-      }),
-      EthUserOperationPatchStruct,
-    );
+    const { account, entry } = this.#resolveAddress(address);
+    return entry.patchUserOperation(account, userOp, context);
   }
 
   /**
-   * Signs an UserOperation.
+   * Signs a UserOperation.
    *
    * @param address - Address of the sender.
    * @param userOp - UserOperation to sign.
-   * @param context - Leyring execution context.
+   * @param context - Keyring execution context.
    * @returns The signature of the UserOperation.
    */
   async signUserOperation(
@@ -746,17 +598,8 @@ export class SnapKeyring {
     userOp: EthUserOperation,
     context: KeyringExecutionContext,
   ): Promise<string> {
-    return strictMask(
-      await this.#submitRequest({
-        origin: 'metamask',
-        address,
-        method: EthMethod.SignUserOperation,
-        params: toJson<Json[]>([userOp]),
-        // We assume the chain ID is already well formatted
-        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
-      }),
-      EthBytesStruct,
-    );
+    const { account, entry } = this.#resolveAddress(address);
+    return entry.signUserOperation(account, userOp, context);
   }
 
   /**
@@ -777,41 +620,31 @@ export class SnapKeyring {
   /**
    * Removes the account matching the given address.
    *
-   * @param address - Address of the account to remove.
-   */
-  async removeAccount(address: string): Promise<void> {
-    const { account, snapId } = this.#resolveAddress(address);
-    await this.#deleteAccount(snapId, account);
-  }
-
-  /**
-   * Removes an account.
-   *
    * Delegates to the per-snap SnapKeyringV2 wrapper which handles
    * registry removal, index cleanup, and snap communication.
    *
-   * @param snapId - Snap ID.
-   * @param account - Account to delete.
+   * @param address - Address of the account to remove.
    */
-  async #deleteAccount(snapId: SnapId, account: KeyringAccount): Promise<void> {
-    await this.#getOrCreateKeyring(snapId).deleteAccount(account.id);
+  async removeAccount(address: string): Promise<void> {
+    const { account, entry } = this.#resolveAddress(address);
+    await entry.deleteAccount(account.id);
   }
 
   /**
-   * Resolve an address to an account and Snap ID.
+   * Resolve an address to an account and its owning keyring entry.
    *
    * @param address - Address of the account to resolve.
-   * @returns Account and Snap ID. Throws if the account or Snap ID is not
+   * @returns Account and the per-snap keyring that owns it. Throws if not
    * found.
    */
   #resolveAddress(address: string): {
     account: KeyringAccount;
-    snapId: SnapId;
+    entry: SnapKeyringV2;
   } {
-    for (const [snapId, entry] of this.#snapKeyrings) {
+    for (const entry of this.#snapKeyrings.values()) {
       const account = entry.lookupByAddress(address);
       if (account) {
-        return { account, snapId };
+        return { account, entry };
       }
     }
     return throwError(`Account '${address}' not found`);
