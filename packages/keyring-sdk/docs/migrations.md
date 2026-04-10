@@ -18,7 +18,7 @@ Unversioned state (vaults created before migration support was added) has no env
 - **`schema`**: Validates the **output** of a migration at runtime.
 - **`inputSchema`**: (Optional) Validates the **input** before the `migrate` function is called.
 - **`defineMigration<Output, Input>`**: Ensures the `migrate` function's return type matches the `schema` type at compile time.
-- **`defineMigrations()`**: A utility to chain migrations together, allowing TypeScript to infer the final state type.
+- **`as const` arrays**: Use an array with `as const` to allow TypeScript to infer the final state type via `applyMigrations`.
 
 ## Example
 
@@ -56,9 +56,9 @@ type HdStateV2 = Infer<typeof HdStateV2Schema>;
 ### 2. Define the Migration Chain
 
 ```typescript
-import { defineMigration, defineMigrations } from '@metamask/keyring-sdk';
+import { defineMigration } from '@metamask/keyring-sdk';
 
-const migrations = defineMigrations(
+const migrations = [
   defineMigration({
     version: 1,
     inputSchema: HdStateV0Schema,
@@ -74,7 +74,7 @@ const migrations = defineMigrations(
     schema: HdStateV2Schema,
     migrate: (state) => ({ ...state, createdAt: Date.now() }),
   }),
-);
+] as const;
 ```
 
 ### 3. Implement in your Keyring
