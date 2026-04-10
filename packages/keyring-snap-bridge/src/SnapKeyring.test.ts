@@ -2299,6 +2299,38 @@ describe('SnapKeyring', () => {
       expect(await isolatedKeyring.getAccounts()).toStrictEqual([]);
     });
 
+    it('rejects pending requests when the last account is removed', async () => {
+      const isolatedKeyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+        isAnyAccountTypeAllowed: true,
+      });
+      await isolatedKeyring.deserialize({
+        accounts: {
+          [ethEoaAccount1.id]: {
+            account: ethEoaAccount1 as unknown as KeyringAccount,
+            snapId,
+          },
+        },
+      } as unknown as KeyringState);
+
+      // Start an async signing request that won't complete without explicit approval.
+      mockMessenger.handleRequest.mockResolvedValue({ pending: true });
+      const pendingRequest = isolatedKeyring.signPersonalMessage(
+        ethEoaAccount1.address,
+        'hello',
+      );
+
+      // Removing the last account triggers #removeSnapKeyringIfEmpty -> destroy(),
+      // which rejects all pending requests.
+      mockMessenger.handleRequest.mockResolvedValue(null);
+      await isolatedKeyring.removeAccount(ethEoaAccount1.address);
+
+      await expect(pendingRequest).rejects.toThrow(
+        `Keyring for snap '${snapId}' has been destroyed`,
+      );
+    });
+
     it('removes the account and warn if Snap fails', async () => {
       const spy = jest.spyOn(console, 'error').mockImplementation();
       mockMessenger.handleRequest.mockRejectedValue('some error');

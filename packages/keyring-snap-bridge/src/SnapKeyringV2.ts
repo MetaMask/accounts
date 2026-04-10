@@ -116,6 +116,16 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
   }
 
   /**
+   * Destroy this keyring.
+   *
+   * Delegates to the parent `SnapKeyringV1.destroy()` to reject any pending
+   * requests inherited from the v1 flow.
+   */
+  override async destroy(): Promise<void> {
+    await super.destroy();
+  }
+
+  /**
    * Run a callback under the appropriate lock.
    *
    * Prefers the injected `withLock` callback (global lock provided by

@@ -194,7 +194,7 @@ export class SnapKeyringV1 {
   readonly #requests: Map<string, DeferredPromise<any>>;
 
   /**
-   * Correlation ID → internal options, used to thread options from
+   * Correlation ID -> internal options, used to thread options from
    * `createAccount` through to the `AccountCreated` event handler.
    */
   readonly #options: Map<string, SnapKeyringInternalOptions>;
@@ -224,6 +224,21 @@ export class SnapKeyringV1 {
   // ──────────────────────────────────────────────
   // Public API
   // ──────────────────────────────────────────────
+
+  /**
+   * Destroy this keyring, rejecting any pending requests.
+   *
+   * Called when the per-snap entry is removed from the parent `SnapKeyring`,
+   * either because all accounts were deleted or because state was re-deserialized.
+   */
+  async destroy(): Promise<void> {
+    for (const promise of this.#requests.values()) {
+      promise.reject(
+        new Error(`Keyring for snap '${this.snapId}' has been destroyed`),
+      );
+    }
+    this.#requests.clear();
+  }
 
   /**
    * Create a single account using the v1 event-driven flow.

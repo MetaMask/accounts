@@ -219,9 +219,10 @@ export class SnapKeyring {
    *
    * @param snapId - Snap ID whose keyring may be removed.
    */
-  #removeSnapKeyringIfEmpty(snapId: SnapId): void {
+  async #removeSnapKeyringIfEmpty(snapId: SnapId): Promise<void> {
     const keyring = this.#snapKeyrings.get(snapId);
     if (keyring !== undefined && keyring.accounts().length === 0) {
+      await keyring.destroy();
       this.#snapKeyrings.delete(snapId);
     }
   }
@@ -298,7 +299,7 @@ export class SnapKeyring {
       // Clean up if AccountCreated was rejected (e.g. duplicate address,
       // invalid account), leaving the snap with no registered accounts.
       if (isAccountCreated) {
-        this.#removeSnapKeyringIfEmpty(snapId);
+        await this.#removeSnapKeyringIfEmpty(snapId);
       }
     }
   }
@@ -346,6 +347,11 @@ export class SnapKeyring {
       bySnap.set(entry.snapId, snapAccounts);
     }
 
+    // Destroy existing keyrings before clearing — rejects any pending requests.
+    for (const keyring of this.#snapKeyrings.values()) {
+      await keyring.destroy();
+    }
+
     // Clear both indexes before rebuilding — they must always be consistent.
     this.#snapKeyrings.clear();
     this.#accountIndex.clear();
@@ -356,7 +362,7 @@ export class SnapKeyring {
       const keyring = this.#getOrCreateKeyring(snapId);
       await keyring.deserialize({ snapId, accounts });
       // onRegister callbacks fired above have repopulated #accountIndex.
-      this.#removeSnapKeyringIfEmpty(snapId);
+      await this.#removeSnapKeyringIfEmpty(snapId);
     }
   }
 
@@ -669,7 +675,7 @@ export class SnapKeyring {
   async removeAccount(address: string): Promise<void> {
     const { account, keyring } = this.#resolveAddress(address);
     await keyring.deleteAccount(account.id);
-    this.#removeSnapKeyringIfEmpty(keyring.snapId);
+    await this.#removeSnapKeyringIfEmpty(keyring.snapId);
   }
 
   /**
