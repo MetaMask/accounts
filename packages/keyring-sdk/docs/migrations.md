@@ -92,10 +92,6 @@ class MyKeyring {
   async deserialize(state: Json): Promise<void> {
     const { data, migrated } = await applyMigrations(state, migrations);
 
-    if (migrated) {
-      // The controller will handle persisting the upgraded state.
-    }
-
     // data is typed as HdStateV2
     this.#mnemonic = data.mnemonic;
     this.#accountCount = data.accountCount;
