@@ -5,13 +5,15 @@ import type {
   KeyringCapabilities,
 } from '@metamask/keyring-api';
 import { KeyringType } from '@metamask/keyring-api';
-import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
+import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
+import type { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { Json } from '@metamask/utils';
 
 import { transformAccount } from './account';
 import { isAccountV1, migrateAccountV1 } from './migrations';
+import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 import { normalizeAccountAddress } from './util';
 
 /**
@@ -27,36 +29,17 @@ export type SnapKeyringV2State = {
 };
 
 /**
- * Callbacks injected by the parent `SnapKeyring` to delegate snap
- * communication and parent coordination.
+ * Callbacks injected by the parent `SnapKeyring` for global coordination.
+ *
+ * Snap client operations (createAccounts, deleteAccount) are handled
+ * internally via the messenger.
  */
 export type SnapKeyringV2Callbacks = {
   /**
-   * Call the snap to create a single account (v1 event-driven flow).
-   * Handles correlation IDs, internal options, and the reserved 'metamask'
-   * field. The account is ultimately added to the wrapper via the
-   * `AccountCreated` event, not the return value.
-   */
-  createSnapAccount: (
-    options: Record<string, Json>,
-    internalOptions?: Record<string, Json>,
-  ) => Promise<KeyringAccount>;
-
-  /**
-   * Call the snap to create accounts (v2 batch flow). Returns raw snap accounts.
-   */
-  createSnapAccounts: (
-    options: CreateAccountOptions,
-  ) => Promise<KeyringAccount[]>;
-
-  /**
-   * Call the snap to delete an account from its state.
-   */
-  deleteSnapAccount: (accountId: AccountId) => Promise<void>;
-
-  /**
    * Submit a signing/method request to the snap.
-   * The full lifecycle (sync/async/redirect) is handled by the parent.
+   * The full lifecycle (sync/async/redirect) is handled by the sibling
+   * SnapKeyringV1. Coverage is excluded until consumers interact with
+   * SnapKeyringV2 directly.
    */
   submitSnapRequest: (request: {
     id: string;
@@ -88,6 +71,15 @@ export type SnapKeyringV2Callbacks = {
 type SnapKeyringV2Options = {
   snapId: SnapId;
   /**
+   * Shared account registry — the same instance is used by the sibling
+   * SnapKeyringV1 so mutations on either side are immediately visible.
+   */
+  registry: KeyringAccountRegistry;
+  /**
+   * Messenger used to create the internal snap client.
+   */
+  messenger: SnapKeyringMessenger;
+  /**
    * Called synchronously whenever a new account is added to this keyring.
    * The parent uses this to maintain a global account-ID → snap-ID index.
    */
@@ -98,7 +90,7 @@ type SnapKeyringV2Options = {
    */
   onUnregister: (accountId: AccountId) => void;
   /**
-   * Callbacks for snap communication and parent coordination.
+   * Callbacks for parent coordination.
    */
   callbacks: SnapKeyringV2Callbacks;
 };
@@ -108,10 +100,13 @@ type SnapKeyringV2Options = {
  *
  * Each instance is responsible for exactly one `SnapId` and uses a
  * `KeyringAccountRegistry` as its sole backing store, providing O(1) lookups
- * by account ID and address.
+ * by account ID and address. The registry is shared with the sibling
+ * `SnapKeyringV1` instance for the same snap.
  *
- * Business-logic operations (createAccounts, deleteAccount, submitRequest) are
- * delegated to the parent `SnapKeyring` via injected callbacks.
+ * Business-logic operations (createAccounts, deleteAccount) are handled
+ * internally via the snap client. Global concerns (locking, uniqueness
+ * validation, persistence) are delegated to the parent `SnapKeyring` via
+ * injected callbacks.
  */
 export class SnapKeyringV2 implements KeyringV2 {
   // ──────────────────────────────────────────────
@@ -134,6 +129,8 @@ export class SnapKeyringV2 implements KeyringV2 {
 
   readonly #registry: KeyringAccountRegistry;
 
+  readonly #client: KeyringInternalSnapClient;
+
   readonly #onRegister: (accountId: AccountId) => void;
 
   readonly #onUnregister: (accountId: AccountId) => void;
@@ -142,12 +139,15 @@ export class SnapKeyringV2 implements KeyringV2 {
 
   constructor({
     snapId,
+    registry,
+    messenger,
     onRegister,
     onUnregister,
     callbacks,
   }: SnapKeyringV2Options) {
     this.#snapId = snapId;
-    this.#registry = new KeyringAccountRegistry();
+    this.#registry = registry;
+    this.#client = new KeyringInternalSnapClient({ messenger, snapId });
     this.#onRegister = onRegister;
     this.#onUnregister = onUnregister;
     this.#callbacks = callbacks;
@@ -188,24 +188,6 @@ export class SnapKeyringV2 implements KeyringV2 {
   }
 
   /**
-   * Create a single account (v1 event-driven flow).
-   *
-   * Delegates to the parent's snap communication which handles correlation
-   * IDs and internal options. The account is added to this wrapper
-   * asynchronously via the `AccountCreated` event, not the return value.
-   *
-   * @param options - Account creation options.
-   * @param internalOptions - Internal Snap keyring options.
-   * @returns The account object returned by the snap.
-   */
-  async createAccount(
-    options: Record<string, Json>,
-    internalOptions?: Record<string, Json>,
-  ): Promise<KeyringAccount> {
-    return this.#callbacks.createSnapAccount(options, internalOptions);
-  }
-
-  /**
    * Creates one or more new accounts according to the provided options.
    *
    * Deterministic account creation MUST be idempotent, meaning that for
@@ -230,7 +212,7 @@ export class SnapKeyringV2 implements KeyringV2 {
 
       const accounts: KeyringAccount[] = [];
       const newAccounts: KeyringAccount[] = [];
-      const snapAccounts = await this.#callbacks.createSnapAccounts(options);
+      const snapAccounts = await this.#client.createAccounts(options);
 
       try {
         for (const snapAccount of snapAccounts) {
@@ -283,7 +265,7 @@ export class SnapKeyringV2 implements KeyringV2 {
           // Make sure to only delete accounts that were not part of the keyring state.
           if (!this.#getExistingAccount(snapAccount)) {
             try {
-              await this.#callbacks.deleteSnapAccount(snapAccount.id);
+              await this.#client.deleteAccount(snapAccount.id);
             } catch {
               // Swallow — best-effort rollback.
             }
@@ -309,7 +291,7 @@ export class SnapKeyringV2 implements KeyringV2 {
     this.removeAccount(accountId);
 
     try {
-      await this.#callbacks.deleteSnapAccount(accountId);
+      await this.#client.deleteAccount(accountId);
     } catch (error) {
       // If the Snap failed to delete the account, log the error and continue
       // with the account deletion, otherwise the account will be stuck in the
@@ -327,7 +309,7 @@ export class SnapKeyringV2 implements KeyringV2 {
    * Submits a request to the keyring.
    *
    * Validates that the account belongs to this wrapper, then delegates
-   * to the parent's request handling infrastructure.
+   * to the sibling SnapKeyringV1's request handling infrastructure.
    *
    * @param request - The keyring request to submit.
    * @param request.id - The request ID.

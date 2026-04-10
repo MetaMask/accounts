@@ -3,10 +3,16 @@ import type {
   KeyringAccount,
   CreateAccountOptions,
 } from '@metamask/keyring-api';
+import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
+import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { SnapId } from '@metamask/snaps-sdk';
+import type { Messenger } from '@metamask/messenger';
 
 import type { SnapKeyringV2Callbacks } from './SnapKeyringV2';
 import { SnapKeyringV2 } from './SnapKeyringV2';
+import type {
+  SnapKeyringMessenger,
+} from './SnapKeyringMessenger';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 
@@ -35,17 +41,6 @@ const account2: KeyringAccount = {
  */
 function makeMockCallbacks(): SnapKeyringV2Callbacks {
   return {
-    createSnapAccount: jest.fn<
-      Promise<KeyringAccount>,
-      [Record<string, unknown>, Record<string, unknown> | undefined]
-    >(),
-    createSnapAccounts: jest.fn<
-      Promise<KeyringAccount[]>,
-      [CreateAccountOptions]
-    >(),
-    deleteSnapAccount: jest
-      .fn<Promise<void>, [string]>()
-      .mockResolvedValue(undefined),
     submitSnapRequest: jest.fn(),
     assertAccountCanBeUsed: jest
       .fn<Promise<void>, [KeyringAccount]>()
@@ -62,13 +57,14 @@ function makeMockCallbacks(): SnapKeyringV2Callbacks {
  *
  * @param snapId - The Snap ID used to construct the keyring.
  * @param callbackOverrides - Optional callback overrides.
- * @returns The keyring, arrays of registered/unregistered account IDs, and mock callbacks.
+ * @returns The keyring, shared registry, arrays of registered/unregistered IDs, and mock callbacks.
  */
 function makeKeyring(
   snapId: SnapId = SNAP_ID,
   callbackOverrides?: Partial<SnapKeyringV2Callbacks>,
 ): {
   keyring: SnapKeyringV2;
+  registry: KeyringAccountRegistry;
   registered: string[];
   unregistered: string[];
   callbacks: SnapKeyringV2Callbacks;
@@ -76,8 +72,15 @@ function makeKeyring(
   const registered: string[] = [];
   const unregistered: string[] = [];
   const callbacks = { ...makeMockCallbacks(), ...callbackOverrides };
+  const registry = new KeyringAccountRegistry();
+  const messenger = {
+    call: jest.fn(),
+    publish: jest.fn(),
+  } as unknown as SnapKeyringMessenger;
   const keyring = new SnapKeyringV2({
     snapId,
+    registry,
+    messenger,
     onRegister: (id): void => {
       registered.push(id);
     },
@@ -86,7 +89,7 @@ function makeKeyring(
     },
     callbacks,
   });
-  return { keyring, registered, unregistered, callbacks };
+  return { keyring, registry, registered, unregistered, callbacks };
 }
 
 describe('SnapKeyringV2', () => {
@@ -288,39 +291,6 @@ describe('SnapKeyringV2', () => {
       });
     });
 
-    describe('createAccount', () => {
-      it('delegates to the createSnapAccount callback', async () => {
-        const { keyring, callbacks } = makeKeyring(SNAP_ID, {
-          createSnapAccount: jest.fn().mockResolvedValue(account1),
-        });
-
-        const options = { entropySource: 'test', index: 0 };
-        const internalOptions = { displayConfirmation: false };
-        const result = await keyring.createAccount(options, internalOptions);
-
-        expect(result).toStrictEqual(account1);
-        expect(callbacks.createSnapAccount).toHaveBeenCalledWith(
-          options,
-          internalOptions,
-        );
-      });
-
-      it('works without internal options', async () => {
-        const { keyring, callbacks } = makeKeyring(SNAP_ID, {
-          createSnapAccount: jest.fn().mockResolvedValue(account1),
-        });
-
-        const options = { entropySource: 'test', index: 0 };
-        const result = await keyring.createAccount(options);
-
-        expect(result).toStrictEqual(account1);
-        expect(callbacks.createSnapAccount).toHaveBeenCalledWith(
-          options,
-          undefined,
-        );
-      });
-    });
-
     describe('createAccounts', () => {
       const options = {
         type: 'bip44:derive-index',
@@ -329,9 +299,10 @@ describe('SnapKeyringV2', () => {
       } as unknown as CreateAccountOptions;
 
       it('creates new accounts and saves state', async () => {
-        const { keyring, callbacks, registered } = makeKeyring(SNAP_ID, {
-          createSnapAccounts: jest.fn().mockResolvedValue([account1, account2]),
-        });
+        const { keyring, callbacks, registered } = makeKeyring();
+        jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .mockResolvedValue([account1, account2]);
 
         const result = await keyring.createAccounts(options);
 
@@ -342,9 +313,10 @@ describe('SnapKeyringV2', () => {
       });
 
       it('skips existing accounts (idempotent)', async () => {
-        const { keyring, callbacks } = makeKeyring(SNAP_ID, {
-          createSnapAccounts: jest.fn().mockResolvedValue([account1]),
-        });
+        const { keyring, callbacks } = makeKeyring();
+        jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .mockResolvedValue([account1]);
         // Pre-populate the account
         keyring.setAccount(account1);
 
@@ -359,24 +331,30 @@ describe('SnapKeyringV2', () => {
 
       it('rolls back on error', async () => {
         const { keyring, callbacks } = makeKeyring(SNAP_ID, {
-          createSnapAccounts: jest.fn().mockResolvedValue([account1, account2]),
           assertAccountCanBeUsed: jest
             .fn<Promise<void>, [KeyringAccount]>()
             .mockResolvedValueOnce(undefined)
             .mockRejectedValueOnce(new Error('duplicate address')),
         });
+        jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .mockResolvedValue([account1, account2]);
+        const deleteSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+          .mockResolvedValue(undefined);
 
         await expect(keyring.createAccounts(options)).rejects.toThrow(
           'duplicate address',
         );
         // Both accounts should be rolled back since neither was pre-existing
-        expect(callbacks.deleteSnapAccount).toHaveBeenCalledTimes(2);
+        expect(deleteSpy).toHaveBeenCalledTimes(2);
       });
 
       it('rejects duplicate accounts within a batch', async () => {
-        const { keyring } = makeKeyring(SNAP_ID, {
-          createSnapAccounts: jest.fn().mockResolvedValue([account1, account1]),
-        });
+        const { keyring } = makeKeyring();
+        jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .mockResolvedValue([account1, account1]);
 
         await expect(keyring.createAccounts(options)).rejects.toThrow(
           'already part of this batch',
@@ -386,25 +364,27 @@ describe('SnapKeyringV2', () => {
 
     describe('deleteAccount', () => {
       it('removes the account and calls snap to delete', async () => {
-        const { keyring, callbacks, unregistered } = makeKeyring();
+        const { keyring, unregistered } = makeKeyring();
         keyring.setAccount(account1);
+        const deleteSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+          .mockResolvedValue(undefined);
 
         await keyring.deleteAccount(account1.id);
 
         expect(keyring.hasAccount(account1.id)).toBe(false);
         expect(unregistered).toStrictEqual([account1.id]);
-        expect(callbacks.deleteSnapAccount).toHaveBeenCalledWith(account1.id);
+        expect(deleteSpy).toHaveBeenCalledWith(account1.id);
       });
 
       it('logs error but does not throw if snap deletion fails', async () => {
         const consoleSpy = jest
           .spyOn(console, 'error')
           .mockImplementation(() => undefined);
-        const { keyring } = makeKeyring(SNAP_ID, {
-          deleteSnapAccount: jest
-            .fn()
-            .mockRejectedValue(new Error('snap error')),
-        });
+        const { keyring } = makeKeyring();
+        jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+          .mockRejectedValue(new Error('snap error'));
         keyring.setAccount(account1);
 
         // Should not throw
@@ -452,6 +432,18 @@ describe('SnapKeyringV2', () => {
           "Account 'unknown-id' not found",
         );
       });
+    });
+  });
+
+  describe('registry sharing', () => {
+    it('reflects accounts added via the shared registry directly', () => {
+      const { keyring, registry } = makeKeyring();
+
+      // Add via the registry directly (as SnapKeyringV1 would)
+      registry.set(account1);
+
+      expect(keyring.hasAccount(account1.id)).toBe(true);
+      expect(keyring.lookupAccount(account1.id)).toStrictEqual(account1);
     });
   });
 });
