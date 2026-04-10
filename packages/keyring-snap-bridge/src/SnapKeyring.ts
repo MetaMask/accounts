@@ -273,10 +273,12 @@ export class SnapKeyring {
     snapId: SnapId,
     platformVersion: SemVerVersion,
   ): boolean {
+    // `SemVerVersion` is branded in `@metamask/utils`; nested copies (e.g. yalc) make
+    // distinct nominal types. Runtime value is the same semver string.
     return this.#messenger.call(
       'SnapController:isMinimumPlatformVersion',
       snapId,
-      platformVersion,
+      platformVersion as never,
     );
   }
 
