@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `SnapKeyringV2` class, a per-snap keyring wrapper that implements `KeyringV2` with `createAccount`, `createAccounts`, `deleteAccount`, `submitRequest`, `getAccount`, and `getAccounts` ([#501](https://github.com/MetaMask/accounts/pull/501))
+- Add `@metamask/keyring-sdk` `^1.1.0` as a new dependency ([#501](https://github.com/MetaMask/accounts/pull/501))
+
 ### Changed
 
+- Refactor `SnapKeyring` to store accounts in per-snap `SnapKeyringV2` wrappers instead of a single flat map ([#501](https://github.com/MetaMask/accounts/pull/501))
 - Bump `@metamask/messenger` from `^0.3.0` to `^1.1.1` ([#489](https://github.com/MetaMask/accounts/pull/489), [#500](https://github.com/MetaMask/accounts/pull/500))
 - Bump `@metamask/snaps-controllers` from `^19.0.0` to `^19.0.1` ([#500](https://github.com/MetaMask/accounts/pull/500))
 - Bump `@metamask/snaps-utils` from `^12.1.2` to `^12.1.3` ([#500](https://github.com/MetaMask/accounts/pull/500))

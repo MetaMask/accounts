@@ -1886,6 +1886,7 @@ __metadata:
     "@metamask/keyring-api": "npm:^22.0.0"
     "@metamask/keyring-internal-api": "npm:^10.0.1"
     "@metamask/keyring-internal-snap-client": "npm:^9.0.1"
+    "@metamask/keyring-sdk": "npm:^1.2.0"
     "@metamask/keyring-snap-sdk": "npm:^8.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/messenger": "npm:^1.1.1"
