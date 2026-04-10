@@ -113,11 +113,6 @@ export type SnapKeyringV1Callbacks = {
   assertAccountCanBeUsed: (account: KeyringAccount) => Promise<void>;
 
   /**
-   * Whether to allow the creation and update of generic accounts.
-   */
-  isAnyAccountTypeAllowed: () => boolean;
-
-  /**
    * Called synchronously whenever a new account is added to the registry.
    * Optional — consumers that don't need cross-instance indexing can omit this.
    */
@@ -134,6 +129,11 @@ export type SnapKeyringV1Options = {
   snapId: SnapId;
   messenger: SnapKeyringMessenger;
   callbacks: SnapKeyringV1Callbacks;
+  /**
+   * Whether to allow the creation and update of generic accounts.
+   * Defaults to `false`.
+   */
+  isAnyAccountTypeAllowed?: boolean;
 };
 
 /**
@@ -162,6 +162,9 @@ export class SnapKeyringV1 {
   /** Injected callbacks for parent-level coordination. */
   readonly #callbacks: SnapKeyringV1Callbacks;
 
+  /** Whether to allow the creation and update of generic accounts. */
+  readonly #isAnyAccountTypeAllowed: boolean;
+
   /**
    * Pending async request promises, keyed by request ID.
    * Plain Map is sufficient here since this instance is already snap-scoped.
@@ -179,11 +182,17 @@ export class SnapKeyringV1 {
    */
   #selectedAccounts: AccountId[];
 
-  constructor({ snapId, messenger, callbacks }: SnapKeyringV1Options) {
+  constructor({
+    snapId,
+    messenger,
+    callbacks,
+    isAnyAccountTypeAllowed = false,
+  }: SnapKeyringV1Options) {
     this.snapId = snapId;
     this.registry = new KeyringAccountRegistry();
     this.messenger = messenger;
     this.#callbacks = callbacks;
+    this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
     this.client = new KeyringInternalSnapClient({ messenger, snapId });
     this.#requests = new Map();
     this.#options = new Map();
@@ -538,10 +547,7 @@ export class SnapKeyringV1 {
       newAccount.type === AnyAccountType.Account ||
       oldAccount.type === AnyAccountType.Account;
 
-    if (
-      !this.#callbacks.isAnyAccountTypeAllowed() &&
-      isGenericAccountInvolved
-    ) {
+    if (!this.#isAnyAccountTypeAllowed && isGenericAccountInvolved) {
       throw new Error(`Cannot update generic account '${newAccount.id}'`);
     }
 

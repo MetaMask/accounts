@@ -45,7 +45,6 @@ function makeMockCallbacks(): SnapKeyringV2Callbacks {
     assertAccountCanBeUsed: jest
       .fn<Promise<void>, [KeyringAccount]>()
       .mockResolvedValue(undefined),
-    isAnyAccountTypeAllowed: jest.fn().mockReturnValue(false),
     // V2 additional callback
     withLock: jest.fn(async <Result>(callback: () => Promise<Result>) =>
       callback(),

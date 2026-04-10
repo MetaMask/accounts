@@ -187,6 +187,7 @@ export class SnapKeyring {
       entry = new SnapKeyringV2({
         snapId,
         messenger: this.#messenger,
+        isAnyAccountTypeAllowed: this.#isAnyAccountTypeAllowed,
         callbacks: {
           onRegister: (id: AccountId): void => {
             this.#accountIndex.set(id, snapId);
@@ -216,7 +217,6 @@ export class SnapKeyring {
             this.#callbacks.redirectUser(snapId, url, message),
           assertAccountCanBeUsed: async (account): Promise<void> =>
             this.#assertAccountCanBeUsed(account),
-          isAnyAccountTypeAllowed: (): boolean => this.#isAnyAccountTypeAllowed,
           withLock: async <Result>(
             callback: () => Promise<Result>,
           ): Promise<Result> => this.#withLock(callback),
