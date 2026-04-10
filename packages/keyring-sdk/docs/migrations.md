@@ -1,7 +1,6 @@
 # Keyring State Migrations
 
-A framework for evolving keyring serialized state across versions. Migrations run during
-`deserialize()` and transform old state into the current format.
+A framework for evolving keyring serialized state across versions. Migrations run during `deserialize()` and transform old state into the current format.
 
 Versioned state is stored as an envelope:
 
@@ -12,25 +11,24 @@ Versioned state is stored as an envelope:
 }
 ```
 
-Unversioned state (vaults created before migration support was added) has no envelope.
-The framework treats it as version 0 and applies all migrations.
+Unversioned state (vaults created before migration support was added) has no envelope. The framework treats it as version 0 and applies all migrations.
+
+## Key Concepts
+
+- **`schema`**: Validates the **output** of a migration at runtime.
+- **`inputSchema`**: (Optional) Validates the **input** before the `migrate` function is called.
+- **`defineMigration<Output, Input>`**: Ensures the `migrate` function's return type matches the `schema` type at compile time.
+- **`defineMigrations()`**: A utility to chain migrations together, allowing TypeScript to infer the final state type.
 
 ## Example
 
-```typescript
-import {
-  applyMigrations,
-  defineMigration,
-  defineMigrations,
-  getLatestVersion,
-} from '@metamask/keyring-sdk';
-import type { Infer } from '@metamask/superstruct';
-import { object, array, number, string } from '@metamask/superstruct';
-import type { Json } from '@metamask/utils';
+### 1. Define State Schemas
 
-// Define a type and schema for each state version.
-// `schema` validates the migration output at runtime;
-// `inputSchema` validates the input before `migrate` is called.
+Define a schema for each version of your state.
+
+```typescript
+import { object, array, number, string } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 const HdStateV0Schema = object({
   numberOfAccounts: number(), // legacy field name
@@ -53,19 +51,19 @@ const HdStateV2Schema = object({
   createdAt: number(), // new field
 });
 type HdStateV2 = Infer<typeof HdStateV2Schema>;
+```
 
-// defineMigration<Output, Input> binds `migrate` and `schema` to the same Output
-// type at compile time — a mismatch is a type error, not a runtime surprise.
-//
-// defineMigrations() wraps the array in a tuple so TypeScript can infer that
-// `data` returned by applyMigrations is typed as HdStateV2 (no cast needed).
+### 2. Define the Migration Chain
+
+```typescript
+import { defineMigration, defineMigrations } from '@metamask/keyring-sdk';
+
 const migrations = defineMigrations(
   defineMigration<HdStateV1, HdStateV0>({
     version: 1,
-    inputSchema: HdStateV0Schema, // validates legacy state before migrate runs
-    schema: HdStateV1Schema, // validates output; also covers v2's input implicitly
+    inputSchema: HdStateV0Schema,
+    schema: HdStateV1Schema,
     migrate: (state) => ({
-      // state is typed as HdStateV0
       accountCount: state.numberOfAccounts,
       mnemonic: state.mnemonic,
       hdPath: state.hdPath,
@@ -77,28 +75,31 @@ const migrations = defineMigrations(
     migrate: (state) => ({ ...state, createdAt: Date.now() }),
   }),
 );
+```
+
+### 3. Implement in your Keyring
+
+```typescript
+import { applyMigrations, getLatestVersion } from '@metamask/keyring-sdk';
+import type { Json } from '@metamask/utils';
 
 class MyKeyring {
   async deserialize(state: Json): Promise<void> {
-    // applyMigrations runs only the migrations newer than the state's current version.
-    // `migrated` is true if at least one migration ran.
     const { data, migrated } = await applyMigrations(state, migrations);
 
     if (migrated) {
-      // Schedule a persist so the upgraded state is written to storage even if
-      // nothing else changes this session.
+      // Schedule a persist so the upgraded state is written to storage.
     }
 
-    // data is typed as HdStateV2 — no cast needed
+    // data is typed as HdStateV2
     this.#mnemonic = data.mnemonic;
     this.#accountCount = data.accountCount;
     this.#hdPath = data.hdPath;
   }
 
   async serialize(): Promise<Json> {
-    // Always wrap in the versioned envelope so the vault stays up to date.
     return {
-      version: getLatestVersion(migrations), // 2
+      version: getLatestVersion(migrations),
       data: {
         mnemonic: this.#mnemonic,
         accountCount: this.#accountCount,
@@ -109,13 +110,13 @@ class MyKeyring {
 }
 ```
 
+## Best Practices
+
+- **Idempotent migrations**: Design migrations so re-running them on already-migrated data is harmless. Use the `migrated` flag to trigger a write to storage.
+- **Immutability**: Treat the input `state` as immutable within the `migrate` function.
+- **Schema coverage**: Ensure `schema` covers all fields expected in the new version to prevent runtime errors.
+
 ## Constraints
 
-- **Idempotent migrations**: a migration may run more than once in a session if the
-  controller does not persist state after unlock. Design migrations so re-running them
-  on already-migrated data is harmless; use the `migrated` flag to schedule a persist.
-
 - **Sequential versions**: migrations must be numbered 1, 2, 3, ... with no gaps.
-
-- **Forward-only**: there is no downgrade path; code that does not understand the
-  versioned envelope will fail on migrated state.
+- **Forward-only**: there is no downgrade path; code that does not understand the versioned envelope will fail on migrated state.
