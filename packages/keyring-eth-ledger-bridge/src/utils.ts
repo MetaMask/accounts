@@ -11,11 +11,12 @@ import { add0x } from '@metamask/utils';
  */
 export function getTransactionSelector(rawTxHex: string): string | undefined {
   try {
-    const prefixedHex = rawTxHex.startsWith('0x') ? rawTxHex : add0x(rawTxHex);
+    const prefixedHex = add0x(rawTxHex);
     const tx = TransactionFactory.fromSerializedData(hexToBytes(prefixedHex));
     const dataHex = bytesToHex(tx.data);
-    if (dataHex.length >= 10) {
-      return dataHex.slice(0, 10).toLowerCase();
+    const selectorSize = 2 /* 0x */ + (4 * 2) /* 4 bytes (hex) */; 
+    if (dataHex.length >= selectorSize) {
+      return dataHex.slice(0, selectorSize).toLowerCase();
     }
   } catch {
     // ignore parse errors
