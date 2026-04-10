@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `getTransactionSelector` to read the 4-byte calldata selector from serialized transaction hex (legacy and typed txs) ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Ledger mobile bridge passes `nft: true` to `clearSignTransaction` when that selector is NFT-only (ERC-721 / ERC-1155).
+  - Add `ERC20_WRITE_SELECTORS` for the three EIP-20 write functions (`transfer`, `transferFrom`, `approve`).
+  - Add unit tests for selector constants, `getTransactionSelector`, and Ledger mobile `clearSignTransaction` clear-sign flags ([#TODO](https://github.com/MetaMask/accounts/pull/TODO)).
+
 ### Changed
 
-- Add new dependency `@metamask/keyring-sdk@1.1.0` ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482)), ([#496](https://github.com/MetaMask/accounts/pull/496))
-  - This package now contains the keyring v2 wrapper helpers (`EthKeyringWrapper`).
+- This package now contains the keyring v2 wrapper helpers (`EthKeyringWrapper`).
 - Bump `@metamask/hw-wallet-sdk` from `^0.6.0` to `^0.7.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
 - Bump `@metamask/keyring-api` from `^21.6.0` to `^22.0.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
 - Bump `@metamask/account-api` from `^1.0.0` to `^1.0.1` ([#487](https://github.com/MetaMask/accounts/pull/487))
