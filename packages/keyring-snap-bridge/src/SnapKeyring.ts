@@ -42,13 +42,17 @@ import type { ExtractEventPayload } from '@metamask/messenger';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { type Snap } from '@metamask/snaps-utils';
 import { assert, mask, object, string } from '@metamask/superstruct';
-import type { Hex, Json, SemVerVersion } from '@metamask/utils';
+import type {
+  Hex,
+  Json,
+  SemVerVersion,
+  DeferredPromise,
+} from '@metamask/utils';
 import {
   bigIntToHex,
   hasProperty,
   KnownCaipNamespace,
   toCaipChainId,
-  DeferredPromise,
   createDeferredPromise,
 } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
