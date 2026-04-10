@@ -6,7 +6,6 @@ import type { KeyringMigration } from './migration';
 import {
   applyMigrations,
   defineMigration,
-  defineMigrations,
   getLatestVersion,
   isVersionedState,
 } from './migration';
@@ -359,11 +358,11 @@ describe('applyMigrations', () => {
   });
 
   describe('when inferring the result data type', () => {
-    it('infers the data type from the last migration when using defineMigrations', async () => {
+    it('infers the data type from the last migration when using as const', async () => {
       type StateV1 = { count: number };
       type StateV2 = { count: number; label: string };
 
-      const migrations = defineMigrations(
+      const migrations = [
         defineMigration<StateV1>({
           version: 1,
           migrate: () => ({ count: 1 }),
@@ -372,7 +371,7 @@ describe('applyMigrations', () => {
           version: 2,
           migrate: (state) => ({ ...state, label: 'hello' }),
         }),
-      );
+      ] as const;
 
       const { data } = await applyMigrations({}, migrations);
 
