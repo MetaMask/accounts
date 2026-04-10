@@ -1087,7 +1087,7 @@ describe('SnapKeyring', () => {
             },
           }),
         ).rejects.toThrow(
-          "Account 'b05d918a-b37c-497a-bb28-3d15c0d56b7a' not found",
+          "SnapKeyring - Received a message for an unknown snap keyring 'invalid-snap-id'",
         );
       });
 
@@ -1234,10 +1234,14 @@ describe('SnapKeyring', () => {
       });
 
       it('cannot delete an account owned by another Snap', async () => {
-        await keyring.handleKeyringSnapMessage('invalid-snap-id' as SnapId, {
-          method: KeyringEvent.AccountDeleted,
-          params: { id: ethEoaAccount1.id },
-        });
+        await expect(
+          keyring.handleKeyringSnapMessage('invalid-snap-id' as SnapId, {
+            method: KeyringEvent.AccountDeleted,
+            params: { id: ethEoaAccount1.id },
+          }),
+        ).rejects.toThrow(
+          "SnapKeyring - Received a message for an unknown snap keyring 'invalid-snap-id'",
+        );
         expect(await keyring.getAccounts()).toStrictEqual([
           ethEoaAccount1.address.toLowerCase(),
           ethEoaAccount2.address.toLowerCase(),
@@ -1331,7 +1335,9 @@ describe('SnapKeyring', () => {
             method: KeyringEvent.RequestApproved,
             params: { id: requestId, result: '0x1234' },
           }),
-        ).rejects.toThrow(`Request '${requestId}' not found`);
+        ).rejects.toThrow(
+          "SnapKeyring - Received a message for an unknown snap keyring 'another-snap-id'",
+        );
       });
 
       it('fails to approve a request that failed when submitted', async () => {
@@ -1403,7 +1409,9 @@ describe('SnapKeyring', () => {
             method: KeyringEvent.RequestRejected,
             params: { id: requestId },
           }),
-        ).rejects.toThrow(`Request '${requestId}' not found`);
+        ).rejects.toThrow(
+          "SnapKeyring - Received a message for an unknown snap keyring 'another-snap-id'",
+        );
       });
     });
 

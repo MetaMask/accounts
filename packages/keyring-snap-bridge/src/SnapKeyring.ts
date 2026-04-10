@@ -12,7 +12,7 @@ import type {
   CaipChainId,
   CreateAccountOptions,
 } from '@metamask/keyring-api';
-import { AnyAccountType } from '@metamask/keyring-api';
+import { AnyAccountType, KeyringEvent } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -263,7 +263,11 @@ export class SnapKeyring {
   /**
    * Handle a message from a Snap.
    *
-   * Delegates to the per-snap SnapKeyringV1 handler.
+   * Only `AccountCreated` triggers lazy keyring creation via
+   * `#getOrCreateKeyring`, since that is the single entry point for the v1
+   * event-driven flow. All other events from unknown snaps throw an error.
+   * After handling `AccountCreated`, `#removeSnapKeyringIfEmpty` always runs
+   * (via `try/finally`) to clean up if account creation was rejected.
    *
    * @param snapId - ID of the Snap.
    * @param message - Message sent by the Snap.
@@ -273,7 +277,30 @@ export class SnapKeyring {
     snapId: SnapId,
     message: SnapMessage,
   ): Promise<Json> {
-    return this.#getOrCreateKeyring(snapId).handleKeyringSnapMessage(message);
+    let keyring = this.#snapKeyrings.get(snapId);
+
+    // We can create a new keyring if the message is an AccountCreated event.
+    const isAccountCreated =
+      message.method === `${KeyringEvent.AccountCreated}`;
+    if (!keyring && isAccountCreated) {
+      keyring = this.#getOrCreateKeyring(snapId);
+    }
+
+    if (!keyring) {
+      throw new Error(
+        `SnapKeyring - Received a message for an unknown snap keyring '${snapId}'`,
+      );
+    }
+
+    try {
+      return await keyring.handleKeyringSnapMessage(message);
+    } finally {
+      // Clean up if AccountCreated was rejected (e.g. duplicate address,
+      // invalid account), leaving the snap with no registered accounts.
+      if (isAccountCreated) {
+        this.#removeSnapKeyringIfEmpty(snapId);
+      }
+    }
   }
 
   /**
