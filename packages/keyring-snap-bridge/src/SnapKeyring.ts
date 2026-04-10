@@ -48,12 +48,13 @@ import {
   hasProperty,
   KnownCaipNamespace,
   toCaipChainId,
+  DeferredPromise,
+  createDeferredPromise,
 } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 import { v4 as uuid } from 'uuid';
 
 import { transformAccount } from './account';
-import { DeferredPromise } from './DeferredPromise';
 import {
   AccountCreatedEventStruct,
   AccountUpdatedEventStruct,
@@ -423,7 +424,7 @@ export class SnapKeyring {
     // letting the MetaMask client that this "save" has been run.
     // NOTE: Another way of fixing that could be to rely on events through the
     // messenger maybe?
-    const onceSaved = new DeferredPromise<AccountId>();
+    const onceSaved = createDeferredPromise<AccountId>();
 
     // Add the account to the keyring, but wait for the MetaMask client to
     // approve the account creation first.
@@ -1301,7 +1302,7 @@ export class SnapKeyring {
     requestId: string,
     snapId: SnapId,
   ): DeferredPromise<Response> {
-    const promise = new DeferredPromise<Response>();
+    const promise = createDeferredPromise<Response>();
     this.#requests.set(requestId, { promise, snapId });
     return promise;
   }
