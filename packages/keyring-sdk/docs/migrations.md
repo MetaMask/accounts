@@ -1,7 +1,6 @@
 # Keyring State Migrations
 
-A framework for evolving keyring serialized state across versions. Migrations run during
-`deserialize()` and transform old state into the current format.
+A framework for evolving keyring serialized state across versions. Migrations run during `deserialize()` and transform old state into the current format.
 
 Versioned state is stored as an envelope:
 
@@ -12,18 +11,14 @@ Versioned state is stored as an envelope:
 }
 ```
 
-Unversioned state (vaults created before migration support was added) has no envelope.
-The framework treats it as version 0 and applies all migrations.
+Unversioned state (vaults created before migration support was added) has no envelope. The framework treats it as version 0 and applies all migrations.
 
 ## Key Concepts
 
 - **`schema`**: Validates the **output** of a migration at runtime.
-- **`inputSchema`**: (Optional) Validates the **input** before the `migrate` function is
-  called.
-- **`defineMigration<Output, Input>`**: Ensures the `migrate` function's return type
-  matches the `schema` type at compile time.
-- **`defineMigrations()`**: A utility to chain migrations together, allowing TypeScript
-  to infer the final state type.
+- **`inputSchema`**: (Optional) Validates the **input** before the `migrate` function is called.
+- **`defineMigration<Output, Input>`**: Ensures the `migrate` function's return type matches the `schema` type at compile time.
+- **`defineMigrations()`**: A utility to chain migrations together, allowing TypeScript to infer the final state type.
 
 ## Example
 
@@ -113,14 +108,11 @@ class MyKeyring {
 
 ## Best Practices
 
-- **Idempotent migrations**: Design migrations so re-running them on already-migrated
-  data is harmless.
+- **Idempotent migrations**: Design migrations so re-running them on already-migrated data is harmless.
 - **Immutability**: Treat the input `state` as immutable within the `migrate` function.
-- **Schema coverage**: Ensure `schema` covers all fields expected in the new version to
-  prevent runtime errors.
+- **Schema coverage**: Ensure `schema` covers all fields expected in the new version to prevent runtime errors.
 
 ## Constraints
 
 - **Sequential versions**: migrations must be numbered 1, 2, 3, ... with no gaps.
-- **Forward-only**: there is no downgrade path; code that does not understand the
-  versioned envelope will fail on migrated state.
+- **Forward-only**: there is no downgrade path; code that does not understand the versioned envelope will fail on migrated state.
