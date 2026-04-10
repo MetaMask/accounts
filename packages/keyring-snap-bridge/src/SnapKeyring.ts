@@ -194,6 +194,22 @@ export class SnapKeyring {
   }
 
   /**
+   * Drop a per-snap keyring from {@link #snapKeyrings} when it has no accounts.
+   *
+   * Without this, deleting every account for a Snap would leave an empty
+   * `SnapKeyringV2` in the map for the rest of the session (unlike the old
+   * `SnapIdMap`, which dropped entries on delete).
+   *
+   * @param snapId - Snap ID whose keyring may be removed.
+   */
+  #removeSnapKeyringIfEmpty(snapId: SnapId): void {
+    const keyring = this.#snapKeyrings.get(snapId);
+    if (keyring !== undefined && keyring.accounts().length === 0) {
+      this.#snapKeyrings.delete(snapId);
+    }
+  }
+
+  /**
    * Asserts that an account can be used within the Snap keyring. (e.g. generic accounts, unique
    * addresses, etc...).
    *
@@ -246,7 +262,7 @@ export class SnapKeyring {
   /**
    * Serialize the keyring state.
    *
-   * Delegates to each per-snap v2 wrapper and flattens back into the original
+   * Delegates to each per-snap v2 keyring and flattens back into the original
    * external format so that `KeyringController` sees no change.
    *
    * @returns Serialized keyring state.
@@ -290,11 +306,13 @@ export class SnapKeyring {
     this.#snapKeyrings.clear();
     this.#accountIndex.clear();
 
-    // Rebuild per-snap entries. Migrations run inside v2.deserialize().
+    // Rebuild per-snap keyrings. Each keyrings handles its own validation
+    // and migration internally.
     for (const [snapId, accounts] of bySnap) {
       const keyring = this.#getOrCreateKeyring(snapId);
       await keyring.deserialize({ snapId, accounts });
       // onRegister callbacks fired above have repopulated #accountIndex.
+      this.#removeSnapKeyringIfEmpty(snapId);
     }
   }
 
@@ -599,7 +617,7 @@ export class SnapKeyring {
   /**
    * Removes the account matching the given address.
    *
-   * Delegates to the per-snap SnapKeyringV2 wrapper which handles
+   * Delegates to the per-snap SnapKeyringV2 keyring which handles
    * registry removal, index cleanup, and snap communication.
    *
    * @param address - Address of the account to remove.
@@ -607,6 +625,7 @@ export class SnapKeyring {
   async removeAccount(address: string): Promise<void> {
     const { account, keyring } = this.#resolveAddress(address);
     await keyring.deleteAccount(account.id);
+    this.#removeSnapKeyringIfEmpty(keyring.snapId);
   }
 
   /**
