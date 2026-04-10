@@ -9,8 +9,8 @@ import { JsonStruct, type Json } from '@metamask/utils';
  * {@link defineMigration} to create migrations with compile-time type binding between
  * `migrate` and `schema`.
  *
- * Use {@link defineMigrations} to build the array so that `applyMigrations` can infer
- * the last migration's output type and return a typed `data` field.
+ * Use an array with `as const` so that `applyMigrations` can infer the last migration's
+ * output type and return a typed `data` field.
  *
  * @example
  * ```typescript
@@ -51,32 +51,6 @@ export type KeyringMigration<Output extends Json = Json> = {
    */
   validate?: ((data: unknown) => void) | undefined;
 };
-
-/**
- * Define a typed migrations array.
- *
- * Using rest parameters forces TypeScript to infer a tuple type, which lets
- * {@link applyMigrations} infer `data` as the last migration's output type, no `as
- * const` or manual cast needed.
- *
- * @param migrations - Ordered migrations created with {@link defineMigration}.
- * @returns The same migrations as a typed tuple.
- * @example
- * ```typescript
- * const migrations = defineMigrations(
- *   defineMigration<V1, V0>({ version: 1, ... }),
- *   defineMigration<V2, V1>({ version: 2, ... }),
- * );
- *
- * const { data } = await applyMigrations(state, migrations);
- * // data is V2
- * ```
- */
-export function defineMigrations<Migrations extends KeyringMigration[]>(
-  ...migrations: Migrations
-): Migrations {
-  return migrations;
-}
 
 /**
  * Create a migration with compile-time type binding between `migrate` and `schema`.
@@ -249,21 +223,21 @@ type LastOutput<Migrations extends readonly KeyringMigration[]> =
  * Handles both versioned state (wrapped in `{ version, data }` envelope) and
  * unversioned legacy state (treated as version 0).
  *
- * Use {@link defineMigrations} to declare the array and get a typed `data` field
+ * Use an array with `as const` to declare the migrations and get a typed `data` field
  * without a cast in `deserialize()`:
  *
  * ```typescript
- * const migrations = defineMigrations(
+ * const migrations = [
  *   defineMigration<V1, V0>({ version: 1, ... }),
  *   defineMigration<V2, V1>({ version: 2, ... }),
- * );
+ * ] as const;
  *
  * const { data } = await applyMigrations(state, migrations);
  * // data is V2
  * ```
  *
- * Without `defineMigrations` (array typed as `KeyringMigration[]`), `data` falls back
- * to `Json`.
+ * Without `as const` (array typed as `KeyringMigration[]`), `data` falls back to
+ * `Json`.
  *
  * @param state - The serialized keyring state (from vault or previous serialize).
  * @param migrations - Ordered array of migrations to apply.
