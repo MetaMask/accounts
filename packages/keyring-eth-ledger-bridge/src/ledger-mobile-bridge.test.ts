@@ -1,5 +1,9 @@
+import { Common, Chain, Hardfork } from '@ethereumjs/common';
+import { TransactionFactory } from '@ethereumjs/tx';
+import { bytesToHex } from '@ethereumjs/util';
 import Transport from '@ledgerhq/hw-transport';
 import { EIP712Message } from '@ledgerhq/types-live';
+import { remove0x } from '@metamask/utils';
 
 import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
 import { LedgerMobileBridge } from './ledger-mobile-bridge';
@@ -164,7 +168,65 @@ describe('LedgerMobileBridge', function () {
       expect(mockEthApp.clearSignTransaction).toHaveBeenCalledTimes(1);
       expect(mockEthApp.clearSignTransaction).toHaveBeenCalledWith(hdPath, tx, {
         externalPlugins: true,
+        erc20: false,
+        nft: false,
+      });
+    });
+
+    it('sets erc20 when calldata uses an EIP-20 write selector', async function () {
+      const hdPath = "m/44'/60'/0'/0/0";
+      const common = new Common({
+        chain: Chain.Mainnet,
+        hardfork: Hardfork.Berlin,
+      });
+      const erc20Tx = TransactionFactory.fromTxData(
+        {
+          nonce: '0x00',
+          gasPrice: '0x01',
+          gasLimit: '0x5208',
+          to: '0x0000000000000000000000000000000000000000',
+          value: '0x00',
+          data: '0xa9059cbb0000000000000000000000000000000000000000000000000000000000000000',
+        },
+        { common },
+      );
+      const tx = remove0x(bytesToHex(erc20Tx.serialize()));
+      await bridge.deviceSignTransaction({
+        hdPath,
+        tx,
+      });
+      expect(mockEthApp.clearSignTransaction).toHaveBeenCalledWith(hdPath, tx, {
+        externalPlugins: true,
         erc20: true,
+        nft: false,
+      });
+    });
+
+    it('sets nft when calldata uses an NFT-only selector', async function () {
+      const hdPath = "m/44'/60'/0'/0/0";
+      const common = new Common({
+        chain: Chain.Mainnet,
+        hardfork: Hardfork.Berlin,
+      });
+      const nftTx = TransactionFactory.fromTxData(
+        {
+          nonce: '0x00',
+          gasPrice: '0x01',
+          gasLimit: '0x5208',
+          to: '0x0000000000000000000000000000000000000000',
+          value: '0x00',
+          data: '0xa22cb46500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001',
+        },
+        { common },
+      );
+      const tx = remove0x(bytesToHex(nftTx.serialize()));
+      await bridge.deviceSignTransaction({
+        hdPath,
+        tx,
+      });
+      expect(mockEthApp.clearSignTransaction).toHaveBeenCalledWith(hdPath, tx, {
+        externalPlugins: true,
+        erc20: false,
         nft: true,
       });
     });
@@ -182,8 +244,8 @@ describe('LedgerMobileBridge', function () {
       expect(mockEthApp.clearSignTransaction).toHaveBeenCalledTimes(1);
       expect(mockEthApp.clearSignTransaction).toHaveBeenCalledWith(hdPath, tx, {
         externalPlugins: true,
-        erc20: true,
-        nft: true,
+        erc20: false,
+        nft: false,
       });
     });
   });

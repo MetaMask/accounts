@@ -8,3 +8,5 @@ export type * from './type';
 export * from './ledger-hw-app';
 export * from './errors';
 export * from './ledger-error-handler';
+export * from './constants';
+export * from './utils';
