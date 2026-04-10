@@ -459,6 +459,27 @@ describe('LedgerKeyringV2', () => {
       // The accounts should be new objects (cache was cleared)
       expect(accountsAfter[0]).not.toBe(accountsBefore[0]);
     });
+
+    it('properly repopulates registry after deserialize with deterministic IDs', async () => {
+      const { wrapper } = await createWrapperWithAccounts(2);
+      const accounts1 = await wrapper.getAccounts();
+      const firstAccountId = accounts1[0]?.id;
+
+      // Re-deserialize with same 2 accounts
+      await wrapper.deserialize({
+        hdPath: `m/44'/60'/0'`,
+        accounts: [EXPECTED_ACCOUNTS[0], EXPECTED_ACCOUNTS[1]],
+        accountDetails: {
+          [EXPECTED_ACCOUNTS[0]]: { bip44: false, hdPath: `m/44'/60'/0'/0` },
+          [EXPECTED_ACCOUNTS[1]]: { bip44: false, hdPath: `m/44'/60'/0'/1` },
+        },
+      });
+
+      const accounts2 = await wrapper.getAccounts();
+      expect(accounts2).toHaveLength(2);
+      // Same address -> same deterministic ID
+      expect(accounts2[0]?.id).toBe(firstAccountId);
+    });
   });
 
   describe('createAccounts', () => {

@@ -1548,6 +1548,31 @@ describe('SnapKeyring', () => {
       expect(await keyring.getAccounts()).toStrictEqual([]);
     });
 
+    it('does not clear existing state when a snap fails validation', async () => {
+      const otherSnapId = 'local:snap.other' as SnapId;
+      await keyring.deserialize({
+        accounts: {
+          [ethEoaAccount1.id]: { account: ethEoaAccount1, snapId },
+        },
+      } as unknown as KeyringState);
+
+      await expect(
+        keyring.deserialize({
+          accounts: {
+            [ethEoaAccount1.id]: { account: ethEoaAccount1, snapId },
+            [ethEoaAccount2.id]: {
+              account: {} as KeyringAccount,
+              snapId: otherSnapId,
+            },
+          },
+        } as unknown as KeyringState),
+      ).rejects.toThrow(/Expected/u);
+
+      expect(await keyring.getAccounts()).toStrictEqual([
+        ethEoaAccount1.address,
+      ]);
+    });
+
     it.each([
       ethEoaAccount1,
       ethErc4337Account,
@@ -2242,6 +2267,25 @@ describe('SnapKeyring', () => {
         accounts[9].address,
         accounts[10].address,
       ]);
+    });
+
+    it('drops the per-snap wrapper when the last account for that Snap is removed', async () => {
+      const isolatedKeyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+        isAnyAccountTypeAllowed: true,
+      });
+      await isolatedKeyring.deserialize({
+        accounts: {
+          [ethEoaAccount1.id]: {
+            account: ethEoaAccount1 as unknown as KeyringAccount,
+            snapId,
+          },
+        },
+      } as unknown as KeyringState);
+      mockMessenger.handleRequest.mockResolvedValue(null);
+      await isolatedKeyring.removeAccount(ethEoaAccount1.address);
+      expect(await isolatedKeyring.getAccounts()).toStrictEqual([]);
     });
 
     it('removes the account and warn if Snap fails', async () => {
