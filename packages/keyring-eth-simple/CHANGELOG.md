@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(keyring-sdk): add `generateEthAccountId` + use it in `EthKeyringWrapper` ([#504](https://github.com/MetaMask/accounts/pull/504))
+
 ## [11.1.1]
 
 ### Changed

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat(keyring-sdk): add `generateEthAccountId` + use it in `EthKeyringWrapper` ([#504](https://github.com/MetaMask/accounts/pull/504))
+- chore: bump @metamask/messenger and @metamask/utils ([#489](https://github.com/MetaMask/accounts/pull/489))
+- build: remove use of workspace versions ([#479](https://github.com/MetaMask/accounts/pull/479))
+- fix: update mapping ([#466](https://github.com/MetaMask/accounts/pull/466))
+
 ### Changed
 
 - Add new dependency `@metamask/keyring-sdk@1.1.0` ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482)), ([#496](https://github.com/MetaMask/accounts/pull/496))
