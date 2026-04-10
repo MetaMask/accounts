@@ -28,16 +28,22 @@ export type KeyringRpcV2 = {
 /**
  * Keyring RPC methods used by the API.
  */
-export enum KeyringRpcV2Method {
-  GetAccounts = 'keyring_getAccounts',
-  CreateAccounts = 'keyring_createAccounts',
+export const KeyringRpcV2Method = {
+  GetAccounts: 'keyring_getAccounts',
+  CreateAccounts: 'keyring_createAccounts',
   // Inherited from v1 (but method signatures may differ...):
   // NOTE: We use literals here to avoid circular dependencies.
-  GetAccount = 'keyring_getAccount',
-  DeleteAccount = 'keyring_deleteAccount',
-  ExportAccount = 'keyring_exportAccount',
-  SubmitRequest = 'keyring_submitRequest',
-}
+  GetAccount: 'keyring_getAccount',
+  DeleteAccount: 'keyring_deleteAccount',
+  ExportAccount: 'keyring_exportAccount',
+  SubmitRequest: 'keyring_submitRequest',
+} as const;
+
+/**
+ * Keyring RPC methods used by the API.
+ */
+export type KeyringRpcV2Method =
+  (typeof KeyringRpcV2Method)[keyof typeof KeyringRpcV2Method];
 
 /**
  * Check if a method is a keyring RPC method (v2).
