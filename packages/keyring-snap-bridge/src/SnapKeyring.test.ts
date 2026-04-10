@@ -45,13 +45,16 @@ import { type SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 import { assert } from '@metamask/superstruct';
 import type { Hex, Json } from '@metamask/utils';
-import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
+import {
+  KnownCaipNamespace,
+  toCaipChainId,
+  createDeferredPromise,
+} from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
 import type { KeyringState, SnapKeyringInternalOptions } from '.';
 import { getDefaultInternalOptions, SnapKeyring } from '.';
 import type { KeyringAccountV1 } from './account';
-import { DeferredPromise } from './DeferredPromise';
 import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 
@@ -915,7 +918,7 @@ describe('SnapKeyring', () => {
 
       it('saves to the state asynchronously', async () => {
         // We simulate a long running `saveState`
-        const deferred = new DeferredPromise<void>();
+        const deferred = createDeferredPromise();
         const saveStateContext = {
           called: false,
           returned: false,
