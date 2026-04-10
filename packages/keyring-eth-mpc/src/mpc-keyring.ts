@@ -48,6 +48,7 @@ import {
   parseThresholdKeyId,
   parseVerifierIds,
   publicKeyToAddressHex,
+  generateSessionNonce,
   toEthSig,
 } from './util';
 
@@ -236,7 +237,7 @@ export class MPCKeyring implements Keyring {
 
     // Session 2: establish with static joiner identity,
     // send partial key, key id, and fresh nonce
-    const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
+    const sessionNonce = generateSessionNonce(this.#rng);
 
     const joinSession2Id = createScopedSessionId([custodianId, localId], nonce);
     const joinSession2 = await this.#networkManager.createSession(
@@ -357,7 +358,7 @@ export class MPCKeyring implements Keyring {
 
     const onlineCustodians = [localId, cloudCustodian.partyId];
 
-    const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
+    const sessionNonce = generateSessionNonce(this.#rng);
     const verifierId = this.getSelectedVerifierId();
     const token = await this.#getVerifierToken(verifierId);
 
@@ -444,7 +445,7 @@ export class MPCKeyring implements Keyring {
   async createJoinData(): Promise<string> {
     const initiatorId = this.#assertState().networkIdentity.partyId;
     const ephemeralJoinerIdentity = await this.#networkManager.createIdentity();
-    const nonce = bytesToHex(this.#rng.generateRandomBytes(32));
+    const nonce = generateSessionNonce(this.#rng);
 
     return JSON.stringify({
       initiatorId,
@@ -485,7 +486,7 @@ export class MPCKeyring implements Keyring {
     const totalStartTime = performance.now();
     const initCloudStartTime = performance.now();
 
-    const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
+    const sessionNonce = generateSessionNonce(this.#rng);
     const { cloudId } = await initCloudKeyGen({
       localId,
       sessionNonce,
@@ -764,7 +765,7 @@ export class MPCKeyring implements Keyring {
     }
 
     const signers = [localId, cloudCustodian.partyId];
-    const sessionNonce = bytesToHex(this.#rng.generateRandomBytes(32));
+    const sessionNonce = generateSessionNonce(this.#rng);
     const sessionId = createScopedSessionId(signers, sessionNonce);
     const message = hash;
     const token = await this.#getVerifierToken(verifierId);

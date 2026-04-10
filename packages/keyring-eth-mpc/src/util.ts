@@ -16,10 +16,23 @@ import {
   TypedDataUtils,
   typedSignatureHash,
 } from '@metamask/eth-sig-util';
+import type { RandomNumberGenerator } from '@metamask/mfa-wallet-interface';
 import type { Hex, Json } from '@metamask/utils';
 import { add0x, assert, bytesToHex, hexToBytes } from '@metamask/utils';
 
 import type { Custodian, ThresholdKeyId } from './types';
+
+const SESSION_NONCE_BYTE_LENGTH = 32;
+
+/**
+ * Generate a session nonce: random bytes from the RNG, hex-encoded.
+ *
+ * @param rng - The random number generator.
+ * @returns Hex-encoded 32-byte random nonce.
+ */
+export function generateSessionNonce(rng: RandomNumberGenerator): Hex {
+  return bytesToHex(rng.generateRandomBytes(SESSION_NONCE_BYTE_LENGTH));
+}
 
 const SECP256K1_N = BigInt(
   '0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
