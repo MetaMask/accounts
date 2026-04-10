@@ -162,7 +162,9 @@ export type MigrationResult<Data extends Json = Json> = VersionedState<Data> & {
  * @param state - The value to check.
  * @returns `true` if the value is a versioned state envelope.
  */
-export function isVersionedState(state: Json): state is VersionedState {
+export function isVersionedState<State extends Json = Json>(
+  state: State | VersionedState<State>,
+): state is VersionedState<State> {
   return is(state, VersionedStateStruct);
 }
 
@@ -202,10 +204,9 @@ function validateMigrations(migrations: readonly KeyringMigration[]): void {
  * @param state - The state to check.
  * @returns The version number.
  */
-function getVersionAndData(state: Json | VersionedState): {
-  version: number;
-  data: Json;
-} {
+function getVersionAndData<State extends Json = Json>(
+  state: State | VersionedState<State>,
+): VersionedState<State> {
   return isVersionedState(state)
     ? { version: state.version, data: state.data }
     : { version: 0, data: state };
