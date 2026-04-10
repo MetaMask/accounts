@@ -5,7 +5,6 @@ import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
   KeyringAccount,
   KeyringExecutionContext,
-  BtcMethod,
   EthBaseTransaction,
   EthBaseUserOperation,
   EthUserOperation,
@@ -23,7 +22,6 @@ import {
 } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
-import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -40,15 +38,13 @@ import { Mutex } from 'async-mutex';
 import { type SnapKeyringInternalOptions } from './options';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
-import { SnapKeyringV1 } from './SnapKeyringV1';
+import type { AccountMethod } from './SnapKeyringV1';
 import { SnapKeyringV2 } from './SnapKeyringV2';
 import type { SnapMessage } from './types';
 import { normalizeAccountAddress, throwError, toJson, unique } from './util';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 
-// TODO: to be removed when this is added to the keyring-api
-type AccountMethod = EthMethod | BtcMethod;
 
 /**
  * Snap keyring state.
@@ -88,13 +84,6 @@ export type SnapKeyringCallbacks = {
   redirectUser(snapId: SnapId, url: string, message: string): Promise<void>;
 };
 
-/**
- * Per-snap keyring entry holding the sibling v1 and v2 instances.
- */
-type SnapKeyringEntry = {
-  v1: SnapKeyringV1;
-  v2: SnapKeyringV2;
-};
 
 /**
  * Keyring bridge implementation to support Snaps.
@@ -120,13 +109,11 @@ export class SnapKeyring {
   readonly #snapClient: KeyringInternalSnapClient;
 
   /**
-   * Per-snap keyring entries, each holding a sibling v1 and v2 instance.
-   *
-   * v1 handles the event-driven flow (AccountCreated/Updated/Deleted,
-   * request lifecycle, asset events). v2 implements the KeyringV2 interface
-   * (batch createAccounts). Both share the same KeyringAccountRegistry.
+   * Per-snap keyring instances. Each `SnapKeyringV2` (which extends
+   * `SnapKeyringV1`) owns a single `KeyringAccountRegistry` and handles
+   * both the event-driven v1 flow and the `KeyringV2` batch interface.
    */
-  readonly #snapKeyrings: Map<SnapId, SnapKeyringEntry>;
+  readonly #snapKeyrings: Map<SnapId, SnapKeyringV2>;
 
   /**
    * Reverse index from account ID to the owning Snap ID.
@@ -203,11 +190,9 @@ export class SnapKeyring {
    * @param snapId - Snap ID.
    * @returns The SnapKeyringEntry for the given Snap.
    */
-  #getOrCreateKeyring(snapId: SnapId): SnapKeyringEntry {
+  #getOrCreateKeyring(snapId: SnapId): SnapKeyringV2 {
     let entry = this.#snapKeyrings.get(snapId);
     if (!entry) {
-      const registry = new KeyringAccountRegistry();
-
       const onRegister = (id: AccountId): void => {
         this.#accountIndex.set(id, snapId);
       };
@@ -215,9 +200,8 @@ export class SnapKeyring {
         this.#accountIndex.delete(id);
       };
 
-      const v1 = new SnapKeyringV1({
+      entry = new SnapKeyringV2({
         snapId,
-        registry,
         messenger: this.#messenger,
         onRegister,
         onUnregister,
@@ -244,42 +228,11 @@ export class SnapKeyring {
             this.#callbacks.redirectUser(snapId, url, message),
           assertAccountCanBeUsed: async (account) =>
             this.#assertAccountCanBeUsed(account),
-          isAnyAccountTypeAllowed: this.#isAnyAccountTypeAllowed,
-        },
-      });
-
-      const v2 = new SnapKeyringV2({
-        snapId,
-        registry,
-        messenger: this.#messenger,
-        onRegister,
-        onUnregister,
-        callbacks: {
-          // This callback is only invoked via SnapKeyringV2.submitRequest,
-          // which is not called through SnapKeyring's public API today.
-          // SnapKeyring.submitRequest routes through v1.submitSnapRequest directly.
-          // Coverage is excluded until consumers interact with SnapKeyringV2 directly.
-          submitSnapRequest: /* istanbul ignore next */ async (request) =>
-            v1.submitSnapRequest({
-              origin: request.origin,
-              account:
-                registry.get(request.account) ??
-                throwError(
-                  `Account '${request.account}' not found for snap '${snapId}'`,
-                ),
-              method: request.request.method as AccountMethod,
-              params: request.request.params,
-              scope: request.scope,
-              noPending: false,
-            }),
-          assertAccountCanBeUsed: async (account) =>
-            this.#assertAccountCanBeUsed(account),
-          saveState: async () => this.#callbacks.saveState(),
+          isAnyAccountTypeAllowed: () => this.#isAnyAccountTypeAllowed,
           withLock: async (callback) => this.#withLock(callback),
         },
       });
 
-      entry = { v1, v2 };
       this.#snapKeyrings.set(snapId, entry);
     }
     return entry;
@@ -332,9 +285,7 @@ export class SnapKeyring {
     snapId: SnapId,
     message: SnapMessage,
   ): Promise<Json> {
-    return this.#getOrCreateKeyring(snapId).v1.handleKeyringSnapMessage(
-      message,
-    );
+    return this.#getOrCreateKeyring(snapId).handleKeyringSnapMessage(message);
   }
 
   /**
@@ -347,9 +298,9 @@ export class SnapKeyring {
    */
   async serialize(): Promise<KeyringState> {
     const accounts: KeyringState['accounts'] = {};
-    for (const { v2 } of this.#snapKeyrings.values()) {
-      for (const account of v2.accounts()) {
-        accounts[account.id] = { account, snapId: v2.snapId };
+    for (const entry of this.#snapKeyrings.values()) {
+      for (const account of entry.accounts()) {
+        accounts[account.id] = { account, snapId: entry.snapId };
       }
     }
     return { accounts };
@@ -386,8 +337,8 @@ export class SnapKeyring {
 
     // Rebuild per-snap entries. Migrations run inside v2.deserialize().
     for (const [snapId, accounts] of bySnap) {
-      const { v2 } = this.#getOrCreateKeyring(snapId);
-      await v2.deserialize({ snapId, accounts });
+      const entry = this.#getOrCreateKeyring(snapId);
+      await entry.deserialize({ snapId, accounts });
       // onRegister callbacks fired above have repopulated #accountIndex.
     }
   }
@@ -402,7 +353,7 @@ export class SnapKeyring {
   #getAccount(id: string): { account: KeyringAccount; snapId: SnapId } {
     const snapId = this.#accountIndex.get(id);
     const account = snapId
-      ? this.#snapKeyrings.get(snapId)?.v2.lookupAccount(id)
+      ? this.#snapKeyrings.get(snapId)?.lookupAccount(id)
       : undefined;
 
     if (!snapId || !account) {
@@ -418,8 +369,8 @@ export class SnapKeyring {
    */
   async getAccounts(): Promise<string[]> {
     const addresses: string[] = [];
-    for (const { v2 } of this.#snapKeyrings.values()) {
-      for (const account of v2.accounts()) {
+    for (const entry of this.#snapKeyrings.values()) {
+      for (const account of entry.accounts()) {
         addresses.push(normalizeAccountAddress(account));
       }
     }
@@ -434,7 +385,7 @@ export class SnapKeyring {
    */
   async getAccountsBySnapId(snapId: SnapId): Promise<string[]> {
     return unique(
-      (this.#snapKeyrings.get(snapId)?.v2.accounts() ?? []).map(
+      (this.#snapKeyrings.get(snapId)?.accounts() ?? []).map(
         normalizeAccountAddress,
       ),
     );
@@ -455,7 +406,7 @@ export class SnapKeyring {
     options: Record<string, Json>,
     internalOptions?: SnapKeyringInternalOptions,
   ): Promise<KeyringAccount> {
-    return this.#getOrCreateKeyring(snapId).v1.createAccount(
+    return this.#getOrCreateKeyring(snapId).createAccount(
       options,
       internalOptions,
     );
@@ -475,7 +426,7 @@ export class SnapKeyring {
     snapId: SnapId,
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
-    return this.#getOrCreateKeyring(snapId).v2.createAccounts(options);
+    return this.#getOrCreateKeyring(snapId).createAccounts(options);
   }
 
   /**
@@ -486,7 +437,7 @@ export class SnapKeyring {
    */
   hasSnapId(snapId: SnapId): boolean {
     const entry = this.#snapKeyrings.get(snapId);
-    return entry !== undefined && entry.v2.accounts().length > 0;
+    return entry !== undefined && entry.accounts().length > 0;
   }
 
   /**
@@ -549,7 +500,7 @@ export class SnapKeyring {
       this.#snapKeyrings.get(snapId) ??
       throwError(`No keyring found for snap '${snapId}'`);
 
-    return await entry.v1.submitSnapRequest({
+    return await entry.submitSnapRequest({
       origin,
       account,
       method: method as AccountMethod,
@@ -594,7 +545,7 @@ export class SnapKeyring {
       this.#snapKeyrings.get(snapId) ??
       throwError(`No keyring found for snap '${snapId}'`);
 
-    return await entry.v1.submitSnapRequest<Response>({
+    return await entry.submitSnapRequest<Response>({
       origin,
       account,
       method: method as AccountMethod,
@@ -852,7 +803,7 @@ export class SnapKeyring {
    * @param account - Account to delete.
    */
   async #deleteAccount(snapId: SnapId, account: KeyringAccount): Promise<void> {
-    await this.#getOrCreateKeyring(snapId).v2.deleteAccount(account.id);
+    await this.#getOrCreateKeyring(snapId).deleteAccount(account.id);
   }
 
   /**
@@ -866,8 +817,8 @@ export class SnapKeyring {
     account: KeyringAccount;
     snapId: SnapId;
   } {
-    for (const [snapId, { v2 }] of this.#snapKeyrings) {
-      const account = v2.lookupByAddress(address);
+    for (const [snapId, entry] of this.#snapKeyrings) {
+      const account = entry.lookupByAddress(address);
       if (account) {
         return { account, snapId };
       }
@@ -896,11 +847,11 @@ export class SnapKeyring {
     }
 
     await Promise.all(
-      [...this.#snapKeyrings.entries()].map(async ([snapId, { v1 }]) =>
-        v1.setSelectedAccounts(
-          bySnap.get(snapId) ??
-            /* istanbul ignore next */
-            [],
+      [...this.#snapKeyrings.entries()].map(async ([snapId, entry]) =>
+        entry.setSelectedAccounts(
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          /* istanbul ignore next */
+          bySnap.get(snapId) ?? [],
         ),
       ),
     );
@@ -967,8 +918,8 @@ export class SnapKeyring {
    * @returns An internal account object for the given address.
    */
   getAccountByAddress(address: string): InternalAccount | undefined {
-    for (const [snapId, { v2 }] of this.#snapKeyrings) {
-      const account = v2.lookupByAddress(address);
+    for (const [snapId, entry] of this.#snapKeyrings) {
+      const account = entry.lookupByAddress(address);
       if (account) {
         return this.#transformToInternalAccount(account, snapId);
       }
@@ -985,8 +936,8 @@ export class SnapKeyring {
    */
   listAccounts(): InternalAccount[] {
     const accounts: InternalAccount[] = [];
-    for (const [snapId, { v2 }] of this.#snapKeyrings) {
-      for (const account of v2.accounts()) {
+    for (const [snapId, entry] of this.#snapKeyrings) {
+      for (const account of entry.accounts()) {
         accounts.push(this.#transformToInternalAccount(account, snapId));
       }
     }

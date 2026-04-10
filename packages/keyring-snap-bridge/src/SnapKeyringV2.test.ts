@@ -4,15 +4,11 @@ import type {
   CreateAccountOptions,
 } from '@metamask/keyring-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
-import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { SnapId } from '@metamask/snaps-sdk';
-import type { Messenger } from '@metamask/messenger';
 
 import type { SnapKeyringV2Callbacks } from './SnapKeyringV2';
 import { SnapKeyringV2 } from './SnapKeyringV2';
-import type {
-  SnapKeyringMessenger,
-} from './SnapKeyringMessenger';
+import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 
@@ -41,11 +37,20 @@ const account2: KeyringAccount = {
  */
 function makeMockCallbacks(): SnapKeyringV2Callbacks {
   return {
-    submitSnapRequest: jest.fn(),
+    // V1 base callbacks
+    addAccount: jest.fn<Promise<void>, any[]>().mockResolvedValue(undefined),
+    removeAccount: jest
+      .fn<Promise<void>, any[]>()
+      .mockResolvedValue(undefined),
+    saveState: jest.fn<Promise<void>, []>().mockResolvedValue(undefined),
+    redirectUser: jest
+      .fn<Promise<void>, any[]>()
+      .mockResolvedValue(undefined),
     assertAccountCanBeUsed: jest
       .fn<Promise<void>, [KeyringAccount]>()
       .mockResolvedValue(undefined),
-    saveState: jest.fn<Promise<void>, []>().mockResolvedValue(undefined),
+    isAnyAccountTypeAllowed: false,
+    // V2 additional callback
     withLock: jest.fn(async <Result>(callback: () => Promise<Result>) =>
       callback(),
     ),
@@ -57,14 +62,13 @@ function makeMockCallbacks(): SnapKeyringV2Callbacks {
  *
  * @param snapId - The Snap ID used to construct the keyring.
  * @param callbackOverrides - Optional callback overrides.
- * @returns The keyring, shared registry, arrays of registered/unregistered IDs, and mock callbacks.
+ * @returns The keyring, arrays of registered/unregistered IDs, and mock callbacks.
  */
 function makeKeyring(
   snapId: SnapId = SNAP_ID,
   callbackOverrides?: Partial<SnapKeyringV2Callbacks>,
 ): {
   keyring: SnapKeyringV2;
-  registry: KeyringAccountRegistry;
   registered: string[];
   unregistered: string[];
   callbacks: SnapKeyringV2Callbacks;
@@ -72,14 +76,12 @@ function makeKeyring(
   const registered: string[] = [];
   const unregistered: string[] = [];
   const callbacks = { ...makeMockCallbacks(), ...callbackOverrides };
-  const registry = new KeyringAccountRegistry();
   const messenger = {
     call: jest.fn(),
     publish: jest.fn(),
   } as unknown as SnapKeyringMessenger;
   const keyring = new SnapKeyringV2({
     snapId,
-    registry,
     messenger,
     onRegister: (id): void => {
       registered.push(id);
@@ -89,7 +91,7 @@ function makeKeyring(
     },
     callbacks,
   });
-  return { keyring, registry, registered, unregistered, callbacks };
+  return { keyring, registered, unregistered, callbacks };
 }
 
 describe('SnapKeyringV2', () => {
@@ -397,12 +399,15 @@ describe('SnapKeyringV2', () => {
     });
 
     describe('submitRequest', () => {
-      it('delegates to the callback for a known account', async () => {
+      it('delegates to inherited submitSnapRequest for a known account', async () => {
         const mockResult = { success: true };
-        const { keyring } = makeKeyring(SNAP_ID, {
-          submitSnapRequest: jest.fn().mockResolvedValue(mockResult),
-        });
+        const { keyring } = makeKeyring();
         keyring.setAccount(account1);
+
+        // Spy on the inherited V1 method directly
+        const submitSpy = jest
+          .spyOn(keyring, 'submitSnapRequest')
+          .mockResolvedValue(mockResult as any);
 
         const request = {
           id: 'req-1',
@@ -415,6 +420,15 @@ describe('SnapKeyringV2', () => {
         const result = await keyring.submitRequest(request);
 
         expect(result).toStrictEqual(mockResult);
+        expect(submitSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            origin: 'metamask',
+            account: account1,
+            method: 'eth_sign',
+            scope: 'eip155:1',
+            noPending: false,
+          }),
+        );
       });
 
       it('throws for an unknown account', async () => {
@@ -432,18 +446,6 @@ describe('SnapKeyringV2', () => {
           "Account 'unknown-id' not found",
         );
       });
-    });
-  });
-
-  describe('registry sharing', () => {
-    it('reflects accounts added via the shared registry directly', () => {
-      const { keyring, registry } = makeKeyring();
-
-      // Add via the registry directly (as SnapKeyringV1 would)
-      registry.set(account1);
-
-      expect(keyring.hasAccount(account1.id)).toBe(true);
-      expect(keyring.lookupAccount(account1.id)).toStrictEqual(account1);
     });
   });
 });
