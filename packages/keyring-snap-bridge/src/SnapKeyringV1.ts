@@ -435,6 +435,7 @@ export class SnapKeyringV1 {
   async signTransaction(
     account: KeyringAccount,
     transaction: TypedTransaction,
+    /* istanbul ignore next */
     _opts = {},
   ): Promise<Json | TypedTransaction> {
     const chainId = transaction.common.chainId();
