@@ -104,15 +104,13 @@ export function defineMigrations<Migrations extends KeyringMigration[]>(
  * @example
  * ```typescript
  * const V0Schema = object({ numberOfItems: number() });
- * type V0 = Infer<typeof V0Schema>;
  * const V1Schema = object({ count: number() });
- * type V1 = Infer<typeof V1Schema>;
  *
- * const migration = defineMigration<V1, V0>({
+ * const migration = defineMigration({
  *   version: 1,
  *   inputSchema: V0Schema,
  *   schema: V1Schema,
- *   migrate: (state) => ({ count: state.numberOfItems }), // state is V0, no cast needed
+ *   migrate: (state) => ({ count: state.numberOfItems }), // state inferred from V0Schema
  * });
  * ```
  */
