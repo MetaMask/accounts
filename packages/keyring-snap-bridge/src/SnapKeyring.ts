@@ -150,9 +150,9 @@ export class SnapKeyring {
    * @returns The SnapKeyringEntry for the given Snap.
    */
   #getOrCreateKeyring(snapId: SnapId): SnapKeyringV2 {
-    let entry = this.#snapKeyrings.get(snapId);
-    if (!entry) {
-      entry = new SnapKeyringV2({
+    let keyring = this.#snapKeyrings.get(snapId);
+    if (!keyring) {
+      keyring = new SnapKeyringV2({
         snapId,
         messenger: this.#messenger,
         isAnyAccountTypeAllowed: this.#isAnyAccountTypeAllowed,
@@ -188,9 +188,9 @@ export class SnapKeyring {
         },
       });
 
-      this.#snapKeyrings.set(snapId, entry);
+      this.#snapKeyrings.set(snapId, keyring);
     }
-    return entry;
+    return keyring;
   }
 
   /**
@@ -253,9 +253,9 @@ export class SnapKeyring {
    */
   async serialize(): Promise<KeyringState> {
     const accounts: KeyringState['accounts'] = {};
-    for (const entry of this.#snapKeyrings.values()) {
-      for (const account of entry.accounts()) {
-        accounts[account.id] = { account, snapId: entry.snapId };
+    for (const keyring of this.#snapKeyrings.values()) {
+      for (const account of keyring.accounts()) {
+        accounts[account.id] = { account, snapId: keyring.snapId };
       }
     }
     return { accounts };
@@ -292,8 +292,8 @@ export class SnapKeyring {
 
     // Rebuild per-snap entries. Migrations run inside v2.deserialize().
     for (const [snapId, accounts] of bySnap) {
-      const entry = this.#getOrCreateKeyring(snapId);
-      await entry.deserialize({ snapId, accounts });
+      const keyring = this.#getOrCreateKeyring(snapId);
+      await keyring.deserialize({ snapId, accounts });
       // onRegister callbacks fired above have repopulated #accountIndex.
     }
   }
@@ -324,8 +324,8 @@ export class SnapKeyring {
    */
   async getAccounts(): Promise<string[]> {
     const addresses: string[] = [];
-    for (const entry of this.#snapKeyrings.values()) {
-      for (const account of entry.accounts()) {
+    for (const keyring of this.#snapKeyrings.values()) {
+      for (const account of keyring.accounts()) {
         addresses.push(normalizeAccountAddress(account));
       }
     }
@@ -391,8 +391,8 @@ export class SnapKeyring {
    * @returns `true` if the Snap ID is known, `false` otherwise.
    */
   hasSnapId(snapId: SnapId): boolean {
-    const entry = this.#snapKeyrings.get(snapId);
-    return entry !== undefined && entry.accounts().length > 0;
+    const keyring = this.#snapKeyrings.get(snapId);
+    return keyring !== undefined && keyring.accounts().length > 0;
   }
 
   /**
@@ -452,11 +452,11 @@ export class SnapKeyring {
   }): Promise<Json> {
     const { account, snapId } = this.#getAccount(accountId);
     /* istanbul ignore next */
-    const entry =
+    const keyring =
       this.#snapKeyrings.get(snapId) ??
       throwError(`No keyring found for snap '${snapId}'`);
 
-    return await entry.submitSnapRequest({
+    return await keyring.submitSnapRequest({
       origin,
       account,
       method: method as AccountMethod,
@@ -650,8 +650,8 @@ export class SnapKeyring {
     }
 
     await Promise.all(
-      [...this.#snapKeyrings.entries()].map(async ([snapId, entry]) =>
-        entry.setSelectedAccounts(
+      [...this.#snapKeyrings.entries()].map(async ([snapId, keyring]) =>
+        keyring.setSelectedAccounts(
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           /* istanbul ignore next */
           bySnap.get(snapId) ?? [],
@@ -721,8 +721,8 @@ export class SnapKeyring {
    * @returns An internal account object for the given address.
    */
   getAccountByAddress(address: string): InternalAccount | undefined {
-    for (const [snapId, entry] of this.#snapKeyrings) {
-      const account = entry.lookupByAddress(address);
+    for (const [snapId, keyring] of this.#snapKeyrings) {
+      const account = keyring.lookupByAddress(address);
       if (account) {
         return this.#transformToInternalAccount(account, snapId);
       }
@@ -739,8 +739,8 @@ export class SnapKeyring {
    */
   listAccounts(): InternalAccount[] {
     const accounts: InternalAccount[] = [];
-    for (const [snapId, entry] of this.#snapKeyrings) {
-      for (const account of entry.accounts()) {
+    for (const [snapId, keyring] of this.#snapKeyrings) {
+      for (const account of keyring.accounts()) {
         accounts.push(this.#transformToInternalAccount(account, snapId));
       }
     }
