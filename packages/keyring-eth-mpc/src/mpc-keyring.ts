@@ -897,9 +897,6 @@ export class MPCKeyring implements Keyring {
   }
 
   #address(): Hex {
-    if (!this.#state) {
-      throw new Error('Keyring not initialized');
-    }
-    return publicKeyToAddressHex(this.#state.keyShare.publicKey);
+    return publicKeyToAddressHex(this.#assertState().keyShare.publicKey);
   }
 }
