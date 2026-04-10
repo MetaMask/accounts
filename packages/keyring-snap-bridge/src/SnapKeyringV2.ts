@@ -196,7 +196,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
           const address = normalizeAccountAddress(account);
 
           // Check for idempotency.
-          const existingAccount = this.#getExistingAccount(account);
+          const existingAccount = this.getExistingAccount(account);
           if (existingAccount) {
             // NOTE: We re-use the account from the internal state to avoid having the Snap
             // mutating the account object without updating the map.
@@ -239,7 +239,7 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
         // Rollback Snap state.
         for (const snapAccount of snapAccounts) {
           // Make sure to only delete accounts that were not part of the keyring state.
-          if (!this.#getExistingAccount(snapAccount)) {
+          if (!this.getExistingAccount(snapAccount)) {
             try {
               await this.client.deleteAccount(snapAccount.id);
             } catch (rollbackError) {
@@ -481,19 +481,4 @@ export class SnapKeyringV2 extends SnapKeyringV1 implements KeyringV2 {
   // ──────────────────────────────────────────────
   // Private helpers
   // ──────────────────────────────────────────────
-
-  /**
-   * Idempotency check: account exists in this wrapper with same address.
-   *
-   * @param account - The account to check.
-   * @returns The existing account if found, `undefined` otherwise.
-   */
-  #getExistingAccount(account: KeyringAccount): KeyringAccount | undefined {
-    const address = normalizeAccountAddress(account);
-    const existing = this.lookupAccount(account.id);
-    if (existing && normalizeAccountAddress(existing) === address) {
-      return existing;
-    }
-    return undefined;
-  }
 }

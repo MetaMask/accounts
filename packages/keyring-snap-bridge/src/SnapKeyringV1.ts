@@ -680,7 +680,7 @@ export class SnapKeyringV1 {
     const account = transformAccount(newAccountFromEvent);
     const address = normalizeAccountAddress(account);
 
-    if (this.#getExistingAccount(account)) {
+    if (this.getExistingAccount(account)) {
       // If the account already exists, we skip it.
       return null;
     }
@@ -1054,10 +1054,15 @@ export class SnapKeyringV1 {
   /**
    * Idempotency check: account already exists in this snap with same address.
    *
+   * Protected so that `SnapKeyringV2` can reuse it without duplicating the
+   * logic.
+   *
    * @param account - The account to check.
    * @returns The existing account if found, `undefined` otherwise.
    */
-  #getExistingAccount(account: KeyringAccount): KeyringAccount | undefined {
+  protected getExistingAccount(
+    account: KeyringAccount,
+  ): KeyringAccount | undefined {
     const address = normalizeAccountAddress(account);
     const existing = this.registry.get(account.id);
     if (existing && normalizeAccountAddress(existing) === address) {
