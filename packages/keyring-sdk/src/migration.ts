@@ -87,7 +87,7 @@ export type KeyringMigration<
  *   version: 1,
  *   inputSchema: V0Schema,
  *   schema: V1Schema,
- *   migrate: (state) => ({ count: state.numberOfItems }), // state inferred from V0Schema
+ *   migrate: (state) => ({ count: state.numberOfItems }),
  * });
  * ```
  */
