@@ -271,12 +271,10 @@ export async function applyMigrations<
   for (const migration of migrations) {
     if (version < migration.version) {
       data = await migration.migrate(data);
+      migration.validate?.(data);
+
       version = migration.version;
       migrated = true;
-
-      if (migration.validate) {
-        migration.validate(data);
-      }
     }
   }
 
