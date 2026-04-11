@@ -80,20 +80,20 @@ describe('getLatestVersion', () => {
       { version: 1, migrate: (state) => state },
       { version: 2, migrate: (state) => state },
       { version: 3, migrate: (state) => state },
-    ];
+    ] as const;
     expect(getLatestVersion(migrations)).toBe(3);
   });
 
   it('returns the version for a single migration', () => {
     const migrations: KeyringMigration[] = [
       { version: 1, migrate: (state) => state },
-    ];
+    ] as const;
     expect(getLatestVersion(migrations)).toBe(1);
   });
 });
 
 describe('defineMigration', () => {
-  it('attaches a validate function when schema is provided', () => {
+  it('attaches a validate function that asserts against the schema', () => {
     const V1Schema = object({ count: number() });
 
     const migration = defineMigration({
@@ -102,31 +102,35 @@ describe('defineMigration', () => {
       migrate: () => ({ count: 42 }),
     });
 
-    expect(migration.version).toBe(1);
-    expect(migration.validate).toBeDefined();
+    expect(() => migration.validate({ count: 42 })).not.toThrow();
+    expect(() => migration.validate({ count: 'wrong' })).toThrow(
+      'Expected a number',
+    );
   });
 
-  it('does not attach a validate function when schema is omitted', () => {
+  it('attaches a no-op validate function when schema is omitted', () => {
     const migration = defineMigration({
       version: 1,
       migrate: () => ({ count: 42 }),
     });
 
-    expect(migration.version).toBe(1);
-    expect(migration.validate).toBeUndefined();
+    expect(() => migration.validate({ count: 42 })).not.toThrow();
+    expect(() => migration.validate({ wrongField: 'x' })).not.toThrow();
   });
 
   describe('when inputSchema is provided', () => {
     it('applies the migration when input matches the inputSchema', async () => {
       const V0Schema = object({ oldCount: number() });
 
-      const migration = defineMigration({
-        version: 1,
-        inputSchema: V0Schema,
-        migrate: (state) => ({ count: state.oldCount }),
-      });
+      const migrations = [
+        defineMigration({
+          version: 1,
+          inputSchema: V0Schema,
+          migrate: (state) => ({ count: state.oldCount }),
+        }),
+      ] as const;
 
-      const result = await applyMigrations({ oldCount: 7 }, [migration]);
+      const result = await applyMigrations({ oldCount: 7 }, migrations);
 
       expect(result).toStrictEqual({
         version: 1,
@@ -139,14 +143,16 @@ describe('defineMigration', () => {
       const V0Schema = object({ oldCount: number() });
 
       const migrateFn = jest.fn();
-      const migration = defineMigration({
-        version: 1,
-        inputSchema: V0Schema,
-        migrate: migrateFn,
-      });
+      const migrations = [
+        defineMigration({
+          version: 1,
+          inputSchema: V0Schema,
+          migrate: migrateFn,
+        }),
+      ] as const;
 
       await expect(
-        applyMigrations({ wrongField: 'oops' }, [migration]),
+        applyMigrations({ wrongField: 'oops' }, migrations),
       ).rejects.toThrow('Expected a number');
 
       expect(migrateFn).not.toHaveBeenCalled();
@@ -176,7 +182,7 @@ describe('applyMigrations', () => {
             };
           },
         }),
-      ];
+      ] as const;
 
       const result = await applyMigrations(
         { oldField: 'value', existing: true } satisfies UnversionedHdState,
@@ -203,7 +209,7 @@ describe('applyMigrations', () => {
             return { keys, format: 'v1' };
           },
         }),
-      ];
+      ] as const;
 
       const result = await applyMigrations(
         ['key1', 'key2'] as unknown as Json,
@@ -253,7 +259,7 @@ describe('applyMigrations', () => {
       const migrations: KeyringMigration[] = [
         { version: 1, migrate: (state) => state },
         { version: 2, migrate: migrateFn },
-      ];
+      ] as const;
 
       const result = await applyMigrations(
         { version: 1, data: { existing: true } },
@@ -273,7 +279,7 @@ describe('applyMigrations', () => {
 
       const migrations: KeyringMigration[] = [
         { version: 1, migrate: migrateFn },
-      ];
+      ] as const;
 
       const result = await applyMigrations(
         { version: 1, data: { foo: 'bar' } },
@@ -345,7 +351,7 @@ describe('applyMigrations', () => {
             return { ...prev, async: true };
           },
         }),
-      ];
+      ] as const;
 
       const result = await applyMigrations({ foo: 'bar' }, migrations);
 
@@ -375,7 +381,6 @@ describe('applyMigrations', () => {
 
       const { data } = await applyMigrations({}, migrations);
 
-      // data is inferred as StateV2 — typed fields accessible without a cast
       expect(data.count).toBe(1);
       expect(data.label).toBe('hello');
     });
@@ -392,7 +397,6 @@ describe('applyMigrations', () => {
 
       const { data } = await applyMigrations({}, migrations);
 
-      // data is Json — explicit cast required
       expect((data as StateV1).count).toBe(1);
     });
   });
@@ -404,13 +408,15 @@ describe('applyMigrations', () => {
         count: number(),
       });
 
-      const migration = defineMigration({
-        version: 1,
-        schema: OutputSchema,
-        migrate: () => ({ name: 'test', count: 42 }),
-      });
+      const migrations = [
+        defineMigration({
+          version: 1,
+          schema: OutputSchema,
+          migrate: () => ({ name: 'test', count: 42 }),
+        }),
+      ] as const;
 
-      const result = await applyMigrations({}, [migration]);
+      const result = await applyMigrations({}, migrations);
 
       expect(result).toStrictEqual({
         version: 1,
@@ -426,14 +432,16 @@ describe('applyMigrations', () => {
       });
       type OutputState = Infer<typeof OutputSchema>;
 
-      const migration = defineMigration<OutputState>({
-        version: 1,
-        schema: OutputSchema,
-        // @ts-expect-error - intentionally invalid return for test
-        migrate: () => ({ name: 'test', count: 'not a number' }),
-      });
+      const migrations = [
+        defineMigration<OutputState>({
+          version: 1,
+          schema: OutputSchema,
+          // @ts-expect-error - intentionally invalid return for test
+          migrate: () => ({ name: 'test', count: 'not a number' }),
+        }),
+      ] as const;
 
-      await expect(applyMigrations({}, [migration])).rejects.toThrow(
+      await expect(applyMigrations({}, migrations)).rejects.toThrow(
         'Expected a number',
       );
     });
@@ -445,22 +453,23 @@ describe('applyMigrations', () => {
       const V2Schema = object({ items: array(string()), total: number() });
       type StateV2 = Infer<typeof V2Schema>;
 
-      const migration1 = defineMigration({
-        version: 1,
-        schema: V1Schema,
-        migrate: () => ({ items: ['a', 'b'] }),
-      });
+      const migrations = [
+        defineMigration({
+          version: 1,
+          schema: V1Schema,
+          migrate: () => ({ items: ['a', 'b'] }),
+        }),
+        defineMigration({
+          version: 2,
+          schema: V2Schema,
+          migrate: (state) => {
+            const prev = state as StateV1;
+            return { ...prev, total: prev.items.length };
+          },
+        }),
+      ] as const;
 
-      const migration2 = defineMigration({
-        version: 2,
-        schema: V2Schema,
-        migrate: (state) => {
-          const prev = state as StateV1;
-          return { ...prev, total: prev.items.length };
-        },
-      });
-
-      const result = await applyMigrations({}, [migration1, migration2]);
+      const result = await applyMigrations({}, migrations);
 
       expect(result).toStrictEqual({
         version: 2,
@@ -475,7 +484,7 @@ describe('applyMigrations', () => {
       const migrations: KeyringMigration[] = [
         { version: 1, migrate: (state) => state },
         { version: 3, migrate: (state) => state },
-      ];
+      ] as const;
 
       await expect(applyMigrations({}, migrations)).rejects.toThrow(
         'Invalid migration: expected version 2 at index 1, got 3',
@@ -486,7 +495,7 @@ describe('applyMigrations', () => {
       const migrations: KeyringMigration[] = [
         { version: 1, migrate: (state) => state },
         { version: 1, migrate: (state) => state },
-      ];
+      ] as const;
 
       await expect(applyMigrations({}, migrations)).rejects.toThrow(
         'Invalid migration: expected version 2 at index 1, got 1',
@@ -496,7 +505,7 @@ describe('applyMigrations', () => {
     it('throws when migrations do not start at version 1', async () => {
       const migrations: KeyringMigration[] = [
         { version: 2, migrate: (state) => state },
-      ];
+      ] as const;
 
       await expect(applyMigrations({}, migrations)).rejects.toThrow(
         'Invalid migration: expected version 1 at index 0, got 2',
@@ -506,7 +515,7 @@ describe('applyMigrations', () => {
     it('throws when state version is newer than latest migration', async () => {
       const migrations: KeyringMigration[] = [
         { version: 1, migrate: (state) => state },
-      ];
+      ] as const;
 
       await expect(
         applyMigrations({ version: 5, data: {} }, migrations),
@@ -523,7 +532,7 @@ describe('applyMigrations', () => {
             throw new Error('Migration failed');
           },
         },
-      ];
+      ] as const;
 
       await expect(applyMigrations({}, migrations)).rejects.toThrow(
         'Migration failed',

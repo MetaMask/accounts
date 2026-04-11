@@ -44,7 +44,7 @@ export type KeyringMigration<
    * @param state - The state from the previous version.
    * @returns The migrated state.
    */
-  migrate: (state: Input) => Output | Promise<Output>;
+  migrate(state: Input): Output | Promise<Output>;
   /**
    * Optional validation function called by `applyMigrations` after this migration step.
    *
@@ -52,7 +52,7 @@ export type KeyringMigration<
    *
    * @param data - The output of `migrate` to validate.
    */
-  validate?: ((data: unknown) => void) | undefined;
+  validate?(data: unknown): void;
 };
 
 /**
@@ -99,13 +99,11 @@ export function defineMigration<
   migrate: (state: Input) => Output | Promise<Output>;
   schema?: Struct<Output>;
   inputSchema?: Struct<Input>;
-}): KeyringMigration<Output, Input> {
+}): KeyringMigration<Output, Input> & { validate(data: unknown): void } {
   const { version, schema, inputSchema, migrate } = config;
   return {
     version,
     migrate: (state: Input): Output | Promise<Output> => {
-      // Branched to avoid a `Struct<Input> | Struct<Json>` union that `assert` can't
-      // resolve.
       if (inputSchema) {
         assert(state, inputSchema);
       } else {
@@ -113,9 +111,11 @@ export function defineMigration<
       }
       return migrate(state);
     },
-    validate: schema
-      ? (data: unknown): void => assert(data, schema)
-      : undefined,
+    validate: (data: unknown): void => {
+      if (schema) {
+        assert(data, schema);
+      }
+    },
   };
 }
 
