@@ -63,16 +63,16 @@ const migrations = [
     version: 1,
     inputSchema: HdStateV0Schema,
     schema: HdStateV1Schema,
-    migrate: (state) => ({
-      accountCount: state.numberOfAccounts,
-      mnemonic: state.mnemonic,
-      hdPath: state.hdPath,
+    migrate: (data) => ({
+      accountCount: data.numberOfAccounts,
+      mnemonic: data.mnemonic,
+      hdPath: data.hdPath,
     }),
   }),
   defineMigration<HdStateV2, HdStateV1>({
     version: 2,
     schema: HdStateV2Schema,
-    migrate: (state) => ({ ...state, createdAt: Date.now() }),
+    migrate: (data) => ({ ...data, createdAt: Date.now() }),
   }),
 ] as const;
 ```
@@ -109,7 +109,7 @@ class MyKeyring {
 ## Best Practices
 
 - **Idempotent migrations**: Design migrations so re-running them on already-migrated data is harmless.
-- **Immutability**: Treat the input `state` as immutable within the `migrate` function.
+- **Immutability**: Treat the input `data` as immutable within the `migrate` function.
 - **Schema coverage**: Ensure `schema` covers all fields expected in the new version to prevent runtime errors.
 
 ## Constraints
