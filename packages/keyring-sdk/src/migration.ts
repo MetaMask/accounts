@@ -104,8 +104,8 @@ export function defineMigration<
   return {
     version,
     migrate: (data: Input): Output | Promise<Output> => {
-      // Cast avoids a `Struct<Input> | Struct<Json>` union that `assert` can't resolve.
-      // It's safe because `Input` extends `Json`.
+      // `assert` can't accept `Struct<Input> | Struct<Json>`; cast is safe because
+      // `Input extends Json`.
       assert(data, (inputSchema ?? JsonStruct) as Struct<Json>);
       return migrate(data);
     },
