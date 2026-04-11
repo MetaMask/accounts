@@ -20,8 +20,8 @@ import { JsonStruct, type Json } from '@metamask/utils';
  * const migration = defineMigration<V1State>({
  *   version: 1,
  *   schema: V1Schema,
- *   migrate: (state) => {
- *     const prev = state as V0State;
+ *   migrate: (data) => {
+ *     const prev = data as V0State;
  *     return { accountCount: prev.numberOfAccounts, hdPath: prev.hdPath };
  *   },
  * });
@@ -41,10 +41,10 @@ export type KeyringMigration<
    * Receives the raw inner data (not the versioned envelope). May be sync or async to
    * support complex operations like re-deriving data from secrets.
    *
-   * @param state - The state from the previous version.
-   * @returns The migrated state.
+   * @param data - The state data from the previous version.
+   * @returns The migrated data.
    */
-  migrate(state: Input): Output | Promise<Output>;
+  migrate(data: Input): Output | Promise<Output>;
   /**
    * Optional validation function called by `applyMigrations` after this migration step.
    *
@@ -87,7 +87,7 @@ export type KeyringMigration<
  *   version: 1,
  *   inputSchema: V0Schema,
  *   schema: V1Schema,
- *   migrate: (state) => ({ count: state.numberOfItems }),
+ *   migrate: (data) => ({ count: data.numberOfItems }),
  * });
  * ```
  */
@@ -96,19 +96,18 @@ export function defineMigration<
   Input extends Json = Json,
 >(config: {
   version: number;
-  migrate: (state: Input) => Output | Promise<Output>;
+  migrate: (data: Input) => Output | Promise<Output>;
   schema?: Struct<Output>;
   inputSchema?: Struct<Input>;
 }): KeyringMigration<Output, Input> & { validate(data: unknown): void } {
   const { version, schema, inputSchema, migrate } = config;
   return {
     version,
-    migrate: (state: Input): Output | Promise<Output> => {
+    migrate: (data: Input): Output | Promise<Output> => {
       // Cast avoids a `Struct<Input> | Struct<Json>` union that `assert` can't resolve.
-      // Safe because `Input extends Json`, so both branches accept the same domain of
-      // values.
-      assert(state, (inputSchema ?? JsonStruct) as Struct<Json>);
-      return migrate(state);
+      // It's safe because `Input` extends `Json`.
+      assert(data, (inputSchema ?? JsonStruct) as Struct<Json>);
+      return migrate(data);
     },
     validate: (data: unknown): void => {
       if (schema) {
@@ -235,8 +234,8 @@ type LastOutput<Migrations extends readonly KeyringMigration[]> =
  *
  * ```typescript
  * const migrations = [
- *   defineMigration<V1, V0>({ version: 1, ... }),
- *   defineMigration<V2, V1>({ version: 2, ... }),
+ *   defineMigration({ version: 1, ... }),
+ *   defineMigration({ version: 2, ... }),
  * ] as const;
  *
  * const { data } = await applyMigrations(state, migrations);
@@ -271,10 +270,12 @@ export async function applyMigrations<
   for (const migration of migrations) {
     if (version < migration.version) {
       data = await migration.migrate(data);
-      migration.validate?.(data);
-
       version = migration.version;
       migrated = true;
+
+      // This will throw if the validation fails, so it's not possible to return a
+      // partially migrated state.
+      migration.validate?.(data);
     }
   }
 
