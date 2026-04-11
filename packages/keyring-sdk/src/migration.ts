@@ -104,11 +104,10 @@ export function defineMigration<
   return {
     version,
     migrate: (state: Input): Output | Promise<Output> => {
-      if (inputSchema) {
-        assert(state, inputSchema);
-      } else {
-        assert(state, JsonStruct);
-      }
+      // Cast avoids a `Struct<Input> | Struct<Json>` union that `assert` can't resolve.
+      // Safe because `Input extends Json`, so both branches accept the same domain of
+      // values.
+      assert(state, (inputSchema ?? JsonStruct) as Struct<Json>);
       return migrate(state);
     },
     validate: (data: unknown): void => {
