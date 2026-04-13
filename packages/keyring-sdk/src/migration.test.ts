@@ -157,6 +157,22 @@ describe('defineMigration', () => {
 
       expect(migrateFn).not.toHaveBeenCalled();
     });
+
+    it('validates input as JSON even when inputSchema is omitted', async () => {
+      const migrateFn = jest.fn();
+      const migrations = [
+        defineMigration({ version: 1, migrate: migrateFn }),
+      ] as const;
+
+      // undefined is not valid JSON
+      await expect(
+        applyMigrations(undefined as unknown as Json, migrations),
+      ).rejects.toThrow(
+        'Expected a value of type `JSON`, but received: `undefined`',
+      );
+
+      expect(migrateFn).not.toHaveBeenCalled();
+    });
   });
 });
 
@@ -333,6 +349,33 @@ describe('applyMigrations', () => {
       expect(result).toStrictEqual({
         version: 3,
         data: { original: true, migrated: true } satisfies StateV3,
+        migrated: true,
+      });
+    });
+
+    it('treats explicitly versioned state at version 0 as unversioned', async () => {
+      const migrations = [
+        defineMigration<HdStateV1>({
+          version: 1,
+          migrate: (state) => {
+            const prev = state as UnversionedHdState;
+            return { ...prev, newField: 'added' };
+          },
+        }),
+      ] as const;
+
+      const result = await applyMigrations(
+        { version: 0, data: { oldField: 'value', existing: true } },
+        migrations,
+      );
+
+      expect(result).toStrictEqual({
+        version: 1,
+        data: {
+          oldField: 'value',
+          existing: true,
+          newField: 'added',
+        } satisfies HdStateV1,
         migrated: true,
       });
     });

@@ -69,8 +69,8 @@ export type KeyringMigration<
  * called, and the `Input` type parameter is inferred so `migrate` receives a typed
  * argument with no manual cast needed.
  *
- * Returns `KeyringMigration<Output>` so that {@link defineMigrations} and
- * {@link applyMigrations} can infer the output type.
+ * Returns `KeyringMigration<Output>` so that {@link applyMigrations} can infer the
+ * output type.
  *
  * @param config - The migration configuration.
  * @param config.version - The version this migration produces.
