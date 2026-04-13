@@ -1,13 +1,12 @@
+import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import type {
   CreateAccountOptions,
   ExportAccountOptions,
   ExportedAccount,
-  KeyringAccount,
-  KeyringRequest,
   KeyringV2,
   KeyringCapabilities,
   KeyringType,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
 import type { Keyring, AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';

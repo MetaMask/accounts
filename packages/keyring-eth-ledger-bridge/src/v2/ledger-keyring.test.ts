@@ -5,14 +5,14 @@ import {
   EthScope,
   type KeyringAccount,
   KeyringAccountEntropyTypeOption,
-  KeyringType,
 } from '@metamask/keyring-api';
+import { KeyringType } from '@metamask/keyring-api/v2';
 import HDKey from 'hdkey';
 
-import type { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
-import { LedgerIframeBridge } from './ledger-iframe-bridge';
-import { LedgerKeyring } from './ledger-keyring';
-import { LedgerKeyringV2 } from './ledger-keyring-v2';
+import { LedgerKeyringV2 } from './ledger-keyring';
+import type { LedgerBridge, LedgerBridgeOptions } from '../ledger-bridge';
+import { LedgerIframeBridge } from '../ledger-iframe-bridge';
+import { LedgerKeyring } from '../ledger-keyring';
 
 /**
  * Type alias for Ledger keyring accounts (always BIP-44 derived).

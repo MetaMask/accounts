@@ -1,7 +1,8 @@
-import { KeyringType, type EntropySourceId } from '@metamask/keyring-api';
+import type { EntropySourceId } from '@metamask/keyring-api';
+import { KeyringType } from '@metamask/keyring-api/v2';
 
-import type { OneKeyKeyring } from './onekey-keyring';
-import { TrezorKeyringV2 } from './trezor-keyring-v2';
+import { TrezorKeyringV2 } from './trezor-keyring';
+import type { OneKeyKeyring } from '../onekey-keyring';
 
 /**
  * Options for creating a OneKeyKeyringV2 instance.

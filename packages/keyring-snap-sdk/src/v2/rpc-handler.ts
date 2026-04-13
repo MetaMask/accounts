@@ -1,4 +1,3 @@
-import type { KeyringV2 } from '@metamask/keyring-api';
 import {
   KeyringRpcV2Method,
   GetAccountsV2RequestStruct,
@@ -7,7 +6,8 @@ import {
   DeleteAccountV2RequestStruct,
   ExportAccountV2RequestStruct,
   SubmitRequestV2RequestStruct,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
+import type { KeyringV2 } from '@metamask/keyring-api/v2';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';

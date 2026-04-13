@@ -1,10 +1,11 @@
+import type { KeyringAccount } from '@metamask/keyring-api';
+import { KeyringAccountStruct } from '@metamask/keyring-api';
 import type {
-  KeyringAccount,
   CreateAccountOptions,
   KeyringV2,
   KeyringCapabilities,
-} from '@metamask/keyring-api';
-import { KeyringAccountStruct, KeyringType } from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
+import { KeyringType } from '@metamask/keyring-api/v2';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -18,9 +19,9 @@ import {
 } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
-import { KeyringAccountV1Struct, transformAccount } from './account';
-import { isAccountV1, migrateAccountV1 } from './migrations';
-import { equalsIgnoreCase, normalizeAccountAddress } from './util';
+import { KeyringAccountV1Struct, transformAccount } from '../account';
+import { isAccountV1, migrateAccountV1 } from '../migrations';
+import { equalsIgnoreCase, normalizeAccountAddress } from '../util';
 
 /**
  * Superstruct schema for {@link SnapKeyringV2State}.

@@ -1,3 +1,4 @@
+import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import {
   CreateAccountsV2ResponseStruct,
   DeleteAccountV2ResponseStruct,
@@ -6,16 +7,14 @@ import {
   SubmitRequestV2ResponseStruct,
   KeyringRpcV2Method,
   ExportAccountV2ResponseStruct,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
 import type {
   CreateAccountOptions,
   ExportAccountOptions,
   ExportedAccount,
-  KeyringAccount,
-  KeyringRequest,
   KeyringRpcV2,
   KeyringRpcV2Request,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';

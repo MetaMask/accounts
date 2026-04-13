@@ -1,23 +1,25 @@
 import {
-  type CreateAccountOptions,
   EthAccountType,
   EthMethod,
   EthScope,
-  type ExportAccountOptions,
-  type ExportedAccount,
   type KeyringAccount,
   KeyringAccountEntropyTypeOption,
+} from '@metamask/keyring-api';
+import {
+  type CreateAccountOptions,
+  type ExportAccountOptions,
+  type ExportedAccount,
   type KeyringCapabilities,
   type KeyringV2,
   KeyringType,
   PrivateKeyEncoding,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import { add0x, type Hex } from '@metamask/utils';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-import type SimpleKeyring from './simple-keyring';
+import type SimpleKeyring from '../simple-keyring';
 
 /**
  * Methods supported by SimpleKeyring EOA accounts.

@@ -1,9 +1,8 @@
+import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import {
   KeyringRpcV2Method,
   PrivateKeyEncoding,
-  type KeyringAccount,
-  type KeyringRequest,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
 import type { Json } from '@metamask/utils';
 
 import { KeyringClientV2 } from './KeyringClientV2';

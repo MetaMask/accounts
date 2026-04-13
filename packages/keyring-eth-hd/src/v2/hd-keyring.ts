@@ -1,24 +1,26 @@
 import type { Bip44Account } from '@metamask/account-api';
 import {
-  type CreateAccountOptions,
   EthAccountType,
   EthMethod,
   EthScope,
-  type ExportAccountOptions,
-  type ExportedAccount,
   type KeyringAccount,
   KeyringAccountEntropyTypeOption,
+  type EntropySourceId,
+} from '@metamask/keyring-api';
+import {
+  type CreateAccountOptions,
+  type ExportAccountOptions,
+  type ExportedAccount,
   type KeyringCapabilities,
   type KeyringV2,
   KeyringType,
   PrivateKeyEncoding,
-  type EntropySourceId,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import { add0x, type Hex } from '@metamask/utils';
 
-import type { HdKeyring } from './hd-keyring';
+import type { HdKeyring } from '../hd-keyring';
 
 /**
  * Methods supported by HD keyring EOA accounts.

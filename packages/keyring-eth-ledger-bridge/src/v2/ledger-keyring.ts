@@ -1,21 +1,23 @@
 import type { Bip44Account } from '@metamask/account-api';
 import {
-  type CreateAccountOptions,
   EthAccountType,
   EthMethod,
   EthScope,
   type KeyringAccount,
   KeyringAccountEntropyTypeOption,
+  type EntropySourceId,
+} from '@metamask/keyring-api';
+import {
+  type CreateAccountOptions,
   type KeyringCapabilities,
   type KeyringV2,
   KeyringType,
-  type EntropySourceId,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
 import { EthKeyringWrapper } from '@metamask/keyring-sdk';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import { add0x, getChecksumAddress, type Hex } from '@metamask/utils';
 
-import type { LedgerKeyring } from './ledger-keyring';
+import type { LedgerKeyring } from '../ledger-keyring';
 
 /**
  * Methods supported by Ledger keyring EOA accounts.

@@ -28,8 +28,8 @@ import {
   PaginationStruct,
   CaipAccountIdStruct,
   DiscoveredAccountStruct,
-  CreateAccountOptionsStruct,
 } from './api';
+import { CreateAccountOptionsStruct } from './api/v2/create-account';
 
 /**
  * Keyring RPC methods used by the API.

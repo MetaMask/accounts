@@ -5,15 +5,12 @@ import {
   EthScope,
   type KeyringAccount,
   KeyringAccountEntropyTypeOption,
-  KeyringType,
 } from '@metamask/keyring-api';
+import { KeyringType } from '@metamask/keyring-api/v2';
 
-import type { QrKeyringBridge } from '.';
-import { QrKeyring } from '.';
-import {
-  QrKeyringV2,
-  type QrKeyringCreateAccountOptions,
-} from './qr-keyring-v2';
+import { QrKeyringV2, type QrKeyringCreateAccountOptions } from './qr-keyring';
+import type { QrKeyringBridge } from '..';
+import { QrKeyring } from '..';
 import {
   ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS,
   EXPECTED_ACCOUNTS,
@@ -21,7 +18,7 @@ import {
   HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
   KNOWN_CRYPTO_ACCOUNT_UR,
   KNOWN_HDKEY_UR,
-} from '../test/fixtures';
+} from '../../test/fixtures';
 
 /**
  * Type alias for QR keyring HD mode accounts (BIP-44 derived).

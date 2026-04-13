@@ -1,23 +1,25 @@
 import type { Bip44Account } from '@metamask/account-api';
 import {
-  type CreateAccountOptions,
   EthAccountType,
   EthMethod,
   EthScope,
   type KeyringAccount,
   KeyringAccountEntropyTypeOption,
+  type EntropySourceId,
+} from '@metamask/keyring-api';
+import {
+  type CreateAccountOptions,
   type KeyringCapabilities,
   type KeyringV2,
   KeyringType,
-  type EntropySourceId,
   type CreateAccountBip44DeriveIndexOptions,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
 import { EthKeyringWrapper } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 
-import { DeviceMode } from './device';
-import type { QrKeyring } from './qr-keyring';
+import { DeviceMode } from '../device';
+import type { QrKeyring } from '../qr-keyring';
 
 /**
  * Methods supported by QR keyring EOA accounts.

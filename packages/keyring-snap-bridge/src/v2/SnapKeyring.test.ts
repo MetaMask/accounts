@@ -5,8 +5,8 @@ import type {
 } from '@metamask/keyring-api';
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import type { SnapKeyringV2Callbacks } from './SnapKeyringV2';
-import { SnapKeyringV2 } from './SnapKeyringV2';
+import type { SnapKeyringV2Callbacks } from './SnapKeyring';
+import { SnapKeyringV2 } from './SnapKeyring';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 
