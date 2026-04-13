@@ -1,4 +1,4 @@
-import { KeyringRpcMethod, PrivateKeyEncoding } from '@metamask/keyring-api';
+import { KeyringRpcMethod, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type {
   KeyringType,
   CreateAccountsRequest,
@@ -8,10 +8,10 @@ import type {
   Keyring,
   ExportAccountRequest,
   SubmitRequestRequest,
-} from '@metamask/keyring-api';
+} from '@metamask/keyring-api/v2';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
-import { handleKeyringRequestV2 } from './rpc-handler';
+import { handleKeyringRequestV2 } from '.';
 
 describe('handleKeyringRequestV2', () => {
   const keyring = {
