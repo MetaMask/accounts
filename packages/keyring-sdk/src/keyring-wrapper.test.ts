@@ -1,8 +1,6 @@
-import type {
-  KeyringAccount,
-  KeyringCapabilities,
-} from '@metamask/keyring-api';
-import { KeyringType } from '@metamask/keyring-api';
+import type { KeyringAccount } from '@metamask/keyring-api';
+import type { KeyringCapabilities } from '@metamask/keyring-api/v2';
+import { KeyringType } from '@metamask/keyring-api/v2';
 import type { Keyring, AccountId } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 import { v4 as uuidv4 } from 'uuid';

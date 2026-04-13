@@ -5,10 +5,10 @@ import {
   type KeyringAccount,
   type KeyringRequest,
   type CreateAccountOptions,
-  KeyringType,
   EthScope,
   EthMethod,
 } from '@metamask/keyring-api';
+import { KeyringType } from '@metamask/keyring-api/v2';
 import type { Keyring } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
