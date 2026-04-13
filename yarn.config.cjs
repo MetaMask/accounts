@@ -63,11 +63,14 @@ module.exports = defineConfig({
         // All non-root packages must have a name that matches its directory
         // (e.g., a package in a workspace directory called `foo` must be called
         // `@metamask/foo`).
-        expectWorkspaceField(
-          workspace,
-          'name',
-          `@metamask/${workspaceBasename}`,
-        );
+        // NOTE: This is currently disabled as we kept using the old package names despite
+        // having a new layout for the directory structure. We might consider renaming those
+        // once the new keyring v2 lands maybe?
+        // expectWorkspaceField(
+        //   workspace,
+        //   'name',
+        //   `@metamask/${workspaceBasename}`,
+        // );
 
         // All non-root packages must have a version.
         expectWorkspaceField(workspace, 'version');
