@@ -20,13 +20,13 @@ import {
   type EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { mnemonicPhraseToBytes } from '@metamask/key-tree';
+// eslint-disable-next-line @typescript-eslint/naming-convention
+import OldHdKeyring from '@metamask/old-hd-keyring';
 import { assert, bytesToHex, hexToBytes, type Hex } from '@metamask/utils';
 import { webcrypto } from 'crypto';
 // eslint-disable-next-line n/no-sync
 import { mnemonicToSeedSync } from 'ethereum-cryptography/bip39';
 import { keccak256 } from 'ethereum-cryptography/keccak';
-// eslint-disable-next-line @typescript-eslint/naming-convention
-import OldHdKeyring from 'old-hd-keyring';
 
 import { HdKeyring } from '.';
 

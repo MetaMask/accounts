@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `SnapKeyringV2` class, a per-snap keyring wrapper that implements `KeyringV2` with `createAccount`, `createAccounts`, `deleteAccount`, `submitRequest`, `getAccount`, and `getAccounts` ([#501](https://github.com/MetaMask/accounts/pull/501))
+- Add `SnapKeyringV1` class, a per-snap keyring wrapper that implements the old keyring interface and flows ([#507](https://github.com/MetaMask/accounts/pull/507))
+  - This will allow us to re-use the existing logic (that we still use today) as part of the new V2 implementation until we completely them.
+- Add `SnapKeyringV2` class, a per-snap keyring wrapper that implements `KeyringV2` with `createAccount`, `createAccounts`, `deleteAccount`, `submitRequest`, `getAccount`, and `getAccounts` ([#501](https://github.com/MetaMask/accounts/pull/501)), ([#507](https://github.com/MetaMask/accounts/pull/507))
+  - `SnapKeyringV2` inherits from `SnapKeyringV1` so it can replace the current `SnapKeyring` class entirely, but for a single Snap.
 - Add `@metamask/keyring-sdk` `^1.1.0` as a new dependency ([#501](https://github.com/MetaMask/accounts/pull/501))
 
 ### Changed
