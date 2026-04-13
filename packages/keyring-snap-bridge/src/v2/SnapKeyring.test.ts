@@ -5,8 +5,8 @@ import type {
 } from '@metamask/keyring-api';
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import type { SnapKeyringV2Callbacks } from './SnapKeyring';
-import { SnapKeyringV2 } from './SnapKeyring';
+import type { SnapKeyringCallbacks } from './SnapKeyring';
+import { SnapKeyring } from './SnapKeyring';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 
@@ -29,11 +29,11 @@ const account2: KeyringAccount = {
 };
 
 /**
- * Create mock callbacks for `SnapKeyringV2`.
+ * Create mock callbacks for `SnapKeyring`.
  *
  * @returns Mock callbacks.
  */
-function makeMockCallbacks(): SnapKeyringV2Callbacks {
+function makeMockCallbacks(): SnapKeyringCallbacks {
   return {
     createSnapAccounts: jest.fn<
       Promise<KeyringAccount[]>,
@@ -54,7 +54,7 @@ function makeMockCallbacks(): SnapKeyringV2Callbacks {
 }
 
 /**
- * Create a `SnapKeyringV2` test instance with tracking arrays for callbacks.
+ * Create a `SnapKeyring` test instance with tracking arrays for callbacks.
  *
  * @param snapId - The Snap ID used to construct the keyring.
  * @param callbackOverrides - Optional callback overrides.
@@ -62,17 +62,17 @@ function makeMockCallbacks(): SnapKeyringV2Callbacks {
  */
 function makeKeyring(
   snapId: SnapId = SNAP_ID,
-  callbackOverrides?: Partial<SnapKeyringV2Callbacks>,
+  callbackOverrides?: Partial<SnapKeyringCallbacks>,
 ): {
-  keyring: SnapKeyringV2;
+  keyring: SnapKeyring;
   registered: string[];
   unregistered: string[];
-  callbacks: SnapKeyringV2Callbacks;
+  callbacks: SnapKeyringCallbacks;
 } {
   const registered: string[] = [];
   const unregistered: string[] = [];
   const callbacks = { ...makeMockCallbacks(), ...callbackOverrides };
-  const keyring = new SnapKeyringV2({
+  const keyring = new SnapKeyring({
     snapId,
     onRegister: (id): void => {
       registered.push(id);
@@ -85,7 +85,7 @@ function makeKeyring(
   return { keyring, registered, unregistered, callbacks };
 }
 
-describe('SnapKeyringV2', () => {
+describe('SnapKeyring', () => {
   describe('snapId', () => {
     it('returns the snap ID passed at construction', () => {
       const { keyring } = makeKeyring();
@@ -264,7 +264,7 @@ describe('SnapKeyringV2', () => {
     });
   });
 
-  describe('KeyringV2 interface', () => {
+  describe('Keyring interface', () => {
     describe('type', () => {
       it('returns "snap"', () => {
         const { keyring } = makeKeyring();

@@ -10,9 +10,9 @@ import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
-import { SimpleKeyringV2 } from './simple-keyring';
+import { SimpleKeyring } from './simple-keyring';
 // eslint-disable-next-line @typescript-eslint/naming-convention
-import SimpleKeyring from '../simple-keyring';
+import LegacySimpleKeyring from '../simple-keyring';
 
 // Valid 32-byte private keys for testing
 const TEST_PRIVATE_KEY_1 =
@@ -47,13 +47,13 @@ function createMockRequest(
   };
 }
 
-describe('SimpleKeyringV2', () => {
-  let inner: SimpleKeyring;
-  let wrapper: SimpleKeyringV2;
+describe('SimpleKeyring (v2 wrapper)', () => {
+  let inner: LegacySimpleKeyring;
+  let wrapper: SimpleKeyring;
 
   beforeEach(async () => {
-    inner = new SimpleKeyring();
-    wrapper = new SimpleKeyringV2({
+    inner = new LegacySimpleKeyring();
+    wrapper = new SimpleKeyring({
       legacyKeyring: inner,
     });
   });
@@ -107,8 +107,8 @@ describe('SimpleKeyringV2', () => {
     });
 
     it('returns empty array when no accounts exist', async () => {
-      const emptyKeyring = new SimpleKeyring();
-      const emptyWrapper = new SimpleKeyringV2({
+      const emptyKeyring = new LegacySimpleKeyring();
+      const emptyWrapper = new SimpleKeyring({
         legacyKeyring: emptyKeyring,
       });
 
@@ -120,8 +120,8 @@ describe('SimpleKeyringV2', () => {
 
   describe('deserialize', () => {
     it('deserializes the legacy keyring state', async () => {
-      const newInner = new SimpleKeyring();
-      const newWrapper = new SimpleKeyringV2({
+      const newInner = new LegacySimpleKeyring();
+      const newWrapper = new SimpleKeyring({
         legacyKeyring: newInner,
       });
 
@@ -136,8 +136,8 @@ describe('SimpleKeyringV2', () => {
       const accounts1 = await wrapper.getAccounts();
 
       // Create a new wrapper and deserialize
-      const newInner = new SimpleKeyring();
-      const newWrapper = new SimpleKeyringV2({
+      const newInner = new LegacySimpleKeyring();
+      const newWrapper = new SimpleKeyring({
         legacyKeyring: newInner,
       });
 
@@ -150,8 +150,8 @@ describe('SimpleKeyringV2', () => {
     });
 
     it('handles empty account list', async () => {
-      const newInner = new SimpleKeyring();
-      const newWrapper = new SimpleKeyringV2({
+      const newInner = new LegacySimpleKeyring();
+      const newWrapper = new SimpleKeyring({
         legacyKeyring: newInner,
       });
 

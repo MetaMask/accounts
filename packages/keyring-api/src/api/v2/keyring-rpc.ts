@@ -8,7 +8,7 @@ import {
   ExportAccountOptionsStruct,
   PrivateKeyExportedAccountStruct,
 } from './export-account';
-import type { KeyringV2 } from './keyring';
+import type { Keyring } from './keyring';
 import { KeyringAccountStruct } from '../account';
 import { KeyringRequestStruct } from '../request';
 
@@ -16,19 +16,19 @@ import { KeyringRequestStruct } from '../request';
  * Keyring interface for keyring methods that can be invoked through
  * RPC calls.
  */
-export type KeyringRpcV2 = {
-  getAccount: KeyringV2['getAccount'];
-  getAccounts: KeyringV2['getAccounts'];
-  createAccounts: KeyringV2['createAccounts'];
-  deleteAccount: KeyringV2['deleteAccount'];
-  submitRequest: KeyringV2['submitRequest'];
-  exportAccount?: KeyringV2['exportAccount'];
+export type KeyringRpc = {
+  getAccount: Keyring['getAccount'];
+  getAccounts: Keyring['getAccounts'];
+  createAccounts: Keyring['createAccounts'];
+  deleteAccount: Keyring['deleteAccount'];
+  submitRequest: Keyring['submitRequest'];
+  exportAccount?: Keyring['exportAccount'];
 };
 
 /**
  * Keyring RPC methods used by the API.
  */
-export const KeyringRpcV2Method = {
+export const KeyringRpcMethod = {
   GetAccounts: 'keyring_getAccounts',
   CreateAccounts: 'keyring_createAccounts',
   // Inherited from v1 (but method signatures may differ...):
@@ -42,8 +42,8 @@ export const KeyringRpcV2Method = {
 /**
  * Keyring RPC methods used by the API.
  */
-export type KeyringRpcV2Method =
-  (typeof KeyringRpcV2Method)[keyof typeof KeyringRpcV2Method];
+export type KeyringRpcMethod =
+  (typeof KeyringRpcMethod)[keyof typeof KeyringRpcMethod];
 
 /**
  * Check if a method is a keyring RPC method (v2).
@@ -51,12 +51,8 @@ export type KeyringRpcV2Method =
  * @param method - Method to check.
  * @returns Whether the method is a keyring RPC method (v2).
  */
-export function isKeyringRpcV2Method(
-  method: string,
-): method is KeyringRpcV2Method {
-  return Object.values(KeyringRpcV2Method).includes(
-    method as KeyringRpcV2Method,
-  );
+export function isKeyringRpcMethod(method: string): method is KeyringRpcMethod {
+  return Object.values(KeyringRpcMethod).includes(method as KeyringRpcMethod);
 }
 
 // ----------------------------------------------------------------------------
@@ -69,126 +65,116 @@ const CommonHeader = {
 // ----------------------------------------------------------------------------
 // Get accounts
 
-export const GetAccountsV2RequestStruct = object({
+export const GetAccountsRequestStruct = object({
   ...CommonHeader,
-  method: literal(`${KeyringRpcV2Method.GetAccounts}`),
+  method: literal(`${KeyringRpcMethod.GetAccounts}`),
 });
 
-export type GetAccountsV2Request = Infer<typeof GetAccountsV2RequestStruct>;
+export type GetAccountsRequest = Infer<typeof GetAccountsRequestStruct>;
 
-export const GetAccountsV2ResponseStruct = array(KeyringAccountStruct);
+export const GetAccountsResponseStruct = array(KeyringAccountStruct);
 
-export type GetAccountsV2Response = Infer<typeof GetAccountsV2ResponseStruct>;
+export type GetAccountsResponse = Infer<typeof GetAccountsResponseStruct>;
 
 // ----------------------------------------------------------------------------
 // Get account
 
-export const GetAccountV2RequestStruct = object({
+export const GetAccountRequestStruct = object({
   ...CommonHeader,
-  method: literal(`${KeyringRpcV2Method.GetAccount}`),
+  method: literal(`${KeyringRpcMethod.GetAccount}`),
   params: object({
     id: UuidStruct,
   }),
 });
 
-export type GetAccountV2Request = Infer<typeof GetAccountV2RequestStruct>;
+export type GetAccountRequest = Infer<typeof GetAccountRequestStruct>;
 
-export const GetAccountV2ResponseStruct = KeyringAccountStruct;
+export const GetAccountResponseStruct = KeyringAccountStruct;
 
-export type GetAccountV2Response = Infer<typeof GetAccountV2ResponseStruct>;
+export type GetAccountResponse = Infer<typeof GetAccountResponseStruct>;
 
 // ----------------------------------------------------------------------------
 // Create accounts
 
-export const CreateAccountsV2RequestStruct = object({
+export const CreateAccountsRequestStruct = object({
   ...CommonHeader,
-  method: literal(`${KeyringRpcV2Method.CreateAccounts}`),
+  method: literal(`${KeyringRpcMethod.CreateAccounts}`),
   params: CreateAccountOptionsStruct,
 });
 
-export type CreateAccountsV2Request = Infer<
-  typeof CreateAccountsV2RequestStruct
->;
+export type CreateAccountsRequest = Infer<typeof CreateAccountsRequestStruct>;
 
-export const CreateAccountsV2ResponseStruct = array(KeyringAccountStruct);
+export const CreateAccountsResponseStruct = array(KeyringAccountStruct);
 
-export type CreateAccountsV2Response = Infer<
-  typeof CreateAccountsV2ResponseStruct
->;
+export type CreateAccountsResponse = Infer<typeof CreateAccountsResponseStruct>;
 
 // ----------------------------------------------------------------------------
 // Delete account
 
-export const DeleteAccountV2RequestStruct = object({
+export const DeleteAccountRequestStruct = object({
   ...CommonHeader,
-  method: literal(`${KeyringRpcV2Method.DeleteAccount}`),
+  method: literal(`${KeyringRpcMethod.DeleteAccount}`),
   params: object({
     id: UuidStruct,
   }),
 });
 
-export type DeleteAccountV2Request = Infer<typeof DeleteAccountV2RequestStruct>;
+export type DeleteAccountRequest = Infer<typeof DeleteAccountRequestStruct>;
 
-export const DeleteAccountV2ResponseStruct = literal(null);
+export const DeleteAccountResponseStruct = literal(null);
 
-export type DeleteAccountV2Response = Infer<
-  typeof DeleteAccountV2ResponseStruct
->;
+export type DeleteAccountResponse = Infer<typeof DeleteAccountResponseStruct>;
 
 // ----------------------------------------------------------------------------
 // Export account
 
-export const ExportAccountV2RequestStruct = object({
+export const ExportAccountRequestStruct = object({
   ...CommonHeader,
-  method: literal(`${KeyringRpcV2Method.ExportAccount}`),
+  method: literal(`${KeyringRpcMethod.ExportAccount}`),
   params: object({
     id: UuidStruct,
     options: exactOptional(ExportAccountOptionsStruct),
   }),
 });
 
-export type ExportAccountV2Request = Infer<typeof ExportAccountV2RequestStruct>;
+export type ExportAccountRequest = Infer<typeof ExportAccountRequestStruct>;
 
-export const ExportAccountV2ResponseStruct = PrivateKeyExportedAccountStruct;
+export const ExportAccountResponseStruct = PrivateKeyExportedAccountStruct;
 
-export type ExportAccountV2Response = Infer<
-  typeof ExportAccountV2ResponseStruct
->;
+export type ExportAccountResponse = Infer<typeof ExportAccountResponseStruct>;
 
 // ----------------------------------------------------------------------------
 // Submit request
 
-export const SubmitRequestV2RequestStruct = object({
+export const SubmitRequestRequestStruct = object({
   ...CommonHeader,
-  method: literal(`${KeyringRpcV2Method.SubmitRequest}`),
+  method: literal(`${KeyringRpcMethod.SubmitRequest}`),
   params: KeyringRequestStruct,
 });
 
-export type SubmitRequestV2Request = Infer<typeof SubmitRequestV2RequestStruct>;
+export type SubmitRequestRequest = Infer<typeof SubmitRequestRequestStruct>;
 
-export const SubmitRequestV2ResponseStruct = JsonStruct;
+export const SubmitRequestResponseStruct = JsonStruct;
 
-export type SubmitRequestV2Response = Infer<
-  typeof SubmitRequestV2ResponseStruct
->;
+export type SubmitRequestResponse = Infer<typeof SubmitRequestResponseStruct>;
 
 // ----------------------------------------------------------------------------
 
 /**
  * Keyring RPC requests.
  */
-export type KeyringRpcV2Requests =
-  | GetAccountsV2Request
-  | GetAccountV2Request
-  | CreateAccountsV2Request
-  | DeleteAccountV2Request
-  | ExportAccountV2Request
-  | SubmitRequestV2Request;
+export type KeyringRpcRequests =
+  | GetAccountsRequest
+  | GetAccountRequest
+  | CreateAccountsRequest
+  | DeleteAccountRequest
+  | ExportAccountRequest
+  | SubmitRequestRequest;
 
 /**
- * Extract the proper request type for a given `KeyringRpcV2Method`.
+ * Extract the proper request type for a given `KeyringRpcMethod`.
  */
-export type KeyringRpcV2Request<RpcMethod extends KeyringRpcV2Method> = Extract<
-  KeyringRpcV2Requests,
+export type KeyringRpcRequest<RpcMethod extends KeyringRpcMethod> = Extract<
+  KeyringRpcRequests,
   { method: `${RpcMethod}` }
 >;

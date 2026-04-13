@@ -45,7 +45,7 @@ export type EthKeyringWrapperOptions<InnerKeyring extends EthKeyring> = Omit<
 >;
 
 /**
- * Abstract wrapper for Ethereum-based keyrings that extends KeyringWrapper, that itself implements KeyringV2.
+ * Abstract wrapper for Ethereum-based keyrings that extends KeyringWrapper, that itself implements Keyring.
  *
  * This class provides common functionality for all Ethereum keyrings including:
  * - Request handling for standard Ethereum signing methods

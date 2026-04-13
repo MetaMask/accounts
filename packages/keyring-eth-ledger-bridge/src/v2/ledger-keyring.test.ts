@@ -9,10 +9,10 @@ import {
 import { KeyringType } from '@metamask/keyring-api/v2';
 import HDKey from 'hdkey';
 
-import { LedgerKeyringV2 } from './ledger-keyring';
+import { LedgerKeyring } from './ledger-keyring';
 import type { LedgerBridge, LedgerBridgeOptions } from '../ledger-bridge';
 import { LedgerIframeBridge } from '../ledger-iframe-bridge';
-import { LedgerKeyring } from '../ledger-keyring';
+import { LedgerKeyring as LegacyLedgerKeyring } from '../ledger-keyring';
 
 /**
  * Type alias for Ledger keyring accounts (always BIP-44 derived).
@@ -88,23 +88,23 @@ const BIP44_HD_PATH_PREFIX = `m/44'/60'/0'/0`;
  *
  * @returns The inner keyring.
  */
-function createInnerKeyring(): LedgerKeyring {
+function createInnerKeyring(): LegacyLedgerKeyring {
   const bridge = new LedgerIframeBridge();
-  const inner = new LedgerKeyring({ bridge });
+  const inner = new LegacyLedgerKeyring({ bridge });
   // Set up the HDKey so accounts can be derived without unlocking
   inner.hdk = fakeHdKey;
   return inner;
 }
 
 /**
- * Create a LedgerKeyring with the fake HD key using BIP44 path.
+ * Create a LegacyLedgerKeyring with the fake HD key using BIP44 path.
  * This is used for derive-index tests which default to BIP44.
  *
  * @returns The inner keyring.
  */
-function createInnerKeyringBip44(): LedgerKeyring {
+function createInnerKeyringBip44(): LegacyLedgerKeyring {
   const bridge = new LedgerIframeBridge();
-  const inner = new LedgerKeyring({ bridge });
+  const inner = new LegacyLedgerKeyring({ bridge });
   // Set BIP44 path first (before setting HDKey, as setHdPath resets it)
   inner.setHdPath(BIP44_HD_PATH_PREFIX);
   // Set up the HDKey so accounts can be derived without unlocking
@@ -132,68 +132,68 @@ function getMockBridge(): LedgerBridge<LedgerBridgeOptions> {
 }
 
 /**
- * Create a LedgerKeyringV2 wrapper with accounts (using legacy path).
+ * Create a LedgerKeyring wrapper with accounts (using legacy path).
  *
  * @param accountCount - Number of accounts to add.
  * @returns The wrapper and inner keyring.
  */
 async function createWrapperWithAccounts(accountCount = 3): Promise<{
-  wrapper: LedgerKeyringV2;
-  inner: LedgerKeyring;
+  wrapper: LedgerKeyring;
+  inner: LegacyLedgerKeyring;
 }> {
   const inner = createInnerKeyring();
   inner.setAccountToUnlock(0);
   await inner.addAccounts(accountCount);
 
-  const wrapper = new LedgerKeyringV2({ legacyKeyring: inner, entropySource });
+  const wrapper = new LedgerKeyring({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
 
 /**
- * Create a LedgerKeyringV2 wrapper with accounts using BIP44 path.
+ * Create a LedgerKeyring wrapper with accounts using BIP44 path.
  * Used for derive-index tests which default to BIP44.
  *
  * @param accountCount - Number of accounts to add.
  * @returns The wrapper and inner keyring.
  */
 async function createWrapperWithAccountsBip44(accountCount = 3): Promise<{
-  wrapper: LedgerKeyringV2;
-  inner: LedgerKeyring;
+  wrapper: LedgerKeyring;
+  inner: LegacyLedgerKeyring;
 }> {
   const inner = createInnerKeyringBip44();
   inner.setAccountToUnlock(0);
   await inner.addAccounts(accountCount);
 
-  const wrapper = new LedgerKeyringV2({ legacyKeyring: inner, entropySource });
+  const wrapper = new LedgerKeyring({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
 
 /**
- * Create a LedgerKeyringV2 wrapper without any accounts.
+ * Create a LedgerKeyring wrapper without any accounts.
  *
  * @returns The wrapper and inner keyring.
  */
 function createEmptyWrapper(): {
-  wrapper: LedgerKeyringV2;
-  inner: LedgerKeyring;
+  wrapper: LedgerKeyring;
+  inner: LegacyLedgerKeyring;
 } {
   const inner = createInnerKeyring();
-  const wrapper = new LedgerKeyringV2({ legacyKeyring: inner, entropySource });
+  const wrapper = new LedgerKeyring({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
 
 /**
- * Create a LedgerKeyringV2 wrapper without any accounts using BIP44 path.
+ * Create a LedgerKeyring wrapper without any accounts using BIP44 path.
  * Used for derive-index tests which default to BIP44.
  *
  * @returns The wrapper and inner keyring.
  */
 function createEmptyWrapperBip44(): {
-  wrapper: LedgerKeyringV2;
-  inner: LedgerKeyring;
+  wrapper: LedgerKeyring;
+  inner: LegacyLedgerKeyring;
 } {
   const inner = createInnerKeyringBip44();
-  const wrapper = new LedgerKeyringV2({ legacyKeyring: inner, entropySource });
+  const wrapper = new LedgerKeyring({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
 
@@ -241,7 +241,7 @@ function derivePathOptions(
   };
 }
 
-describe('LedgerKeyringV2', () => {
+describe('LedgerKeyring', () => {
   describe('constructor', () => {
     it('creates a wrapper with correct type and capabilities', () => {
       const { wrapper } = createEmptyWrapper();
@@ -410,7 +410,7 @@ describe('LedgerKeyringV2', () => {
   describe('deserialize', () => {
     it('deserializes the legacy keyring state', async () => {
       const inner = createInnerKeyring();
-      const wrapper = new LedgerKeyringV2({
+      const wrapper = new LedgerKeyring({
         legacyKeyring: inner,
         entropySource,
       });
@@ -789,11 +789,11 @@ describe('LedgerKeyringV2', () => {
      * @returns The wrapper and inner keyring.
      */
     async function createLedgerLiveWrapper(accountCount = 1): Promise<{
-      wrapper: LedgerKeyringV2;
-      inner: LedgerKeyring;
+      wrapper: LedgerKeyring;
+      inner: LegacyLedgerKeyring;
     }> {
       const bridge = getMockBridge();
-      const inner = new LedgerKeyring({ bridge });
+      const inner = new LegacyLedgerKeyring({ bridge });
 
       // Set up the Ledger Live path
       inner.setHdPath(`m/44'/60'/0'/0/0`);
@@ -819,7 +819,7 @@ describe('LedgerKeyringV2', () => {
       inner.setAccountToUnlock(0);
       await inner.addAccounts(accountCount);
 
-      const wrapper = new LedgerKeyringV2({
+      const wrapper = new LedgerKeyring({
         legacyKeyring: inner,
         entropySource,
       });

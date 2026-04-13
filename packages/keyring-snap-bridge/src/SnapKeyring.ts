@@ -87,7 +87,7 @@ import {
   toJson,
   unique,
 } from './util';
-import { SnapKeyringV2 } from './v2/SnapKeyring';
+import { SnapKeyring as SnapKeyringV2 } from './v2/SnapKeyring';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 

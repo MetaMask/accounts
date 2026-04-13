@@ -1,13 +1,13 @@
-import { KeyringRpcV2Method, PrivateKeyEncoding } from '@metamask/keyring-api';
+import { KeyringRpcMethod, PrivateKeyEncoding } from '@metamask/keyring-api';
 import type {
   KeyringType,
-  CreateAccountsV2Request,
-  GetAccountV2Request,
-  GetAccountsV2Request,
-  DeleteAccountV2Request,
-  KeyringV2,
-  ExportAccountV2Request,
-  SubmitRequestV2Request,
+  CreateAccountsRequest,
+  GetAccountRequest,
+  GetAccountsRequest,
+  DeleteAccountRequest,
+  Keyring,
+  ExportAccountRequest,
+  SubmitRequestRequest,
 } from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
@@ -49,10 +49,10 @@ describe('handleKeyringRequestV2', () => {
   });
 
   it('calls `keyring_v2_getAccounts`', async () => {
-    const request: GetAccountsV2Request = {
+    const request: GetAccountsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.GetAccounts}`,
+      method: `${KeyringRpcMethod.GetAccounts}`,
     };
 
     const mockedResult = 'GetAccounts result';
@@ -64,10 +64,10 @@ describe('handleKeyringRequestV2', () => {
   });
 
   it('calls `keyring_v2_getAccount`', async () => {
-    const request: GetAccountV2Request = {
+    const request: GetAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.GetAccount}`,
+      method: `${KeyringRpcMethod.GetAccount}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
@@ -80,10 +80,10 @@ describe('handleKeyringRequestV2', () => {
   });
 
   it('fails to call `keyring_v2_getAccount` without providing an account ID', async () => {
-    const request: GetAccountV2Request = {
+    const request: GetAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.GetAccount}`,
+      method: `${KeyringRpcMethod.GetAccount}`,
       // @ts-expect-error - Testing error case.
       params: {}, // Missing account ID.
     };
@@ -95,10 +95,10 @@ describe('handleKeyringRequestV2', () => {
 
   it('fails to call `keyring_v2_getAccount` when the `params` is not provided', async () => {
     // @ts-expect-error - Testing error case.
-    const request: GetAccountV2Request = {
+    const request: GetAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.GetAccount}`,
+      method: `${KeyringRpcMethod.GetAccount}`,
     };
 
     await expect(handleKeyringRequestV2(keyring, request)).rejects.toThrow(
@@ -107,10 +107,10 @@ describe('handleKeyringRequestV2', () => {
   });
 
   it('calls `keyring_v2_createAccounts`', async () => {
-    const request: CreateAccountsV2Request = {
+    const request: CreateAccountsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.CreateAccounts}`,
+      method: `${KeyringRpcMethod.CreateAccounts}`,
       params: {
         type: 'bip44:derive-index',
         groupIndex: 0,
@@ -127,10 +127,10 @@ describe('handleKeyringRequestV2', () => {
   });
 
   it('calls `keyring_v2_deleteAccount`', async () => {
-    const request: DeleteAccountV2Request = {
+    const request: DeleteAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.DeleteAccount}`,
+      method: `${KeyringRpcMethod.DeleteAccount}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
@@ -141,10 +141,10 @@ describe('handleKeyringRequestV2', () => {
   });
 
   it('calls `keyring_v2_exportAccount` (without options)', async () => {
-    const request: ExportAccountV2Request = {
+    const request: ExportAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.ExportAccount}`,
+      method: `${KeyringRpcMethod.ExportAccount}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
@@ -162,10 +162,10 @@ describe('handleKeyringRequestV2', () => {
   });
 
   it('calls `keyring_v2_exportAccount` (with options)', async () => {
-    const request: ExportAccountV2Request = {
+    const request: ExportAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.ExportAccount}`,
+      method: `${KeyringRpcMethod.ExportAccount}`,
       params: {
         id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
         options: {
@@ -189,14 +189,14 @@ describe('handleKeyringRequestV2', () => {
   });
 
   it('throws an error if `keyring_v2_exportAccount` is not implemented', async () => {
-    const request: ExportAccountV2Request = {
+    const request: ExportAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.ExportAccount}`,
+      method: `${KeyringRpcMethod.ExportAccount}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
-    const partialKeyring: KeyringV2 = {
+    const partialKeyring: Keyring = {
       ...keyring,
     };
     delete partialKeyring.exportAccount;
@@ -204,7 +204,7 @@ describe('handleKeyringRequestV2', () => {
     await expect(
       handleKeyringRequestV2(partialKeyring, request),
     ).rejects.toThrow(
-      `Method not supported: ${KeyringRpcV2Method.ExportAccount}`,
+      `Method not supported: ${KeyringRpcMethod.ExportAccount}`,
     );
   });
 
@@ -220,10 +220,10 @@ describe('handleKeyringRequestV2', () => {
       },
     };
 
-    const request: SubmitRequestV2Request = {
+    const request: SubmitRequestRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.SubmitRequest}`,
+      method: `${KeyringRpcMethod.SubmitRequest}`,
       params: dappRequest,
     };
 
@@ -251,7 +251,7 @@ describe('handleKeyringRequestV2', () => {
     const request: JsonRpcRequest = {
       jsonrpc: '2.0',
       id: '80c25a6b-4a76-44f4-88c5-7b3b76f72a74',
-      method: `${KeyringRpcV2Method.GetAccounts}`,
+      method: `${KeyringRpcMethod.GetAccounts}`,
     };
 
     const error = new Error();

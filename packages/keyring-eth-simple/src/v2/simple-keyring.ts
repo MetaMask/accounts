@@ -10,7 +10,7 @@ import {
   type ExportAccountOptions,
   type ExportedAccount,
   type KeyringCapabilities,
-  type KeyringV2,
+  type Keyring,
   KeyringType,
   PrivateKeyEncoding,
 } from '@metamask/keyring-api/v2';
@@ -19,7 +19,7 @@ import type { AccountId } from '@metamask/keyring-utils';
 import { add0x, type Hex } from '@metamask/utils';
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-import type SimpleKeyring from '../simple-keyring';
+import type LegacySimpleKeyring from '../simple-keyring';
 
 /**
  * Methods supported by SimpleKeyring EOA accounts.
@@ -38,7 +38,7 @@ const SIMPLE_KEYRING_METHODS = [
   EthKeyringMethod.SignEip7702Authorization,
 ];
 
-const simpleKeyringV2Capabilities: KeyringCapabilities = {
+const simpleKeyringCapabilities: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   privateKey: {
     importFormats: [
@@ -49,24 +49,24 @@ const simpleKeyringV2Capabilities: KeyringCapabilities = {
 };
 
 /**
- * Concrete {@link KeyringV2} adapter for {@link SimpleKeyring}.
+ * Concrete {@link Keyring} adapter for {@link SimpleKeyring}.
  *
  * This wrapper exposes the accounts and signing capabilities of the legacy
  * SimpleKeyring via the unified V2 interface.
  */
-export type SimpleKeyringV2Options = {
-  legacyKeyring: SimpleKeyring;
+export type SimpleKeyringOptions = {
+  legacyKeyring: LegacySimpleKeyring;
 };
 
-export class SimpleKeyringV2
-  extends EthKeyringWrapper<SimpleKeyring>
-  implements KeyringV2
+export class SimpleKeyring
+  extends EthKeyringWrapper<LegacySimpleKeyring>
+  implements Keyring
 {
-  constructor(options: SimpleKeyringV2Options) {
+  constructor(options: SimpleKeyringOptions) {
     super({
       type: KeyringType.PrivateKey,
       inner: options.legacyKeyring,
-      capabilities: simpleKeyringV2Capabilities,
+      capabilities: simpleKeyringCapabilities,
     });
   }
 

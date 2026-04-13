@@ -1,14 +1,14 @@
-import { KeyringRpcV2Method, isKeyringRpcV2Method } from './keyring-rpc';
+import { KeyringRpcMethod, isKeyringRpcMethod } from './keyring-rpc';
 
-describe('isKeyringRpcV2Method', () => {
-  it.each(Object.values(KeyringRpcV2Method))(
+describe('isKeyringRpcMethod', () => {
+  it.each(Object.values(KeyringRpcMethod))(
     'returns true for: "%s"',
     (method) => {
-      expect(isKeyringRpcV2Method(method)).toBe(true);
+      expect(isKeyringRpcMethod(method)).toBe(true);
     },
   );
 
   it('returns false for unknown method', () => {
-    expect(isKeyringRpcV2Method('keyring_unknownMethod')).toBe(false);
+    expect(isKeyringRpcMethod('keyring_unknownMethod')).toBe(false);
   });
 });

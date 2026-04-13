@@ -1,2 +1,2 @@
 export * from './KeyringInternalSnapClient';
-export * from './v2';
+export { KeyringInternalSnapClient as KeyringInternalSnapClientV2 } from './v2';

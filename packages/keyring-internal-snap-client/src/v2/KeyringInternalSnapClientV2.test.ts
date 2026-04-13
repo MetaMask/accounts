@@ -1,7 +1,8 @@
-import { KeyringRpcV2Method, type KeyringAccount } from '@metamask/keyring-api';
+import { type KeyringAccount } from '@metamask/keyring-api';
+import { KeyringRpcMethod } from '@metamask/keyring-api/v2';
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import { KeyringInternalSnapClientV2 } from './KeyringInternalSnapClientV2';
+import { KeyringInternalSnapClient } from './KeyringInternalSnapClientV2';
 import type { KeyringInternalSnapClientMessenger } from '../KeyringInternalSnapClient';
 
 const MOCK_ACCOUNT: KeyringAccount = {
@@ -13,7 +14,7 @@ const MOCK_ACCOUNT: KeyringAccount = {
   type: 'eip155:eoa',
 };
 
-describe('KeyringInternalSnapClientV2', () => {
+describe('KeyringInternalSnapClient', () => {
   const snapId = 'local:localhost:3000' as SnapId;
 
   const accountsList: KeyringAccount[] = [MOCK_ACCOUNT];
@@ -30,12 +31,12 @@ describe('KeyringInternalSnapClientV2', () => {
       request: {
         id: expect.any(String),
         jsonrpc: '2.0',
-        method: KeyringRpcV2Method.GetAccounts,
+        method: KeyringRpcMethod.GetAccounts,
       },
     };
 
     it('calls the getAccounts method and return the result', async () => {
-      const client = new KeyringInternalSnapClientV2({
+      const client = new KeyringInternalSnapClient({
         messenger: messenger as unknown as KeyringInternalSnapClientMessenger,
         snapId,
       });
@@ -50,7 +51,7 @@ describe('KeyringInternalSnapClientV2', () => {
     });
 
     it('calls the getAccounts method and return the result (withSnapId)', async () => {
-      const client = new KeyringInternalSnapClientV2({
+      const client = new KeyringInternalSnapClient({
         messenger: messenger as unknown as KeyringInternalSnapClientMessenger,
       });
 
@@ -64,7 +65,7 @@ describe('KeyringInternalSnapClientV2', () => {
     });
 
     it('calls the default snapId value ("undefined")', async () => {
-      const client = new KeyringInternalSnapClientV2({
+      const client = new KeyringInternalSnapClient({
         messenger: messenger as unknown as KeyringInternalSnapClientMessenger,
       });
 

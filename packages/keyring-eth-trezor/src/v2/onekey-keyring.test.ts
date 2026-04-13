@@ -1,8 +1,8 @@
 import { KeyringType } from '@metamask/keyring-api/v2';
 
-import { OneKeyKeyringV2 } from './onekey-keyring';
-import { TrezorKeyringV2 } from './trezor-keyring';
-import { OneKeyKeyring } from '../onekey-keyring';
+import { OneKeyKeyring } from './onekey-keyring';
+import { TrezorKeyring } from './trezor-keyring';
+import { OneKeyKeyring as LegacyOneKeyKeyring } from '../onekey-keyring';
 import type { TrezorBridge } from '../trezor-bridge';
 
 const entropySource = 'onekey-device-id-123';
@@ -24,25 +24,25 @@ function getMockBridge(): TrezorBridge {
   } as unknown as TrezorBridge;
 }
 
-describe('OneKeyKeyringV2', () => {
-  const createInnerKeyring = (): OneKeyKeyring => {
-    return new OneKeyKeyring({ bridge: getMockBridge() });
+describe('OneKeyKeyring', () => {
+  const createInnerKeyring = (): LegacyOneKeyKeyring => {
+    return new LegacyOneKeyKeyring({ bridge: getMockBridge() });
   };
 
   describe('constructor', () => {
-    it('extends TrezorKeyringV2', () => {
+    it('extends TrezorKeyring', () => {
       const inner = createInnerKeyring();
-      const wrapper = new OneKeyKeyringV2({
+      const wrapper = new OneKeyKeyring({
         legacyKeyring: inner,
         entropySource,
       });
 
-      expect(wrapper).toBeInstanceOf(TrezorKeyringV2);
+      expect(wrapper).toBeInstanceOf(TrezorKeyring);
     });
 
     it('sets the type to OneKey', () => {
       const inner = createInnerKeyring();
-      const wrapper = new OneKeyKeyringV2({
+      const wrapper = new OneKeyKeyring({
         legacyKeyring: inner,
         entropySource,
       });
@@ -52,7 +52,7 @@ describe('OneKeyKeyringV2', () => {
 
     it('stores the entropy source', () => {
       const inner = createInnerKeyring();
-      const wrapper = new OneKeyKeyringV2({
+      const wrapper = new OneKeyKeyring({
         legacyKeyring: inner,
         entropySource,
       });

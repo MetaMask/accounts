@@ -15,7 +15,7 @@ import {
   type ExportedAccount,
   type PrivateKeyExportedAccount,
 } from './export-account';
-import type { KeyringV2 } from './keyring';
+import type { Keyring } from './keyring';
 import type { KeyringCapabilities } from './keyring-capabilities';
 import { KeyringType } from './keyring-type';
 import type { ImportPrivateKeyFormat } from './private-key';
@@ -186,8 +186,8 @@ expectAssignable<ExportedAccount>({
   encoding: 'base58',
 });
 
-// Test KeyringV2 interface
-expectAssignable<KeyringV2['type']>(KeyringType.Hd);
-expectAssignable<KeyringV2['capabilities']>({
+// Test Keyring interface
+expectAssignable<Keyring['type']>(KeyringType.Hd);
+expectAssignable<Keyring['capabilities']>({
   scopes: ['eip155:1'],
 });

@@ -8,9 +8,9 @@ import {
 } from '@metamask/keyring-api';
 import { KeyringType } from '@metamask/keyring-api/v2';
 
-import { QrKeyringV2, type QrKeyringCreateAccountOptions } from './qr-keyring';
+import { QrKeyring, type QrKeyringCreateAccountOptions } from './qr-keyring';
 import type { QrKeyringBridge } from '..';
-import { QrKeyring } from '..';
+import { QrKeyring as LegacyQrKeyring } from '..';
 import {
   ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS,
   EXPECTED_ACCOUNTS,
@@ -95,57 +95,57 @@ function getMockBridge(): QrKeyringBridge {
  *
  * @returns The inner keyring.
  */
-function createInnerKeyring(): QrKeyring {
-  return new QrKeyring({
+function createInnerKeyring(): LegacyQrKeyring {
+  return new LegacyQrKeyring({
     bridge: getMockBridge(),
     ur: KNOWN_HDKEY_UR,
   });
 }
 
 /**
- * Create a QrKeyringV2 wrapper with a paired HD mode device and accounts.
+ * Create a QrKeyring wrapper with a paired HD mode device and accounts.
  *
  * @param accountCount - Number of accounts to add.
  * @returns The wrapper and inner keyring.
  */
 async function createWrapperWithAccounts(accountCount = 3): Promise<{
-  wrapper: QrKeyringV2;
-  inner: QrKeyring;
+  wrapper: QrKeyring;
+  inner: LegacyQrKeyring;
 }> {
   const inner = createInnerKeyring();
   await inner.addAccounts(accountCount);
 
-  const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+  const wrapper = new QrKeyring({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
 
 /**
- * Create a QrKeyringV2 wrapper without any accounts.
+ * Create a QrKeyring wrapper without any accounts.
  *
  * @returns The wrapper and inner keyring.
  */
-function createEmptyWrapper(): { wrapper: QrKeyringV2; inner: QrKeyring } {
+function createEmptyWrapper(): { wrapper: QrKeyring; inner: LegacyQrKeyring } {
   const inner = createInnerKeyring();
-  const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+  const wrapper = new QrKeyring({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
 
 /**
- * Create a QrKeyringV2 wrapper with a paired Account mode device.
+ * Create a QrKeyring wrapper with a paired Account mode device.
  *
  * @returns The wrapper and inner keyring.
  */
 async function createAccountModeWrapper(): Promise<{
-  wrapper: QrKeyringV2;
-  inner: QrKeyring;
+  wrapper: QrKeyring;
+  inner: LegacyQrKeyring;
 }> {
-  const inner = new QrKeyring({
+  const inner = new LegacyQrKeyring({
     bridge: getMockBridge(),
     ur: KNOWN_CRYPTO_ACCOUNT_UR,
   });
   await inner.addAccounts(1);
 
-  const wrapper = new QrKeyringV2({
+  const wrapper = new QrKeyring({
     legacyKeyring: inner,
     entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
   });
@@ -196,7 +196,7 @@ function customAccountOptions(
   };
 }
 
-describe('QrKeyringV2', () => {
+describe('QrKeyring', () => {
   describe('constructor', () => {
     it('creates a wrapper with correct type and capabilities', () => {
       const { wrapper } = createEmptyWrapper();
@@ -214,13 +214,13 @@ describe('QrKeyringV2', () => {
 
   describe('getAccounts', () => {
     it('returns correct capabilities immediately for pre-paired Account mode device', async () => {
-      const inner = new QrKeyring({
+      const inner = new LegacyQrKeyring({
         bridge: getMockBridge(),
         ur: KNOWN_CRYPTO_ACCOUNT_UR,
       });
       await inner.addAccounts(1);
 
-      const wrapper = new QrKeyringV2({
+      const wrapper = new QrKeyring({
         legacyKeyring: inner,
         entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
       });
@@ -234,8 +234,8 @@ describe('QrKeyringV2', () => {
       });
     });
     it('returns empty array when no device is paired', async () => {
-      const inner = new QrKeyring({ bridge: getMockBridge() });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const inner = new LegacyQrKeyring({ bridge: getMockBridge() });
+      const wrapper = new QrKeyring({ legacyKeyring: inner, entropySource });
 
       const accounts = await wrapper.getAccounts();
 
@@ -313,8 +313,8 @@ describe('QrKeyringV2', () => {
 
   describe('deserialize', () => {
     it('deserializes the legacy keyring state', async () => {
-      const inner = new QrKeyring({ bridge: getMockBridge() });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const inner = new LegacyQrKeyring({ bridge: getMockBridge() });
+      const wrapper = new QrKeyring({ legacyKeyring: inner, entropySource });
 
       await wrapper.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS);
 
@@ -340,8 +340,8 @@ describe('QrKeyringV2', () => {
     });
 
     it('updates capabilities to HD mode after deserializing HD device state', async () => {
-      const inner = new QrKeyring({ bridge: getMockBridge() });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const inner = new LegacyQrKeyring({ bridge: getMockBridge() });
+      const wrapper = new QrKeyring({ legacyKeyring: inner, entropySource });
 
       await wrapper.deserialize(HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS);
 
@@ -354,8 +354,8 @@ describe('QrKeyringV2', () => {
     });
 
     it('updates capabilities to Account mode after deserializing Account device state', async () => {
-      const inner = new QrKeyring({ bridge: getMockBridge() });
-      const wrapper = new QrKeyringV2({
+      const inner = new LegacyQrKeyring({ bridge: getMockBridge() });
+      const wrapper = new QrKeyring({
         legacyKeyring: inner,
         entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
       });
@@ -374,8 +374,8 @@ describe('QrKeyringV2', () => {
     });
 
     it('clears custom capability when transitioning from Account mode to HD mode', async () => {
-      const inner = new QrKeyring({ bridge: getMockBridge() });
-      const wrapper = new QrKeyringV2({
+      const inner = new LegacyQrKeyring({ bridge: getMockBridge() });
+      const wrapper = new QrKeyring({
         legacyKeyring: inner,
         entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
       });
@@ -468,8 +468,8 @@ describe('QrKeyringV2', () => {
     });
 
     it('throws error when no device is paired', async () => {
-      const inner = new QrKeyring({ bridge: getMockBridge() });
-      const wrapper = new QrKeyringV2({ legacyKeyring: inner, entropySource });
+      const inner = new LegacyQrKeyring({ bridge: getMockBridge() });
+      const wrapper = new QrKeyring({ legacyKeyring: inner, entropySource });
 
       await expect(
         wrapper.createAccounts(deriveIndexOptions(0, 'some-entropy')),
@@ -664,12 +664,12 @@ describe('QrKeyringV2', () => {
       });
 
       it('creates account using custom type with valid addressIndex', async () => {
-        const inner = new QrKeyring({
+        const inner = new LegacyQrKeyring({
           bridge: getMockBridge(),
           ur: KNOWN_CRYPTO_ACCOUNT_UR,
         });
         // Do not add any accounts initially
-        const wrapper = new QrKeyringV2({
+        const wrapper = new QrKeyring({
           legacyKeyring: inner,
           entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
         });
@@ -730,11 +730,11 @@ describe('QrKeyringV2', () => {
       });
 
       it('throws error when inner keyring fails to create account', async () => {
-        const inner = new QrKeyring({
+        const inner = new LegacyQrKeyring({
           bridge: getMockBridge(),
           ur: KNOWN_CRYPTO_ACCOUNT_UR,
         });
-        const wrapper = new QrKeyringV2({
+        const wrapper = new QrKeyring({
           legacyKeyring: inner,
           entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
         });

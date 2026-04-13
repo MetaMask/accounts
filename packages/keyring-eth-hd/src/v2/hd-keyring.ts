@@ -12,7 +12,7 @@ import {
   type ExportAccountOptions,
   type ExportedAccount,
   type KeyringCapabilities,
-  type KeyringV2,
+  type Keyring,
   KeyringType,
   PrivateKeyEncoding,
 } from '@metamask/keyring-api/v2';
@@ -20,7 +20,7 @@ import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import { add0x, type Hex } from '@metamask/utils';
 
-import type { HdKeyring } from '../hd-keyring';
+import type { HdKeyring as LegacyHdKeyring } from '../hd-keyring';
 
 /**
  * Methods supported by HD keyring EOA accounts.
@@ -39,7 +39,7 @@ const HD_KEYRING_METHODS = [
   EthKeyringMethod.SignEip7702Authorization,
 ];
 
-const hdKeyringV2Capabilities: KeyringCapabilities = {
+const hdKeyringCapabilities: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   bip44: {
     deriveIndex: true,
@@ -50,27 +50,27 @@ const hdKeyringV2Capabilities: KeyringCapabilities = {
 };
 
 /**
- * Concrete {@link KeyringV2} adapter for {@link HdKeyring}.
+ * Concrete {@link Keyring} adapter for {@link HdKeyring}.
  *
  * This wrapper exposes the accounts and signing capabilities of the legacy
  * HD keyring via the unified V2 interface.
  */
-export type HdKeyringV2Options = {
-  legacyKeyring: HdKeyring;
+export type HdKeyringOptions = {
+  legacyKeyring: LegacyHdKeyring;
   entropySource: EntropySourceId;
 };
 
-export class HdKeyringV2
-  extends EthKeyringWrapper<HdKeyring, Bip44Account<KeyringAccount>>
-  implements KeyringV2
+export class HdKeyring
+  extends EthKeyringWrapper<LegacyHdKeyring, Bip44Account<KeyringAccount>>
+  implements Keyring
 {
   protected readonly entropySource: EntropySourceId;
 
-  constructor(options: HdKeyringV2Options) {
+  constructor(options: HdKeyringOptions) {
     super({
       type: KeyringType.Hd,
       inner: options.legacyKeyring,
-      capabilities: hdKeyringV2Capabilities,
+      capabilities: hdKeyringCapabilities,
     });
     this.entropySource = options.entropySource;
   }

@@ -1,5 +1,5 @@
 export {
-  QrKeyringV2,
-  type QrKeyringV2Options,
+  QrKeyring,
+  type QrKeyringOptions,
   type QrAccountModeCreateOptions,
 } from './qr-keyring';

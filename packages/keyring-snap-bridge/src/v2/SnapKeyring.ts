@@ -2,7 +2,7 @@ import type { KeyringAccount } from '@metamask/keyring-api';
 import { KeyringAccountStruct } from '@metamask/keyring-api';
 import type {
   CreateAccountOptions,
-  KeyringV2,
+  Keyring,
   KeyringCapabilities,
 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
@@ -24,12 +24,12 @@ import { isAccountV1, migrateAccountV1 } from '../migrations';
 import { equalsIgnoreCase, normalizeAccountAddress } from '../util';
 
 /**
- * Superstruct schema for {@link SnapKeyringV2State}.
+ * Superstruct schema for {@link SnapKeyringState}.
  *
  * Accepts both v1 accounts (missing `scopes`) and v2 accounts so that
  * persisted state can be validated before migration.
  */
-export const SnapKeyringV2StateStruct = object({
+export const SnapKeyringStateStruct = object({
   snapId: string(),
   accounts: record(
     string(),
@@ -38,23 +38,23 @@ export const SnapKeyringV2StateStruct = object({
 });
 
 /**
- * Serialized state of a single SnapKeyringV2 instance.
+ * Serialized state of a single SnapKeyring instance.
  *
- * Note: this is an internal format only used between SnapKeyringV2 and its
+ * Note: this is an internal format only used between SnapKeyring and its
  * parent SnapKeyring. The external KeyringState format (flat `{ account,
  * snapId }` map) is preserved by SnapKeyring.serialize / deserialize.
  *
- * Inferred from {@link SnapKeyringV2StateStruct}: `snapId` is `string`
+ * Inferred from {@link SnapKeyringStateStruct}: `snapId` is `string`
  * (not the branded `SnapId`) so the shape stays JSON-compatible without
  * unsafe casts.
  */
-export type SnapKeyringV2State = Infer<typeof SnapKeyringV2StateStruct>;
+export type SnapKeyringState = Infer<typeof SnapKeyringStateStruct>;
 
 /**
  * Callbacks injected by the parent `SnapKeyring` to delegate snap
  * communication and parent coordination.
  */
-export type SnapKeyringV2Callbacks = {
+export type SnapKeyringCallbacks = {
   /**
    * Call the snap to create accounts (v2 batch flow). Returns raw snap accounts.
    */
@@ -98,7 +98,7 @@ export type SnapKeyringV2Callbacks = {
   withLock: <Result>(callback: () => Promise<Result>) => Promise<Result>;
 };
 
-type SnapKeyringV2Options = {
+type SnapKeyringOptions = {
   snapId: SnapId;
   /**
    * Called synchronously whenever a new account is added to this keyring.
@@ -113,11 +113,11 @@ type SnapKeyringV2Options = {
   /**
    * Callbacks for snap communication and parent coordination.
    */
-  callbacks: SnapKeyringV2Callbacks;
+  callbacks: SnapKeyringCallbacks;
 };
 
 /**
- * Per-snap keyring wrapper that implements `KeyringV2`.
+ * Per-snap keyring wrapper that implements `Keyring`.
  *
  * Each instance is responsible for exactly one `SnapId` and uses a
  * `KeyringAccountRegistry` as its sole backing store, providing O(1) lookups
@@ -126,9 +126,9 @@ type SnapKeyringV2Options = {
  * Business-logic operations (createAccounts, deleteAccount, submitRequest) are
  * delegated to the parent `SnapKeyring` via injected callbacks.
  */
-export class SnapKeyringV2 implements KeyringV2 {
+export class SnapKeyring implements Keyring {
   // ──────────────────────────────────────────────
-  // KeyringV2 properties
+  // Keyring properties
   // ──────────────────────────────────────────────
 
   readonly type = `${KeyringType.Snap}` as const;
@@ -151,14 +151,14 @@ export class SnapKeyringV2 implements KeyringV2 {
 
   readonly #onUnregister: (accountId: AccountId) => void;
 
-  readonly #callbacks: SnapKeyringV2Callbacks;
+  readonly #callbacks: SnapKeyringCallbacks;
 
   constructor({
     snapId,
     onRegister,
     onUnregister,
     callbacks,
-  }: SnapKeyringV2Options) {
+  }: SnapKeyringOptions) {
     this.#snapId = snapId;
     this.#registry = new KeyringAccountRegistry();
     this.#onRegister = onRegister;
@@ -172,7 +172,7 @@ export class SnapKeyringV2 implements KeyringV2 {
   }
 
   // ──────────────────────────────────────────────
-  // KeyringV2 methods
+  // Keyring methods
   // ──────────────────────────────────────────────
 
   /**
@@ -455,7 +455,7 @@ export class SnapKeyringV2 implements KeyringV2 {
   /**
    * Get all accounts in this keyring (synchronous).
    *
-   * This exists alongside the async `getAccounts()` (from `KeyringV2`) because
+   * This exists alongside the async `getAccounts()` (from `Keyring`) because
    * `SnapKeyring` needs synchronous access for iteration in `serialize`,
    * `listAccounts`, `hasSnapId`, etc. without awaiting.
    *
@@ -474,12 +474,12 @@ export class SnapKeyringV2 implements KeyringV2 {
    *
    * @returns The serialized state.
    */
-  async serialize(): Promise<SnapKeyringV2State> {
-    const accounts: SnapKeyringV2State['accounts'] = {};
+  async serialize(): Promise<SnapKeyringState> {
+    const accounts: SnapKeyringState['accounts'] = {};
     for (const account of this.#registry.values()) {
       accounts[account.id] = account;
     }
-    const state: SnapKeyringV2State = {
+    const state: SnapKeyringState = {
       snapId: this.#snapId as string,
       accounts,
     };
@@ -498,7 +498,7 @@ export class SnapKeyringV2 implements KeyringV2 {
    */
   async deserialize(state: Json): Promise<void> {
     // Validate the raw payload — accepts both v1 and v2 account shapes.
-    assert(state, SnapKeyringV2StateStruct);
+    assert(state, SnapKeyringStateStruct);
 
     // Migrate v1 accounts to v2.
     const migratedAccounts: Record<string, KeyringAccount> = {};

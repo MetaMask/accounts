@@ -1,1 +1,1 @@
-export { SimpleKeyringV2, type SimpleKeyringV2Options } from './simple-keyring';
+export { SimpleKeyring, type SimpleKeyringOptions } from './simple-keyring';

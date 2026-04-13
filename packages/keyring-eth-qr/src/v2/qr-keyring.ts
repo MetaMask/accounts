@@ -10,7 +10,7 @@ import {
 import {
   type CreateAccountOptions,
   type KeyringCapabilities,
-  type KeyringV2,
+  type Keyring,
   KeyringType,
   type CreateAccountBip44DeriveIndexOptions,
 } from '@metamask/keyring-api/v2';
@@ -19,7 +19,7 @@ import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 
 import { DeviceMode } from '../device';
-import type { QrKeyring } from '../qr-keyring';
+import type { QrKeyring as LegacyQrKeyring } from '../qr-keyring';
 
 /**
  * Methods supported by QR keyring EOA accounts.
@@ -77,7 +77,7 @@ export type QrKeyringCreateAccountOptions =
   | QrAccountModeCreateOptions;
 
 /**
- * Concrete {@link KeyringV2} adapter for {@link QrKeyring}.
+ * Concrete {@link Keyring} adapter for {@link QrKeyring}.
  *
  * This wrapper exposes the accounts and signing capabilities of the legacy
  * QR keyring via the unified V2 interface.
@@ -89,18 +89,18 @@ export type QrKeyringCreateAccountOptions =
  * device provides pre-defined addresses with arbitrary paths. Uses `custom`
  * account creation type to select addresses by their position in the device.
  */
-export type QrKeyringV2Options = {
-  legacyKeyring: QrKeyring;
+export type QrKeyringOptions = {
+  legacyKeyring: LegacyQrKeyring;
   entropySource: EntropySourceId;
 };
 
-export class QrKeyringV2
-  extends EthKeyringWrapper<QrKeyring>
-  implements KeyringV2
+export class QrKeyring
+  extends EthKeyringWrapper<LegacyQrKeyring>
+  implements Keyring
 {
   readonly entropySource: EntropySourceId;
 
-  constructor(options: QrKeyringV2Options) {
+  constructor(options: QrKeyringOptions) {
     super({
       type: KeyringType.Qr,
       inner: options.legacyKeyring,

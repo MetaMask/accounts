@@ -61,7 +61,7 @@ export const KeyringCapabilitiesStruct = object({
     }),
   ),
   /**
-   * Indicates which KeyringV2 methods accept non-standard options.
+   * Indicates which Keyring methods accept non-standard options.
    *
    * When a method is set to `true`, it signals that the keyring implementation
    * accepts custom options for that method, different from the standard API.

@@ -1,13 +1,10 @@
 import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
-import {
-  KeyringRpcV2Method,
-  PrivateKeyEncoding,
-} from '@metamask/keyring-api/v2';
+import { KeyringRpcMethod, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type { Json } from '@metamask/utils';
 
-import { KeyringClientV2 } from './KeyringClientV2';
+import { KeyringClient } from './KeyringClientV2';
 
-describe('KeyringClientV2', () => {
+describe('KeyringClient', () => {
   const mockSender = {
     send: jest.fn(),
   };
@@ -16,8 +13,8 @@ describe('KeyringClientV2', () => {
     mockSender.send.mockClear();
   });
 
-  describe('KeyringClientV2', () => {
-    const client = new KeyringClientV2(mockSender);
+  describe('KeyringClient', () => {
+    const client = new KeyringClient(mockSender);
 
     describe('getAccounts', () => {
       it('sends a request to get accounts and return the response', async () => {
@@ -37,7 +34,7 @@ describe('KeyringClientV2', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${KeyringRpcV2Method.GetAccounts}`,
+          method: `${KeyringRpcMethod.GetAccounts}`,
         });
         expect(accounts).toStrictEqual(expectedResponse);
       });
@@ -60,7 +57,7 @@ describe('KeyringClientV2', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${KeyringRpcV2Method.GetAccount}`,
+          method: `${KeyringRpcMethod.GetAccount}`,
           params: { id },
         });
         expect(account).toStrictEqual(expectedResponse);
@@ -91,7 +88,7 @@ describe('KeyringClientV2', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${KeyringRpcV2Method.CreateAccounts}`,
+          method: `${KeyringRpcMethod.CreateAccounts}`,
           params: createAccountOptions,
         });
         expect(account).toStrictEqual(expectedResponse);
@@ -107,7 +104,7 @@ describe('KeyringClientV2', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${KeyringRpcV2Method.DeleteAccount}`,
+          method: `${KeyringRpcMethod.DeleteAccount}`,
           params: { id },
         });
         expect(response).toBeUndefined();
@@ -128,7 +125,7 @@ describe('KeyringClientV2', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${KeyringRpcV2Method.ExportAccount}`,
+          method: `${KeyringRpcMethod.ExportAccount}`,
           params: { id },
         });
         expect(response).toStrictEqual(expectedResponse);
@@ -151,7 +148,7 @@ describe('KeyringClientV2', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${KeyringRpcV2Method.ExportAccount}`,
+          method: `${KeyringRpcMethod.ExportAccount}`,
           params: {
             id,
             options,
@@ -182,7 +179,7 @@ describe('KeyringClientV2', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${KeyringRpcV2Method.SubmitRequest}`,
+          method: `${KeyringRpcMethod.SubmitRequest}`,
           params: request,
         });
         expect(response).toStrictEqual(expectedResponse);

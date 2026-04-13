@@ -13,10 +13,10 @@ import {
   BIP44_HD_PATH_PREFIX,
   LEGACY_MEW_PATH_PREFIX,
   SLIP0044_TESTNET_PATH_PREFIX,
-  TrezorKeyringV2,
+  TrezorKeyring,
 } from './trezor-keyring';
 import type { TrezorBridge } from '../trezor-bridge';
-import { TrezorKeyring } from '../trezor-keyring';
+import { TrezorKeyring as LegacyTrezorKeyring } from '../trezor-keyring';
 
 /**
  * Type alias for Trezor keyring accounts (always BIP-44 derived).
@@ -117,8 +117,8 @@ function getMockBridge(): TrezorBridge {
  * @param hdPath - Optional HD path to set (defaults to BIP44 standard).
  * @returns The inner keyring.
  */
-function createInnerKeyring(hdPath?: string): TrezorKeyring {
-  const inner = new TrezorKeyring({ bridge: getMockBridge() });
+function createInnerKeyring(hdPath?: string): LegacyTrezorKeyring {
+  const inner = new LegacyTrezorKeyring({ bridge: getMockBridge() });
   // Set the HD path before setting HDKey (setHdPath resets HDKey)
   if (hdPath) {
     inner.setHdPath(hdPath as Parameters<typeof inner.setHdPath>[0]);
@@ -129,34 +129,34 @@ function createInnerKeyring(hdPath?: string): TrezorKeyring {
 }
 
 /**
- * Create a TrezorKeyringV2 wrapper with accounts.
+ * Create a TrezorKeyring wrapper with accounts.
  *
  * @param accountCount - Number of accounts to add.
  * @returns The wrapper and inner keyring.
  */
 async function createWrapperWithAccounts(accountCount = 3): Promise<{
-  wrapper: TrezorKeyringV2;
-  inner: TrezorKeyring;
+  wrapper: TrezorKeyring;
+  inner: LegacyTrezorKeyring;
 }> {
   const inner = createInnerKeyring();
   inner.setAccountToUnlock(0);
   await inner.addAccounts(accountCount);
 
-  const wrapper = new TrezorKeyringV2({ legacyKeyring: inner, entropySource });
+  const wrapper = new TrezorKeyring({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
 
 /**
- * Create a TrezorKeyringV2 wrapper without any accounts.
+ * Create a TrezorKeyring wrapper without any accounts.
  *
  * @returns The wrapper and inner keyring.
  */
 function createEmptyWrapper(): {
-  wrapper: TrezorKeyringV2;
-  inner: TrezorKeyring;
+  wrapper: TrezorKeyring;
+  inner: LegacyTrezorKeyring;
 } {
   const inner = createInnerKeyring();
-  const wrapper = new TrezorKeyringV2({ legacyKeyring: inner, entropySource });
+  const wrapper = new TrezorKeyring({ legacyKeyring: inner, entropySource });
   return { wrapper, inner };
 }
 
@@ -204,7 +204,7 @@ function derivePathOptions(
   };
 }
 
-describe('TrezorKeyringV2', () => {
+describe('TrezorKeyring', () => {
   describe('constructor', () => {
     it('creates a wrapper with correct type and capabilities', () => {
       const { wrapper } = createEmptyWrapper();
@@ -318,8 +318,8 @@ describe('TrezorKeyringV2', () => {
   describe('deserialize', () => {
     it('deserializes the legacy keyring state without crashing when device is locked', async () => {
       // Create a keyring WITHOUT pre-initializing hdk (simulating production)
-      const inner = new TrezorKeyring({ bridge: getMockBridge() });
-      const wrapper = new TrezorKeyringV2({
+      const inner = new LegacyTrezorKeyring({ bridge: getMockBridge() });
+      const wrapper = new TrezorKeyring({
         legacyKeyring: inner,
         entropySource,
       });
@@ -350,7 +350,7 @@ describe('TrezorKeyringV2', () => {
 
     it('rebuilds registry when getAccounts is called after device is unlocked', async () => {
       const inner = createInnerKeyring();
-      const wrapper = new TrezorKeyringV2({
+      const wrapper = new TrezorKeyring({
         legacyKeyring: inner,
         entropySource,
       });
@@ -515,7 +515,7 @@ describe('TrezorKeyringV2', () => {
     it('creates an account with legacy MEW path', async () => {
       // Create wrapper with legacy MEW path pre-set to avoid HDKey reset
       const inner = createInnerKeyring(LEGACY_MEW_PATH_PREFIX);
-      const wrapper = new TrezorKeyringV2({
+      const wrapper = new TrezorKeyring({
         legacyKeyring: inner,
         entropySource,
       });
@@ -536,7 +536,7 @@ describe('TrezorKeyringV2', () => {
     it('creates an account with SLIP0044 testnet path', async () => {
       // Create wrapper with testnet path pre-set to avoid HDKey reset
       const inner = createInnerKeyring(SLIP0044_TESTNET_PATH_PREFIX);
-      const wrapper = new TrezorKeyringV2({
+      const wrapper = new TrezorKeyring({
         legacyKeyring: inner,
         entropySource,
       });
@@ -722,7 +722,7 @@ describe('TrezorKeyringV2', () => {
       inner.setAccountToUnlock(0);
       await inner.addAccounts(1);
 
-      const wrapper = new TrezorKeyringV2({
+      const wrapper = new TrezorKeyring({
         legacyKeyring: inner,
         entropySource,
       });
@@ -741,7 +741,7 @@ describe('TrezorKeyringV2', () => {
       inner.setAccountToUnlock(0);
       await inner.addAccounts(1);
 
-      const wrapper = new TrezorKeyringV2({
+      const wrapper = new TrezorKeyring({
         legacyKeyring: inner,
         entropySource,
       });
@@ -783,7 +783,7 @@ describe('TrezorKeyringV2', () => {
       inner.setAccountToUnlock(0);
       await inner.addAccounts(1);
 
-      const wrapper = new TrezorKeyringV2({
+      const wrapper = new TrezorKeyring({
         legacyKeyring: inner,
         entropySource,
       });
@@ -831,7 +831,7 @@ describe('TrezorKeyringV2', () => {
       inner.setAccountToUnlock(0);
       await inner.addAccounts(1);
 
-      const wrapper = new TrezorKeyringV2({
+      const wrapper = new TrezorKeyring({
         legacyKeyring: inner,
         entropySource,
       });

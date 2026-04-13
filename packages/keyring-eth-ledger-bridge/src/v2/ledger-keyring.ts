@@ -10,14 +10,14 @@ import {
 import {
   type CreateAccountOptions,
   type KeyringCapabilities,
-  type KeyringV2,
+  type Keyring,
   KeyringType,
 } from '@metamask/keyring-api/v2';
 import { EthKeyringWrapper } from '@metamask/keyring-sdk';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import { add0x, getChecksumAddress, type Hex } from '@metamask/utils';
 
-import type { LedgerKeyring } from '../ledger-keyring';
+import type { LedgerKeyring as LegacyLedgerKeyring } from '../ledger-keyring';
 
 /**
  * Methods supported by Ledger keyring EOA accounts.
@@ -29,7 +29,7 @@ const LEDGER_KEYRING_METHODS = [
   EthMethod.SignTypedDataV4,
 ];
 
-const ledgerKeyringV2Capabilities: KeyringCapabilities = {
+const ledgerKeyringCapabilities: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   bip44: {
     deriveIndex: true,
@@ -61,37 +61,37 @@ const LEDGER_LIVE_PATH_PATTERN = /^m\/44'\/60'\/(\d+)'\/0\/0$/u;
 const INDEX_AT_END_PATH_PATTERN = /^(m\/44'\/60'(?:\/\d+'?)*)\/(\d+)$/u;
 
 /**
- * Concrete {@link KeyringV2} adapter for {@link LedgerKeyring}.
+ * Concrete {@link Keyring} adapter for {@link LedgerKeyring}.
  *
  * This wrapper exposes the accounts and signing capabilities of the legacy
  * Ledger keyring via the unified V2 interface.
  *
  * All Ledger keyring accounts are BIP-44 derived from the device.
  */
-export type LedgerKeyringV2Options = {
-  legacyKeyring: LedgerKeyring;
+export type LedgerKeyringOptions = {
+  legacyKeyring: LegacyLedgerKeyring;
   entropySource: EntropySourceId;
 };
 
-// LedgerKeyring.signTransaction returns `TypedTransaction | OldEthJsTransaction` for
+// LegacyLedgerKeyring.signTransaction returns `TypedTransaction | OldEthJsTransaction` for
 // backwards compatibility with old ethereumjs-tx, but EthKeyring expects `TypedTxData`.
 // The runtime behavior is correct - we cast the type to satisfy the constraint.
-type LedgerKeyringAsEthKeyring = LedgerKeyring & EthKeyring;
+type LedgerKeyringAsEthKeyring = LegacyLedgerKeyring & EthKeyring;
 
-export class LedgerKeyringV2
+export class LedgerKeyring
   extends EthKeyringWrapper<
     LedgerKeyringAsEthKeyring,
     Bip44Account<KeyringAccount>
   >
-  implements KeyringV2
+  implements Keyring
 {
   readonly entropySource: EntropySourceId;
 
-  constructor(options: LedgerKeyringV2Options) {
+  constructor(options: LedgerKeyringOptions) {
     super({
       type: KeyringType.Ledger,
       inner: options.legacyKeyring as LedgerKeyringAsEthKeyring,
-      capabilities: ledgerKeyringV2Capabilities,
+      capabilities: ledgerKeyringCapabilities,
     });
     this.entropySource = options.entropySource;
   }

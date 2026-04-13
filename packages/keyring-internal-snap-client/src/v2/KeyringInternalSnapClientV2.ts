@@ -1,4 +1,4 @@
-import { KeyringClientV2 } from '@metamask/keyring-snap-client';
+import { KeyringClientV2 as KeyringClient } from '@metamask/keyring-snap-client';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 
@@ -9,11 +9,11 @@ import { SnapControllerMessengerSender } from '../KeyringInternalSnapClient';
  * A `KeyringClient` that allows the communication with a Snap through a
  * `Messenger`.
  */
-export class KeyringInternalSnapClientV2 extends KeyringClientV2 {
+export class KeyringInternalSnapClient extends KeyringClient {
   readonly #messenger: KeyringInternalSnapClientMessenger;
 
   /**
-   * Create a new instance of `KeyringInternalSnapClientV2`.
+   * Create a new instance of `KeyringInternalSnapClient`.
    *
    * The `handlerType` argument has a hard-coded default `string` value instead
    * of a `HandlerType` value to prevent the `@metamask/snaps-utils` module
@@ -43,15 +43,15 @@ export class KeyringInternalSnapClientV2 extends KeyringClientV2 {
   }
 
   /**
-   * Create a new instance of `KeyringInternalSnapClientV2` with the specified
+   * Create a new instance of `KeyringInternalSnapClient` with the specified
    * `snapId`.
    *
    * @param snapId - The ID of the Snap to use in the new instance.
-   * @returns A new instance of `KeyringInternalSnapClientV2` with the
+   * @returns A new instance of `KeyringInternalSnapClient` with the
    * specified Snap ID.
    */
-  withSnapId(snapId: SnapId): KeyringInternalSnapClientV2 {
-    return new KeyringInternalSnapClientV2({
+  withSnapId(snapId: SnapId): KeyringInternalSnapClient {
+    return new KeyringInternalSnapClient({
       messenger: this.#messenger,
       snapId,
     });

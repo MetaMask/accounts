@@ -10,14 +10,14 @@ import {
 import {
   type CreateAccountOptions,
   type KeyringCapabilities,
-  type KeyringV2,
+  type Keyring,
   KeyringType,
 } from '@metamask/keyring-api/v2';
 import { EthKeyringWrapper } from '@metamask/keyring-sdk';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import type { TrezorKeyring } from '../trezor-keyring';
+import type { TrezorKeyring as LegacyTrezorKeyring } from '../trezor-keyring';
 
 /**
  * Methods supported by Trezor keyring EOA accounts.
@@ -30,7 +30,7 @@ const TREZOR_KEYRING_METHODS = [
   EthMethod.SignTypedDataV4,
 ];
 
-const trezorKeyringV2Capabilities: KeyringCapabilities = {
+const trezorKeyringCapabilities: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   bip44: {
     deriveIndex: true,
@@ -80,38 +80,38 @@ type AllowedHdPath = (typeof ALLOWED_HD_PATHS)[number];
 const DERIVATION_PATH_PATTERN = /^(m\/44'\/(?:60'|1')(?:\/\d+'?)*)\/(\d+)$/u;
 
 /**
- * Concrete {@link KeyringV2} adapter for {@link TrezorKeyring}.
+ * Concrete {@link Keyring} adapter for {@link TrezorKeyring}.
  *
  * This wrapper exposes the accounts and signing capabilities of the legacy
  * Trezor keyring via the unified V2 interface.
  *
  * All Trezor keyring accounts are BIP-44 derived from the device.
  */
-export type TrezorKeyringV2Options = {
-  legacyKeyring: TrezorKeyring;
+export type TrezorKeyringOptions = {
+  legacyKeyring: LegacyTrezorKeyring;
   entropySource: EntropySourceId;
   type?: KeyringType.Trezor | KeyringType.OneKey;
 };
 
-// TrezorKeyring.signTransaction returns `TypedTransaction | OldEthJsTransaction` for
+// LegacyTrezorKeyring.signTransaction returns `TypedTransaction | OldEthJsTransaction` for
 // backwards compatibility with old ethereumjs-tx, but EthKeyring expects `TypedTxData`.
 // The runtime behavior is correct - we cast the type to satisfy the constraint.
-type TrezorKeyringAsEthKeyring = TrezorKeyring & EthKeyring;
+type TrezorKeyringAsEthKeyring = LegacyTrezorKeyring & EthKeyring;
 
-export class TrezorKeyringV2
+export class TrezorKeyring
   extends EthKeyringWrapper<
     TrezorKeyringAsEthKeyring,
     Bip44Account<KeyringAccount>
   >
-  implements KeyringV2
+  implements Keyring
 {
   readonly entropySource: EntropySourceId;
 
-  constructor(options: TrezorKeyringV2Options) {
+  constructor(options: TrezorKeyringOptions) {
     super({
       type: options.type ?? KeyringType.Trezor,
       inner: options.legacyKeyring as TrezorKeyringAsEthKeyring,
-      capabilities: trezorKeyringV2Capabilities,
+      capabilities: trezorKeyringCapabilities,
     });
     this.entropySource = options.entropySource;
   }

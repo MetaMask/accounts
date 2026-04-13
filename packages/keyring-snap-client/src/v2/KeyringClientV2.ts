@@ -1,19 +1,19 @@
 import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import {
-  CreateAccountsV2ResponseStruct,
-  DeleteAccountV2ResponseStruct,
-  GetAccountV2ResponseStruct,
-  GetAccountsV2ResponseStruct,
-  SubmitRequestV2ResponseStruct,
-  KeyringRpcV2Method,
-  ExportAccountV2ResponseStruct,
+  CreateAccountsResponseStruct,
+  DeleteAccountResponseStruct,
+  GetAccountResponseStruct,
+  GetAccountsResponseStruct,
+  SubmitRequestResponseStruct,
+  KeyringRpcMethod,
+  ExportAccountResponseStruct,
 } from '@metamask/keyring-api/v2';
 import type {
   CreateAccountOptions,
   ExportAccountOptions,
   ExportedAccount,
-  KeyringRpcV2,
-  KeyringRpcV2Request,
+  KeyringRpc,
+  KeyringRpcRequest,
 } from '@metamask/keyring-api/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
@@ -23,7 +23,7 @@ import { v4 as uuid } from 'uuid';
 
 import type { Sender } from '../KeyringClient';
 
-export class KeyringClientV2 implements KeyringRpcV2 {
+export class KeyringClient implements KeyringRpc {
   readonly #sender: Sender;
 
   /**
@@ -41,8 +41,8 @@ export class KeyringClientV2 implements KeyringRpcV2 {
    * @param request - A partial JSON-RPC request (method and params).
    * @returns A promise that resolves to the response to the request.
    */
-  protected async send<RequestMethod extends KeyringRpcV2Method>(
-    request: KeyringRpcV2Request<RequestMethod>,
+  protected async send<RequestMethod extends KeyringRpcMethod>(
+    request: KeyringRpcRequest<RequestMethod>,
   ): Promise<Json> {
     return this.#sender.send({
       ...request,
@@ -54,9 +54,9 @@ export class KeyringClientV2 implements KeyringRpcV2 {
       await this.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: KeyringRpcV2Method.GetAccounts,
+        method: KeyringRpcMethod.GetAccounts,
       }),
-      GetAccountsV2ResponseStruct,
+      GetAccountsResponseStruct,
     );
   }
 
@@ -65,10 +65,10 @@ export class KeyringClientV2 implements KeyringRpcV2 {
       await this.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: KeyringRpcV2Method.GetAccount,
+        method: KeyringRpcMethod.GetAccount,
         params: { id },
       }),
-      GetAccountV2ResponseStruct,
+      GetAccountResponseStruct,
     );
   }
 
@@ -79,10 +79,10 @@ export class KeyringClientV2 implements KeyringRpcV2 {
       await this.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: KeyringRpcV2Method.CreateAccounts,
+        method: KeyringRpcMethod.CreateAccounts,
         params,
       }),
-      CreateAccountsV2ResponseStruct,
+      CreateAccountsResponseStruct,
     );
   }
 
@@ -94,10 +94,10 @@ export class KeyringClientV2 implements KeyringRpcV2 {
       await this.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: KeyringRpcV2Method.ExportAccount,
+        method: KeyringRpcMethod.ExportAccount,
         params: { id, ...(options && { options }) },
       }),
-      ExportAccountV2ResponseStruct,
+      ExportAccountResponseStruct,
     );
   }
 
@@ -106,10 +106,10 @@ export class KeyringClientV2 implements KeyringRpcV2 {
       await this.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: KeyringRpcV2Method.DeleteAccount,
+        method: KeyringRpcMethod.DeleteAccount,
         params: { id },
       }),
-      DeleteAccountV2ResponseStruct,
+      DeleteAccountResponseStruct,
     );
   }
 
@@ -118,10 +118,10 @@ export class KeyringClientV2 implements KeyringRpcV2 {
       await this.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: KeyringRpcV2Method.SubmitRequest,
+        method: KeyringRpcMethod.SubmitRequest,
         params: request,
       }),
-      SubmitRequestV2ResponseStruct,
+      SubmitRequestResponseStruct,
     );
   }
 }

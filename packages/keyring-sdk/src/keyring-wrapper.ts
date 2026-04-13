@@ -3,11 +3,14 @@ import type {
   CreateAccountOptions,
   ExportAccountOptions,
   ExportedAccount,
-  KeyringV2,
+  Keyring,
   KeyringCapabilities,
   KeyringType,
 } from '@metamask/keyring-api/v2';
-import type { Keyring, AccountId } from '@metamask/keyring-utils';
+import type {
+  Keyring as LegacyKeyring,
+  AccountId,
+} from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
@@ -19,7 +22,7 @@ import {
 /**
  * Basic options for constructing a {@link KeyringWrapper}.
  */
-export type KeyringWrapperOptions<InnerKeyring extends Keyring> = {
+export type KeyringWrapperOptions<InnerKeyring extends LegacyKeyring> = {
   /**
    * The underlying "old" keyring instance that this wrapper adapts.
    */
@@ -43,7 +46,7 @@ export type KeyringWrapperOptions<InnerKeyring extends Keyring> = {
 
 /**
  * Generic adapter that turns an existing {@link Keyring} implementation into a
- * {@link KeyringV2} instance.
+ * {@link Keyring} instance.
  *
  * Consumers are expected to provide concrete mappings between high-level V2
  * operations and the underlying keyring methods (for example BIP-44 account
@@ -52,9 +55,9 @@ export type KeyringWrapperOptions<InnerKeyring extends Keyring> = {
  * account-ID/address mapping and basic account management.
  */
 export abstract class KeyringWrapper<
-  InnerKeyring extends Keyring,
+  InnerKeyring extends LegacyKeyring,
   KeyringAccountType extends KeyringAccount = KeyringAccount,
-> implements KeyringV2
+> implements Keyring
 {
   readonly type: `${KeyringType}`;
 

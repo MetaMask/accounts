@@ -9,14 +9,14 @@ import type { KeyringAccount } from '../account';
 import type { KeyringRequest } from '../request';
 
 /**
- * The KeyringV2 interface defines methods for managing accounts and signing
+ * The Keyring interface defines methods for managing accounts and signing
  * requests. This interface unifies the existing EVM and Snap keyring interfaces
  * to provide a consistent API for all keyring type.
  *
  * This interface supports both EVM and non-EVM chains, and includes
  * account metadata needed for features like Multi-SRP and Backup and Sync.
  */
-export type KeyringV2 = {
+export type Keyring = {
   /**
    * Type of the keyring.
    */

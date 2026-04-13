@@ -10,8 +10,8 @@ import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
-import { HdKeyringV2 } from './hd-keyring';
-import { HdKeyring } from '../hd-keyring';
+import { HdKeyring } from './hd-keyring';
+import { HdKeyring as LegacyHdKeyring } from '../hd-keyring';
 
 const TEST_MNEMONIC =
   'test test test test test test test test test test test junk';
@@ -42,19 +42,19 @@ function createMockRequest(
   };
 }
 
-describe('HdKeyringV2', () => {
-  let inner: HdKeyring;
-  let wrapper: HdKeyringV2;
+describe('HdKeyring (v2 wrapper)', () => {
+  let inner: LegacyHdKeyring;
+  let wrapper: HdKeyring;
 
   beforeEach(async () => {
-    inner = new HdKeyring();
+    inner = new LegacyHdKeyring();
     await inner.deserialize({
       mnemonic: Array.from(Buffer.from(TEST_MNEMONIC, 'utf8')),
       numberOfAccounts: 0,
       hdPath: "m/44'/60'/0'/0",
     });
 
-    wrapper = new HdKeyringV2({
+    wrapper = new HdKeyring({
       legacyKeyring: inner,
       entropySource: TEST_ENTROPY_SOURCE_ID,
     });
@@ -162,8 +162,8 @@ describe('HdKeyringV2', () => {
 
   describe('deserialize', () => {
     it('deserializes the legacy keyring state', async () => {
-      const newInner = new HdKeyring();
-      const newWrapper = new HdKeyringV2({
+      const newInner = new LegacyHdKeyring();
+      const newWrapper = new HdKeyring({
         legacyKeyring: newInner,
         entropySource: TEST_ENTROPY_SOURCE_ID,
       });
@@ -183,8 +183,8 @@ describe('HdKeyringV2', () => {
       const accounts1 = await wrapper.getAccounts();
 
       // Create a new inner keyring for re-deserialization
-      const newInner = new HdKeyring();
-      const newWrapper = new HdKeyringV2({
+      const newInner = new LegacyHdKeyring();
+      const newWrapper = new HdKeyring({
         legacyKeyring: newInner,
         entropySource: TEST_ENTROPY_SOURCE_ID,
       });
@@ -207,8 +207,8 @@ describe('HdKeyringV2', () => {
       const firstAccountId = accounts1[0]?.id;
 
       // Create a fresh wrapper with the same mnemonic but only 1 account
-      const newInner = new HdKeyring();
-      const newWrapper = new HdKeyringV2({
+      const newInner = new LegacyHdKeyring();
+      const newWrapper = new HdKeyring({
         legacyKeyring: newInner,
         entropySource: TEST_ENTROPY_SOURCE_ID,
       });
