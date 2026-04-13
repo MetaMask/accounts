@@ -1694,6 +1694,7 @@ __metadata:
     "@metamask/keyring-api": "npm:^22.0.0"
     "@metamask/keyring-sdk": "npm:^1.2.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
+    "@metamask/old-hd-keyring": "npm:@metamask/eth-hd-keyring@^4.0.1"
     "@metamask/scure-bip39": "npm:^2.1.1"
     "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^11.10.0"
@@ -1702,7 +1703,6 @@ __metadata:
     deepmerge: "npm:^4.2.2"
     ethereum-cryptography: "npm:^2.2.1"
     jest: "npm:^29.5.0"
-    old-hd-keyring: "npm:@metamask/eth-hd-keyring@^4.0.1"
   languageName: unknown
   linkType: soft
 
@@ -2285,6 +2285,19 @@ __metadata:
     "@metamask/safe-event-emitter": "npm:^3.0.0"
     readable-stream: "npm:^3.6.2"
   checksum: 10/fa37a0b9e1e25f54c93a8f16449b3fc771c15b70d79d590cf41e22f871a19d673bcfd0d08b044093235d10d0bb031b47b8209d89997def0cb256abe3e371064f
+  languageName: node
+  linkType: hard
+
+"@metamask/old-hd-keyring@npm:@metamask/eth-hd-keyring@^4.0.1":
+  version: 4.0.2
+  resolution: "@metamask/eth-hd-keyring@npm:4.0.2"
+  dependencies:
+    "@metamask/bip39": "npm:^4.0.0"
+    "@metamask/eth-sig-util": "npm:^4.0.0"
+    eth-simple-keyring: "npm:^4.2.0"
+    ethereumjs-util: "npm:^7.0.9"
+    ethereumjs-wallet: "npm:^1.0.1"
+  checksum: 10/50a44b8c87c55d834838e2ebc2d58ab85d0b83315a3ec22e266e7d24b2c5c9c8007c32d639a82e905ee6d66fe185ca595614026476c9849d373595bd55757805
   languageName: node
   linkType: hard
 
@@ -9940,19 +9953,6 @@ __metadata:
     has-symbols: "npm:^1.0.3"
     object-keys: "npm:^1.1.1"
   checksum: 10/fd82d45289df0a952d772817622ecbaeb4ec933d3abb53267aede083ee38f6a395af8fadfbc569ee575115b0b7c9b286e7cfb2b7a2557b1055f7acbce513bc29
-  languageName: node
-  linkType: hard
-
-"old-hd-keyring@npm:@metamask/eth-hd-keyring@^4.0.1":
-  version: 4.0.2
-  resolution: "@metamask/eth-hd-keyring@npm:4.0.2"
-  dependencies:
-    "@metamask/bip39": "npm:^4.0.0"
-    "@metamask/eth-sig-util": "npm:^4.0.0"
-    eth-simple-keyring: "npm:^4.2.0"
-    ethereumjs-util: "npm:^7.0.9"
-    ethereumjs-wallet: "npm:^1.0.1"
-  checksum: 10/50a44b8c87c55d834838e2ebc2d58ab85d0b83315a3ec22e266e7d24b2c5c9c8007c32d639a82e905ee6d66fe185ca595614026476c9849d373595bd55757805
   languageName: node
   linkType: hard
 
