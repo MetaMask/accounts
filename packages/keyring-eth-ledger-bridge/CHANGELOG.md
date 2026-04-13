@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed 
+
+- Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+
 ## [11.4.0]
 
 ### Added
@@ -14,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `getTransactionSelector` to read the 4-byte calldata selector from serialized transaction hex (legacy and typed txs) ([#506](https://github.com/MetaMask/accounts/pull/506))
   - Ledger mobile bridge passes `nft: true` to `clearSignTransaction` when that selector is NFT-only (ERC-721 / ERC-1155).
 - Add `ERC20_WRITE_SELECTORS` for the three EIP-20 write functions (`transfer`, `transferFrom`, `approve`) ([#506](https://github.com/MetaMask/accounts/pull/506))
-- Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [11.3.1]
 
