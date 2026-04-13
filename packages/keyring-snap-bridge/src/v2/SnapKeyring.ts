@@ -93,7 +93,6 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    */
   readonly #lock: Mutex;
 
-
   // ──────────────────────────────────────────────
   // Keyring properties
   // ──────────────────────────────────────────────
