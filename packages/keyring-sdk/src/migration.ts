@@ -175,7 +175,7 @@ export function isVersionedState<State extends Json = Json>(
 export function getLatestVersion(
   migrations: readonly KeyringMigration[],
 ): number {
-  return Math.max(0, ...migrations.map((migration) => migration.version));
+  return migrations.reduce((max, { version }) => Math.max(max, version), 0);
 }
 
 /**
