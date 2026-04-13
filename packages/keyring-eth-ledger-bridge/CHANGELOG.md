@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `LedgerKeyring` and `LedgerKeyringOptions` are now available from `@metamask/eth-ledger-bridge-keyring/v2`.
+
+### Changed
+
+- **BREAKING:** Move and rename `LedgerKeyringV2` and `LedgerKeyringV2Options` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `LedgerKeyringV2` is now `LedgerKeyring` from `@metamask/eth-ledger-bridge-keyring/v2`.
+  - `LedgerKeyringV2Options` is now `LedgerKeyringOptions` from `@metamask/eth-ledger-bridge-keyring/v2`.
+
 ## [11.4.0]
 
 ### Added
