@@ -17,15 +17,12 @@ module.exports = merge(baseConfig, {
   coveragePathIgnorePatterns: ['./src/tests'],
 
   // An object that configures minimum threshold enforcement for coverage results
-  // Note: keyring-type.ts and keyring-capabilities.ts in src/api/v2/ are
-  // excluded from the main barrel (v2 is now a separate subpath export) and
-  // have no direct tests, which lowers overall coverage from 100%.
   coverageThreshold: {
     global: {
-      branches: 96,
-      functions: 96.55,
-      lines: 96.15,
-      statements: 96.15,
+      branches: 100,
+      functions: 100,
+      lines: 100,
+      statements: 100,
     },
   },
 });

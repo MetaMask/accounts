@@ -1,4 +1,4 @@
-import { KeyringRpcMethod, isKeyringRpcMethod } from './keyring-rpc';
+import { KeyringRpcMethod, isKeyringRpcMethod } from '.';
 
 describe('isKeyringRpcMethod', () => {
   it.each(Object.values(KeyringRpcMethod))(
