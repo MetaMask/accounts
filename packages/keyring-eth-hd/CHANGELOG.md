@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix: add dynamic nft and erc20 check ([#506](https://github.com/MetaMask/accounts/pull/506))
+
 ## [13.1.1]
 
 ### Changed
