@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add keyring state migration framework ([#505](https://github.com/MetaMask/accounts/pull/505))
+  - It can be used to migrate the internal state of keyrings
+
 ## [1.2.0]
 
 ### Added
