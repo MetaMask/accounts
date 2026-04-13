@@ -81,6 +81,7 @@ const migrations = [
 
 ```typescript
 import { applyMigrations, getLatestVersion } from '@metamask/keyring-sdk';
+import type { VersionedState } from '@metamask/keyring-sdk';
 import type { Json } from '@metamask/utils';
 
 class MyKeyring {
@@ -93,7 +94,7 @@ class MyKeyring {
     this.#hdPath = data.hdPath;
   }
 
-  async serialize(): Promise<Json> {
+  async serialize(): Promise<VersionedState<HdStateV2>> {
     return {
       version: getLatestVersion(migrations),
       data: {
@@ -101,13 +102,14 @@ class MyKeyring {
         accountCount: this.#accountCount,
         hdPath: this.#hdPath,
       },
-    } as Json;
+    };
   }
 }
 ```
 
 ## Best Practices
 
+- **`as const` arrays**: Declare the migrations array with `as const` so TypeScript infers the final state type from `applyMigrations`. Without it, `data` falls back to `Json`.
 - **Idempotent migrations**: Design migrations so re-running them on already-migrated data is harmless.
 - **Immutability**: Treat the input `data` as immutable within the `migrate` function.
 - **Schema coverage**: Ensure `schema` covers all fields expected in the new version to prevent runtime errors.
