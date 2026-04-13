@@ -5,8 +5,8 @@ import type { CreateAccountOptions } from './create-account';
 import type { ExportedAccount, ExportAccountOptions } from './export-account';
 import type { KeyringCapabilities } from './keyring-capabilities';
 import type { KeyringType } from './keyring-type';
-import type { KeyringAccount } from '../account';
-import type { KeyringRequest } from '../request';
+import type { KeyringAccount } from '../../api/account';
+import type { KeyringRequest } from '../../api/request';
 
 /**
  * The Keyring interface defines methods for managing accounts and signing

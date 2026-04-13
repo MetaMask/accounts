@@ -5,7 +5,7 @@ import {
   type Infer,
 } from '@metamask/superstruct';
 
-import { KeyringAccountTypeStruct } from '../account';
+import { KeyringAccountTypeStruct } from '../../api/account';
 
 /**
  * Supported encoding formats for private keys.

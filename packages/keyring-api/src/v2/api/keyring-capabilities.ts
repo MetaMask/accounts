@@ -12,7 +12,7 @@ import {
   ExportPrivateKeyFormatStruct,
   ImportPrivateKeyFormatStruct,
 } from './private-key';
-import { CaipChainIdStruct } from '../caip';
+import { CaipChainIdStruct } from '../../api/caip';
 
 /**
  * Struct for {@link KeyringCapabilities}.

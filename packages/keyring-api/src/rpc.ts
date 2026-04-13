@@ -29,7 +29,7 @@ import {
   CaipAccountIdStruct,
   DiscoveredAccountStruct,
 } from './api';
-import { CreateAccountOptionsStruct } from './api/v2/create-account';
+import { CreateAccountOptionsStruct } from './v2/api/create-account';
 
 /**
  * Keyring RPC methods used by the API.

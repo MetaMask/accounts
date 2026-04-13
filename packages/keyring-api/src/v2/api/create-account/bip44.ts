@@ -6,7 +6,7 @@ import {
   type Infer,
 } from '@metamask/superstruct';
 
-import { DerivationPathStruct } from '../../derivation';
+import { DerivationPathStruct } from '../../../api/derivation';
 
 /**
  * Struct for {@link CreateAccountBip44DerivePathOptions}.

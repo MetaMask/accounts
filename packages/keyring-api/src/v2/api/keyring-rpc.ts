@@ -9,8 +9,8 @@ import {
   PrivateKeyExportedAccountStruct,
 } from './export-account';
 import type { Keyring } from './keyring';
-import { KeyringAccountStruct } from '../account';
-import { KeyringRequestStruct } from '../request';
+import { KeyringAccountStruct } from '../../api/account';
+import { KeyringRequestStruct } from '../../api/request';
 
 /**
  * Keyring interface for keyring methods that can be invoked through
