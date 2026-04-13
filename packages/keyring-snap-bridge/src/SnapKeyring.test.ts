@@ -48,13 +48,16 @@ import { type SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 import { assert } from '@metamask/superstruct';
 import type { Hex, Json } from '@metamask/utils';
-import { KnownCaipNamespace, toCaipChainId } from '@metamask/utils';
+import {
+  KnownCaipNamespace,
+  toCaipChainId,
+  createDeferredPromise,
+} from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
 import type { KeyringState, SnapKeyringInternalOptions } from '.';
 import { getDefaultInternalOptions, SnapKeyring } from '.';
 import type { KeyringAccountV1 } from './account';
-import { DeferredPromise } from './DeferredPromise';
 import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 
@@ -522,9 +525,7 @@ describe('SnapKeyring', () => {
               account: { ...(ethEoaAccount1 as unknown as KeyringAccount) },
             },
           }),
-        ).rejects.toThrow(
-          'Snap "a-different-snap-id" is not allowed to set "b05d918a-b37c-497a-bb28-3d15c0d56b7a"',
-        );
+        ).rejects.toThrow(`Account '${ethEoaAccount1.id}' already exists`);
       });
 
       describe('with options', () => {
@@ -930,7 +931,7 @@ describe('SnapKeyring', () => {
 
       it('saves to the state asynchronously', async () => {
         // We simulate a long running `saveState`
-        const deferred = new DeferredPromise<void>();
+        const deferred = createDeferredPromise();
         const saveStateContext = {
           called: false,
           returned: false,
@@ -1099,7 +1100,7 @@ describe('SnapKeyring', () => {
             },
           }),
         ).rejects.toThrow(
-          "Account 'b05d918a-b37c-497a-bb28-3d15c0d56b7a' not found",
+          "SnapKeyring - Received a message for an unknown snap keyring 'invalid-snap-id'",
         );
       });
 
@@ -1247,10 +1248,14 @@ describe('SnapKeyring', () => {
       });
 
       it('cannot delete an account owned by another Snap', async () => {
-        await keyring.handleKeyringSnapMessage('invalid-snap-id' as SnapId, {
-          method: KeyringEvent.AccountDeleted,
-          params: { id: ethEoaAccount1.id },
-        });
+        await expect(
+          keyring.handleKeyringSnapMessage('invalid-snap-id' as SnapId, {
+            method: KeyringEvent.AccountDeleted,
+            params: { id: ethEoaAccount1.id },
+          }),
+        ).rejects.toThrow(
+          "SnapKeyring - Received a message for an unknown snap keyring 'invalid-snap-id'",
+        );
         expect(await keyring.getAccounts()).toStrictEqual([
           ethEoaAccount1.address.toLowerCase(),
           ethEoaAccount2.address.toLowerCase(),
@@ -1345,7 +1350,9 @@ describe('SnapKeyring', () => {
             method: KeyringEvent.RequestApproved,
             params: { id: requestId, result: '0x1234' },
           }),
-        ).rejects.toThrow(`Request '${requestId}' not found`);
+        ).rejects.toThrow(
+          "SnapKeyring - Received a message for an unknown snap keyring 'another-snap-id'",
+        );
       });
 
       it('fails to approve a request that failed when submitted', async () => {
@@ -1417,7 +1424,9 @@ describe('SnapKeyring', () => {
             method: KeyringEvent.RequestRejected,
             params: { id: requestId },
           }),
-        ).rejects.toThrow(`Request '${requestId}' not found`);
+        ).rejects.toThrow(
+          "SnapKeyring - Received a message for an unknown snap keyring 'another-snap-id'",
+        );
       });
     });
 
@@ -1565,6 +1574,31 @@ describe('SnapKeyring', () => {
         keyring.deserialize({} as unknown as KeyringState),
       ).rejects.toThrow('Cannot convert undefined or null to object');
       expect(await keyring.getAccounts()).toStrictEqual([]);
+    });
+
+    it('does not clear existing state when a snap fails validation', async () => {
+      const otherSnapId = 'local:snap.other' as SnapId;
+      await keyring.deserialize({
+        accounts: {
+          [ethEoaAccount1.id]: { account: ethEoaAccount1, snapId },
+        },
+      } as unknown as KeyringState);
+
+      await expect(
+        keyring.deserialize({
+          accounts: {
+            [ethEoaAccount1.id]: { account: ethEoaAccount1, snapId },
+            [ethEoaAccount2.id]: {
+              account: {} as KeyringAccount,
+              snapId: otherSnapId,
+            },
+          },
+        } as unknown as KeyringState),
+      ).rejects.toThrow(/Expected/u);
+
+      expect(await keyring.getAccounts()).toStrictEqual([
+        ethEoaAccount1.address,
+      ]);
     });
 
     it.each([
@@ -2266,6 +2300,57 @@ describe('SnapKeyring', () => {
       ]);
     });
 
+    it('drops the per-snap wrapper when the last account for that Snap is removed', async () => {
+      const isolatedKeyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+        isAnyAccountTypeAllowed: true,
+      });
+      await isolatedKeyring.deserialize({
+        accounts: {
+          [ethEoaAccount1.id]: {
+            account: ethEoaAccount1 as unknown as KeyringAccount,
+            snapId,
+          },
+        },
+      } as unknown as KeyringState);
+      mockMessenger.handleRequest.mockResolvedValue(null);
+      await isolatedKeyring.removeAccount(ethEoaAccount1.address);
+      expect(await isolatedKeyring.getAccounts()).toStrictEqual([]);
+    });
+
+    it('rejects pending requests when the last account is removed', async () => {
+      const isolatedKeyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+        isAnyAccountTypeAllowed: true,
+      });
+      await isolatedKeyring.deserialize({
+        accounts: {
+          [ethEoaAccount1.id]: {
+            account: ethEoaAccount1 as unknown as KeyringAccount,
+            snapId,
+          },
+        },
+      } as unknown as KeyringState);
+
+      // Start an async signing request that won't complete without explicit approval.
+      mockMessenger.handleRequest.mockResolvedValue({ pending: true });
+      const pendingRequest = isolatedKeyring.signPersonalMessage(
+        ethEoaAccount1.address,
+        'hello',
+      );
+
+      // Removing the last account triggers #removeSnapKeyringIfEmpty -> destroy(),
+      // which rejects all pending requests.
+      mockMessenger.handleRequest.mockResolvedValue(null);
+      await isolatedKeyring.removeAccount(ethEoaAccount1.address);
+
+      await expect(pendingRequest).rejects.toThrow(
+        `Keyring for snap '${snapId}' has been destroyed`,
+      );
+    });
+
     it('removes the account and warn if Snap fails', async () => {
       const spy = jest.spyOn(console, 'error').mockImplementation();
       mockMessenger.handleRequest.mockRejectedValue('some error');
@@ -2284,7 +2369,7 @@ describe('SnapKeyring', () => {
         accounts[11].address,
       ]);
       expect(console.error).toHaveBeenCalledWith(
-        "Account '0xc728514df8a7f9271f4b7a4dd2aa6d2d723d3ee3' may not have been removed from snap 'local:snap.mock':",
+        `Account '${ethEoaAccount1.id}' may not have been removed from snap '${snapId}':`,
         'some error',
       );
       spy.mockRestore();
@@ -2326,6 +2411,13 @@ describe('SnapKeyring', () => {
     it('returns the list of addresses of a Snap', async () => {
       const addresses = await keyring.getAccountsBySnapId(snapId);
       expect(addresses).toStrictEqual(accounts.map((a) => a.address));
+    });
+
+    it('returns an empty array for an unknown Snap', async () => {
+      const addresses = await keyring.getAccountsBySnapId(
+        'unknown-snap' as SnapId,
+      );
+      expect(addresses).toStrictEqual([]);
     });
   });
 

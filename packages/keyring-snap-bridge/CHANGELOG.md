@@ -10,9 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support Stellar (`xlm:account`) accounts in account assertions and v1 migrations ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Add `SnapKeyringV1` class, a per-snap keyring wrapper that implements the old keyring interface and flows ([#507](https://github.com/MetaMask/accounts/pull/507))
+  - This will allow us to re-use the existing logic (that we still use today) as part of the new V2 implementation until we completely them.
+- Add `SnapKeyringV2` class, a per-snap keyring wrapper that implements `KeyringV2` with `createAccount`, `createAccounts`, `deleteAccount`, `submitRequest`, `getAccount`, and `getAccounts` ([#501](https://github.com/MetaMask/accounts/pull/501)), ([#507](https://github.com/MetaMask/accounts/pull/507))
+  - `SnapKeyringV2` inherits from `SnapKeyringV1` so it can replace the current `SnapKeyring` class entirely, but for a single Snap.
+- Add `@metamask/keyring-sdk` `^1.1.0` as a new dependency ([#501](https://github.com/MetaMask/accounts/pull/501))
 
 ### Changed
 
+- Use `DeferredPromise` from `@metamask/utils` ([#508](https://github.com/MetaMask/accounts/pull/508))
+- Refactor `SnapKeyring` to store accounts in per-snap `SnapKeyringV2` wrappers instead of a single flat map ([#501](https://github.com/MetaMask/accounts/pull/501))
 - Bump `@metamask/messenger` from `^0.3.0` to `^1.1.1` ([#489](https://github.com/MetaMask/accounts/pull/489), [#500](https://github.com/MetaMask/accounts/pull/500))
 - Bump `@metamask/snaps-controllers` from `^19.0.0` to `^19.0.1` ([#500](https://github.com/MetaMask/accounts/pull/500))
 - Bump `@metamask/snaps-utils` from `^12.1.2` to `^12.1.3` ([#500](https://github.com/MetaMask/accounts/pull/500))
