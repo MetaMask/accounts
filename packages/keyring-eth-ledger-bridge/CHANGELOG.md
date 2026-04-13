@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
+## [11.4.0]
+
+### Added
 
 - Add `getTransactionSelector` to read the 4-byte calldata selector from serialized transaction hex (legacy and typed txs) ([#506](https://github.com/MetaMask/accounts/pull/506))
   - Ledger mobile bridge passes `nft: true` to `clearSignTransaction` when that selector is NFT-only (ERC-721 / ERC-1155).
@@ -383,7 +385,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.3.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.4.0...HEAD
+[11.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.3.1...@metamask/eth-ledger-bridge-keyring@11.4.0
 [11.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.3.0...@metamask/eth-ledger-bridge-keyring@11.3.1
 [11.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.2.0...@metamask/eth-ledger-bridge-keyring@11.3.0
 [11.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.1.2...@metamask/eth-ledger-bridge-keyring@11.2.0
