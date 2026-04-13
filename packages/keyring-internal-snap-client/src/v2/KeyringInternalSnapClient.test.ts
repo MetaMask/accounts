@@ -2,7 +2,7 @@ import { type KeyringAccount } from '@metamask/keyring-api';
 import { KeyringRpcMethod } from '@metamask/keyring-api/v2';
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import { KeyringInternalSnapClient } from './KeyringInternalSnapClientV2';
+import { KeyringInternalSnapClient } from './KeyringInternalSnapClient';
 import type { KeyringInternalSnapClientMessenger } from '../KeyringInternalSnapClient';
 
 const MOCK_ACCOUNT: KeyringAccount = {

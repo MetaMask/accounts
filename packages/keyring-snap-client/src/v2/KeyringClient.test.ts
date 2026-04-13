@@ -2,7 +2,7 @@ import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import { KeyringRpcMethod, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type { Json } from '@metamask/utils';
 
-import { KeyringClient } from './KeyringClientV2';
+import { KeyringClient } from './KeyringClient';
 
 describe('KeyringClient', () => {
   const mockSender = {
