@@ -2,7 +2,7 @@
 import { hashPersonalMessage } from '@ethereumjs/util';
 import { type Hex, type Json, bytesToHex } from '@metamask/utils';
 
-import { MPCKeyring, uninitializedResponderState } from './mpc-keyring';
+import { MPCKeyring } from './mpc-keyring';
 
 const mockCreateKey = jest.fn();
 const mockUpdateKey = jest.fn();
@@ -213,12 +213,9 @@ describe('MPCKeyring', () => {
     mockDklsSign.mockResolvedValue({ signature: new Uint8Array(64).fill(9) });
   });
 
-  it('exposes the expected type and responder state constant', () => {
+  it('exposes the expected type constant', () => {
     const keyring = makeKeyring();
     expect(keyring.type).toBe('MPC Keyring');
-    expect(uninitializedResponderState).toStrictEqual({
-      initRole: 'responder',
-    });
   });
 
   it('wires network manager options and random byte adapter', () => {
@@ -284,6 +281,24 @@ describe('MPCKeyring', () => {
     );
   });
 
+  it('throws on invalid setup params in deserialize', async () => {
+    const keyring = makeKeyring();
+
+    await expect(
+      keyring.deserialize({
+        verifierIds: ['verifier-1'],
+        mode: 'invalid-mode',
+      } as never),
+    ).rejects.toThrow("Invalid setup mode: expected 'create' or 'join'");
+
+    await expect(
+      keyring.deserialize({
+        verifierIds: ['verifier-1'],
+        mode: 'join',
+      } as never),
+    ).rejects.toThrow('Invalid join data: expected a string');
+  });
+
   it('does not initialize from incomplete serialized state', async () => {
     const keyring = makeKeyring();
     await keyring.deserialize({ keyId: 'only-key-id' });
@@ -309,7 +324,7 @@ describe('MPCKeyring', () => {
     expect(() => keyring.selectVerifier(-1)).toThrow('Invalid verifier index');
   });
 
-  it('creates a key in setup(create) mode', async () => {
+  it('creates a key via deserialize(init args) + init(create mode)', async () => {
     const keyring = makeKeyring();
     const rootSession = makeRootSession('created-key-id');
 
@@ -317,7 +332,11 @@ describe('MPCKeyring', () => {
     mockCreateSession.mockResolvedValueOnce(rootSession);
     mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
 
-    await keyring.setup({ verifierIds: ['verifier-1'] });
+    await keyring.deserialize({ verifierIds: ['verifier-1'] });
+    expect(await keyring.serialize()).toStrictEqual({
+      verifierIds: ['verifier-1'],
+    });
+    await keyring.init();
 
     expect(mockInitCloudKeyGen).toHaveBeenCalledWith({
       localId: 'local-user',
@@ -336,9 +355,21 @@ describe('MPCKeyring', () => {
       { partyId: 'cloud-user', type: 'cloud' },
     ]);
     expect(keyring.getSelectedVerifierId()).toBe('verifier-1');
+    expect(await keyring.serialize()).toStrictEqual({
+      networkIdentity: { partyId: 'local-user' },
+      keyShare: makeThresholdKey(),
+      keyId: 'created-key-id',
+      dkls19Setup: '0x010203',
+      custodians: [
+        { partyId: 'local-user', type: 'user' },
+        { partyId: 'cloud-user', type: 'cloud' },
+      ],
+      verifierIds: ['verifier-1'],
+      selectedVerifierIndex: 0,
+    });
   });
 
-  it('joins an existing key in setup(join) mode', async () => {
+  it('joins an existing key via deserialize(init args) + init(join mode)', async () => {
     const keyring = makeKeyring();
 
     const joinSession1 = {
@@ -376,11 +407,17 @@ describe('MPCKeyring', () => {
       nonce: '0xjoin-nonce',
     });
 
-    await keyring.setup({
+    await keyring.deserialize({
       mode: 'join',
       verifierIds: ['verifier-1'],
       joinData,
     });
+    expect(await keyring.serialize()).toStrictEqual({
+      mode: 'join',
+      verifierIds: ['verifier-1'],
+      joinData,
+    });
+    await keyring.init();
 
     expect(joinSession1.sendMessage).toHaveBeenCalledWith(
       'initiator-user',
@@ -394,32 +431,59 @@ describe('MPCKeyring', () => {
     ]);
   });
 
-  it('rejects setup when already initialized or verifier list is empty', async () => {
+  it('init is a no-op when already initialized', async () => {
     const keyring = makeKeyring();
     await deserializeState(keyring);
 
-    await expect(
-      keyring.setup({ verifierIds: ['verifier-1'] }),
-    ).rejects.toThrow('Keyring already setup');
+    expect(await keyring.init()).toBeUndefined();
+    expect(mockInitCloudKeyGen).not.toHaveBeenCalled();
+    expect(mockUpdateKey).not.toHaveBeenCalled();
+  });
 
-    const freshKeyring = makeKeyring();
-    await expect(freshKeyring.setup({ verifierIds: [] })).rejects.toThrow(
+  it('rejects init for empty verifier list in setup params', async () => {
+    const keyring = makeKeyring();
+    await keyring.deserialize({ verifierIds: [] });
+
+    await expect(keyring.init()).rejects.toThrow(
       'At least one verifier ID is required',
     );
   });
 
-  it('treats undefined mode as create when setup mode is passed', async () => {
+  it('treats undefined mode as create when setup params are deserialized', async () => {
     const keyring = makeKeyring();
     const rootSession = makeRootSession('created-key-id');
     mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
     mockCreateSession.mockResolvedValueOnce(rootSession);
     mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
 
-    await keyring.setup({
+    await keyring.deserialize({
       verifierIds: ['verifier-1'],
       mode: undefined,
     } as never);
+    await keyring.init();
 
+    expect(keyring.getSelectedVerifierId()).toBe('verifier-1');
+  });
+
+  it('supports explicit create mode in setup params', async () => {
+    const keyring = makeKeyring();
+    const rootSession = makeRootSession('created-key-id');
+    mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
+    mockCreateSession.mockResolvedValueOnce(rootSession);
+    mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+
+    await keyring.deserialize({
+      verifierIds: ['verifier-1'],
+      mode: 'create',
+    });
+
+    expect(await keyring.serialize()).toStrictEqual({
+      verifierIds: ['verifier-1'],
+      mode: 'create',
+    });
+
+    await keyring.init();
+    expect(mockInitCloudKeyGen).toHaveBeenCalledTimes(1);
     expect(keyring.getSelectedVerifierId()).toBe('verifier-1');
   });
 

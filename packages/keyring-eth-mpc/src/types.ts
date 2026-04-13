@@ -40,6 +40,30 @@ export type MPCKeyringState = {
   selectedVerifierIndex: number;
 };
 
+export type MPCKeyringSetupParams =
+  | {
+      verifierIds: string[];
+      mode?: 'create';
+    }
+  | {
+      verifierIds: string[];
+      mode: 'join';
+      joinData: string;
+    };
+
+export type MPCKeyringInitializedState = {
+  status: 'initialized';
+} & MPCKeyringState;
+
+export type MPCKeyringUninitializedState = {
+  status: 'uninitialized';
+  setup: MPCKeyringSetupParams;
+};
+
+export type MPCKeyringStorageState =
+  | MPCKeyringInitializedState
+  | MPCKeyringUninitializedState;
+
 export type MPCKeyringSerializer = {
   thresholdKey: JsonSerializer<ThresholdKey>;
   partialThresholdKey: JsonSerializer<PartialThresholdKey>;

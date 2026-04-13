@@ -34,6 +34,7 @@ import type {
   Custodian,
   MPCKeyringOpts,
   MPCKeyringSerializer,
+  MPCKeyringStorageState,
   MPCKeyringState,
   ThresholdKeyId,
 } from './types';
@@ -54,10 +55,6 @@ import {
 
 const mpcKeyringType = 'MPC Keyring';
 
-export const uninitializedResponderState: Json = {
-  initRole: 'responder',
-};
-
 export class MPCKeyring implements Keyring {
   readonly type: string = mpcKeyringType;
 
@@ -69,7 +66,7 @@ export class MPCKeyring implements Keyring {
 
   readonly #dkm: CL24DKM;
 
-  #state?: MPCKeyringState;
+  #state?: MPCKeyringStorageState;
 
   readonly #cloudURL: string;
 
@@ -115,16 +112,21 @@ export class MPCKeyring implements Keyring {
     if (!this.#state) {
       return {};
     }
+    if (this.#state.status === 'uninitialized') {
+      return this.#state.setup;
+    }
+
+    const state = this.#state;
     return {
       networkIdentity: this.#serializer.networkIdentity.toJson(
-        this.#state.networkIdentity,
+        state.networkIdentity,
       ),
-      keyShare: this.#serializer.thresholdKey.toJson(this.#state.keyShare),
-      keyId: this.#state.keyId,
-      custodians: this.#state.custodians,
-      verifierIds: this.#state.verifierIds,
-      selectedVerifierIndex: this.#state.selectedVerifierIndex,
-      dkls19Setup: bytesToHex(this.#state.dkls19Setup),
+      keyShare: this.#serializer.thresholdKey.toJson(state.keyShare),
+      keyId: state.keyId,
+      custodians: state.custodians,
+      verifierIds: state.verifierIds,
+      selectedVerifierIndex: state.selectedVerifierIndex,
+      dkls19Setup: bytesToHex(state.dkls19Setup),
     };
   }
 
@@ -137,29 +139,62 @@ export class MPCKeyring implements Keyring {
     if (!state || typeof state !== 'object') {
       throw new Error('Invalid state');
     }
+    const stateObj = state as Record<string, Json>;
 
     if (
-      'networkIdentity' in state &&
-      'keyShare' in state &&
-      'keyId' in state &&
-      'dkls19Setup' in state &&
-      'custodians' in state &&
-      'verifierIds' in state &&
-      'selectedVerifierIndex' in state
+      'networkIdentity' in stateObj &&
+      'keyShare' in stateObj &&
+      'keyId' in stateObj &&
+      'dkls19Setup' in stateObj &&
+      'custodians' in stateObj &&
+      'verifierIds' in stateObj &&
+      'selectedVerifierIndex' in stateObj
     ) {
       this.#state = {
+        status: 'initialized',
         networkIdentity: this.#serializer.networkIdentity.fromJson(
-          state.networkIdentity,
+          stateObj.networkIdentity,
         ),
-        keyShare: this.#serializer.thresholdKey.fromJson(state.keyShare),
-        keyId: parseThresholdKeyId(state.keyId),
-        dkls19Setup: parseDkls19Setup(state.dkls19Setup),
-        custodians: parseCustodians(state.custodians),
-        verifierIds: parseVerifierIds(state.verifierIds),
+        keyShare: this.#serializer.thresholdKey.fromJson(stateObj.keyShare),
+        keyId: parseThresholdKeyId(stateObj.keyId),
+        dkls19Setup: parseDkls19Setup(stateObj.dkls19Setup),
+        custodians: parseCustodians(stateObj.custodians),
+        verifierIds: parseVerifierIds(stateObj.verifierIds),
         selectedVerifierIndex: parseSelectedVerifierIndex(
-          state.selectedVerifierIndex,
+          stateObj.selectedVerifierIndex,
         ),
       };
+      return;
+    }
+
+    const setup = this.#parseSetupParams(stateObj);
+    if (setup) {
+      this.#state = {
+        status: 'uninitialized',
+        setup,
+      };
+    }
+  }
+
+  /**
+   * Runs key generation/joining for keyrings that were deserialized with setup
+   * parameters (e.g. when created via `addNewKeyring`).
+   */
+  async init(): Promise<void> {
+    if (!this.#state || this.#state.status === 'initialized') {
+      return;
+    }
+
+    const { setup } = this.#state;
+    const { verifierIds } = setup;
+    if (verifierIds.length < 1) {
+      throw new Error('At least one verifier ID is required');
+    }
+
+    if (setup.mode === 'join') {
+      await this.#setupJoin(setup);
+    } else {
+      await this.#setupCreate(verifierIds);
     }
   }
 
@@ -178,10 +213,7 @@ export class MPCKeyring implements Keyring {
    * @returns The custodians with their party IDs and types.
    */
   getCustodians(): Custodian[] {
-    if (!this.#state) {
-      throw new Error('Keyring not initialized');
-    }
-    return this.#state.custodians;
+    return this.#assertState().custodians;
   }
 
   /**
@@ -306,12 +338,12 @@ export class MPCKeyring implements Keyring {
     // a bug where messages are not sent when disconnecting immediately.
     await joinSession2.disconnect();
 
-    this.#state = {
+    this.#applyKeyState({
       ...state,
       keyShare: newKey,
       dkls19Setup,
       custodians: [...state.custodians, { partyId: custodianId, type: 'user' }],
-    };
+    });
   }
 
   /**
@@ -393,46 +425,38 @@ export class MPCKeyring implements Keyring {
     const totalTime = performance.now() - totalStartTime;
     console.log('removeCustodian total time', totalTime);
 
-    this.#state = {
+    this.#applyKeyState({
       ...state,
       keyShare: newKey,
       dkls19Setup,
       custodians: state.custodians.filter(
         (custodian) => custodian.partyId !== custodianId,
       ),
-    };
+    });
   }
 
   getVerifierIds(): string[] {
-    if (!this.#state) {
-      throw new Error('Keyring not initialized');
-    }
-    return this.#state.verifierIds;
+    return this.#assertState().verifierIds;
   }
 
   selectVerifier(verifierIndex: number): string {
-    if (!this.#state) {
-      throw new Error('Keyring not initialized');
-    } else if (
-      verifierIndex < 0 ||
-      verifierIndex >= this.#state.verifierIds.length
-    ) {
+    const state = this.#assertState();
+    if (verifierIndex < 0 || verifierIndex >= state.verifierIds.length) {
       throw new Error('Invalid verifier index');
     }
-    this.#state.selectedVerifierIndex = verifierIndex;
-    return this.#state.verifierIds[verifierIndex] as string;
+    state.selectedVerifierIndex = verifierIndex;
+    return state.verifierIds[verifierIndex] as string;
   }
 
   getSelectedVerifierId(): string {
-    if (!this.#state) {
-      throw new Error('Keyring not initialized');
-    } else if (
-      this.#state.selectedVerifierIndex < 0 ||
-      this.#state.selectedVerifierIndex >= this.#state.verifierIds.length
+    const state = this.#assertState();
+    if (
+      state.selectedVerifierIndex < 0 ||
+      state.selectedVerifierIndex >= state.verifierIds.length
     ) {
       throw new Error('Invalid selected verifier index');
     }
-    return this.#state.verifierIds[this.#state.selectedVerifierIndex] as string;
+    return state.verifierIds[state.selectedVerifierIndex] as string;
   }
 
   /**
@@ -454,29 +478,6 @@ export class MPCKeyring implements Keyring {
       ),
       nonce,
     });
-  }
-
-  async setup(
-    opts: { verifierIds: string[] } & (
-      | { mode?: 'create' }
-      | { mode: 'join'; joinData: string }
-    ),
-  ): Promise<void> {
-    const { verifierIds } = opts;
-    const mode = 'mode' in opts ? opts.mode ?? 'create' : 'create';
-
-    if (this.#state) {
-      throw new Error('Keyring already setup');
-    } else if (verifierIds.length < 1) {
-      throw new Error('At least one verifier ID is required');
-    }
-
-    if (mode === 'join') {
-      const { joinData } = opts as { joinData: string };
-      await this.#setupJoin({ verifierIds, joinData });
-    } else {
-      await this.#setupCreate(verifierIds);
-    }
   }
 
   async #setupCreate(verifierIds: string[]): Promise<void> {
@@ -651,7 +652,7 @@ export class MPCKeyring implements Keyring {
    * @returns The addresses of all accounts in the keyring.
    */
   async getAccounts(): Promise<Hex[]> {
-    if (!this.#state) {
+    if (!this.#state || this.#state.status !== 'initialized') {
       return [];
     }
 
@@ -885,12 +886,49 @@ export class MPCKeyring implements Keyring {
     return { newKey, dkls19Setup };
   }
 
+  #parseSetupParams(
+    state: Record<string, Json>,
+  ):
+    | { verifierIds: string[]; mode?: 'create' }
+    | { verifierIds: string[]; mode: 'join'; joinData: string }
+    | undefined {
+    if (!('verifierIds' in state)) {
+      return undefined;
+    }
+
+    const verifierIds = parseVerifierIds(state.verifierIds);
+    const { mode } = state;
+
+    if (mode === undefined) {
+      return { verifierIds };
+    }
+    if (mode === 'create') {
+      return { mode: 'create', verifierIds };
+    }
+    if (mode === 'join') {
+      const { joinData } = state;
+      if (typeof joinData !== 'string') {
+        throw new Error('Invalid join data: expected a string');
+      }
+      return {
+        mode: 'join',
+        verifierIds,
+        joinData,
+      };
+    }
+
+    throw new Error("Invalid setup mode: expected 'create' or 'join'");
+  }
+
   #applyKeyState(state: MPCKeyringState): void {
-    this.#state = state;
+    this.#state = {
+      status: 'initialized',
+      ...state,
+    };
   }
 
   #assertState(): MPCKeyringState {
-    if (!this.#state) {
+    if (!this.#state || this.#state.status !== 'initialized') {
       throw new Error('Keyring not initialized');
     }
     return this.#state;
