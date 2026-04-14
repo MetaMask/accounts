@@ -746,7 +746,7 @@ function getInconsistentDependenciesAndDevDependencies(
     return dependenciesByRange;
   }
   return new Map(
-    Object.entries(dependenciesByRange).filter(
+    [...dependenciesByRange.entries()].filter(
       ([range]) => !ignoredRanges.includes(range),
     ),
   );
