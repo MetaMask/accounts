@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `TrezorKeyring`, `TrezorKeyringOptions`, `OneKeyKeyring`, and `OneKeyKeyringOptions` are now available from `@metamask/eth-trezor-keyring/v2`.
+
 ### Changed
 
+- **BREAKING:** Move and rename `TrezorKeyringV2` and `OneKeyKeyringV2` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `TrezorKeyringV2` is now `TrezorKeyring` from `@metamask/eth-trezor-keyring/v2`.
+  - `OneKeyKeyringV2` is now `OneKeyKeyring` from `@metamask/eth-trezor-keyring/v2`.
 - Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [9.1.1]

@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `SimpleKeyring` and `SimpleKeyringOptions` are now available from `@metamask/eth-simple-keyring/v2`.
+
 ### Changed
 
+- **BREAKING:** Move and rename `SimpleKeyringV2` and `SimpleKeyringV2Options` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `SimpleKeyringV2` is now `SimpleKeyring` from `@metamask/eth-simple-keyring/v2`.
+  - `SimpleKeyringV2Options` is now `SimpleKeyringOptions` from `@metamask/eth-simple-keyring/v2`.
 - Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [11.1.2]

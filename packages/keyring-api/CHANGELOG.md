@@ -11,9 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Stellar account types and scopes (`XlmScope`, `XlmAccountType`, `XlmAccount`, etc.) ([#483](https://github.com/MetaMask/accounts/pull/483))
 - Add keyring v2 RPC types and structs (`KeyringRpcV2`, `KeyringRpcV2Method`, `isKeyringRpcV2Method`, and request/response structs) ([#408](https://github.com/MetaMask/accounts/pull/408))
+- Add `./v2` subpath export for all keyring v2 types and structs ([#513](https://github.com/MetaMask/accounts/pull/513))
 
 ### Changed
 
+- **BREAKING:** Move and rename all keyring v2 types and structs to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `KeyringV2` is now `Keyring` from `@metamask/keyring-api/v2`.
+  - `KeyringRpcV2`, `KeyringRpcV2Method`, and `isKeyringRpcV2Method` are now `KeyringRpc`, `KeyringRpcMethod`, and `isKeyringRpcMethod` from `@metamask/keyring-api/v2`.
+  - `KeyringCapabilities`, `KeyringType`, account creation options (except `CreateAccountOptions`), and account export options are now exclusively available from `@metamask/keyring-api/v2`.
+  - `CreateAccountOptions` and its subtypes (`Bip44CreateAccountOptions`, `PrivateKeyCreateAccountOptions`, `CustomCreateAccountOptions`) remain available from both `@metamask/keyring-api` and `@metamask/keyring-api/v2`.
 - Improve return type of `isKeyringRpcMethod` to use type predicate `method is KeyringRpcMethod` ([#408](https://github.com/MetaMask/accounts/pull/408))
 - Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
 

@@ -1,13 +1,13 @@
-import type { KeyringV2 } from '@metamask/keyring-api';
 import {
-  KeyringRpcV2Method,
-  GetAccountsV2RequestStruct,
-  GetAccountV2RequestStruct,
-  CreateAccountsV2RequestStruct,
-  DeleteAccountV2RequestStruct,
-  ExportAccountV2RequestStruct,
-  SubmitRequestV2RequestStruct,
-} from '@metamask/keyring-api';
+  KeyringRpcMethod,
+  GetAccountsRequestStruct,
+  GetAccountRequestStruct,
+  CreateAccountsRequestStruct,
+  DeleteAccountRequestStruct,
+  ExportAccountRequestStruct,
+  SubmitRequestRequestStruct,
+} from '@metamask/keyring-api/v2';
+import type { Keyring } from '@metamask/keyring-api/v2';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
@@ -27,8 +27,8 @@ import { MethodNotSupportedError } from '../rpc-handler';
  * @param request - Keyring JSON-RPC request.
  * @returns A promise that resolves to the keyring response.
  */
-async function dispatchKeyringRequestV2(
-  keyring: KeyringV2,
+async function dispatchKeyringRequest(
+  keyring: Keyring,
   request: JsonRpcRequest,
 ): Promise<Json | void> {
   // We first have to make sure that the request is a valid JSON-RPC request so
@@ -36,36 +36,36 @@ async function dispatchKeyringRequestV2(
   assert(request, JsonRpcRequestStruct);
 
   switch (request.method) {
-    case `${KeyringRpcV2Method.GetAccounts}`: {
-      assert(request, GetAccountsV2RequestStruct);
+    case `${KeyringRpcMethod.GetAccounts}`: {
+      assert(request, GetAccountsRequestStruct);
       return keyring.getAccounts();
     }
 
-    case `${KeyringRpcV2Method.GetAccount}`: {
-      assert(request, GetAccountV2RequestStruct);
+    case `${KeyringRpcMethod.GetAccount}`: {
+      assert(request, GetAccountRequestStruct);
       return keyring.getAccount(request.params.id);
     }
 
-    case `${KeyringRpcV2Method.CreateAccounts}`: {
-      assert(request, CreateAccountsV2RequestStruct);
+    case `${KeyringRpcMethod.CreateAccounts}`: {
+      assert(request, CreateAccountsRequestStruct);
       return keyring.createAccounts(request.params);
     }
 
-    case `${KeyringRpcV2Method.DeleteAccount}`: {
-      assert(request, DeleteAccountV2RequestStruct);
+    case `${KeyringRpcMethod.DeleteAccount}`: {
+      assert(request, DeleteAccountRequestStruct);
       return keyring.deleteAccount(request.params.id);
     }
 
-    case `${KeyringRpcV2Method.ExportAccount}`: {
+    case `${KeyringRpcMethod.ExportAccount}`: {
       if (keyring.exportAccount === undefined) {
         throw new MethodNotSupportedError(request.method);
       }
-      assert(request, ExportAccountV2RequestStruct);
+      assert(request, ExportAccountRequestStruct);
       return keyring.exportAccount(request.params.id, request.params.options);
     }
 
-    case `${KeyringRpcV2Method.SubmitRequest}`: {
-      assert(request, SubmitRequestV2RequestStruct);
+    case `${KeyringRpcMethod.SubmitRequest}`: {
+      assert(request, SubmitRequestRequestStruct);
       return keyring.submitRequest(request.params);
     }
 
@@ -90,16 +90,16 @@ async function dispatchKeyringRequestV2(
  *   origin,
  *   request,
  * }) => {
- *   return await handleKeyringRequestV2(keyring, request);
+ *   return await handleKeyringRequest(keyring, request);
  * };
  * ```
  */
-export async function handleKeyringRequestV2(
-  keyring: KeyringV2,
+export async function handleKeyringRequest(
+  keyring: Keyring,
   request: JsonRpcRequest,
 ): Promise<Json | void> {
   try {
-    return await dispatchKeyringRequestV2(keyring, request);
+    return await dispatchKeyringRequest(keyring, request);
   } catch (error) {
     if (isSnapError(error)) {
       throw error;

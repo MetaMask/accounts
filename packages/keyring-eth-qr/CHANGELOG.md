@@ -15,10 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add new dependency `@metamask/account-api@1.0.1`.
   - Wraps legacy `QrKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
   - Extends `EthKeyringWrapper` for common Ethereum logic.
+- Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `QrKeyring`, `QrKeyringOptions`, and `QrAccountModeCreateOptions` are now available from `@metamask/eth-qr-keyring/v2`.
 
 ### Changed
 
-- Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+- **BREAKING:** Rename and move `QrKeyringV2`, `QrKeyringV2Options`, and `QrAccountModeCreateOptions` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `QrKeyringV2` is now `QrKeyring` from `@metamask/eth-qr-keyring/v2`.
+  - `QrKeyringV2Options` is now `QrKeyringOptions` from `@metamask/eth-qr-keyring/v2`.
+- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [1.1.0]
 

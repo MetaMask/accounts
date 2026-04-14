@@ -1,1 +1,1 @@
-export * from './KeyringClientV2';
+export * from './KeyringClient';

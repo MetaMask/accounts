@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `HdKeyring` and `HdKeyringOptions` are now available from `@metamask/eth-hd-keyring/v2`.
+
 ### Changed
 
+- **BREAKING:** Move and rename `HdKeyringV2` and `HdKeyringV2Options` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `HdKeyringV2` is now `HdKeyring` from `@metamask/eth-hd-keyring/v2`.
+  - `HdKeyringV2Options` is now `HdKeyringOptions` from `@metamask/eth-hd-keyring/v2`.
 - Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [13.1.1]
