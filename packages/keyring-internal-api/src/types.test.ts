@@ -13,7 +13,7 @@ describe('InternalAccount', () => {
     },
     {
       type: 'stellar:account',
-      address: 'GDRF6HX6XUA74N7LFSXVYPPINW5QRLFPQS4PNFG7HJF6DFQQNT2TI4F',
+      address: 'GAKGOF5HPQSMKOJ6L4I2LNTLY6EERIRC7ZB6F7MOAXDLPZ7D5I4NZGNZ',
       scopes: ['stellar:pubnet', 'stellar:testnet'],
     },
   ])('should have the correct structure: %s', ({ type, address, scopes }) => {
