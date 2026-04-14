@@ -8,13 +8,13 @@
     "ledger",
     "metamask"
   ],
-  "homepage": "https://github.com/MetaMask/eth-ledger-bridge-keyring#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-eth-ledger-bridge#readme",
   "bugs": {
-    "url": "https://github.com/MetaMask/eth-ledger-bridge-keyring/issues"
+    "url": "https://github.com/MetaMask/accounts/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MetaMask/eth-ledger-bridge-keyring.git"
+    "url": "https://github.com/MetaMask/accounts.git"
   },
   "license": "ISC",
   "exports": {
@@ -27,7 +27,8 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    }
+    },
+    "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
@@ -35,15 +36,18 @@
     "dist/"
   ],
   "scripts": {
-    "build": "ts-bridge --project tsconfig.build.json --no-references",
+    "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-ledger-bridge-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-ledger-bridge-keyring",
     "publish:preview": "yarn npm publish --tag preview",
-    "test": "jest && jest-it-up",
-    "test:clean": "jest --clearCache",
-    "test:watch": "jest --watch"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
+    "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
+    "since-latest-release": "../../scripts/since-latest-release.sh",
+    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose"
   },
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.2",
@@ -102,5 +106,6 @@
       "hdkey>secp256k1": false,
       "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>keccak": false
     }
-  }
+  },
+  "sideEffects": false
 }
