@@ -104,17 +104,12 @@ module.exports = defineConfig({
         // All non-root packages must have a license, defaulting to MIT.
         await expectWorkspaceLicense(workspace);
 
-        // All non-root packages must not have side effects. (An exception is
-        // made for `@metamask/base-controller`).
-        if (workspace.ident !== '@metamask/base-controller') {
-          expectWorkspaceField(workspace, 'sideEffects', false);
-        }
+        // All non-root packages must not have side effects.
+        expectWorkspaceField(workspace, 'sideEffects', false);
 
         // All non-root packages must set up ESM- and CommonJS-compatible
         // exports correctly.
-        if (workspace.ident !== '@metamask/foundryup') {
-          expectCorrectWorkspaceExports(workspace);
-        }
+        expectCorrectWorkspaceExports(workspace);
 
         // All non-root packages must have the same "build" script.
         expectWorkspaceField(
@@ -471,8 +466,7 @@ function expectWorkspaceDescription(workspace) {
 
 /**
  * Expect that the workspace has a license file, and that the `license` field is
- * set. By default, this should be MIT, although some packages have pre-existing
- * license that we cannot change.
+ * set to MIT.
  *
  * @param {Workspace} workspace - The workspace to check.
  */
@@ -489,16 +483,6 @@ async function expectWorkspaceLicense(workspace) {
     workspace.manifest.license === undefined
   ) {
     expectWorkspaceField(workspace, 'license', 'MIT');
-  } else if (
-    [
-      '@metamask/json-rpc-engine',
-      '@metamask/json-rpc-middleware-stream',
-      '@metamask/permission-log-controller',
-      '@metamask/eth-json-rpc-middleware',
-      '@metamask/eth-json-rpc-provider',
-    ].includes(workspace.manifest.name)
-  ) {
-    expectWorkspaceField(workspace, 'license');
   }
 }
 
