@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **BREAKING:** Move and rename `handleKeyringRequestV2` to the `./v2` module ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `handleKeyringRequestV2` is now `handleKeyringRequest` from `@metamask/keyring-snap-sdk/v2`.
 - Bump `@metamask/utils` from `^11.1.0` to `^11.10.0` ([#489](https://github.com/MetaMask/accounts/pull/489))
 
 ## [8.0.0]

@@ -1,19 +1,19 @@
-import { KeyringRpcV2Method, PrivateKeyEncoding } from '@metamask/keyring-api';
+import { KeyringRpcMethod, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type {
   KeyringType,
-  CreateAccountsV2Request,
-  GetAccountV2Request,
-  GetAccountsV2Request,
-  DeleteAccountV2Request,
-  KeyringV2,
-  ExportAccountV2Request,
-  SubmitRequestV2Request,
-} from '@metamask/keyring-api';
+  CreateAccountsRequest,
+  GetAccountRequest,
+  GetAccountsRequest,
+  DeleteAccountRequest,
+  Keyring,
+  ExportAccountRequest,
+  SubmitRequestRequest,
+} from '@metamask/keyring-api/v2';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
-import { handleKeyringRequestV2 } from './rpc-handler';
+import { handleKeyringRequest } from '.';
 
-describe('handleKeyringRequestV2', () => {
+describe('handleKeyringRequest', () => {
   const keyring = {
     getAccounts: jest.fn(),
     getAccount: jest.fn(),
@@ -42,75 +42,75 @@ describe('handleKeyringRequestV2', () => {
     };
 
     await expect(
-      handleKeyringRequestV2(keyring, request as unknown as JsonRpcRequest),
+      handleKeyringRequest(keyring, request as unknown as JsonRpcRequest),
     ).rejects.toThrow(
       'At path: method -- Expected a string, but received: undefined',
     );
   });
 
   it('calls `keyring_v2_getAccounts`', async () => {
-    const request: GetAccountsV2Request = {
+    const request: GetAccountsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.GetAccounts}`,
+      method: `${KeyringRpcMethod.GetAccounts}`,
     };
 
     const mockedResult = 'GetAccounts result';
     keyring.getAccounts.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.getAccounts).toHaveBeenCalled();
     expect(result).toBe(mockedResult);
   });
 
   it('calls `keyring_v2_getAccount`', async () => {
-    const request: GetAccountV2Request = {
+    const request: GetAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.GetAccount}`,
+      method: `${KeyringRpcMethod.GetAccount}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
     const mockedResult = 'GetAccount result';
     keyring.getAccount.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.getAccount).toHaveBeenCalledWith(request.params.id);
     expect(result).toBe(mockedResult);
   });
 
   it('fails to call `keyring_v2_getAccount` without providing an account ID', async () => {
-    const request: GetAccountV2Request = {
+    const request: GetAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.GetAccount}`,
+      method: `${KeyringRpcMethod.GetAccount}`,
       // @ts-expect-error - Testing error case.
       params: {}, // Missing account ID.
     };
 
-    await expect(handleKeyringRequestV2(keyring, request)).rejects.toThrow(
+    await expect(handleKeyringRequest(keyring, request)).rejects.toThrow(
       'At path: params.id -- Expected a value of type `UuidV4`, but received: `undefined`',
     );
   });
 
   it('fails to call `keyring_v2_getAccount` when the `params` is not provided', async () => {
     // @ts-expect-error - Testing error case.
-    const request: GetAccountV2Request = {
+    const request: GetAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.GetAccount}`,
+      method: `${KeyringRpcMethod.GetAccount}`,
     };
 
-    await expect(handleKeyringRequestV2(keyring, request)).rejects.toThrow(
+    await expect(handleKeyringRequest(keyring, request)).rejects.toThrow(
       'At path: params -- Expected an object, but received: undefined',
     );
   });
 
   it('calls `keyring_v2_createAccounts`', async () => {
-    const request: CreateAccountsV2Request = {
+    const request: CreateAccountsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.CreateAccounts}`,
+      method: `${KeyringRpcMethod.CreateAccounts}`,
       params: {
         type: 'bip44:derive-index',
         groupIndex: 0,
@@ -120,31 +120,31 @@ describe('handleKeyringRequestV2', () => {
 
     const mockedResult = 'CreateAccounts result';
     keyring.createAccounts.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.createAccounts).toHaveBeenCalledWith(request.params);
     expect(result).toBe(mockedResult);
   });
 
   it('calls `keyring_v2_deleteAccount`', async () => {
-    const request: DeleteAccountV2Request = {
+    const request: DeleteAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.DeleteAccount}`,
+      method: `${KeyringRpcMethod.DeleteAccount}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
     keyring.deleteAccount.mockResolvedValue(undefined);
-    await handleKeyringRequestV2(keyring, request);
+    await handleKeyringRequest(keyring, request);
 
     expect(keyring.deleteAccount).toHaveBeenCalledWith(request.params.id);
   });
 
   it('calls `keyring_v2_exportAccount` (without options)', async () => {
-    const request: ExportAccountV2Request = {
+    const request: ExportAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.ExportAccount}`,
+      method: `${KeyringRpcMethod.ExportAccount}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
@@ -152,7 +152,7 @@ describe('handleKeyringRequestV2', () => {
       privateKey: '0x0123',
     };
     keyring.exportAccount.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.exportAccount).toHaveBeenCalledWith(
       request.params.id,
@@ -162,10 +162,10 @@ describe('handleKeyringRequestV2', () => {
   });
 
   it('calls `keyring_v2_exportAccount` (with options)', async () => {
-    const request: ExportAccountV2Request = {
+    const request: ExportAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.ExportAccount}`,
+      method: `${KeyringRpcMethod.ExportAccount}`,
       params: {
         id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
         options: {
@@ -179,7 +179,7 @@ describe('handleKeyringRequestV2', () => {
       privateKey: '0x0123',
     };
     keyring.exportAccount.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.exportAccount).toHaveBeenCalledWith(
       request.params.id,
@@ -189,22 +189,20 @@ describe('handleKeyringRequestV2', () => {
   });
 
   it('throws an error if `keyring_v2_exportAccount` is not implemented', async () => {
-    const request: ExportAccountV2Request = {
+    const request: ExportAccountRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.ExportAccount}`,
+      method: `${KeyringRpcMethod.ExportAccount}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
-    const partialKeyring: KeyringV2 = {
+    const partialKeyring: Keyring = {
       ...keyring,
     };
     delete partialKeyring.exportAccount;
 
-    await expect(
-      handleKeyringRequestV2(partialKeyring, request),
-    ).rejects.toThrow(
-      `Method not supported: ${KeyringRpcV2Method.ExportAccount}`,
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      `Method not supported: ${KeyringRpcMethod.ExportAccount}`,
     );
   });
 
@@ -220,16 +218,16 @@ describe('handleKeyringRequestV2', () => {
       },
     };
 
-    const request: SubmitRequestV2Request = {
+    const request: SubmitRequestRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${KeyringRpcV2Method.SubmitRequest}`,
+      method: `${KeyringRpcMethod.SubmitRequest}`,
       params: dappRequest,
     };
 
     const mockedResult = 'SubmitRequest result';
     keyring.submitRequest.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.submitRequest).toHaveBeenCalledWith(dappRequest);
     expect(result).toBe(mockedResult);
@@ -242,7 +240,7 @@ describe('handleKeyringRequestV2', () => {
       method: 'unknown_method',
     };
 
-    await expect(handleKeyringRequestV2(keyring, request)).rejects.toThrow(
+    await expect(handleKeyringRequest(keyring, request)).rejects.toThrow(
       'Method not supported: unknown_method',
     );
   });
@@ -251,13 +249,13 @@ describe('handleKeyringRequestV2', () => {
     const request: JsonRpcRequest = {
       jsonrpc: '2.0',
       id: '80c25a6b-4a76-44f4-88c5-7b3b76f72a74',
-      method: `${KeyringRpcV2Method.GetAccounts}`,
+      method: `${KeyringRpcMethod.GetAccounts}`,
     };
 
     const error = new Error();
     error.message = 1 as unknown as string;
     keyring.getAccounts.mockRejectedValue(error);
-    await expect(handleKeyringRequestV2(keyring, request)).rejects.toThrow(
+    await expect(handleKeyringRequest(keyring, request)).rejects.toThrow(
       'An unknown error occurred while handling the keyring (v2) request',
     );
   });

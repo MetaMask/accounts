@@ -15,7 +15,6 @@
     "url": "https://github.com/MetaMask/accounts.git"
   },
   "license": "ISC",
-  "sideEffects": false,
   "exports": {
     ".": {
       "import": {
@@ -27,6 +26,16 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./v2": {
+      "import": {
+        "types": "./dist/v2/index.d.mts",
+        "default": "./dist/v2/index.mjs"
+      },
+      "require": {
+        "types": "./dist/v2/index.d.cts",
+        "default": "./dist/v2/index.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
@@ -36,15 +45,15 @@
   ],
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
-    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-hd-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-hd-keyring",
     "publish:preview": "yarn npm publish --tag preview",
-    "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
+    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
+    "since-latest-release": "../../scripts/since-latest-release.sh",
     "test:source": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
     "test:types": "../../scripts/tsd-test.sh ./src",
     "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
@@ -88,5 +97,6 @@
       "@metamask/eth-hd-keyring>ethereumjs-util>ethereum-cryptography>keccak": false,
       "@metamask/eth-hd-keyring>ethereumjs-util>ethereum-cryptography>secp256k1": false
     }
-  }
+  },
+  "sideEffects": false
 }

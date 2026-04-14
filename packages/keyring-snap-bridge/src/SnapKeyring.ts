@@ -24,9 +24,9 @@ import { type SnapKeyringInternalOptions } from './options';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
 import type { AccountMethod } from './SnapKeyringV1';
-import { SnapKeyringV2 } from './SnapKeyringV2';
 import type { SnapMessage } from './types';
 import { normalizeAccountAddress, throwError, unique } from './util';
+import { SnapKeyring as SnapKeyringV2 } from './v2/SnapKeyring';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 

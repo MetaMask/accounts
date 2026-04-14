@@ -13,7 +13,7 @@ import type { Paginated, Pagination } from './pagination';
 import type { KeyringRequest } from './request';
 import type { KeyringResponse } from './response';
 import type { Transaction } from './transaction';
-import type { CreateAccountOptions } from './v2';
+import type { CreateAccountOptions } from '../v2/api';
 
 /**
  * Keyring interface.

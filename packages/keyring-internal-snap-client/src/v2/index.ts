@@ -1,1 +1,1 @@
-export * from './KeyringInternalSnapClientV2';
+export * from './KeyringInternalSnapClient';
