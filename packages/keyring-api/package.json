@@ -15,7 +15,7 @@
     "type": "git",
     "url": "https://github.com/MetaMask/accounts.git"
   },
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "sideEffects": false,
   "exports": {
     ".": {

@@ -479,25 +479,46 @@ function expectWorkspaceDescription(workspace) {
 }
 
 /**
- * Expect that the workspace has a license file, and that the `license` field is
- * set to MIT.
+ * Detect the SPDX license identifier from the content of a LICENSE file.
+ * Returns "MIT", "ISC", or "SEE LICENSE IN LICENSE" for unknown/proprietary licenses.
+ *
+ * @param {string} licenseContent - The content of the LICENSE file.
+ * @returns {string} The detected license identifier.
+ */
+function detectLicenseType(licenseContent) {
+  const firstLine = licenseContent.trimStart().split('\n')[0].toLowerCase();
+  if (firstLine.includes('mit')) {
+    return 'MIT';
+  } else if (firstLine.includes('isc')) {
+    return 'ISC';
+  }
+  return 'SEE LICENSE IN LICENSE';
+}
+
+/**
+ * Expect that the workspace has a license file, and that the `license` field
+ * matches the license type declared in the LICENSE file.
  *
  * @param {Workspace} workspace - The workspace to check.
  */
 async function expectWorkspaceLicense(workspace) {
-  if (
-    !(await workspaceFileExists(workspace, 'LICENSE')) &&
-    !(await workspaceFileExists(workspace, 'LICENCE'))
-  ) {
-    workspace.error('Could not find LICENSE file');
+  let licenseFilename = null;
+
+  if (await workspaceFileExists(workspace, 'LICENSE')) {
+    licenseFilename = 'LICENSE';
+  }
+  if (await workspaceFileExists(workspace, 'LICENCE')) {
+    licenseFilename = 'LICENCE';
   }
 
-  if (
-    workspace.manifest.license === null ||
-    workspace.manifest.license === undefined
-  ) {
-    expectWorkspaceField(workspace, 'license', 'MIT');
+  if (licenseFilename === null) {
+    workspace.error('Could not find LICENSE/LICENCE file');
+    return;
   }
+
+  const licenseContent = await getWorkspaceFile(workspace, licenseFilename);
+  const expectedLicense = detectLicenseType(licenseContent);
+  expectWorkspaceField(workspace, 'license', expectedLicense);
 }
 
 /**
