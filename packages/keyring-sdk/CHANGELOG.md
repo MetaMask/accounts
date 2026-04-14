@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Move `KeyringWrapper` and `EthKeyringWrapper` (and related types) to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
   - Use `import { KeyringWrapper, EthKeyringWrapper, EthKeyringMethod } from '@metamask/keyring-sdk/v2'` instead.
   - `KeyringAccountRegistry`, `encodeMnemonic`, and `generateEthAccountId` remain available from the main entry point.
+- Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [1.2.0]
 
