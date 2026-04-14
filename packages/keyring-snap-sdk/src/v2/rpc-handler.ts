@@ -27,7 +27,7 @@ import { MethodNotSupportedError } from '../rpc-handler';
  * @param request - Keyring JSON-RPC request.
  * @returns A promise that resolves to the keyring response.
  */
-async function dispatchKeyringRequestV2(
+async function dispatchKeyringRequest(
   keyring: Keyring,
   request: JsonRpcRequest,
 ): Promise<Json | void> {
@@ -99,7 +99,7 @@ export async function handleKeyringRequest(
   request: JsonRpcRequest,
 ): Promise<Json | void> {
   try {
-    return await dispatchKeyringRequestV2(keyring, request);
+    return await dispatchKeyringRequest(keyring, request);
   } catch (error) {
     if (isSnapError(error)) {
       throw error;
