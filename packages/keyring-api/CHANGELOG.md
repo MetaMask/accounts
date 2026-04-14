@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add Stellar account types and scopes (`XlmScope`, `XlmAccountType`, `XlmAccount`, etc.) ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Add Stellar (XLM) support ([#483](https://github.com/MetaMask/accounts/pull/483))
+  - Add `XlmScope`, `XlmAccountType` and `XlmAccount`.
 - Add keyring v2 RPC types and structs (`KeyringRpcV2`, `KeyringRpcV2Method`, `isKeyringRpcV2Method`, and request/response structs) ([#408](https://github.com/MetaMask/accounts/pull/408))
 - Add `./v2` subpath export for all keyring v2 types and structs ([#513](https://github.com/MetaMask/accounts/pull/513))
 
