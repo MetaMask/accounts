@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0]
+
 ### Uncategorized
 
 - chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
@@ -47,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release ([#60](https://github.com/MetaMask/accounts/pull/60))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@1.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.0.0...HEAD
+[2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@1.1.0...@metamask/eth-qr-keyring@2.0.0
 [1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@1.0.0...@metamask/eth-qr-keyring@1.1.0
 [1.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-qr-keyring@1.0.0

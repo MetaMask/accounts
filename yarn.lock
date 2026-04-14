@@ -1447,7 +1447,7 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
-    "@metamask/keyring-api": "npm:^22.0.0"
+    "@metamask/keyring-api": "npm:^23.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
@@ -1684,7 +1684,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/eth-hd-keyring@npm:^13.1.1, @metamask/eth-hd-keyring@workspace:packages/keyring-eth-hd":
+"@metamask/eth-hd-keyring@npm:^14.0.0, @metamask/eth-hd-keyring@workspace:packages/keyring-eth-hd":
   version: 0.0.0-use.local
   resolution: "@metamask/eth-hd-keyring@workspace:packages/keyring-eth-hd"
   dependencies:
@@ -1697,8 +1697,8 @@ __metadata:
     "@metamask/bip39": "npm:^4.0.0"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/key-tree": "npm:^10.0.2"
-    "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-sdk": "npm:^1.2.0"
+    "@metamask/keyring-api": "npm:^23.0.0"
+    "@metamask/keyring-sdk": "npm:^2.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/old-hd-keyring": "npm:@metamask/eth-hd-keyring@^4.0.1"
     "@metamask/scure-bip39": "npm:^2.1.1"
@@ -1731,8 +1731,8 @@ __metadata:
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/hw-wallet-sdk": "npm:^0.8.0"
-    "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-sdk": "npm:^1.2.0"
+    "@metamask/keyring-api": "npm:^23.0.0"
+    "@metamask/keyring-sdk": "npm:^2.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/utils": "npm:^11.11.0"
     "@ts-bridge/cli": "npm:^0.6.3"
@@ -1762,10 +1762,10 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
-    "@metamask/eth-hd-keyring": "npm:^13.1.1"
+    "@metamask/eth-hd-keyring": "npm:^14.0.0"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/key-tree": "npm:^10.0.2"
-    "@metamask/keyring-api": "npm:^22.0.0"
+    "@metamask/keyring-api": "npm:^23.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/superstruct": "npm:^3.1.0"
     "@metamask/utils": "npm:^11.11.0"
@@ -1791,8 +1791,8 @@ __metadata:
     "@metamask/account-api": "npm:^1.0.1"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
-    "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-sdk": "npm:^1.2.0"
+    "@metamask/keyring-api": "npm:^23.0.0"
+    "@metamask/keyring-sdk": "npm:^2.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/utils": "npm:^11.11.0"
     "@types/hdkey": "npm:^2.0.1"
@@ -1859,8 +1859,8 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
-    "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-sdk": "npm:^1.2.0"
+    "@metamask/keyring-api": "npm:^23.0.0"
+    "@metamask/keyring-sdk": "npm:^2.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/utils": "npm:^11.11.0"
     "@ts-bridge/cli": "npm:^0.6.3"
@@ -1891,10 +1891,10 @@ __metadata:
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-internal-api": "npm:^10.0.1"
-    "@metamask/keyring-internal-snap-client": "npm:^9.0.1"
-    "@metamask/keyring-sdk": "npm:^1.2.0"
-    "@metamask/keyring-snap-sdk": "npm:^8.0.0"
+    "@metamask/keyring-internal-api": "npm:^10.1.0"
+    "@metamask/keyring-internal-snap-client": "npm:^10.0.0"
+    "@metamask/keyring-sdk": "npm:^2.0.0"
+    "@metamask/keyring-snap-sdk": "npm:^9.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/messenger": "npm:^1.1.1"
     "@metamask/snaps-controllers": "npm:^19.0.1"
@@ -1918,7 +1918,7 @@ __metadata:
     typescript: "npm:~5.6.3"
     uuid: "npm:^9.0.1"
   peerDependencies:
-    "@metamask/keyring-api": ^22.0.0
+    "@metamask/keyring-api": ^23.0.0
   languageName: unknown
   linkType: soft
 
@@ -1935,8 +1935,8 @@ __metadata:
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/hw-wallet-sdk": "npm:^0.8.0"
-    "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-sdk": "npm:^1.2.0"
+    "@metamask/keyring-api": "npm:^23.0.0"
+    "@metamask/keyring-sdk": "npm:^2.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/utils": "npm:^11.11.0"
     "@trezor/connect-plugin-ethereum": "npm:^9.0.5"
@@ -2038,7 +2038,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/keyring-api@npm:^22.0.0, @metamask/keyring-api@workspace:packages/keyring-api":
+"@metamask/keyring-api@npm:^22.0.0":
+  version: 22.0.0
+  resolution: "@metamask/keyring-api@npm:22.0.0"
+  dependencies:
+    "@metamask/keyring-utils": "npm:^3.2.0"
+    "@metamask/superstruct": "npm:^3.1.0"
+    "@metamask/utils": "npm:^11.1.0"
+    bitcoin-address-validation: "npm:^2.2.3"
+  checksum: 10/ff1e9537c7219fb906b61d6755de28890239ec44f634732bd8571801c662e8b801671e98961a1c5047e079cef314353297499a52f7091a2b5391325d575ec4f9
+  languageName: node
+  linkType: hard
+
+"@metamask/keyring-api@npm:^23.0.0, @metamask/keyring-api@workspace:packages/keyring-api":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-api@workspace:packages/keyring-api"
   dependencies:
@@ -2065,14 +2077,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-internal-api@npm:^10.0.1, @metamask/keyring-internal-api@workspace:packages/keyring-internal-api":
+"@metamask/keyring-internal-api@npm:^10.1.0, @metamask/keyring-internal-api@workspace:packages/keyring-internal-api":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-internal-api@workspace:packages/keyring-internal-api"
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
-    "@metamask/keyring-api": "npm:^22.0.0"
+    "@metamask/keyring-api": "npm:^23.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/superstruct": "npm:^3.1.0"
     "@ts-bridge/cli": "npm:^0.6.3"
@@ -2091,16 +2103,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-internal-snap-client@npm:^9.0.1, @metamask/keyring-internal-snap-client@workspace:packages/keyring-internal-snap-client":
+"@metamask/keyring-internal-snap-client@npm:^10.0.0, @metamask/keyring-internal-snap-client@workspace:packages/keyring-internal-snap-client":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-internal-snap-client@workspace:packages/keyring-internal-snap-client"
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
-    "@metamask/keyring-api": "npm:^22.0.0"
-    "@metamask/keyring-internal-api": "npm:^10.0.1"
-    "@metamask/keyring-snap-client": "npm:^8.2.1"
+    "@metamask/keyring-api": "npm:^23.0.0"
+    "@metamask/keyring-internal-api": "npm:^10.1.0"
+    "@metamask/keyring-snap-client": "npm:^9.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/messenger": "npm:^1.1.1"
     "@metamask/snaps-controllers": "npm:^19.0.1"
@@ -2123,7 +2135,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-sdk@npm:^1.2.0, @metamask/keyring-sdk@workspace:packages/keyring-sdk":
+"@metamask/keyring-sdk@npm:^2.0.0, @metamask/keyring-sdk@workspace:packages/keyring-sdk":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-sdk@workspace:packages/keyring-sdk"
   dependencies:
@@ -2132,7 +2144,7 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
     "@metamask/eth-sig-util": "npm:^8.2.0"
-    "@metamask/keyring-api": "npm:^22.0.0"
+    "@metamask/keyring-api": "npm:^23.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/scure-bip39": "npm:^2.1.1"
     "@metamask/superstruct": "npm:^3.1.0"
@@ -2157,14 +2169,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-snap-client@npm:^8.2.1, @metamask/keyring-snap-client@workspace:packages/keyring-snap-client":
+"@metamask/keyring-snap-client@npm:^9.0.0, @metamask/keyring-snap-client@workspace:packages/keyring-snap-client":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-snap-client@workspace:packages/keyring-snap-client"
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^3.4.4"
-    "@metamask/keyring-api": "npm:^22.0.0"
+    "@metamask/keyring-api": "npm:^23.0.0"
     "@metamask/keyring-utils": "npm:^3.2.0"
     "@metamask/providers": "npm:^19.0.0"
     "@metamask/superstruct": "npm:^3.1.0"
@@ -2190,7 +2202,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-snap-sdk@npm:^8.0.0, @metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk":
+"@metamask/keyring-snap-sdk@npm:^9.0.0, @metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-snap-sdk@workspace:packages/keyring-snap-sdk"
   dependencies:
@@ -2218,7 +2230,7 @@ __metadata:
     typescript: "npm:~5.6.3"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
-    "@metamask/keyring-api": ^22.0.0
+    "@metamask/keyring-api": ^23.0.0
     "@metamask/providers": ^19.0.0
   languageName: unknown
   linkType: soft
@@ -2546,7 +2558,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/utils@npm:^11.0.1, @metamask/utils@npm:^11.10.0, @metamask/utils@npm:^11.11.0, @metamask/utils@npm:^11.4.0, @metamask/utils@npm:^11.4.2, @metamask/utils@npm:^11.8.1, @metamask/utils@npm:^11.9.0":
+"@metamask/utils@npm:^11.0.1, @metamask/utils@npm:^11.1.0, @metamask/utils@npm:^11.10.0, @metamask/utils@npm:^11.11.0, @metamask/utils@npm:^11.4.0, @metamask/utils@npm:^11.4.2, @metamask/utils@npm:^11.8.1, @metamask/utils@npm:^11.9.0":
   version: 11.11.0
   resolution: "@metamask/utils@npm:11.11.0"
   dependencies:
