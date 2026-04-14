@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add internal Stellar account struct (`InternalXlmAccount`) ([#483](https://github.com/MetaMask/accounts/pull/483))
+
 ## [10.0.1]
 
 ### Changed

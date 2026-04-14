@@ -11,6 +11,11 @@ describe('InternalAccount', () => {
       address: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
       scopes: ['bip122:000000000019d6689c085ae165831e93'],
     },
+    {
+      type: 'stellar:account',
+      address: 'GAKGOF5HPQSMKOJ6L4I2LNTLY6EERIRC7ZB6F7MOAXDLPZ7D5I4NZGNZ',
+      scopes: ['stellar:pubnet', 'stellar:testnet'],
+    },
   ])('should have the correct structure: %s', ({ type, address, scopes }) => {
     const account = {
       id: '606a7759-b0fb-48e4-9874-bab62ff8e7eb',
