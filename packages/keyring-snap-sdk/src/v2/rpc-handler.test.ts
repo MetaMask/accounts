@@ -201,9 +201,7 @@ describe('handleKeyringRequest', () => {
     };
     delete partialKeyring.exportAccount;
 
-    await expect(
-      handleKeyringRequest(partialKeyring, request),
-    ).rejects.toThrow(
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
       `Method not supported: ${KeyringRpcMethod.ExportAccount}`,
     );
   });
