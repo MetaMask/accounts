@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
+
 ### Added
 
 - Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))

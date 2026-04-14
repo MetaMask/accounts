@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
+- chore: bump @metamask/messenger and @metamask/utils ([#489](https://github.com/MetaMask/accounts/pull/489))
+
 ### Added
 
 - Add `KeyringClientV2` class implementing the keyring v2 RPC client ([#408](https://github.com/MetaMask/accounts/pull/408))

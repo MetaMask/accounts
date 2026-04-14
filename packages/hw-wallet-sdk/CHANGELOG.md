@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
+
 ## [0.8.0]
 
 ### Added
