@@ -3,17 +3,17 @@ import { XlmAddressStruct } from './types';
 describe('types', () => {
   describe('XlmAddressStruct', () => {
     it.each([
-      'GDRF6HX6GXUA74N7LFSXVYPPINW5QRLFPQS4PNFG7HJF6DFQQNT2TI4F',
-      'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
+      'GAKGOF5HPQSMKOJ6L4I2LNTLY6EERIRC7ZB6F7MOAXDLPZ7D5I4NZGNZ',
+      'GDAMXWN25KO5HFBYY6GYVF56QQLJKKZJ5FTSBKFXVBVKQCV4AI5HAQOA',
     ])('is valid address: %s', (address) => {
       expect(() => XlmAddressStruct.assert(address)).not.toThrow();
     });
 
     it.each([
       // Invalid lengths, too long (57 chars)
-      'GDRF6HX6GXUA74N7LFSXVYPPINW5QRLFPQS4PNFG7HJF6DFQQNT2TI4F1',
+      'GAKGOF5HPQSMKOJ6L4I2LNTLY6EERIRC7ZB6F7MOAXDLPZ7D5I4NZGNZ1',
       // Too short (54 chars after G)
-      'GDRF6HX6GXUA74N7LFSXVYPPINW5QRLFPQS4PNFG7HJF6DFQQNT2TI4',
+      'GAKGOF5HPQSMKOJ6L4I2LNTLY6EERIRC7ZB6F7MOAXDLPZ7D5I4NZGN',
       // Empty or invalid input
       '',
       // Eth style address

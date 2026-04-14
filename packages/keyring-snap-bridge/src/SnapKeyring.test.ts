@@ -224,10 +224,10 @@ describe('SnapKeyring', () => {
 
   const xlmAccount = {
     id: '890ee179-5ab5-449d-9c25-34e12c1ada68',
-    address: 'GDRF6HX6GXUA74N7LFSXVYPPINW5QRLFPQS4PNFG7HJF6DFQQNT2TI4F',
+    address: 'GAKGOF5HPQSMKOJ6L4I2LNTLY6EERIRC7ZB6F7MOAXDLPZ7D5I4NZGNZ',
     options: {},
     methods: [...Object.values(XlmMethod)],
-    scopes: [XlmScope.Mainnet, XlmScope.Testnet],
+    scopes: [XlmScope.Pubnet, XlmScope.Testnet],
     type: XlmAccountType.Account,
   };
 

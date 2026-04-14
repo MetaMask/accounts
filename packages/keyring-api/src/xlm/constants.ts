@@ -6,6 +6,6 @@
  * @see https://namespaces.chainagnostic.org/stellar/caip2
  */
 export enum XlmScope {
-  Mainnet = 'stellar:pubnet',
+  Pubnet = 'stellar:pubnet',
   Testnet = 'stellar:testnet',
 }

@@ -12,6 +12,9 @@ import {
 /**
  * Stellar account addresses use strkey encoding: non-muxed accounts start with `G`
  * and are 56 characters long.
+ * 
+ * TODO: Add checksum validation.
+ * 
  */
 export const XlmAddressStruct = definePattern('XlmAddress', /^G[A-Z2-7]{55}$/u);
 

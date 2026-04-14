@@ -78,7 +78,7 @@ export function getScopesForAccountV1(
     }
     case XlmAccountType.Account: {
       // Stellar account supports mainnet and testnet.
-      return [XlmScope.Mainnet, XlmScope.Testnet];
+      return [XlmScope.Pubnet, XlmScope.Testnet];
     }
     default:
       // We re-use EOA scopes if we don't know what to do for now.
