@@ -13,9 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Move and rename `KeyringClientV2` to the `./v2` module ([#513](https://github.com/MetaMask/accounts/pull/513))
-  - `KeyringClientV2` is now `KeyringClient` internally.
-  - `KeyringClientV2` remains available from the main entry point as an alias for backward compatibility.
+- **BREAKING:** Move and rename `KeyringClientV2` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `KeyringClientV2` is now `KeyringClient` from `@metamask/keyring-snap-client/v2`.
 
 ## [8.2.1]
 
