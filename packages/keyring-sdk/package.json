@@ -14,6 +14,8 @@
     "type": "git",
     "url": "https://github.com/MetaMask/accounts.git"
   },
+  "license": "MIT",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": {
@@ -44,19 +46,19 @@
   ],
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
+    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-sdk",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-sdk",
     "publish:preview": "yarn npm publish --tag preview",
+    "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
     "test:source": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
     "test:types": "../../scripts/tsd-test.sh ./src",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
-    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
-    "since-latest-release": "../../scripts/since-latest-release.sh",
-    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose"
+    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
     "@ethereumjs/tx": "^5.4.0",
@@ -106,7 +108,5 @@
     "compilerOptions": {
       "composite": "false"
     }
-  },
-  "license": "MIT",
-  "sideEffects": false
+  }
 }
