@@ -17,7 +17,7 @@ import { Mutex } from 'async-mutex';
 import {
   KeyringAccountRegistry,
   type KeyringAccountRegistryOptions,
-} from './keyring-account-registry';
+} from '../keyring-account-registry';
 
 /**
  * Basic options for constructing a {@link KeyringWrapper}.

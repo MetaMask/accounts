@@ -14,7 +14,7 @@ import {
   KeyringType,
   type CreateAccountBip44DeriveIndexOptions,
 } from '@metamask/keyring-api/v2';
-import { EthKeyringWrapper } from '@metamask/keyring-sdk';
+import { EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 

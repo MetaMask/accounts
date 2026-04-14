@@ -18,7 +18,7 @@ import type { EthKeyring } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import { add0x, type Hex, type Json } from '@metamask/utils';
 
-import { generateEthAccountId } from './account-id';
+import { generateEthAccountId } from '../../eth/account-id';
 import { KeyringWrapper, type KeyringWrapperOptions } from '../keyring-wrapper';
 
 /**

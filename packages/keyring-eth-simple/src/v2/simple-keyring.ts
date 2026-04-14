@@ -14,7 +14,7 @@ import {
   KeyringType,
   PrivateKeyEncoding,
 } from '@metamask/keyring-api/v2';
-import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk';
+import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import { add0x, type Hex } from '@metamask/utils';
 

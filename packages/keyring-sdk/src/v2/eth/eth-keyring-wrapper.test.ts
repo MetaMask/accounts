@@ -12,7 +12,7 @@ import { KeyringType } from '@metamask/keyring-api/v2';
 import type { Keyring } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import { generateEthAccountId } from './account-id';
+import { generateEthAccountId } from '../../eth/account-id';
 import { EthKeyringMethod, EthKeyringWrapper } from './eth-keyring-wrapper';
 
 const MOCK_ADDRESS = '0x1234567890abcdef1234567890abcdef12345678' as Hex;
