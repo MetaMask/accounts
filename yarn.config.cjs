@@ -780,6 +780,11 @@ function expectConsistentDependenciesAndDevDependencies(Yarn) {
         dependencyIdent,
         dependenciesByRange,
       );
+
+    if (dependenciesToConsider.size <= 1) {
+      continue;
+    }
+
     const dependencyRanges = [...dependenciesToConsider.keys()].sort();
 
     for (const dependencies of dependenciesToConsider.values()) {
