@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.0.0]
 
-### Uncategorized
-
-- chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
-
 ### Added
 
 - Add `handleKeyringRequestV2` function for dispatching keyring v2 JSON-RPC requests ([#408](https://github.com/MetaMask/accounts/pull/408))

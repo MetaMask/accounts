@@ -9,12 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0]
 
-### Uncategorized
-
-- chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
-- feat(keyring-sdk): add `generateEthAccountId` + use it in `EthKeyringWrapper` ([#504](https://github.com/MetaMask/accounts/pull/504))
-- build: remove use of workspace versions ([#479](https://github.com/MetaMask/accounts/pull/479))
-
 ### Added
 
 - Add `QrKeyringV2` class implementing `KeyringV2` interface ([#411](https://github.com/MetaMask/accounts/pull/411)), ([#447](https://github.com/MetaMask/accounts/pull/447)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#453](https://github.com/MetaMask/accounts/pull/453)), ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482)), ([#487](https://github.com/MetaMask/accounts/pull/487)), ([#496](https://github.com/MetaMask/accounts/pull/496)), ([#509](https://github.com/MetaMask/accounts/pull/509))
@@ -32,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `QrKeyringV2` is now `QrKeyring` from `@metamask/eth-qr-keyring/v2`.
   - `QrKeyringV2Options` is now `QrKeyringOptions` from `@metamask/eth-qr-keyring/v2`.
 - Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
+- Use `generateEthAccountId` in `EthKeyringWrapper` for deterministic account ID generation ([#504](https://github.com/MetaMask/accounts/pull/504))
+- Remove use of workspace versions ([#479](https://github.com/MetaMask/accounts/pull/479))
 
 ## [1.1.0]
 

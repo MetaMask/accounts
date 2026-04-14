@@ -9,12 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [14.0.0]
 
-### Uncategorized
-
-- chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
-- chore: rename alias from `old-hd-keyring` to `@metamask/old-hd-keyring` ([#512](https://github.com/MetaMask/accounts/pull/512))
-- fix: add dynamic nft and erc20 check ([#506](https://github.com/MetaMask/accounts/pull/506))
-
 ### Added
 
 - Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))
@@ -26,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `HdKeyringV2` is now `HdKeyring` from `@metamask/eth-hd-keyring/v2`.
   - `HdKeyringV2Options` is now `HdKeyringOptions` from `@metamask/eth-hd-keyring/v2`.
 - Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Rename `old-hd-keyring` alias to `@metamask/old-hd-keyring` ([#512](https://github.com/MetaMask/accounts/pull/512))
 
 ## [13.1.1]
 

@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [21.0.0]
 
-### Uncategorized
-
-- chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
-
 ### Added
 
 - Support Stellar (`xlm:account`) accounts in account assertions and v1 migrations ([#483](https://github.com/MetaMask/accounts/pull/483))

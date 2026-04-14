@@ -9,11 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.0.0]
 
-### Uncategorized
-
-- chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
-- chore: bump @metamask/messenger and @metamask/utils ([#489](https://github.com/MetaMask/accounts/pull/489))
-
 ### Added
 
 - Add `KeyringClientV2` class implementing the keyring v2 RPC client ([#408](https://github.com/MetaMask/accounts/pull/408))
@@ -22,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** Move and rename `KeyringClientV2` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
   - `KeyringClientV2` is now `KeyringClient` from `@metamask/keyring-snap-client/v2`.
-- Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [8.2.1]
 
