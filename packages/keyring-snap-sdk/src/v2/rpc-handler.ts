@@ -90,11 +90,11 @@ async function dispatchKeyringRequestV2(
  *   origin,
  *   request,
  * }) => {
- *   return await handleKeyringRequestV2(keyring, request);
+ *   return await handleKeyringRequest(keyring, request);
  * };
  * ```
  */
-export async function handleKeyringRequestV2(
+export async function handleKeyringRequest(
   keyring: Keyring,
   request: JsonRpcRequest,
 ): Promise<Json | void> {

@@ -11,9 +11,9 @@ import type {
 } from '@metamask/keyring-api/v2';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
-import { handleKeyringRequestV2 } from '.';
+import { handleKeyringRequest } from '.';
 
-describe('handleKeyringRequestV2', () => {
+describe('handleKeyringRequest', () => {
   const keyring = {
     getAccounts: jest.fn(),
     getAccount: jest.fn(),
@@ -42,7 +42,7 @@ describe('handleKeyringRequestV2', () => {
     };
 
     await expect(
-      handleKeyringRequestV2(keyring, request as unknown as JsonRpcRequest),
+      handleKeyringRequest(keyring, request as unknown as JsonRpcRequest),
     ).rejects.toThrow(
       'At path: method -- Expected a string, but received: undefined',
     );
@@ -57,7 +57,7 @@ describe('handleKeyringRequestV2', () => {
 
     const mockedResult = 'GetAccounts result';
     keyring.getAccounts.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.getAccounts).toHaveBeenCalled();
     expect(result).toBe(mockedResult);
@@ -73,7 +73,7 @@ describe('handleKeyringRequestV2', () => {
 
     const mockedResult = 'GetAccount result';
     keyring.getAccount.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.getAccount).toHaveBeenCalledWith(request.params.id);
     expect(result).toBe(mockedResult);
@@ -88,7 +88,7 @@ describe('handleKeyringRequestV2', () => {
       params: {}, // Missing account ID.
     };
 
-    await expect(handleKeyringRequestV2(keyring, request)).rejects.toThrow(
+    await expect(handleKeyringRequest(keyring, request)).rejects.toThrow(
       'At path: params.id -- Expected a value of type `UuidV4`, but received: `undefined`',
     );
   });
@@ -101,7 +101,7 @@ describe('handleKeyringRequestV2', () => {
       method: `${KeyringRpcMethod.GetAccount}`,
     };
 
-    await expect(handleKeyringRequestV2(keyring, request)).rejects.toThrow(
+    await expect(handleKeyringRequest(keyring, request)).rejects.toThrow(
       'At path: params -- Expected an object, but received: undefined',
     );
   });
@@ -120,7 +120,7 @@ describe('handleKeyringRequestV2', () => {
 
     const mockedResult = 'CreateAccounts result';
     keyring.createAccounts.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.createAccounts).toHaveBeenCalledWith(request.params);
     expect(result).toBe(mockedResult);
@@ -135,7 +135,7 @@ describe('handleKeyringRequestV2', () => {
     };
 
     keyring.deleteAccount.mockResolvedValue(undefined);
-    await handleKeyringRequestV2(keyring, request);
+    await handleKeyringRequest(keyring, request);
 
     expect(keyring.deleteAccount).toHaveBeenCalledWith(request.params.id);
   });
@@ -152,7 +152,7 @@ describe('handleKeyringRequestV2', () => {
       privateKey: '0x0123',
     };
     keyring.exportAccount.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.exportAccount).toHaveBeenCalledWith(
       request.params.id,
@@ -179,7 +179,7 @@ describe('handleKeyringRequestV2', () => {
       privateKey: '0x0123',
     };
     keyring.exportAccount.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.exportAccount).toHaveBeenCalledWith(
       request.params.id,
@@ -202,7 +202,7 @@ describe('handleKeyringRequestV2', () => {
     delete partialKeyring.exportAccount;
 
     await expect(
-      handleKeyringRequestV2(partialKeyring, request),
+      handleKeyringRequest(partialKeyring, request),
     ).rejects.toThrow(
       `Method not supported: ${KeyringRpcMethod.ExportAccount}`,
     );
@@ -229,7 +229,7 @@ describe('handleKeyringRequestV2', () => {
 
     const mockedResult = 'SubmitRequest result';
     keyring.submitRequest.mockResolvedValue(mockedResult);
-    const result = await handleKeyringRequestV2(keyring, request);
+    const result = await handleKeyringRequest(keyring, request);
 
     expect(keyring.submitRequest).toHaveBeenCalledWith(dappRequest);
     expect(result).toBe(mockedResult);
@@ -242,7 +242,7 @@ describe('handleKeyringRequestV2', () => {
       method: 'unknown_method',
     };
 
-    await expect(handleKeyringRequestV2(keyring, request)).rejects.toThrow(
+    await expect(handleKeyringRequest(keyring, request)).rejects.toThrow(
       'Method not supported: unknown_method',
     );
   });
@@ -257,7 +257,7 @@ describe('handleKeyringRequestV2', () => {
     const error = new Error();
     error.message = 1 as unknown as string;
     keyring.getAccounts.mockRejectedValue(error);
-    await expect(handleKeyringRequestV2(keyring, request)).rejects.toThrow(
+    await expect(handleKeyringRequest(keyring, request)).rejects.toThrow(
       'An unknown error occurred while handling the keyring (v2) request',
     );
   });
