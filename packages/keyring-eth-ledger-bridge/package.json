@@ -17,6 +17,7 @@
     "url": "https://github.com/MetaMask/accounts.git"
   },
   "license": "ISC",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": {
@@ -37,19 +38,19 @@
   ],
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
+    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-ledger-bridge-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-ledger-bridge-keyring",
     "publish:preview": "yarn npm publish --tag preview",
+    "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
-    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
-    "since-latest-release": "../../scripts/since-latest-release.sh",
-    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
     "test:source": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
-    "test:types": "../../scripts/tsd-test.sh ./src"
+    "test:types": "../../scripts/tsd-test.sh ./src",
+    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.2",
@@ -107,6 +108,5 @@
       "hdkey>secp256k1": false,
       "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>keccak": false
     }
-  },
-  "sideEffects": false
+  }
 }
