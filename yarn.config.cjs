@@ -244,8 +244,6 @@ module.exports = defineConfig({
       if (isChildWorkspace) {
         // All non-root packages must have a valid README.md file.
         await expectReadme(workspace, workspaceBasename);
-
-        await expectCodeowner(workspace, workspaceBasename);
       }
     }
 
@@ -851,19 +849,4 @@ async function expectReadme(workspace, workspaceBasename) {
       `The README.md does not contain an example of how to install the package using npm (\`npm install ${packageName}\`). Please add an example.`,
     );
   }
-}
-
-// A promise resolving to the codeowners file contents
-let cachedCodeownersFile;
-
-/**
- * Expect that the workspace has a codeowner set, and that the CHANGELOG.md and
- * package.json files are co-owned with the wallet framework team.
- *
- * @param {Workspace} workspace - The workspace to check.
- * @param {string} workspaceBasename - The name of the workspace.
- * @returns {Promise<void>}
- */
-async function expectCodeowner(workspace, workspaceBasename) {
-  // No need to enforce co-owners for this monorepo.
 }
