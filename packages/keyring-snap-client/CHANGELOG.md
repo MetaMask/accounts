@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Move and rename `KeyringClientV2` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
   - `KeyringClientV2` is now `KeyringClient` from `@metamask/keyring-snap-client/v2`.
 - Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
 
 ## [8.2.1]
 

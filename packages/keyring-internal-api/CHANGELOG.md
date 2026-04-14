@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Stellar (XLM) support ([#483](https://github.com/MetaMask/accounts/pull/483))
 
+### Changed
+
+- Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+
 ## [10.0.1]
 
 ### Changed
