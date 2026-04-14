@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `KeyringClientV2` class implementing the keyring v2 RPC client ([#408](https://github.com/MetaMask/accounts/pull/408))
 
+### Changed
+
+- **BREAKING:** Move and rename `KeyringClientV2` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `KeyringClientV2` is now `KeyringClient` from `@metamask/keyring-snap-client/v2`.
+
 ## [8.2.1]
 
 ### Changed

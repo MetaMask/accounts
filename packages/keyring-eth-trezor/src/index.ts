@@ -1,7 +1,5 @@
 export * from './trezor-keyring';
-export * from './trezor-keyring-v2';
 export * from './onekey-keyring';
-export * from './onekey-keyring-v2';
 export * from './trezor-error-handler';
 export * from './trezor-errors';
 export type * from './trezor-bridge';
