@@ -25,8 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Rename and move `QrKeyringV2`, `QrKeyringV2Options`, and `QrAccountModeCreateOptions` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
   - `QrKeyringV2` is now `QrKeyring` from `@metamask/eth-qr-keyring/v2`.
   - `QrKeyringV2Options` is now `QrKeyringOptions` from `@metamask/eth-qr-keyring/v2`.
-- Use `generateEthAccountId` in `EthKeyringWrapper` for deterministic account ID generation ([#504](https://github.com/MetaMask/accounts/pull/504))
-- Remove use of workspace versions ([#479](https://github.com/MetaMask/accounts/pull/479))
 - Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
 - Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
 - Bump `@metamask/keyring-sdk` from `^1.2.0` to `^2.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
