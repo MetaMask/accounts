@@ -802,13 +802,17 @@ function expectConsistentDependenciesAndDevDependencies(Yarn) {
  *
  * - Not contain template instructions (unless the workspace is the module
  * template itself).
- * - Match the version of Node.js specified in the `.nvmrc` file.
  *
  * @param {Workspace} workspace - The workspace to check.
  * @param {string} workspaceBasename - The basename of the workspace directory.
  * @returns {Promise<void>}
  */
 async function expectReadme(workspace, workspaceBasename) {
+  if (!(await workspaceFileExists(workspace, 'README.md'))) {
+    workspace.error('Could not find README.md file');
+    return;
+  }
+
   const readme = await getWorkspaceFile(workspace, 'README.md');
 
   if (
