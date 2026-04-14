@@ -71,7 +71,6 @@
     "@metamask/hw-wallet-sdk": "^0.8.0",
     "@metamask/keyring-api": "^22.0.0",
     "@metamask/keyring-sdk": "^1.2.0",
-    "@metamask/keyring-utils": "^3.2.0",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
