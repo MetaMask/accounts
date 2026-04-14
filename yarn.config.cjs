@@ -895,7 +895,7 @@ function expectConsistentDependenciesAndDevDependencies(Yarn) {
  * - Match the version of Node.js specified in the `.nvmrc` file.
  *
  * @param {Workspace} workspace - The workspace to check.
- * @param {string} workspaceBasename - The name of the workspace.
+ * @param {string} workspaceBasename - The basename of the workspace directory.
  * @returns {Promise<void>}
  */
 async function expectReadme(workspace, workspaceBasename) {
@@ -910,15 +910,17 @@ async function expectReadme(workspace, workspaceBasename) {
     );
   }
 
-  if (!readme.includes(`yarn add @metamask/${workspaceBasename}`)) {
+  const packageName = workspace.manifest.name;
+
+  if (!readme.includes(`yarn add ${packageName}`)) {
     workspace.error(
-      `The README.md does not contain an example of how to install the package using Yarn (\`yarn add @metamask/${workspaceBasename}\`). Please add an example.`,
+      `The README.md does not contain an example of how to install the package using Yarn (\`yarn add ${packageName}\`). Please add an example.`,
     );
   }
 
-  if (!readme.includes(`npm install @metamask/${workspaceBasename}`)) {
+  if (!readme.includes(`npm install ${packageName}`)) {
     workspace.error(
-      `The README.md does not contain an example of how to install the package using npm (\`npm install @metamask/${workspaceBasename}\`). Please add an example.`,
+      `The README.md does not contain an example of how to install the package using npm (\`npm install ${packageName}\`). Please add an example.`,
     );
   }
 }
