@@ -146,7 +146,21 @@ module.exports = defineConfig({
         expectWorkspaceField(
           workspace,
           'scripts.test',
+          'yarn test:source && yarn test:types',
+        );
+
+        // All non-root packages must have the same "test:source" script.
+        expectWorkspaceField(
+          workspace,
+          'scripts.test:source',
           'NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter',
+        );
+
+        // All non-root packages must have the same "test:types" script.
+        expectWorkspaceField(
+          workspace,
+          'scripts.test:types',
+          '../../scripts/tsd-test.sh ./src',
         );
 
         // All non-root packages must have the same "test:clean" script.
