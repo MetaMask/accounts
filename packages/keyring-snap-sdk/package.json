@@ -14,6 +14,8 @@
     "type": "git",
     "url": "https://github.com/MetaMask/accounts.git"
   },
+  "license": "MIT",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": {
@@ -34,7 +36,8 @@
         "types": "./dist/v2/index.d.cts",
         "default": "./dist/v2/index.cjs"
       }
-    }
+    },
+    "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
@@ -42,17 +45,20 @@
     "dist/"
   ],
   "scripts": {
-    "build": "ts-bridge --project tsconfig.build.json --no-references",
+    "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
+    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-snap-sdk",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-snap-sdk",
     "publish:preview": "yarn npm publish --tag preview",
+    "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
-    "test:clean": "jest --clearCache",
-    "test:source": "jest && jest-it-up",
+    "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
+    "test:source": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
     "test:types": "../../scripts/tsd-test.sh ./src",
-    "test:watch": "jest --watch"
+    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
     "@metamask/keyring-utils": "^3.2.0",

@@ -1,12 +1,12 @@
 {
   "name": "@metamask/eth-money-keyring",
   "version": "2.0.0",
-  "description": "A money account keyring that wraps the HD keyring with a different keyring type and derivation path.",
+  "description": "A money account keyring that wraps the HD keyring with a different keyring type and derivation path",
   "keywords": [
     "ethereum",
     "keyring"
   ],
-  "homepage": "https://github.com/MetaMask/accounts#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-eth-money#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
@@ -15,6 +15,7 @@
     "url": "https://github.com/MetaMask/accounts.git"
   },
   "license": "ISC",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": {
@@ -25,7 +26,8 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    }
+    },
+    "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
@@ -33,14 +35,20 @@
     "dist/"
   ],
   "scripts": {
-    "build": "ts-bridge --project tsconfig.build.json --no-references",
+    "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
+    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-money-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-money-keyring",
     "publish:preview": "yarn npm publish --tag preview",
-    "test": "jest",
-    "test:clean": "jest --clearCache"
+    "since-latest-release": "../../scripts/since-latest-release.sh",
+    "test": "yarn test:source && yarn test:types",
+    "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
+    "test:source": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
+    "test:types": "../../scripts/tsd-test.sh ./src",
+    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
     "@metamask/eth-hd-keyring": "^13.1.1",

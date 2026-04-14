@@ -1,5 +1,13 @@
 # Simple Keyring
 
+## Installation
+
+`yarn add @metamask/eth-simple-keyring`
+
+or
+
+`npm install @metamask/eth-simple-keyring`
+
 A simple JS class wrapped around [ethereumjs-wallet](https://github.com/ethereumjs/ethereumjs-wallet) designed to expose an interface common to many different signing strategies to be used in a `KeyringController`; such as the one used in [MetaMask](https://metamask.io/)
 
 ## The Keyring Class Protocol

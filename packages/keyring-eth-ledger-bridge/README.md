@@ -19,6 +19,14 @@ The iframe is allowed to interact with the Ledger device (since U2F requires SSL
 
 The iframe code it's hosted in the same repo under the branch [gh-pages](https://github.com/MetaMask/eth-ledger-bridge-keyring/tree/gh-pages) and it's being served via github pages. In the future we might move it under the metamask.io domain.
 
+## Installation
+
+`yarn add @metamask/eth-ledger-bridge-keyring`
+
+or
+
+`npm install @metamask/eth-ledger-bridge-keyring`
+
 ## Usage
 
 In addition to all the known methods from the [Keyring class protocol](https://github.com/MetaMask/eth-simple-keyring#the-keyring-class-protocol),

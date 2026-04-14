@@ -65,8 +65,8 @@ linkStyle default opacity:0.5
   eth_ledger_bridge_keyring --> hw_wallet_sdk;
   eth_ledger_bridge_keyring --> keyring_api;
   eth_ledger_bridge_keyring --> keyring_sdk;
-  eth_ledger_bridge_keyring --> keyring_utils;
   eth_ledger_bridge_keyring --> account_api;
+  eth_ledger_bridge_keyring --> keyring_utils;
   eth_money_keyring --> keyring_eth_hd;
   eth_money_keyring --> keyring_api;
   eth_money_keyring --> keyring_utils;
@@ -90,12 +90,12 @@ linkStyle default opacity:0.5
   keyring_internal_snap_client --> keyring_utils;
   keyring_sdk --> keyring_api;
   keyring_sdk --> keyring_utils;
-  eth_snap_keyring --> keyring_api;
   eth_snap_keyring --> keyring_internal_api;
   eth_snap_keyring --> keyring_internal_snap_client;
   eth_snap_keyring --> keyring_sdk;
   eth_snap_keyring --> keyring_snap_sdk;
   eth_snap_keyring --> keyring_utils;
+  eth_snap_keyring --> keyring_api;
   keyring_snap_client --> keyring_api;
   keyring_snap_client --> keyring_utils;
   keyring_snap_sdk --> keyring_utils;

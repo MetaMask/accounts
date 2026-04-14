@@ -1478,12 +1478,16 @@ __metadata:
     "@metamask/eslint-config-jest": "npm:^13.0.0"
     "@metamask/eslint-config-nodejs": "npm:^13.0.0"
     "@metamask/eslint-config-typescript": "npm:^13.0.0"
+    "@metamask/utils": "npm:^11.11.0"
     "@npmcli/package-json": "npm:^5.0.0"
     "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
+    "@types/lodash": "npm:^4.14.191"
     "@types/node": "npm:^20.12.12"
+    "@types/semver": "npm:^7"
     "@typescript-eslint/eslint-plugin": "npm:^8.5.0"
     "@typescript-eslint/parser": "npm:^8.5.0"
+    "@yarnpkg/types": "npm:^4.0.0"
     depcheck: "npm:^1.4.7"
     eslint: "npm:^8.55.0"
     eslint-config-prettier: "npm:^8.8.0"
@@ -1497,8 +1501,10 @@ __metadata:
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     jest-silent-reporter: "npm:^0.5.0"
+    lodash: "npm:^4.17.21"
     prettier: "npm:^2.8.8"
     prettier-plugin-packagejson: "npm:^2.5.2"
+    semver: "npm:^7.6.3"
     syncpack: "npm:^13.0.0"
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
@@ -4157,10 +4163,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.17.20":
-  version: 4.17.20
-  resolution: "@types/lodash@npm:4.17.20"
-  checksum: 10/8cd8ad3bd78d2e06a93ae8d6c9907981d5673655fec7cb274a4d9a59549aab5bb5b3017361280773b8990ddfccf363e14d1b37c97af8a9fe363de677f9a61524
+"@types/lodash@npm:^4.14.191, @types/lodash@npm:^4.17.20":
+  version: 4.17.24
+  resolution: "@types/lodash@npm:4.17.24"
+  checksum: 10/0f2082565f60f9787eefc046edc38458054512be5a8b3584ef0bad5fd9e85d0ab55ec5a1fbfae1ed6ba015cf1f9e837d5fb4da1f99fc60b8f74b2a46146fb00f
   languageName: node
   linkType: hard
 
@@ -4245,10 +4251,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/semver@npm:^7.3.12, @types/semver@npm:^7.3.6":
-  version: 7.5.8
-  resolution: "@types/semver@npm:7.5.8"
-  checksum: 10/3496808818ddb36deabfe4974fd343a78101fa242c4690044ccdc3b95dcf8785b494f5d628f2f47f38a702f8db9c53c67f47d7818f2be1b79f2efb09692e1178
+"@types/semver@npm:^7, @types/semver@npm:^7.3.12, @types/semver@npm:^7.3.6":
+  version: 7.7.1
+  resolution: "@types/semver@npm:7.7.1"
+  checksum: 10/8f09e7e6ca3ded67d78ba7a8f7535c8d9cf8ced83c52e7f3ac3c281fe8c689c3fe475d199d94390dc04fc681d51f2358b430bb7b2e21c62de24f2bee2c719068
   languageName: node
   linkType: hard
 
@@ -4663,6 +4669,15 @@ __metadata:
   version: 2.1.0
   resolution: "@xstate/fsm@npm:2.1.0"
   checksum: 10/0d648c2c3dcb9089b7fa6cc7ae0c8d21d0254defae0afad357ca0907350c0d9e6e81f21e039433055e3ea13355b3c8d8b2d5fbc3d00a60da991531100a734ee9
+  languageName: node
+  linkType: hard
+
+"@yarnpkg/types@npm:^4.0.0":
+  version: 4.0.1
+  resolution: "@yarnpkg/types@npm:4.0.1"
+  dependencies:
+    tslib: "npm:^2.4.0"
+  checksum: 10/f391763cd955356e9aad551b29e8de7bbf68a6c8992af7cdc950ccf53f8aff6695ad81aa4c8a8e7c582786a840a4f30617732e2cb49f4109b971a9242c31c9fc
   languageName: node
   linkType: hard
 
