@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [23.0.0]
+
 ### Added
 
-- Add Stellar account types and scopes (`XlmScope`, `XlmAccountType`, `XlmAccount`, etc.) ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Add Stellar (XLM) support ([#483](https://github.com/MetaMask/accounts/pull/483))
+  - Add `XlmScope`, `XlmAccountType` and `XlmAccount`.
 - Add keyring v2 RPC types and structs (`KeyringRpcV2`, `KeyringRpcV2Method`, `isKeyringRpcV2Method`, and request/response structs) ([#408](https://github.com/MetaMask/accounts/pull/408))
 - Add `./v2` subpath export for all keyring v2 types and structs ([#513](https://github.com/MetaMask/accounts/pull/513))
 
@@ -734,7 +737,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@22.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.0.0...HEAD
+[23.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@22.0.0...@metamask/keyring-api@23.0.0
 [22.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.6.0...@metamask/keyring-api@22.0.0
 [21.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.5.0...@metamask/keyring-api@21.6.0
 [21.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.4.0...@metamask/keyring-api@21.5.0

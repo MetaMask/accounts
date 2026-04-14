@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [12.0.0]
+
 ### Added
 
 - Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))
@@ -18,6 +20,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `LedgerKeyringV2` is now `LedgerKeyring` from `@metamask/eth-ledger-bridge-keyring/v2`.
   - `LedgerKeyringV2Options` is now `LedgerKeyringOptions` from `@metamask/eth-ledger-bridge-keyring/v2`.
 - Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/account-api` from `^1.0.1` to `^1.0.2` ([#515](https://github.com/MetaMask/accounts/pull/515))
+- Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+- Bump `@metamask/keyring-sdk` from `^1.2.0` to `^2.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+
+### Fixed
+
+- Add dynamic NFT and ERC-20 check ([#506](https://github.com/MetaMask/accounts/pull/506))
 
 ## [11.4.0]
 
@@ -396,7 +405,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.4.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.0.0...HEAD
+[12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.4.0...@metamask/eth-ledger-bridge-keyring@12.0.0
 [11.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.3.1...@metamask/eth-ledger-bridge-keyring@11.4.0
 [11.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.3.0...@metamask/eth-ledger-bridge-keyring@11.3.1
 [11.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.2.0...@metamask/eth-ledger-bridge-keyring@11.3.0

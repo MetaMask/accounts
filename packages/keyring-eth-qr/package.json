@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-qr-keyring",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "A simple standard interface for a series of Ethereum private keys",
   "keywords": [
     "ethereum",
@@ -70,8 +70,8 @@
     "@ethereumjs/util": "^9.1.0",
     "@keystonehq/bc-ur-registry-eth": "^0.19.1",
     "@metamask/eth-sig-util": "^8.2.0",
-    "@metamask/keyring-api": "^22.0.0",
-    "@metamask/keyring-sdk": "^1.2.0",
+    "@metamask/keyring-api": "^23.0.0",
+    "@metamask/keyring-sdk": "^2.0.0",
     "@metamask/keyring-utils": "^3.2.0",
     "@metamask/utils": "^11.11.0",
     "async-mutex": "^0.5.0",
@@ -82,7 +82,7 @@
     "@ethereumjs/common": "^4.4.0",
     "@keystonehq/metamask-airgapped-keyring": "^0.15.2",
     "@lavamoat/allow-scripts": "^3.2.1",
-    "@metamask/account-api": "^1.0.1",
+    "@metamask/account-api": "^1.0.2",
     "@metamask/auto-changelog": "^3.4.4",
     "@types/hdkey": "^2.0.1",
     "@types/jest": "^29.5.12",

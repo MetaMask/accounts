@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [12.0.0]
+
 ### Added
 
 - Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))
@@ -18,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `SimpleKeyringV2` is now `SimpleKeyring` from `@metamask/eth-simple-keyring/v2`.
   - `SimpleKeyringV2Options` is now `SimpleKeyringOptions` from `@metamask/eth-simple-keyring/v2`.
 - Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+- Bump `@metamask/keyring-sdk` from `^1.2.0` to `^2.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
 
 ## [11.1.2]
 
@@ -190,7 +194,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@11.1.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@12.0.0...HEAD
+[12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@11.1.2...@metamask/eth-simple-keyring@12.0.0
 [11.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@11.1.1...@metamask/eth-simple-keyring@11.1.2
 [11.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@11.1.0...@metamask/eth-simple-keyring@11.1.1
 [11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@11.0.0...@metamask/eth-simple-keyring@11.1.0

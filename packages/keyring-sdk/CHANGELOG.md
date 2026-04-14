@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0]
+
 ### Added
 
 - Add `./v2` subpath export for keyring v2 building blocks ([#513](https://github.com/MetaMask/accounts/pull/513))
@@ -18,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Use `import { KeyringWrapper, EthKeyringWrapper, EthKeyringMethod } from '@metamask/keyring-sdk/v2'` instead.
   - `KeyringAccountRegistry`, `encodeMnemonic`, and `generateEthAccountId` remain available from the main entry point.
 - Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
 
 ## [1.2.0]
 
@@ -42,7 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release, extracted from `@metamask/keyring-api` ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@1.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.0...HEAD
+[2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@1.2.0...@metamask/keyring-sdk@2.0.0
 [1.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@1.1.0...@metamask/keyring-sdk@1.2.0
 [1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@1.0.0...@metamask/keyring-sdk@1.1.0
 [1.0.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/keyring-sdk@1.0.0

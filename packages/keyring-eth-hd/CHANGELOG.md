@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [14.0.0]
+
 ### Added
 
 - Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))
@@ -18,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `HdKeyringV2` is now `HdKeyring` from `@metamask/eth-hd-keyring/v2`.
   - `HdKeyringV2Options` is now `HdKeyringOptions` from `@metamask/eth-hd-keyring/v2`.
 - Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/account-api` from `^1.0.1` to `^1.0.2` ([#515](https://github.com/MetaMask/accounts/pull/515))
+- Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+- Bump `@metamask/keyring-sdk` from `^1.2.0` to `^2.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
 
 ## [13.1.1]
 
@@ -258,7 +263,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@13.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.0.0...HEAD
+[14.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@13.1.1...@metamask/eth-hd-keyring@14.0.0
 [13.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@13.1.0...@metamask/eth-hd-keyring@13.1.1
 [13.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@13.0.0...@metamask/eth-hd-keyring@13.1.0
 [13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@12.1.0...@metamask/eth-hd-keyring@13.0.0

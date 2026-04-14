@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+
 ## [1.0.1]
 
 ### Changed
@@ -145,7 +151,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `AccountGroup` and `AccountWallet` ([#307](https://github.com/MetaMask/accounts/pull/307))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@1.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@1.0.2...HEAD
+[1.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@1.0.1...@metamask/account-api@1.0.2
 [1.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@1.0.0...@metamask/account-api@1.0.1
 [1.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.12.0...@metamask/account-api@1.0.0
 [0.12.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@0.11.0...@metamask/account-api@0.12.0
