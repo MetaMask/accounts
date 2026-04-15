@@ -57,8 +57,7 @@ export type KeyringWrapperOptions<InnerKeyring extends LegacyKeyring> = {
 export abstract class KeyringWrapper<
   InnerKeyring extends LegacyKeyring,
   KeyringAccountType extends KeyringAccount = KeyringAccount,
-> implements Keyring
-{
+> implements Keyring {
   readonly type: `${KeyringType}`;
 
   readonly #capabilities: KeyringCapabilities;

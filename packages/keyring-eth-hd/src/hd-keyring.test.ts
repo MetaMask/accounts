@@ -993,9 +993,8 @@ describe('hd-keyring', () => {
     });
 
     it('returns the expected value', async function () {
-      const encryptionPublicKey = await keyring.getEncryptionPublicKey(
-        firstAcct,
-      );
+      const encryptionPublicKey =
+        await keyring.getEncryptionPublicKey(firstAcct);
       expect(publicKey).toBe(encryptionPublicKey);
     });
 
@@ -1106,9 +1105,8 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
       });
 
-      const encryptionPublicKey = await keyring.getEncryptionPublicKey(
-        firstAcct,
-      );
+      const encryptionPublicKey =
+        await keyring.getEncryptionPublicKey(firstAcct);
       encryptedMessage = encrypt({
         publicKey: encryptionPublicKey,
         data: message,

@@ -1,3 +1,4 @@
+import { BtcAccountType } from '../api';
 import { BtcScope } from './constants';
 import type {
   BtcP2pkhAccount,
@@ -12,7 +13,6 @@ import {
   BtcP2trAccountStruct,
   BtcP2wpkhAccountStruct,
 } from './types';
-import { BtcAccountType } from '../api';
 
 const BTC_P2PKH_MAINNET_ADDRESS = '1AXaVdPBb6zqrTMb6ebrBb9g3JmeAPGeCF';
 const BTC_P2SH_MAINNET_ADDRESS = '3KQPirCGGbVyWJLGuWN6VPC7uLeiarYB7x';

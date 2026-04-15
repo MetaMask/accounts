@@ -82,9 +82,9 @@ following allowlist:
   "initialPermissions": {
     // Other initial permissions...
     "endowment:keyring": {
-      "allowedOrigins": ["https://<dapp domain>"]
-    }
-  }
+      "allowedOrigins": ["https://<dapp domain>"],
+    },
+  },
 }
 ```
 

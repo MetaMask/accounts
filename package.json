@@ -7,10 +7,10 @@
     "type": "git",
     "url": "https://github.com/MetaMask/accounts.git"
   },
-  "files": [],
   "workspaces": [
     "packages/*"
   ],
+  "files": [],
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json",
     "build:clean": "yarn build --clean",
@@ -33,13 +33,6 @@
     "test": "yarn foreach test",
     "test:clean": "yarn foreach test:clean",
     "test:types": "yarn foreach test:types"
-  },
-  "resolutions": {
-    "@types/node": "^20.12.12",
-    "@types/web": "^0.0.69",
-    "@typescript/lib-dom": "npm:@types/web@^0.0.69",
-    "axios@1.7.3": "^1.7.7",
-    "ws@7.4.6": "^7.5.10"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
@@ -83,10 +76,17 @@
     "typedoc": "^0.25.13",
     "typescript": "~5.6.3"
   },
-  "packageManager": "yarn@4.10.3",
+  "resolutions": {
+    "@types/node": "^20.12.12",
+    "@types/web": "^0.0.69",
+    "@typescript/lib-dom": "npm:@types/web@^0.0.69",
+    "axios@1.7.3": "^1.7.7",
+    "ws@7.4.6": "^7.5.10"
+  },
   "engines": {
     "node": "^18.18 || >=20"
   },
+  "packageManager": "yarn@4.10.3",
   "lavamoat": {
     "allowScripts": {
       "@lavamoat/preinstall-always-fail": false

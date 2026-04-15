@@ -8,11 +8,11 @@ import {
   type Infer,
 } from '@metamask/superstruct';
 
+import { CaipChainIdStruct } from '../../api/caip';
 import {
   ExportPrivateKeyFormatStruct,
   ImportPrivateKeyFormatStruct,
 } from './private-key';
-import { CaipChainIdStruct } from '../../api/caip';
 
 /**
  * Struct for {@link KeyringCapabilities}.

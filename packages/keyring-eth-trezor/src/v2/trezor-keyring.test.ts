@@ -9,14 +9,14 @@ import {
 import { KeyringType } from '@metamask/keyring-api/v2';
 import HDKey from 'hdkey';
 
+import type { TrezorBridge } from '../trezor-bridge';
+import { TrezorKeyring as LegacyTrezorKeyring } from '../trezor-keyring';
 import {
   BIP44_HD_PATH_PREFIX,
   LEGACY_MEW_PATH_PREFIX,
   SLIP0044_TESTNET_PATH_PREFIX,
   TrezorKeyring,
 } from './trezor-keyring';
-import type { TrezorBridge } from '../trezor-bridge';
-import { TrezorKeyring as LegacyTrezorKeyring } from '../trezor-keyring';
 
 /**
  * Type alias for Trezor keyring accounts (always BIP-44 derived).

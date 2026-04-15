@@ -153,12 +153,10 @@ export function strictMask<Type, Schema>(
  * @param StructType - The struct type to infer.
  * @param ExpectedType - The expected type.
  */
-export type InferEquals<
-  StructType extends Struct<any, any>,
-  ExpectedType,
-> = Equals<Infer<StructType>, ExpectedType> extends true
-  ? Infer<StructType>
-  : never;
+export type InferEquals<StructType extends Struct<any, any>, ExpectedType> =
+  Equals<Infer<StructType>, ExpectedType> extends true
+    ? Infer<StructType>
+    : never;
 
 /**
  * Create a custom union struct that uses a `selector` function for choosing

@@ -453,11 +453,13 @@ enum AccountType {
 }
 
 // ❌ WRONG: Plural enum names
-enum EthMethods { // Don't use plural
+enum EthMethods {
+  // Don't use plural
   SignTransaction = 'eth_signTransaction',
 }
 
-enum AccountTypes { // Don't use plural
+enum AccountTypes {
+  // Don't use plural
   Eoa = 'eoa',
 }
 

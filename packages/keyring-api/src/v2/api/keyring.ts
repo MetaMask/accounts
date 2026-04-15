@@ -1,12 +1,12 @@
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
+import type { KeyringAccount } from '../../api/account';
+import type { KeyringRequest } from '../../api/request';
 import type { CreateAccountOptions } from './create-account';
 import type { ExportedAccount, ExportAccountOptions } from './export-account';
 import type { KeyringCapabilities } from './keyring-capabilities';
 import type { KeyringType } from './keyring-type';
-import type { KeyringAccount } from '../../api/account';
-import type { KeyringRequest } from '../../api/request';
 
 /**
  * The Keyring interface defines methods for managing accounts and signing

@@ -3,20 +3,26 @@
   "version": "21.0.0",
   "description": "Snaps keyring bridge",
   "keywords": [
-    "metamask",
     "keyring",
+    "metamask",
     "snaps"
   ],
   "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-snap-bridge#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
+  "license": "SEE LICENSE IN LICENSE",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/accounts.git"
   },
-  "license": "SEE LICENSE IN LICENSE",
+  "files": [
+    "dist/",
+    "v2.js"
+  ],
   "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
@@ -40,12 +46,10 @@
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.cts",
-  "files": [
-    "dist/",
-    "v2.js"
-  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
@@ -101,12 +105,14 @@
   "peerDependencies": {
     "@metamask/keyring-api": "^23.0.0"
   },
+  "tsd": {
+    "compilerOptions": {
+      "composite": "false"
+    },
+    "directory": "src"
+  },
   "engines": {
     "node": "^18.18 || >=20"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   },
   "lavamoat": {
     "allowScripts": {
@@ -114,12 +120,6 @@
       "@metamask/snaps-utils>@metamask/permission-controller>@metamask/controller-utils>ethereumjs-util>ethereum-cryptography>secp256k1": false,
       "@metamask/snaps-controllers>@metamask/phishing-controller>@metamask/controller-utils>ethereumjs-util>ethereum-cryptography>keccak": false,
       "@metamask/snaps-controllers>@metamask/phishing-controller>@metamask/controller-utils>ethereumjs-util>ethereum-cryptography>secp256k1": false
-    }
-  },
-  "tsd": {
-    "directory": "src",
-    "compilerOptions": {
-      "composite": "false"
     }
   }
 }

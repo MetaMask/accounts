@@ -145,11 +145,10 @@ describe('handleTrezorTransportError', () => {
   );
 
   it('has never return type', () => {
-    type ReturnTypeIsNever = ReturnType<
-      typeof handleTrezorTransportError
-    > extends never
-      ? true
-      : false;
+    type ReturnTypeIsNever =
+      ReturnType<typeof handleTrezorTransportError> extends never
+        ? true
+        : false;
 
     const isNever: ReturnTypeIsNever = true;
     expect(isNever).toBe(true);
