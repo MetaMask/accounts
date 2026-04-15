@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^23.0.0` to `^23.0.1` ([#518](https://github.com/MetaMask/accounts/pull/518))
+
 ## [10.1.0]
 
 ### Added
@@ -185,7 +191,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.1.1...HEAD
+[10.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.1.0...@metamask/keyring-internal-api@10.1.1
 [10.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.0.1...@metamask/keyring-internal-api@10.1.0
 [10.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.0.0...@metamask/keyring-internal-api@10.0.1
 [10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@9.1.1...@metamask/keyring-internal-api@10.0.0
