@@ -5,7 +5,7 @@ import jest from '@metamask/eslint-config-jest';
 import nodejs from '@metamask/eslint-config-nodejs';
 import typescript from '@metamask/eslint-config-typescript';
 
-export default createConfig([
+const config = createConfig([
   ...base,
 
   {
@@ -274,3 +274,5 @@ export default createConfig([
     },
   },
 ]);
+
+export default config;
