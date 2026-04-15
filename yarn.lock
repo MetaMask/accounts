@@ -1505,6 +1505,7 @@ __metadata:
     oxfmt: "npm:^0.44.0"
     prettier: "npm:^3.3.3"
     prettier-plugin-packagejson: "npm:^2.5.2"
+    rimraf: "npm:^5.0.5"
     semver: "npm:^7.6.3"
     syncpack: "npm:^13.0.0"
     ts-jest: "npm:^29.0.5"
@@ -11584,7 +11585,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:^5.0.7":
+"rimraf@npm:^5.0.5, rimraf@npm:^5.0.7":
   version: 5.0.10
   resolution: "rimraf@npm:5.0.10"
   dependencies:
