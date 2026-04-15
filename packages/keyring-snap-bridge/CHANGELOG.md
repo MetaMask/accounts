@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Bump `@metamask/keyring-internal-api` from `^10.1.0` to `^10.1.1` ([#518](https://github.com/MetaMask/accounts/pull/518))
 - Bump `@metamask/keyring-internal-snap-client` from `^10.0.0` to `^10.0.1` ([#518](https://github.com/MetaMask/accounts/pull/518))
 - Bump `@metamask/keyring-sdk` from `^2.0.0` to `^2.0.1` ([#518](https://github.com/MetaMask/accounts/pull/518))
 - Bump `@metamask/keyring-snap-sdk` from `^9.0.0` to `^9.0.1` ([#518](https://github.com/MetaMask/accounts/pull/518))
