@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import PackageJson from '@npmcli/package-json';
 // import { spawn } from 'node:child_process/promises';
 import { spawn } from 'child_process';

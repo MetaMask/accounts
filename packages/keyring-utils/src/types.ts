@@ -1,4 +1,5 @@
-import { define, type Infer } from '@metamask/superstruct';
+import { define } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 import { definePattern } from '@metamask/utils';
 
 /**

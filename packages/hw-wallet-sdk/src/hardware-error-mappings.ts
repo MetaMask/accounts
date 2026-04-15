@@ -250,7 +250,6 @@ export const QR_WALLET_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
   },
 };
 
-/* eslint-disable @typescript-eslint/naming-convention */
 /**
  * Trezor error mappings - static error data for Trezor hardware wallets.
  * These mappings provide consistent error classification across Trezor integrations.
@@ -464,4 +463,3 @@ export const TREZOR_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
       'Your Trezor device failed to initialize. Please unlock it and try again.',
   },
 };
-/* eslint-enable @typescript-eslint/naming-convention */

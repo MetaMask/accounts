@@ -1,9 +1,5 @@
-import {
-  enums,
-  exactOptional,
-  object,
-  type Infer,
-} from '@metamask/superstruct';
+import { enums, exactOptional, object } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 import { KeyringAccountTypeStruct } from '../../api/account';
 

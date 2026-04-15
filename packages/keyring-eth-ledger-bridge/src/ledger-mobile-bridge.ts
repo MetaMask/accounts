@@ -61,7 +61,6 @@ export class LedgerMobileBridge implements MobileBridge {
     try {
       await this.#getTransportMiddleWare().dispose();
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error(error);
     }
     this.isDeviceConnected = false;

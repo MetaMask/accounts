@@ -14,10 +14,8 @@ import type {
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
-import {
-  KeyringAccountRegistry,
-  type KeyringAccountRegistryOptions,
-} from '../keyring-account-registry';
+import { KeyringAccountRegistry } from '../keyring-account-registry';
+import type { KeyringAccountRegistryOptions } from '../keyring-account-registry';
 
 /**
  * Basic options for constructing a {@link KeyringWrapper}.

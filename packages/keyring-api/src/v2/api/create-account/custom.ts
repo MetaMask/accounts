@@ -1,4 +1,5 @@
-import { literal, type, type Infer } from '@metamask/superstruct';
+import { literal, type } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 /**
  * Struct for {@link CreateAccountCustomOptions}.

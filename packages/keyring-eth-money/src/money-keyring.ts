@@ -1,15 +1,15 @@
 import { HdKeyring } from '@metamask/eth-hd-keyring';
-import { type CryptographicFunctions } from '@metamask/key-tree';
+import type { CryptographicFunctions } from '@metamask/key-tree';
 import { EthAddressStrictStruct } from '@metamask/keyring-api';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   assert,
-  type Infer,
   object,
   optional,
   string as stringStruct,
 } from '@metamask/superstruct';
-import { type Hex } from '@metamask/utils';
+import type { Infer } from '@metamask/superstruct';
+import type { Hex } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
 /**
