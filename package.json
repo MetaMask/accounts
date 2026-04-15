@@ -23,7 +23,7 @@
     "lint:dependencies:fix": "yarn foreach depcheck && yarn dedupe && syncpack fix-mismatches",
     "lint:eslint": "yarn build:only-clean && yarn eslint",
     "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write && yarn constraints --fix && yarn lint:dependencies:fix",
-    "lint:misc": "oxfmt --ignore-path .gitignore \"$@\" && prettier --ignore-path .gitignore \"**/CHANGELOG.md\" \"$@\"",
+    "lint:misc": "oxfmt --ignore-path .gitignore",
     "lint:misc:check": "yarn lint:misc --check",
     "lint:readme": "yarn readme:update",
     "prepare:preview": "ts-node --project tsconfig.scripts.json scripts/prepare-preview-builds.ts",
