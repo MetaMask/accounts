@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Add root `v2.js` shim so `@metamask/keyring-api/v2` resolves for bundlers that do not implement package `exports` (e.g. Browserify) ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [23.0.0]
 
 ### Added
