@@ -9,10 +9,10 @@ import {
 import { KeyringType } from '@metamask/keyring-api/v2';
 import HDKey from 'hdkey';
 
+import { LedgerKeyring } from './ledger-keyring';
 import type { LedgerBridge, LedgerBridgeOptions } from '../ledger-bridge';
 import { LedgerIframeBridge } from '../ledger-iframe-bridge';
 import { LedgerKeyring as LegacyLedgerKeyring } from '../ledger-keyring';
-import { LedgerKeyring } from './ledger-keyring';
 
 /**
  * Type alias for Ledger keyring accounts (always BIP-44 derived).

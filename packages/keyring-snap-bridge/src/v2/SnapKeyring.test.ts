@@ -6,9 +6,9 @@ import type {
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
 import type { SnapKeyringCallbacks } from './SnapKeyring';
 import { SnapKeyring } from './SnapKeyring';
+import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 

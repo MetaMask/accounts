@@ -1,8 +1,8 @@
 import type { KeyringAccountEntropyMnemonicOptions } from '@metamask/keyring-api';
 import { KeyringAccountEntropyTypeOption } from '@metamask/keyring-api';
 
-import { MOCK_ENTROPY_SOURCE_1, MOCK_HD_ACCOUNT_1 } from '../mocks';
 import { isBip44Account, assertIsBip44Account } from './bip44';
+import { MOCK_ENTROPY_SOURCE_1, MOCK_HD_ACCOUNT_1 } from '../mocks';
 
 describe('bip44', () => {
   describe('isBip44Account', () => {

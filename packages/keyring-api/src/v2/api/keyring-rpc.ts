@@ -3,14 +3,14 @@ import type { Infer } from '@metamask/superstruct';
 import { array, literal, number, string, union } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
-import { KeyringAccountStruct } from '../../api/account';
-import { KeyringRequestStruct } from '../../api/request';
 import { CreateAccountOptionsStruct } from './create-account';
 import {
   ExportAccountOptionsStruct,
   PrivateKeyExportedAccountStruct,
 } from './export-account';
 import type { Keyring } from './keyring';
+import { KeyringAccountStruct } from '../../api/account';
+import { KeyringRequestStruct } from '../../api/request';
 
 /**
  * Keyring interface for keyring methods that can be invoked through

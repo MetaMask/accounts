@@ -1,4 +1,11 @@
 import {
+  AccountWalletType,
+  stripAccountWalletType,
+  parseAccountWalletId,
+  toAccountWalletId,
+  isAccountWalletId,
+} from './wallet';
+import {
   MOCK_ENTROPY_SOURCE_1,
   MOCK_ENTROPY_WALLET_ID,
   MOCK_KEYRING_WALLET_ID,
@@ -8,13 +15,6 @@ import {
   MOCK_SNAP_LOCAL_WALLET_ID,
   MOCK_SNAP_NPM_WALLET_ID,
 } from '../mocks';
-import {
-  AccountWalletType,
-  stripAccountWalletType,
-  parseAccountWalletId,
-  toAccountWalletId,
-  isAccountWalletId,
-} from './wallet';
 
 const MOCK_INVALID_WALLET_IDS = [
   'invalid-id',

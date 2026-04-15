@@ -10,8 +10,8 @@ import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
-import { HdKeyring as LegacyHdKeyring } from '../hd-keyring';
 import { HdKeyring } from './hd-keyring';
+import { HdKeyring as LegacyHdKeyring } from '../hd-keyring';
 
 const TEST_MNEMONIC =
   'test test test test test test test test test test test junk';

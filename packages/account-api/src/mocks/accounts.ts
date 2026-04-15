@@ -15,8 +15,8 @@ import {
 } from '@metamask/keyring-api';
 import { v4 as uuid } from 'uuid';
 
-import { isBip44Account, type Bip44Account } from '../api';
 import { MOCK_ENTROPY_SOURCE_1, MOCK_ENTROPY_SOURCE_2 } from './keyrings';
+import { isBip44Account, type Bip44Account } from '../api';
 
 const ETH_EOA_METHODS = [
   EthMethod.PersonalSign,
