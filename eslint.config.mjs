@@ -1,25 +1,32 @@
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+// @ts-check
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import base, { createConfig } from '@metamask/eslint-config';
+import jest from '@metamask/eslint-config-jest';
+import nodejs from '@metamask/eslint-config-nodejs';
+import typescript from '@metamask/eslint-config-typescript';
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-});
+export default createConfig([
+  ...base,
 
-export default [
-  // Global ignores
   {
-    ignores: ['node_modules', 'eslint.config.mjs', '.yarn/**', '**/dist/**', '**/docs/**', '**/coverage/**'],
+    ignores: [
+      'node_modules',
+      'eslint.config.mjs',
+      '.yarn/**',
+      '**/dist/**',
+      '**/docs/**',
+      '**/coverage/**',
+    ],
   },
 
-  // Base + Node.js configs applied globally
-  ...compat.extends('@metamask/eslint-config', '@metamask/eslint-config-nodejs'),
+  {
+    rules: {
+      // Handled by Oxfmt.
+      'prettier/prettier': 'off',
+      'import-x/order': 'off',
+    },
+  },
 
-  // Global settings and rules
   {
     settings: {
       'import-x/resolver': {
@@ -32,6 +39,10 @@ export default [
       },
     },
     rules: {
+      // TODO: Re-enable this rule
+      // Enabling it with error suppression breaks `--fix`, because the autofixer for this rule
+      // does not work very well.
+      'jsdoc/require-jsdoc': 'off',
       'jsdoc/match-description': [
         'off',
         { matchDescription: '^[A-Z`\\d_][\\s\\S]*[.?!`>)}]$' },
@@ -39,12 +50,15 @@ export default [
     },
   },
 
-  // Scripts
+  // Node.js
   {
-    files: ['scripts/*.ts'],
-    rules: {
-      'n/hashbang': 'off',
-    },
+    files: [
+      '**/*.{js,cjs,mjs}',
+      '**/*.test.{ts,js}',
+      '**/tests/**/*.{ts,js}',
+      'scripts/*.ts',
+    ],
+    extends: [nodejs],
   },
 
   // JavaScript (script mode)
@@ -56,25 +70,51 @@ export default [
     },
   },
 
-  // TypeScript
-  ...compat
-    .config({
-      extends: ['@metamask/eslint-config-typescript'],
-      parserOptions: {
-        tsconfigRootDir: __dirname,
-        project: ['./tsconfig.packages.json'],
-        sourceType: 'module',
-      },
-      rules: {
-        // This rule triggers false positives and doesn't add real type-safety value.
-        // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
-        '@typescript-eslint/no-redundant-type-constituents': 'off',
+  // Scripts (non-TypeScript rules)
+  {
+    files: ['scripts/*.ts'],
+    rules: {
+      'n/hashbang': 'off',
+    },
+  },
 
-        // Enable rules that are disabled in `@metamask/eslint-config-typescript`
-        '@typescript-eslint/no-explicit-any': 'error',
+  // TypeScript
+  {
+    files: ['**/*.ts'],
+    extends: [typescript],
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+        projectService: {
+          allowDefaultProject: ['scripts/*.ts'],
+          defaultProject: 'tsconfig.scripts.json',
+        },
       },
-    })
-    .map((config) => ({ ...config, files: ['**/*.ts'] })),
+    },
+    rules: {
+      // This rule triggers false positives and doesn't add real type-safety value.
+      // See: https://typescript-eslint.io/rules/no-redundant-type-constituents/#when-not-to-use-it
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
+
+      // Enable rules that are disabled in `@metamask/eslint-config-typescript`
+      '@typescript-eslint/no-explicit-any': 'error',
+
+      // TODO: Re-enable these rules
+      // Enabling them with error suppression breaks `--fix`, because the autofixer for these rules
+      // does not work very well.
+      'jsdoc/check-tag-names': 'off',
+      'jsdoc/require-jsdoc': 'off',
+    },
+  },
+
+  // Scripts TypeScript overrides — tsconfig.scripts.json does not enable `strictNullChecks`
+  {
+    files: ['scripts/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'off',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
+    },
+  },
 
   // Declaration files
   {
@@ -85,12 +125,10 @@ export default [
   },
 
   // Tests
-  ...compat
-    .extends('@metamask/eslint-config-jest')
-    .map((config) => ({
-      ...config,
-      files: ['**/*.test.{ts,js}', '**/tests/**/*.{ts,js}'],
-    })),
+  {
+    files: ['**/*.test.{ts,js}', '**/tests/**/*.{ts,js}'],
+    extends: [jest],
+  },
 
   // Files that don't use ES modules
   {
@@ -114,7 +152,6 @@ export default [
     files: ['packages/keyring-api/src/**/*.ts'],
     rules: {
       // TODO: re-lint everything once the migration is done
-      'import-x/order': 'off',
       'jsdoc/newline-after-description': 'off',
     },
   },
@@ -138,7 +175,6 @@ export default [
       // TODO: re-lint everything once the migration is done
       'id-denylist': 'off',
       'id-length': 'off',
-      'import-x/order': 'off',
       'import-x/unambiguous': 'off',
       'jsdoc/no-types': 'off',
       'n/no-unpublished-require': 'off',
@@ -189,7 +225,6 @@ export default [
       '@typescript-eslint/promise-function-async': 'off',
       'id-denylist': 'off',
       'id-length': 'off',
-      'import-x/order': 'off',
       'jsdoc/check-tag-names': 'off',
       'jsdoc/require-description': 'off',
       'jsdoc/require-jsdoc': 'off',
@@ -238,4 +273,4 @@ export default [
       '@typescript-eslint/restrict-template-expressions': 'off',
     },
   },
-];
+]);
