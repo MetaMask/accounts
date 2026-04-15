@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.1]
+
 ### Fixed
 
 - Workaround Browserify subpath export for `/v2` ([#516](https://github.com/MetaMask/accounts/pull/516))
@@ -259,7 +261,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.0.1...HEAD
+[10.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.0.0...@metamask/eth-trezor-keyring@10.0.1
 [10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@9.1.1...@metamask/eth-trezor-keyring@10.0.0
 [9.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@9.1.0...@metamask/eth-trezor-keyring@9.1.1
 [9.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@9.0.0...@metamask/eth-trezor-keyring@9.1.0

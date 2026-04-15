@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [21.0.1]
+
 ### Fixed
 
 - Workaround Browserify subpath export for `/v2` ([#516](https://github.com/MetaMask/accounts/pull/516))
@@ -678,7 +680,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@21.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@21.0.1...HEAD
+[21.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@21.0.0...@metamask/eth-snap-keyring@21.0.1
 [21.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@20.0.0...@metamask/eth-snap-keyring@21.0.0
 [20.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@19.0.0...@metamask/eth-snap-keyring@20.0.0
 [19.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@18.0.2...@metamask/eth-snap-keyring@19.0.0
