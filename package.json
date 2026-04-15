@@ -17,6 +17,7 @@
     "build:docs": "yarn foreach build:docs",
     "build:only-clean": "rimraf -g 'packages/*/dist'",
     "build:types": "tsc --build tsconfig.build.json --verbose",
+    "create-release-branch": "create-release-branch --formatter oxfmt",
     "foreach": "yarn workspaces foreach --all --parallel --verbose --exclude '@metamask/accounts-monorepo' run",
     "lint": "yarn lint:eslint && yarn lint:misc --check && yarn constraints && yarn lint:dependencies && yarn lint:readme",
     "lint:dependencies": "yarn foreach depcheck && yarn dedupe --check && syncpack list-mismatches",
@@ -39,7 +40,7 @@
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
-    "@metamask/create-release-branch": "^4.1.4",
+    "@metamask/create-release-branch": "^4.2.0",
     "@metamask/eslint-config": "^13.0.0",
     "@metamask/eslint-config-jest": "^13.0.0",
     "@metamask/eslint-config-nodejs": "^13.0.0",
