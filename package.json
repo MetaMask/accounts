@@ -23,7 +23,7 @@
     "lint:dependencies": "yarn foreach depcheck && yarn dedupe --check && syncpack list-mismatches",
     "lint:dependencies:fix": "yarn foreach depcheck && yarn dedupe && syncpack fix-mismatches",
     "lint:eslint": "yarn build:only-clean && yarn eslint",
-    "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write && yarn constraints --fix && yarn lint:dependencies:fix",
+    "lint:fix": "yarn lint:eslint --fix --prune-suppressions && yarn lint:misc --write && yarn constraints --fix && yarn lint:dependencies:fix",
     "lint:misc": "oxfmt --ignore-path .gitignore",
     "lint:misc:check": "yarn lint:misc --check",
     "lint:readme": "yarn readme:update",

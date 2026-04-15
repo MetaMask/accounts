@@ -1,0 +1,408 @@
+{
+  "packages/account-api/src/api/group.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/account-api/src/api/multichain/group.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/account-api/src/api/multichain/wallet.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/account-api/src/api/provider.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 2
+    }
+  },
+  "packages/account-api/src/mocks/accounts.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/hw-wallet-sdk/src/types.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/api/account-options.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/api/account.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/api/asset.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/eth/erc4337/types.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/eth/types.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/v2/api/create-account/bip44.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/v2/api/create-account/custom.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/v2/api/create-account/index.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 2
+    }
+  },
+  "packages/keyring-api/src/v2/api/create-account/index.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/v2/api/create-account/private-key.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/v2/api/export-account/index.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/v2/api/export-account/private-key.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/v2/api/keyring-capabilities.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/v2/api/keyring.test-d.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 9
+    }
+  },
+  "packages/keyring-api/src/v2/api/private-key.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-hd/src/hd-keyring.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 6
+    },
+    "n/no-unsupported-features/node-builtins": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-hd/src/hd-keyring.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 7
+    },
+    "no-restricted-globals": {
+      "count": 18
+    }
+  },
+  "packages/keyring-eth-hd/src/v2/hd-keyring.test.ts": {
+    "@typescript-eslint/no-base-to-string": {
+      "count": 1
+    },
+    "import-x/consistent-type-specifier-style": {
+      "count": 2
+    }
+  },
+  "packages/keyring-eth-hd/src/v2/hd-keyring.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 8
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-hw-app.ts": {
+    "import-x/no-nodejs-modules": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-iframe-bridge.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    },
+    "jest/unbound-method": {
+      "count": 17
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-keyring.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "promise/always-return": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-keyring.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    },
+    "import-x/no-nodejs-modules": {
+      "count": 1
+    },
+    "promise/always-return": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-transport-middleware.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/v2/ledger-keyring.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/v2/ledger-keyring.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 6
+    }
+  },
+  "packages/keyring-eth-money/src/money-keyring.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 2
+    }
+  },
+  "packages/keyring-eth-money/src/money-keyring.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 3
+    }
+  },
+  "packages/keyring-eth-qr/src/device.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 6
+    },
+    "no-restricted-globals": {
+      "count": 9
+    }
+  },
+  "packages/keyring-eth-qr/src/qr-keyring-deferred-promise-bridge.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-qr/src/qr-keyring-deferred-promise-bridge.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-qr/src/qr-keyring-scanner-bridge.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-qr/src/qr-keyring.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    },
+    "import-x/namespace": {
+      "count": 2
+    }
+  },
+  "packages/keyring-eth-qr/src/qr-keyring.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 4
+    }
+  },
+  "packages/keyring-eth-qr/src/v2/qr-keyring.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 2
+    }
+  },
+  "packages/keyring-eth-qr/src/v2/qr-keyring.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 6
+    }
+  },
+  "packages/keyring-eth-qr/test/fixtures.ts": {
+    "no-restricted-globals": {
+      "count": 2
+    }
+  },
+  "packages/keyring-eth-simple/src/sample.ts": {
+    "promise/always-return": {
+      "count": 2
+    },
+    "promise/catch-or-return": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-simple/src/simple-keyring.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 3
+    },
+    "no-restricted-globals": {
+      "count": 11
+    }
+  },
+  "packages/keyring-eth-simple/src/v2/simple-keyring.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 2
+    }
+  },
+  "packages/keyring-eth-simple/src/v2/simple-keyring.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 7
+    }
+  },
+  "packages/keyring-eth-trezor/src/onekey-keyring.test.ts": {
+    "import-x/namespace": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-trezor/src/trezor-connect-bridge.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/keyring-eth-trezor/src/trezor-errors.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-trezor/src/trezor-keyring.test.ts": {
+    "import-x/namespace": {
+      "count": 42
+    }
+  },
+  "packages/keyring-eth-trezor/src/trezor-keyring.ts": {
+    "no-restricted-globals": {
+      "count": 6
+    },
+    "promise/always-return": {
+      "count": 2
+    }
+  },
+  "packages/keyring-eth-trezor/src/v2/trezor-keyring.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-trezor/src/v2/trezor-keyring.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 5
+    }
+  },
+  "packages/keyring-internal-api/src/compatibility/keyring-request.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-internal-snap-client/src/KeyringInternalSnapClient.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 2
+    }
+  },
+  "packages/keyring-internal-snap-client/src/v2/KeyringInternalSnapClient.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-sdk/src/keyring-account-registry.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-sdk/src/v2/eth/eth-keyring-wrapper.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 3
+    }
+  },
+  "packages/keyring-sdk/src/v2/eth/eth-keyring-wrapper.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 4
+    }
+  },
+  "packages/keyring-sdk/src/v2/keyring-wrapper.test.ts": {
+    "jest/no-if": {
+      "count": 1
+    }
+  },
+  "packages/keyring-sdk/src/v2/keyring-wrapper.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-snap-bridge/src/SnapKeyring.test.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 5
+    }
+  },
+  "packages/keyring-snap-bridge/src/SnapKeyring.ts": {
+    "@typescript-eslint/prefer-optional-chain": {
+      "count": 1
+    },
+    "import-x/consistent-type-specifier-style": {
+      "count": 2
+    }
+  },
+  "packages/keyring-snap-bridge/src/SnapKeyringV1.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 2
+    },
+    "promise/always-return": {
+      "count": 1
+    },
+    "promise/no-nesting": {
+      "count": 1
+    }
+  },
+  "packages/keyring-snap-bridge/src/account.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-snap-bridge/src/migrations/v1.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-snap-sdk/src/methods.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  },
+  "packages/keyring-snap-sdk/src/rpc-handler.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-snap-sdk/src/snap-utils.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 2
+    }
+  },
+  "packages/keyring-utils/src/types.ts": {
+    "import-x/consistent-type-specifier-style": {
+      "count": 1
+    }
+  }
+}
