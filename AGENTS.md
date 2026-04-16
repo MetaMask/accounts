@@ -165,7 +165,6 @@ yarn dedupe
 
 - Use workspace protocol for internal dependencies: `"@metamask/keyring-api": "workspace:^"`
 - Run `yarn lint:dependencies:fix` after adding/updating packages
-- Check `syncpack` for version consistency across packages
 
 ---
 
