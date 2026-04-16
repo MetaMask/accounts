@@ -88,7 +88,9 @@
     "@typescript/lib-dom": "npm:@types/web@^0.0.69",
     "axios@1.7.3": "^1.7.7",
     "napi-postinstall": "npm:npm-empty-package@^1.0.0",
-    "ws@7.4.6": "^7.5.10"
+    "ws@7.4.6": "^7.5.10",
+    "eslint-import-resolver-typescript": "3.7.0",
+    "eslint-plugin-import-x": "4.6.1"
   },
   "engines": {
     "node": "^18.18 || >=20"
