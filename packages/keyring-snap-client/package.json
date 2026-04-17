@@ -3,19 +3,25 @@
   "version": "9.0.1",
   "description": "MetaMask Keyring Snap clients",
   "keywords": [
-    "metamask",
-    "keyring"
+    "keyring",
+    "metamask"
   ],
   "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-snap-client#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/accounts.git"
   },
-  "license": "MIT",
+  "files": [
+    "dist/",
+    "v2.js"
+  ],
   "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
@@ -39,12 +45,10 @@
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.cts",
-  "files": [
-    "dist/",
-    "v2.js"
-  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
@@ -72,7 +76,7 @@
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
-    "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/auto-changelog": "^6.1.0",
     "@metamask/providers": "^19.0.0",
     "@metamask/utils": "^11.11.0",
     "@ts-bridge/cli": "^0.6.3",
@@ -92,22 +96,18 @@
   "peerDependencies": {
     "@metamask/providers": "^19.0.0"
   },
+  "tsd": {
+    "compilerOptions": {
+      "composite": "false"
+    },
+    "directory": "src"
+  },
   "engines": {
     "node": "^18.18 || >=20"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   },
   "lavamoat": {
     "allowScripts": {
       "@lavamoat/preinstall-always-fail": false
-    }
-  },
-  "tsd": {
-    "directory": "src",
-    "compilerOptions": {
-      "composite": "false"
     }
   }
 }

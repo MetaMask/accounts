@@ -1,0 +1,257 @@
+{
+  "packages/keyring-api/src/api/account-options.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/api/account.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/api/asset.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-api/src/v2/api/create-account/index.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-hd/src/hd-keyring.test.ts": {
+    "n/no-unsupported-features/node-builtins": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-hd/src/hd-keyring.ts": {
+    "no-restricted-globals": {
+      "count": 18
+    }
+  },
+  "packages/keyring-eth-hd/src/v2/hd-keyring.test.ts": {
+    "@typescript-eslint/no-base-to-string": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-bridge.ts": {
+    "@typescript-eslint/naming-convention": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-error-handler.test.ts": {
+    "@typescript-eslint/naming-convention": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-hw-app.ts": {
+    "import-x/no-nodejs-modules": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-iframe-bridge.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "jest/unbound-method": {
+      "count": 17
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-iframe-bridge.ts": {
+    "no-restricted-globals": {
+      "count": 4
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-keyring.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "promise/always-return": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-keyring.ts": {
+    "import-x/no-nodejs-modules": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 1
+    },
+    "promise/always-return": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-transport-middleware.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/test/document.shim.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/test/window.shim.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-qr/src/device.ts": {
+    "no-restricted-globals": {
+      "count": 9
+    }
+  },
+  "packages/keyring-eth-qr/src/qr-keyring.test.ts": {
+    "import-x/namespace": {
+      "count": 2
+    }
+  },
+  "packages/keyring-eth-qr/test/fixtures.ts": {
+    "no-restricted-globals": {
+      "count": 2
+    }
+  },
+  "packages/keyring-eth-simple/src/sample.ts": {
+    "promise/always-return": {
+      "count": 2
+    },
+    "promise/catch-or-return": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-simple/src/simple-keyring.ts": {
+    "no-restricted-globals": {
+      "count": 11
+    }
+  },
+  "packages/keyring-eth-trezor/src/onekey-keyring.test.ts": {
+    "import-x/namespace": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-trezor/src/trezor-bridge.ts": {
+    "@typescript-eslint/naming-convention": {
+      "count": 1
+    },
+    "@typescript-eslint/no-shadow": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-trezor/src/trezor-connect-bridge.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "id-denylist": {
+      "count": 4
+    }
+  },
+  "packages/keyring-eth-trezor/src/trezor-connect-bridge.ts": {
+    "@typescript-eslint/naming-convention": {
+      "count": 1
+    },
+    "@typescript-eslint/no-shadow": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-trezor/src/trezor-keyring.test.ts": {
+    "@typescript-eslint/no-floating-promises": {
+      "count": 1
+    },
+    "id-length": {
+      "count": 1
+    },
+    "import-x/namespace": {
+      "count": 42
+    }
+  },
+  "packages/keyring-eth-trezor/src/trezor-keyring.ts": {
+    "@typescript-eslint/naming-convention": {
+      "count": 3
+    },
+    "id-denylist": {
+      "count": 2
+    },
+    "id-length": {
+      "count": 2
+    },
+    "jsdoc/require-param-description": {
+      "count": 1
+    },
+    "jsdoc/require-returns-description": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 6
+    },
+    "promise/always-return": {
+      "count": 2
+    }
+  },
+  "packages/keyring-sdk/src/v2/keyring-wrapper.test.ts": {
+    "jest/no-if": {
+      "count": 1
+    }
+  },
+  "packages/keyring-snap-bridge/src/SnapKeyring.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-snap-bridge/src/SnapKeyring.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/keyring-snap-bridge/src/SnapKeyringV1.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "promise/always-return": {
+      "count": 1
+    },
+    "promise/no-nesting": {
+      "count": 1
+    }
+  },
+  "packages/keyring-snap-bridge/src/util.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-snap-bridge/src/v2/SnapKeyring.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "packages/keyring-snap-sdk/src/rpc-handler.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-utils/src/superstruct.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "packages/keyring-utils/src/superstruct.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    }
+  },
+  "packages/keyring-utils/src/types.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/keyring-utils/src/typing.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  }
+}

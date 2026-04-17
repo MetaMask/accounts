@@ -3,12 +3,11 @@ import {
   EthAccountType,
   EthMethod,
   EthScope,
-  type KeyringAccount,
   KeyringAccountEntropyTypeOption,
 } from '@metamask/keyring-api';
+import type { KeyringAccount } from '@metamask/keyring-api';
 import { KeyringType } from '@metamask/keyring-api/v2';
 
-import { QrKeyring, type QrKeyringCreateAccountOptions } from './qr-keyring';
 import type { QrKeyringBridge } from '..';
 import { QrKeyring as LegacyQrKeyring } from '..';
 import {
@@ -19,6 +18,8 @@ import {
   KNOWN_CRYPTO_ACCOUNT_UR,
   KNOWN_HDKEY_UR,
 } from '../../test/fixtures';
+import { QrKeyring } from './qr-keyring';
+import type { QrKeyringCreateAccountOptions } from './qr-keyring';
 
 /**
  * Type alias for QR keyring HD mode accounts (BIP-44 derived).
@@ -709,7 +710,11 @@ describe('QrKeyring', () => {
             type: 'custom',
             entropySource: ACCOUNT_SERIALIZED_KEYRING_WITH_ACCOUNTS.xfp,
             addressIndex: 'invalid',
-          } as unknown as { type: 'custom'; entropySource: string; addressIndex: number }),
+          } as unknown as {
+            type: 'custom';
+            entropySource: string;
+            addressIndex: number;
+          }),
         ).rejects.toThrow(/Invalid addressIndex/u);
       });
 

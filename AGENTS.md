@@ -165,7 +165,6 @@ yarn dedupe
 
 - Use workspace protocol for internal dependencies: `"@metamask/keyring-api": "workspace:^"`
 - Run `yarn lint:dependencies:fix` after adding/updating packages
-- Check `syncpack` for version consistency across packages
 
 ---
 
@@ -453,11 +452,13 @@ enum AccountType {
 }
 
 // ❌ WRONG: Plural enum names
-enum EthMethods { // Don't use plural
+enum EthMethods {
+  // Don't use plural
   SignTransaction = 'eth_signTransaction',
 }
 
-enum AccountTypes { // Don't use plural
+enum AccountTypes {
+  // Don't use plural
   Eoa = 'eoa',
 }
 

@@ -1,8 +1,5 @@
-import {
-  TransactionFactory,
-  LegacyTransaction,
-  type TypedTxData,
-} from '@ethereumjs/tx';
+import { TransactionFactory, LegacyTransaction } from '@ethereumjs/tx';
+import type { TypedTxData } from '@ethereumjs/tx';
 import { isValidAddress, ecrecover, pubToAddress } from '@ethereumjs/util';
 import * as oldMMForkBIP39 from '@metamask/bip39';
 import {
@@ -14,17 +11,18 @@ import {
   signTypedData,
   SignTypedDataVersion,
   encrypt,
-  type EthEncryptedData,
-  type TypedMessage,
-  type MessageTypes,
-  type EIP7702Authorization,
+} from '@metamask/eth-sig-util';
+import type {
+  EthEncryptedData,
+  TypedMessage,
+  MessageTypes,
+  EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { mnemonicPhraseToBytes } from '@metamask/key-tree';
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import OldHdKeyring from '@metamask/old-hd-keyring';
-import { assert, bytesToHex, hexToBytes, type Hex } from '@metamask/utils';
+import { assert, bytesToHex, hexToBytes } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
 import { webcrypto } from 'crypto';
-// eslint-disable-next-line n/no-sync
 import { mnemonicToSeedSync } from 'ethereum-cryptography/bip39';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 
@@ -993,9 +991,8 @@ describe('hd-keyring', () => {
     });
 
     it('returns the expected value', async function () {
-      const encryptionPublicKey = await keyring.getEncryptionPublicKey(
-        firstAcct,
-      );
+      const encryptionPublicKey =
+        await keyring.getEncryptionPublicKey(firstAcct);
       expect(publicKey).toBe(encryptionPublicKey);
     });
 
@@ -1106,9 +1103,8 @@ describe('hd-keyring', () => {
         numberOfAccounts: 1,
       });
 
-      const encryptionPublicKey = await keyring.getEncryptionPublicKey(
-        firstAcct,
-      );
+      const encryptionPublicKey =
+        await keyring.getEncryptionPublicKey(firstAcct);
       encryptedMessage = encrypt({
         publicKey: encryptionPublicKey,
         data: message,

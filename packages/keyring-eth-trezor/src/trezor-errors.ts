@@ -1,11 +1,11 @@
 import {
-  type ErrorMapping,
   TREZOR_ERROR_MAPPINGS,
   ErrorCode,
   Severity,
   Category,
   HardwareWalletError,
 } from '@metamask/hw-wallet-sdk';
+import type { ErrorMapping } from '@metamask/hw-wallet-sdk';
 
 /**
  * Factory function to create a HardwareWalletError from a Trezor error identifier.

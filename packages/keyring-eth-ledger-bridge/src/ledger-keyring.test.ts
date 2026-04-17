@@ -14,7 +14,6 @@ import { AccountDetails, LedgerKeyring } from './ledger-keyring';
 
 jest.mock('@metamask/eth-sig-util', () => {
   return {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
     ...jest.requireActual('@metamask/eth-sig-util'),
   };
@@ -154,7 +153,6 @@ describe('LedgerKeyring', function () {
 
       await keyring.init();
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.init).toHaveBeenCalledTimes(1);
     });
   });
@@ -593,7 +591,6 @@ describe('LedgerKeyring', function () {
 
         await keyring.attemptMakeApp();
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(bridge.attemptMakeApp).toHaveBeenCalledTimes(1);
       });
     });
@@ -605,7 +602,6 @@ describe('LedgerKeyring', function () {
 
           await keyring.updateTransportMethod('some-transport');
 
-          // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(bridge.updateTransportMethod).toHaveBeenCalledTimes(1);
         });
       });
@@ -632,7 +628,6 @@ describe('LedgerKeyring', function () {
             fakeTx,
           );
 
-          // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
           expect(returnedTx).toHaveProperty('v');
           expect(returnedTx).toHaveProperty('r');
@@ -684,7 +679,6 @@ describe('LedgerKeyring', function () {
             newFakeTx,
           );
 
-          // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
           expect(returnedTx.toJSON()).toStrictEqual(signedNewFakeTx.toJSON());
         });
@@ -732,7 +726,6 @@ describe('LedgerKeyring', function () {
             fakeTypeTwoTx,
           );
 
-          // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
           expect(returnedTx.toJSON()).toStrictEqual(
             signedFakeTypeTwoTx.toJSON(),
@@ -860,7 +853,6 @@ describe('LedgerKeyring', function () {
 
         await keyring.signPersonalMessage(fakeAccounts[0], 'some message');
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(keyring.bridge.deviceSignMessage).toHaveBeenCalled();
       });
 
@@ -1044,7 +1036,6 @@ describe('LedgerKeyring', function () {
 
         await keyring.signMessage(fakeAccounts[0], 'some message');
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(keyring.bridge.deviceSignMessage).toHaveBeenCalled();
       });
     });
@@ -1515,7 +1506,6 @@ describe('LedgerKeyring', function () {
         const result = await keyring.getAppConfiguration();
 
         expect(result).toStrictEqual(mockResponse);
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(keyring.bridge.getAppConfiguration).toHaveBeenCalledTimes(1);
       });
 
@@ -1560,7 +1550,6 @@ describe('LedgerKeyring', function () {
 
         await keyring.destroy();
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(bridge.destroy).toHaveBeenCalled();
       });
     });

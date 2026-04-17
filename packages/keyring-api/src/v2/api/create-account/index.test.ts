@@ -4,8 +4,10 @@ import {
   AccountCreationType,
   assertCreateAccountOptionIsSupported,
   CreateAccountOptionsStruct,
-  type CreateAccountBip44DeriveIndexOptions,
-  type CreateAccountOptions,
+} from '.';
+import type {
+  CreateAccountBip44DeriveIndexOptions,
+  CreateAccountOptions,
 } from '.';
 
 describe('CreateAccountOptionsStruct', () => {

@@ -3,15 +3,14 @@ import {
   EthAccountType,
   EthMethod,
   EthScope,
-  type KeyringAccount,
   KeyringAccountEntropyTypeOption,
-  type EntropySourceId,
 } from '@metamask/keyring-api';
-import {
-  type CreateAccountOptions,
-  type KeyringCapabilities,
-  type Keyring,
-  KeyringType,
+import type { KeyringAccount, EntropySourceId } from '@metamask/keyring-api';
+import { KeyringType } from '@metamask/keyring-api/v2';
+import type {
+  CreateAccountOptions,
+  KeyringCapabilities,
+  Keyring,
 } from '@metamask/keyring-api/v2';
 import { EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';

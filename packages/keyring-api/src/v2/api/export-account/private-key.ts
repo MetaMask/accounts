@@ -1,4 +1,5 @@
-import { literal, object, string, type Infer } from '@metamask/superstruct';
+import { literal, object, string } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 import { PrivateKeyEncodingStruct } from '../private-key';
 

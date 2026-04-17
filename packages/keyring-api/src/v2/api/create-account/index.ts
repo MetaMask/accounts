@@ -1,5 +1,5 @@
 import { selectiveUnion } from '@metamask/keyring-utils';
-import { type Infer } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 import {
   CreateAccountBip44DiscoverOptionsStruct,

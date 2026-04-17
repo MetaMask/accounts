@@ -508,7 +508,7 @@ export class TrezorKeyring implements Keyring {
           domain,
           primaryType,
         },
-        metamask_v4_compat: true, // eslint-disable-line camelcase
+        metamask_v4_compat: true,
         // Trezor 1 only supports blindly signing hashes
         domain_separator_hash, // eslint-disable-line camelcase
         message_hash: message_hash ?? '', // eslint-disable-line camelcase

@@ -1,13 +1,4 @@
 import {
-  DEFAULT_ACCOUNT_GROUP_UNIQUE_ID,
-  isAccountGroupId,
-  parseAccountGroupId,
-  stripAccountWalletId,
-  toAccountGroupId,
-  toDefaultAccountGroupId,
-} from './group';
-import { AccountWalletType, toAccountWalletId } from './wallet';
-import {
   MOCK_ENTROPY_GROUP_ID,
   MOCK_ENTROPY_SOURCE_1,
   MOCK_KEYRING_GROUP_ID,
@@ -17,6 +8,15 @@ import {
   MOCK_SNAP_LOCAL_GROUP_ID,
   MOCK_SNAP_NPM_GROUP_ID,
 } from '../mocks';
+import {
+  DEFAULT_ACCOUNT_GROUP_UNIQUE_ID,
+  isAccountGroupId,
+  parseAccountGroupId,
+  stripAccountWalletId,
+  toAccountGroupId,
+  toDefaultAccountGroupId,
+} from './group';
+import { AccountWalletType, toAccountWalletId } from './wallet';
 
 const MOCK_INVALID_GROUP_IDS = [
   'invalid-id',

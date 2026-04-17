@@ -1,6 +1,7 @@
 import { CryptoAccount, ETHSignature } from '@keystonehq/bc-ur-registry-eth';
 import { MetaMaskKeyring as KeystoneKeyring } from '@keystonehq/metamask-airgapped-keyring';
-import { add0x, type Hex } from '@metamask/utils';
+import { add0x } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
 import * as uuid from 'uuid';
 
 import type { QrKeyringBridge } from '.';

@@ -48,9 +48,10 @@ type KeyringPublicMethod = KeyringRpcMethodToMethodName<
  * A client that can be used by companion dapp. Only some keyring methods are
  * available with this client.
  */
-export class KeyringPublicClient
-  implements Pick<KeyringClient, KeyringPublicMethod>
-{
+export class KeyringPublicClient implements Pick<
+  KeyringClient,
+  KeyringPublicMethod
+> {
   readonly #client: KeyringClient;
 
   /**

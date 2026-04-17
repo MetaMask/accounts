@@ -16,11 +16,11 @@ import { AnyAccountType, KeyringEvent } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
-import { type Snap } from '@metamask/snaps-utils';
+import type { Snap } from '@metamask/snaps-utils';
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
-import { type SnapKeyringInternalOptions } from './options';
+import type { SnapKeyringInternalOptions } from './options';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
 import type { AccountMethod } from './SnapKeyringV1';
@@ -221,7 +221,7 @@ export class SnapKeyring {
    */
   async #removeSnapKeyringIfEmpty(snapId: SnapId): Promise<void> {
     const keyring = this.#snapKeyrings.get(snapId);
-    if (keyring !== undefined && keyring.accounts().length === 0) {
+    if (keyring?.accounts().length === 0) {
       await keyring.destroy();
       this.#snapKeyrings.delete(snapId);
     }
@@ -721,7 +721,6 @@ export class SnapKeyring {
     await Promise.all(
       [...this.#snapKeyrings.entries()].map(async ([snapId, keyring]) =>
         keyring.setSelectedAccounts(
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           /* istanbul ignore next */
           bySnap.get(snapId) ?? [],
         ),

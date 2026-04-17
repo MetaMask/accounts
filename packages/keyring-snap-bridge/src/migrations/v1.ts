@@ -14,11 +14,8 @@ import type { CaipChainId, KeyringAccount } from '@metamask/keyring-api';
 import { isBtcMainnetAddress } from '@metamask/keyring-utils';
 import { is } from '@metamask/superstruct';
 
-import {
-  assertKeyringAccount,
-  KeyringAccountV1Struct,
-  type KeyringAccountV1,
-} from '../account';
+import { assertKeyringAccount, KeyringAccountV1Struct } from '../account';
+import type { KeyringAccountV1 } from '../account';
 
 /**
  * Checks if an account is an `KeyringAccount` v1.

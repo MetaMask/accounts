@@ -452,7 +452,6 @@ describe('TrezorKeyring', function () {
         newFakeTx,
       );
       // ensure we get a new version transaction back
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect((returnedTx as EthereumTx).getChainId).toBeUndefined();
       expect(
         (returnedTx as TypedTransaction).common.chainId().toString(16),
@@ -487,7 +486,6 @@ describe('TrezorKeyring', function () {
         contractDeploymentFakeTx,
       );
       // ensure we get a new version transaction back
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect((returnedTx as EthereumTx).getChainId).toBeUndefined();
       expect(
         (returnedTx as TypedTransaction).common.chainId().toString(16),
@@ -692,12 +690,9 @@ describe('TrezorKeyring', function () {
           domain: {},
           message: {},
         },
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         metamask_v4_compat: true,
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         domain_separator_hash:
           '6192106f129ce05c9075d319c1fa6ea9b3ae37cbd0c1ef92e2be7137bb07baa1',
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         message_hash:
           'c9e71eb57cf9fa86ec670283b58cb15326bb6933c8d8e2ecb2c0849021b3ef42',
       });
@@ -764,7 +759,6 @@ describe('TrezorKeyring', function () {
       perPage: 10,
     };
     const accountToUnlock = 1;
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     const mockPaths = { '0x123': 1 };
 
     beforeEach(function () {

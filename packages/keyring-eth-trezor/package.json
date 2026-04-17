@@ -5,19 +5,25 @@
   "keywords": [
     "ethereum",
     "keyring",
-    "trezor",
-    "metamask"
+    "metamask",
+    "trezor"
   ],
   "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-eth-trezor#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
+  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/accounts.git"
   },
-  "license": "ISC",
+  "files": [
+    "dist/",
+    "v2.js"
+  ],
   "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
@@ -41,12 +47,10 @@
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.cts",
-  "files": [
-    "dist/",
-    "v2.js"
-  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
@@ -82,7 +86,7 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/account-api": "^1.0.3",
-    "@metamask/auto-changelog": "^3.4.4",
+    "@metamask/auto-changelog": "^6.1.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",
@@ -104,10 +108,6 @@
   },
   "engines": {
     "node": "^18.18 || >=20"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   },
   "installConfig": {
     "hoistingLimits": "workspaces"

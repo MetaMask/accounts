@@ -1,10 +1,5 @@
-import {
-  exactOptional,
-  literal,
-  object,
-  string,
-  type Infer,
-} from '@metamask/superstruct';
+import { exactOptional, literal, object, string } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 import { KeyringAccountTypeStruct } from '../../../api/account';
 import { PrivateKeyEncodingStruct } from '../private-key';

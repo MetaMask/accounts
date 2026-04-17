@@ -1,15 +1,12 @@
-import {
-  type KeyringEvent,
-  type KeyringEventPayload,
-} from '@metamask/keyring-api';
+import type { KeyringEvent, KeyringEventPayload } from '@metamask/keyring-api';
 import type { SnapsProvider } from '@metamask/snaps-sdk';
 import { assert } from '@metamask/superstruct';
 
 import {
-  type GetSelectedAccountsResponse,
   GetSelectedAccountsResponseStruct,
   SnapManageAccountsMethod,
 } from './methods';
+import type { GetSelectedAccountsResponse } from './methods';
 
 /**
  * Emit a keyring event from a snap.

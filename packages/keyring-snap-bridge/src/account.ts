@@ -17,7 +17,8 @@ import {
   XlmAccountType,
   XlmAccountStruct,
 } from '@metamask/keyring-api';
-import { assert, omit, type Infer } from '@metamask/superstruct';
+import { assert, omit } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 import { isAccountV1, transformAccountV1 } from './migrations';
 

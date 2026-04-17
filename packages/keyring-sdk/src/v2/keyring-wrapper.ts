@@ -14,10 +14,8 @@ import type {
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
-import {
-  KeyringAccountRegistry,
-  type KeyringAccountRegistryOptions,
-} from '../keyring-account-registry';
+import { KeyringAccountRegistry } from '../keyring-account-registry';
+import type { KeyringAccountRegistryOptions } from '../keyring-account-registry';
 
 /**
  * Basic options for constructing a {@link KeyringWrapper}.
@@ -57,8 +55,7 @@ export type KeyringWrapperOptions<InnerKeyring extends LegacyKeyring> = {
 export abstract class KeyringWrapper<
   InnerKeyring extends LegacyKeyring,
   KeyringAccountType extends KeyringAccount = KeyringAccount,
-> implements Keyring
-{
+> implements Keyring {
   readonly type: `${KeyringType}`;
 
   readonly #capabilities: KeyringCapabilities;

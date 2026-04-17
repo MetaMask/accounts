@@ -3,22 +3,21 @@ import {
   EthAccountType,
   EthMethod,
   EthScope,
-  type KeyringAccount,
   KeyringAccountEntropyTypeOption,
-  type EntropySourceId,
 } from '@metamask/keyring-api';
-import {
-  type CreateAccountOptions,
-  type ExportAccountOptions,
-  type ExportedAccount,
-  type KeyringCapabilities,
-  type Keyring,
-  KeyringType,
-  PrivateKeyEncoding,
+import type { KeyringAccount, EntropySourceId } from '@metamask/keyring-api';
+import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
+import type {
+  CreateAccountOptions,
+  ExportAccountOptions,
+  ExportedAccount,
+  KeyringCapabilities,
+  Keyring,
 } from '@metamask/keyring-api/v2';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
-import { add0x, type Hex } from '@metamask/utils';
+import { add0x } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
 
 import type { HdKeyring as LegacyHdKeyring } from '../hd-keyring';
 

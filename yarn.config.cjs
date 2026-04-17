@@ -35,6 +35,11 @@ const ALLOWED_INCONSISTENT_DEPENDENCIES = {};
  */
 
 module.exports = defineConfig({
+  /**
+   * Defines constraints for all workspaces in the monorepo.
+   *
+   * @param {{ Yarn: Yarn }} context - The Yarn constraints context.
+   */
   async constraints({ Yarn }) {
     const rootWorkspace = Yarn.workspace({ cwd: '.' });
     if (rootWorkspace === null) {

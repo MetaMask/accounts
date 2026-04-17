@@ -1,10 +1,5 @@
-import {
-  literal,
-  number,
-  object,
-  string,
-  type Infer,
-} from '@metamask/superstruct';
+import { literal, number, object, string } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 import { DerivationPathStruct } from '../../../api/derivation';
 

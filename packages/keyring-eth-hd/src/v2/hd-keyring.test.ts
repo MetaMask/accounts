@@ -1,17 +1,12 @@
 import type { TypedTxData } from '@ethereumjs/tx';
-import {
-  EthAccountType,
-  EthMethod,
-  EthScope,
-  type KeyringAccount,
-  type KeyringRequest,
-} from '@metamask/keyring-api';
+import { EthAccountType, EthMethod, EthScope } from '@metamask/keyring-api';
+import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
-import { HdKeyring } from './hd-keyring';
 import { HdKeyring as LegacyHdKeyring } from '../hd-keyring';
+import { HdKeyring } from './hd-keyring';
 
 const TEST_MNEMONIC =
   'test test test test test test test test test test test junk';

@@ -1,19 +1,19 @@
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
-import {
-  AccountCreationType,
-  type CreateAccountBip44DiscoverOptions,
-  type CreateAccountBip44DeriveIndexOptions,
-  type CreateAccountBip44DerivePathOptions,
-  type CreateAccountCustomOptions,
-  type CreateAccountOptions,
-  type CreateAccountPrivateKeyOptions,
+import { AccountCreationType } from './create-account';
+import type {
+  CreateAccountBip44DiscoverOptions,
+  CreateAccountBip44DeriveIndexOptions,
+  CreateAccountBip44DerivePathOptions,
+  CreateAccountCustomOptions,
+  CreateAccountOptions,
+  CreateAccountPrivateKeyOptions,
 } from './create-account';
-import {
-  AccountExportType,
-  type ExportAccountOptions,
-  type ExportedAccount,
-  type PrivateKeyExportedAccount,
+import { AccountExportType } from './export-account';
+import type {
+  ExportAccountOptions,
+  ExportedAccount,
+  PrivateKeyExportedAccount,
 } from './export-account';
 import type { Keyring } from './keyring';
 import type { KeyringCapabilities } from './keyring-capabilities';

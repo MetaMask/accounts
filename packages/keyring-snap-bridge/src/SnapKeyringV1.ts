@@ -28,10 +28,10 @@ import { toKeyringRequestWithoutOrigin } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import {
-  type GetSelectedAccountsResponse,
   GetSelectedAccountsRequestStruct,
   SnapManageAccountsMethod,
 } from '@metamask/keyring-snap-sdk';
+import type { GetSelectedAccountsResponse } from '@metamask/keyring-snap-sdk';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { ExtractEventPayload } from '@metamask/messenger';
@@ -56,10 +56,8 @@ import {
   RequestRejectedEventStruct,
 } from './events';
 import { projectLogger as log } from './logger';
-import {
-  getInternalOptionsOf,
-  type SnapKeyringInternalOptions,
-} from './options';
+import { getInternalOptionsOf } from './options';
+import type { SnapKeyringInternalOptions } from './options';
 import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions';
 import type {
   SnapKeyringEvents,

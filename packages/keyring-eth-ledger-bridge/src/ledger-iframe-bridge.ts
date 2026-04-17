@@ -108,9 +108,7 @@ export type LedgerIframeBridgeOptions = {
   bridgeUrl: string;
 };
 
-export class LedgerIframeBridge
-  implements LedgerBridge<LedgerIframeBridgeOptions>
-{
+export class LedgerIframeBridge implements LedgerBridge<LedgerIframeBridgeOptions> {
   iframe?: HTMLIFrameElement;
 
   iframeLoaded = false;
