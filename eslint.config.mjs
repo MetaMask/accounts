@@ -138,6 +138,16 @@ const config = createConfig([
     },
   },
 
+  // @metamask/keyring-eth-trezor
+  {
+    files: ['packages/keyring-eth-trezor/src/**/*.ts'],
+    rules: {
+      // Autofixer for these rules makes undesirable changes, disable them explicitly
+      // instead of suppressing to avoid `--fix` acting on them.
+      '@typescript-eslint/consistent-type-definitions': 'off',
+      '@typescript-eslint/promise-function-async': 'off',
+    },
+  },
 ]);
 
 export default config;

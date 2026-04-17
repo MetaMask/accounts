@@ -136,9 +136,6 @@
     }
   },
   "packages/keyring-eth-trezor/src/trezor-bridge.ts": {
-    "@typescript-eslint/consistent-type-definitions": {
-      "count": 1
-    },
     "@typescript-eslint/naming-convention": {
       "count": 1
     },
@@ -160,9 +157,6 @@
     },
     "@typescript-eslint/no-shadow": {
       "count": 1
-    },
-    "@typescript-eslint/promise-function-async": {
-      "count": 4
     }
   },
   "packages/keyring-eth-trezor/src/trezor-keyring.test.ts": {
