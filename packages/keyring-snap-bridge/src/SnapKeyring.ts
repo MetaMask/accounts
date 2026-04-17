@@ -154,7 +154,12 @@ export class SnapKeyring {
   }
 
   /**
-   * Get the SnapKeyringEntry for a Snap, creating it if it does not exist yet.
+   * Get the SnapKeyringEntry for a Snap, creating and initializing it if it
+   * does not exist yet.
+   *
+   * When a new keyring is created it is immediately initialized by calling
+   * `deserialize({ snapId, accounts: {} })` so that `snapId` and the internal
+   * snap client are available before any event handler or method runs.
    *
    * Both v1 and v2 share the same KeyringAccountRegistry instance. The
    * onRegister / onUnregister callbacks keep #accountIndex in sync regardless
@@ -163,11 +168,10 @@ export class SnapKeyring {
    * @param snapId - Snap ID.
    * @returns The SnapKeyringEntry for the given Snap.
    */
-  #getOrCreateKeyring(snapId: SnapId): SnapKeyringV2 {
+  async #getOrCreateKeyring(snapId: SnapId): Promise<SnapKeyringV2> {
     let keyring = this.#snapKeyrings.get(snapId);
     if (!keyring) {
       keyring = new SnapKeyringV2({
-        snapId,
         messenger: this.#messenger,
         isAnyAccountTypeAllowed: this.#isAnyAccountTypeAllowed,
         callbacks: {
@@ -206,6 +210,8 @@ export class SnapKeyring {
       });
 
       this.#snapKeyrings.set(snapId, keyring);
+      // Initialize the keyring with its snap ID (no accounts yet).
+      await keyring.deserialize({ snapId, accounts: {} });
     }
     return keyring;
   }
@@ -284,7 +290,7 @@ export class SnapKeyring {
     const isAccountCreated =
       message.method === `${KeyringEvent.AccountCreated}`;
     if (!keyring && isAccountCreated) {
-      keyring = this.#getOrCreateKeyring(snapId);
+      keyring = await this.#getOrCreateKeyring(snapId);
     }
 
     if (!keyring) {
@@ -356,10 +362,11 @@ export class SnapKeyring {
     this.#snapKeyrings.clear();
     this.#accountIndex.clear();
 
-    // Rebuild per-snap keyrings. Each keyrings handles its own validation
-    // and migration internally.
+    // Rebuild per-snap keyrings. Each keyring handles its own validation
+    // and migration internally. #getOrCreateKeyring initializes the keyring
+    // with an empty state; the second deserialize call loads the real accounts.
     for (const [snapId, accounts] of bySnap) {
-      const keyring = this.#getOrCreateKeyring(snapId);
+      const keyring = await this.#getOrCreateKeyring(snapId);
       await keyring.deserialize({ snapId, accounts });
       // onRegister callbacks fired above have repopulated #accountIndex.
       await this.#removeSnapKeyringIfEmpty(snapId);
@@ -429,10 +436,8 @@ export class SnapKeyring {
     options: Record<string, Json>,
     internalOptions?: SnapKeyringInternalOptions,
   ): Promise<KeyringAccount> {
-    return this.#getOrCreateKeyring(snapId).createAccount(
-      options,
-      internalOptions,
-    );
+    const keyring = await this.#getOrCreateKeyring(snapId);
+    return keyring.createAccount(options, internalOptions);
   }
 
   /**
@@ -449,7 +454,8 @@ export class SnapKeyring {
     snapId: SnapId,
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
-    return this.#getOrCreateKeyring(snapId).createAccounts(options);
+    const keyring = await this.#getOrCreateKeyring(snapId);
+    return keyring.createAccounts(options);
   }
 
   /**
@@ -484,10 +490,8 @@ export class SnapKeyring {
       );
     }
 
-    return this.#getOrCreateKeyring(snapId).resolveAccountAddress(
-      scope,
-      request,
-    );
+    const keyring = await this.#getOrCreateKeyring(snapId);
+    return keyring.resolveAccountAddress(scope, request);
   }
 
   /**

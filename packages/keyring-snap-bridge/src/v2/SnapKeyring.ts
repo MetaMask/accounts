@@ -7,6 +7,7 @@ import type {
 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import type { AccountId } from '@metamask/keyring-utils';
+import type { SnapId } from '@metamask/snaps-sdk';
 import type { Infer } from '@metamask/superstruct';
 import { assert, object, record, string, union } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
@@ -465,6 +466,10 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
   async deserialize(state: Json): Promise<void> {
     // Validate the raw payload — accepts both v1 and v2 account shapes.
     assert(state, SnapKeyringStateStruct);
+
+    // Bind the keyring to its snap ID (idempotent for the same ID, throws on
+    // mismatch to prevent swapping a keyring's identity via deserialize).
+    this.bindSnapId(state.snapId as SnapId);
 
     // Migrate v1 accounts to v2.
     const migratedAccounts: Record<string, KeyringAccount> = {};

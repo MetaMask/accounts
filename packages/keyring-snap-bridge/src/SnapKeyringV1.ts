@@ -146,7 +146,6 @@ export type SnapKeyringV1Callbacks = {
  * Options for creating a `SnapKeyringV1` instance.
  */
 export type SnapKeyringV1Options = {
-  snapId: SnapId;
   messenger: SnapKeyringMessenger;
   callbacks: SnapKeyringV1Callbacks;
   /**
@@ -167,17 +166,17 @@ export type SnapKeyringV1Options = {
  * `KeyringV2` interface on top, sharing the same registry and client.
  */
 export class SnapKeyringV1 {
-  /** The snap ID this instance is scoped to. */
-  readonly snapId: SnapId;
+  /** The snap ID this instance is scoped to. Set via {@link bindSnapId}. */
+  #snapId: SnapId | undefined;
+
+  /** Snap client for keyring RPC calls. Initialized alongside `#snapId`. */
+  #client: KeyringInternalSnapClient | undefined;
 
   /** Account registry — shared with subclass (e.g. SnapKeyringV2). */
   protected readonly registry: KeyringAccountRegistry;
 
   /** Messenger for snap controller calls and event publishing. */
   protected readonly messenger: SnapKeyringMessenger;
-
-  /** Snap client for keyring RPC calls. */
-  protected readonly client: KeyringInternalSnapClient;
 
   /** Injected callbacks for parent-level coordination. */
   readonly #callbacks: SnapKeyringV1Callbacks;
@@ -202,21 +201,85 @@ export class SnapKeyringV1 {
    */
   #selectedAccounts: AccountId[];
 
+  /**
+   * The snap ID this instance is scoped to.
+   *
+   * Throws if the keyring has not yet been initialized via
+   * {@link bindSnapId} (i.e. before `deserialize` is called).
+   *
+   * @throws If the keyring has not been initialized yet.
+   * @returns The snap ID.
+   */
+  get snapId(): SnapId {
+    this.assertIsInitialized();
+    return this.#snapId as SnapId;
+  }
+
+  /**
+   * Snap client for keyring RPC calls.
+   *
+   * Throws if the keyring has not yet been initialized via
+   * {@link bindSnapId} (i.e. before `deserialize` is called).
+   *
+   * @throws If the keyring has not been initialized yet.
+   * @returns The internal snap client.
+   */
+  protected get client(): KeyringInternalSnapClient {
+    this.assertIsInitialized();
+    return this.#client as KeyringInternalSnapClient;
+  }
+
   constructor({
-    snapId,
     messenger,
     callbacks,
     isAnyAccountTypeAllowed = false,
   }: SnapKeyringV1Options) {
-    this.snapId = snapId;
     this.registry = new KeyringAccountRegistry();
     this.messenger = messenger;
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
-    this.client = new KeyringInternalSnapClient({ messenger, snapId });
     this.#requests = new Map();
     this.#options = new Map();
     this.#selectedAccounts = [];
+  }
+
+  /**
+   * Assert that this keyring has been initialized (i.e. `snapId` is set).
+   *
+   * @throws If the keyring has not been initialized yet.
+   */
+  protected assertIsInitialized(): void {
+    if (this.#snapId === undefined) {
+      throw new Error(
+        'SnapKeyring has not been initialized: call deserialize() first',
+      );
+    }
+  }
+
+  /**
+   * Bind this keyring to a snap ID and create the internal snap client.
+   *
+   * Idempotent for the same `snapId`; throws if called again with a different
+   * one to prevent accidentally swapping a keyring's identity.
+   *
+   * @param snapId - The snap ID to bind this keyring to.
+   * @throws If the keyring is already bound to a different snap ID.
+   */
+  protected bindSnapId(snapId: SnapId): void {
+    if (this.#snapId !== undefined && this.#snapId !== snapId) {
+      throw new Error(
+        `SnapKeyring bound to '${
+          this.#snapId
+        }' cannot be rebound to '${snapId}'`,
+      );
+    }
+    if (this.#snapId === undefined) {
+      this.#snapId = snapId;
+      this.#client = new KeyringInternalSnapClient({
+        messenger: this.messenger,
+        snapId,
+      });
+    }
   }
 
   // ──────────────────────────────────────────────
