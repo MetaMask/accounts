@@ -1506,7 +1506,6 @@ describe('LedgerKeyring', function () {
         const result = await keyring.getAppConfiguration();
 
         expect(result).toStrictEqual(mockResponse);
-
         expect(keyring.bridge.getAppConfiguration).toHaveBeenCalledTimes(1);
       });
 

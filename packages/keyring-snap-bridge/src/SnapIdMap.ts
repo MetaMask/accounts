@@ -248,7 +248,6 @@ export class SnapIdMap<Value extends { snapId: SnapId }> {
    * @param value - Value of the element to add or update.
    * @returns The map itself.
    */
-
   set(key: string, value: Value): this {
     // If the key is present in the map but isn't associated with the given
     // Snap ID, it means that the item was added to the map by a different
