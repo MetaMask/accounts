@@ -463,4 +463,3 @@ export const TREZOR_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
       'Your Trezor device failed to initialize. Please unlock it and try again.',
   },
 };
-
