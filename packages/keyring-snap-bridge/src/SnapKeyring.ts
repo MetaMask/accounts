@@ -198,14 +198,22 @@ export class SnapKeyring {
         messenger: this.#messenger,
         isAnyAccountTypeAllowed: this.#isAnyAccountTypeAllowed,
         callbacks: {
+          // Optional callbacks that mutate accounts are responsible for keeping
+          // #accountIndex in sync via these callbacks.
           onRegister: (id: AccountId): void => {
+            // We can safely use `snapId` here because we create the keyring
+            // instance right away.
             this.#accountIndex.set(id, snapId);
           },
           onUnregister: (id: AccountId): void => {
             this.#accountIndex.delete(id);
           },
+          // Required callbacks:
+          // NOTE: `keyringSnapId` and `snapId` are the same value. The `keyringSnapId` is coming from
+          // the `deserialize` call right after.
           addAccount: async (
             address,
+            keyringSnapId,
             handleUserInput,
             onceSaved,
             accountNameSuggestion,
@@ -213,17 +221,17 @@ export class SnapKeyring {
           ): Promise<void> =>
             this.#callbacks.addAccount(
               address,
-              snapId,
+              keyringSnapId,
               handleUserInput,
               onceSaved,
               accountNameSuggestion,
               internalOptions,
             ),
-          removeAccount: async (address, handleUserInput): Promise<void> =>
-            this.#callbacks.removeAccount(address, snapId, handleUserInput),
+          removeAccount: async (address, keyringSnapId, handleUserInput): Promise<void> =>
+            this.#callbacks.removeAccount(address, keyringSnapId, handleUserInput),
           saveState: async (): Promise<void> => this.#callbacks.saveState(),
-          redirectUser: async (url, message): Promise<void> =>
-            this.#callbacks.redirectUser(snapId, url, message),
+          redirectUser: async (id, url, message): Promise<void> =>
+            this.#callbacks.redirectUser(id, url, message),
           assertAccountCanBeUsed: async (account): Promise<void> =>
             this.#assertAccountCanBeUsed(account),
           withLock: async <Result>(
