@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING:** Remove `signTransaction` pass-through; Money accounts do not sign transactions ([#521](https://github.com/MetaMask/accounts/pull/521))
+- Unexport `EvmSigner` type (no longer needed externally)
 - Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
 
 ## [2.0.4]
