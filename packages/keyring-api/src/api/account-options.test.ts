@@ -99,4 +99,27 @@ describe('api', () => {
       `At path: entropy.type -- Expected the literal \`"mnemonic"\`, but received: "${options.entropy.type}"`,
     );
   });
+
+  it('throws if options.entropy.type is Hardware (not implemented)', () => {
+    const options = {
+      entropy: { type: KeyringAccountEntropyTypeOption.Hardware },
+    };
+
+    expect(() => assert(options, KeyringAccountOptionsStruct)).toThrow(
+      `At path: entropy.type -- Expected the literal \`"mnemonic"\`, but received: "${KeyringAccountEntropyTypeOption.Hardware}"`,
+    );
+  });
+
+  it('throws if options.entropy.type is Hardware with additional fields', () => {
+    const options = {
+      entropy: {
+        type: KeyringAccountEntropyTypeOption.Hardware,
+        deviceId: 'some-device-id',
+      },
+    };
+
+    expect(() => assert(options, KeyringAccountOptionsStruct)).toThrow(
+      `At path: entropy.type -- Expected the literal \`"mnemonic"\`, but received: "${KeyringAccountEntropyTypeOption.Hardware}"`,
+    );
+  });
 });
