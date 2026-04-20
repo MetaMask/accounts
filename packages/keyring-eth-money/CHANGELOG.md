@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING:** Remove `signTransaction` pass-through; Money accounts do not sign transactions ([#521](https://github.com/MetaMask/accounts/pull/521))
-  - Unexport `EvmSigner` type
+  - Unexport `EvmSigner` type and rename to `MoneySigner`; the type was incorrectly exported and no longer represents a full EVM signer
 
 ## [2.0.2]
 
