@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Remove `signTransaction` pass-through; Money accounts do not sign transactions ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- **BREAKING:** Remove `signTransaction` pass-through; Money accounts do not sign transactions ([#521](https://github.com/MetaMask/accounts/pull/521))
 
 ## [2.0.2]
 
