@@ -33,7 +33,7 @@ export type GetMnemonicCallback = (entropySource: string) => Promise<number[]>;
 /**
  * EVM signer interface, a subset of {@link HdKeyring} methods.
  */
-export type EvmSigner = {
+type EvmSigner = {
   signPersonalMessage: HdKeyring['signPersonalMessage'];
   signTypedData: HdKeyring['signTypedData'];
   signEip7702Authorization: HdKeyring['signEip7702Authorization'];
