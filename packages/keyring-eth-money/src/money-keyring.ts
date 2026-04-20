@@ -34,7 +34,6 @@ export type GetMnemonicCallback = (entropySource: string) => Promise<number[]>;
  * EVM signer interface, a subset of {@link HdKeyring} methods.
  */
 export type EvmSigner = {
-  signTransaction: HdKeyring['signTransaction'];
   signPersonalMessage: HdKeyring['signPersonalMessage'];
   signTypedData: HdKeyring['signTypedData'];
   signEip7702Authorization: HdKeyring['signEip7702Authorization'];
@@ -220,12 +219,6 @@ export class MoneyKeyring implements Keyring {
 
   async getAccounts(): Promise<Hex[]> {
     return this.#account ? [this.#account] : [];
-  }
-
-  async signTransaction(
-    ...args: Parameters<HdKeyring['signTransaction']>
-  ): ReturnType<HdKeyring['signTransaction']> {
-    return (await this.#getSigner()).signTransaction(...args);
   }
 
   async signPersonalMessage(
