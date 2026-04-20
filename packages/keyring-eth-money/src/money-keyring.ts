@@ -31,7 +31,7 @@ export const MONEY_KEYRING_TYPE = 'Money Keyring';
 export type GetMnemonicCallback = (entropySource: string) => Promise<number[]>;
 
 /**
- * Message signing interface, a subset of {@link HdKeyring} methods.
+ * Signing interface for Money accounts, a subset of {@link HdKeyring} methods.
  */
 type MoneySigner = {
   signPersonalMessage: HdKeyring['signPersonalMessage'];
