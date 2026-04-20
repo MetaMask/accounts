@@ -31,10 +31,9 @@ export const MONEY_KEYRING_TYPE = 'Money Keyring';
 export type GetMnemonicCallback = (entropySource: string) => Promise<number[]>;
 
 /**
- * EVM signer interface, a subset of {@link HdKeyring} methods.
+ * Signing interface for Money accounts, a subset of {@link HdKeyring} methods.
  */
-export type EvmSigner = {
-  signTransaction: HdKeyring['signTransaction'];
+type MoneySigner = {
   signPersonalMessage: HdKeyring['signPersonalMessage'];
   signTypedData: HdKeyring['signTypedData'];
   signEip7702Authorization: HdKeyring['signEip7702Authorization'];
@@ -178,7 +177,7 @@ export class MoneyKeyring implements Keyring {
    *
    * @returns The EVM signer instance.
    */
-  async #getSigner(): Promise<EvmSigner> {
+  async #getSigner(): Promise<MoneySigner> {
     if (this.#inner) {
       return this.#inner;
     }
@@ -220,12 +219,6 @@ export class MoneyKeyring implements Keyring {
 
   async getAccounts(): Promise<Hex[]> {
     return this.#account ? [this.#account] : [];
-  }
-
-  async signTransaction(
-    ...args: Parameters<HdKeyring['signTransaction']>
-  ): ReturnType<HdKeyring['signTransaction']> {
-    return (await this.#getSigner()).signTransaction(...args);
   }
 
   async signPersonalMessage(

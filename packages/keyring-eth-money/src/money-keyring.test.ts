@@ -396,23 +396,6 @@ describe('MoneyKeyring', () => {
       expect(signature).toMatch(/^0x[0-9a-f]+$/u);
     });
 
-    it('signTransaction delegates to the inner keyring', async () => {
-      const { HdKeyring } = await import('@metamask/eth-hd-keyring');
-      const mockSignature = '0xsignature';
-      const spy = jest
-        .spyOn(HdKeyring.prototype, 'signTransaction')
-        .mockResolvedValue(mockSignature as never);
-
-      const keyring = createKeyring();
-      await keyring.deserialize(mockState);
-
-      const mockTx = {} as never;
-      const result = await keyring.signTransaction(mockAccount, mockTx);
-
-      expect(spy).toHaveBeenCalledWith(mockAccount, mockTx);
-      expect(result).toBe(mockSignature);
-    });
-
     it('signTypedData delegates to the inner keyring', async () => {
       const { HdKeyring } = await import('@metamask/eth-hd-keyring');
       const mockSignature = '0xsignature';
