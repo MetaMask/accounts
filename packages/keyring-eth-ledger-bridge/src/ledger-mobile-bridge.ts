@@ -1,6 +1,5 @@
 import type Transport from '@ledgerhq/hw-transport';
 
-import { ERC20_WRITE_SELECTORS, NFT_ONLY_SELECTORS } from './constants';
 import {
   AppConfigurationResponse,
   GetAppNameAndVersionResponse,
@@ -17,7 +16,6 @@ import {
 import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
 import { TransportMiddleware } from './ledger-transport-middleware';
 import { LedgerMobileBridgeOptions } from './type';
-import { getTransactionSelector } from './utils';
 
 // MobileBridge Type will always use LedgerBridge with LedgerMobileBridgeOptions
 export type MobileBridge = LedgerBridge<LedgerMobileBridgeOptions> & {
@@ -111,15 +109,7 @@ export class LedgerMobileBridge implements MobileBridge {
     tx,
     hdPath,
   }: LedgerSignTransactionParams): Promise<LedgerSignTransactionResponse> {
-    const selector = getTransactionSelector(tx);
-    const nft = Boolean(selector && NFT_ONLY_SELECTORS.has(selector));
-    const erc20 = Boolean(selector && ERC20_WRITE_SELECTORS.has(selector));
-
-    return this.#getEthApp().clearSignTransaction(hdPath, tx, {
-      externalPlugins: true,
-      erc20,
-      nft,
-    });
+    return this.#getEthApp().signTransaction(hdPath, tx, null);
   }
 
   /**
