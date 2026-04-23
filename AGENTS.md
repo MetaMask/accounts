@@ -124,22 +124,22 @@ yarn lint:fix
 
 # Individual linters
 yarn lint:eslint          # ESLint only
-yarn lint:misc --check    # Prettier for JSON/MD/YAML
+yarn lint:misc --check    # oxfmt (formatting check; CI "Checking formatting")
 yarn lint:dependencies    # Check dependency issues
 yarn lint:readme          # Verify README is up to date
 
 # Fix specific issues
 yarn lint:dependencies:fix  # Fix dependency issues
-yarn lint:misc --write      # Auto-fix formatting
+yarn lint:misc --write      # Auto-fix oxfmt formatting
 ```
 
 **Linting Notes:**
 
-- ESLint config extends `@metamask/eslint-config`
-- TypeScript-specific rules in `.eslintrc.js`
+- ESLint uses flat config in [`eslint.config.mjs`](./eslint.config.mjs) (extends `@metamask/eslint-config`).
+- **`yarn lint:misc`** runs **[oxfmt](https://oxc.rs/docs/guide/usage/formatter)** via `oxfmt --ignore-path .gitignore`. Options live in [`.oxfmtrc.json`](./.oxfmtrc.json) (for example `printWidth`, `singleQuote`, **`sortImports`**, and `ignorePatterns`). **CI treats `oxfmt --check` as the formatting gate** for files oxfmt covers (including `.ts` / `.tsx`).
+- The **`prettier/prettier` ESLint rule is off** in `eslint.config.mjs`, so **editor Prettier alone will not match** what CI enforces on TypeScript; use **`yarn lint:misc --write`** or **`yarn lint:fix`** before pushing.
+- **Prettier** is still a devDependency for **other scripts** (for example `yarn auto-changelog validate --prettier` in `scripts/validate-changelog.sh` and `scripts/update-changelog.sh`). That is **separate** from **`yarn lint:misc`**.
 - No `any` types allowed (enforced by linter)
-- Prettier for consistent formatting
-- All JSON, Markdown (.md), and YAML (.yml) files must be linted using Prettier (`yarn lint:misc -w`)
 
 ### Dependency Management
 
@@ -316,7 +316,8 @@ accounts/
 ├── jest.config.packages.js  # Shared Jest config
 ├── tsconfig.json         # Root TypeScript config
 ├── tsconfig.packages.json    # Packages TypeScript config
-├── .eslintrc.js         # ESLint configuration
+├── eslint.config.mjs   # ESLint flat configuration
+├── .oxfmtrc.json       # oxfmt formatter configuration
 └── package.json         # Root package.json (workspace config)
 ```
 
@@ -961,6 +962,7 @@ IF you added/modified types:
 | Problem                     | Solution                                    |
 | --------------------------- | ------------------------------------------- |
 | ESLint errors               | Run `yarn lint:fix` to auto-fix             |
+| `lint:misc` / formatting CI   | Run `yarn lint:misc --write` or `yarn lint:fix` (**oxfmt**; not Prettier for this script) |
 | Type errors                 | Check imported types are exported correctly |
 | Dependency version mismatch | Run `yarn lint:dependencies:fix`            |
 | Yarn lockfile conflicts     | Run `yarn dedupe`                           |
