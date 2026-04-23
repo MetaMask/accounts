@@ -410,12 +410,39 @@ export class SnapKeyringV1 {
   /**
    * Update the selected accounts for this snap.
    *
+   * Only account IDs that exist in this instance's registry (accounts owned
+   * by this snap) are applied and forwarded to the Snap. Unknown IDs are
+   * omitted and logged.
+   *
    * @param accountIds - The account IDs to set as selected.
    */
   async setSelectedAccounts(accountIds: AccountId[]): Promise<void> {
-    this.#selectedAccounts = accountIds;
+    const ownedAccountIds: AccountId[] = [];
+    const seen = new Set<AccountId>();
+    for (const id of accountIds) {
+      if (!this.registry.has(id)) {
+        continue;
+      }
+      if (seen.has(id)) {
+        continue;
+      }
+      seen.add(id);
+      ownedAccountIds.push(id);
+    }
+
+    const unknownIds = [
+      ...new Set(accountIds.filter((id) => !this.registry.has(id))),
+    ];
+    if (unknownIds.length > 0) {
+      console.error(
+        `Snap '${this.snapId}' ignored unknown account IDs when setting selected accounts:`,
+        unknownIds,
+      );
+    }
+
+    this.#selectedAccounts = ownedAccountIds;
     try {
-      await this.client.setSelectedAccounts(accountIds);
+      await this.client.setSelectedAccounts(ownedAccountIds);
     } catch (error: any) {
       console.error(
         `Failed to set selected accounts for ${this.snapId} snap: '${error.message}'`,
