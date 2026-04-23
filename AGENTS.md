@@ -124,22 +124,27 @@ yarn lint:fix
 
 # Individual linters
 yarn lint:eslint          # ESLint only
-yarn lint:misc --check    # oxfmt (formatting check; CI "Checking formatting")
+yarn lint:misc --check    # oxfmt: same check as CI "Checking formatting"
 yarn lint:dependencies    # Check dependency issues
 yarn lint:readme          # Verify README is up to date
 
 # Fix specific issues
 yarn lint:dependencies:fix  # Fix dependency issues
-yarn lint:misc --write      # Auto-fix oxfmt formatting
+yarn lint:misc --write      # Auto-fix oxfmt (same as oxfmt --write)
 ```
 
 **Linting Notes:**
 
-- ESLint uses flat config in [`eslint.config.mjs`](./eslint.config.mjs) (extends `@metamask/eslint-config`).
-- **`yarn lint:misc`** runs **[oxfmt](https://oxc.rs/docs/guide/usage/formatter)** via `oxfmt --ignore-path .gitignore`. Options live in [`.oxfmtrc.json`](./.oxfmtrc.json) (for example `printWidth`, `singleQuote`, **`sortImports`**, and `ignorePatterns`). **CI treats `oxfmt --check` as the formatting gate** for files oxfmt covers (including `.ts` / `.tsx`).
-- The **`prettier/prettier` ESLint rule is off** in `eslint.config.mjs`, so **editor Prettier alone will not match** what CI enforces on TypeScript; use **`yarn lint:misc --write`** or **`yarn lint:fix`** before pushing.
-- **Prettier** is still a devDependency for **other scripts** (for example `yarn auto-changelog validate --prettier` in `scripts/validate-changelog.sh` and `scripts/update-changelog.sh`). That is **separate** from **`yarn lint:misc`**.
-- No `any` types allowed (enforced by linter)
+- ESLint (flat): [`eslint.config.mjs`](./eslint.config.mjs) — @metamask preset.
+- Oxfmt: [`.oxfmtrc.json`](./.oxfmtrc.json) (`printWidth`, `sortImports`, etc.).
+- The `lint:misc` script is `oxfmt` with `oxfmt --ignore-path .gitignore`.
+- In CI, `oxfmt --check` is the “Checking formatting” step.
+- The same as `yarn lint:misc --check` locally.
+- [Oxc (oxfmt)](https://oxc.rs/docs/guide/usage/formatter).
+- `prettier/prettier` is off. Use `yarn lint:fix` to match TypeScript in CI.
+- Editor Prettier is not a substitute for `lint:misc` and oxfmt.
+- `auto-changelog` uses Prettier. That path is not `oxfmt` or `lint:misc`.
+- No `any` types (enforced by the linter)
 
 ### Dependency Management
 
@@ -962,7 +967,7 @@ IF you added/modified types:
 | Problem                     | Solution                                    |
 | --------------------------- | ------------------------------------------- |
 | ESLint errors               | Run `yarn lint:fix` to auto-fix             |
-| `lint:misc` / formatting CI   | Run `yarn lint:misc --write` or `yarn lint:fix` (**oxfmt**; not Prettier for this script) |
+| oxfmt check (CI)            | `yarn lint:fix` / `yarn lint:misc --write`  |
 | Type errors                 | Check imported types are exported correctly |
 | Dependency version mismatch | Run `yarn lint:dependencies:fix`            |
 | Yarn lockfile conflicts     | Run `yarn dedupe`                           |

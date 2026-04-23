@@ -8,7 +8,9 @@ This monorepo is a collection of accounts-related packages used across multiple 
 
 ## Contributing
 
-Use **`yarn lint:fix`** before opening a PR so ESLint and **oxfmt** (via `yarn lint:misc`) match CI. Formatting in CI is **`oxfmt --check`**, not the Prettier editor extension on TypeScript. See **[AGENTS.md](./AGENTS.md)** (Linting & Formatting) for details.
+- Run **`yarn lint:fix`** before a PR (ESLint + oxfmt / `yarn lint:misc`).
+- TS in CI: **`oxfmt --check`**, not the Prettier extension alone.
+- See **[AGENTS.md](./AGENTS.md)** (Linting & Formatting) for more.
 
 ## Modules
 
