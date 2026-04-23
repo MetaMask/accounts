@@ -127,6 +127,16 @@ export class SnapKeyring {
   readonly #lock: Mutex;
 
   /**
+   * Serializes lazy keyring initialization in {@link SnapKeyring.#getOrCreateKeyring}.
+   *
+   * Kept separate from {@link SnapKeyring.#lock} (which guards `createAccounts`
+   * uniqueness checks) to avoid mixing concerns. The lock is held only for the
+   * duration of a single keyring's initialization - released before the caller
+   * proceeds with its operation.
+   */
+  readonly #getOrCreateKeyringLock: Mutex;
+
+  /**
    * Create a new Snap keyring.
    *
    * @param options - Constructor options.
@@ -151,6 +161,7 @@ export class SnapKeyring {
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
     this.#lock = new Mutex();
+    this.#getOrCreateKeyringLock = new Mutex();
   }
 
   /**
@@ -169,9 +180,21 @@ export class SnapKeyring {
    * @returns The SnapKeyringEntry for the given Snap.
    */
   async #getOrCreateKeyring(snapId: SnapId): Promise<SnapKeyringV2> {
-    let keyring = this.#snapKeyrings.get(snapId);
-    if (!keyring) {
-      keyring = new SnapKeyringV2({
+    // Fast path: keyring already exists, no lock needed.
+    const existing = this.#snapKeyrings.get(snapId);
+    if (existing) {
+      return existing;
+    }
+
+    return this.#getOrCreateKeyringLock.runExclusive(async () => {
+      // Double-check: a concurrent caller may have created the keyring while
+      // we were waiting for the lock.
+      const keyring = this.#snapKeyrings.get(snapId);
+      if (keyring) {
+        return keyring;
+      }
+
+      const newKeyring = new SnapKeyringV2({
         messenger: this.#messenger,
         isAnyAccountTypeAllowed: this.#isAnyAccountTypeAllowed,
         callbacks: {
@@ -210,12 +233,14 @@ export class SnapKeyring {
       });
 
       // Initialize the keyring with its snap ID (no accounts yet).
-      await keyring.deserialize({ snapId, accounts: {} });
+      await newKeyring.deserialize({ snapId, accounts: {} });
 
-      // Now the keyring is fully-ready, we can add it to the map.
-      this.#snapKeyrings.set(snapId, keyring);
-    }
-    return keyring;
+      // Keyring is fully initialized; register it before releasing the lock so
+      // that no concurrent caller can create a duplicate.
+      this.#snapKeyrings.set(snapId, newKeyring);
+
+      return newKeyring;
+    });
   }
 
   /**
