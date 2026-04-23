@@ -1,12 +1,11 @@
+import type { KeyringAccount } from '@metamask/keyring-api';
 import {
   EthAccountType,
   EthScope,
   KeyringRpcMethod,
 } from '@metamask/keyring-api';
-import type { KeyringAccount } from '@metamask/keyring-api';
-import type { AccountId } from '@metamask/keyring-utils';
 import { SnapManageAccountsMethod } from '@metamask/keyring-snap-sdk';
-import type { JsonRpcRequest } from '@metamask/keyring-utils';
+import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
