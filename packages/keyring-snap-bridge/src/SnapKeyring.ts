@@ -209,9 +209,11 @@ export class SnapKeyring {
         },
       });
 
-      this.#snapKeyrings.set(snapId, keyring);
       // Initialize the keyring with its snap ID (no accounts yet).
       await keyring.deserialize({ snapId, accounts: {} });
+
+      // Now the keyring is fully-ready, we can add it to the map.
+      this.#snapKeyrings.set(snapId, keyring);
     }
     return keyring;
   }
