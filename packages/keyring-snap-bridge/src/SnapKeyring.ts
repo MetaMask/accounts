@@ -780,7 +780,7 @@ export class SnapKeyring {
   ): InternalAccount['metadata']['snap'] | undefined {
     const snap = this.#getSnap(snapId);
     return snap
-      ? { id: snapId, name: snap.manifest.proposedName, enabled: snap.enabled }
+      ? { id: snapId }
       : undefined;
   }
 
