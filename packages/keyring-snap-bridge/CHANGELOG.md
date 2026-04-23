@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `SnapKeyringV1.setSelectedAccounts` only forwards account IDs that exist on this snap; unknown IDs are omitted and logged ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- `SnapKeyringV1.setSelectedAccounts` only forwards account IDs that exist on this snap; unknown IDs are omitted and logged ([#526](https://github.com/MetaMask/accounts/pull/526))
 
 ## [21.0.1]
 
