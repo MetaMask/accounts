@@ -51,19 +51,23 @@ function makeMockCallbacks(): SnapKeyringCallbacks {
 /**
  * Create a `SnapKeyring` test instance with tracking arrays for callbacks.
  *
- * @param snapId - The Snap ID used to construct the keyring.
+ * The keyring is initialized (via `deserialize`) with the given snap ID and
+ * no accounts so that `snapId` and the internal snap client are available
+ * immediately after construction.
+ *
+ * @param snapId - The Snap ID to initialize the keyring with.
  * @param callbackOverrides - Optional callback overrides.
  * @returns The keyring, arrays of registered/unregistered IDs, and mock callbacks.
  */
-function makeKeyring(
+async function makeKeyring(
   snapId: SnapId = SNAP_ID,
   callbackOverrides?: Partial<SnapKeyringCallbacks>,
-): {
+): Promise<{
   keyring: SnapKeyring;
   registered: string[];
   unregistered: string[];
   callbacks: SnapKeyringCallbacks;
-} {
+}> {
   const registered: string[] = [];
   const unregistered: string[] = [];
   const callbacks: SnapKeyringCallbacks = {
@@ -80,28 +84,55 @@ function makeKeyring(
     call: jest.fn(),
     publish: jest.fn(),
   } as unknown as SnapKeyringMessenger;
-  const keyring = new SnapKeyring({ snapId, messenger, callbacks });
+  const keyring = new SnapKeyring({ messenger, callbacks });
+  await keyring.deserialize({ snapId, accounts: {} });
   return { keyring, registered, unregistered, callbacks };
 }
 
 describe('SnapKeyring', () => {
   describe('snapId', () => {
-    it('returns the snap ID passed at construction', () => {
-      const { keyring } = makeKeyring();
+    it('returns the snap ID set during deserialize', async () => {
+      const { keyring } = await makeKeyring();
       expect(keyring.snapId).toBe(SNAP_ID);
+    });
+
+    it('throws before deserialize is called', () => {
+      const messenger = {
+        call: jest.fn(),
+        publish: jest.fn(),
+      } as unknown as SnapKeyringMessenger;
+      const keyring = new SnapKeyring({
+        messenger,
+        callbacks: makeMockCallbacks(),
+      });
+      expect(() => keyring.snapId).toThrow(
+        'SnapKeyring has not been initialized',
+      );
+    });
+
+    it('throws when deserializing with a different snap ID', async () => {
+      const { keyring } = await makeKeyring(SNAP_ID);
+      await expect(
+        keyring.deserialize({
+          snapId: 'npm:@metamask/other-snap' as SnapId,
+          accounts: {},
+        }),
+      ).rejects.toThrow(
+        `SnapKeyring bound to '${SNAP_ID}' cannot be rebound to 'npm:@metamask/other-snap'`,
+      );
     });
   });
 
   describe('setAccount', () => {
-    it('adds a new account and fires onRegister', () => {
-      const { keyring, registered } = makeKeyring();
+    it('adds a new account and fires onRegister', async () => {
+      const { keyring, registered } = await makeKeyring();
       keyring.setAccount(account1);
       expect(keyring.hasAccount(account1.id)).toBe(true);
       expect(registered).toStrictEqual([account1.id]);
     });
 
-    it('updates an existing account without firing onRegister again', () => {
-      const { keyring, registered } = makeKeyring();
+    it('updates an existing account without firing onRegister again', async () => {
+      const { keyring, registered } = await makeKeyring();
       keyring.setAccount(account1);
       const updated = { ...account1, options: { updated: true } };
       keyring.setAccount(updated);
@@ -112,8 +143,8 @@ describe('SnapKeyring', () => {
   });
 
   describe('removeAccount', () => {
-    it('removes an existing account and fires onUnregister', () => {
-      const { keyring, unregistered } = makeKeyring();
+    it('removes an existing account and fires onUnregister', async () => {
+      const { keyring, unregistered } = await makeKeyring();
       keyring.setAccount(account1);
       const removed = keyring.removeAccount(account1.id);
       expect(removed).toBe(true);
@@ -121,8 +152,8 @@ describe('SnapKeyring', () => {
       expect(unregistered).toStrictEqual([account1.id]);
     });
 
-    it('returns false and does not fire onUnregister for unknown ID', () => {
-      const { keyring, unregistered } = makeKeyring();
+    it('returns false and does not fire onUnregister for unknown ID', async () => {
+      const { keyring, unregistered } = await makeKeyring();
       const removed = keyring.removeAccount('does-not-exist');
       expect(removed).toBe(false);
       expect(unregistered).toHaveLength(0);
@@ -130,55 +161,55 @@ describe('SnapKeyring', () => {
   });
 
   describe('hasAccount', () => {
-    it('returns true for an existing account', () => {
-      const { keyring } = makeKeyring();
+    it('returns true for an existing account', async () => {
+      const { keyring } = await makeKeyring();
       keyring.setAccount(account1);
       expect(keyring.hasAccount(account1.id)).toBe(true);
     });
 
-    it('returns false for an unknown account', () => {
-      const { keyring } = makeKeyring();
+    it('returns false for an unknown account', async () => {
+      const { keyring } = await makeKeyring();
       expect(keyring.hasAccount('does-not-exist')).toBe(false);
     });
   });
 
   describe('lookupAccount', () => {
-    it('returns the account for a known ID', () => {
-      const { keyring } = makeKeyring();
+    it('returns the account for a known ID', async () => {
+      const { keyring } = await makeKeyring();
       keyring.setAccount(account1);
       expect(keyring.lookupAccount(account1.id)).toStrictEqual(account1);
     });
 
-    it('returns undefined for an unknown ID', () => {
-      const { keyring } = makeKeyring();
+    it('returns undefined for an unknown ID', async () => {
+      const { keyring } = await makeKeyring();
       expect(keyring.lookupAccount('does-not-exist')).toBeUndefined();
     });
   });
 
   describe('lookupByAddress', () => {
-    it('returns the account for an exact address match', () => {
-      const { keyring } = makeKeyring();
+    it('returns the account for an exact address match', async () => {
+      const { keyring } = await makeKeyring();
       keyring.setAccount(account1);
       expect(keyring.lookupByAddress(account1.address)).toStrictEqual(account1);
     });
 
-    it('returns the account for a case-insensitive address match', () => {
-      const { keyring } = makeKeyring();
+    it('returns the account for a case-insensitive address match', async () => {
+      const { keyring } = await makeKeyring();
       keyring.setAccount(account1);
       expect(
         keyring.lookupByAddress(account1.address.toUpperCase()),
       ).toStrictEqual(account1);
     });
 
-    it('returns undefined for an unknown address', () => {
-      const { keyring } = makeKeyring();
+    it('returns undefined for an unknown address', async () => {
+      const { keyring } = await makeKeyring();
       expect(keyring.lookupByAddress('0xdeadbeef')).toBeUndefined();
     });
   });
 
   describe('accounts', () => {
-    it('returns all accounts', () => {
-      const { keyring } = makeKeyring();
+    it('returns all accounts', async () => {
+      const { keyring } = await makeKeyring();
       keyring.setAccount(account1);
       keyring.setAccount(account2);
       expect(keyring.accounts()).toStrictEqual(
@@ -186,15 +217,15 @@ describe('SnapKeyring', () => {
       );
     });
 
-    it('returns an empty array when no accounts are registered', () => {
-      const { keyring } = makeKeyring();
+    it('returns an empty array when no accounts are registered', async () => {
+      const { keyring } = await makeKeyring();
       expect(keyring.accounts()).toStrictEqual([]);
     });
   });
 
   describe('serialize', () => {
     it('returns the snap ID and all accounts', async () => {
-      const { keyring } = makeKeyring();
+      const { keyring } = await makeKeyring();
       keyring.setAccount(account1);
       keyring.setAccount(account2);
       const state = await keyring.serialize();
@@ -210,7 +241,7 @@ describe('SnapKeyring', () => {
 
   describe('deserialize', () => {
     it('restores accounts and fires onRegister for each', async () => {
-      const { keyring, registered } = makeKeyring();
+      const { keyring, registered } = await makeKeyring();
       await keyring.deserialize({
         snapId: SNAP_ID,
         accounts: { [account1.id]: account1, [account2.id]: account2 },
@@ -223,7 +254,7 @@ describe('SnapKeyring', () => {
     });
 
     it('clears existing accounts before restoring', async () => {
-      const { keyring } = makeKeyring();
+      const { keyring } = await makeKeyring();
       keyring.setAccount(account1);
       await keyring.deserialize({
         snapId: SNAP_ID,
@@ -234,7 +265,7 @@ describe('SnapKeyring', () => {
     });
 
     it('migrates v1 accounts during restore', async () => {
-      const { keyring } = makeKeyring();
+      const { keyring } = await makeKeyring();
       // A v1 account genuinely has no `scopes` field (not just undefined).
       const { scopes: _removed, ...v1Account } = account1;
       await keyring.deserialize({
@@ -249,15 +280,15 @@ describe('SnapKeyring', () => {
 
   describe('Keyring interface', () => {
     describe('type', () => {
-      it('returns "snap"', () => {
-        const { keyring } = makeKeyring();
+      it('returns "snap"', async () => {
+        const { keyring } = await makeKeyring();
         expect(keyring.type).toBe('snap');
       });
     });
 
     describe('getAccounts', () => {
       it('returns all accounts', async () => {
-        const { keyring } = makeKeyring();
+        const { keyring } = await makeKeyring();
         keyring.setAccount(account1);
         keyring.setAccount(account2);
         const result = await keyring.getAccounts();
@@ -269,14 +300,14 @@ describe('SnapKeyring', () => {
 
     describe('getAccount', () => {
       it('returns the account for a known ID', async () => {
-        const { keyring } = makeKeyring();
+        const { keyring } = await makeKeyring();
         keyring.setAccount(account1);
         const result = await keyring.getAccount(account1.id);
         expect(result).toStrictEqual(account1);
       });
 
       it('throws for an unknown ID', async () => {
-        const { keyring } = makeKeyring();
+        const { keyring } = await makeKeyring();
         await expect(keyring.getAccount('does-not-exist')).rejects.toThrow(
           "Account 'does-not-exist' not found",
         );
@@ -291,7 +322,7 @@ describe('SnapKeyring', () => {
       } as unknown as CreateAccountOptions;
 
       it('creates new accounts and saves state', async () => {
-        const { keyring, callbacks, registered } = makeKeyring();
+        const { keyring, callbacks, registered } = await makeKeyring();
         jest
           .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
           .mockResolvedValue([account1, account2]);
@@ -305,7 +336,7 @@ describe('SnapKeyring', () => {
       });
 
       it('skips existing accounts (idempotent)', async () => {
-        const { keyring, callbacks } = makeKeyring();
+        const { keyring, callbacks } = await makeKeyring();
         jest
           .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
           .mockResolvedValue([account1]);
@@ -322,7 +353,7 @@ describe('SnapKeyring', () => {
       });
 
       it('rolls back on error', async () => {
-        const { keyring } = makeKeyring(SNAP_ID, {
+        const { keyring } = await makeKeyring(SNAP_ID, {
           assertAccountCanBeUsed: jest
             .fn<Promise<void>, [KeyringAccount]>()
             .mockResolvedValueOnce(undefined)
@@ -343,7 +374,7 @@ describe('SnapKeyring', () => {
       });
 
       it('rejects duplicate accounts within a batch', async () => {
-        const { keyring } = makeKeyring();
+        const { keyring } = await makeKeyring();
         jest
           .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
           .mockResolvedValue([account1, account1]);
@@ -356,7 +387,7 @@ describe('SnapKeyring', () => {
 
     describe('deleteAccount', () => {
       it('removes the account and calls snap to delete', async () => {
-        const { keyring, unregistered } = makeKeyring();
+        const { keyring, unregistered } = await makeKeyring();
         keyring.setAccount(account1);
         const deleteSpy = jest
           .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
@@ -373,7 +404,7 @@ describe('SnapKeyring', () => {
         const consoleSpy = jest
           .spyOn(console, 'error')
           .mockImplementation(() => undefined);
-        const { keyring } = makeKeyring();
+        const { keyring } = await makeKeyring();
         jest
           .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
           .mockRejectedValue(new Error('snap error'));
@@ -391,7 +422,7 @@ describe('SnapKeyring', () => {
     describe('submitRequest', () => {
       it('delegates to inherited submitSnapRequest for a known account', async () => {
         const mockResult = { success: true };
-        const { keyring } = makeKeyring();
+        const { keyring } = await makeKeyring();
         keyring.setAccount(account1);
 
         // Spy on the inherited V1 method directly
@@ -422,7 +453,7 @@ describe('SnapKeyring', () => {
       });
 
       it('throws for an unknown account', async () => {
-        const { keyring } = makeKeyring();
+        const { keyring } = await makeKeyring();
 
         const request = {
           id: 'req-1',
