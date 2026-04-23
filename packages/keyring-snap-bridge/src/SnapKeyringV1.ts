@@ -418,21 +418,23 @@ export class SnapKeyringV1 {
    */
   async setSelectedAccounts(accountIds: AccountId[]): Promise<void> {
     const ownedAccountIds: AccountId[] = [];
-    const seen = new Set<AccountId>();
+    const seenOwned = new Set<AccountId>();
+    const unknownIds: AccountId[] = [];
+    const seenUnknown = new Set<AccountId>();
+
     for (const id of accountIds) {
-      if (!this.registry.has(id)) {
-        continue;
+      if (this.registry.has(id)) {
+        if (seenOwned.has(id)) {
+          continue;
+        }
+        seenOwned.add(id);
+        ownedAccountIds.push(id);
+      } else if (!seenUnknown.has(id)) {
+        seenUnknown.add(id);
+        unknownIds.push(id);
       }
-      if (seen.has(id)) {
-        continue;
-      }
-      seen.add(id);
-      ownedAccountIds.push(id);
     }
 
-    const unknownIds = [
-      ...new Set(accountIds.filter((id) => !this.registry.has(id))),
-    ];
     if (unknownIds.length > 0) {
       console.error(
         `Snap '${this.snapId}' ignored unknown account IDs when setting selected accounts:`,
