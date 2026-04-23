@@ -1,4 +1,8 @@
-import { EthAccountType, EthScope, KeyringRpcMethod } from '@metamask/keyring-api';
+import {
+  EthAccountType,
+  EthScope,
+  KeyringRpcMethod,
+} from '@metamask/keyring-api';
 import type { KeyringAccount } from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import { SnapManageAccountsMethod } from '@metamask/keyring-snap-sdk';
@@ -40,17 +44,11 @@ function makeCallbacks(): SnapKeyringV1Callbacks {
       .fn<Promise<void>, Parameters<SnapKeyringV1Callbacks['addAccount']>>()
       .mockResolvedValue(undefined),
     removeAccount: jest
-      .fn<
-        Promise<void>,
-        Parameters<SnapKeyringV1Callbacks['removeAccount']>
-      >()
+      .fn<Promise<void>, Parameters<SnapKeyringV1Callbacks['removeAccount']>>()
       .mockResolvedValue(undefined),
     saveState: jest.fn<Promise<void>, []>().mockResolvedValue(undefined),
     redirectUser: jest
-      .fn<
-        Promise<void>,
-        Parameters<SnapKeyringV1Callbacks['redirectUser']>
-      >()
+      .fn<Promise<void>, Parameters<SnapKeyringV1Callbacks['redirectUser']>>()
       .mockResolvedValue(undefined),
     assertAccountCanBeUsed: jest
       .fn<Promise<void>, [KeyringAccount]>()
