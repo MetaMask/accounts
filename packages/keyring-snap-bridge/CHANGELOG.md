@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **BREAKING:** Re-add `snapId` as part of the callbacks (`SnapKeyringCallbacks`) when building `SnapKeyring` v2 keyrings ([#520](https://github.com/MetaMask/accounts/pull/520))
+  - Since the `snapId` is now injected via `deserialize` we cannot auto-capture it at build-time.
+
 ### Changed
 
 - **BREAKING:** No longer use `snapId` as constructor parameter for `SnapKeyring` (v2) ([#519](https://github.com/MetaMask/accounts/pull/519))

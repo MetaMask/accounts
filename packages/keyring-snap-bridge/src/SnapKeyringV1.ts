@@ -102,10 +102,10 @@ export type SnapKeyringV1Callbacks = {
   /**
    * Called when a new account is being created (v1 event-driven flow).
    * Handles the user-approval dialog and account registration in the UI.
-   * The `snapId` is baked in at construction time.
    */
   addAccount: (
     address: string,
+    snapId: SnapId,
     handleUserInput: (accepted: boolean) => Promise<void>,
     onceSaved: Promise<AccountId>,
     accountNameSuggestion?: string,
@@ -115,10 +115,10 @@ export type SnapKeyringV1Callbacks = {
   /**
    * Called when an account is being deleted.
    * Handles the user-approval dialog and account removal in the UI.
-   * The `snapId` is baked in at construction time.
    */
   removeAccount: (
     address: string,
+    snapId: SnapId,
     handleUserInput: (accepted: boolean) => Promise<void>,
   ) => Promise<void>;
 
@@ -130,7 +130,7 @@ export type SnapKeyringV1Callbacks = {
   /**
    * Redirect the user to a URL after an async snap request.
    */
-  redirectUser: (url: string, message: string) => Promise<void>;
+  redirectUser: (snapId: SnapId, url: string, message: string) => Promise<void>;
 
   /**
    * Check global uniqueness (address + ID). Throws if the account cannot be used.
@@ -776,6 +776,7 @@ export class SnapKeyringV1 {
     // approve the account creation first.
     await this.#callbacks.addAccount(
       address,
+      this.snapId,
       // This callback is passed to the MetaMask client, it will be called whenever
       // the end user will accept or not the account creation.
       async (accepted: boolean) => {
@@ -910,6 +911,7 @@ export class SnapKeyringV1 {
 
     await this.#callbacks.removeAccount(
       normalizeAccountAddress(account),
+      this.snapId,
       async (accepted) => {
         if (accepted) {
           await this.#callbacks.saveState();
@@ -1180,7 +1182,7 @@ export class SnapKeyringV1 {
     if (url) {
       this.#validateRedirectUrl(url);
     }
-    await this.#callbacks.redirectUser(url, message);
+    await this.#callbacks.redirectUser(this.snapId, url, message);
   }
 
   /**
