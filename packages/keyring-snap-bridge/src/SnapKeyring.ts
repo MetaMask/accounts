@@ -227,8 +227,16 @@ export class SnapKeyring {
               accountNameSuggestion,
               internalOptions,
             ),
-          removeAccount: async (address, keyringSnapId, handleUserInput): Promise<void> =>
-            this.#callbacks.removeAccount(address, keyringSnapId, handleUserInput),
+          removeAccount: async (
+            address,
+            keyringSnapId,
+            handleUserInput,
+          ): Promise<void> =>
+            this.#callbacks.removeAccount(
+              address,
+              keyringSnapId,
+              handleUserInput,
+            ),
           saveState: async (): Promise<void> => this.#callbacks.saveState(),
           redirectUser: async (id, url, message): Promise<void> =>
             this.#callbacks.redirectUser(id, url, message),
