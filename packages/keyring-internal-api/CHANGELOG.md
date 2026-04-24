@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [11.0.0]
 
-### Uncategorized
-
-- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
-
 ### Removed
 
 - **BREAKING:** Removed `InternalAccount.metadata.snap.{enabled,name}` ([#525](https://github.com/MetaMask/accounts/pull/525))

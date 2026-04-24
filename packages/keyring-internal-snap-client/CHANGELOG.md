@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [10.0.2]
 
-### Uncategorized
+### Changed
 
-- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
+- Bump `@metamask/keyring-internal-api` from `^10.1.1` to `^11.0.0` ([#XXXX](https://github.com/MetaMask/accounts/pull/XXXX))
 
 ## [10.0.1]
 
