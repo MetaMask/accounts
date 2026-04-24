@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
+
 ### Removed
 
 - **BREAKING:** Removed `InternalAccount.metadata.snap.{enabled,name}` ([#525](https://github.com/MetaMask/accounts/pull/525))
@@ -62,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Bump `@metamask/keyring-api` from `^20.0.0` to `^21.0.0` ([#355](https://github.com/MetaMask/accounts/pull/355)), ([#356](https://github.com/MetaMask/accounts/pull/356))
+- **BREAKING:** Bump `@metamask/keyring-api` from `^20.0.0` to `^21.0.0`, ([#355](https://github.com/MetaMask/accounts/pull/355), [#356](https://github.com/MetaMask/accounts/pull/356))
 
 ## [8.1.0]
 
@@ -109,19 +113,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add support for Bitcoin account type: p2pkh, p2sh, p2tr ([#284](https://github.com/MetaMask/accounts/pull/284))
-- Bump `@metamask/keyring-api` from `^17.4.0` to `^17.6.0` ([#277](https://github.com/MetaMask/accounts/pull/277)), ([#288](https://github.com/MetaMask/accounts/pull/288))
+- Bump `@metamask/keyring-api` from `^17.4.0` to `^17.6.0`, ([#277](https://github.com/MetaMask/accounts/pull/277), [#288](https://github.com/MetaMask/accounts/pull/288))
 
 ## [6.0.1]
 
 ### Changed
 
-- Bump `@metamask/keyring-api` from `^17.2.0` to `^17.4.0` ([#263](https://github.com/MetaMask/accounts/pull/263)), ([#269](https://github.com/MetaMask/accounts/pull/269))
+- Bump `@metamask/keyring-api` from `^17.2.0` to `^17.4.0`, ([#263](https://github.com/MetaMask/accounts/pull/263), [#269](https://github.com/MetaMask/accounts/pull/269))
 
 ## [6.0.0]
 
 ### Changed
 
-- **BREAKING:** The method `EthKeyring.signTransaction` can now returns various type of transactions ([#209](https://github.com/MetaMask/accounts/pull/209)), ([#235](https://github.com/MetaMask/accounts/pull/235))
+- **BREAKING:** The method `EthKeyring.signTransaction` can now returns various type of transactions, ([#209](https://github.com/MetaMask/accounts/pull/209), [#235](https://github.com/MetaMask/accounts/pull/235))
   - Initially was supporting: `Transaction | AccessListEIP2930Transaction | FeeMarketEIP1559Transaction` (types from `@ethereumjs/tx`).
   - Now also supports `BlobEIP4844Transaction | EOACodeEIP7702Transaction` (types from `@ethereumjs/tx`).
   - This new method signature is inherited by `Keyring` which is provided `@metamask/keyring-utils`.
@@ -137,7 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/keyring-api` from `^17.0.0` to `^17.2.0` ([#212](https://github.com/MetaMask/accounts/pull/212)), ([#220](https://github.com/MetaMask/accounts/pull/220))
+- Bump `@metamask/keyring-api` from `^17.0.0` to `^17.2.0`, ([#212](https://github.com/MetaMask/accounts/pull/212), [#220](https://github.com/MetaMask/accounts/pull/220))
 - Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
   - This new version fixes a bug regarding some missing exports.
 

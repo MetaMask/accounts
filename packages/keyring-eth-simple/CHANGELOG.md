@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
+
 ## [12.0.1]
 
 ### Changed
@@ -52,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `SimpleKeyringV2` class implementing `KeyringV2` interface ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410)), ([#413](https://github.com/MetaMask/accounts/pull/413)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482))
+- Add `SimpleKeyringV2` class implementing `KeyringV2` interface,,,,, ([#409](https://github.com/MetaMask/accounts/pull/409), [#410](https://github.com/MetaMask/accounts/pull/410), [#413](https://github.com/MetaMask/accounts/pull/413), [#451](https://github.com/MetaMask/accounts/pull/451), [#478](https://github.com/MetaMask/accounts/pull/478), [#482](https://github.com/MetaMask/accounts/pull/482))
   - Add new dependency `@metamask/keyring-api@22.0.0`.
   - Add new dependency `@metamask/keyring-sdk@1.0.0`.
   - Wraps legacy `SimpleKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
@@ -102,8 +106,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177)), ([#134](https://github.com/MetaMask/accounts/pull/134))
-- Bump `@metamask/utils` dependency from `^9.3.1` to `11.1.0` ([#134](https://github.com/MetaMask/accounts/pull/134)), ([#167](https://github.com/MetaMask/accounts/pull/167))
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0`, ([#177](https://github.com/MetaMask/accounts/pull/177), [#134](https://github.com/MetaMask/accounts/pull/134))
+- Bump `@metamask/utils` dependency from `^9.3.1` to `11.1.0`, ([#134](https://github.com/MetaMask/accounts/pull/134), [#167](https://github.com/MetaMask/accounts/pull/167))
 
 ## [8.0.1]
 
@@ -132,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
-- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/MetaMask/accounts/pull/53))
 
 ## [6.0.4]
 
