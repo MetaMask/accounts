@@ -779,9 +779,7 @@ export class SnapKeyring {
     snapId: SnapId,
   ): InternalAccount['metadata']['snap'] | undefined {
     const snap = this.#getSnap(snapId);
-    return snap
-      ? { id: snapId }
-      : undefined;
+    return snap ? { id: snapId } : undefined;
   }
 
   #transformToInternalAccount(
