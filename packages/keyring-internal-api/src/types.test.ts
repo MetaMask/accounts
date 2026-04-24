@@ -151,31 +151,32 @@ describe('InternalAccount', () => {
   });
 
   it('should throw if snap.id is not set', () => {
-      // NOTE: We do not force `InternalAccount` here to make `snap.id` optional.
-      const account = {
-        id: '606a7759-b0fb-48e4-9874-bab62ff8e7eb',
-        address: '0x000',
-        options: {},
-        methods: [],
-        scopes: ['eip155:0'],
-        type: 'eip155:eoa',
-        metadata: {
-          keyring: {
-            type: 'Test Keyring',
-          },
-          name: 'Account 1',
-          importTime: 1713153716,
-          snap: {
-            id: 'test-snap',
-          } as {
-            id?: string;
-          },
+    // NOTE: We do not force `InternalAccount` here to make `snap.id` optional.
+    const account = {
+      id: '606a7759-b0fb-48e4-9874-bab62ff8e7eb',
+      address: '0x000',
+      options: {},
+      methods: [],
+      scopes: ['eip155:0'],
+      type: 'eip155:eoa',
+      metadata: {
+        keyring: {
+          type: 'Test Keyring',
         },
-      };
+        name: 'Account 1',
+        importTime: 1713153716,
+        snap: {
+          id: 'test-snap',
+        } as {
+          id?: string;
+        },
+      },
+    };
 
-      delete account.metadata.snap.id;
+    delete account.metadata.snap.id;
 
-      expect(() => assert(account, InternalAccountStruct)).toThrow('At path: metadata.snap.id -- Expected a string, but received: undefined');
-    },
-  );
+    expect(() => assert(account, InternalAccountStruct)).toThrow(
+      'At path: metadata.snap.id -- Expected a string, but received: undefined',
+    );
+  });
 });
