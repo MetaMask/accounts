@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **BREAKING:** Removed `InternalAccount.metadata.snap.{enabled,name}` ([#525](https://github.com/MetaMask/accounts/pull/525))
+  - Use `SnapController:getSnap` to get those information instead (in combination with `InternalAccount.metadata.snap.id`).
+
 ## [10.1.1]
 
 ### Changed

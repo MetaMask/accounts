@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** No longer use `snapId` as constructor parameter for `SnapKeyring` (v2) ([#519](https://github.com/MetaMask/accounts/pull/519))
   - The `snapId` is now passed and bound to the keyring upon the first `deserialize` call, to better integrate with `KeyringController` keyrings lifecyle and keyring builders.
 
+### Removed
+
+- **BREAKING:** Removed `snap.{name,enabled}` from `InternalAccount` metadata produced by `SnapKeyring` ([#525](https://github.com/MetaMask/accounts/pull/525))
+  - Use `SnapController:getSnap` to get those information instead (in combination with `InternalAccount.metadata.snap.id`).
+
 ## [21.0.1]
 
 ### Changed
