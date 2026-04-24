@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
-
 ## [23.0.1]
 
 ### Fixed
@@ -87,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add `AccountCreationType.Custom` and `CreateAccountCustomOptions` for custom account creation flows.
 - Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
   - Provides common Ethereum signing method routing (`submitRequest`) for all Ethereum-based keyrings.
-- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2`,([#402](https://github.com/MetaMask/accounts/pull/402)),, ([#398](https://github.com/MetaMask/accounts/pull/398), [#409](https://github.com/MetaMask/accounts/pull/409), [#410](https://github.com/MetaMask/accounts/pull/410))
+- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)),([#402](https://github.com/MetaMask/accounts/pull/402)), ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410))
 
 ### Changed
 
@@ -128,12 +124,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **BREAKING:** Add new bitcoin methods to `BtcMethod` enum, ([#355](https://github.com/MetaMask/accounts/pull/355), [#356](https://github.com/MetaMask/accounts/pull/356))
+- **BREAKING:** Add new bitcoin methods to `BtcMethod` enum ([#355](https://github.com/metamask/accounts/pull/355)), ([#356](https://github.com/metamask/accounts/pull/356))
   - This change was not properly reported as breaking on the `20.1.1`.
 
 ### Removed
 
-- **BREAKING:** Remove `BtcMethod.SendBitcoin` method ([#355](https://github.com/MetaMask/accounts/pull/355))
+- **BREAKING:** Remove `BtcMethod.SendBitcoin` method ([#355](https://github.com/metamask/accounts/pull/355))
   - This change was not properly reported as breaking on the `20.1.1`.
 
 ## [20.1.1]
@@ -152,7 +148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Add generic account type ([#323](https://github.com/MetaMask/accounts/pull/323))
+- **BREAKING:** Add generic account type ([#323](https://github.com/metamask/accounts/pull/323))
   - This change was not properly reported as breaking on the `19.1.0`.
   - The `KeyringAccountType` union now has a new member type `any:account`.
 
@@ -160,7 +156,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add generic account type ([#318](https://github.com/MetaMask/accounts/pull/318))
+- Add generic account type ([#318](https://github.com/metamask/accounts/pull/318))
   - This account type can be used during the integration of new chains.
   - It's allowed only in Flask builds of MetaMask clients.
 
@@ -347,7 +343,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
-- Add `syncpack` and sync dependencies ([#53](https://github.com/MetaMask/accounts/pull/53))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
 
 ## [8.1.2]
 
@@ -397,7 +393,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Revert "feat: allow multiple address per account" ([#342](https://github.com/MetaMask/keyring-api/pull/342)). ([#315](https://github.com/MetaMask/accounts/pull/315))
+- **BREAKING:** Revert "feat: allow multiple address per account (#315)" ([#342](https://github.com/MetaMask/keyring-api/pull/342)).
 
 ## [7.0.0]
 

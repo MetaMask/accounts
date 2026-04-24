@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
-
 ## [2.0.1]
 
 ### Changed
@@ -57,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release, extracted from `@metamask/keyring-api`, ([#478](https://github.com/MetaMask/accounts/pull/478), [#482](https://github.com/MetaMask/accounts/pull/482))
+- Initial release, extracted from `@metamask/keyring-api` ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482))
 
 [Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.1...HEAD
 [2.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.0...@metamask/keyring-sdk@2.0.1
