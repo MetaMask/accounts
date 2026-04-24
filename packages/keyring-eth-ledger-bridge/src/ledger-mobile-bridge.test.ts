@@ -1,7 +1,7 @@
 import { Common, Chain, Hardfork } from '@ethereumjs/common';
 import { TransactionFactory } from '@ethereumjs/tx';
 import { bytesToHex } from '@ethereumjs/util';
-import Transport from '@ledgerhq/hw-transport';
+import Transport, { TransportStatusError } from '@ledgerhq/hw-transport';
 import { EIP712Message } from '@ledgerhq/types-live';
 import { remove0x } from '@metamask/utils';
 
@@ -25,6 +25,7 @@ describe('LedgerMobileBridge', function () {
   const mockEthApp = {
     signEIP712Message: jest.fn(),
     clearSignTransaction: jest.fn(),
+    signTransaction: jest.fn(),
     getAddress: jest.fn(),
     signPersonalMessage: jest.fn(),
     openEthApp: jest.fn(),
@@ -247,6 +248,56 @@ describe('LedgerMobileBridge', function () {
         erc20: false,
         nft: false,
       });
+    });
+
+    it('falls back to blind signing when clear-sign fails for unsupported resolution', async function () {
+      const hdPath = "m/44'/60'/0'/0/0";
+      const tx =
+        'f86d8202b38477359400825208944592d8f8d7b001e72cb26a73e4fa1806a51ac79d880de0b6b3a7640000802ba0699ff162205967ccbabae13e07cdd4284258d46ec1051a70a51be51ec2bc69f3a04e6944d508244ea54a62ebf9a72683eeadacb73ad7c373ee542f1998147b220e';
+      const blindSignResult = {
+        v: '2b',
+        r: '0699ff162205967ccbabae13e07cdd4284258d46ec1051a70a51be51ec2bc69f3',
+        s: '04e6944d508244ea54a62ebf9a72683eeadacb73ad7c373ee542f1998147b220e',
+      };
+      mockEthApp.clearSignTransaction.mockRejectedValueOnce(
+        new Error('resolution failed'),
+      );
+      mockEthApp.signTransaction.mockResolvedValueOnce(blindSignResult);
+
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+      const result = await bridge.deviceSignTransaction({
+        hdPath,
+        tx,
+      });
+
+      expect(result).toStrictEqual(blindSignResult);
+      expect(mockEthApp.clearSignTransaction).toHaveBeenCalledTimes(1);
+      expect(mockEthApp.signTransaction).toHaveBeenCalledTimes(1);
+      expect(mockEthApp.signTransaction).toHaveBeenCalledWith(hdPath, tx, null);
+      expect(consoleSpy).toHaveBeenCalledTimes(1);
+      expect(consoleSpy.mock.calls[0]?.[0]).toBe(
+        'Ledger clear-sign failed; falling back to blind signing.',
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it('does not fall back when the user rejects on the device', async function () {
+      const hdPath = "m/44'/60'/0'/0/0";
+      const tx =
+        'f86d8202b38477359400825208944592d8f8d7b001e72cb26a73e4fa1806a51ac79d880de0b6b3a7640000802ba0699ff162205967ccbabae13e07cdd4284258d46ec1051a70a51be51ec2bc69f3a04e6944d508244ea54a62ebf9a72683eeadacb73ad7c373ee542f1998147b220e';
+      const rejection = new TransportStatusError(0x6985);
+      mockEthApp.clearSignTransaction.mockRejectedValueOnce(rejection);
+
+      await expect(
+        bridge.deviceSignTransaction({
+          hdPath,
+          tx,
+        }),
+      ).rejects.toThrow(rejection);
+
+      expect(mockEthApp.signTransaction).not.toHaveBeenCalled();
     });
   });
 
