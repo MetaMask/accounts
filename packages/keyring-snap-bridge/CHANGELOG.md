@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [22.0.0]
+
 ### Added
 
 - **BREAKING:** Re-add `snapId` as part of the callbacks (`SnapKeyringCallbacks`) when building `SnapKeyring` v2 keyrings ([#520](https://github.com/MetaMask/accounts/pull/520))
@@ -16,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** No longer use `snapId` as constructor parameter for `SnapKeyring` (v2) ([#519](https://github.com/MetaMask/accounts/pull/519))
   - The `snapId` is now passed and bound to the keyring upon the first `deserialize` call, to better integrate with `KeyringController` keyrings lifecyle and keyring builders.
+- Bump `@metamask/keyring-internal-api` from `^10.1.1` to `^11.0.0` ([#528](https://github.com/MetaMask/accounts/pull/528))
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.1` to `^10.0.2` ([#528](https://github.com/MetaMask/accounts/pull/528))
 
 ### Removed
 
@@ -702,7 +706,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@21.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.0.0...HEAD
+[22.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@21.0.1...@metamask/eth-snap-keyring@22.0.0
 [21.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@21.0.0...@metamask/eth-snap-keyring@21.0.1
 [21.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@20.0.0...@metamask/eth-snap-keyring@21.0.0
 [20.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@19.0.0...@metamask/eth-snap-keyring@20.0.0
