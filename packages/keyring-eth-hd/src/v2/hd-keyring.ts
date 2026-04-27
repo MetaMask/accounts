@@ -74,6 +74,26 @@ export class HdKeyring
     this.entropySource = options.entropySource;
   }
 
+  get mnemonic(): LegacyHdKeyring['mnemonic'] {
+    return this.inner.mnemonic;
+  }
+
+  get seed(): LegacyHdKeyring['seed'] {
+    return this.inner.seed;
+  }
+
+  get root(): LegacyHdKeyring['root'] {
+    return this.inner.root;
+  }
+
+  get hdWallet(): LegacyHdKeyring['hdWallet'] {
+    return this.inner.hdWallet;
+  }
+
+  get hdPath(): LegacyHdKeyring['hdPath'] {
+    return this.inner.hdPath;
+  }
+
   /**
    * Checks if the given address is the last account in the inner keyring.
    * This compares against the actual inner keyring state, not the registry,
