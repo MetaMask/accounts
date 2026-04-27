@@ -194,6 +194,12 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
     return this.#withLock(async () => {
+      // Defer gracefully if the controller is locked. Returns empty to signal
+      // no accounts were created this pass; next align will retry on unlock.
+      if (!this.#callbacks.isUnlocked()) {
+        return [];
+      }
+
       // Keep track of address/account ID part of this batch, to avoid having duplicates.
       const batchAddresses = new Set<string>();
       const batchIds = new Set<string>();

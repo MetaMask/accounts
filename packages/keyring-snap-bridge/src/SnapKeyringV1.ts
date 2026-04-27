@@ -149,6 +149,11 @@ export type SnapKeyringV1Callbacks = {
    * Optional — consumers that don't need cross-instance indexing can omit this.
    */
   onUnregister?: (accountId: AccountId) => void;
+
+  /**
+   * Check whether the KeyringController is currently unlocked.
+   */
+  isUnlocked: () => boolean;
 };
 
 /**
@@ -758,6 +763,12 @@ export class SnapKeyringV1 {
 
     if (this.getExistingAccount(account)) {
       // If the account already exists, we skip it.
+      return null;
+    }
+
+    // Defer gracefully if the controller is locked. Snap keeps its locally-
+    // persisted account; next align's idempotent re-fire registers it.
+    if (!this.#callbacks.isUnlocked()) {
       return null;
     }
 

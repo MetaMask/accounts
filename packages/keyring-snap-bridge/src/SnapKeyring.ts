@@ -66,6 +66,8 @@ export type SnapKeyringCallbacks = {
   ): Promise<void>;
 
   redirectUser(snapId: SnapId, url: string, message: string): Promise<void>;
+
+  isUnlocked: () => boolean;
 };
 
 /**
@@ -245,6 +247,7 @@ export class SnapKeyring {
           withLock: async <Result>(
             callback: () => Promise<Result>,
           ): Promise<Result> => this.#lock.runExclusive(callback),
+          isUnlocked: (): boolean => this.#callbacks.isUnlocked(),
         },
       });
 
