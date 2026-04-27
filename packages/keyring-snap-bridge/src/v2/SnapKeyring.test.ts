@@ -45,6 +45,7 @@ function makeMockCallbacks(): SnapKeyringCallbacks {
     assertAccountCanBeUsed: jest
       .fn<Promise<void>, [KeyringAccount]>()
       .mockResolvedValue(undefined),
+    isUnlocked: jest.fn<boolean, []>().mockReturnValue(true),
   };
 }
 
@@ -382,6 +383,22 @@ describe('SnapKeyring', () => {
         await expect(keyring.createAccounts(options)).rejects.toThrow(
           'already part of this batch',
         );
+      });
+
+      it('defers when the controller is locked', async () => {
+        const { keyring, callbacks } = await makeKeyring(SNAP_ID, {
+          isUnlocked: jest.fn<boolean, []>().mockReturnValue(false),
+        });
+        const clientSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .mockResolvedValue([account1]);
+
+        const result = await keyring.createAccounts(options);
+
+        expect(result).toStrictEqual([]);
+        expect(clientSpy).not.toHaveBeenCalled();
+        expect(callbacks.assertAccountCanBeUsed).not.toHaveBeenCalled();
+        expect(callbacks.saveState).not.toHaveBeenCalled();
       });
     });
 

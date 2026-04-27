@@ -126,6 +126,7 @@ describe('SnapKeyring', () => {
       return Promise.resolve();
     }),
     redirectUser: jest.fn(async () => Promise.resolve()),
+    isUnlocked: jest.fn(),
   };
 
   const snapId = 'local:snap.mock' as SnapId;
@@ -379,6 +380,7 @@ describe('SnapKeyring', () => {
         await handleUserInput(true);
       },
     );
+    mockCallbacks.isUnlocked.mockReturnValue(true);
 
     mockMessenger.get.mockReset();
     mockMessenger.handleRequest.mockReset();
@@ -526,6 +528,26 @@ describe('SnapKeyring', () => {
             },
           }),
         ).rejects.toThrow(`Account '${ethEoaAccount1.id}' already exists`);
+      });
+
+      it('defers when the controller is locked', async () => {
+        mockCallbacks.addressExists.mockClear();
+        mockCallbacks.addAccount.mockClear();
+        mockCallbacks.isUnlocked.mockReturnValueOnce(false);
+
+        const result = await keyring.handleKeyringSnapMessage(snapId, {
+          method: KeyringEvent.AccountCreated,
+          params: {
+            account: {
+              ...(newEthEoaAccount as unknown as KeyringAccount),
+              id: '56189183-9b89-4ae6-90d9-99d167b28520',
+            },
+          },
+        });
+
+        expect(result).toBeNull();
+        expect(mockCallbacks.addressExists).not.toHaveBeenCalled();
+        expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
       });
 
       describe('with options', () => {
