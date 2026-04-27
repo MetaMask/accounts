@@ -74,22 +74,37 @@ export class HdKeyring
     this.entropySource = options.entropySource;
   }
 
+  /**
+   * @returns The mnemonic seed phrase as a `Uint8Array`, or `null`/`undefined` before initialization.
+   */
   get mnemonic(): LegacyHdKeyring['mnemonic'] {
     return this.inner.mnemonic;
   }
 
+  /**
+   * @returns The seed derived from the mnemonic, or `null`/`undefined` before initialization.
+   */
   get seed(): LegacyHdKeyring['seed'] {
     return this.inner.seed;
   }
 
+  /**
+   * @returns The root HD key derived from the seed at `hdPath`, or `null`/`undefined` before initialization.
+   */
   get root(): LegacyHdKeyring['root'] {
     return this.inner.root;
   }
 
+  /**
+   * @returns The master HD wallet key derived from the seed, or `undefined` before initialization.
+   */
   get hdWallet(): LegacyHdKeyring['hdWallet'] {
     return this.inner.hdWallet;
   }
 
+  /**
+   * @returns The BIP-44 derivation path used to derive accounts (default: `m/44'/60'/0'/0`).
+   */
   get hdPath(): LegacyHdKeyring['hdPath'] {
     return this.inner.hdPath;
   }
