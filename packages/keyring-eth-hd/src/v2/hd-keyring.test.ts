@@ -66,6 +66,46 @@ describe('HdKeyring (v2 wrapper)', () => {
     });
   });
 
+  describe('getters', () => {
+    it('exposes mnemonic from the inner keyring', () => {
+      expect(wrapper.mnemonic).toStrictEqual(inner.mnemonic);
+      expect(wrapper.mnemonic).toBeInstanceOf(Uint8Array);
+    });
+
+    it('exposes seed from the inner keyring', () => {
+      expect(wrapper.seed).toStrictEqual(inner.seed);
+      expect(wrapper.seed).toBeInstanceOf(Uint8Array);
+    });
+
+    it('exposes root from the inner keyring', () => {
+      expect(wrapper.root).toStrictEqual(inner.root);
+      expect(wrapper.root).not.toBeNull();
+    });
+
+    it('exposes hdWallet from the inner keyring', () => {
+      expect(wrapper.hdWallet).toStrictEqual(inner.hdWallet);
+      expect(wrapper.hdWallet).toBeDefined();
+    });
+
+    it('exposes hdPath from the inner keyring', () => {
+      expect(wrapper.hdPath).toBe(inner.hdPath);
+      expect(wrapper.hdPath).toBe("m/44'/60'/0'/0");
+    });
+
+    it('returns null for mnemonic/seed/root before deserialization', () => {
+      const emptyInner = new LegacyHdKeyring();
+      const emptyWrapper = new HdKeyring({
+        legacyKeyring: emptyInner,
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+      });
+
+      expect(emptyWrapper.mnemonic).toBeUndefined();
+      expect(emptyWrapper.seed).toBeUndefined();
+      expect(emptyWrapper.root).toBeUndefined();
+      expect(emptyWrapper.hdWallet).toBeUndefined();
+    });
+  });
+
   describe('getAccounts', () => {
     beforeEach(async () => {
       await inner.addAccounts(2);

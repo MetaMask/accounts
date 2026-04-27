@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Expose same getters in `HdKeyring` (v2 keyring wrapper from `/v2`) ([#529](https://github.com/MetaMask/accounts/pull/529))
+  - We need this as some consumers were already using those getters when using the v1 keyring.
+
 ## [14.0.1]
 
 ### Changed
