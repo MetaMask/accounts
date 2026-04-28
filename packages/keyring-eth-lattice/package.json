@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-lattice-keyring",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "A MetaMask-owned wrapper around eth-lattice-keyring for the GridPlus Lattice1 hardware wallet",
   "keywords": [
     "ethereum",
