@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
-  "license": "ISC",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/accounts.git"
