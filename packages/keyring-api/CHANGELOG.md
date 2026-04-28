@@ -393,7 +393,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Revert "feat: allow multiple address per account (#315)" ([#342](https://github.com/MetaMask/keyring-api/pull/342)).
+- **BREAKING:** Revert allow multiple address per account ([#342](https://github.com/MetaMask/keyring-api/pull/342)).
 
 ## [7.0.0]
 
