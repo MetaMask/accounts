@@ -1744,7 +1744,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/eth-hd-keyring@npm:^14.0.1, @metamask/eth-hd-keyring@workspace:packages/keyring-eth-hd":
+"@metamask/eth-hd-keyring@npm:^14.1.0, @metamask/eth-hd-keyring@workspace:packages/keyring-eth-hd":
   version: 0.0.0-use.local
   resolution: "@metamask/eth-hd-keyring@workspace:packages/keyring-eth-hd"
   dependencies:
@@ -1822,7 +1822,7 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
-    "@metamask/eth-hd-keyring": "npm:^14.0.1"
+    "@metamask/eth-hd-keyring": "npm:^14.1.0"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/key-tree": "npm:^10.0.2"
     "@metamask/keyring-api": "npm:^23.0.1"
