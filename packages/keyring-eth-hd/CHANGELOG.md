@@ -9,11 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [14.1.0]
 
-### Uncategorized
-
-- chore: fixup CHANGELOG.md format + using `oxfmt` for changelog/releases ([#534](https://github.com/MetaMask/accounts/pull/534))
-- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
-
 ### Added
 
 - Expose same getters in `HdKeyring` (v2 keyring wrapper from `/v2`) ([#529](https://github.com/MetaMask/accounts/pull/529))
