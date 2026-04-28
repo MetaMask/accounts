@@ -87,6 +87,7 @@
     "@ethereumjs/common": "^4.4.0",
     "@keystonehq/metamask-airgapped-keyring": "^0.15.2",
     "@lavamoat/allow-scripts": "^3.2.1",
+    "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/account-api": "^1.0.3",
     "@metamask/auto-changelog": "^6.1.0",
     "@types/hdkey": "^2.0.1",
