@@ -124,12 +124,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **BREAKING:** Add new bitcoin methods to `BtcMethod` enum ([#355](https://github.com/metamask/accounts/pull/355)), ([#356](https://github.com/metamask/accounts/pull/356))
+- **BREAKING:** Add new bitcoin methods to `BtcMethod` enum ([#355](https://github.com/MetaMask/accounts/pull/355)), ([#356](https://github.com/MetaMask/accounts/pull/356))
   - This change was not properly reported as breaking on the `20.1.1`.
 
 ### Removed
 
-- **BREAKING:** Remove `BtcMethod.SendBitcoin` method ([#355](https://github.com/metamask/accounts/pull/355))
+- **BREAKING:** Remove `BtcMethod.SendBitcoin` method ([#355](https://github.com/MetaMask/accounts/pull/355))
   - This change was not properly reported as breaking on the `20.1.1`.
 
 ## [20.1.1]
@@ -148,7 +148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Add generic account type ([#323](https://github.com/metamask/accounts/pull/323))
+- **BREAKING:** Add generic account type ([#323](https://github.com/MetaMask/accounts/pull/323))
   - This change was not properly reported as breaking on the `19.1.0`.
   - The `KeyringAccountType` union now has a new member type `any:account`.
 
@@ -156,7 +156,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add generic account type ([#318](https://github.com/metamask/accounts/pull/318))
+- Add generic account type ([#318](https://github.com/MetaMask/accounts/pull/318))
   - This account type can be used during the integration of new chains.
   - It's allowed only in Flask builds of MetaMask clients.
 
@@ -343,7 +343,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
-- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/MetaMask/accounts/pull/53))
 
 ## [8.1.2]
 
