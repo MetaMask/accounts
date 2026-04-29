@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `TransactionType.Approve` for token approval transactions ([#537](https://github.com/MetaMask/accounts/pull/537))
+- Add `TransactionType.TokenApprove` for token approval transactions ([#537](https://github.com/MetaMask/accounts/pull/537))
 
 ## [23.0.1]
 

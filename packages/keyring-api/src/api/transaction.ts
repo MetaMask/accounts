@@ -168,7 +168,7 @@ export enum TransactionType {
   /**
    * Represents a token approval transaction.
    */
-  Approve = 'token:approve',
+  TokenApprove = 'token:approve',
 
   /**
    * The transaction type is unknown. It's not possible to determine the
@@ -360,7 +360,7 @@ export const TransactionStruct = object({
     `${TransactionType.BridgeReceive}`,
     `${TransactionType.StakeDeposit}`,
     `${TransactionType.StakeWithdraw}`,
-    `${TransactionType.Approve}`,
+    `${TransactionType.TokenApprove}`,
     `${TransactionType.Unknown}`,
   ]),
 
