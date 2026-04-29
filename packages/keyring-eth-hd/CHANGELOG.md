@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [14.1.0]
+
 ### Added
 
 - Expose same getters in `HdKeyring` (v2 keyring wrapper from `/v2`) ([#529](https://github.com/MetaMask/accounts/pull/529))
@@ -80,9 +82,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The `deserialize` method does not accept `Buffer` mnemonic anymore
   - The options argument to `deserialize` is no longer optional
   - `getAccounts` is now `async`
-- Switched to using a `Map` for wallet storage ([#374](https://github.com/metamask/accounts/pull/374))
+- Switched to using a `Map` for wallet storage ([#374](https://github.com/MetaMask/accounts/pull/374))
   - Improves performance of account lookup and removal to constant time
-- Cache derived account addresses ([#373](https://github.com/metamask/accounts/pull/373))
+- Cache derived account addresses ([#373](https://github.com/MetaMask/accounts/pull/373))
   - Avoids recomputing addresses from public keys on every `getAccounts()` call
 
 ### Removed
@@ -162,7 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
-- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/MetaMask/accounts/pull/53))
 
 ## [7.0.3]
 
@@ -280,7 +282,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.1.0...HEAD
+[14.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.0.1...@metamask/eth-hd-keyring@14.1.0
 [14.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.0.0...@metamask/eth-hd-keyring@14.0.1
 [14.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@13.1.1...@metamask/eth-hd-keyring@14.0.0
 [13.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@13.1.0...@metamask/eth-hd-keyring@13.1.1

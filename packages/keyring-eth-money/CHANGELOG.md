@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.3]
+
+### Changed
+
+- Bump `@metamask/eth-hd-keyring` from `^14.0.1` to `^14.1.0` ([#535](https://github.com/MetaMask/accounts/pull/535))
+
 ## [2.0.2]
 
 ### Changed
@@ -32,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Replace inheritance with composition; `MoneyKeyring` now wraps an inner `HdKeyring` instead of extending it ([#484](https://github.com/MetaMask/accounts/pull/484)), ([#492](https://github.com/MetaMask/accounts/pull/488), [#488](https://github.com/MetaMask/accounts/pull/492))
+- **BREAKING:** Replace inheritance with composition; `MoneyKeyring` now wraps an inner `HdKeyring` instead of extending it ([#484](https://github.com/MetaMask/accounts/pull/484)), ([#492](https://github.com/MetaMask/accounts/pull/488)), ([#488](https://github.com/MetaMask/accounts/pull/492))
   - Constructor now requires a `MoneyKeyringOptions` object with a `getMnemonic` callback. The `entropySource` is set by `deserialize()` from the serialized state.
   - The inner `HdKeyring` is created on the first signing call (lazily), protected by a mutex to ensure single initialization under concurrency.
   - Serialized state now stores `entropySource` instead of `mnemonic`; the mnemonic is resolved at deserialization time via the callback.
@@ -49,13 +55,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add initial implementation of `MoneyKeyring` ([#472](https://github.com/MetaMask/accounts/pull/472), [#474](https://github.com/MetaMask/accounts/pull/474))
+- Add initial implementation of `MoneyKeyring` ([#472](https://github.com/MetaMask/accounts/pull/472)), ([#474](https://github.com/MetaMask/accounts/pull/474))
   - Extends `HdKeyring` from `@metamask/eth-hd-keyring`.
   - Uses keyring type `"Money Keyring"`.
   - Uses derivation path `"m/44'/4392018'/0'/0"`.
   - Enforces that at most one Money account can exist.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.3...HEAD
+[2.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.2...@metamask/eth-money-keyring@2.0.3
 [2.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.1...@metamask/eth-money-keyring@2.0.2
 [2.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.0...@metamask/eth-money-keyring@2.0.1
 [2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@1.0.0...@metamask/eth-money-keyring@2.0.0
