@@ -166,6 +166,11 @@ export enum TransactionType {
   StakeWithdraw = 'stake:withdraw',
 
   /**
+   * Represents a token approval transaction.
+   */
+  Approve = 'token:approve',
+
+  /**
    * The transaction type is unknown. It's not possible to determine the
    * transaction type based on the information available.
    */
@@ -355,6 +360,7 @@ export const TransactionStruct = object({
     `${TransactionType.BridgeReceive}`,
     `${TransactionType.StakeDeposit}`,
     `${TransactionType.StakeWithdraw}`,
+    `${TransactionType.Approve}`,
     `${TransactionType.Unknown}`,
   ]),
 
