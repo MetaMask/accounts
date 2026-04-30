@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [12.0.2]
 
-### Uncategorized
+### Changed
 
-- chore: fixup CHANGELOG.md format + using `oxfmt` for changelog/releases ([#534](https://github.com/MetaMask/accounts/pull/534))
-- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
+- Bump `@metamask/keyring-api` from `^23.0.1` to `^23.1.0` ([#518](https://github.com/MetaMask/accounts/pull/538))
+- Bump `@metamask/keyring-sdk` from `^2.0.1` to `^2.0.2` ([#518](https://github.com/MetaMask/accounts/pull/538))
 
 ## [12.0.1]
 
@@ -59,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `SimpleKeyringV2` class implementing `KeyringV2` interface,,,,, ([#409](https://github.com/MetaMask/accounts/pull/409), [#410](https://github.com/MetaMask/accounts/pull/410), [#413](https://github.com/MetaMask/accounts/pull/413), [#451](https://github.com/MetaMask/accounts/pull/451), [#478](https://github.com/MetaMask/accounts/pull/478), [#482](https://github.com/MetaMask/accounts/pull/482))
+- Add `SimpleKeyringV2` class implementing `KeyringV2` interface ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410)), ([#413](https://github.com/MetaMask/accounts/pull/413)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482))
   - Add new dependency `@metamask/keyring-api@22.0.0`.
   - Add new dependency `@metamask/keyring-sdk@1.0.0`.
   - Wraps legacy `SimpleKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
@@ -109,8 +109,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0`, ([#177](https://github.com/MetaMask/accounts/pull/177), [#134](https://github.com/MetaMask/accounts/pull/134))
-- Bump `@metamask/utils` dependency from `^9.3.1` to `11.1.0`, ([#134](https://github.com/MetaMask/accounts/pull/134), [#167](https://github.com/MetaMask/accounts/pull/167))
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177)), ([#134](https://github.com/MetaMask/accounts/pull/134))
+- Bump `@metamask/utils` dependency from `^9.3.1` to `11.1.0` ([#134](https://github.com/MetaMask/accounts/pull/134)), ([#167](https://github.com/MetaMask/accounts/pull/167))
 
 ## [8.0.1]
 
@@ -212,7 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@12.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@12.0.1...HEAD
 [12.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@12.0.1...@metamask/eth-simple-keyring@12.0.2
 [12.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@12.0.0...@metamask/eth-simple-keyring@12.0.1
 [12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@11.1.2...@metamask/eth-simple-keyring@12.0.0
