@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [23.1.0]
+
 ### Uncategorized
 
 - chore: fixup CHANGELOG.md format + using `oxfmt` for changelog/releases ([#534](https://github.com/MetaMask/accounts/pull/534))
@@ -752,7 +754,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.1.0...HEAD
+[23.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.0.1...@metamask/keyring-api@23.1.0
 [23.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.0.0...@metamask/keyring-api@23.0.1
 [23.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@22.0.0...@metamask/keyring-api@23.0.0
 [22.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.6.0...@metamask/keyring-api@22.0.0

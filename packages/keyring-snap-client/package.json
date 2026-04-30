@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-snap-client",
-  "version": "9.0.1",
+  "version": "9.0.2",
   "description": "MetaMask Keyring Snap clients",
   "keywords": [
     "keyring",
@@ -66,8 +66,8 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-api": "^23.0.1",
-    "@metamask/keyring-utils": "^3.2.0",
+    "@metamask/keyring-api": "^23.1.0",
+    "@metamask/keyring-utils": "^3.2.1",
     "@metamask/superstruct": "^3.1.0",
     "@types/uuid": "^9.0.8",
     "uuid": "^9.0.1",

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [12.0.2]
+
 ### Uncategorized
 
 - chore: fixup CHANGELOG.md format + using `oxfmt` for changelog/releases ([#534](https://github.com/MetaMask/accounts/pull/534))
@@ -422,7 +424,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.0.2...HEAD
+[12.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.0.1...@metamask/eth-ledger-bridge-keyring@12.0.2
 [12.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.0.0...@metamask/eth-ledger-bridge-keyring@12.0.1
 [12.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.4.0...@metamask/eth-ledger-bridge-keyring@12.0.0
 [11.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@11.3.1...@metamask/eth-ledger-bridge-keyring@11.4.0
