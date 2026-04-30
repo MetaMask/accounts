@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.4]
 
-### Uncategorized
+### Changed
 
-- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
+- Bump `@metamask/keyring-api` from `^23.0.1` to `^23.1.0` ([#518](https://github.com/MetaMask/accounts/pull/538))
 
 ## [1.0.3]
 
