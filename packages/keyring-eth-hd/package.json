@@ -72,7 +72,7 @@
     "@metamask/key-tree": "^10.0.2",
     "@metamask/keyring-api": "^23.1.0",
     "@metamask/keyring-sdk": "^2.0.2",
-    "@metamask/keyring-utils": "^3.2.1",
+    "@metamask/keyring-utils": "^3.2.0",
     "@metamask/scure-bip39": "^2.1.1",
     "@metamask/superstruct": "^3.1.0",
     "@metamask/utils": "^11.11.0",
