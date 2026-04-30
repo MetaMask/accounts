@@ -6,6 +6,12 @@ This monorepo is a collection of accounts-related packages used across multiple 
 
 - [How to release](./docs/how-to-release.md)
 
+## Contributing
+
+- Run **`yarn lint:fix`** before a PR (ESLint + oxfmt / `yarn lint:misc`).
+- TS in CI: **`oxfmt --check`**, not the Prettier extension alone.
+- See **[AGENTS.md](./AGENTS.md)** (Linting & Formatting) for more.
+
 ## Modules
 
 This repository contains the following packages [^fn1]:

@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Move and rename `handleKeyringRequestV2` to the `./v2` module ([#513](https://github.com/MetaMask/accounts/pull/513))
   - `handleKeyringRequestV2` is now `handleKeyringRequest` from `@metamask/keyring-snap-sdk/v2`.
 - **BREAKING:** Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
-- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489)), ([#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [8.0.0]
 
@@ -50,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^21.2.0` to `^21.4.0` ([#460](https://github.com/MetaMask/accounts/pull/460))
-- Bump `@metamask/snaps-sdk` from `^9.0.0` to `^10.4.0` ([#422](https://github.com/MetaMask/accounts/pull/422), [#461](https://github.com/MetaMask/accounts/pull/461))
+- Bump `@metamask/snaps-sdk` from `^9.0.0` to `^10.4.0` ([#422](https://github.com/MetaMask/accounts/pull/422)), ([#461](https://github.com/MetaMask/accounts/pull/461))
 
 ## [7.1.1]
 

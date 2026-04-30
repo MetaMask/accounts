@@ -158,8 +158,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/metamask/accounts/pull/51))
-- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+- Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/MetaMask/accounts/pull/53))
 
 ## [3.1.2]
 
@@ -230,7 +230,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Rename package to use `@metamask` scope ([#160](https://github.com/MetaMask/eth-trezor-keyring/pull/160))
 - **BREAKING:** Removed support for Node v12 in favor of v14 ([#135](https://github.com/MetaMask/eth-trezor-keyring/pull/135))
 - Update `@ethereumjs/util`, `@ethereumjs/tx`, `@metamask/eth-sig-util` to latest versions ([#146](https://github.com/MetaMask/eth-trezor-keyring/pull/146))
-- Bump trezor-connect - now @trezor/connect-plugin-ethereum & @trezor/connect-web - to v9 ([#133](https://github.com/MetaMask/eth-trezor-keyring/pull/133), [#163](https://github.com/MetaMask/eth-trezor-keyring/pull/163))
+- Bump trezor-connect - now @trezor/connect-plugin-ethereum & @trezor/connect-web - to v9 ([#133](https://github.com/MetaMask/eth-trezor-keyring/pull/133)), ([#163](https://github.com/MetaMask/eth-trezor-keyring/pull/163))
 
 ## [0.10.0]
 

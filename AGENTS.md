@@ -124,22 +124,27 @@ yarn lint:fix
 
 # Individual linters
 yarn lint:eslint          # ESLint only
-yarn lint:misc --check    # Prettier for JSON/MD/YAML
+yarn lint:misc --check    # oxfmt: same check as CI "Checking formatting"
 yarn lint:dependencies    # Check dependency issues
 yarn lint:readme          # Verify README is up to date
 
 # Fix specific issues
 yarn lint:dependencies:fix  # Fix dependency issues
-yarn lint:misc --write      # Auto-fix formatting
+yarn lint:misc --write      # Auto-fix oxfmt (same as oxfmt --write)
 ```
 
 **Linting Notes:**
 
-- ESLint config extends `@metamask/eslint-config`
-- TypeScript-specific rules in `.eslintrc.js`
-- No `any` types allowed (enforced by linter)
-- Prettier for consistent formatting
-- All JSON, Markdown (.md), and YAML (.yml) files must be linted using Prettier (`yarn lint:misc -w`)
+- ESLint (flat): [`eslint.config.mjs`](./eslint.config.mjs) — @metamask preset.
+- Oxfmt: [`.oxfmtrc.json`](./.oxfmtrc.json) (`printWidth`, `sortImports`, etc.).
+- The `lint:misc` script is `oxfmt` with `oxfmt --ignore-path .gitignore`.
+- In CI, `oxfmt --check` is the “Checking formatting” step.
+- The same as `yarn lint:misc --check` locally.
+- [Oxc (oxfmt)](https://oxc.rs/docs/guide/usage/formatter).
+- `prettier/prettier` is off. Use `yarn lint:fix` to match TypeScript in CI.
+- Editor Prettier is not a substitute for `lint:misc` and oxfmt.
+- `auto-changelog` uses Prettier. That path is not `oxfmt` or `lint:misc`.
+- No `any` types (enforced by the linter)
 
 ### Dependency Management
 
@@ -316,7 +321,8 @@ accounts/
 ├── jest.config.packages.js  # Shared Jest config
 ├── tsconfig.json         # Root TypeScript config
 ├── tsconfig.packages.json    # Packages TypeScript config
-├── .eslintrc.js         # ESLint configuration
+├── eslint.config.mjs   # ESLint flat configuration
+├── .oxfmtrc.json       # oxfmt formatter configuration
 └── package.json         # Root package.json (workspace config)
 ```
 
@@ -961,6 +967,7 @@ IF you added/modified types:
 | Problem                     | Solution                                    |
 | --------------------------- | ------------------------------------------- |
 | ESLint errors               | Run `yarn lint:fix` to auto-fix             |
+| oxfmt check (CI)            | `yarn lint:fix` / `yarn lint:misc --write`  |
 | Type errors                 | Check imported types are exported correctly |
 | Dependency version mismatch | Run `yarn lint:dependencies:fix`            |
 | Yarn lockfile conflicts     | Run `yarn dedupe`                           |

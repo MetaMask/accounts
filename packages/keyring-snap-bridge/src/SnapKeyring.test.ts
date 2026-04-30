@@ -2380,8 +2380,6 @@ describe('SnapKeyring', () => {
     it('returns the list of accounts', async () => {
       const snapMetadata = {
         id: snapId,
-        name: 'Snap Name',
-        enabled: true,
       };
       const snapObject = {
         id: snapId,
@@ -2437,7 +2435,7 @@ describe('SnapKeyring', () => {
           metadata: {
             name: '',
             importTime: 0,
-            snap: { id: snapId, name: 'snap-name', enabled: true },
+            snap: { id: snapId },
             keyring: { type: 'Snap Keyring' },
           },
         },
@@ -3235,6 +3233,51 @@ describe('SnapKeyring', () => {
 
       // Verify saveState was called for each batch (3 times)
       expect(mockCallbacks.saveState).toHaveBeenCalledTimes(3);
+    });
+
+    it('does not create duplicate keyrings for concurrent calls targeting a new snap', async () => {
+      const newSnapId = 'local:snap.concurrent-new' as SnapId;
+
+      const batch1Account: KeyringAccount = {
+        ...newEthEoaAccount,
+        id: 'd1000000-0000-4000-a000-000000000001',
+        address: '0xd100000000000000000000000000000000000001',
+      };
+      const batch2Account: KeyringAccount = {
+        ...newEthEoaAccount,
+        id: 'e2000000-0000-4000-a000-000000000002',
+        address: '0xe200000000000000000000000000000000000002',
+      };
+
+      mockCallbacks.addressExists.mockResolvedValue(false);
+      mockCallbacks.saveState.mockClear();
+
+      mockMessengerHandleRequest({
+        [KeyringRpcMethod.CreateAccounts]: jest
+          .fn()
+          .mockResolvedValueOnce([batch1Account])
+          .mockResolvedValueOnce([batch2Account]),
+      });
+
+      const options: CreateAccountOptions = {
+        type: AccountCreationType.Bip44DeriveIndex,
+        entropySource,
+        groupIndex: 0,
+      };
+
+      // Two concurrent calls for a snap that has no keyring yet — exercises the
+      // double-check inside #getOrCreateKeyringLock so only one SnapKeyringV2
+      // is ever created for newSnapId.
+      const [result1, result2] = await Promise.all([
+        keyring.createAccounts(newSnapId, options),
+        keyring.createAccounts(newSnapId, options),
+      ]);
+
+      expect(result1).toStrictEqual([batch1Account]);
+      expect(result2).toStrictEqual([batch2Account]);
+
+      expect(keyring.getAccountByAddress(batch1Account.address)).toBeDefined();
+      expect(keyring.getAccountByAddress(batch2Account.address)).toBeDefined();
     });
   });
 
