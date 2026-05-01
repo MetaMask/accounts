@@ -26,6 +26,11 @@ export enum KeyringAccountEntropyTypeOption {
   PrivateKey = 'private-key',
 
   /**
+   * Indicates that the account was created from a hardware wallet.
+   */
+  Hardware = 'hardware',
+
+  /**
    * Indicates that the account was created with custom, keyring-specific entropy.
    * This is an opaque type where the entropy source is managed internally by the keyring.
    */
