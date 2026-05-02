@@ -67,6 +67,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
     }
 
     default: {
+      // The `@metamask/snaps-sdk@^11` types declare `MethodNotSupportedError`
+      // without an explicit `extends Error`, so eslint can't see that the
+      // thrown value is an Error at the type level. At runtime it is.
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw new MethodNotSupportedError(request.method);
     }
   }

@@ -35,9 +35,9 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@metamask/keyring-api": "^21.0.0",
-    "@metamask/keyring-snap-client": "^8.0.0",
-    "@metamask/providers": "^13.0.0",
+    "@metamask/keyring-api": "^23.1.0",
+    "@metamask/keyring-snap-client": "^9.0.2",
+    "@metamask/providers": "^19.0.0",
     "@mui/icons-material": "^5.14.0",
     "@mui/material": "^5.14.0",
     "@types/react-helmet": "^6.1.6",

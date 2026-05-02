@@ -42,10 +42,10 @@
     "@ethereumjs/tx": "^4.1.2",
     "@ethereumjs/util": "^8.0.5",
     "@metamask/eth-sig-util": "^7.0.1",
-    "@metamask/keyring-api": "^21.0.0",
-    "@metamask/keyring-snap-sdk": "^7.0.0",
-    "@metamask/snaps-sdk": "7.1.0",
-    "@metamask/utils": "^8.1.0",
+    "@metamask/keyring-api": "^23.1.0",
+    "@metamask/keyring-snap-sdk": "^9.0.1",
+    "@metamask/snaps-sdk": "^11.1.0",
+    "@metamask/utils": "^11.11.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

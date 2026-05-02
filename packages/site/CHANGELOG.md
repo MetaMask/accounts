@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.0.0` to `^23.1.0` ([#173](https://github.com/MetaMask/snap-simple-keyring/pull/173))
+- Bump `@metamask/keyring-snap-client` from `^8.0.0` to `^9.0.2` ([#173](https://github.com/MetaMask/snap-simple-keyring/pull/173))
+- Bump `@metamask/providers` from `^13.0.0` to `^19.0.0` ([#173](https://github.com/MetaMask/snap-simple-keyring/pull/173))
+
 ## [2.0.0]
 
 ### Changed
