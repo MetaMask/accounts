@@ -1,2 +1,2 @@
 export * from './SnapKeyring';
-export * from './SnapKeyringV1';
+export * from './SnapKeyringV1Adapter';

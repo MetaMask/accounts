@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `SnapKeyringV1Adapter` (v2 subpath) class, a V1-compatible adapter for a per-snap `SnapKeyring` (v2) instance ([#539](https://github.com/MetaMask/accounts/pull/539))
+  - This adapter allows `KeyringController` to interact with per-snap `SnapKeyring` (v2) instances using the legacy v1 `EthKeyring` interface (e.g. `getAccounts()` returning `Promise<string[]>`).
+  - The inner `SnapKeyring` (v2) instance is accessible via `asV2()`, allowing `KeyringController`'s `KeyringV2Builder` to share the same object as the v2 keyring entry with no state duplication.
+
 ## [22.0.1]
 
 ### Changed

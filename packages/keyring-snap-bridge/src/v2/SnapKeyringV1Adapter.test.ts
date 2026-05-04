@@ -6,7 +6,7 @@ import type { SnapId } from '@metamask/snaps-sdk';
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
 import { SnapKeyring } from './SnapKeyring';
 import type { SnapKeyringCallbacks } from './SnapKeyring';
-import { SnapKeyringV1 } from './SnapKeyringV1';
+import { SnapKeyringV1Adapter } from './SnapKeyringV1Adapter';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 
@@ -29,7 +29,7 @@ const account2: KeyringAccount = {
 };
 
 /**
- * Create mock callbacks for `SnapKeyringV1`.
+ * Create mock callbacks for `SnapKeyringV1Adapter`.
  *
  * @returns Mock callbacks.
  */
@@ -44,14 +44,14 @@ function makeMockCallbacks(): SnapKeyringCallbacks {
 }
 
 /**
- * Create a `SnapKeyringV1` test instance, initialized with the given snap ID
+ * Create a `SnapKeyringV1Adapter` test instance, initialized with the given snap ID
  * and no accounts.
  *
  * @param snapId - The Snap ID to initialize the keyring with.
  * @returns The wrapper and its callbacks.
  */
 async function makeKeyring(snapId: SnapId = SNAP_ID): Promise<{
-  keyring: SnapKeyringV1;
+  keyring: SnapKeyringV1Adapter;
   callbacks: SnapKeyringCallbacks;
 }> {
   const callbacks = makeMockCallbacks();
@@ -59,15 +59,15 @@ async function makeKeyring(snapId: SnapId = SNAP_ID): Promise<{
     call: jest.fn(),
     publish: jest.fn(),
   } as unknown as SnapKeyringMessenger;
-  const keyring = new SnapKeyringV1({ messenger, callbacks });
+  const keyring = new SnapKeyringV1Adapter({ messenger, callbacks });
   await keyring.deserialize({ snapId, accounts: {} });
   return { keyring, callbacks };
 }
 
-describe('SnapKeyringV1', () => {
+describe('SnapKeyringV1Adapter', () => {
   describe('type', () => {
     it('static type equals KeyringType.Snap', () => {
-      expect(SnapKeyringV1.type).toBe(`${KeyringType.Snap}`);
+      expect(SnapKeyringV1Adapter.type).toBe(`${KeyringType.Snap}`);
     });
 
     it('instance type equals KeyringType.Snap', async () => {
@@ -274,7 +274,7 @@ describe('SnapKeyringV1', () => {
         call: jest.fn(),
         publish: jest.fn(),
       } as unknown as SnapKeyringMessenger;
-      const keyring = new SnapKeyringV1({ messenger, callbacks });
+      const keyring = new SnapKeyringV1Adapter({ messenger, callbacks });
 
       await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
 

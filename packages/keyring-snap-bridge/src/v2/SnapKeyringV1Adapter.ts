@@ -26,12 +26,12 @@ import type { SnapKeyringOptions, SnapKeyringState } from './SnapKeyring';
  *
  * ```
  * KeyringEntry {
- *   keyring:   SnapKeyringV1  ← v1 face (this class)
+ *   keyring:   SnapKeyringV1Adapter  ← v1 face (this class)
  *   keyringV2: SnapKeyring    ← v2 face (same inner instance via asV2())
  * }
  * ```
  */
-export class SnapKeyringV1 {
+export class SnapKeyringV1Adapter {
   /**
    * Keyring type identifier.
    *
@@ -39,12 +39,12 @@ export class SnapKeyringV1 {
    * `SNAP_KEYRING_TYPE` constant used by the old single-instance aggregator.
    * Using the aggregator's type string here would cause conflicts in consumers
    * that look up snap keyrings by type, since the new design registers one
-   * `SnapKeyringV1` per snap rather than one aggregator for all snaps.
+   * `SnapKeyringV1Adapter` per snap rather than one aggregator for all snaps.
    */
   static readonly type = `${KeyringType.Snap}` as const;
 
-  /** @see {@link SnapKeyringV1.type} */
-  readonly type = SnapKeyringV1.type;
+  /** @see {@link SnapKeyringV1Adapter.type} */
+  readonly type = SnapKeyringV1Adapter.type;
 
   readonly #v2: SnapKeyring;
 
