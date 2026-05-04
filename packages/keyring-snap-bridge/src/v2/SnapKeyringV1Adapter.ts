@@ -1,6 +1,7 @@
 import { KeyringType } from '@metamask/keyring-api/v2';
 import type { SnapId } from '@metamask/snaps-sdk';
 
+import { normalizeAccountAddress } from '../util';
 import { SnapKeyring } from './SnapKeyring';
 import type { SnapKeyringOptions, SnapKeyringState } from './SnapKeyring';
 
@@ -76,7 +77,7 @@ export class SnapKeyringV1Adapter {
    */
   async getAccounts(): Promise<string[]> {
     const accounts = await this.#v2.getAccounts();
-    return accounts.map((account) => account.address);
+    return accounts.map((account) => normalizeAccountAddress(account));
   }
 
   /**

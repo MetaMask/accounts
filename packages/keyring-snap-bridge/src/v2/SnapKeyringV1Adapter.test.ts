@@ -110,6 +110,17 @@ describe('SnapKeyringV1Adapter', () => {
       expect(typeof accounts[0]).toBe('string');
     });
 
+    it('normalizes EVM addresses to lowercase', async () => {
+      const { keyring } = await makeKeyring();
+      keyring.asV2().setAccount({
+        ...account1,
+        address: '0xC728514DF8A7F9271F4B7A4DD2AA6D2D723D3EE3', // mixed case
+      });
+
+      const accounts = await keyring.getAccounts();
+      expect(accounts[0]).toBe('0xc728514df8a7f9271f4b7a4dd2aa6d2d723d3ee3');
+    });
+
     it('returns the address for each account', async () => {
       const { keyring } = await makeKeyring();
       keyring.asV2().setAccount(account1);
