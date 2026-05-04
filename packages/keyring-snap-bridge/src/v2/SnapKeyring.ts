@@ -65,7 +65,7 @@ export type SnapKeyringCallbacks = SnapKeyringV1Callbacks & {
   withLock?: <Result>(callback: () => Promise<Result>) => Promise<Result>;
 };
 
-type SnapKeyringOptions = Omit<SnapKeyringV1Options, 'callbacks'> & {
+export type SnapKeyringOptions = Omit<SnapKeyringV1Options, 'callbacks'> & {
   callbacks: SnapKeyringCallbacks;
 };
 
