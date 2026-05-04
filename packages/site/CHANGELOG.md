@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1]
+
 ### Changed
 
-- Bump `@metamask/keyring-api` from `^21.0.0` to `^23.1.0` ([#173](https://github.com/MetaMask/snap-simple-keyring/pull/173))
+- Bump `@metamask/keyring-api` from `^8.1.3` to `^23.1.0` ([#169](https://github.com/MetaMask/snap-simple-keyring/pull/169), [#173](https://github.com/MetaMask/snap-simple-keyring/pull/173))
 - Bump `@metamask/keyring-snap-client` from `^8.0.0` to `^9.0.2` ([#173](https://github.com/MetaMask/snap-simple-keyring/pull/173))
 - Bump `@metamask/providers` from `^13.0.0` to `^19.0.0` ([#173](https://github.com/MetaMask/snap-simple-keyring/pull/173))
+- Use new font Geist ([#172](https://github.com/MetaMask/snap-simple-keyring/pull/172))
 
 ## [2.0.0]
 
@@ -172,7 +175,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.6...v2.0.0
 [1.1.6]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.2...v1.1.6
 [1.1.2]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.1...v1.1.2
