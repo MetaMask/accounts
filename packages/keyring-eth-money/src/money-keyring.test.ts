@@ -36,8 +36,9 @@ const getAddressAtIndex = async (
   index: number,
 ): Promise<Hex> => {
   const accounts = await keyring.getAccounts();
-  assert(accounts[index], `Account not found at index ${index}`);
-  return accounts[index];
+  const account = accounts[index];
+  assert(account, `Account not found at index ${index}`);
+  return account;
 };
 
 describe('MoneyKeyring', () => {
