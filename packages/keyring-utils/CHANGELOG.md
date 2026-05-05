@@ -9,14 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.3.0]
 
-### Uncategorized
-
-- test(keyring-utils): add `Keyring` test types ([#542](https://github.com/MetaMask/accounts/pull/542))
-- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
-- chore: fixup CHANGELOG.md format + using `oxfmt` for changelog/releases ([#534](https://github.com/MetaMask/accounts/pull/534))
-- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
-- chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
-
 ### Added
 
 - Add `BaseKeyring` type ([#543](https://github.com/MetaMask/accounts/pull/543))

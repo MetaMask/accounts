@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.0]
 
-### Uncategorized
-
-- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
-
 ### Added
 
 - Add `KeyringV1Adapter` ([#543](https://github.com/MetaMask/accounts/pull/543))
