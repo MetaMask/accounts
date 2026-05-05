@@ -22,6 +22,7 @@ import type {
   KeyringAccount,
   KeyringEventPayload,
   KeyringRequest,
+  ResolvedAccountAddress,
   SubmitRequestResponse,
 } from '@metamask/keyring-api';
 import {
@@ -31,7 +32,11 @@ import {
   KeyringEvent,
 } from '@metamask/keyring-api';
 import { emitSnapKeyringEvent } from '@metamask/keyring-snap-sdk';
-import { type Json, type JsonRpcRequest } from '@metamask/utils';
+import {
+  type CaipChainId,
+  type Json,
+  type JsonRpcRequest,
+} from '@metamask/utils';
 import { Buffer } from 'buffer';
 import { v4 as uuid } from 'uuid';
 
@@ -49,6 +54,7 @@ export type KeyringState = {
   wallets: Record<string, Wallet>;
   pendingRequests: Record<string, KeyringRequest>;
   useSyncApprovals: boolean;
+  selectedAccounts: string[];
 };
 
 export type Wallet = {
@@ -155,6 +161,53 @@ export class SimpleKeyring implements Keyring {
       await this.#saveState();
     } catch (error) {
       throwError((error as Error).message);
+    }
+  }
+
+  async setSelectedAccounts(accounts: string[]): Promise<void> {
+    this.#state.selectedAccounts = accounts;
+    await this.#saveState();
+  }
+
+  async resolveAccountAddress(
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+  ): Promise<ResolvedAccountAddress | null> {
+    const from = this.#extractFromAddress(request);
+    if (from === undefined) {
+      return null;
+    }
+
+    const wallet = Object.values(this.#state.wallets).find(
+      (entry) => entry.account.address.toLowerCase() === from.toLowerCase(),
+    );
+    if (!wallet) {
+      return null;
+    }
+
+    return { address: `${scope}:${wallet.account.address}` };
+  }
+
+  #extractFromAddress(request: JsonRpcRequest): string | undefined {
+    const params = (request.params ?? []) as Json[];
+    switch (request.method) {
+      case EthMethod.PersonalSign: {
+        const [, from] = params as [string, string];
+        return from;
+      }
+      case EthMethod.SignTransaction: {
+        const [tx] = params as [{ from?: string }];
+        return tx?.from;
+      }
+      case EthMethod.SignTypedDataV1:
+      case EthMethod.SignTypedDataV3:
+      case EthMethod.SignTypedDataV4:
+      case EthMethod.Sign: {
+        const [from] = params as [string];
+        return from;
+      }
+      default:
+        return undefined;
     }
   }
 

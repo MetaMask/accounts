@@ -8,6 +8,7 @@ const defaultState: KeyringState = {
   wallets: {},
   pendingRequests: {},
   useSyncApprovals: true,
+  selectedAccounts: [],
 };
 
 /**

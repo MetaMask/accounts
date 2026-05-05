@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Implement `keyring_setSelectedAccounts` and `keyring_resolveAccountAddress` ([#163](https://github.com/MetaMask/snap-simple-keyring/pull/163))
+  - Required for compatibility with `@metamask/eth-snap-keyring@^22`, which invokes these methods when MetaMask switches the active account or needs to resolve the signer for a request.
+- Allow the `metamask` origin to call `keyring_createAccount`, `keyring_resolveAccountAddress`, and `keyring_setSelectedAccounts` ([#163](https://github.com/MetaMask/snap-simple-keyring/pull/163))
+
 ## [2.0.1]
 
 ### Changed

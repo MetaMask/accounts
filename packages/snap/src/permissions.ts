@@ -12,12 +12,15 @@ export const originPermissions = new Map<string, string[]>([
       // Keyring methods
       KeyringRpcMethod.ListAccounts,
       KeyringRpcMethod.GetAccount,
+      KeyringRpcMethod.CreateAccount,
       KeyringRpcMethod.FilterAccountChains,
       KeyringRpcMethod.DeleteAccount,
       KeyringRpcMethod.ListRequests,
       KeyringRpcMethod.GetRequest,
       KeyringRpcMethod.SubmitRequest,
       KeyringRpcMethod.RejectRequest,
+      KeyringRpcMethod.ResolveAccountAddress,
+      KeyringRpcMethod.SetSelectedAccounts,
     ],
   ],
   [
