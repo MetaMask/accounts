@@ -1,3 +1,9 @@
+import {
+  EthAccountType,
+  EthScope,
+  SolAccountType,
+  SolScope,
+} from '@metamask/keyring-api';
 import type { KeyringAccount } from '@metamask/keyring-api';
 import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
@@ -9,18 +15,18 @@ const MOCK_TYPE = `${KeyringType.Hd}` as const;
 
 const evmAccount: KeyringAccount = {
   id: '111e1111-e89b-12d3-a456-426614174000',
-  type: 'eip155:eoa',
+  type: EthAccountType.Eoa,
   address: '0xC728514DF8A7F9271F4B7A4DD2AA6D2D723D3EE3',
-  scopes: ['eip155:1'],
+  scopes: [EthScope.Eoa],
   options: {},
   methods: [],
 };
 
 const solanaAccount: KeyringAccount = {
   id: '222e2222-e89b-12d3-a456-426614174000',
-  type: 'solana:data-account',
+  type: SolAccountType.DataAccount,
   address: 'So11111111111111111111111111111111111111112',
-  scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+  scopes: [SolScope.Mainnet],
   options: {},
   methods: [],
 };
@@ -81,7 +87,13 @@ describe('KeyringV1Adapter', () => {
     });
 
     it('lowercases EVM account addresses', async () => {
-      const inner = makeMockInner([evmAccount]);
+      const inner = makeMockInner([
+        {
+          ...evmAccount,
+          // Forcing uppercase to ensure the adapter is doing the normalization.
+          address: evmAccount.address.toUpperCase(),
+        },
+      ]);
       const adapter = new KeyringV1Adapter(inner);
       const accounts = await adapter.getAccounts();
       expect(accounts[0]).toBe(evmAccount.address.toLowerCase());
