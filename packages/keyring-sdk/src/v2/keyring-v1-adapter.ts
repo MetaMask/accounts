@@ -3,8 +3,6 @@ import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
 import type { BaseKeyring } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
-import { normalizeAccountAddress } from '../normalize';
-
 /**
  * Generic adapter that wraps a v2 {@link KeyringV2} instance and exposes it
  * through the v1 {@link BaseKeyring} interface expected by `KeyringController`.
@@ -65,16 +63,13 @@ export class KeyringV1Adapter<
    * Returns the addresses of all accounts in this keyring.
    *
    * Adapts the v2 `getAccounts()` (which returns `KeyringAccount[]`) to the
-   * v1 `BaseKeyring` interface (`string[]`). EVM account addresses are
-   * lowercased; all others are returned as-is.
+   * v1 `BaseKeyring` interface (`string[]`).
    *
    * @returns A promise resolving to the list of account addresses.
    */
   async getAccounts(): Promise<string[]> {
     const accounts = await this.#inner.getAccounts();
-    return accounts.map((account: KeyringAccount) =>
-      normalizeAccountAddress(account),
-    );
+    return accounts.map((account: KeyringAccount) => account.address);
   }
 
   /**

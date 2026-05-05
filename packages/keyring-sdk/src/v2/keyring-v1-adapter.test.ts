@@ -86,32 +86,12 @@ describe('KeyringV1Adapter', () => {
       expect(typeof accounts[0]).toBe('string');
     });
 
-    it('lowercases EVM account addresses', async () => {
-      const inner = makeMockInner([
-        {
-          ...evmAccount,
-          // Forcing uppercase to ensure the adapter is doing the normalization.
-          address: evmAccount.address.toUpperCase(),
-        },
-      ]);
-      const adapter = new KeyringV1Adapter(inner);
-      const accounts = await adapter.getAccounts();
-      expect(accounts[0]).toBe(evmAccount.address.toLowerCase());
-    });
-
-    it('does not lowercase non-EVM account addresses', async () => {
-      const inner = makeMockInner([solanaAccount]);
-      const adapter = new KeyringV1Adapter(inner);
-      const accounts = await adapter.getAccounts();
-      expect(accounts[0]).toBe(solanaAccount.address);
-    });
-
     it('handles mixed EVM and non-EVM accounts', async () => {
       const inner = makeMockInner([evmAccount, solanaAccount]);
       const adapter = new KeyringV1Adapter(inner);
       const accounts = await adapter.getAccounts();
       expect(accounts).toStrictEqual([
-        evmAccount.address.toLowerCase(),
+        evmAccount.address,
         solanaAccount.address,
       ]);
     });
