@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
+
 ### Added
 
 - Add `KeyringV1Adapter` ([#543](https://github.com/MetaMask/accounts/pull/543))
@@ -64,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release, extracted from `@metamask/keyring-api` ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482))
+- Initial release, extracted from `@metamask/keyring-api`, ([#478](https://github.com/MetaMask/accounts/pull/478), [#482](https://github.com/MetaMask/accounts/pull/482))
 
 [Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.2...HEAD
 [2.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.1...@metamask/keyring-sdk@2.0.2
