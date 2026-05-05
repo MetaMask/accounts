@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `KeyringV1Adapter` ([#543](https://github.com/MetaMask/accounts/pull/543))
+  - This adapter can be used when a keyring v2 instance has no v1 equivalent (`KeyringController` still rely on v1 logic for its vault/state management).
+
 ## [2.0.2]
 
 ### Changed

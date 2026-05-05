@@ -27,21 +27,9 @@ export type KeyringClass = {
 };
 
 /**
- * A keyring is something that can sign messages. Keyrings are used to add new
- * signing strategies; each strategy is a new keyring.
- *
- * Each keyring manages a collection of key pairs, which we call "accounts".
- * Each account is referred to by its "address", which is a unique identifier
- * derived from the public key. The address is always a "0x"-prefixed
- * hexidecimal string.
- *
- * The keyring might store the private key for each account as well, but it's
- * not guaranteed. Some keyrings delegate signing, so they don't need the
- * private key directly. The keyring (and in particular the keyring state)
- * should be treated with care though, just in case it does contain sensitive
- * material such as a private key.
+ * Base keyring interface. See the {@link Keyring} type for more information.
  */
-export type Keyring = {
+export type BaseKeyring = {
   /**
    * The name of this type of keyring. This must match the `type` property of
    * the keyring class.
@@ -49,19 +37,14 @@ export type Keyring = {
   type: string;
 
   /**
-   * Get the addresses for all accounts in this keyring.
-   *
-   * @returns A list of the account addresses for this keyring
+   * Method to include asynchronous configuration.
    */
-  getAccounts(): Promise<Hex[]>;
+  init?(): Promise<void>;
 
   /**
-   * Add an account to the keyring.
-   *
-   * @param number - The number of accounts to add. Usually defaults to 1.
-   * @returns A list of the newly added account addresses.
+   * Destroy the keyring.
    */
-  addAccounts(number: number): Promise<Hex[]>;
+  destroy?(): Promise<void>;
 
   /**
    * Serialize the keyring state as a JSON-serializable object.
@@ -79,9 +62,68 @@ export type Keyring = {
   deserialize(state: Json): Promise<void>;
 
   /**
-   * Method to include asynchronous configuration.
+   * Get the addresses for all accounts in this keyring.
+   *
+   * @returns A list of the account addresses for this keyring
    */
-  init?(): Promise<void>;
+  getAccounts(): Promise<string[]>;
+
+  /**
+   * Remove an account from the keyring.
+   *
+   * @param address - The address of the account to remove.
+   */
+  removeAccount?(address: string): void;
+
+  /**
+   * Export the private key for one of the keyring accounts.
+   *
+   * Some keyrings accept an "options" parameter as well. See the documentation
+   * for the specific keyring for more information about what these options
+   * are. For some keyrings, the options parameter is used to allow exporting a
+   * private key that is derived from the given account, rather than exporting
+   * that account's private key directly.
+   *
+   * @param address - The address of the account to export.
+   * @param options - Export options; differs between keyrings.
+   * @returns The non-prefixed, hex-encoded private key that was requested.
+   */
+  exportAccount?(
+    address: string,
+    options?: Record<string, unknown>,
+  ): Promise<string>;
+};
+
+/**
+ * A keyring is something that can sign messages. Keyrings are used to add new
+ * signing strategies; each strategy is a new keyring.
+ *
+ * Each keyring manages a collection of key pairs, which we call "accounts".
+ * Each account is referred to by its "address", which is a unique identifier
+ * derived from the public key. The address is always a "0x"-prefixed
+ * hexidecimal string.
+ *
+ * The keyring might store the private key for each account as well, but it's
+ * not guaranteed. Some keyrings delegate signing, so they don't need the
+ * private key directly. The keyring (and in particular the keyring state)
+ * should be treated with care though, just in case it does contain sensitive
+ * material such as a private key.
+ */
+export type Keyring = BaseKeyring & {
+  /**
+   * Get the addresses for all accounts in this keyring.
+   *
+   * @returns A list of the account addresses for this keyring
+   */
+  getAccounts(): Promise<Hex[]>;
+
+  /**
+   * Add an account to the keyring.
+   *
+   * @param number - The number of accounts to add. Usually defaults to 1.
+   * @returns A list of the newly added account addresses.
+   */
+  addAccounts(number: number): Promise<Hex[]>;
 
   /**
    * Remove an account from the keyring.
@@ -273,11 +315,6 @@ export type Keyring = {
    * @returns A promise resolving when the keyring has generated the properties.
    */
   generateRandomMnemonic?(): Promise<void>;
-
-  /**
-   * Destroy the keyring.
-   */
-  destroy?(): Promise<void>;
 };
 
 /**
