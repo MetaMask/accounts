@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0]
+
 ### Added
 
 - Add `KeyringV1Adapter` ([#543](https://github.com/MetaMask/accounts/pull/543))
   - This adapter can be used when a keyring v2 instance has no v1 equivalent (`KeyringController` still rely on v1 logic for its vault/state management).
+
+### Changed
+
+- Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.0` ([#544](https://github.com/MetaMask/accounts/pull/544))
 
 ## [2.0.2]
 
@@ -66,7 +72,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release, extracted from `@metamask/keyring-api` ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.1.0...HEAD
+[2.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.2...@metamask/keyring-sdk@2.1.0
 [2.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.1...@metamask/keyring-sdk@2.0.2
 [2.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.0...@metamask/keyring-sdk@2.0.1
 [2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@1.2.0...@metamask/keyring-sdk@2.0.0
