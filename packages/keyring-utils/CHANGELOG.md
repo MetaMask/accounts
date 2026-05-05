@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Do not narrow `Keyring` with `BaseKeyring` ([#545](https://github.com/MetaMask/accounts/pull/545))
+  - We cannot use an intersection and narrow `getAccounts()` to use `Promise<Hex[]>` as a return type.
+  - We now instead verify with TSD that `Keyring` is compatible with `BaseKeyring` so we get the proper signature.
+
 ## [3.3.0]
 
 ### Added

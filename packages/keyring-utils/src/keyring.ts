@@ -109,7 +109,38 @@ export type BaseKeyring = {
  * should be treated with care though, just in case it does contain sensitive
  * material such as a private key.
  */
-export type Keyring = BaseKeyring & {
+export type Keyring = {
+  /**
+   * The name of this type of keyring. This must match the `type` property of
+   * the keyring class.
+   */
+  type: string;
+
+  /**
+   * Method to include asynchronous configuration.
+   */
+  init?(): Promise<void>;
+
+  /**
+   * Destroy the keyring.
+   */
+  destroy?(): Promise<void>;
+
+  /**
+   * Serialize the keyring state as a JSON-serializable object.
+   *
+   * @returns A JSON-serializable representation of the keyring state.
+   */
+  serialize(): Promise<Json>;
+
+  /**
+   * Deserialize the given keyring state, overwriting any existing state with
+   * the serialized state provided.
+   *
+   * @param state - A JSON-serializable representation of the keyring state.
+   */
+  deserialize(state: Json): Promise<void>;
+
   /**
    * Get the addresses for all accounts in this keyring.
    *
