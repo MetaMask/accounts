@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `BaseKeyring` type ([#543](https://github.com/MetaMask/accounts/pull/543))
+  - This is the minimum interface that is used by the `KeyringController` to handle keyrings lifecycle.
+
 ### Changed
 
 - Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489)), ([#483](https://github.com/MetaMask/accounts/pull/483))
