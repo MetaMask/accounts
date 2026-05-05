@@ -2,7 +2,7 @@ import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
 import type { Eip1024EncryptedData, Hex, Json } from '@metamask/utils';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
-import type { EthKeyring, Keyring } from './keyring';
+import type { BaseKeyring, EthKeyring, Keyring } from './keyring';
 import type { Extends } from './typing';
 import { expectTrue } from './typing';
 
@@ -149,6 +149,9 @@ expectTrue<
   Extends<Required<Keyring>, { generateRandomMnemonic(): Promise<void> }>
 >();
 expectTrue<Extends<Required<Keyring>, { destroy(): Promise<void> }>>();
+
+// Keyring is assignable to BaseKeyring
+expectTrue<Extends<Keyring, BaseKeyring>>();
 
 // EthKeyring is an alias for Keyring
 expectType<EthKeyring>(minimalKeyring);
