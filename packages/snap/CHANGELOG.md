@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0]
+
 ### Added
 
-- Implement `keyring_setSelectedAccounts` and `keyring_resolveAccountAddress` ([#163](https://github.com/MetaMask/snap-simple-keyring/pull/163))
+- Implement `keyring_setSelectedAccounts` and `keyring_resolveAccountAddress` ([#176](https://github.com/MetaMask/snap-simple-keyring/pull/176))
   - Required for compatibility with `@metamask/eth-snap-keyring@^22`, which invokes these methods when MetaMask switches the active account or needs to resolve the signer for a request.
-- Allow the `metamask` origin to call `keyring_createAccount`, `keyring_resolveAccountAddress`, and `keyring_setSelectedAccounts` ([#163](https://github.com/MetaMask/snap-simple-keyring/pull/163))
+- Allow the `metamask` origin to call `keyring_createAccount`, `keyring_resolveAccountAddress`, and `keyring_setSelectedAccounts` ([#176](https://github.com/MetaMask/snap-simple-keyring/pull/176))
 
 ## [2.0.1]
 
@@ -182,7 +184,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.6...v2.0.0
 [1.1.6]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.5...v1.1.6
