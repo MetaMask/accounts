@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump bundled snap version reference from `@metamask/snap-simple-keyring-snap@2.0.1` to `@metamask/snap-simple-keyring-snap@2.1.0` ([#178](https://github.com/MetaMask/snap-simple-keyring/pull/178))
+  - The site embeds the snap's `package.json` version at build time, so this republish is required for consumers to install the new snap version through the dapp.
+
 ## [2.0.1]
 
 ### Changed
