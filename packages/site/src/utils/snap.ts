@@ -1,4 +1,6 @@
 import snapPackageInfo from '../../../snap/package.json';
+// Snap version is read from the snap package's manifest at build time so the
+// dapp installs whichever snap version was bundled with this site release.
 import { defaultSnapOrigin } from '../config';
 import type { GetSnapsResponse, Snap } from '../types';
 
