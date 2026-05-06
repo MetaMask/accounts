@@ -1,4 +1,5 @@
-import Transport, { TransportStatusError } from '@ledgerhq/hw-transport';
+import { TransportStatusError } from '@ledgerhq/hw-transport';
+import type Transport from '@ledgerhq/hw-transport';
 
 import { ERC20_WRITE_SELECTORS, NFT_ONLY_SELECTORS } from './constants';
 import {
