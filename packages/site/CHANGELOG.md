@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1]
+
 ### Changed
 
 - Bump bundled snap version reference from `@metamask/snap-simple-keyring-snap@2.0.1` to `@metamask/snap-simple-keyring-snap@2.1.0` ([#178](https://github.com/MetaMask/snap-simple-keyring/pull/178))
@@ -180,7 +182,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.1.1...HEAD
+[2.1.1]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.1...v2.1.1
 [2.0.1]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.6...v2.0.0
 [1.1.6]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.2...v1.1.6
