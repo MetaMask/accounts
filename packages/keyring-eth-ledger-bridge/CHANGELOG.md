@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Fix `yarn` warnings and align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
 - Bump `@metamask/keyring-sdk` from `^2.0.2` to `^2.1.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
 
 ### Fixed
