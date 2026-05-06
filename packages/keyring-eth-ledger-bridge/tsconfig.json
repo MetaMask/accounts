@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": "./",
     "exactOptionalPropertyTypes": false,
-    "target": "es2017"
+    "target": "es2017",
+    "types": ["jest", "node", "web"]
   },
   "references": [
     { "path": "../hw-wallet-sdk" },
