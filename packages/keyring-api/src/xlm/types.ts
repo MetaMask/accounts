@@ -23,6 +23,7 @@ export const XlmAddressStruct = definePattern('XlmAddress', /^G[A-Z2-7]{55}$/u);
 export enum XlmMethod {
   SignMessage = 'signMessage',
   SignTransaction = 'signTransaction',
+  SignAuthEntry = 'signAuthEntry',
 }
 
 export const XlmAccountStruct = object({
