@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fall back to blind signing on mobile when `clearSignTransaction` fails, except when the user rejects on the device ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Fall back to blind signing on mobile when `clearSignTransaction` fails, except when the user rejects on the device ([#522](https://github.com/MetaMask/accounts/pull/522))
 
 ## [12.0.2]
 
