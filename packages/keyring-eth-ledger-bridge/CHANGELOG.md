@@ -7,12 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Fall back to blind signing on mobile when `clearSignTransaction` fails, except when the user rejects on the device ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 ### Changed
 
 - Bump `@metamask/keyring-sdk` from `^2.0.2` to `^2.1.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
+
+### Fixed
+
+- Fall back to blind signing on mobile when `clearSignTransaction` fails, except when the user rejects on the device ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 
 ## [12.0.2]
 
