@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-ledger-bridge-keyring",
-  "version": "12.0.1",
+  "version": "12.0.2",
   "description": "A MetaMask compatible keyring, for ledger hardware wallets",
   "keywords": [
     "ethereum",
@@ -75,8 +75,8 @@
     "@ledgerhq/hw-transport": "^6.31.3",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/hw-wallet-sdk": "^0.8.0",
-    "@metamask/keyring-api": "^23.0.1",
-    "@metamask/keyring-sdk": "^2.0.1",
+    "@metamask/keyring-api": "^23.1.0",
+    "@metamask/keyring-sdk": "^2.1.1",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {
@@ -86,9 +86,9 @@
     "@ledgerhq/types-cryptoassets": "^7.15.1",
     "@ledgerhq/types-devices": "^6.25.3",
     "@ledgerhq/types-live": "^6.52.0",
-    "@metamask/account-api": "^1.0.3",
+    "@metamask/account-api": "^1.0.4",
     "@metamask/auto-changelog": "^6.1.0",
-    "@metamask/keyring-utils": "^3.2.0",
+    "@metamask/keyring-utils": "^3.3.1",
     "@metamask/utils": "^11.11.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/ethereumjs-tx": "^1.0.1",
@@ -105,7 +105,7 @@
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
-    "typescript": "~5.6.3"
+    "typescript": "~5.3.3"
   },
   "engines": {
     "node": "^18.18 || >=20"

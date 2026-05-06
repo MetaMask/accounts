@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
+
+## [23.1.0]
+
 ### Added
 
 - Add `TransactionType.TokenApprove` for token approval transactions ([#537](https://github.com/MetaMask/accounts/pull/537))
@@ -747,7 +753,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.1.0...HEAD
+[23.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.0.1...@metamask/keyring-api@23.1.0
 [23.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.0.0...@metamask/keyring-api@23.0.1
 [23.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@22.0.0...@metamask/keyring-api@23.0.0
 [22.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@21.6.0...@metamask/keyring-api@22.0.0

@@ -1,6 +1,6 @@
 {
   "name": "@metamask/account-api",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "MetaMask Account API",
   "keywords": [
     "account",
@@ -66,8 +66,8 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-api": "^23.0.1",
-    "@metamask/keyring-utils": "^3.2.0",
+    "@metamask/keyring-api": "^23.1.0",
+    "@metamask/keyring-utils": "^3.3.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -87,7 +87,7 @@
     "ts-node": "^10.9.2",
     "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
-    "typescript": "~5.6.3"
+    "typescript": "~5.3.3"
   },
   "tsd": {
     "compilerOptions": {

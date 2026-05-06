@@ -27,6 +27,74 @@ export type KeyringClass = {
 };
 
 /**
+ * Base keyring interface. See the {@link Keyring} type for more information.
+ */
+export type BaseKeyring = {
+  /**
+   * The name of this type of keyring. This must match the `type` property of
+   * the keyring class.
+   */
+  type: string;
+
+  /**
+   * Method to include asynchronous configuration.
+   */
+  init?(): Promise<void>;
+
+  /**
+   * Destroy the keyring.
+   */
+  destroy?(): Promise<void>;
+
+  /**
+   * Serialize the keyring state as a JSON-serializable object.
+   *
+   * @returns A JSON-serializable representation of the keyring state.
+   */
+  serialize(): Promise<Json>;
+
+  /**
+   * Deserialize the given keyring state, overwriting any existing state with
+   * the serialized state provided.
+   *
+   * @param state - A JSON-serializable representation of the keyring state.
+   */
+  deserialize(state: Json): Promise<void>;
+
+  /**
+   * Get the addresses for all accounts in this keyring.
+   *
+   * @returns A list of the account addresses for this keyring
+   */
+  getAccounts(): Promise<string[]>;
+
+  /**
+   * Remove an account from the keyring.
+   *
+   * @param address - The address of the account to remove.
+   */
+  removeAccount?(address: string): void;
+
+  /**
+   * Export the private key for one of the keyring accounts.
+   *
+   * Some keyrings accept an "options" parameter as well. See the documentation
+   * for the specific keyring for more information about what these options
+   * are. For some keyrings, the options parameter is used to allow exporting a
+   * private key that is derived from the given account, rather than exporting
+   * that account's private key directly.
+   *
+   * @param address - The address of the account to export.
+   * @param options - Export options; differs between keyrings.
+   * @returns The non-prefixed, hex-encoded private key that was requested.
+   */
+  exportAccount?(
+    address: string,
+    options?: Record<string, unknown>,
+  ): Promise<string>;
+};
+
+/**
  * A keyring is something that can sign messages. Keyrings are used to add new
  * signing strategies; each strategy is a new keyring.
  *
@@ -49,19 +117,14 @@ export type Keyring = {
   type: string;
 
   /**
-   * Get the addresses for all accounts in this keyring.
-   *
-   * @returns A list of the account addresses for this keyring
+   * Method to include asynchronous configuration.
    */
-  getAccounts(): Promise<Hex[]>;
+  init?(): Promise<void>;
 
   /**
-   * Add an account to the keyring.
-   *
-   * @param number - The number of accounts to add. Usually defaults to 1.
-   * @returns A list of the newly added account addresses.
+   * Destroy the keyring.
    */
-  addAccounts(number: number): Promise<Hex[]>;
+  destroy?(): Promise<void>;
 
   /**
    * Serialize the keyring state as a JSON-serializable object.
@@ -79,9 +142,19 @@ export type Keyring = {
   deserialize(state: Json): Promise<void>;
 
   /**
-   * Method to include asynchronous configuration.
+   * Get the addresses for all accounts in this keyring.
+   *
+   * @returns A list of the account addresses for this keyring
    */
-  init?(): Promise<void>;
+  getAccounts(): Promise<Hex[]>;
+
+  /**
+   * Add an account to the keyring.
+   *
+   * @param number - The number of accounts to add. Usually defaults to 1.
+   * @returns A list of the newly added account addresses.
+   */
+  addAccounts(number: number): Promise<Hex[]>;
 
   /**
    * Remove an account from the keyring.
@@ -273,11 +346,6 @@ export type Keyring = {
    * @returns A promise resolving when the keyring has generated the properties.
    */
   generateRandomMnemonic?(): Promise<void>;
-
-  /**
-   * Destroy the keyring.
-   */
-  destroy?(): Promise<void>;
 };
 
 /**

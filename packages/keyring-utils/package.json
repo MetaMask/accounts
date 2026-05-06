@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-utils",
-  "version": "3.2.0",
+  "version": "3.3.1",
   "description": "MetaMask Keyring utils",
   "keywords": [
     "keyring",
@@ -76,7 +76,7 @@
     "ts-node": "^10.9.2",
     "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
-    "typescript": "~5.6.3"
+    "typescript": "~5.3.3"
   },
   "tsd": {
     "compilerOptions": {

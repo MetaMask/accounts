@@ -7,9 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.1]
+
+### Fixed
+
+- Do not narrow `Keyring` with `BaseKeyring` ([#545](https://github.com/MetaMask/accounts/pull/545))
+  - We cannot use an intersection and narrow `getAccounts()` to use `Promise<Hex[]>` as a return type.
+  - We now instead verify with TSD that `Keyring` is compatible with `BaseKeyring` so we get the proper signature.
+
+## [3.3.0]
+
+### Added
+
+- Add `BaseKeyring` type ([#543](https://github.com/MetaMask/accounts/pull/543))
+  - This is the minimum interface that is used by the `KeyringController` to handle keyrings lifecycle.
+
 ### Changed
 
-- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489)), ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0`, ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [3.2.0]
 
@@ -71,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `Keyring` and `KeyringClass` types ([#201](https://github.com/MetaMask/accounts/pull/201)), ([#205](https://github.com/MetaMask/accounts/pull/205))
+- Add `Keyring` and `KeyringClass` types, ([#201](https://github.com/MetaMask/accounts/pull/201), [#205](https://github.com/MetaMask/accounts/pull/205))
   - The two types have been migrated from `@metamask/utils`.
   - The `State` generic accepted by the two types was removed, and the `deserialize` and `serialize` signatures were updated to use `Json` instead of `State` as argument and return types.
 
@@ -119,7 +134,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.3.1...HEAD
+[3.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.3.0...@metamask/keyring-utils@3.3.1
+[3.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.2.0...@metamask/keyring-utils@3.3.0
 [3.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.1.0...@metamask/keyring-utils@3.2.0
 [3.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.0.0...@metamask/keyring-utils@3.1.0
 [3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@2.3.1...@metamask/keyring-utils@3.0.0
