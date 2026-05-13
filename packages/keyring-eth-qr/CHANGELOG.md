@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Expose device-management pass-throughs on the V2 `QrKeyring` wrapper: `getName`, `getMode`, `getFirstPage`, `getNextPage`, `getPreviousPage`, `forgetDevice`. `forgetDevice` additionally clears the V2 account registry to keep it in sync with the inner keyring.
+- Expose device-management pass-throughs on the V2 `QrKeyring` wrapper: `getName`, `getMode`, `getFirstPage`, `getNextPage`, `getPreviousPage`, `forgetDevice`. `forgetDevice` additionally clears the V2 account registry to keep it in sync with the inner keyring. ([#551](https://github.com/MetaMask/accounts/pull/551))
 
 ### Changed
 
