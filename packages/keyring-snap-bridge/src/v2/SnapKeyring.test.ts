@@ -3,13 +3,12 @@ import type {
   KeyringAccount,
   CreateAccountOptions,
 } from '@metamask/keyring-api';
+import type { Keyring } from '@metamask/keyring-api/v2';
+import { KeyringType } from '@metamask/keyring-api/v2';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import type { SnapId } from '@metamask/snaps-sdk';
 
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
-import type { Keyring } from '@metamask/keyring-api/v2';
-import { KeyringType } from '@metamask/keyring-api/v2';
-
 import type { SnapKeyringCallbacks } from './SnapKeyring';
 import { isSnapKeyring, SnapKeyring } from './SnapKeyring';
 
