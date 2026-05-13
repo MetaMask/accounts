@@ -482,11 +482,7 @@ describe('SnapKeyring', () => {
     it('narrows the keyring type', async () => {
       const { keyring } = await makeKeyring();
       const asKeyring: Keyring = keyring;
-      if (isSnapKeyring(asKeyring)) {
-        expect(asKeyring.snapId).toBe(SNAP_ID);
-      } else {
-        throw new Error('Expected isSnapKeyring to narrow to SnapKeyring');
-      }
+      expect(isSnapKeyring(asKeyring) && asKeyring.snapId).toBe(SNAP_ID);
     });
 
     it('returns false for a keyring with a different type', () => {
