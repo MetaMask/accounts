@@ -16,7 +16,11 @@ import { EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import type { TrezorKeyring as LegacyTrezorKeyring } from '../trezor-keyring';
+import type { TrezorBridge } from '../trezor-bridge';
+import type {
+  AccountPage,
+  TrezorKeyring as LegacyTrezorKeyring,
+} from '../trezor-keyring';
 
 /**
  * Methods supported by Trezor keyring EOA accounts.
@@ -365,5 +369,83 @@ export class TrezorKeyring
       // Remove from the registry
       this.registry.delete(accountId);
     });
+  }
+
+  /**
+   * @returns The device model reported by the bridge, or `undefined` if no
+   * device is paired.
+   */
+  getModel(): string | undefined {
+    return this.inner.getModel();
+  }
+
+  /**
+   * @returns The current derivation path used by the inner keyring.
+   */
+  get hdPath(): string {
+    return this.inner.hdPath;
+  }
+
+  /**
+   * @returns The bridge instance used by the inner keyring to communicate
+   * with the device.
+   */
+  get bridge(): TrezorBridge {
+    return this.inner.bridge;
+  }
+
+  /**
+   * Set the derivation path on the inner keyring. Must be one of the allowed
+   * HD paths supported by the legacy Trezor keyring.
+   *
+   * @param hdPath - The derivation path to set.
+   */
+  setHdPath(hdPath: Parameters<LegacyTrezorKeyring['setHdPath']>[0]): void {
+    this.inner.setHdPath(hdPath);
+  }
+
+  /**
+   * Fetch the first page of candidate addresses from the device.
+   *
+   * @returns The first page of accounts.
+   */
+  async getFirstPage(): Promise<AccountPage> {
+    return this.inner.getFirstPage();
+  }
+
+  /**
+   * Fetch the next page of candidate addresses from the device.
+   *
+   * @returns The next page of accounts.
+   */
+  async getNextPage(): Promise<AccountPage> {
+    return this.inner.getNextPage();
+  }
+
+  /**
+   * Fetch the previous page of candidate addresses from the device.
+   *
+   * @returns The previous page of accounts.
+   */
+  async getPreviousPage(): Promise<AccountPage> {
+    return this.inner.getPreviousPage();
+  }
+
+  /**
+   * Clear the inner keyring's device-pairing state and accounts, and reset
+   * the V2 account registry to keep them in sync.
+   */
+  async forgetDevice(): Promise<void> {
+    await this.withLock(async () => {
+      this.inner.forgetDevice();
+      this.registry.clear();
+    });
+  }
+
+  /**
+   * @returns Whether the inner keyring has an unlocked HD key.
+   */
+  isUnlocked(): boolean {
+    return this.inner.isUnlocked();
   }
 }

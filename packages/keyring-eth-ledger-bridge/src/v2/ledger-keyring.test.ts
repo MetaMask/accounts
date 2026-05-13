@@ -852,4 +852,103 @@ describe('LedgerKeyring', () => {
       expect(accounts[1]?.options.entropy.groupIndex).toBe(2);
     });
   });
+
+  describe('device management pass-throughs', () => {
+    it('exposes the inner keyring hdPath', () => {
+      const { wrapper, inner } = createEmptyWrapper();
+
+      expect(wrapper.hdPath).toBe(inner.hdPath);
+    });
+
+    it('exposes the inner keyring bridge', () => {
+      const { wrapper, inner } = createEmptyWrapper();
+
+      expect(wrapper.bridge).toBe(inner.bridge);
+    });
+
+    it('getDeviceId delegates to the inner keyring', () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      inner.setDeviceId('device-abc');
+
+      expect(wrapper.getDeviceId()).toBe('device-abc');
+    });
+
+    it('setDeviceId delegates to the inner keyring', () => {
+      const { wrapper, inner } = createEmptyWrapper();
+
+      wrapper.setDeviceId('device-xyz');
+
+      expect(inner.getDeviceId()).toBe('device-xyz');
+    });
+
+    it('setHdPath delegates to the inner keyring', () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      const setHdPathSpy = jest.spyOn(inner, 'setHdPath');
+
+      wrapper.setHdPath(`m/44'/60'/0'/0`);
+
+      expect(setHdPathSpy).toHaveBeenCalledWith(`m/44'/60'/0'/0`);
+      expect(inner.hdPath).toBe(`m/44'/60'/0'/0`);
+    });
+
+    it('getFirstPage delegates to the inner keyring', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      const page = [{ address: EXPECTED_ACCOUNTS[0], balance: 0, index: 0 }];
+      jest.spyOn(inner, 'getFirstPage').mockResolvedValue(page);
+
+      expect(await wrapper.getFirstPage()).toStrictEqual(page);
+    });
+
+    it('getNextPage delegates to the inner keyring', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      const page = [{ address: EXPECTED_ACCOUNTS[1], balance: 0, index: 1 }];
+      jest.spyOn(inner, 'getNextPage').mockResolvedValue(page);
+
+      expect(await wrapper.getNextPage()).toStrictEqual(page);
+    });
+
+    it('getPreviousPage delegates to the inner keyring', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      const page = [{ address: EXPECTED_ACCOUNTS[0], balance: 0, index: 0 }];
+      jest.spyOn(inner, 'getPreviousPage').mockResolvedValue(page);
+
+      expect(await wrapper.getPreviousPage()).toStrictEqual(page);
+    });
+
+    it('forgetDevice clears inner state and the V2 registry', async () => {
+      const { wrapper, inner } = await createWrapperWithAccounts(2);
+
+      // Populate the wrapper's registry by reading accounts.
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(2);
+
+      await wrapper.forgetDevice();
+
+      expect(inner.accounts).toStrictEqual([]);
+      expect(inner.accountDetails).toStrictEqual({});
+      expect(await wrapper.getAccounts()).toStrictEqual([]);
+    });
+
+    it('isUnlocked delegates to the inner keyring', () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      jest.spyOn(inner, 'isUnlocked').mockReturnValue(true);
+
+      expect(wrapper.isUnlocked()).toBe(true);
+    });
+
+    it('attemptMakeApp delegates to the inner keyring', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      jest.spyOn(inner, 'attemptMakeApp').mockResolvedValue(true);
+
+      expect(await wrapper.attemptMakeApp()).toBe(true);
+    });
+
+    it('getAppNameAndVersion delegates to the inner keyring', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      const response = { appName: 'Ethereum', version: '1.10.0' };
+      jest.spyOn(inner, 'getAppNameAndVersion').mockResolvedValue(response);
+
+      expect(await wrapper.getAppNameAndVersion()).toStrictEqual(response);
+    });
+  });
 });
