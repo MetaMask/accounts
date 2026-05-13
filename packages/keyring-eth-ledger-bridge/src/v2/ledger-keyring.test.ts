@@ -928,5 +928,27 @@ describe('LedgerKeyring', () => {
       expect(inner.accountDetails).toStrictEqual({});
       expect(await wrapper.getAccounts()).toStrictEqual([]);
     });
+
+    it('isUnlocked delegates to the inner keyring', () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      jest.spyOn(inner, 'isUnlocked').mockReturnValue(true);
+
+      expect(wrapper.isUnlocked()).toBe(true);
+    });
+
+    it('attemptMakeApp delegates to the inner keyring', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      jest.spyOn(inner, 'attemptMakeApp').mockResolvedValue(true);
+
+      expect(await wrapper.attemptMakeApp()).toBe(true);
+    });
+
+    it('getAppNameAndVersion delegates to the inner keyring', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      const response = { appName: 'Ethereum', version: '1.10.0' };
+      jest.spyOn(inner, 'getAppNameAndVersion').mockResolvedValue(response);
+
+      expect(await wrapper.getAppNameAndVersion()).toStrictEqual(response);
+    });
   });
 });

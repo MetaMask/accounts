@@ -17,7 +17,11 @@ import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import { add0x, getChecksumAddress } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
-import type { LedgerBridge, LedgerBridgeOptions } from '../ledger-bridge';
+import type {
+  GetAppNameAndVersionResponse,
+  LedgerBridge,
+  LedgerBridgeOptions,
+} from '../ledger-bridge';
 import type {
   AccountPage,
   LedgerKeyring as LegacyLedgerKeyring,
@@ -429,5 +433,29 @@ export class LedgerKeyring
   forgetDevice(): void {
     this.inner.forgetDevice();
     this.registry.clear();
+  }
+
+  /**
+   * @returns Whether the inner keyring has an unlocked HD key.
+   */
+  isUnlocked(): boolean {
+    return this.inner.isUnlocked();
+  }
+
+  /**
+   * Attempt to open the Ethereum app on the connected Ledger device.
+   *
+   * @returns Whether the app was opened.
+   */
+  async attemptMakeApp(): Promise<boolean> {
+    return this.inner.attemptMakeApp();
+  }
+
+  /**
+   * @returns The app name and version currently running on the connected
+   * Ledger device.
+   */
+  async getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse> {
+    return this.inner.getAppNameAndVersion();
   }
 }
