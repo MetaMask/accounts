@@ -7,8 +7,11 @@ import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-clien
 import type { SnapId } from '@metamask/snaps-sdk';
 
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
+import type { Keyring } from '@metamask/keyring-api/v2';
+import { KeyringType } from '@metamask/keyring-api/v2';
+
 import type { SnapKeyringCallbacks } from './SnapKeyring';
-import { SnapKeyring } from './SnapKeyring';
+import { isSnapKeyring, SnapKeyring } from './SnapKeyring';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 
@@ -467,6 +470,33 @@ describe('SnapKeyring', () => {
           "Account 'unknown-id' not found",
         );
       });
+    });
+  });
+
+  describe('isSnapKeyring', () => {
+    it('returns true for a SnapKeyring instance', async () => {
+      const { keyring } = await makeKeyring();
+      expect(isSnapKeyring(keyring)).toBe(true);
+    });
+
+    it('narrows the keyring type', async () => {
+      const { keyring } = await makeKeyring();
+      const asKeyring: Keyring = keyring;
+      if (isSnapKeyring(asKeyring)) {
+        expect(asKeyring.snapId).toBe(SNAP_ID);
+      } else {
+        throw new Error('Expected isSnapKeyring to narrow to SnapKeyring');
+      }
+    });
+
+    it('returns false for a keyring with a different type', () => {
+      const other = { type: 'HD Key Tree' } as unknown as Keyring;
+      expect(isSnapKeyring(other)).toBe(false);
+    });
+
+    it('checks the type field exactly', () => {
+      const fake = { type: KeyringType.Snap } as unknown as Keyring;
+      expect(isSnapKeyring(fake)).toBe(true);
     });
   });
 });

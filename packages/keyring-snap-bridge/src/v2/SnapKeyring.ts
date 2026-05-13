@@ -70,6 +70,16 @@ type SnapKeyringOptions = Omit<SnapKeyringV1Options, 'callbacks'> & {
 };
 
 /**
+ * Checks if a given keyring is a Snap keyring (v2).
+ *
+ * @param keyring - The keyring to check.
+ * @returns `true` if the keyring is a Snap keyring (v2), `false` otherwise.
+ */
+export function isSnapKeyring(keyring: Keyring): keyring is SnapKeyring {
+  return keyring.type === KeyringType.Snap;
+}
+
+/**
  * Per-snap keyring wrapper that implements `Keyring`.
  *
  * Extends `SnapKeyringV1` — the v1 event-driven flow (account lifecycle,
