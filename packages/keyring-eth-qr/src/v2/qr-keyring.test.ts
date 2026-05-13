@@ -766,4 +766,61 @@ describe('QrKeyring', () => {
       });
     });
   });
+
+  describe('device management pass-throughs', () => {
+    it('getName delegates to the inner keyring', async () => {
+      const { wrapper, inner } = await createWrapperWithAccounts(1);
+
+      expect(wrapper.getName()).toBe(inner.getName());
+    });
+
+    it('getMode delegates to the inner keyring', async () => {
+      const { wrapper, inner } = await createWrapperWithAccounts(1);
+
+      expect(wrapper.getMode()).toBe(inner.getMode());
+    });
+
+    it('getFirstPage delegates to the inner keyring', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      const page = [{ address: EXPECTED_ACCOUNTS[0], index: 0 }] as Awaited<
+        ReturnType<LegacyQrKeyring['getFirstPage']>
+      >;
+      jest.spyOn(inner, 'getFirstPage').mockResolvedValue(page);
+
+      expect(await wrapper.getFirstPage()).toStrictEqual(page);
+    });
+
+    it('getNextPage delegates to the inner keyring', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      const page = [{ address: EXPECTED_ACCOUNTS[1], index: 1 }] as Awaited<
+        ReturnType<LegacyQrKeyring['getNextPage']>
+      >;
+      jest.spyOn(inner, 'getNextPage').mockResolvedValue(page);
+
+      expect(await wrapper.getNextPage()).toStrictEqual(page);
+    });
+
+    it('getPreviousPage delegates to the inner keyring', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+      const page = [{ address: EXPECTED_ACCOUNTS[0], index: 0 }] as Awaited<
+        ReturnType<LegacyQrKeyring['getPreviousPage']>
+      >;
+      jest.spyOn(inner, 'getPreviousPage').mockResolvedValue(page);
+
+      expect(await wrapper.getPreviousPage()).toStrictEqual(page);
+    });
+
+    it('forgetDevice clears inner state and the V2 registry', async () => {
+      const { wrapper, inner } = await createWrapperWithAccounts(2);
+
+      // Populate the wrapper's registry by reading accounts.
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(2);
+
+      await wrapper.forgetDevice();
+
+      expect(await inner.getAccounts()).toStrictEqual([]);
+      expect(await wrapper.getAccounts()).toStrictEqual([]);
+    });
+  });
 });

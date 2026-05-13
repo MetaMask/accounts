@@ -17,7 +17,11 @@ import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import { add0x, getChecksumAddress } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
-import type { LedgerKeyring as LegacyLedgerKeyring } from '../ledger-keyring';
+import type { LedgerBridge, LedgerBridgeOptions } from '../ledger-bridge';
+import type {
+  AccountPage,
+  LedgerKeyring as LegacyLedgerKeyring,
+} from '../ledger-keyring';
 
 /**
  * Methods supported by Ledger keyring EOA accounts.
@@ -349,5 +353,81 @@ export class LedgerKeyring
       // Remove from the registry
       this.registry.delete(accountId);
     });
+  }
+
+  /**
+   * @returns The current derivation path used by the inner keyring.
+   */
+  get hdPath(): string {
+    return this.inner.hdPath;
+  }
+
+  /**
+   * @returns The bridge instance used by the inner keyring to communicate
+   * with the device.
+   */
+  get bridge(): LedgerBridge<LedgerBridgeOptions> {
+    return this.inner.bridge;
+  }
+
+  /**
+   * @returns The device ID for the paired Ledger device.
+   */
+  getDeviceId(): string {
+    return this.inner.getDeviceId();
+  }
+
+  /**
+   * Set the device ID for the paired Ledger device.
+   *
+   * @param deviceId - The device ID to set.
+   */
+  setDeviceId(deviceId: string): void {
+    this.inner.setDeviceId(deviceId);
+  }
+
+  /**
+   * Set the derivation path on the inner keyring.
+   *
+   * @param hdPath - The derivation path to set.
+   */
+  setHdPath(hdPath: string): void {
+    this.inner.setHdPath(hdPath);
+  }
+
+  /**
+   * Fetch the first page of candidate addresses from the device.
+   *
+   * @returns The first page of accounts.
+   */
+  async getFirstPage(): Promise<AccountPage> {
+    return this.inner.getFirstPage();
+  }
+
+  /**
+   * Fetch the next page of candidate addresses from the device.
+   *
+   * @returns The next page of accounts.
+   */
+  async getNextPage(): Promise<AccountPage> {
+    return this.inner.getNextPage();
+  }
+
+  /**
+   * Fetch the previous page of candidate addresses from the device.
+   *
+   * @returns The previous page of accounts.
+   */
+  async getPreviousPage(): Promise<AccountPage> {
+    return this.inner.getPreviousPage();
+  }
+
+  /**
+   * Clear the inner keyring's device-pairing state and accounts, and reset
+   * the V2 account registry to keep them in sync.
+   */
+  forgetDevice(): void {
+    this.inner.forgetDevice();
+    this.registry.clear();
   }
 }

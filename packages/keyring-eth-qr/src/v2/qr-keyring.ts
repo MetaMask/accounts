@@ -18,6 +18,7 @@ import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 
 import { DeviceMode } from '../device';
+import type { IndexedAddress } from '../device';
 import type { QrKeyring as LegacyQrKeyring } from '../qr-keyring';
 
 /**
@@ -434,5 +435,57 @@ export class QrKeyring
       // Remove from the registry
       this.registry.delete(accountId);
     });
+  }
+
+  /**
+   * @returns The name of the paired device, or the keyring type if no device
+   * is paired.
+   */
+  getName(): string {
+    return this.inner.getName();
+  }
+
+  /**
+   * @returns The current device mode (HD or Account), or `undefined` if no
+   * device is paired.
+   */
+  getMode(): DeviceMode | undefined {
+    return this.inner.getMode();
+  }
+
+  /**
+   * Fetch the first page of candidate addresses from the device.
+   *
+   * @returns The first page of addresses.
+   */
+  async getFirstPage(): Promise<IndexedAddress[]> {
+    return this.inner.getFirstPage();
+  }
+
+  /**
+   * Fetch the next page of candidate addresses from the device.
+   *
+   * @returns The next page of addresses.
+   */
+  async getNextPage(): Promise<IndexedAddress[]> {
+    return this.inner.getNextPage();
+  }
+
+  /**
+   * Fetch the previous page of candidate addresses from the device.
+   *
+   * @returns The previous page of addresses.
+   */
+  async getPreviousPage(): Promise<IndexedAddress[]> {
+    return this.inner.getPreviousPage();
+  }
+
+  /**
+   * Clear the inner keyring's device-pairing state and accounts, and reset
+   * the V2 account registry to keep them in sync.
+   */
+  async forgetDevice(): Promise<void> {
+    await this.inner.forgetDevice();
+    this.registry.clear();
   }
 }
