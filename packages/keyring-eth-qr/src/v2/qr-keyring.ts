@@ -485,7 +485,9 @@ export class QrKeyring
    * the V2 account registry to keep them in sync.
    */
   async forgetDevice(): Promise<void> {
-    await this.inner.forgetDevice();
-    this.registry.clear();
+    await this.withLock(async () => {
+      await this.inner.forgetDevice();
+      this.registry.clear();
+    });
   }
 }

@@ -905,7 +905,7 @@ describe('TrezorKeyring', () => {
       const accounts = await wrapper.getAccounts();
       expect(accounts).toHaveLength(2);
 
-      wrapper.forgetDevice();
+      await wrapper.forgetDevice();
 
       expect(inner.accounts).toStrictEqual([]);
       expect(await wrapper.getAccounts()).toStrictEqual([]);

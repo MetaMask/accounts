@@ -430,9 +430,11 @@ export class LedgerKeyring
    * Clear the inner keyring's device-pairing state and accounts, and reset
    * the V2 account registry to keep them in sync.
    */
-  forgetDevice(): void {
-    this.inner.forgetDevice();
-    this.registry.clear();
+  async forgetDevice(): Promise<void> {
+    await this.withLock(async () => {
+      this.inner.forgetDevice();
+      this.registry.clear();
+    });
   }
 
   /**
