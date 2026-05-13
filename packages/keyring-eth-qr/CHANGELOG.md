@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0]
+
 ### Added
 
 - Expose device-management pass-throughs on the V2 `QrKeyring` wrapper: `getName`, `getMode`, `getFirstPage`, `getNextPage`, `getPreviousPage`, `forgetDevice`. `forgetDevice` additionally clears the V2 account registry to keep it in sync with the inner keyring. ([#551](https://github.com/MetaMask/accounts/pull/551))
@@ -74,7 +76,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release ([#60](https://github.com/MetaMask/accounts/pull/60))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.1.0...HEAD
+[2.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.0.2...@metamask/eth-qr-keyring@2.1.0
 [2.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.0.1...@metamask/eth-qr-keyring@2.0.2
 [2.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.0.0...@metamask/eth-qr-keyring@2.0.1
 [2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@1.1.0...@metamask/eth-qr-keyring@2.0.0

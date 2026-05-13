@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.1.0]
+
 ### Added
 
 - Expose device-management pass-throughs on the V2 `TrezorKeyring` wrapper (inherited by the V2 `OneKeyKeyring`): `getModel`, `hdPath` (getter), `bridge` (getter), `setHdPath`, `getFirstPage`, `getNextPage`, `getPreviousPage`, `forgetDevice`, `isUnlocked`. `forgetDevice` additionally clears the V2 account registry to keep it in sync with the inner keyring. ([#551](https://github.com/MetaMask/accounts/pull/551))
@@ -283,7 +285,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.1.0...HEAD
+[10.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.0.2...@metamask/eth-trezor-keyring@10.1.0
 [10.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.0.1...@metamask/eth-trezor-keyring@10.0.2
 [10.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.0.0...@metamask/eth-trezor-keyring@10.0.1
 [10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@9.1.1...@metamask/eth-trezor-keyring@10.0.0
