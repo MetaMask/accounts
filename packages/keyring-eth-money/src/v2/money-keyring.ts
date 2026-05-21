@@ -16,6 +16,7 @@ import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import { AccountId } from '@metamask/keyring-utils';
 import { assert, Hex } from '@metamask/utils';
 
+import { MONEY_DERIVATION_PATH } from '../money-keyring';
 import type { MoneyKeyring as LegacyMoneyKeyring } from '../money-keyring';
 
 /**
@@ -39,11 +40,6 @@ const MONEY_KEYRING_METHODS = [
   EthMethod.SignTypedDataV4,
   EthKeyringMethod.SignEip7702Authorization,
 ];
-
-/**
- * Based on the SLIP-10 coin type: https://github.com/satoshilabs/slips/pull/1983
- */
-export const MONEY_DERIVATION_PATH = `m/44'/4392018'/0'/0`;
 
 /**
  * The unique type identifier for the {@link MoneyKeyring}.
