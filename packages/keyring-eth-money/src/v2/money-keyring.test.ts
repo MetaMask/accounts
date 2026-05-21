@@ -10,8 +10,11 @@ import { EthKeyringMethod } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import { MoneyKeyring as LegacyMoneyKeyring } from '../money-keyring';
-import { MONEY_DERIVATION_PATH, MoneyKeyring } from './money-keyring';
+import {
+  MoneyKeyring as LegacyMoneyKeyring,
+  MONEY_DERIVATION_PATH,
+} from '../money-keyring';
+import { MoneyKeyring } from './money-keyring';
 
 const TEST_MNEMONIC =
   'finish oppose decorate face calm tragic certain desk hour urge dinosaur mango';
