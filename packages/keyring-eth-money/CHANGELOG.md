@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `MoneyKeyring` v2 wrapper ([#xxx](https://github.com/MetaMask/accounts/pull/xxx))
+- Add `MoneyKeyring` v2 wrapper ([#554](https://github.com/MetaMask/accounts/pull/554))
 
 ### Changed
 
