@@ -122,10 +122,7 @@ export class MoneyKeyring
     // The legitimate states are "no account yet" (empty) and "the single
     // Money account". Anything beyond that means the inner keyring has been
     // mutated in a way the wrapper does not support.
-    assert(
-      addresses.length <= 1,
-      'MoneyKeyring: supports at most one account',
-    );
+    assert(addresses.length <= 1, 'MoneyKeyring: supports at most one account');
     return addresses.map((address) => {
       const existingId = this.registry.getAccountId(address);
       if (existingId) {
