@@ -16,7 +16,8 @@
     "url": "https://github.com/MetaMask/accounts.git"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "v2.js"
   ],
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -30,6 +31,16 @@
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
+      }
+    },
+    "./v2": {
+      "import": {
+        "types": "./dist/v2/index.d.mts",
+        "default": "./dist/v2/index.mjs"
+      },
+      "require": {
+        "types": "./dist/v2/index.d.cts",
+        "default": "./dist/v2/index.cjs"
       }
     },
     "./package.json": "./package.json"
@@ -67,6 +78,7 @@
     "@metamask/auto-changelog": "^6.1.0",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/key-tree": "^10.0.2",
+    "@metamask/keyring-sdk": "^2.1.1",
     "@metamask/utils": "^11.11.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
