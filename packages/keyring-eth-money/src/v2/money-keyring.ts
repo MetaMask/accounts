@@ -64,8 +64,8 @@ export class MoneyKeyring
    *
    * @returns The entropy source ID.
    */
-  get entropySource(): EntropySourceId {
-    return this.inner.entropySource as EntropySourceId;
+  get entropySource(): string | undefined {
+    return this.inner.entropySource;
   }
 
   /**
