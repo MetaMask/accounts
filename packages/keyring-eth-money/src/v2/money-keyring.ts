@@ -42,11 +42,6 @@ const MONEY_KEYRING_METHODS = [
 ];
 
 /**
- * The unique type identifier for the {@link MoneyKeyring}.
- */
-export const MONEY_KEYRING_TYPE = 'Money Keyring';
-
-/**
  * Concrete {@link Keyring} adapter for {@link MoneyKeyring}.
  *
  * This wrapper exposes the accounts and signing capabilities of the legacy
