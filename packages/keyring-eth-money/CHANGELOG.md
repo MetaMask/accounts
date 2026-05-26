@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `MoneyKeyring` v2 wrapper ([#554](https://github.com/MetaMask/accounts/pull/554))
+
 ### Changed
 
 - **BREAKING:** Remove `signTransaction` pass-through; Money accounts do not sign transactions ([#521](https://github.com/MetaMask/accounts/pull/521))
