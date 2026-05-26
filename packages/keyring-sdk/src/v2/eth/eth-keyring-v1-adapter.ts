@@ -23,7 +23,7 @@ import {
   AccountExportType,
   PrivateKeyEncoding,
 } from '@metamask/keyring-api/v2';
-import type { EthKeyring } from '@metamask/keyring-utils';
+import type { BaseKeyring, EthKeyring } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import { mask, object, string } from '@metamask/superstruct';
 import type { Hex, Json } from '@metamask/utils';
@@ -36,6 +36,7 @@ import {
 import { v4 as uuid } from 'uuid';
 
 import type { Eth4337Keyring } from '../../eth';
+import { KeyringV1Adapter } from '../keyring-v1-adapter';
 import { EthKeyringMethod } from './eth-keyring-wrapper';
 
 const DEFAULT_ORIGIN = 'metamask';
@@ -60,15 +61,17 @@ function toJson<Type extends Json = Json>(value: unknown): Type {
 /**
  * Legacy ETH keyring API surface exposed by {@link EthKeyringV1Adapter}.
  */
-export type BaseEthKeyring = Pick<
-  EthKeyring,
-  | 'exportAccount'
-  | 'signMessage'
-  | 'signEip7702Authorization'
-  | 'signPersonalMessage'
-  | 'signTypedData'
-  | 'signTransaction'
-> &
+export type BaseEthKeyring = BaseKeyring &
+  // Only pick account-related methods (signing and exporting).
+  Pick<
+    EthKeyring,
+    | 'exportAccount'
+    | 'signMessage'
+    | 'signEip7702Authorization'
+    | 'signPersonalMessage'
+    | 'signTypedData'
+    | 'signTransaction'
+  > &
   Eth4337Keyring;
 
 /**
@@ -111,9 +114,10 @@ export class EthKeyringV1MethodNotSupportedError extends Error {
  * supports the requested method, then forwards the request through the v2
  * `submitRequest` or `exportAccount` APIs.
  */
-export class EthKeyringV1Adapter implements BaseEthKeyring {
-  readonly #keyring: KeyringV2;
-
+export class EthKeyringV1Adapter
+  extends KeyringV1Adapter<KeyringV2>
+  implements BaseEthKeyring
+{
   readonly #origin: string;
 
   /**
@@ -130,7 +134,7 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
     keyring: KeyringV2;
     origin?: string;
   }) {
-    this.#keyring = keyring;
+    super(keyring);
     this.#origin = origin;
   }
 
@@ -147,12 +151,13 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
    */
   async exportAccount(address: Hex): Promise<string> {
     const { account } = await this.#getAccount(address);
+    const keyring = this.unwrap();
 
-    if (!this.#keyring.exportAccount) {
+    if (!keyring.exportAccount) {
       throw new Error('Keyring does not support exportAccount');
     }
 
-    const exportedAccount = await this.#keyring.exportAccount(account.id, {
+    const exportedAccount = await keyring.exportAccount(account.id, {
       type: AccountExportType.PrivateKey,
       encoding: PrivateKeyEncoding.Hexadecimal,
     });
@@ -447,7 +452,7 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
       throw new EthKeyringV1AccountNotFoundError(address);
     }
 
-    const accounts = await this.#keyring.getAccounts();
+    const accounts = await this.unwrap().getAccounts();
     const account = accounts.find((keyringAccount) => {
       const accountAddress = ethNormalize(keyringAccount.address);
       return accountAddress?.toLowerCase() === normalizedAddressLowerCase;
@@ -500,7 +505,7 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
     params: RequestParams,
     scope: string = EthScope.Eoa,
   ): Promise<Result> {
-    return (await this.#keyring.submitRequest({
+    return (await this.unwrap().submitRequest({
       id: uuid(),
       origin: this.#origin,
       scope,

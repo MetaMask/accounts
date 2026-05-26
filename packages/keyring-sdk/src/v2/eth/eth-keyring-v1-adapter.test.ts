@@ -19,6 +19,8 @@ import {
 import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
 import type { Hex, Json } from '@metamask/utils';
 
+import { KeyringV1Adapter } from '../keyring-v1-adapter';
+import type { BaseEthKeyring } from './eth-keyring-v1-adapter';
 import {
   EthKeyringV1AccountNotFoundError,
   EthKeyringV1Adapter,
@@ -229,6 +231,10 @@ describe('EthKeyringV1Adapter', () => {
   it('exposes the base ETH keyring methods', () => {
     const { adapter } = setup({ includeExportAccount: false });
 
+    expect(adapter.getAccounts).toStrictEqual(expect.any(Function));
+    expect(adapter.serialize).toStrictEqual(expect.any(Function));
+    expect(adapter.deserialize).toStrictEqual(expect.any(Function));
+    expect(adapter.unwrap).toStrictEqual(expect.any(Function));
     expect(adapter.exportAccount).toStrictEqual(expect.any(Function));
     expect(adapter.signTransaction).toStrictEqual(expect.any(Function));
     expect(adapter.signMessage).toStrictEqual(expect.any(Function));
@@ -244,6 +250,32 @@ describe('EthKeyringV1Adapter', () => {
       (adapter as unknown as { getEncryptionPublicKey?: unknown })
         .getEncryptionPublicKey,
     ).toBeUndefined();
+  });
+
+  it('inherits generic v1 adapter behavior', async () => {
+    const account = buildAccount();
+    const otherAccount = buildAccount({
+      id: OTHER_ACCOUNT_ID,
+      address: OTHER_ACCOUNT_ADDRESS,
+    });
+    const { adapter, keyring } = setup({
+      accounts: [account, otherAccount],
+    });
+    const baseAdapter: BaseEthKeyring = adapter;
+    const state = { restored: true };
+
+    expect(adapter).toBeInstanceOf(KeyringV1Adapter);
+    expect(baseAdapter.type).toBe(KeyringType.Hd);
+    expect(adapter.unwrap()).toBe(keyring);
+    expect(await baseAdapter.getAccounts()).toStrictEqual([
+      ACCOUNT_ADDRESS,
+      OTHER_ACCOUNT_ADDRESS,
+    ]);
+    expect(await baseAdapter.serialize()).toStrictEqual({ serialized: true });
+
+    await baseAdapter.deserialize(state);
+
+    expect(keyring.deserialize).toHaveBeenCalledWith(state);
   });
 
   it('exports a private key through the v2 keyring', async () => {
