@@ -33,8 +33,7 @@ const ACCOUNT_ID = 'mock-account-id';
 const OTHER_ACCOUNT_ADDRESS = '0x96a3a7898f0072d03cf76c91e8a11da5b03653c8';
 const OTHER_ACCOUNT_ID = 'mock-other-account-id';
 const UNKNOWN_ACCOUNT_ADDRESS = '0x9c6f1a77f5d6dbecc927bc9f1d5c1f4a10f23df9';
-const APP_ORIGIN = 'https://metamask.github.io';
-const DEFAULT_ORIGIN = 'metamask';
+const METAMASK_ORIGIN = 'metamask';
 
 const ALL_SUPPORTED_METHODS = [
   EthMethod.SignTransaction,
@@ -64,13 +63,11 @@ function setup({
   accounts = [buildAccount()],
   exportedPrivateKey = '0xabc123',
   includeExportAccount = true,
-  origin,
   submitRequestResult = 'request-result',
 }: {
   accounts?: KeyringAccount[];
   exportedPrivateKey?: string;
   includeExportAccount?: boolean;
-  origin?: string;
   submitRequestResult?: Json;
 } = {}): {
   accounts: KeyringAccount[];
@@ -119,12 +116,10 @@ function setup({
     submitRequest,
     ...(exportAccount === undefined ? {} : { exportAccount }),
   };
-  const adapterOptions =
-    origin === undefined ? { keyring } : { keyring, origin };
 
   return {
     accounts,
-    adapter: new EthKeyringV1Adapter(adapterOptions),
+    adapter: new EthKeyringV1Adapter(keyring),
     keyring,
     mocks: {
       exportAccount,
@@ -207,7 +202,7 @@ function expectLastSubmitRequest(
   {
     account,
     method,
-    origin = DEFAULT_ORIGIN,
+    origin = METAMASK_ORIGIN,
     params,
     scope = EthScope.Eoa,
   }: {
@@ -509,27 +504,6 @@ describe('EthKeyringV1Adapter', () => {
     expectLastSubmitRequest(mocks, {
       account,
       method: EthMethod.PersonalSign,
-      params: ['0xdeadbeef', ACCOUNT_ADDRESS],
-      scope: '',
-    });
-  });
-
-  it('uses the configured origin when submitting requests', async () => {
-    const { accounts, adapter, mocks } = setup({
-      origin: APP_ORIGIN,
-      submitRequestResult: '0x1234',
-    });
-
-    await adapter.signPersonalMessage(
-      ACCOUNT_ADDRESS as Hex,
-      '0xdeadbeef' as Hex,
-    );
-
-    expect(mocks.submitRequest).toHaveBeenCalledTimes(1);
-    expectLastSubmitRequest(mocks, {
-      account: accounts[0] as KeyringAccount,
-      method: EthMethod.PersonalSign,
-      origin: APP_ORIGIN,
       params: ['0xdeadbeef', ACCOUNT_ADDRESS],
       scope: '',
     });

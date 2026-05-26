@@ -39,7 +39,7 @@ import type { Eth4337Keyring } from '../../eth';
 import { KeyringV1Adapter } from '../keyring-v1-adapter';
 import { EthKeyringMethod } from './eth-keyring-wrapper';
 
-const DEFAULT_ORIGIN = 'metamask';
+const METAMASK_ORIGIN = 'metamask';
 
 type RequestParams = NonNullable<KeyringRequest['request']['params']>;
 
@@ -138,26 +138,6 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
   extends KeyringV1Adapter<InnerKeyring>
   implements BaseEthKeyring
 {
-  readonly #origin: string;
-
-  /**
-   * Create a new ETH v1 adapter for a v2 keyring.
-   *
-   * @param options - Adapter options.
-   * @param options.keyring - The v2 keyring to adapt.
-   * @param options.origin - Origin to use for submitted requests.
-   */
-  constructor({
-    keyring,
-    origin = DEFAULT_ORIGIN,
-  }: {
-    keyring: InnerKeyring;
-    origin?: string;
-  }) {
-    super(keyring);
-    this.#origin = origin;
-  }
-
   /**
    * Gets the private data associated with the given address so
    * that it may be exported.
@@ -534,7 +514,7 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
   ): Promise<Result> {
     return (await this.inner.submitRequest({
       id: uuid(),
-      origin: this.#origin,
+      origin: METAMASK_ORIGIN,
       scope,
       account: account.id,
       request: {
