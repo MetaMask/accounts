@@ -393,6 +393,12 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
       await this.#submitRequest(
         account,
         EthMethod.PrepareUserOperation,
+        // NOTE: This is inconsistent with the other methods. We are not wrapping `transactions` in an array.
+        // Which means the receiver of the `submitRequest` call would see individual transactions spread as
+        // separate params rather than a single transactions array as the first param, which doesn't match
+        // the method signature of `prepareUserOperation(address, transactions, context)`.
+        // This was already implemented like this in the legacy Snap keyring, so we keep the same logic here
+        // too!
         toJson<Json[]>(transactions),
         toEip155Scope(context.chainId),
       ),
