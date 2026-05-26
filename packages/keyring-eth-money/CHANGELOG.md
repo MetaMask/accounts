@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0]
+
 ### Added
 
 - Add `MoneyKeyring` v2 wrapper ([#554](https://github.com/MetaMask/accounts/pull/554))
@@ -78,7 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Uses derivation path `"m/44'/4392018'/0'/0"`.
   - Enforces that at most one Money account can exist.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.4...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@3.0.0...HEAD
+[3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.4...@metamask/eth-money-keyring@3.0.0
 [2.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.3...@metamask/eth-money-keyring@2.0.4
 [2.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.2...@metamask/eth-money-keyring@2.0.3
 [2.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.1...@metamask/eth-money-keyring@2.0.2
