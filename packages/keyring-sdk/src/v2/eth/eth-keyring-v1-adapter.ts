@@ -6,7 +6,6 @@ import {
   EthBaseUserOperationStruct,
   EthBytesStruct,
   EthMethod,
-  EthScope,
   EthUserOperationPatchStruct,
 } from '@metamask/keyring-api';
 import type {
@@ -266,11 +265,14 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
       EthKeyringMethod.SignEip7702Authorization,
     );
 
+    const [chainId] = authorization;
+
     return strictMask(
       await this.#submitRequest(
         account,
         EthKeyringMethod.SignEip7702Authorization,
         [authorization],
+        toEip155Scope(chainId),
       ),
       EthBytesStruct,
     );
@@ -510,7 +512,7 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
     account: KeyringAccount,
     method: string,
     params: RequestParams,
-    scope: string = EthScope.Eoa,
+    scope: string,
   ): Promise<Result> {
     return (await this.inner.submitRequest({
       id: uuid(),

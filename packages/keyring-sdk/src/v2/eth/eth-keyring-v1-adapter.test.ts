@@ -469,6 +469,7 @@ describe('EthKeyringV1Adapter', () => {
       account,
       method: EthKeyringMethod.SignEip7702Authorization,
       params: [authorization],
+      scope: EthScope.Mainnet,
     });
 
     expect(
