@@ -47,7 +47,8 @@ import {
 } from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
-import { transformAccount } from './account';
+import { normalizeAccount, transformAccount } from './account';
+import { normalizeAccountAddress } from './account';
 import {
   AccountCreatedEventStruct,
   AccountUpdatedEventStruct,
@@ -65,13 +66,7 @@ import type {
 } from './SnapKeyringMessenger';
 import type { SnapMessage } from './types';
 import { SnapMessageStruct } from './types';
-import {
-  equalsIgnoreCase,
-  normalizeAccountAddress,
-  sanitizeUrl,
-  throwError,
-  toJson,
-} from './util';
+import { equalsIgnoreCase, sanitizeUrl, throwError, toJson } from './util';
 
 // TODO: to be removed when this is added to the keyring-api
 export type AccountMethod = EthMethod | BtcMethod;
@@ -753,8 +748,8 @@ export class SnapKeyringV1 {
     // first create the account data and then fire the "AccountCreated" event.
 
     // Potentially migrate the account.
-    const account = transformAccount(newAccountFromEvent);
-    const address = normalizeAccountAddress(account);
+    const account = normalizeAccount(transformAccount(newAccountFromEvent));
+    const { address } = account;
 
     if (this.getExistingAccount(account)) {
       // If the account already exists, we skip it.

@@ -13,7 +13,11 @@ import { assert, object, record, string, union } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
-import { KeyringAccountV1Struct, transformAccount } from '../account';
+import {
+  KeyringAccountV1Struct,
+  normalizeAccount,
+  transformAccount,
+} from '../account';
 import { isAccountV1, migrateAccountV1 } from '../migrations';
 import { SnapKeyringV1 } from '../SnapKeyringV1';
 import type {
@@ -21,7 +25,7 @@ import type {
   SnapKeyringV1Callbacks,
   SnapKeyringV1Options,
 } from '../SnapKeyringV1';
-import { equalsIgnoreCase, normalizeAccountAddress } from '../util';
+import { equalsIgnoreCase } from '../util';
 
 /**
  * Superstruct schema for {@link SnapKeyringState}.
@@ -214,8 +218,8 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
 
       try {
         for (const snapAccount of snapAccounts) {
-          let account = transformAccount(snapAccount);
-          const address = normalizeAccountAddress(account);
+          let account = normalizeAccount(transformAccount(snapAccount));
+          const { address } = account;
 
           // Check for idempotency.
           const existingAccount = this.getExistingAccount(account);

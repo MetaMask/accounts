@@ -20,12 +20,13 @@ import type { Snap } from '@metamask/snaps-utils';
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
+import { normalizeAccountAddress } from './account';
 import type { SnapKeyringInternalOptions } from './options';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
 import type { AccountMethod } from './SnapKeyringV1';
 import type { SnapMessage } from './types';
-import { normalizeAccountAddress, throwError, unique } from './util';
+import { throwError, unique } from './util';
 import { SnapKeyring as SnapKeyringV2 } from './v2/SnapKeyring';
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';

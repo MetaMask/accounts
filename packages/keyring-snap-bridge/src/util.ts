@@ -1,5 +1,3 @@
-import type { KeyringAccount } from '@metamask/keyring-api';
-import { isEvmAccountType } from '@metamask/keyring-api';
 import type { Json } from '@metamask/utils';
 
 /**
@@ -57,21 +55,6 @@ export function throwError(message: string): never {
  */
 export function equalsIgnoreCase(a: string, b: string): boolean {
   return a.toLowerCase() === b.toLowerCase();
-}
-
-/**
- * Normalize account's address.
- *
- * EVM addresses are lowercased; non-EVM addresses (e.g. Solana) are
- * left as-is because they are case-sensitive.
- *
- * @param account - The account.
- * @returns The normalized account address.
- */
-export function normalizeAccountAddress(account: KeyringAccount): string {
-  return isEvmAccountType(account.type)
-    ? account.address.toLowerCase()
-    : account.address;
 }
 
 /**
