@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
-
 ### Added
 
 - Add Stellar method `signAuthEntry` to `XlmMethod` ([#548](https://github.com/MetaMask/accounts/pull/548))
@@ -48,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `KeyringCapabilities`, `KeyringType`, account creation options (except `CreateAccountOptions`), and account export options are now exclusively available from `@metamask/keyring-api/v2`.
   - `CreateAccountOptions` and its subtypes (`Bip44CreateAccountOptions`, `PrivateKeyCreateAccountOptions`, `CustomCreateAccountOptions`) remain available from both `@metamask/keyring-api` and `@metamask/keyring-api/v2`.
 - Improve return type of `isKeyringRpcMethod` to use type predicate `method is KeyringRpcMethod` ([#408](https://github.com/MetaMask/accounts/pull/408))
-- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489)), ([#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [22.0.0]
 
@@ -101,7 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add `AccountCreationType.Custom` and `CreateAccountCustomOptions` for custom account creation flows.
 - Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
   - Provides common Ethereum signing method routing (`submitRequest`) for all Ethereum-based keyrings.
-- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398), [#402](https://github.com/MetaMask/accounts/pull/402), [#409](https://github.com/MetaMask/accounts/pull/409), [#410](https://github.com/MetaMask/accounts/pull/410))
+- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)),([#402](https://github.com/MetaMask/accounts/pull/402)), ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410))
 
 ### Changed
 
@@ -142,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **BREAKING:** Add new bitcoin methods to `BtcMethod` enum ([#355](https://github.com/MetaMask/accounts/pull/355), [#356](https://github.com/MetaMask/accounts/pull/356))
+- **BREAKING:** Add new bitcoin methods to `BtcMethod` enum ([#355](https://github.com/MetaMask/accounts/pull/355)), ([#356](https://github.com/MetaMask/accounts/pull/356))
   - This change was not properly reported as breaking on the `20.1.1`.
 
 ### Removed
