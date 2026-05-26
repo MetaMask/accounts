@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `SnapKeyringV1Adapter` to adapt Snap v2 keyrings to legacy v1 keyring operations ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ### Changed
 
 - Normalize `KeyringAccount`'s address with `:accountCreated` and `setAccounts` ([#556](https://github.com/MetaMask/accounts/pull/556))
