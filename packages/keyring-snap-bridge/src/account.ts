@@ -134,6 +134,8 @@ export function normalizeAccountAddress(account: KeyringAccount): string {
 export function normalizeAccount(account: KeyringAccount): KeyringAccount {
   return {
     ...account,
+    // Normalization is only meaningful for EVM addresses. Since Snaps might be using checksum addresses, we should normalize
+    // them in the "MetaMask world" to keep compatibility with the rest of the codebase (e.g. when comparing addresses, etc.).
     address: normalizeAccountAddress(account),
   };
 }
