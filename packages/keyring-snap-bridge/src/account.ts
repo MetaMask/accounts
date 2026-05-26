@@ -16,12 +16,12 @@ import {
   TrxEoaAccountStruct,
   XlmAccountType,
   XlmAccountStruct,
+  isEvmAccountType,
 } from '@metamask/keyring-api';
 import { assert, omit } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 
 import { isAccountV1, transformAccountV1 } from './migrations';
-
 /**
  * A `KeyringAccount` with some optional fields which can be used to keep
  * the retro-compatility with older version of keyring accounts/events.
@@ -108,4 +108,32 @@ export function transformAccount(
 
   // We still assert that the converted account is valid according to their account's type.
   return assertKeyringAccount(account);
+}
+
+/**
+ * Normalize account's address.
+ *
+ * EVM addresses are lowercased; non-EVM addresses (e.g. Solana) are
+ * left as-is because they are case-sensitive.
+ *
+ * @param account - The account.
+ * @returns The normalized account address.
+ */
+export function normalizeAccountAddress(account: KeyringAccount): string {
+  return isEvmAccountType(account.type)
+    ? account.address.toLowerCase()
+    : account.address;
+}
+
+/**
+ * Normalize a `KeyringAccount` (e.g., its address).
+ *
+ * @param account - The account to normalize.
+ * @returns The normalized `KeyringAccount`.
+ */
+export function normalizeAccount(account: KeyringAccount): KeyringAccount {
+  return {
+    ...account,
+    address: normalizeAccountAddress(account),
+  };
 }
