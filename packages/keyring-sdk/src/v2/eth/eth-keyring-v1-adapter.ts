@@ -267,10 +267,13 @@ export class EthKeyringV1Adapter<
       EthKeyringMethod.SignEip7702Authorization,
     );
 
-    return await this.#submitRequest<string>(
-      account,
-      EthKeyringMethod.SignEip7702Authorization,
-      [authorization],
+    return strictMask(
+      await this.#submitRequest(
+        account,
+        EthKeyringMethod.SignEip7702Authorization,
+        [authorization],
+      ),
+      EthBytesStruct,
     );
   }
 
