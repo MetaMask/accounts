@@ -114,8 +114,9 @@ export class EthKeyringV1MethodNotSupportedError extends Error {
  * supports the requested method, then forwards the request through the v2
  * `submitRequest` or `exportAccount` APIs.
  */
-export class EthKeyringV1Adapter
-  extends KeyringV1Adapter<KeyringV2>
+export class EthKeyringV1Adapter<
+  InnerKeyring extends KeyringV2 = KeyringV2,
+> extends KeyringV1Adapter<InnerKeyring>
   implements BaseEthKeyring
 {
   readonly #origin: string;
@@ -131,7 +132,7 @@ export class EthKeyringV1Adapter
     keyring,
     origin = DEFAULT_ORIGIN,
   }: {
-    keyring: KeyringV2;
+    keyring: InnerKeyring;
     origin?: string;
   }) {
     super(keyring);
