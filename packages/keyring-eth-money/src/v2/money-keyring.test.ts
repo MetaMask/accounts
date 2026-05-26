@@ -68,7 +68,10 @@ function createMockRequest(
  *
  * @param options - Setup options.
  * @param options.withAccount - When true, the inner keyring will have its
- * single account pre-derived via `addAccounts()`.
+ * single account pre-derived via `addAccounts()`. Implies `deserialize`.
+ * @param options.deserialize - When true (default), the inner keyring is
+ * deserialized with `entropySource`. Set to false to obtain a wrapper around
+ * an inner keyring that has never been deserialized.
  * @param options.entropySource - Entropy source ID to deserialize the inner
  * keyring with. Defaults to {@link TEST_ENTROPY_SOURCE_ID}.
  * @param options.mnemonic - Mnemonic to return from the `getMnemonic`
@@ -78,10 +81,12 @@ function createMockRequest(
  */
 async function setup({
   withAccount = false,
+  deserialize = true,
   entropySource = TEST_ENTROPY_SOURCE_ID,
   mnemonic = TEST_MNEMONIC,
 }: {
   withAccount?: boolean;
+  deserialize?: boolean;
   entropySource?: string;
   mnemonic?: string;
 } = {}): Promise<{
@@ -94,7 +99,10 @@ async function setup({
     .mockResolvedValue(mnemonicToBytes(mnemonic));
 
   const inner = new LegacyMoneyKeyring({ getMnemonic });
-  await inner.deserialize({ entropySource });
+
+  if (deserialize || withAccount) {
+    await inner.deserialize({ entropySource });
+  }
 
   if (withAccount) {
     await inner.addAccounts();
@@ -125,13 +133,8 @@ describe('MoneyKeyring (v2 wrapper)', () => {
       expect(wrapper.entropySource).toBe(TEST_ENTROPY_SOURCE_ID);
     });
 
-    it('returns undefined when the inner keyring has not been deserialized', () => {
-      const inner = new LegacyMoneyKeyring({
-        getMnemonic: jest
-          .fn<Promise<number[]>, [string]>()
-          .mockResolvedValue(mnemonicToBytes(TEST_MNEMONIC)),
-      });
-      const wrapper = new MoneyKeyring(inner);
+    it('returns undefined when the inner keyring has not been deserialized', async () => {
+      const { wrapper } = await setup({ deserialize: false });
 
       expect(wrapper.entropySource).toBeUndefined();
     });
@@ -210,6 +213,14 @@ describe('MoneyKeyring (v2 wrapper)', () => {
         'MoneyKeyring: supports at most one account',
       );
     });
+
+    it('throws when the inner keyring has not been deserialized', async () => {
+      const { wrapper } = await setup({ deserialize: false });
+
+      await expect(wrapper.getAccounts()).rejects.toThrow(
+        'MoneyKeyring: not yet deserialized',
+      );
+    });
   });
 
   describe('getAccount', () => {
@@ -247,6 +258,18 @@ describe('MoneyKeyring (v2 wrapper)', () => {
       ).rejects.toThrow(
         'Unsupported account creation type for MoneyKeyring: bip44:derive-path',
       );
+    });
+
+    it('throws when the inner keyring has not been deserialized', async () => {
+      const { wrapper } = await setup({ deserialize: false });
+
+      await expect(
+        wrapper.createAccounts({
+          type: 'bip44:derive-index',
+          entropySource: TEST_ENTROPY_SOURCE_ID,
+          groupIndex: 0,
+        }),
+      ).rejects.toThrow('MoneyKeyring: not yet deserialized');
     });
 
     it('rejects when the entropy source does not match the inner keyring', async () => {

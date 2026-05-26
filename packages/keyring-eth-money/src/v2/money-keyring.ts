@@ -73,11 +73,13 @@ export class MoneyKeyring
    *
    * @param address - The account address.
    * @param addressIndex - The account index in the derivation path.
+   * @param entropySource - The entropy source ID.
    * @returns The created KeyringAccount.
    */
   #createKeyringAccount(
     address: Hex,
     addressIndex: number,
+    entropySource: EntropySourceId,
   ): Bip44Account<KeyringAccount> {
     const id = this.registry.register(address);
 
@@ -90,7 +92,7 @@ export class MoneyKeyring
       options: {
         entropy: {
           type: KeyringAccountEntropyTypeOption.Mnemonic,
-          id: this.inner.entropySource as EntropySourceId,
+          id: entropySource,
           groupIndex: addressIndex,
           derivationPath: `${MONEY_DERIVATION_PATH}/${addressIndex}`,
         },
@@ -109,11 +111,17 @@ export class MoneyKeyring
    * this keyring.
    */
   async getAccounts(): Promise<Bip44Account<KeyringAccount>[]> {
+    const { entropySource } = this.inner;
+
+    assert(entropySource, 'MoneyKeyring: not yet deserialized');
+
     const addresses = await this.inner.getAccounts();
+
     // The legitimate states are "no account yet" (empty) and "the single
     // Money account". Anything beyond that means the inner keyring has been
     // mutated in a way the wrapper does not support.
     assert(addresses.length <= 1, 'MoneyKeyring: supports at most one account');
+
     return addresses.map((address) => {
       const existingId = this.registry.getAccountId(address);
       if (existingId) {
@@ -123,7 +131,7 @@ export class MoneyKeyring
         }
       }
 
-      return this.#createKeyringAccount(address, 0);
+      return this.#createKeyringAccount(address, 0, entropySource);
     });
   }
 
@@ -143,9 +151,15 @@ export class MoneyKeyring
         );
       }
 
-      if (options.entropySource !== this.inner.entropySource) {
+      const { entropySource } = this.inner;
+
+      if (!entropySource) {
+        throw new Error('MoneyKeyring: not yet deserialized');
+      }
+
+      if (options.entropySource !== entropySource) {
         throw new Error(
-          `Entropy source mismatch: expected '${this.inner.entropySource}', got '${options.entropySource}'`,
+          `Entropy source mismatch: expected '${entropySource}', got '${options.entropySource}'`,
         );
       }
 
@@ -167,7 +181,7 @@ export class MoneyKeyring
         throw new Error('MoneyKeyring: failed to add account');
       }
 
-      return [this.#createKeyringAccount(newAddress, 0)];
+      return [this.#createKeyringAccount(newAddress, 0, entropySource)];
     });
   }
 
