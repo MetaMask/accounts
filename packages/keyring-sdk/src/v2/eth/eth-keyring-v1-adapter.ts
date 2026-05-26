@@ -1,4 +1,4 @@
-import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
+import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { normalize as ethNormalize } from '@metamask/eth-sig-util';
@@ -55,7 +55,8 @@ export type BaseEthKeyring = Pick<
   | 'signPersonalMessage'
   | 'signTypedData'
   | 'signTransaction'
-> & Eth4337Keyring;
+> &
+  Eth4337Keyring;
 
 /**
  * Error thrown when an account cannot be resolved from the requested address.
