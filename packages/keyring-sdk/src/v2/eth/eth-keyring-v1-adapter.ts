@@ -54,8 +54,28 @@ type TypedDataWithDomain = {
   };
 };
 
+/**
+ * Convert a value to a valid JSON object.
+ *
+ * The function chains JSON.stringify and JSON.parse to ensure that the result
+ * is a valid JSON object. In objects, undefined values are removed, and in
+ * arrays, they are replaced with null.
+ *
+ * @param value - Value to convert to JSON.
+ * @returns JSON representation of the value.
+ */
 function toJson<Type extends Json = Json>(value: unknown): Type {
   return JSON.parse(JSON.stringify(value)) as Type;
+}
+
+/**
+ * Convert a chain ID (number or hex) to an EIP-155 CAIP chain ID string for keyring request scoping.
+ *
+ * @param chainId - The chain ID to convert.
+ * @returns The EIP-155 CAIP chain ID string.
+ */
+function toEip155Scope(chainId: string | number | bigint): string {
+  return toCaipChainId(KnownCaipNamespace.Eip155, BigInt(chainId).toString());
 }
 
 /**
@@ -196,7 +216,7 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
       account,
       EthMethod.SignTransaction,
       toJson<Json[]>([tx]),
-      toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
+      toEip155Scope(chainId),
     );
 
     // Only take the signature fields from the keyring response. This prevents
@@ -331,6 +351,9 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
       address,
       method,
     );
+
+    // Extract chain ID as if it was a typed message (as defined by EIP-712), if
+    // input is not a typed message, then chain ID will be undefined!
     const chainId = (typedData as TypedDataWithDomain).domain?.chainId;
 
     return strictMask(
@@ -338,9 +361,7 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
         account,
         method,
         toJson<Json[]>([normalizedAddress, typedData]),
-        chainId === undefined
-          ? ''
-          : toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
+        chainId === undefined ? '' : toEip155Scope(chainId),
       ),
       EthBytesStruct,
     );
@@ -373,7 +394,7 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
         account,
         EthMethod.PrepareUserOperation,
         toJson<Json[]>(transactions),
-        this.#getUserOperationScope(context),
+        toEip155Scope(context.chainId),
       ),
       EthBaseUserOperationStruct,
     );
@@ -407,7 +428,7 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
         account,
         EthMethod.PatchUserOperation,
         toJson<Json[]>([userOperation]),
-        this.#getUserOperationScope(context),
+        toEip155Scope(context.chainId),
       ),
       EthUserOperationPatchStruct,
     );
@@ -440,7 +461,7 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
         account,
         EthMethod.SignUserOperation,
         toJson<Json[]>([userOperation]),
-        this.#getUserOperationScope(context),
+        toEip155Scope(context.chainId),
       ),
       EthBytesStruct,
     );
@@ -493,12 +514,10 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
         return EthMethod.SignTypedDataV4;
       case 'V1':
       default:
+        // Use 'V1' by default to match other keyring implementations. V1 will be
+        // used if the version is not specified or not supported.
         return EthMethod.SignTypedDataV1;
     }
-  }
-
-  #getUserOperationScope(context: KeyringExecutionContext): string {
-    return toCaipChainId(KnownCaipNamespace.Eip155, context.chainId);
   }
 
   async #submitRequest<Result extends Json = Json>(

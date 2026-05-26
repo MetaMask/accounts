@@ -565,29 +565,35 @@ describe('EthKeyringV1Adapter', () => {
     },
   );
 
-  it('uses the typed data domain chain ID as the signing scope', async () => {
-    const typedData = {
-      domain: {
-        chainId: 1,
-      },
-      message: 'hello',
-    };
-    const { accounts, adapter, mocks } = setup({
-      submitRequestResult: '0x1234',
-    });
+  it.each([
+    ['number', 1],
+    ['hex string', '0x1'],
+  ])(
+    'uses the typed data domain chain ID as the signing scope when it is a %s',
+    async (_label, chainId) => {
+      const typedData = {
+        domain: {
+          chainId,
+        },
+        message: 'hello',
+      };
+      const { accounts, adapter, mocks } = setup({
+        submitRequestResult: '0x1234',
+      });
 
-    expect(
-      await adapter.signTypedData(ACCOUNT_ADDRESS as Hex, typedData, {
-        version: SignTypedDataVersion.V4,
-      }),
-    ).toBe('0x1234');
-    expectLastSubmitRequest(mocks, {
-      account: accounts[0] as KeyringAccount,
-      method: EthMethod.SignTypedDataV4,
-      params: [ACCOUNT_ADDRESS, typedData],
-      scope: EthScope.Mainnet,
-    });
-  });
+      expect(
+        await adapter.signTypedData(ACCOUNT_ADDRESS as Hex, typedData, {
+          version: SignTypedDataVersion.V4,
+        }),
+      ).toBe('0x1234');
+      expectLastSubmitRequest(mocks, {
+        account: accounts[0] as KeyringAccount,
+        method: EthMethod.SignTypedDataV4,
+        params: [ACCOUNT_ADDRESS, typedData],
+        scope: EthScope.Mainnet,
+      });
+    },
+  );
 
   it('throws a typed error if the requested typed data version is not supported by the account', async () => {
     const { adapter, mocks } = setup({
@@ -650,7 +656,7 @@ describe('EthKeyringV1Adapter', () => {
       account: accounts[0] as KeyringAccount,
       method: EthMethod.PrepareUserOperation,
       params: transactions,
-      scope: 'eip155:0x1',
+      scope: EthScope.Mainnet,
     });
   });
 
@@ -678,7 +684,7 @@ describe('EthKeyringV1Adapter', () => {
       account: accounts[0] as KeyringAccount,
       method: EthMethod.PatchUserOperation,
       params: [createUserOperation()],
-      scope: 'eip155:0x1',
+      scope: EthScope.Mainnet,
     });
   });
 
@@ -699,7 +705,7 @@ describe('EthKeyringV1Adapter', () => {
       account: accounts[0] as KeyringAccount,
       method: EthMethod.SignUserOperation,
       params: [userOperation],
-      scope: 'eip155:0x1',
+      scope: EthScope.Mainnet,
     });
   });
 
