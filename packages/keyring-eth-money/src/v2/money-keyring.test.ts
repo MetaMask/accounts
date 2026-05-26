@@ -4,7 +4,10 @@ import {
   EthScope,
   KeyringAccountEntropyTypeOption,
 } from '@metamask/keyring-api';
-import type { KeyringRequest } from '@metamask/keyring-api';
+import type {
+  KeyringAccountEntropyMnemonicOptions,
+  KeyringRequest,
+} from '@metamask/keyring-api';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import { EthKeyringMethod } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
@@ -35,6 +38,26 @@ const TEST_ADDRESS = '0x13203ef2a0e1fb26bfddcaf86a4a7d08a52d78aa' as Hex;
  */
 function mnemonicToBytes(mnemonic: string): number[] {
   return Array.from(new TextEncoder().encode(mnemonic));
+}
+
+/**
+ * Narrow an arbitrary entropy option to the mnemonic variant so its
+ * mnemonic-specific fields (`id`, `groupIndex`, `derivationPath`) can be
+ * accessed directly in subsequent assertions.
+ *
+ * @param entropy - The entropy option to narrow.
+ */
+function assertEntropyMnemonic(
+  entropy: unknown,
+): asserts entropy is KeyringAccountEntropyMnemonicOptions {
+  if (
+    !entropy ||
+    typeof entropy !== 'object' ||
+    !('type' in entropy) ||
+    entropy.type !== KeyringAccountEntropyTypeOption.Mnemonic
+  ) {
+    throw new Error('Expected entropy to be a mnemonic entropy option');
+  }
 }
 
 /**
@@ -129,8 +152,8 @@ describe('MoneyKeyring (v2 wrapper)', () => {
 
   describe('entropySource', () => {
     it('returns the inner keyring entropy source', async () => {
-      const { wrapper } = await setup();
-      expect(wrapper.entropySource).toBe(TEST_ENTROPY_SOURCE_ID);
+      const { wrapper, inner } = await setup();
+      expect(wrapper.entropySource).toBe(inner.entropySource);
     });
 
     it('returns undefined when the inner keyring has not been deserialized', async () => {
@@ -169,19 +192,11 @@ describe('MoneyKeyring (v2 wrapper)', () => {
       ]);
 
       const entropy = account?.options?.entropy;
-      expect(entropy).toBeDefined();
-      expect(entropy?.type).toBe(KeyringAccountEntropyTypeOption.Mnemonic);
-      expect(entropy && 'id' in entropy ? entropy.id : undefined).toBe(
-        TEST_ENTROPY_SOURCE_ID,
-      );
-      expect(
-        entropy && 'groupIndex' in entropy ? entropy.groupIndex : undefined,
-      ).toBe(0);
-      expect(
-        entropy && 'derivationPath' in entropy
-          ? entropy.derivationPath
-          : undefined,
-      ).toBe(`${MONEY_DERIVATION_PATH}/0`);
+      assertEntropyMnemonic(entropy);
+      expect(entropy.type).toBe(KeyringAccountEntropyTypeOption.Mnemonic);
+      expect(entropy.id).toBe(TEST_ENTROPY_SOURCE_ID);
+      expect(entropy.groupIndex).toBe(0);
+      expect(entropy.derivationPath).toBe(`${MONEY_DERIVATION_PATH}/0`);
     });
 
     it('caches the account between calls', async () => {
@@ -256,7 +271,7 @@ describe('MoneyKeyring (v2 wrapper)', () => {
           derivationPath: `${MONEY_DERIVATION_PATH}/0`,
         }),
       ).rejects.toThrow(
-        'Unsupported account creation type for MoneyKeyring: bip44:derive-path',
+        'MoneyKeyring: unsupported account creation type: bip44:derive-path',
       );
     });
 
@@ -282,7 +297,7 @@ describe('MoneyKeyring (v2 wrapper)', () => {
           groupIndex: 0,
         }),
       ).rejects.toThrow(
-        `Entropy source mismatch: expected '${TEST_ENTROPY_SOURCE_ID}', got 'some-other-source'`,
+        `MoneyKeyring: entropy source mismatch: expected '${TEST_ENTROPY_SOURCE_ID}', got 'some-other-source'`,
       );
     });
 
@@ -328,15 +343,11 @@ describe('MoneyKeyring (v2 wrapper)', () => {
       expect(account?.address.toLowerCase()).toBe(TEST_ADDRESS);
 
       const entropy = account?.options?.entropy;
-      expect(entropy?.type).toBe(KeyringAccountEntropyTypeOption.Mnemonic);
-      expect(
-        entropy && 'groupIndex' in entropy ? entropy.groupIndex : undefined,
-      ).toBe(0);
-      expect(
-        entropy && 'derivationPath' in entropy
-          ? entropy.derivationPath
-          : undefined,
-      ).toBe(`${MONEY_DERIVATION_PATH}/0`);
+      assertEntropyMnemonic(entropy);
+      expect(entropy.type).toBe(KeyringAccountEntropyTypeOption.Mnemonic);
+      expect(entropy.groupIndex).toBe(0);
+      expect(entropy.id).toBe(TEST_ENTROPY_SOURCE_ID);
+      expect(entropy.derivationPath).toBe(`${MONEY_DERIVATION_PATH}/0`);
 
       // Subsequent calls should return the same cached account.
       const second = await wrapper.createAccounts({
@@ -392,13 +403,9 @@ describe('MoneyKeyring (v2 wrapper)', () => {
 
   describe('serialize', () => {
     it('delegates to the inner keyring', async () => {
-      const { wrapper } = await setup({ withAccount: true });
+      const { wrapper, inner } = await setup({ withAccount: true });
 
-      const serialized = await wrapper.serialize();
-      expect(serialized).toStrictEqual({
-        entropySource: TEST_ENTROPY_SOURCE_ID,
-        account: TEST_ADDRESS,
-      });
+      expect(await wrapper.serialize()).toStrictEqual(await inner.serialize());
     });
   });
 

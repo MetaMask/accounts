@@ -147,7 +147,7 @@ export class MoneyKeyring
     return this.withLock(async () => {
       if (options.type !== 'bip44:derive-index') {
         throw new Error(
-          `Unsupported account creation type for MoneyKeyring: ${options.type}`,
+          `MoneyKeyring: unsupported account creation type: ${options.type}`,
         );
       }
 
@@ -159,7 +159,7 @@ export class MoneyKeyring
 
       if (options.entropySource !== entropySource) {
         throw new Error(
-          `Entropy source mismatch: expected '${entropySource}', got '${options.entropySource}'`,
+          `MoneyKeyring: entropy source mismatch: expected '${entropySource}', got '${options.entropySource}'`,
         );
       }
 
