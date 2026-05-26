@@ -151,13 +151,12 @@ export class EthKeyringV1Adapter
    */
   async exportAccount(address: Hex): Promise<string> {
     const { account } = await this.#getAccount(address);
-    const keyring = this.unwrap();
 
-    if (!keyring.exportAccount) {
+    if (!this.inner.exportAccount) {
       throw new Error('Keyring does not support exportAccount');
     }
 
-    const exportedAccount = await keyring.exportAccount(account.id, {
+    const exportedAccount = await this.inner.exportAccount(account.id, {
       type: AccountExportType.PrivateKey,
       encoding: PrivateKeyEncoding.Hexadecimal,
     });
@@ -452,7 +451,7 @@ export class EthKeyringV1Adapter
       throw new EthKeyringV1AccountNotFoundError(address);
     }
 
-    const accounts = await this.unwrap().getAccounts();
+    const accounts = await this.inner.getAccounts();
     const account = accounts.find((keyringAccount) => {
       const accountAddress = ethNormalize(keyringAccount.address);
       return accountAddress?.toLowerCase() === normalizedAddressLowerCase;
@@ -505,7 +504,7 @@ export class EthKeyringV1Adapter
     params: RequestParams,
     scope: string = EthScope.Eoa,
   ): Promise<Result> {
-    return (await this.unwrap().submitRequest({
+    return (await this.inner.submitRequest({
       id: uuid(),
       origin: this.#origin,
       scope,
