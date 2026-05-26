@@ -2,7 +2,13 @@ import type { TypedTransaction } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import type { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { normalize as ethNormalize } from '@metamask/eth-sig-util';
-import { EthMethod, EthScope } from '@metamask/keyring-api';
+import {
+  EthBaseUserOperationStruct,
+  EthBytesStruct,
+  EthMethod,
+  EthScope,
+  EthUserOperationPatchStruct,
+} from '@metamask/keyring-api';
 import type {
   EthBaseTransaction,
   EthBaseUserOperation,
@@ -18,6 +24,7 @@ import {
   PrivateKeyEncoding,
 } from '@metamask/keyring-api/v2';
 import type { EthKeyring } from '@metamask/keyring-utils';
+import { strictMask } from '@metamask/keyring-utils';
 import { mask, object, string } from '@metamask/superstruct';
 import type { Hex, Json } from '@metamask/utils';
 import {
@@ -38,6 +45,12 @@ type RequestParams = NonNullable<KeyringRequest['request']['params']>;
 type ResolvedAccount = {
   account: KeyringAccount;
   normalizedAddress: Hex;
+};
+
+type TypedDataWithDomain = {
+  domain?: {
+    chainId?: string | number;
+  };
 };
 
 function toJson<Type extends Json = Json>(value: unknown): Type {
@@ -178,7 +191,7 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
     const signedTx = await this.#submitRequest(
       account,
       EthMethod.SignTransaction,
-      [tx],
+      toJson<Json[]>([tx]),
       toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
     );
 
@@ -218,10 +231,15 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
       EthMethod.Sign,
     );
 
-    return await this.#submitRequest<string>(account, EthMethod.Sign, [
-      normalizedAddress,
-      data,
-    ]);
+    return strictMask(
+      await this.#submitRequest(
+        account,
+        EthMethod.Sign,
+        toJson<Json[]>([normalizedAddress, data]),
+        '',
+      ),
+      EthBytesStruct,
+    );
   }
 
   /**
@@ -271,10 +289,15 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
       EthMethod.PersonalSign,
     );
 
-    return await this.#submitRequest<string>(account, EthMethod.PersonalSign, [
-      message,
-      normalizedAddress,
-    ]);
+    return strictMask(
+      await this.#submitRequest(
+        account,
+        EthMethod.PersonalSign,
+        toJson<Json[]>([message, normalizedAddress]),
+        '',
+      ),
+      EthBytesStruct,
+    );
   }
 
   /**
@@ -301,11 +324,19 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
       address,
       method,
     );
+    const chainId = (typedData as TypedDataWithDomain).domain?.chainId;
 
-    return await this.#submitRequest<string>(account, method, [
-      normalizedAddress,
-      typedData as Json,
-    ]);
+    return strictMask(
+      await this.#submitRequest(
+        account,
+        method,
+        toJson<Json[]>([normalizedAddress, typedData]),
+        chainId === undefined
+          ? ''
+          : toCaipChainId(KnownCaipNamespace.Eip155, `${chainId}`),
+      ),
+      EthBytesStruct,
+    );
   }
 
   /**
@@ -330,11 +361,14 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
       EthMethod.PrepareUserOperation,
     );
 
-    return await this.#submitRequest<EthBaseUserOperation>(
-      account,
-      EthMethod.PrepareUserOperation,
-      transactions as Json[],
-      this.#getUserOperationScope(context),
+    return strictMask(
+      await this.#submitRequest(
+        account,
+        EthMethod.PrepareUserOperation,
+        toJson<Json[]>(transactions),
+        this.#getUserOperationScope(context),
+      ),
+      EthBaseUserOperationStruct,
     );
   }
 
@@ -361,11 +395,14 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
       EthMethod.PatchUserOperation,
     );
 
-    return await this.#submitRequest<EthUserOperationPatch>(
-      account,
-      EthMethod.PatchUserOperation,
-      [userOperation as Json],
-      this.#getUserOperationScope(context),
+    return strictMask(
+      await this.#submitRequest(
+        account,
+        EthMethod.PatchUserOperation,
+        toJson<Json[]>([userOperation]),
+        this.#getUserOperationScope(context),
+      ),
+      EthUserOperationPatchStruct,
     );
   }
 
@@ -391,11 +428,14 @@ export class EthKeyringV1Adapter implements BaseEthKeyring {
       EthMethod.SignUserOperation,
     );
 
-    return await this.#submitRequest<string>(
-      account,
-      EthMethod.SignUserOperation,
-      [userOperation as Json],
-      this.#getUserOperationScope(context),
+    return strictMask(
+      await this.#submitRequest(
+        account,
+        EthMethod.SignUserOperation,
+        toJson<Json[]>([userOperation]),
+        this.#getUserOperationScope(context),
+      ),
+      EthBytesStruct,
     );
   }
 

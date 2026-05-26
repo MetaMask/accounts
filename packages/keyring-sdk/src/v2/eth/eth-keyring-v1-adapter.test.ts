@@ -163,6 +163,22 @@ function createUserOperation(): EthUserOperation {
   };
 }
 
+function createBaseUserOperation(): EthBaseUserOperation {
+  return {
+    nonce: '0x1',
+    initCode: '0x',
+    callData: '0x1234',
+    gasLimits: {
+      callGasLimit: '0x1',
+      verificationGasLimit: '0x2',
+      preVerificationGas: '0x3',
+    },
+    dummyPaymasterAndData: '0x',
+    dummySignature: '0x',
+    bundlerUrl: 'https://bundler.example.com/rpc',
+  };
+}
+
 async function getThrownError(
   action: () => Promise<unknown>,
 ): Promise<unknown> {
@@ -320,7 +336,7 @@ describe('EthKeyringV1Adapter', () => {
     });
     const { adapter, mocks } = setup({
       accounts: [personalSignAccount, signAccount],
-      submitRequestResult: '0xsigned',
+      submitRequestResult: '0x1234',
     });
 
     expect(
@@ -328,20 +344,22 @@ describe('EthKeyringV1Adapter', () => {
         ACCOUNT_ADDRESS as Hex,
         '0xdeadbeef' as Hex,
       ),
-    ).toBe('0xsigned');
+    ).toBe('0x1234');
     expectLastSubmitRequest(mocks, {
       account: personalSignAccount,
       method: EthMethod.PersonalSign,
       params: ['0xdeadbeef', ACCOUNT_ADDRESS],
+      scope: '',
     });
 
     expect(
       await adapter.signMessage(OTHER_ACCOUNT_ADDRESS as Hex, '0xfeed'),
-    ).toBe('0xsigned');
+    ).toBe('0x1234');
     expectLastSubmitRequest(mocks, {
       account: signAccount,
       method: EthMethod.Sign,
       params: [OTHER_ACCOUNT_ADDRESS, '0xfeed'],
+      scope: '',
     });
   });
 
@@ -395,7 +413,7 @@ describe('EthKeyringV1Adapter', () => {
 
   it('submits ETH signing requests', async () => {
     const { accounts, adapter, mocks } = setup({
-      submitRequestResult: '0xsigned',
+      submitRequestResult: '0x1234',
     });
     const authorization: [
       chainId: number,
@@ -406,11 +424,12 @@ describe('EthKeyringV1Adapter', () => {
 
     expect(
       await adapter.signMessage(ACCOUNT_ADDRESS as Hex, '0xdeadbeef'),
-    ).toBe('0xsigned');
+    ).toBe('0x1234');
     expectLastSubmitRequest(mocks, {
       account,
       method: EthMethod.Sign,
       params: [ACCOUNT_ADDRESS, '0xdeadbeef'],
+      scope: '',
     });
 
     expect(
@@ -418,7 +437,7 @@ describe('EthKeyringV1Adapter', () => {
         ACCOUNT_ADDRESS as Hex,
         authorization,
       ),
-    ).toBe('0xsigned');
+    ).toBe('0x1234');
     expectLastSubmitRequest(mocks, {
       account,
       method: EthKeyringMethod.SignEip7702Authorization,
@@ -430,22 +449,23 @@ describe('EthKeyringV1Adapter', () => {
         ACCOUNT_ADDRESS as Hex,
         '0xdeadbeef' as Hex,
       ),
-    ).toBe('0xsigned');
+    ).toBe('0x1234');
     expectLastSubmitRequest(mocks, {
       account,
       method: EthMethod.PersonalSign,
       params: ['0xdeadbeef', ACCOUNT_ADDRESS],
+      scope: '',
     });
   });
 
-  it('uses the default origin and EOA scope when submitting requests', async () => {
+  it('uses the default origin and empty scope when submitting signing requests', async () => {
     const account = buildAccount({
       methods: [EthMethod.PersonalSign],
       scopes: [],
     });
     const { adapter, mocks } = setup({
       accounts: [account],
-      submitRequestResult: '0xsigned',
+      submitRequestResult: '0x1234',
     });
 
     await adapter.signPersonalMessage(
@@ -458,13 +478,14 @@ describe('EthKeyringV1Adapter', () => {
       account,
       method: EthMethod.PersonalSign,
       params: ['0xdeadbeef', ACCOUNT_ADDRESS],
+      scope: '',
     });
   });
 
   it('uses the configured origin when submitting requests', async () => {
     const { accounts, adapter, mocks } = setup({
       origin: APP_ORIGIN,
-      submitRequestResult: '0xsigned',
+      submitRequestResult: '0x1234',
     });
 
     await adapter.signPersonalMessage(
@@ -478,6 +499,7 @@ describe('EthKeyringV1Adapter', () => {
       method: EthMethod.PersonalSign,
       origin: APP_ORIGIN,
       params: ['0xdeadbeef', ACCOUNT_ADDRESS],
+      scope: '',
     });
   });
 
@@ -489,9 +511,10 @@ describe('EthKeyringV1Adapter', () => {
   ])(
     'submits a typed data signing request %s',
     async (_label, version, method) => {
-      const typedData = { message: 'hello' };
+      const typedData = { message: 'hello', ignored: undefined };
+      const submittedTypedData = { message: 'hello' };
       const { accounts, adapter, mocks } = setup({
-        submitRequestResult: '0xtyped',
+        submitRequestResult: '0x1234',
       });
 
       expect(
@@ -500,14 +523,39 @@ describe('EthKeyringV1Adapter', () => {
           typedData,
           version === undefined ? undefined : { version },
         ),
-      ).toBe('0xtyped');
+      ).toBe('0x1234');
       expectLastSubmitRequest(mocks, {
         account: accounts[0] as KeyringAccount,
         method,
-        params: [ACCOUNT_ADDRESS, typedData],
+        params: [ACCOUNT_ADDRESS, submittedTypedData],
+        scope: '',
       });
     },
   );
+
+  it('uses the typed data domain chain ID as the signing scope', async () => {
+    const typedData = {
+      domain: {
+        chainId: 1,
+      },
+      message: 'hello',
+    };
+    const { accounts, adapter, mocks } = setup({
+      submitRequestResult: '0x1234',
+    });
+
+    expect(
+      await adapter.signTypedData(ACCOUNT_ADDRESS as Hex, typedData, {
+        version: SignTypedDataVersion.V4,
+      }),
+    ).toBe('0x1234');
+    expectLastSubmitRequest(mocks, {
+      account: accounts[0] as KeyringAccount,
+      method: EthMethod.SignTypedDataV4,
+      params: [ACCOUNT_ADDRESS, typedData],
+      scope: EthScope.Mainnet,
+    });
+  });
 
   it('throws a typed error if the requested typed data version is not supported by the account', async () => {
     const { adapter, mocks } = setup({
@@ -529,6 +577,16 @@ describe('EthKeyringV1Adapter', () => {
     expect(mocks.submitRequest).not.toHaveBeenCalled();
   });
 
+  it('throws if an ETH signing response is invalid', async () => {
+    const { adapter, mocks } = setup();
+
+    mocks.submitRequest.mockResolvedValueOnce('not-hex');
+
+    await expect(
+      adapter.signMessage(ACCOUNT_ADDRESS as Hex, '0xdeadbeef'),
+    ).rejects.toThrow('Expected a value of type');
+  });
+
   it('submits a user operation preparation request', async () => {
     const { accounts, adapter, mocks } = setup();
     const transactions: EthBaseTransaction[] = [
@@ -544,19 +602,7 @@ describe('EthKeyringV1Adapter', () => {
       },
     ];
     const executionContext: KeyringExecutionContext = { chainId: '0x1' };
-    const baseUserOperation: EthBaseUserOperation = {
-      nonce: '0x1',
-      initCode: '0x',
-      callData: '0x1234',
-      gasLimits: {
-        callGasLimit: '0x1',
-        verificationGasLimit: '0x2',
-        preVerificationGas: '0x3',
-      },
-      dummyPaymasterAndData: '0x',
-      dummySignature: '0x',
-      bundlerUrl: 'https://bundler.example.com/rpc',
-    };
+    const baseUserOperation = createBaseUserOperation();
 
     mocks.submitRequest.mockResolvedValueOnce(
       baseUserOperation as unknown as Json,
@@ -578,7 +624,10 @@ describe('EthKeyringV1Adapter', () => {
 
   it('submits a user operation patch request', async () => {
     const { accounts, adapter, mocks } = setup();
-    const userOperation = createUserOperation();
+    const userOperation = {
+      ...createUserOperation(),
+      ignored: undefined,
+    };
     const executionContext: KeyringExecutionContext = { chainId: '0x1' };
     const patch: EthUserOperationPatch = {
       paymasterAndData: '0x1234',
@@ -596,7 +645,7 @@ describe('EthKeyringV1Adapter', () => {
     expectLastSubmitRequest(mocks, {
       account: accounts[0] as KeyringAccount,
       method: EthMethod.PatchUserOperation,
-      params: [userOperation],
+      params: [createUserOperation()],
       scope: 'eip155:0x1',
     });
   });
@@ -606,19 +655,73 @@ describe('EthKeyringV1Adapter', () => {
     const userOperation = createUserOperation();
     const executionContext: KeyringExecutionContext = { chainId: '0x1' };
 
-    mocks.submitRequest.mockResolvedValueOnce('0xsignature');
+    mocks.submitRequest.mockResolvedValueOnce('0x1234');
     expect(
       await adapter.signUserOperation(
         ACCOUNT_ADDRESS,
         userOperation,
         executionContext,
       ),
-    ).toBe('0xsignature');
+    ).toBe('0x1234');
     expectLastSubmitRequest(mocks, {
       account: accounts[0] as KeyringAccount,
       method: EthMethod.SignUserOperation,
       params: [userOperation],
       scope: 'eip155:0x1',
     });
+  });
+
+  it('throws if a user operation preparation response is invalid', async () => {
+    const { adapter, mocks } = setup();
+    const transactions: EthBaseTransaction[] = [];
+    const executionContext: KeyringExecutionContext = { chainId: '0x1' };
+
+    mocks.submitRequest.mockResolvedValueOnce({
+      ...createBaseUserOperation(),
+      extra: '0x',
+    } as unknown as Json);
+
+    await expect(
+      adapter.prepareUserOperation(
+        ACCOUNT_ADDRESS,
+        transactions,
+        executionContext,
+      ),
+    ).rejects.toThrow('Expected a value of type');
+  });
+
+  it('throws if a user operation patch response is invalid', async () => {
+    const { adapter, mocks } = setup();
+    const userOperation = createUserOperation();
+    const executionContext: KeyringExecutionContext = { chainId: '0x1' };
+
+    mocks.submitRequest.mockResolvedValueOnce({
+      paymasterAndData: '0x1234',
+      extra: '0x',
+    } as unknown as Json);
+
+    await expect(
+      adapter.patchUserOperation(
+        ACCOUNT_ADDRESS,
+        userOperation,
+        executionContext,
+      ),
+    ).rejects.toThrow('Expected a value of type');
+  });
+
+  it('throws if a user operation signing response is invalid', async () => {
+    const { adapter, mocks } = setup();
+    const userOperation = createUserOperation();
+    const executionContext: KeyringExecutionContext = { chainId: '0x1' };
+
+    mocks.submitRequest.mockResolvedValueOnce('not-hex');
+
+    await expect(
+      adapter.signUserOperation(
+        ACCOUNT_ADDRESS,
+        userOperation,
+        executionContext,
+      ),
+    ).rejects.toThrow('Expected a value of type');
   });
 });
