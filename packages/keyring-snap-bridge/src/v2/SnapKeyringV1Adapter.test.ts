@@ -79,7 +79,7 @@ async function setup({
   const lookupByAddress = jest.spyOn(inner, 'lookupByAddress');
 
   return {
-    adapter: new SnapKeyringV1Adapter({ keyring: inner }),
+    adapter: new SnapKeyringV1Adapter(inner),
     inner,
     mocks: {
       deleteAccount,
