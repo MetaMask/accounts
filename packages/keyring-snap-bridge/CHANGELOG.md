@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Normalize `KeyringAccount`'s address with `:accountCreated` and `setAccounts` ([#556](https://github.com/MetaMask/accounts/pull/556))
+
 ## [22.1.0]
 
 ### Added
