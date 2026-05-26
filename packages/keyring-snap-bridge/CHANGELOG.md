@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `SnapKeyringV1Adapter` to adapt Snap v2 keyrings to legacy v1 keyring operations ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `SnapKeyringV1Adapter` to adapt Snap v2 keyrings to legacy v1 keyring operations ([#557](https://github.com/MetaMask/accounts/pull/557))
+  - This adapter mostly exposes EVM signing operations through `EthKeyringV1Adapter`.
+  - This adapter also implements `removeAccount` the way it was implemented by the legacy Snap keyring (compatible with the `KeyringController` account removal flow).
 
 ### Changed
 
