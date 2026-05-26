@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `EthKeyringV1Adapter` and typed errors for adapting v2 ETH keyrings to legacy ETH keyring signing flows ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [2.1.1]
 
 ### Changed
