@@ -1,10 +1,5 @@
-import {
-  array,
-  literal,
-  object,
-  string,
-  type Infer,
-} from '@metamask/superstruct';
+import { array, literal, object, string } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 export enum SnapManageAccountsMethod {
   GetSelectedAccounts = 'getSelectedAccounts',

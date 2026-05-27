@@ -14,11 +14,14 @@ import {
   SolDataAccountStruct,
   TrxAccountType,
   TrxEoaAccountStruct,
+  XlmAccountType,
+  XlmAccountStruct,
+  isEvmAccountType,
 } from '@metamask/keyring-api';
-import { assert, omit, type Infer } from '@metamask/superstruct';
+import { assert, omit } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 import { isAccountV1, transformAccountV1 } from './migrations';
-
 /**
  * A `KeyringAccount` with some optional fields which can be used to keep
  * the retro-compatility with older version of keyring accounts/events.
@@ -72,6 +75,10 @@ export function assertKeyringAccount<
       assert(account, TrxEoaAccountStruct);
       return account;
     }
+    case XlmAccountType.Account: {
+      assert(account, XlmAccountStruct);
+      return account;
+    }
     case AnyAccountType.Account: {
       assert(account, KeyringAccountStruct);
       return account;
@@ -101,4 +108,34 @@ export function transformAccount(
 
   // We still assert that the converted account is valid according to their account's type.
   return assertKeyringAccount(account);
+}
+
+/**
+ * Normalize account's address.
+ *
+ * EVM addresses are lowercased; non-EVM addresses (e.g. Solana) are
+ * left as-is because they are case-sensitive.
+ *
+ * @param account - The account.
+ * @returns The normalized account address.
+ */
+export function normalizeAccountAddress(account: KeyringAccount): string {
+  return isEvmAccountType(account.type)
+    ? account.address.toLowerCase()
+    : account.address;
+}
+
+/**
+ * Normalize a `KeyringAccount` (e.g., its address).
+ *
+ * @param account - The account to normalize.
+ * @returns The normalized `KeyringAccount`.
+ */
+export function normalizeAccount(account: KeyringAccount): KeyringAccount {
+  return {
+    ...account,
+    // Normalization is only meaningful for EVM addresses. Since Snaps might be using checksum addresses, we should normalize
+    // them in the "MetaMask world" to keep compatibility with the rest of the codebase (e.g. when comparing addresses, etc.).
+    address: normalizeAccountAddress(account),
+  };
 }

@@ -1,9 +1,6 @@
 import { RLP } from '@ethereumjs/rlp';
-import {
-  TransactionFactory,
-  TypedTxData,
-  type TypedTransaction,
-} from '@ethereumjs/tx';
+import { TransactionFactory, TypedTxData } from '@ethereumjs/tx';
+import type { TypedTransaction } from '@ethereumjs/tx';
 import { publicToAddress } from '@ethereumjs/util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import {

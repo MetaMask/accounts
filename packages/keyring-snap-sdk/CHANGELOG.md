@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
+
+## [9.0.1]
+
+### Fixed
+
+- Workaround Browserify subpath export for `/v2` ([#516](https://github.com/MetaMask/accounts/pull/516))
+
+## [9.0.0]
+
+### Added
+
+- Add `handleKeyringRequestV2` function for dispatching keyring v2 JSON-RPC requests ([#408](https://github.com/MetaMask/accounts/pull/408))
+
+### Changed
+
+- **BREAKING:** Move and rename `handleKeyringRequestV2` to the `./v2` module ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `handleKeyringRequestV2` is now `handleKeyringRequest` from `@metamask/keyring-snap-sdk/v2`.
+- **BREAKING:** Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489)), ([#483](https://github.com/MetaMask/accounts/pull/483))
+
+## [8.0.0]
+
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^21.0.0` to `^22.0.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
+- Bump `@metamask/snaps-sdk` from `^10.4.0` to `^11.0.0` ([#486](https://github.com/MetaMask/accounts/pull/486))
+
+## [7.2.1]
+
+### Fixed
+
+- Throw RPC errors with proper error codes ([#469](https://github.com/MetaMask/accounts/pull/469))
+
 ## [7.2.0]
 
 ### Added
@@ -18,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^21.2.0` to `^21.4.0` ([#460](https://github.com/MetaMask/accounts/pull/460))
-- Bump `@metamask/snaps-sdk` from `^9.0.0` to `^10.4.0` ([#422](https://github.com/MetaMask/accounts/pull/422), [#461](https://github.com/MetaMask/accounts/pull/461))
+- Bump `@metamask/snaps-sdk` from `^9.0.0` to `^10.4.0` ([#422](https://github.com/MetaMask/accounts/pull/422)), ([#461](https://github.com/MetaMask/accounts/pull/461))
 
 ## [7.1.1]
 
@@ -138,7 +174,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.1...HEAD
+[9.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.0...@metamask/keyring-snap-sdk@9.0.1
+[9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@8.0.0...@metamask/keyring-snap-sdk@9.0.0
+[8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.2.1...@metamask/keyring-snap-sdk@8.0.0
+[7.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.2.0...@metamask/keyring-snap-sdk@7.2.1
 [7.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.1.1...@metamask/keyring-snap-sdk@7.2.0
 [7.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.1.0...@metamask/keyring-snap-sdk@7.1.1
 [7.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.0.0...@metamask/keyring-snap-sdk@7.1.0

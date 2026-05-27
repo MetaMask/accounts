@@ -1,9 +1,8 @@
-import {
-  type CreateAccountOptions,
-  type EntropySourceId,
-  type KeyringAccount,
-  type KeyringCapabilities,
-} from '@metamask/keyring-api';
+import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
+import type {
+  CreateAccountOptions,
+  KeyringCapabilities,
+} from '@metamask/keyring-api/v2';
 
 import type { Bip44Account } from './bip44';
 

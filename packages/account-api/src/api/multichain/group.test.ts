@@ -1,3 +1,6 @@
+import { MOCK_ENTROPY_SOURCE_1 } from '../../mocks';
+import { toAccountGroupId } from '../group';
+import { AccountWalletType, toAccountWalletId } from '../wallet';
 import type { MultichainAccountGroupId } from './group';
 import {
   getGroupIndexFromMultichainAccountGroupId,
@@ -5,9 +8,6 @@ import {
   toMultichainAccountGroupId,
 } from './group';
 import { toMultichainAccountWalletId } from './wallet';
-import { MOCK_ENTROPY_SOURCE_1 } from '../../mocks';
-import { toAccountGroupId } from '../group';
-import { AccountWalletType, toAccountWalletId } from '../wallet';
 
 describe('multichain group', () => {
   describe('toMultichainAccountGroupId', () => {

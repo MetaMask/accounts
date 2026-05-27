@@ -13,4 +13,4 @@ export * from './transaction';
 export * from './pagination';
 export * from './options';
 export type * from './keyring';
-export * from './v2';
+export * from '../v2/api/create-account';

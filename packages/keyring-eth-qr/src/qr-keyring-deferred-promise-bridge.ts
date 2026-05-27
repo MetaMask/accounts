@@ -1,4 +1,5 @@
-import { type DeferredPromise, createDeferredPromise } from '@metamask/utils';
+import { createDeferredPromise } from '@metamask/utils';
+import type { DeferredPromise } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
 import type {

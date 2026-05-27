@@ -1,5 +1,7 @@
+import { TransportStatusError } from '@ledgerhq/hw-transport';
 import type Transport from '@ledgerhq/hw-transport';
 
+import { ERC20_WRITE_SELECTORS, NFT_ONLY_SELECTORS } from './constants';
 import {
   AppConfigurationResponse,
   GetAppNameAndVersionResponse,
@@ -16,6 +18,10 @@ import {
 import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
 import { TransportMiddleware } from './ledger-transport-middleware';
 import { LedgerMobileBridgeOptions } from './type';
+import { getTransactionSelector } from './utils';
+
+/** Ledger APDU: CONDITIONS_OF_USE_NOT_SATISFIED (user rejected on device). */
+const LEDGER_USER_REJECTION_STATUS = 0x6985;
 
 // MobileBridge Type will always use LedgerBridge with LedgerMobileBridgeOptions
 export type MobileBridge = LedgerBridge<LedgerMobileBridgeOptions> & {
@@ -59,7 +65,6 @@ export class LedgerMobileBridge implements MobileBridge {
     try {
       await this.#getTransportMiddleWare().dispose();
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error(error);
     }
     this.isDeviceConnected = false;
@@ -101,6 +106,9 @@ export class LedgerMobileBridge implements MobileBridge {
    * Method to sign a transaction
    * Sending the hexadecimal transaction message to the device and returning the signed transaction.
    *
+   * Tries clear-signing first. If resolution fails (e.g. no Ledger plugin for the chain or contract),
+   * falls back to blind signing via `signTransaction(..., null)` unless the user rejected on the device.
+   *
    * @param params - An object contains tx, hdPath.
    * @param params.tx - The raw ethereum transaction in hexadecimal to sign.
    * @param params.hdPath - The BIP 32 path of the account.
@@ -110,11 +118,29 @@ export class LedgerMobileBridge implements MobileBridge {
     tx,
     hdPath,
   }: LedgerSignTransactionParams): Promise<LedgerSignTransactionResponse> {
-    return this.#getEthApp().clearSignTransaction(hdPath, tx, {
-      externalPlugins: true,
-      erc20: true,
-      nft: true,
-    });
+    const selector = getTransactionSelector(tx);
+    const nft = Boolean(selector && NFT_ONLY_SELECTORS.has(selector));
+    const erc20 = Boolean(selector && ERC20_WRITE_SELECTORS.has(selector));
+
+    const ethApp = this.#getEthApp();
+
+    try {
+      return await ethApp.clearSignTransaction(hdPath, tx, {
+        externalPlugins: true,
+        erc20,
+        nft,
+      });
+    } catch (error: unknown) {
+      if (LedgerMobileBridge.#isLedgerUserRejection(error)) {
+        throw error;
+      }
+
+      console.warn(
+        'Ledger clear-sign failed; falling back to blind signing.',
+        error,
+      );
+      return ethApp.signTransaction(hdPath, tx, null);
+    }
   }
 
   /**
@@ -229,5 +255,19 @@ export class LedgerMobileBridge implements MobileBridge {
    */
   #getEthApp(): MetaMaskLedgerHwAppEth {
     return this.#getTransportMiddleWare().getEthApp();
+  }
+
+  /**
+   * Detects an explicit on-device rejection so we do not fall back to blind signing
+   * and re-prompt the user.
+   *
+   * @param error - Error from Ledger transport or hw-app-eth.
+   * @returns True when the user rejected the action on the device.
+   */
+  static #isLedgerUserRejection(error: unknown): boolean {
+    return (
+      error instanceof TransportStatusError &&
+      error.statusCode === LEDGER_USER_REJECTION_STATUS
+    );
   }
 }

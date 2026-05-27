@@ -1,6 +1,6 @@
 // istanbul ignore file
 
-import { type HardwareWalletError } from './hardware-error';
+import type { HardwareWalletError } from './hardware-error';
 
 export enum HardwareWalletType {
   Ledger = 'ledger',

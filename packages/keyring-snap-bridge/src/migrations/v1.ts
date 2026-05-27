@@ -7,16 +7,15 @@ import {
   SolScope,
   TrxScope,
   TrxAccountType,
+  XlmScope,
+  XlmAccountType,
 } from '@metamask/keyring-api';
 import type { CaipChainId, KeyringAccount } from '@metamask/keyring-api';
 import { isBtcMainnetAddress } from '@metamask/keyring-utils';
 import { is } from '@metamask/superstruct';
 
-import {
-  assertKeyringAccount,
-  KeyringAccountV1Struct,
-  type KeyringAccountV1,
-} from '../account';
+import { assertKeyringAccount, KeyringAccountV1Struct } from '../account';
+import type { KeyringAccountV1 } from '../account';
 
 /**
  * Checks if an account is an `KeyringAccount` v1.
@@ -73,6 +72,10 @@ export function getScopesForAccountV1(
     case TrxAccountType.Eoa: {
       // TRON account supports multiple chains.
       return [TrxScope.Mainnet, TrxScope.Nile, TrxScope.Shasta];
+    }
+    case XlmAccountType.Account: {
+      // Stellar account supports mainnet and testnet.
+      return [XlmScope.Pubnet, XlmScope.Testnet];
     }
     default:
       // We re-use EOA scopes if we don't know what to do for now.

@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.packages.build.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "dist",
+    "rootDir": "src",
+    "exactOptionalPropertyTypes": false
+  },
+  "references": [
+    {
+      "path": "../keyring-eth-hd/tsconfig.build.json"
+    }
+  ],
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./src/**/*.test.ts"]
+}

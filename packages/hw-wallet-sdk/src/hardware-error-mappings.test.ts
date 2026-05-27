@@ -2,6 +2,8 @@ import {
   LEDGER_ERROR_MAPPINGS,
   BLE_ERROR_MAPPINGS,
   MOBILE_ERROR_MAPPINGS,
+  QR_WALLET_ERROR_MAPPINGS,
+  TREZOR_ERROR_MAPPINGS,
 } from './hardware-error-mappings';
 import type { ErrorMapping } from './hardware-error-mappings';
 import { ErrorCode, Severity, Category } from './hardware-errors-enums';
@@ -227,6 +229,14 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
       expect(mapping.category).toBe(Category.DeviceState);
     });
 
+    it('maps CAMERA_PERMISSION_DENIED correctly', () => {
+      const mapping = errorMappings.CAMERA_PERMISSION_DENIED;
+      expect(mapping.code).toBe(ErrorCode.PermissionCameraDenied);
+      expect(mapping.severity).toBe(Severity.Err);
+      expect(mapping.category).toBe(Category.Configuration);
+      expect(mapping.userMessage).toContain('Camera');
+    });
+
     it('has valid structure for all mappings', () => {
       Object.values(errorMappings).forEach((mapping) => {
         expect(mapping).toHaveProperty('code');
@@ -241,6 +251,88 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         expect(Object.values(Severity)).toContain(mapping.severity);
         expect(Object.values(Category)).toContain(mapping.category);
         expect(typeof mapping.message).toBe('string');
+      });
+    });
+  });
+
+  describe('QR wallet mappings', () => {
+    const errorMappings = QR_WALLET_ERROR_MAPPINGS;
+
+    it('has errorMappings object', () => {
+      expect(errorMappings).toBeDefined();
+      expect(typeof errorMappings).toBe('object');
+    });
+
+    it('maps CAMERA_PERMISSION_PROMPT_DISMISSED for State 1 (dialog dismissed)', () => {
+      const mapping = errorMappings.CAMERA_PERMISSION_PROMPT_DISMISSED;
+      expect(mapping).toBeDefined();
+      expect(mapping?.code).toBe(ErrorCode.PermissionCameraPromptDismissed);
+      expect(mapping?.severity).toBe(Severity.Warning);
+      expect(mapping?.userMessage).toContain('QR code');
+    });
+
+    it('maps CAMERA_PERMISSION_BLOCKED for State 2 (persistent block)', () => {
+      const mapping = errorMappings.CAMERA_PERMISSION_BLOCKED;
+      expect(mapping).toBeDefined();
+      expect(mapping?.code).toBe(ErrorCode.PermissionCameraDenied);
+      expect(mapping?.severity).toBe(Severity.Err);
+      expect(mapping?.userMessage).toContain('browser settings');
+    });
+
+    it('has valid structure for all mappings', () => {
+      Object.values(errorMappings).forEach((mapping) => {
+        expect(mapping).toHaveProperty('code');
+        expect(mapping).toHaveProperty('message');
+        expect(mapping).toHaveProperty('severity');
+        expect(mapping).toHaveProperty('category');
+
+        const numericErrorCodes = Object.values(ErrorCode).filter(
+          (value): value is number => typeof value === 'number',
+        );
+        expect(numericErrorCodes).toContain(mapping.code);
+        expect(Object.values(Severity)).toContain(mapping.severity);
+        expect(Object.values(Category)).toContain(mapping.category);
+        expect(typeof mapping.message).toBe('string');
+      });
+    });
+  });
+
+  describe('Trezor mappings', () => {
+    it('has TREZOR_ERROR_MAPPINGS object', () => {
+      expect(TREZOR_ERROR_MAPPINGS).toBeDefined();
+      expect(typeof TREZOR_ERROR_MAPPINGS).toBe('object');
+    });
+
+    it('has valid structure for all mappings', () => {
+      Object.values(TREZOR_ERROR_MAPPINGS).forEach((mapping) => {
+        expect(mapping).toHaveProperty('code');
+        expect(mapping).toHaveProperty('message');
+        expect(mapping).toHaveProperty('severity');
+        expect(mapping).toHaveProperty('category');
+
+        const numericErrorCodes = Object.values(ErrorCode).filter(
+          (value): value is number => typeof value === 'number',
+        );
+        expect(numericErrorCodes).toContain(mapping.code);
+        expect(Object.values(Severity)).toContain(mapping.severity);
+        expect(Object.values(Category)).toContain(mapping.category);
+        expect(typeof mapping.message).toBe('string');
+      });
+    });
+
+    it('maps Init_IframeTimeout to ConnectionTimeout', () => {
+      expect(TREZOR_ERROR_MAPPINGS.Init_IframeTimeout).toMatchObject({
+        code: ErrorCode.ConnectionTimeout,
+        severity: Severity.Err,
+        category: Category.Connection,
+      });
+    });
+
+    it('maps Transport_Missing to ConnectionTransportMissing', () => {
+      expect(TREZOR_ERROR_MAPPINGS.Transport_Missing).toMatchObject({
+        code: ErrorCode.ConnectionTransportMissing,
+        severity: Severity.Err,
+        category: Category.Connection,
       });
     });
   });

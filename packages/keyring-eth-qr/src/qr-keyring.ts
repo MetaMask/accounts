@@ -1,14 +1,11 @@
-import { type TypedTransaction, type TypedTxData } from '@ethereumjs/tx';
+import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
 import type { TypedMessage, MessageTypes } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
-import { type Hex, add0x, assert, getChecksumAddress } from '@metamask/utils';
+import { add0x, assert, getChecksumAddress } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
 
-import {
-  type DeviceDetails,
-  type IndexedAddress,
-  Device,
-  DeviceMode,
-} from './device';
+import { Device, DeviceMode } from './device';
+import type { DeviceDetails, IndexedAddress } from './device';
 
 export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
 

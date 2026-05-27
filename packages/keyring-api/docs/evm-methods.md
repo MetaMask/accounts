@@ -235,10 +235,8 @@ Adds support to [`eth_signtypeddata_v4`][eth-sign-typed-data].
 > - V1 is based upon [an early version of EIP-712][sign-typed-data-v1] that
 >   lacked some later security improvements, and should generally be neglected
 >   in favor of later versions.
->
 > - V3 is based on [EIP-712][eip-712], except that arrays and recursive data
 >   structures are not supported.
->
 > - V4 is based on [EIP-712][eip-712], and includes full support of arrays and
 >   recursive data structures.
 

@@ -26,10 +26,8 @@ import {
 import { add0x, bytesToHex, Hex, hexToBytes } from '@metamask/utils';
 import assert from 'assert';
 import { keccak256 } from 'ethereum-cryptography/keccak';
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import OldEthereumTx from 'ethereumjs-tx';
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import SimpleKeyring from '.';
 
 const TYPE_STR = 'Simple Key Pair';

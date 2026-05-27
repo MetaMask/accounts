@@ -1,21 +1,29 @@
 {
   "name": "@metamask/eth-qr-keyring",
-  "version": "1.1.0",
-  "description": "A simple standard interface for a series of Ethereum private keys.",
+  "version": "2.1.0",
+  "description": "A simple standard interface for a series of Ethereum private keys",
   "keywords": [
     "ethereum",
     "keyring",
-    "qr",
-    "metamask"
+    "metamask",
+    "qr"
   ],
-  "homepage": "https://github.com/MetaMask/accounts/packages/keyring-eth-qr#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-eth-qr#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
+  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/accounts.git"
   },
+  "files": [
+    "dist/",
+    "v2.js"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
@@ -26,15 +34,26 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    }
+    },
+    "./v2": {
+      "import": {
+        "types": "./dist/v2/index.d.mts",
+        "default": "./dist/v2/index.mjs"
+      },
+      "require": {
+        "types": "./dist/v2/index.d.cts",
+        "default": "./dist/v2/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.cts",
-  "files": [
-    "dist/"
-  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
+    "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
+    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
     "build:clean": "rimraf dist && yarn build",
     "build:docs": "typedoc",
     "build:force": "tsc --build tsconfig.build.json --force",
@@ -42,10 +61,13 @@
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-qr-keyring",
     "publish:preview": "yarn npm publish --tag preview",
     "sample": "ts-node src/sample.ts",
-    "test": "jest",
-    "test:clean": "jest --clearCache",
-    "test:verbose": "jest --verbose",
-    "test:watch": "jest --watch"
+    "since-latest-release": "../../scripts/since-latest-release.sh",
+    "test": "yarn test:source && yarn test:types",
+    "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
+    "test:source": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
+    "test:types": "../../scripts/tsd-test.sh ./src",
+    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
     "@ethereumjs/rlp": "^5.0.2",
@@ -53,9 +75,10 @@
     "@ethereumjs/util": "^9.1.0",
     "@keystonehq/bc-ur-registry-eth": "^0.19.1",
     "@metamask/eth-sig-util": "^8.2.0",
-    "@metamask/keyring-api": "workspace:^",
-    "@metamask/keyring-utils": "workspace:^",
-    "@metamask/utils": "^11.1.0",
+    "@metamask/keyring-api": "^23.1.0",
+    "@metamask/keyring-sdk": "^2.1.1",
+    "@metamask/keyring-utils": "^3.3.1",
+    "@metamask/utils": "^11.11.0",
     "async-mutex": "^0.5.0",
     "hdkey": "^2.1.0",
     "uuid": "^9.0.1"
@@ -64,8 +87,9 @@
     "@ethereumjs/common": "^4.4.0",
     "@keystonehq/metamask-airgapped-keyring": "^0.15.2",
     "@lavamoat/allow-scripts": "^3.2.1",
-    "@metamask/account-api": "workspace:^",
-    "@metamask/auto-changelog": "^3.4.4",
+    "@lavamoat/preinstall-always-fail": "^2.1.0",
+    "@metamask/account-api": "^1.0.4",
+    "@metamask/auto-changelog": "^6.1.0",
     "@types/hdkey": "^2.0.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
@@ -75,14 +99,10 @@
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
-    "typescript": "~5.6.3"
+    "typescript": "~5.3.3"
   },
   "engines": {
     "node": "^18.18 || >=20"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   },
   "lavamoat": {
     "allowScripts": {

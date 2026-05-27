@@ -3,22 +3,22 @@ import { privateToPublic, publicToAddress, ecsign } from '@ethereumjs/util';
 import {
   concatSig,
   decrypt,
-  type EIP7702Authorization,
-  type EthEncryptedData,
   getEncryptionPublicKey,
-  type MessageTypes,
   normalize,
   personalSign,
   signEIP7702Authorization,
   signTypedData,
   SignTypedDataVersion,
-  type TypedDataV1,
-  type TypedMessage,
 } from '@metamask/eth-sig-util';
-import {
-  type CryptographicFunctions,
-  mnemonicToSeed,
-} from '@metamask/key-tree';
+import type {
+  EIP7702Authorization,
+  EthEncryptedData,
+  MessageTypes,
+  TypedDataV1,
+  TypedMessage,
+} from '@metamask/eth-sig-util';
+import { mnemonicToSeed } from '@metamask/key-tree';
+import type { CryptographicFunctions } from '@metamask/key-tree';
 import type { Keyring } from '@metamask/keyring-utils';
 import { generateMnemonic, validateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
@@ -28,9 +28,9 @@ import {
   assertIsHexString,
   bigIntToBytes,
   bytesToHex,
-  type Hex,
   remove0x,
 } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
 import { HDKey } from 'ethereum-cryptography/hdkey';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 

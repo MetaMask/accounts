@@ -1,15 +1,10 @@
-import {
-  EthMethod,
-  EthScope,
-  type KeyringAccount,
-} from '@metamask/keyring-api';
+import { EthMethod, EthScope } from '@metamask/keyring-api';
+import type { KeyringAccount } from '@metamask/keyring-api';
 import type { KeyringRequestWithoutOrigin } from '@metamask/keyring-internal-api';
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import {
-  KeyringInternalSnapClient,
-  type KeyringInternalSnapClientMessenger,
-} from './KeyringInternalSnapClient';
+import { KeyringInternalSnapClient } from './KeyringInternalSnapClient';
+import type { KeyringInternalSnapClientMessenger } from './KeyringInternalSnapClient';
 
 const MOCK_ACCOUNT: KeyringAccount = {
   id: '13f94041-6ae6-451f-a0fe-afdd2fda18a7',

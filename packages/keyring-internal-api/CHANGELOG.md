@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
+
+## [11.0.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^23.0.1` to `^23.1.0` ([#538](https://github.com/MetaMask/accounts/pull/538))
+
+## [11.0.0]
+
+### Removed
+
+- **BREAKING:** Removed `InternalAccount.metadata.snap.{enabled,name}` ([#525](https://github.com/MetaMask/accounts/pull/525))
+  - Use `SnapController:getSnap` to get those information instead (in combination with `InternalAccount.metadata.snap.id`).
+
+## [10.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^23.0.0` to `^23.0.1` ([#518](https://github.com/MetaMask/accounts/pull/518))
+
+## [10.1.0]
+
+### Added
+
+- Add Stellar (XLM) support ([#483](https://github.com/MetaMask/accounts/pull/483))
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+
+## [10.0.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^21.6.0` to `^22.0.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
+
 ## [10.0.0]
 
 ### Changed
@@ -169,7 +208,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@11.0.1...HEAD
+[11.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@11.0.0...@metamask/keyring-internal-api@11.0.1
+[11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.1.1...@metamask/keyring-internal-api@11.0.0
+[10.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.1.0...@metamask/keyring-internal-api@10.1.1
+[10.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.0.1...@metamask/keyring-internal-api@10.1.0
+[10.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.0.0...@metamask/keyring-internal-api@10.0.1
 [10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@9.1.1...@metamask/keyring-internal-api@10.0.0
 [9.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@9.1.0...@metamask/keyring-internal-api@9.1.1
 [9.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@9.0.0...@metamask/keyring-internal-api@9.1.0

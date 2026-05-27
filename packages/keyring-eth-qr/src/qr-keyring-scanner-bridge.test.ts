@@ -1,8 +1,5 @@
-import {
-  type QrScanRequest,
-  QrScanRequestType,
-  QrKeyringScannerBridge,
-} from '.';
+import { QrScanRequestType, QrKeyringScannerBridge } from '.';
+import type { QrScanRequest } from '.';
 
 describe('QrKeyringScannerBridge', () => {
   describe('requestScan', () => {

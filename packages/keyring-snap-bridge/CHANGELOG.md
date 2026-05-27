@@ -7,6 +7,103 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Normalize `KeyringAccount`'s address with `:accountCreated` and `setAccounts` ([#556](https://github.com/MetaMask/accounts/pull/556))
+
+## [22.1.0]
+
+### Added
+
+- Add `isSnapKeyring` (v2) helper ([#549](https://github.com/MetaMask/accounts/pull/549))
+
+### Changed
+
+- Bump `@metamask/keyring-sdk` from `^2.0.2` to `^2.1.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
+- Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
+
+## [22.0.1]
+
+### Changed
+
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.2` to `^10.0.3` ([#538](https://github.com/MetaMask/accounts/pull/538))
+- Bump `@metamask/keyring-sdk` from `^2.0.1` to `^2.0.2` ([#538](https://github.com/MetaMask/accounts/pull/538))
+- Bump `@metamask/keyring-internal-api` from `^11.0.0` to `^11.0.1` ([#538](https://github.com/MetaMask/accounts/pull/538))
+
+## [22.0.0]
+
+### Added
+
+- **BREAKING:** Re-add `snapId` as part of the callbacks (`SnapKeyringCallbacks`) when building `SnapKeyring` v2 keyrings ([#520](https://github.com/MetaMask/accounts/pull/520))
+  - Since the `snapId` is now injected via `deserialize` we cannot auto-capture it at build-time.
+
+### Changed
+
+- **BREAKING:** No longer use `snapId` as constructor parameter for `SnapKeyring` (v2) ([#519](https://github.com/MetaMask/accounts/pull/519))
+  - The `snapId` is now passed and bound to the keyring upon the first `deserialize` call, to better integrate with `KeyringController` keyrings lifecyle and keyring builders.
+- Bump `@metamask/keyring-internal-api` from `^10.1.1` to `^11.0.0` ([#528](https://github.com/MetaMask/accounts/pull/528))
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.1` to `^10.0.2` ([#528](https://github.com/MetaMask/accounts/pull/528))
+
+### Removed
+
+- **BREAKING:** Removed `snap.{name,enabled}` from `InternalAccount` metadata produced by `SnapKeyring` ([#525](https://github.com/MetaMask/accounts/pull/525))
+  - Use `SnapController:getSnap` to get those information instead (in combination with `InternalAccount.metadata.snap.id`).
+
+## [21.0.1]
+
+### Changed
+
+- Bump `@metamask/keyring-internal-api` from `^10.1.0` to `^10.1.1` ([#518](https://github.com/MetaMask/accounts/pull/518))
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.0` to `^10.0.1` ([#518](https://github.com/MetaMask/accounts/pull/518))
+- Bump `@metamask/keyring-sdk` from `^2.0.0` to `^2.0.1` ([#518](https://github.com/MetaMask/accounts/pull/518))
+- Bump `@metamask/keyring-snap-sdk` from `^9.0.0` to `^9.0.1` ([#518](https://github.com/MetaMask/accounts/pull/518))
+
+### Fixed
+
+- Workaround Browserify subpath export for `/v2` ([#516](https://github.com/MetaMask/accounts/pull/516))
+
+## [21.0.0]
+
+### Added
+
+- Support Stellar (`xlm:account`) accounts in account assertions and v1 migrations ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Add `SnapKeyringV1` class, a per-snap keyring wrapper that implements the old keyring interface and flows ([#507](https://github.com/MetaMask/accounts/pull/507))
+  - This will allow us to re-use the existing logic (that we still use today) as part of the new V2 implementation until we completely them.
+- Add `SnapKeyringV2` class, a per-snap keyring wrapper that implements `KeyringV2` with `createAccount`, `createAccounts`, `deleteAccount`, `submitRequest`, `getAccount`, and `getAccounts` ([#501](https://github.com/MetaMask/accounts/pull/501)), ([#507](https://github.com/MetaMask/accounts/pull/507))
+  - `SnapKeyringV2` inherits from `SnapKeyringV1` so it can replace the current `SnapKeyring` class entirely, but for a single Snap.
+- Add `@metamask/keyring-sdk` `^1.1.0` as a new dependency ([#501](https://github.com/MetaMask/accounts/pull/501))
+- Add `./v2` subpath export for keyring v2 implementation ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `SnapKeyring`, `SnapKeyringState`, and `SnapKeyringCallbacks` are now available from `@metamask/keyring-snap-bridge/v2`.
+
+### Changed
+
+- **BREAKING:** Move and rename `SnapKeyringV2` to the new `./v2` subpath export ([#513](https://github.com/MetaMask/accounts/pull/513))
+  - `SnapKeyringV2` is now `SnapKeyring` from `@metamask/keyring-snap-bridge/v2`.
+- **BREAKING:** Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+- Use `DeferredPromise` from `@metamask/utils` ([#508](https://github.com/MetaMask/accounts/pull/508))
+- Refactor `SnapKeyring` to store accounts in per-snap `SnapKeyringV2` wrappers instead of a single flat map ([#501](https://github.com/MetaMask/accounts/pull/501))
+- Bump `@metamask/messenger` from `^0.3.0` to `^1.1.1` ([#489](https://github.com/MetaMask/accounts/pull/489)), ([#500](https://github.com/MetaMask/accounts/pull/500))
+- Bump `@metamask/snaps-controllers` from `^19.0.0` to `^19.0.1` ([#500](https://github.com/MetaMask/accounts/pull/500))
+- Bump `@metamask/snaps-utils` from `^12.1.2` to `^12.1.3` ([#500](https://github.com/MetaMask/accounts/pull/500))
+- Bump `@metamask/utils` from `^11.10.0` to `^11.11.0` ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/keyring-internal-api` from `^10.0.1` to `^10.1.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+- Bump `@metamask/keyring-internal-snap-client` from `^9.0.1` to `^10.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+- Bump `@metamask/keyring-sdk` from `^1.2.0` to `^2.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+- Bump `@metamask/keyring-snap-sdk` from `^8.0.0` to `^9.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
+
+## [20.0.0]
+
+### Changed
+
+- **BREAKING:** Bump `@metamask/keyring-api` from `^21.6.0` to `^22.0.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
+- **BREAKING:** Bump `@metamask/snaps-controllers` from `^18.0.0` to `^19.0.0` ([#486](https://github.com/MetaMask/accounts/pull/486))
+  - `SnapKeyring` now requires `SnapController:getSnap` instead of `SnapController:get`.
+- Bump `@metamask/keyring-internal-api` from `^10.0.0` to `^10.0.1` ([#482](https://github.com/MetaMask/accounts/pull/482))
+- Bump `@metamask/keyring-internal-snap-client` from `^9.0.0` to `^9.0.1` ([#482](https://github.com/MetaMask/accounts/pull/482))
+- Bump `@metamask/keyring-snap-sdk` from `^7.2.1` to `^8.0.0` ([#482](https://github.com/MetaMask/accounts/pull/482))
+- Bump `@metamask/snaps-sdk` from `^10.4.0` to `^11.0.0` ([#486](https://github.com/MetaMask/accounts/pull/486))
+- Bump `@metamask/snaps-utils` from `^12.1.0` to `^12.1.2` ([#486](https://github.com/MetaMask/accounts/pull/486))
+
 ## [19.0.0]
 
 ### Added
@@ -302,7 +399,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `sinon` and `@types/sinon` to latest versions ([#51](https://github.com/MetaMask/accounts/pull/51))
-- Add `syncpack` and sync dependencies ([#53](https://github.com/metamask/accounts/pull/53))
+- Add `syncpack` and sync dependencies ([#53](https://github.com/MetaMask/accounts/pull/53))
 
 ## [4.3.5]
 
@@ -323,10 +420,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/snaps-controllers` from `^9.3.0` to `^9.6.0` ([#372](https://github.com/MetaMask/eth-snap-keyring/pull/372), [#389](https://github.com/MetaMask/eth-snap-keyring/pull/389))
+- Bump `@metamask/snaps-controllers` from `^9.3.0` to `^9.6.0` ([#372](https://github.com/MetaMask/eth-snap-keyring/pull/372)), ([#389](https://github.com/MetaMask/eth-snap-keyring/pull/389))
 - Bump `@metamask/snaps-sdk` from `^6.1.0` to `^6.4.0` ([#389](https://github.com/MetaMask/eth-snap-keyring/pull/389))
 - Bump `@metamask/utils` from `^9.1.0` to `^9.2.1` ([#385](https://github.com/MetaMask/eth-snap-keyring/pull/385))
-- Bump `@metamask/keyring-api` from `^8.0.1` to `^8.1.0` ([#374](https://github.com/MetaMask/eth-snap-keyring/pull/374), [#376](https://github.com/MetaMask/eth-snap-keyring/pull/376))
+- Bump `@metamask/keyring-api` from `^8.0.1` to `^8.1.0` ([#374](https://github.com/MetaMask/eth-snap-keyring/pull/374)), ([#376](https://github.com/MetaMask/eth-snap-keyring/pull/376))
 
 ## [4.3.2]
 
@@ -334,9 +431,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/eth-sig-util` from `^7.0.1` to `^7.0.3` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311))
 - Bump `@metamask/keyring-api` from `^8.0.0` to `^8.0.1` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311))
-- Bump `@metamask/snaps-controllers` from `^8.1.1` to `^9.3.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311), [#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
-- Bump `@metamask/snaps-sdk` from `^4.2.0` to `^6.1.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311), [#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
-- Bump `@metamask/snaps-utils` from `^7.4.0` to `^7.8.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311), [#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
+- Bump `@metamask/snaps-controllers` from `^8.1.1` to `^9.3.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311)), ([#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
+- Bump `@metamask/snaps-sdk` from `^4.2.0` to `^6.1.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311)), ([#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
+- Bump `@metamask/snaps-utils` from `^7.4.0` to `^7.8.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311)), ([#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
 - Bump `@metamask/utils` from `^8.4.0` to `^9.1.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311))
 - Set tsconfig options `module`, `moduleResolution` to `Node16` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311))
 
@@ -632,7 +729,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@19.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.1.0...HEAD
+[22.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.0.1...@metamask/eth-snap-keyring@22.1.0
+[22.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.0.0...@metamask/eth-snap-keyring@22.0.1
+[22.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@21.0.1...@metamask/eth-snap-keyring@22.0.0
+[21.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@21.0.0...@metamask/eth-snap-keyring@21.0.1
+[21.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@20.0.0...@metamask/eth-snap-keyring@21.0.0
+[20.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@19.0.0...@metamask/eth-snap-keyring@20.0.0
 [19.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@18.0.2...@metamask/eth-snap-keyring@19.0.0
 [18.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@18.0.1...@metamask/eth-snap-keyring@18.0.2
 [18.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@18.0.0...@metamask/eth-snap-keyring@18.0.1

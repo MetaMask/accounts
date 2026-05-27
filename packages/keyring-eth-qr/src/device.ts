@@ -1,10 +1,6 @@
 import { RLP } from '@ethereumjs/rlp';
-import {
-  type TypedTransaction,
-  TransactionType,
-  type TypedTxData,
-  TransactionFactory,
-} from '@ethereumjs/tx';
+import { TransactionType, TransactionFactory } from '@ethereumjs/tx';
+import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
 import { publicToAddress } from '@ethereumjs/util';
 import {
   CryptoAccount,
@@ -15,16 +11,16 @@ import {
   URRegistryDecoder,
 } from '@keystonehq/bc-ur-registry-eth';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
-import { add0x, getChecksumAddress, remove0x, type Hex } from '@metamask/utils';
-// eslint-disable-next-line @typescript-eslint/naming-convention
+import { add0x, getChecksumAddress, remove0x } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
 import HdKey from 'hdkey';
 import { stringify, v4 as uuidv4 } from 'uuid';
 
-import {
-  QrScanRequestType,
-  type QrKeyringBridge,
-  type QrSignatureRequest,
-  type SerializedUR,
+import { QrScanRequestType } from './qr-keyring';
+import type {
+  QrKeyringBridge,
+  QrSignatureRequest,
+  SerializedUR,
 } from './qr-keyring';
 
 export const SUPPORTED_UR_TYPE = {

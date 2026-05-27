@@ -3,7 +3,8 @@ import {
   KeyringRequestStruct,
   KeyringResponseStruct,
 } from '@metamask/keyring-api';
-import { omit, type Infer } from '@metamask/superstruct';
+import { omit } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 
 /**
  * Keyring request without `origin` support.

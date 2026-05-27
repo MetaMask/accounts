@@ -11,6 +11,11 @@ describe('InternalAccount', () => {
       address: 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
       scopes: ['bip122:000000000019d6689c085ae165831e93'],
     },
+    {
+      type: 'stellar:account',
+      address: 'GAKGOF5HPQSMKOJ6L4I2LNTLY6EERIRC7ZB6F7MOAXDLPZ7D5I4NZGNZ',
+      scopes: ['stellar:pubnet', 'stellar:testnet'],
+    },
   ])('should have the correct structure: %s', ({ type, address, scopes }) => {
     const account = {
       id: '606a7759-b0fb-48e4-9874-bab62ff8e7eb',
@@ -138,8 +143,6 @@ describe('InternalAccount', () => {
         importTime: 1713153716,
         snap: {
           id: 'test-snap',
-          enabled: true,
-          name: 'Test Snap',
         },
       },
     };
@@ -147,36 +150,33 @@ describe('InternalAccount', () => {
     expect(() => assert(account, InternalAccountStruct)).not.toThrow();
   });
 
-  it.each([['name', 'enabled', 'id']])(
-    'should throw if snap.%s is not set',
-    (key: string) => {
-      const account: InternalAccount = {
-        id: '606a7759-b0fb-48e4-9874-bab62ff8e7eb',
-        address: '0x000',
-        options: {},
-        methods: [],
-        scopes: ['eip155:0'],
-        type: 'eip155:eoa',
-        metadata: {
-          keyring: {
-            type: 'Test Keyring',
-          },
-          name: 'Account 1',
-          importTime: 1713153716,
-          snap: {
-            id: 'test-snap',
-            enabled: true,
-            name: 'Test Snap',
-          },
+  it('should throw if snap.id is not set', () => {
+    // NOTE: We do not force `InternalAccount` here to make `snap.id` optional.
+    const account = {
+      id: '606a7759-b0fb-48e4-9874-bab62ff8e7eb',
+      address: '0x000',
+      options: {},
+      methods: [],
+      scopes: ['eip155:0'],
+      type: 'eip155:eoa',
+      metadata: {
+        keyring: {
+          type: 'Test Keyring',
         },
-      };
+        name: 'Account 1',
+        importTime: 1713153716,
+        snap: {
+          id: 'test-snap',
+        } as {
+          id?: string;
+        },
+      },
+    };
 
-      // On `InternalAccount` the `metadata.snap` is optional, hence the `?.` here.
-      delete account.metadata.snap?.[key as keyof typeof account.metadata.snap];
+    delete account.metadata.snap.id;
 
-      const regex = new RegExp(`At path: metadata.snap.${key}`, 'u');
-
-      expect(() => assert(account, InternalAccountStruct)).toThrow(regex);
-    },
-  );
+    expect(() => assert(account, InternalAccountStruct)).toThrow(
+      'At path: metadata.snap.id -- Expected a string, but received: undefined',
+    );
+  });
 });

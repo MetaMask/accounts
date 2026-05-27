@@ -3,6 +3,7 @@ export * from './btc';
 export * from './sol';
 export * from './eth';
 export * from './trx';
+export * from './xlm';
 export type * from './contexts';
 export * from './rpc';
 export * from './events';

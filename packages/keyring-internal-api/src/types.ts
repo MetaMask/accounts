@@ -1,6 +1,5 @@
 // FIXME: eslint is complaning about our account union even if those accounts
 // types should all be different, so we disable this for now:
-/* eslint-disable @typescript-eslint/no-duplicate-type-constituents */
 
 import {
   BtcAccountType,
@@ -16,16 +15,19 @@ import {
   SolDataAccountStruct,
   TrxAccountType,
   TrxEoaAccountStruct,
+  XlmAccountType,
+  XlmAccountStruct,
 } from '@metamask/keyring-api';
 import { exactOptional, object } from '@metamask/keyring-utils';
 import type { Infer, Struct } from '@metamask/superstruct';
-import { boolean, string, number } from '@metamask/superstruct';
+import { string, number } from '@metamask/superstruct';
 
 export type InternalAccountType =
   | EthAccountType
   | BtcAccountType
   | SolAccountType
-  | TrxAccountType;
+  | TrxAccountType
+  | XlmAccountType;
 
 export const InternalAccountMetadataStruct = object({
   metadata: object({
@@ -34,8 +36,6 @@ export const InternalAccountMetadataStruct = object({
     snap: exactOptional(
       object({
         id: string(),
-        enabled: boolean(),
-        name: string(),
       }),
     ),
     lastSelected: exactOptional(number()),
@@ -86,6 +86,11 @@ export const InternalTrxEoaAccountStruct = object({
   ...InternalAccountMetadataStruct.schema,
 });
 
+export const InternalXlmAccountStruct = object({
+  ...XlmAccountStruct.schema,
+  ...InternalAccountMetadataStruct.schema,
+});
+
 export type InternalEthEoaAccount = Infer<typeof InternalEthEoaAccountStruct>;
 
 export type InternalEthErc4337Account = Infer<
@@ -108,6 +113,8 @@ export type InternalSolDataAccount = Infer<typeof InternalSolDataAccountStruct>;
 
 export type InternalTrxEoaAccount = Infer<typeof InternalTrxEoaAccountStruct>;
 
+export type InternalXlmAccount = Infer<typeof InternalXlmAccountStruct>;
+
 export const InternalAccountStructs: Record<
   string,
   | Struct<InternalEthEoaAccount>
@@ -118,6 +125,7 @@ export const InternalAccountStructs: Record<
   | Struct<InternalBtcP2trAccount>
   | Struct<InternalSolDataAccount>
   | Struct<InternalTrxEoaAccount>
+  | Struct<InternalXlmAccount>
 > = {
   [`${EthAccountType.Eoa}`]: InternalEthEoaAccountStruct,
   [`${EthAccountType.Erc4337}`]: InternalEthErc4337AccountStruct,
@@ -127,6 +135,7 @@ export const InternalAccountStructs: Record<
   [`${BtcAccountType.P2tr}`]: InternalBtcP2trAccountStruct,
   [`${SolAccountType.DataAccount}`]: InternalSolDataAccountStruct,
   [`${TrxAccountType.Eoa}`]: InternalTrxEoaAccountStruct,
+  [`${XlmAccountType.Account}`]: InternalXlmAccountStruct,
 };
 
 export type InternalAccountTypes =
@@ -137,7 +146,8 @@ export type InternalAccountTypes =
   | InternalBtcP2wpkhAccount
   | InternalBtcP2trAccount
   | InternalSolDataAccount
-  | InternalTrxEoaAccount;
+  | InternalTrxEoaAccount
+  | InternalXlmAccount;
 
 export const InternalAccountStruct = object({
   ...KeyringAccountStruct.schema,

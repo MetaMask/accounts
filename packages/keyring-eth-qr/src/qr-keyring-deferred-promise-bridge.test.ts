@@ -1,4 +1,5 @@
-import { type QrScanRequest, QrScanRequestType } from './qr-keyring';
+import { QrScanRequestType } from './qr-keyring';
+import type { QrScanRequest } from './qr-keyring';
 import { QrKeyringDeferredPromiseBridge } from './qr-keyring-deferred-promise-bridge';
 
 describe('QrKeyringDeferredPromiseBridge', () => {

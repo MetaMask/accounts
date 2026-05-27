@@ -12,6 +12,9 @@
     },
     {
       "path": "../keyring-api/tsconfig.build.json"
+    },
+    {
+      "path": "../keyring-sdk/tsconfig.build.json"
     }
   ],
   "include": ["./src/**/*.ts"],

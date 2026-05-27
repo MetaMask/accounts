@@ -3,6 +3,7 @@ import { RLP } from '@ethereumjs/rlp';
 import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
+import type { TypedMessage } from '@metamask/eth-sig-util';
 import * as sigUtil from '@metamask/eth-sig-util';
 import { bytesToHex, Hex, remove0x } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
@@ -14,7 +15,6 @@ import { AccountDetails, LedgerKeyring } from './ledger-keyring';
 
 jest.mock('@metamask/eth-sig-util', () => {
   return {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     __esModule: true,
     ...jest.requireActual('@metamask/eth-sig-util'),
   };
@@ -154,7 +154,6 @@ describe('LedgerKeyring', function () {
 
       await keyring.init();
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.init).toHaveBeenCalledTimes(1);
     });
   });
@@ -593,7 +592,6 @@ describe('LedgerKeyring', function () {
 
         await keyring.attemptMakeApp();
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(bridge.attemptMakeApp).toHaveBeenCalledTimes(1);
       });
     });
@@ -633,7 +631,6 @@ describe('LedgerKeyring', function () {
             fakeTx,
           );
 
-          // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
           expect(returnedTx).toHaveProperty('v');
           expect(returnedTx).toHaveProperty('r');
@@ -685,7 +682,6 @@ describe('LedgerKeyring', function () {
             newFakeTx,
           );
 
-          // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
           expect(returnedTx.toJSON()).toStrictEqual(signedNewFakeTx.toJSON());
         });
@@ -733,7 +729,6 @@ describe('LedgerKeyring', function () {
             fakeTypeTwoTx,
           );
 
-          // eslint-disable-next-line @typescript-eslint/unbound-method
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
           expect(returnedTx.toJSON()).toStrictEqual(
             signedFakeTypeTwoTx.toJSON(),
@@ -861,7 +856,6 @@ describe('LedgerKeyring', function () {
 
         await keyring.signPersonalMessage(fakeAccounts[0], 'some message');
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(keyring.bridge.deviceSignMessage).toHaveBeenCalled();
       });
 
@@ -1045,7 +1039,6 @@ describe('LedgerKeyring', function () {
 
         await keyring.signMessage(fakeAccounts[0], 'some message');
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(keyring.bridge.deviceSignMessage).toHaveBeenCalled();
       });
     });
@@ -1053,9 +1046,8 @@ describe('LedgerKeyring', function () {
     describe('unlockAccountByAddress', function () {
       it('unlocks the given account if found on device', async function () {
         await basicSetupToUnlockOneAccount();
-        await keyring.unlockAccountByAddress(fakeAccounts[0]).then((hdPath) => {
-          expect(hdPath).toBe("m/44'/60'/0'/0");
-        });
+        const hdPath = await keyring.unlockAccountByAddress(fakeAccounts[0]);
+        expect(hdPath).toBe("m/44'/60'/0'/0");
       });
 
       it('rejects if the account is not found on device', async function () {
@@ -1084,6 +1076,13 @@ describe('LedgerKeyring', function () {
     });
 
     describe('signTypedData', function () {
+      function utf8ToArrayBuffer(text: string): ArrayBuffer {
+        const bytes = new TextEncoder().encode(text);
+        const buffer = new ArrayBuffer(bytes.byteLength);
+        new Uint8Array(buffer).set(bytes);
+        return buffer;
+      }
+
       // This data matches demo data is MetaMask's test dapp
       const fixtureData = {
         domain: {
@@ -1091,7 +1090,7 @@ describe('LedgerKeyring', function () {
           name: 'Ether Mail',
           verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
           version: '1',
-          salt: new TextEncoder().encode('hello'),
+          salt: utf8ToArrayBuffer('hello'),
         },
         message: {
           contents: 'Hello, Bob!',
@@ -1136,6 +1135,8 @@ describe('LedgerKeyring', function () {
           ],
         },
       };
+
+      type MailTypedMessage = TypedMessage<typeof fixtureData.types>;
 
       beforeEach(async function () {
         jest
@@ -1216,7 +1217,7 @@ describe('LedgerKeyring', function () {
 
         const result = await keyring.signTypedData(
           fakeAccounts[15],
-          fixtureDataWithStringSalt as any,
+          fixtureDataWithStringSalt as unknown as MailTypedMessage,
           { version: sigUtil.SignTypedDataVersion.V4 },
         );
 
@@ -1267,7 +1268,7 @@ describe('LedgerKeyring', function () {
 
         const result = await keyring.signTypedData(
           fakeAccounts[15],
-          expectedMessage as any,
+          expectedMessage as unknown as MailTypedMessage,
           { version: sigUtil.SignTypedDataVersion.V4 },
         );
 
@@ -1305,8 +1306,7 @@ describe('LedgerKeyring', function () {
       it('throws an error if the signTypedData version is not v4', async function () {
         await expect(
           keyring.signTypedData(fakeAccounts[0], fixtureData, {
-            // @ts-expect-error we want to test an invalid version
-            version: sigUtil.SignTypedDataVersion.V3,
+            version: sigUtil.SignTypedDataVersion.V3 as typeof sigUtil.SignTypedDataVersion.V4,
           }),
         ).rejects.toThrow(
           'Ledger: Only version 4 of typed data signing is supported',
@@ -1516,7 +1516,6 @@ describe('LedgerKeyring', function () {
         const result = await keyring.getAppConfiguration();
 
         expect(result).toStrictEqual(mockResponse);
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(keyring.bridge.getAppConfiguration).toHaveBeenCalledTimes(1);
       });
 
@@ -1561,7 +1560,6 @@ describe('LedgerKeyring', function () {
 
         await keyring.destroy();
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(bridge.destroy).toHaveBeenCalled();
       });
     });

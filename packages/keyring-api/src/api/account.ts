@@ -38,6 +38,18 @@ export enum TrxAccountType {
 }
 
 /**
+ * Supported Stellar account types.
+ *
+ * We currently model only the standard Stellar account (G-address).
+ * This excludes advanced formats such as muxed (M...) accounts.
+ *
+ * See: https://developers.stellar.org/docs/build/guides/transactions/pooled-accounts-muxed-accounts-memos
+ */
+export enum XlmAccountType {
+  Account = 'stellar:account',
+}
+
+/**
  * A generic account type. It can be used to represent any account type that is
  * not covered by the other account types. It only applies to non-EVM chains.
  */
@@ -57,6 +69,7 @@ export type KeyringAccountType =
   | `${BtcAccountType.P2tr}`
   | `${SolAccountType.DataAccount}`
   | `${TrxAccountType.Eoa}`
+  | `${XlmAccountType.Account}`
   | `${AnyAccountType.Account}`;
 
 /**
@@ -71,6 +84,7 @@ export const KeyringAccountTypeStruct = enums([
   `${BtcAccountType.P2tr}`,
   `${SolAccountType.DataAccount}`,
   `${TrxAccountType.Eoa}`,
+  `${XlmAccountType.Account}`,
   `${AnyAccountType.Account}`,
 ]);
 
@@ -99,6 +113,7 @@ export const KeyringAccountStruct = object({
     `${BtcAccountType.P2tr}`,
     `${SolAccountType.DataAccount}`,
     `${TrxAccountType.Eoa}`,
+    `${XlmAccountType.Account}`,
     `${AnyAccountType.Account}`,
   ]),
 

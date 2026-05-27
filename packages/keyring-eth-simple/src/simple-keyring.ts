@@ -7,9 +7,6 @@ import {
   stripHexPrefix,
 } from '@ethereumjs/util';
 import {
-  type TypedDataV1,
-  type MessageTypes,
-  type TypedMessage,
   concatSig,
   decrypt,
   EIP7702Authorization,
@@ -19,6 +16,11 @@ import {
   signEIP7702Authorization,
   signTypedData,
   SignTypedDataVersion,
+} from '@metamask/eth-sig-util';
+import type {
+  TypedDataV1,
+  MessageTypes,
+  TypedMessage,
 } from '@metamask/eth-sig-util';
 import { Keyring } from '@metamask/keyring-utils';
 import {

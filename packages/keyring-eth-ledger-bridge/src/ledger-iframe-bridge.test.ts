@@ -1,19 +1,18 @@
 import { hasProperty } from '@metamask/utils';
 
+import documentShim from '../test/document.shim';
+import windowShim from '../test/window.shim';
 import {
-  type IFrameMessageResponse,
   IFrameMessageAction,
   LedgerIframeBridge,
 } from './ledger-iframe-bridge';
-import documentShim from '../test/document.shim';
-import windowShim from '../test/window.shim';
+import type { IFrameMessageResponse } from './ledger-iframe-bridge';
 
 global.document = documentShim;
 global.window = windowShim;
 
-// eslint-disable-next-line no-restricted-globals
 type HTMLIFrameElementShim = HTMLIFrameElement;
-// eslint-disable-next-line no-restricted-globals
+
 type WindowShim = Window;
 
 const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
@@ -168,7 +167,6 @@ describe('LedgerIframeBridge', function () {
 
       expect(result).toBe(true);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
 
@@ -192,7 +190,6 @@ describe('LedgerIframeBridge', function () {
 
       await expect(bridge.attemptMakeApp()).rejects.toThrow(errorMessage);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
 
@@ -225,7 +222,6 @@ describe('LedgerIframeBridge', function () {
 
       await expect(bridge.attemptMakeApp()).rejects.toThrow(errorMessage);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
   });
@@ -253,7 +249,6 @@ describe('LedgerIframeBridge', function () {
 
       expect(result).toBe(true);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
 
@@ -301,7 +296,6 @@ describe('LedgerIframeBridge', function () {
         'Ledger transport could not be updated',
       );
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
   });
@@ -337,7 +331,6 @@ describe('LedgerIframeBridge', function () {
 
       expect(result).toBe(payload);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
 
@@ -365,7 +358,6 @@ describe('LedgerIframeBridge', function () {
 
       await expect(bridge.getPublicKey(params)).rejects.toThrow(errorMessage);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
   });
@@ -402,7 +394,6 @@ describe('LedgerIframeBridge', function () {
 
       expect(result).toBe(payload);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
 
@@ -430,7 +421,6 @@ describe('LedgerIframeBridge', function () {
         errorMessage,
       );
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
   });
@@ -464,7 +454,6 @@ describe('LedgerIframeBridge', function () {
 
       expect(result).toBe(payload);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
 
@@ -492,7 +481,6 @@ describe('LedgerIframeBridge', function () {
         errorMessage,
       );
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
   });
@@ -541,7 +529,6 @@ describe('LedgerIframeBridge', function () {
 
       expect(result).toBe(payload);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
 
@@ -568,7 +555,6 @@ describe('LedgerIframeBridge', function () {
         errorMessage,
       );
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
     });
 
@@ -599,7 +585,6 @@ describe('LedgerIframeBridge', function () {
 
         expect(result).toBe(payload);
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
       });
 
@@ -626,7 +611,6 @@ describe('LedgerIframeBridge', function () {
           errorMessage,
         );
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
       });
     });
@@ -661,7 +645,6 @@ describe('LedgerIframeBridge', function () {
 
         expect(result).toBe(payload);
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
       });
 
@@ -688,7 +671,6 @@ describe('LedgerIframeBridge', function () {
           errorMessage,
         );
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(bridge.iframe?.contentWindow?.postMessage).toHaveBeenCalled();
       });
     });

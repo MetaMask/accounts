@@ -6,6 +6,7 @@
   "references": [
     { "path": "../keyring-utils" },
     { "path": "../keyring-api" },
+    { "path": "../keyring-sdk" },
     { "path": "../account-api" }
   ],
   "include": ["./src", "./test"],

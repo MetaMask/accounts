@@ -1,5 +1,4 @@
 export * from './ledger-keyring';
-export * from './ledger-keyring-v2';
 export * from './ledger-iframe-bridge';
 export * from './ledger-mobile-bridge';
 export * from './ledger-dmk-bridge';
@@ -10,3 +9,5 @@ export type * from './type';
 export * from './ledger-hw-app';
 export * from './errors';
 export * from './ledger-error-handler';
+export * from './constants';
+export * from './utils';
