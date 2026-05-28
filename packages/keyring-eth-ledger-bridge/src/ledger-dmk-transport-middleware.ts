@@ -1,4 +1,4 @@
-import { type DeviceManagementKit } from '@ledgerhq/device-management-kit';
+import type {DeviceManagementKit} from '@ledgerhq/device-management-kit';
 import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum';
 
 type StartDiscoveringParameters = Parameters<

@@ -252,6 +252,7 @@ export class ApduBridge {
       }
 
       if (message.type === 'APDU_REQUEST') {
+        // eslint-disable-next-line no-restricted-globals
         const apduData = Buffer.from(message.data);
         const response = await this.#client.exchange(apduData);
 
@@ -282,6 +283,7 @@ export class ApduBridge {
     ws: WsWebSocket,
     message: { id?: number; data: number[] },
   ): Promise<void> {
+    // eslint-disable-next-line no-restricted-globals
     const frame = Buffer.from(message.data);
     let state = this.#connectionState.get(ws);
     state ??= { framingSession: null };
@@ -395,6 +397,7 @@ export class ApduBridge {
       response[1] === 0x00;
 
     if (isLastChunkWithAck) {
+      // eslint-disable-next-line no-restricted-globals
       const emptyChunk = Buffer.from([0xe0, 0x04, 0x80, 0x00, 0x00]);
       const readyTimer = setTimeout(() => {
         signingReadyFired = true;
@@ -414,6 +417,7 @@ export class ApduBridge {
     if (injectedCode !== null) {
       const sw1 = Math.floor(injectedCode / 256);
       const sw2 = injectedCode % 256;
+      // eslint-disable-next-line no-restricted-globals
       response = Buffer.from([sw1, sw2]);
     }
 
@@ -426,6 +430,7 @@ export class ApduBridge {
       const responseSw1 = response[response.length - 2];
       const responseSw2 = response[response.length - 1];
       if (responseSw1 === 0x90 && responseSw2 === 0x00 && response[0] !== 1) {
+        // eslint-disable-next-line no-restricted-globals
         response = Buffer.from([1, ...response.subarray(1)]);
       }
     }

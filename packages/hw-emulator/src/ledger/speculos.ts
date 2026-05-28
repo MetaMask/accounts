@@ -1,26 +1,24 @@
 // eslint-disable-next-line import-x/no-nodejs-modules
 import { join } from 'node:path';
+import type { HardwareWalletEmulator, DeviceInteraction as SharedDeviceInteraction } from '../types';
 import { SpeculosClient } from './client';
 import { ApduBridge } from './apdu-bridge';
 import {
-  createDeviceInteraction
-  
+  createDeviceInteraction,
 } from './device-interaction';
-import type {DeviceInteraction} from './device-interaction';
-import { createProcessManager  } from './process-manager';
-import type {ProcessManager} from './process-manager';
+import type { DeviceInteraction } from './device-interaction';
+import { createProcessManager } from './process-manager';
+import type { ProcessManager } from './process-manager';
 import { DockerManager } from './docker-manager';
 import { getWebHidMockScript } from './webhid-mock-script';
 import {
-  
-  
-  
   getDeviceModel,
   detectRunMode,
   SPECULOS_SEED,
-  DEFAULT_DEVICE
+  DEFAULT_DEVICE,
 } from './constants';
-import type {DeviceModel, DeviceConfig, RunMode} from './constants';
+import type { DeviceModel, DeviceConfig, RunMode } from './constants';
+import { ensureBinary } from './download';
 
 export type SpeculosOptions = {
   device?: DeviceModel | string;
@@ -44,13 +42,7 @@ type ResolvedConfig = {
 
 const DEFAULT_DISPLAY = 'headless';
 
-/**
- * Core Speculos emulator lifecycle manager.
- *
- * Provides start/stop lifecycle, APDU client, device interaction helpers,
- * and an optional WebSocket HID bridge for browser-based E2E testing.
- */
-export class Speculos {
+export class Speculos implements HardwareWalletEmulator {
   readonly #options: SpeculosOptions;
 
   #resolvedConfig: ResolvedConfig | null = null;
@@ -103,24 +95,19 @@ export class Speculos {
   getElfPath(): string {
     const config = this.resolveConfig();
     // eslint-disable-next-line no-restricted-globals
-    return join(__dirname, '..', 'apps', config.deviceModel.elfFile);
+    return join(__dirname, '..', '..', 'apps', config.deviceModel.elfFile);
   }
 
   getNvramPath(): string {
     // eslint-disable-next-line no-restricted-globals
-    return join(__dirname, '..', 'nvram', 'main_nvram.bin');
+    return join(__dirname, '..', '..', 'nvram', 'main_nvram.bin');
   }
 
   getDockerComposePath(): string {
     // eslint-disable-next-line no-restricted-globals
-    return join(__dirname, '..', 'docker-compose.yml');
+    return join(__dirname, '..', '..', 'docker-compose.yml');
   }
 
-  /**
-   * Start the Speculos emulator.
-   *
-   * @returns A promise that resolves when the emulator is ready.
-   */
   async start(): Promise<void> {
     if (this.#started) {
       throw new Error('Speculos already started');
@@ -148,18 +135,9 @@ export class Speculos {
   }
 
   async startNative(config: ResolvedConfig): Promise<void> {
-    let {binary} = this.#options;
+    let { binary } = this.#options;
 
-    if (!binary) {
-      try {
-        const speculosUp = await import('@metamask/speculos-up');
-        binary = await speculosUp.ensureBinary();
-      } catch {
-        throw new Error(
-          'Native mode requires @metamask/speculos-up. Install it or provide a binary path.',
-        );
-      }
-    }
+    binary ??= await ensureBinary();
 
     this.#processManager = createProcessManager({
       binary,
@@ -196,11 +174,6 @@ export class Speculos {
     await this.#dockerManager.start();
   }
 
-  /**
-   * Stop the Speculos emulator and clean up resources.
-   *
-   * @returns A promise that resolves when stopped.
-   */
   async stop(): Promise<void> {
     if (!this.#started) {
       return;
@@ -226,12 +199,6 @@ export class Speculos {
     this.#started = false;
   }
 
-  /**
-   * Get the SpeculosClient for direct APDU/REST communication.
-   *
-   * @returns The client instance.
-   * @throws If the emulator has not been started.
-   */
   getClient(): SpeculosClient {
     if (!this.#clientInstance) {
       throw new Error('Speculos not started. Call start() first.');
@@ -239,26 +206,13 @@ export class Speculos {
     return this.#clientInstance;
   }
 
-  /**
-   * Get the device interaction handler.
-   *
-   * @returns The device interaction instance.
-   * @throws If the emulator has not been started.
-   */
-  getInteraction(): DeviceInteraction {
+  getInteraction(): SharedDeviceInteraction {
     if (!this.#interactionInstance) {
       throw new Error('Speculos not started. Call start() first.');
     }
     return this.#interactionInstance;
   }
 
-  /**
-   * Start the WebSocket HID bridge for browser-based testing.
-   *
-   * @param wsPort - Optional port override.
-   * @returns The ApduBridge instance.
-   * @throws If the emulator has not been started.
-   */
   async startBridge(wsPort?: number): Promise<ApduBridge> {
     if (!this.#clientInstance) {
       throw new Error('Speculos not started. Call start() first.');
@@ -272,43 +226,37 @@ export class Speculos {
     return this.#bridgeInstance;
   }
 
-  /**
-   * Get the browser-side WebHID mock script for injection.
-   *
-   * @param wsPort - Optional WebSocket port override.
-   * @returns The JavaScript source code as a string.
-   * @throws If the emulator has not been started.
-   */
   getWebHIDMockScript(wsPort?: number): string {
     const config = this.resolveConfig();
     const port = wsPort ?? config.deviceConfig.wsBridgePort;
     return getWebHidMockScript(port);
   }
 
-  /**
-   * Check if the emulator is currently running.
-   *
-   * @returns True if started.
-   */
   isRunning(): boolean {
     return this.#started;
   }
 
-  /**
-   * Get the resolved device model.
-   *
-   * @returns The device model.
-   */
   getDeviceModel(): DeviceModel {
     return this.resolveConfig().deviceModel;
   }
 
-  /**
-   * Get the resolved device config with port numbers.
-   *
-   * @returns The device config.
-   */
   getDeviceConfig(): DeviceConfig {
     return this.resolveConfig().deviceConfig;
+  }
+
+  async approveTransaction(): Promise<void> {
+    return this.getInteraction().approveTransaction();
+  }
+
+  async approveSigning(): Promise<void> {
+    return this.getInteraction().approveSigning();
+  }
+
+  async rejectTransaction(): Promise<void> {
+    return this.getInteraction().rejectTransaction();
+  }
+
+  async navigateToMainMenu(): Promise<void> {
+    return this.getInteraction().navigateToMainMenu();
   }
 }

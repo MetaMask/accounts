@@ -1,11 +1,12 @@
 import {
   DeviceActionStatus,
-  type DeviceActionState,
-  type DeviceManagementKit,
+  
+  
   DeviceManagementKitBuilder,
   GetAppAndVersionCommand,
-  isSuccessCommandResult,
+  isSuccessCommandResult
 } from '@ledgerhq/device-management-kit';
+import type {DeviceActionState, DeviceManagementKit} from '@ledgerhq/device-management-kit';
 import type {
   Signature,
   TypedData,

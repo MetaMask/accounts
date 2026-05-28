@@ -1,16 +1,17 @@
 {
-  "name": "@metamask/speculos",
-  "version": "1.0.0",
-  "description": "Speculos Ledger device emulator lifecycle, transport, and device interaction for E2E testing",
+  "name": "@metamask/hw-emulator",
+  "version": "0.1.0",
+  "description": "Hardware wallet emulator lifecycle, transport, and device interaction for E2E testing",
   "keywords": [
-    "speculos",
-    "ledger",
     "hardware-wallet",
+    "emulator",
+    "ledger",
+    "trezor",
     "e2e",
     "testing",
     "metamask"
   ],
-  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/speculos#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/hw-emulator#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
@@ -25,6 +26,7 @@
     "nvram/",
     "docker-compose.yml"
   ],
+  "bin": "./dist/cli.mjs",
   "sideEffects": false,
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
@@ -50,8 +52,8 @@
     "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "changelog:update": "../../scripts/update-changelog.sh @metamask/speculos",
-    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/speculos",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/hw-emulator",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/hw-emulator",
     "publish:preview": "yarn npm publish --tag preview",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
@@ -64,9 +66,6 @@
   "dependencies": {
     "@ledgerhq/devices": "^7.0.0",
     "ws": "^8.18.0"
-  },
-  "optionalDependencies": {
-    "@metamask/speculos-up": "workspace:^"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",

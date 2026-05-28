@@ -109,13 +109,6 @@ if (!FLEX_MODEL) {
 }
 export const DEFAULT_DEVICE_MODEL: DeviceModel = FLEX_MODEL;
 
-/**
- * Look up a device model by its identifier string.
- *
- * @param id - The device model identifier (defaults to 'flex').
- * @returns The matching DeviceModel.
- * @throws If the identifier is not found in DEVICE_MODELS.
- */
 export function getDeviceModel(id = 'flex'): DeviceModel {
   const model = DEVICE_MODELS[id];
   if (!model) {
@@ -128,13 +121,41 @@ export function getDeviceModel(id = 'flex'): DeviceModel {
 
 export type RunMode = 'native' | 'docker';
 
-/**
- * Determine the default run mode based on the current platform.
- * Native mode on Linux, Docker elsewhere.
- *
- * @returns The detected run mode.
- */
 export function detectRunMode(): RunMode {
   // eslint-disable-next-line no-restricted-globals
   return process.platform === 'linux' ? 'native' : 'docker';
 }
+
+export const SPECULOS_VERSION = '1.7.1';
+
+export const RELEASE_BASE_URL = `https://github.com/MetaMask/speculos-up/releases/download/v${SPECULOS_VERSION}`;
+
+export type PlatformArch = {
+  platform: string;
+  arch: string;
+  filename: string;
+  checksum: string;
+};
+
+export const PLATFORMS: PlatformArch[] = [
+  {
+    platform: 'linux',
+    arch: 'x64',
+    filename: `speculos-${SPECULOS_VERSION}-linux-amd64.tar.gz`,
+    checksum: 'PLACEHOLDER_RUN_BUILD_PIPELINE_FIRST',
+  },
+  {
+    platform: 'linux',
+    arch: 'arm64',
+    filename: `speculos-${SPECULOS_VERSION}-linux-arm64.tar.gz`,
+    checksum: 'PLACEHOLDER_RUN_BUILD_PIPELINE_FIRST',
+  },
+  {
+    platform: 'darwin',
+    arch: 'arm64',
+    filename: `speculos-${SPECULOS_VERSION}-darwin-arm64.zip`,
+    checksum: 'PLACEHOLDER_RUN_BUILD_PIPELINE_FIRST',
+  },
+];
+
+export const DEFAULT_CACHE_DIR = '.metamask/cache';

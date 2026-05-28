@@ -1,5 +1,6 @@
 // eslint-disable-next-line import-x/no-nodejs-modules
 import { spawn  } from 'node:child_process';
+// eslint-disable-next-line import-x/no-nodejs-modules
 import type {ChildProcess} from 'node:child_process';
 // eslint-disable-next-line import-x/no-nodejs-modules
 import { EventEmitter } from 'node:events';

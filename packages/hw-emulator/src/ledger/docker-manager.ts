@@ -66,20 +66,18 @@ export class DockerManager {
   }
 
   buildDockerEnv(): Record<string, string> {
+    // Extract ELF filename from full path for docker-compose.yml variable substitution
+    const elfFilename = this.#options.app.split('/').pop() ?? this.#options.app;
+
     const env: Record<string, string> = {
-      SPECULOS_APP: this.#options.app,
+      SPECULOS_DEVICE: this.#options.model ?? 'nanosp',
+      SPECULOS_ELF_FILENAME: elfFilename,
     };
-    if (this.#options.model) {
-      env.SPECULOS_MODEL = this.#options.model;
-    }
     if (this.#options.seed) {
       env.SPECULOS_SEED = this.#options.seed;
     }
     if (this.#options.display) {
       env.SPECULOS_DISPLAY = this.#options.display;
-    }
-    if (this.#options.loadNvram) {
-      env.SPECULOS_LOAD_NVRAM = 'true';
     }
     return env;
   }
@@ -98,20 +96,22 @@ export class DockerManager {
     this.#containerStatus = 'starting';
 
     const env = this.buildDockerEnv();
-    const envArgs = Object.entries(env)
-      .flatMap(([key, value]) => ['-e', `${key}=${value}`]);
 
     const timeout = this.#options.startTimeout ?? HEALTH_CHECK_TIMEOUT_MS;
 
     try {
+      // Merge docker env vars into the process environment so that
+      // docker-compose.yml variable substitution picks them up.
+      // (docker compose up does NOT support -e flags — only docker compose run does.)
+      const childEnv = { ...process.env, ...env };
+
       await execFileAsync('docker', [
         'compose',
         '-f',
         this.#options.composeFile,
         'up',
         '-d',
-        ...envArgs,
-      ], { timeout });
+      ], { timeout, env: childEnv });
 
       const deadline = Date.now() + timeout;
       while (Date.now() < deadline) {

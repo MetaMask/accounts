@@ -115,6 +115,7 @@ export class SpeculosClient {
 
       const onData = (data: Buffer): void => {
         chunks.push(data);
+        // eslint-disable-next-line no-restricted-globals
         const combined = Buffer.concat(chunks);
 
         if (combined.length < 4) {
@@ -160,8 +161,10 @@ export class SpeculosClient {
         reject(new Error('APDU exchange timeout'));
       }, this.#options.timeout);
 
+      // eslint-disable-next-line no-restricted-globals
       const lengthHeader = Buffer.alloc(4);
       lengthHeader.writeUInt32BE(apdu.length, 0);
+      // eslint-disable-next-line no-restricted-globals
       this.#apduSocket.write(Buffer.concat([lengthHeader, apdu]));
     });
   }
@@ -255,6 +258,7 @@ export class SpeculosClient {
   async getScreenshot(): Promise<Buffer> {
     const response = await this.fetchEndpoint('/screenshot');
     const arrayBuffer = await response.arrayBuffer();
+    // eslint-disable-next-line no-restricted-globals
     return Buffer.from(arrayBuffer);
   }
 
@@ -308,6 +312,7 @@ export class SpeculosClient {
   }> {
     const apduHex = 'e006000000';
     const resp = await this.sendAPDU(apduHex);
+    // eslint-disable-next-line no-restricted-globals
     const bytes = Buffer.from(resp.data, 'hex');
     const payloadLen = bytes.length - 2;
     if (payloadLen === 4) {

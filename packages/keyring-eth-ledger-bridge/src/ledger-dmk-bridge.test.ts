@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+ 
 
 import {
   CommandResultStatus,
@@ -101,7 +101,7 @@ describe('LedgerMobileDMKBridge', () => {
       .mockImplementation(function mockAddTransport(
         this: DeviceManagementKitBuilder,
       ) {
-        // eslint-disable-next-line no-invalid-this
+         
         return this;
       });
 
