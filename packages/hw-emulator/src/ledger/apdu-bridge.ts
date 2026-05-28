@@ -346,20 +346,21 @@ export class ApduBridge {
       isSigningIns &&
       (!isSignTx || isLastSignTxChunk || isSingleChunkSignTx);
 
-    let signingReadyFired = false;
-    const signingReadyTimer = shouldStartSigningTimer
-      ? setTimeout(() => {
-          signingReadyFired = true;
-          this.#signingReadyEmitter.emit('signing-ready');
-        }, 500)
-      : null;
-    const shouldEmitSigningReadyOnLastChunk =
-      (isLastSignTxChunk || isSingleChunkSignTx) && !signingReadyFired;
-
     const shouldQueueSigning = isSigningIns && this.#signingInProgress;
     if (isSigningIns && !this.#signingInProgress) {
       this.#signingInProgress = true;
     }
+
+    let signingReadyFired = false;
+    const signingReadyTimer =
+      shouldStartSigningTimer && !shouldQueueSigning
+        ? setTimeout(() => {
+            signingReadyFired = true;
+            this.#signingReadyEmitter.emit('signing-ready');
+          }, 500)
+        : null;
+    const shouldEmitSigningReadyOnLastChunk =
+      (isLastSignTxChunk || isSingleChunkSignTx) && !signingReadyFired;
 
     let response: Buffer;
 

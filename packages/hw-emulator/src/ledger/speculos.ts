@@ -18,7 +18,6 @@ import {
   DEFAULT_DEVICE,
 } from './constants';
 import type { DeviceModel, DeviceConfig, RunMode } from './constants';
-import { ensureBinary } from './download';
 
 export type SpeculosOptions = {
   device?: DeviceModel | string;
@@ -141,9 +140,13 @@ export class Speculos implements HardwareWalletEmulator {
   }
 
   async startNative(config: ResolvedConfig): Promise<void> {
-    let { binary } = this.#options;
+    const { binary } = this.#options;
 
-    binary ??= await ensureBinary();
+    if (!binary) {
+      throw new Error(
+        'The "binary" option is required when running in native mode. Provide the path to the Speculos binary.',
+      );
+    }
 
     this.#processManager = createProcessManager({
       binary,

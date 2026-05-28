@@ -21,17 +21,12 @@ export {
   SPECULOS_LEDGER_ADDRESSES,
   SPECULOS_LEDGER_ADDRESS,
   SPECULOS_SEED,
-  SPECULOS_VERSION,
-  RELEASE_BASE_URL,
-  DEFAULT_CACHE_DIR,
-  PLATFORMS,
   getDeviceModel,
   detectRunMode,
   type DeviceModel,
   type DeviceConfig,
   type InteractionType,
   type RunMode,
-  type PlatformArch,
 } from './constants';
 export { withRetry, ExponentialBackoff, isRetryableError } from './resilience';
 export {
@@ -40,5 +35,4 @@ export {
   encodeLedgerHidResponse,
   type LedgerHidFramingSession,
 } from './ledger-hid-framing';
-export { ensureBinary, getBinaryPath, type EnsureBinaryOptions } from './download';
-export { getPlatform } from './platform';
+
