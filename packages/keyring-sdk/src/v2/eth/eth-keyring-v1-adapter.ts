@@ -57,10 +57,14 @@ type TypedDataWithDomain = {
  * Convert a value to a valid JSON object.
  *
  * The function chains JSON.stringify and JSON.parse to ensure that the result
- * is a valid JSON object. In objects, undefined values are removed, and in
- * arrays, they are replaced with null.
+ * is a valid JSON object.
  *
- * @param value - Value to convert to JSON.
+ * We assume that the input value is JSON-serializable.
+ *
+ * However, some transformations can occur like: in objects, undefined values
+ * are removed, and in arrays, they are replaced with null.
+ *
+ * @param value - Value to convert to JSON - Assumed to be JSON-serializable.
  * @returns JSON representation of the value.
  */
 function toJson<Type extends Json = Json>(value: unknown): Type {
