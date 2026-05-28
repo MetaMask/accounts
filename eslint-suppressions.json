@@ -62,6 +62,14 @@
       "count": 4
     }
   },
+  "packages/keyring-eth-ledger-bridge/src/ledger-keyring.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "promise/always-return": {
+      "count": 1
+    }
+  },
   "packages/keyring-eth-ledger-bridge/src/ledger-keyring.ts": {
     "import-x/no-nodejs-modules": {
       "count": 1
@@ -244,39 +252,6 @@
   "packages/keyring-utils/src/typing.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
-    }
-  },
-  "packages/speculos-up/src/cli.ts": {
-    "no-restricted-globals": {
-      "count": 1
-    }
-  },
-  "packages/speculos-up/src/download.ts": {
-    "import-x/no-nodejs-modules": {
-      "count": 6
-    },
-    "no-restricted-globals": {
-      "count": 3
-    }
-  },
-  "packages/speculos-up/src/platform.ts": {
-    "no-restricted-globals": {
-      "count": 2
-    }
-  },
-  "packages/speculos/src/apdu-bridge.ts": {
-    "no-restricted-globals": {
-      "count": 5
-    }
-  },
-  "packages/speculos/src/client.ts": {
-    "no-restricted-globals": {
-      "count": 5
-    }
-  },
-  "packages/speculos/src/process-manager.ts": {
-    "import-x/no-nodejs-modules": {
-      "count": 1
     }
   }
 }

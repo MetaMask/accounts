@@ -3,7 +3,6 @@ import { RLP } from '@ethereumjs/rlp';
 import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
-import type { TypedMessage } from '@metamask/eth-sig-util';
 import * as sigUtil from '@metamask/eth-sig-util';
 import { bytesToHex, Hex, remove0x } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
@@ -599,13 +598,11 @@ describe('LedgerKeyring', function () {
     describe('updateTransportMethod', function () {
       describe('when bridge is connected', function () {
         it('calls the bridge updateTransportMethod method', async function () {
-          const updateTransportMethodSpy = jest
-            .spyOn(bridge, 'updateTransportMethod')
-            .mockResolvedValue(true);
+          jest.spyOn(bridge, 'updateTransportMethod').mockResolvedValue(true);
 
           await keyring.updateTransportMethod('some-transport');
 
-          expect(updateTransportMethodSpy.mock.calls).toHaveLength(1);
+          expect(bridge.updateTransportMethod).toHaveBeenCalledTimes(1);
         });
       });
     });
@@ -1046,8 +1043,9 @@ describe('LedgerKeyring', function () {
     describe('unlockAccountByAddress', function () {
       it('unlocks the given account if found on device', async function () {
         await basicSetupToUnlockOneAccount();
-        const hdPath = await keyring.unlockAccountByAddress(fakeAccounts[0]);
-        expect(hdPath).toBe("m/44'/60'/0'/0");
+        await keyring.unlockAccountByAddress(fakeAccounts[0]).then((hdPath) => {
+          expect(hdPath).toBe("m/44'/60'/0'/0");
+        });
       });
 
       it('rejects if the account is not found on device', async function () {
@@ -1076,13 +1074,6 @@ describe('LedgerKeyring', function () {
     });
 
     describe('signTypedData', function () {
-      function utf8ToArrayBuffer(text: string): ArrayBuffer {
-        const bytes = new TextEncoder().encode(text);
-        const buffer = new ArrayBuffer(bytes.byteLength);
-        new Uint8Array(buffer).set(bytes);
-        return buffer;
-      }
-
       // This data matches demo data is MetaMask's test dapp
       const fixtureData = {
         domain: {
@@ -1090,7 +1081,7 @@ describe('LedgerKeyring', function () {
           name: 'Ether Mail',
           verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
           version: '1',
-          salt: utf8ToArrayBuffer('hello'),
+          salt: new TextEncoder().encode('hello'),
         },
         message: {
           contents: 'Hello, Bob!',
@@ -1135,8 +1126,6 @@ describe('LedgerKeyring', function () {
           ],
         },
       };
-
-      type MailTypedMessage = TypedMessage<typeof fixtureData.types>;
 
       beforeEach(async function () {
         jest
@@ -1217,7 +1206,7 @@ describe('LedgerKeyring', function () {
 
         const result = await keyring.signTypedData(
           fakeAccounts[15],
-          fixtureDataWithStringSalt as unknown as MailTypedMessage,
+          fixtureDataWithStringSalt as any,
           { version: sigUtil.SignTypedDataVersion.V4 },
         );
 
@@ -1268,7 +1257,7 @@ describe('LedgerKeyring', function () {
 
         const result = await keyring.signTypedData(
           fakeAccounts[15],
-          expectedMessage as unknown as MailTypedMessage,
+          expectedMessage as any,
           { version: sigUtil.SignTypedDataVersion.V4 },
         );
 
@@ -1306,7 +1295,8 @@ describe('LedgerKeyring', function () {
       it('throws an error if the signTypedData version is not v4', async function () {
         await expect(
           keyring.signTypedData(fakeAccounts[0], fixtureData, {
-            version: sigUtil.SignTypedDataVersion.V3 as typeof sigUtil.SignTypedDataVersion.V4,
+            // @ts-expect-error we want to test an invalid version
+            version: sigUtil.SignTypedDataVersion.V3,
           }),
         ).rejects.toThrow(
           'Ledger: Only version 4 of typed data signing is supported',
