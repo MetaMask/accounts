@@ -253,5 +253,137 @@
     "@typescript-eslint/no-explicit-any": {
       "count": 2
     }
+  },
+  "packages/speculos-up/src/cli.ts": {
+    "no-restricted-globals": {
+      "count": 1
+    },
+    "promise/always-return": {
+      "count": 1
+    }
+  },
+  "packages/speculos-up/src/download.test.ts": {
+    "n/global-require": {
+      "count": 1
+    },
+    "n/no-sync": {
+      "count": 1
+    }
+  },
+  "packages/speculos-up/src/download.ts": {
+    "import-x/no-nodejs-modules": {
+      "count": 6
+    },
+    "no-restricted-globals": {
+      "count": 3
+    }
+  },
+  "packages/speculos-up/src/platform.ts": {
+    "no-restricted-globals": {
+      "count": 2
+    }
+  },
+  "packages/speculos/src/apdu-bridge.test.ts": {
+    "jest/no-restricted-matchers": {
+      "count": 1
+    }
+  },
+  "packages/speculos/src/apdu-bridge.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-misused-promises": {
+      "count": 1
+    },
+    "@typescript-eslint/prefer-nullish-coalescing": {
+      "count": 1
+    },
+    "no-restricted-globals": {
+      "count": 5
+    },
+    "no-unused-private-class-members": {
+      "count": 1
+    }
+  },
+  "packages/speculos/src/client.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "jest/expect-expect": {
+      "count": 1
+    },
+    "jest/no-restricted-matchers": {
+      "count": 1
+    }
+  },
+  "packages/speculos/src/client.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "consistent-return": {
+      "count": 1
+    },
+    "id-length": {
+      "count": 4
+    },
+    "jsdoc/require-param-description": {
+      "count": 3
+    },
+    "no-restricted-globals": {
+      "count": 5
+    },
+    "prefer-const": {
+      "count": 2
+    }
+  },
+  "packages/speculos/src/docker-manager.test.ts": {
+    "jest/no-restricted-matchers": {
+      "count": 1
+    },
+    "jest/require-to-throw-message": {
+      "count": 1
+    }
+  },
+  "packages/speculos/src/docker-manager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "packages/speculos/src/process-manager.test.ts": {
+    "jest/no-restricted-matchers": {
+      "count": 1
+    },
+    "jest/require-to-throw-message": {
+      "count": 1
+    }
+  },
+  "packages/speculos/src/process-manager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 7
+    },
+    "@typescript-eslint/no-misused-promises": {
+      "count": 2
+    },
+    "consistent-return": {
+      "count": 1
+    },
+    "import-x/no-nodejs-modules": {
+      "count": 1
+    }
+  },
+  "packages/speculos/src/resilience.ts": {
+    "@typescript-eslint/no-base-to-string": {
+      "count": 2
+    }
+  },
+  "packages/speculos/src/speculos.test.ts": {
+    "jest/no-restricted-matchers": {
+      "count": 1
+    }
+  },
+  "packages/speculos/src/speculos.ts": {
+    "no-negated-condition": {
+      "count": 2
+    }
   }
 }

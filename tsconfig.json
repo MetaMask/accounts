@@ -13,7 +13,9 @@
     { "path": "./packages/keyring-snap-client" },
     { "path": "./packages/keyring-sdk" },
     { "path": "./packages/keyring-snap-sdk" },
-    { "path": "./packages/keyring-utils" }
+    { "path": "./packages/keyring-utils" },
+    { "path": "./packages/speculos" },
+    { "path": "./packages/speculos-up" }
   ],
   "files": [],
   "include": []

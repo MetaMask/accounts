@@ -34,6 +34,8 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/keyring-snap-client`](packages/keyring-snap-client)
 - [`@metamask/keyring-snap-sdk`](packages/keyring-snap-sdk)
 - [`@metamask/keyring-utils`](packages/keyring-utils)
+- [`@metamask/speculos`](packages/speculos)
+- [`@metamask/speculos-up`](packages/speculos-up)
 
 <!-- end package list -->
 
@@ -61,6 +63,8 @@ linkStyle default opacity:0.5
   keyring_snap_client(["@metamask/keyring-snap-client"]);
   keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
   keyring_utils(["@metamask/keyring-utils"]);
+  speculos(["@metamask/speculos"]);
+  speculos_up(["@metamask/speculos-up"]);
   account_api --> keyring_api;
   account_api --> keyring_utils;
   keyring_api --> keyring_utils;
@@ -71,8 +75,8 @@ linkStyle default opacity:0.5
   eth_ledger_bridge_keyring --> hw_wallet_sdk;
   eth_ledger_bridge_keyring --> keyring_api;
   eth_ledger_bridge_keyring --> keyring_sdk;
-  eth_ledger_bridge_keyring --> account_api;
   eth_ledger_bridge_keyring --> keyring_utils;
+  eth_ledger_bridge_keyring --> account_api;
   eth_money_keyring --> keyring_eth_hd;
   eth_money_keyring --> keyring_api;
   eth_money_keyring --> keyring_sdk;
@@ -107,6 +111,7 @@ linkStyle default opacity:0.5
   keyring_snap_client --> keyring_utils;
   keyring_snap_sdk --> keyring_utils;
   keyring_snap_sdk --> keyring_api;
+  speculos --> speculos_up;
 ```
 
 <!-- end dependency graph -->
