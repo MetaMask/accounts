@@ -1,27 +1,26 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-
 import {
+  CloseAppCommand,
   CommandResultStatus,
   DeviceActionStatus,
+  DeviceExchangeError,
   DeviceManagementKit,
   DeviceManagementKitBuilder,
+  DeviceStatus,
+  OpenAppCommand,
 } from '@ledgerhq/device-management-kit';
-import { RNBleTransportFactory } from '@ledgerhq/device-transport-kit-react-native-ble';
+import { TransportStatusError } from '@ledgerhq/hw-transport';
 import { EIP712Message } from '@ledgerhq/types-live';
-import { of } from 'rxjs';
+import { BehaviorSubject, of, Subject } from 'rxjs';
 
-import { LedgerMobileDMKBridge } from './ledger-dmk-bridge';
+import { LedgerDMKBridge } from './ledger-dmk-bridge';
 import { LedgerMobileDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
 
-jest.mock('@ledgerhq/device-transport-kit-react-native-ble', () => ({
-  RNBleTransportFactory: jest.fn(),
-}));
-
-// Mock the transport middleware
 jest.mock('./ledger-dmk-transport-middleware');
 
-describe('LedgerMobileDMKBridge', () => {
-  let bridge: LedgerMobileDMKBridge;
+const mockTransportFactory = jest.fn();
+
+describe('LedgerDMKBridge', () => {
+  let bridge: LedgerDMKBridge;
   let addTransportSpy: jest.SpyInstance;
   let buildSpy: jest.SpyInstance;
   let mockTransportMiddleware: jest.Mocked<LedgerMobileDMKTransportMiddleware>;
@@ -29,6 +28,7 @@ describe('LedgerMobileDMKBridge', () => {
     connect: jest.Mock;
     sendCommand: jest.Mock;
     startDiscovering: jest.Mock;
+    getDeviceSessionState: jest.Mock;
   };
   let mockEthSigner: {
     getAddress: jest.Mock;
@@ -51,6 +51,9 @@ describe('LedgerMobileDMKBridge', () => {
         data: mockSendCommandResult,
       }),
       startDiscovering: jest.fn().mockReturnValue(of({ id: 'device-id' })),
+      getDeviceSessionState: jest
+        .fn()
+        .mockReturnValue(new BehaviorSubject({ deviceStatus: DeviceStatus.CONNECTED })),
     };
 
     mockEthSigner = {
@@ -98,12 +101,11 @@ describe('LedgerMobileDMKBridge', () => {
 
     addTransportSpy = jest
       .spyOn(DeviceManagementKitBuilder.prototype, 'addTransport')
-      .mockImplementation(function mockAddTransport(
-        this: DeviceManagementKitBuilder,
-      ) {
-        // eslint-disable-next-line no-invalid-this
-        return this;
-      });
+      .mockImplementation(
+        function mockAddTransport(this: DeviceManagementKitBuilder) {
+          return this;
+        },
+      );
 
     buildSpy = jest
       .spyOn(DeviceManagementKitBuilder.prototype, 'build')
@@ -127,7 +129,7 @@ describe('LedgerMobileDMKBridge', () => {
       LedgerMobileDMKTransportMiddleware as unknown as jest.Mock
     ).mockImplementation(() => mockTransportMiddleware);
 
-    bridge = new LedgerMobileDMKBridge();
+    bridge = new LedgerDMKBridge({ transportFactory: mockTransportFactory });
   });
 
   afterEach(() => {
@@ -144,12 +146,95 @@ describe('LedgerMobileDMKBridge', () => {
       expect(buildSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('registers the mobile BLE transport', () => {
-      expect(addTransportSpy).toHaveBeenCalledWith(RNBleTransportFactory);
+    it('registers the injected transport factory', () => {
+      expect(addTransportSpy).toHaveBeenCalledWith(mockTransportFactory);
     });
 
     it('creates transport middleware with SDK', () => {
       expect(LedgerMobileDMKTransportMiddleware).toHaveBeenCalledTimes(1);
+    });
+
+    it('exports LedgerMobileDMKBridge as deprecated alias', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports, n/global-require
+      const mod = require('./ledger-dmk-bridge');
+      expect(mod.LedgerMobileDMKBridge).toBe(mod.LedgerDMKBridge);
+    });
+  });
+
+  describe('isDeviceConnected', () => {
+    it('returns false when bridge is not connected', () => {
+      expect(bridge.isDeviceConnected).toBe(false);
+    });
+
+    it('returns true after updateSessionId', async () => {
+      await bridge.updateSessionId('test-session-id');
+      expect(bridge.isDeviceConnected).toBe(true);
+    });
+
+    it('returns true after connect', async () => {
+      const params = {
+        device: { id: 'device-id' },
+      } as unknown as Parameters<
+        LedgerMobileDMKTransportMiddleware['connect']
+      >[0];
+      await bridge.connect(params);
+      expect(bridge.isDeviceConnected).toBe(true);
+    });
+
+    it('returns false after destroy', async () => {
+      await bridge.updateSessionId('test-session-id');
+      await bridge.destroy();
+      expect(bridge.isDeviceConnected).toBe(false);
+    });
+
+    it('is a read-only getter', () => {
+      const descriptor = Object.getOwnPropertyDescriptor(
+        Object.getPrototypeOf(bridge),
+        'isDeviceConnected',
+      );
+      // eslint-disable-next-line jest/unbound-method
+      expect(descriptor?.get).toBeInstanceOf(Function);
+      // eslint-disable-next-line jest/unbound-method
+      expect(descriptor?.set).toBeUndefined();
+    });
+  });
+
+  describe('onSessionStateChange', () => {
+    it('is an Observable', () => {
+      expect(bridge.onSessionStateChange).toBeDefined();
+      expect(typeof bridge.onSessionStateChange.subscribe).toBe('function');
+    });
+
+    it('emits { connected: true } when session is connected', async () => {
+      const sessionState$ = new Subject();
+      mockSDK.getDeviceSessionState.mockReturnValue(sessionState$);
+
+      await bridge.updateSessionId('session-1');
+
+      const emitted: { connected: boolean }[] = [];
+      bridge.onSessionStateChange.subscribe((state) => emitted.push(state));
+
+      sessionState$.next({ deviceStatus: DeviceStatus.CONNECTED });
+
+      expect(emitted).toStrictEqual([{ connected: true }]);
+    });
+
+    it('emits { connected: false } when session observable errors', async () => {
+      const sessionState$ = new Subject();
+      mockSDK.getDeviceSessionState.mockReturnValue(sessionState$);
+
+      await bridge.updateSessionId('session-1');
+
+      const emitted: { connected: boolean }[] = [];
+      bridge.onSessionStateChange.subscribe({
+        next: (state) => emitted.push(state),
+        error: () => undefined,
+      });
+
+      sessionState$.error(new Error('disconnected'));
+
+      expect(emitted).toStrictEqual([{ connected: false }]);
+      expect(bridge.isDeviceConnected).toBe(false);
     });
   });
 
@@ -192,13 +277,13 @@ describe('LedgerMobileDMKBridge', () => {
   describe('getOptions', () => {
     it('returns the bridge instance options', async () => {
       const result = await bridge.getOptions();
-      expect(result).toStrictEqual({});
+      expect(result.transportFactory).toBe(mockTransportFactory);
     });
   });
 
   describe('setOptions', () => {
     it('sets options', async () => {
-      const opts = { key: 'value' };
+      const opts = { transportFactory: jest.fn() };
       await bridge.setOptions(opts);
       expect(await bridge.getOptions()).toStrictEqual(opts);
     });
@@ -255,9 +340,32 @@ describe('LedgerMobileDMKBridge', () => {
   });
 
   describe('attemptMakeApp', () => {
-    it('returns true', async () => {
+    it('returns true when Ethereum app is running', async () => {
       const result = await bridge.attemptMakeApp();
       expect(result).toBe(true);
+    });
+
+    it('throws when a non-Ethereum app is running', async () => {
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: CommandResultStatus.Success,
+        data: {
+          name: 'Bitcoin',
+          version: '1.0.0',
+        },
+      });
+
+      await expect(bridge.attemptMakeApp()).rejects.toThrow(
+        "Expected Ethereum app but 'Bitcoin' is running",
+      );
+    });
+
+    it('throws when getAppNameAndVersion fails', async () => {
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: 'error',
+        error: new Error('device busy'),
+      });
+
+      await expect(bridge.attemptMakeApp()).rejects.toThrow('device busy');
     });
   });
 
@@ -283,7 +391,7 @@ describe('LedgerMobileDMKBridge', () => {
       });
     });
 
-    it('throws signer errors emitted by the device action observable', async () => {
+    it('wraps non-DeviceExchangeError signer errors in TransportStatusError', async () => {
       const error = new Error('device action failed');
       mockEthSigner.getAddress.mockReturnValueOnce({
         observable: of({
@@ -294,7 +402,29 @@ describe('LedgerMobileDMKBridge', () => {
 
       await expect(
         bridge.getPublicKey({ hdPath: "m/44'/60'/0'/0/0" }),
-      ).rejects.toThrow(error);
+      ).rejects.toThrow(TransportStatusError);
+    });
+
+    it('translates DeviceExchangeError to TransportStatusError', async () => {
+      const dmkError = Object.create(DeviceExchangeError.prototype) as Error & {
+        _tag: string;
+        errorCode: string;
+        message: string;
+      };
+      dmkError._tag = 'EthAppCommandError';
+      dmkError.errorCode = '6985';
+      dmkError.message = 'Conditions not satisfied';
+
+      mockEthSigner.getAddress.mockReturnValueOnce({
+        observable: of({
+          status: DeviceActionStatus.Error,
+          error: dmkError,
+        }),
+      });
+
+      await expect(
+        bridge.getPublicKey({ hdPath: "m/44'/60'/0'/0/0" }),
+      ).rejects.toThrow(TransportStatusError);
     });
 
     it('throws when a device action completes without a terminal status', async () => {
@@ -319,9 +449,6 @@ describe('LedgerMobileDMKBridge', () => {
             })),
           };
         });
-        jest.doMock('@ledgerhq/device-transport-kit-react-native-ble', () => ({
-          RNBleTransportFactory: jest.fn(),
-        }));
         jest.doMock('./ledger-dmk-transport-middleware', () => ({
           LedgerMobileDMKTransportMiddleware: jest
             .fn()
@@ -349,10 +476,10 @@ describe('LedgerMobileDMKBridge', () => {
 
         isolatedTest = (async (): Promise<void> => {
           // eslint-disable-next-line @typescript-eslint/no-require-imports, n/global-require
-          const Bridge = require('./ledger-dmk-bridge').LedgerMobileDMKBridge;
+          const Bridge = require('./ledger-dmk-bridge').LedgerDMKBridge;
 
           await expect(
-            new Bridge().getPublicKey({
+            new Bridge({ transportFactory: jest.fn() }).getPublicKey({
               hdPath: "m/44'/60'/0'/0/0",
             }),
           ).rejects.toThrow('Ledger device action ended without completion.');
@@ -500,7 +627,33 @@ describe('LedgerMobileDMKBridge', () => {
   });
 
   describe('getAppConfiguration', () => {
-    it('returns app configuration with version from SDK', async () => {
+    it('uses the DMK signer GetAppConfiguration command', async () => {
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: CommandResultStatus.Success,
+        data: {
+          blindSigningEnabled: true,
+          web3ChecksEnabled: true,
+          web3ChecksOptIn: true,
+          version: '1.10.0',
+        },
+      });
+
+      await bridge.getAppConfiguration();
+
+      expect(mockSDK.sendCommand.mock.calls[0]?.[0].command.name).toBe(
+        'getAppConfiguration',
+      );
+    });
+
+    it('returns arbitraryDataEnabled=1 when flags bit 0 is set (blind signing enabled)', async () => {
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: CommandResultStatus.Success,
+        data: {
+          blindSigningEnabled: true,
+          version: '1.10.0',
+        },
+      });
+
       const result = await bridge.getAppConfiguration();
 
       expect(result).toStrictEqual({
@@ -508,77 +661,84 @@ describe('LedgerMobileDMKBridge', () => {
         erc20ProvisioningNecessary: 0,
         starkEnabled: 0,
         starkv2Supported: 0,
-        version: '2.4.0',
+        version: '1.10.0',
       });
     });
 
-    it('parses flags to determine arbitraryDataEnabled', async () => {
+    it('returns arbitraryDataEnabled=0 when flags bit 0 is clear (blind signing disabled)', async () => {
       mockSDK.sendCommand.mockResolvedValueOnce({
         status: CommandResultStatus.Success,
         data: {
-          name: 'Ethereum',
-          version: '2.4.0',
-          flags: 0,
+          blindSigningEnabled: false,
+          version: '1.10.0',
         },
       });
 
       const result = await bridge.getAppConfiguration();
 
       expect(result.arbitraryDataEnabled).toBe(0);
-      expect(result.version).toBe('2.4.0');
+      expect(result.version).toBe('1.10.0');
     });
 
-    it('returns arbitraryDataEnabled when flags indicate blind signing support', async () => {
+    it('defaults arbitraryDataEnabled to 0 when blindSigningEnabled is false', async () => {
       mockSDK.sendCommand.mockResolvedValueOnce({
         status: CommandResultStatus.Success,
         data: {
-          name: 'Ethereum',
-          version: '2.4.0',
-          flags: 1,
-        },
-      });
-
-      const result = await bridge.getAppConfiguration();
-
-      expect(result.arbitraryDataEnabled).toBe(1);
-      expect(result.version).toBe('2.4.0');
-    });
-
-    it('defaults arbitraryDataEnabled when flags are not numeric', async () => {
-      mockSDK.sendCommand.mockResolvedValueOnce({
-        status: CommandResultStatus.Success,
-        data: {
-          name: 'Ethereum',
-          version: '2.4.0',
-          flags: 'unexpected',
-        },
-      });
-
-      const result = await bridge.getAppConfiguration();
-
-      expect(result.arbitraryDataEnabled).toBe(1);
-      expect(result.version).toBe('2.4.0');
-    });
-
-    it('defaults missing flags to disabled blind signing', async () => {
-      mockSDK.sendCommand.mockResolvedValueOnce({
-        status: CommandResultStatus.Success,
-        data: {
-          name: 'Ethereum',
-          version: '2.4.0',
+          version: '1.10.0',
         },
       });
 
       const result = await bridge.getAppConfiguration();
 
       expect(result.arbitraryDataEnabled).toBe(0);
-      expect(result.version).toBe('2.4.0');
     });
 
-    it('falls back to a generic error for unknown SDK command failures', async () => {
+    it('treats truthy blindSigningEnabled as enabled', async () => {
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: CommandResultStatus.Success,
+        data: {
+          blindSigningEnabled: 'unexpected',
+          version: '1.10.0',
+        },
+      });
+
+      const result = await bridge.getAppConfiguration();
+
+      expect(result.arbitraryDataEnabled).toBe(1);
+    });
+
+    it('throws on SDK command failure', async () => {
       mockSDK.sendCommand.mockResolvedValueOnce({
         status: 'error',
-        error: 'unknown failure',
+        error: new Error('eth app not found'),
+      });
+
+      await expect(bridge.getAppConfiguration()).rejects.toThrow(
+        'eth app not found',
+      );
+    });
+
+    it('translates DMK command errors to TransportStatusError', async () => {
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: 'error',
+        error: createMockDeviceExchangeError('6985'),
+      });
+
+      let caughtError: unknown;
+      try {
+        await bridge.getAppConfiguration();
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError).toBeInstanceOf(TransportStatusError);
+      expect((caughtError as TransportStatusError).statusCode).toBe(0x6985);
+    });
+
+    it('throws generic error for non-Error SDK failures', async () => {
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: 'error',
+        error: 'string error',
       });
 
       await expect(bridge.getAppConfiguration()).rejects.toThrow(
@@ -586,4 +746,148 @@ describe('LedgerMobileDMKBridge', () => {
       );
     });
   });
+
+  describe('constructor with dmk option', () => {
+    it('uses the provided DMK instance', () => {
+      const externalDmk = mockSDK as unknown as DeviceManagementKit;
+      const dmkBridge = new LedgerDMKBridge({ dmk: externalDmk });
+      expect(dmkBridge.dmk).toBe(externalDmk);
+    });
+
+    it('does not call dispose on destroy when dmk is provided', async () => {
+      const externalDmk = mockSDK as unknown as DeviceManagementKit;
+      const dmkBridge = new LedgerDMKBridge({ dmk: externalDmk });
+      await dmkBridge.destroy();
+      expect(mockTransportMiddleware.dispose).not.toHaveBeenCalled();
+    });
+
+    it('throws when neither dmk nor transportFactory is provided', () => {
+      expect(
+        () => new LedgerDMKBridge({}),
+      ).toThrow(
+        'LedgerDMKBridge requires either a transportFactory or a dmk instance.',
+      );
+    });
+  });
+
+  describe('dmk getter', () => {
+    it('returns the DMK instance', () => {
+      expect(bridge.dmk).toBeDefined();
+    });
+  });
+
+  describe('openEthApp', () => {
+    it('sends OpenAppCommand via DMK', async () => {
+      await bridge.updateSessionId('test-session-id');
+      await bridge.openEthApp();
+      expect(mockSDK.sendCommand).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sessionId: 'test-session-id',
+          command: expect.any(OpenAppCommand),
+        }),
+      );
+    });
+
+    it('throws on command failure', async () => {
+      await bridge.updateSessionId('test-session-id');
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: 'error',
+        error: new Error('open app failed'),
+      });
+      await expect(bridge.openEthApp()).rejects.toThrow('open app failed');
+    });
+  });
+
+  describe('closeApps', () => {
+    it('sends CloseAppCommand via DMK', async () => {
+      await bridge.updateSessionId('test-session-id');
+      await bridge.closeApps();
+      expect(mockSDK.sendCommand).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sessionId: 'test-session-id',
+          command: expect.any(CloseAppCommand),
+        }),
+      );
+    });
+
+    it('throws on command failure', async () => {
+      await bridge.updateSessionId('test-session-id');
+      mockSDK.sendCommand.mockResolvedValueOnce({
+        status: 'error',
+        error: new Error('close app failed'),
+      });
+      await expect(bridge.closeApps()).rejects.toThrow('close app failed');
+    });
+  });
+
+  describe('session monitoring', () => {
+    it('detects disconnect via NOT_CONNECTED deviceStatus', async () => {
+      const sessionState$ = new Subject();
+      mockSDK.getDeviceSessionState.mockReturnValue(sessionState$);
+
+      await bridge.updateSessionId('session-1');
+
+      const emitted: { connected: boolean }[] = [];
+      bridge.onSessionStateChange.subscribe({
+        next: (state) => emitted.push(state),
+        error: () => undefined,
+        complete: () => undefined,
+      });
+
+      sessionState$.next({ deviceStatus: DeviceStatus.NOT_CONNECTED });
+      sessionState$.complete();
+
+      expect(emitted).toContainEqual({ connected: false });
+      expect(bridge.isDeviceConnected).toBe(false);
+    });
+
+    it('detects disconnect via observable completion', async () => {
+      const sessionState$ = new Subject();
+      mockSDK.getDeviceSessionState.mockReturnValue(sessionState$);
+
+      await bridge.updateSessionId('session-1');
+
+      const emitted: { connected: boolean }[] = [];
+      bridge.onSessionStateChange.subscribe({
+        next: (state) => emitted.push(state),
+        error: () => undefined,
+        complete: () => undefined,
+      });
+
+      sessionState$.next({ deviceStatus: DeviceStatus.CONNECTED });
+      sessionState$.complete();
+
+      expect(emitted).toContainEqual({ connected: false });
+    });
+
+    it('filters duplicate state changes', async () => {
+      const sessionState$ = new Subject();
+      mockSDK.getDeviceSessionState.mockReturnValue(sessionState$);
+
+      await bridge.updateSessionId('session-1');
+
+      const emitted: { connected: boolean }[] = [];
+      bridge.onSessionStateChange.subscribe({
+        next: (state) => emitted.push(state),
+        error: () => undefined,
+        complete: () => undefined,
+      });
+
+      sessionState$.next({ deviceStatus: DeviceStatus.CONNECTED });
+      sessionState$.next({ deviceStatus: DeviceStatus.CONNECTED });
+
+      expect(emitted).toStrictEqual([{ connected: true }]);
+    });
+  });
 });
+
+function createMockDeviceExchangeError<TErrorCode = string>(
+  errorCode: TErrorCode,
+): DeviceExchangeError<TErrorCode> {
+  return {
+    _tag: 'EthAppCommandError',
+    message: `DMK error: ${String(errorCode)}`,
+    errorCode,
+    originalError: undefined,
+  } as unknown as DeviceExchangeError<TErrorCode>;
+}

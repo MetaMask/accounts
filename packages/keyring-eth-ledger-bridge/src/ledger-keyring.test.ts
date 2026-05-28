@@ -1306,7 +1306,8 @@ describe('LedgerKeyring', function () {
       it('throws an error if the signTypedData version is not v4', async function () {
         await expect(
           keyring.signTypedData(fakeAccounts[0], fixtureData, {
-            version: sigUtil.SignTypedDataVersion.V3 as typeof sigUtil.SignTypedDataVersion.V4,
+            version: sigUtil.SignTypedDataVersion
+              .V3 as typeof sigUtil.SignTypedDataVersion.V4,
           }),
         ).rejects.toThrow(
           'Ledger: Only version 4 of typed data signing is supported',

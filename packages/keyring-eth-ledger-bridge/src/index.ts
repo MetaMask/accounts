@@ -11,3 +11,4 @@ export * from './errors';
 export * from './ledger-error-handler';
 export * from './constants';
 export * from './utils';
+export * from './dmk-error-translator';

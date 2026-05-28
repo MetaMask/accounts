@@ -9,11 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Implement `getAppConfiguration` in `LedgerMobileDMKBridge` to retrieve actual app configuration from the device ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Rename `LedgerMobileDMKBridge` to `LedgerDMKBridge` to reflect platform-agnostic design ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - `LedgerMobileDMKBridge` is re-exported as a deprecated alias for backward compatibility.
+  - Transport factory is now injected via constructor instead of hardcoded React Native BLE.
+  - The bridge no longer depends on `@ledgerhq/device-transport-kit-react-native-ble` directly.
+- Implement `getAppConfiguration` in `LedgerDMKBridge` to retrieve actual app configuration from the device ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
   - Parse device flags to determine blind signing support (`arbitraryDataEnabled`).
   - Return actual app version from the device instead of hardcoded value.
-- Configure `LedgerMobileDMKBridge` to use the React Native BLE `mobile` transport and expose DMK device discovery helpers ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-  - Register `@ledgerhq/device-transport-kit-react-native-ble` with the DMK builder.
+- Configure `LedgerDMKBridge` to accept injected transport and expose DMK device discovery helpers ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Accept a `transportFactory` option in the constructor.
   - Add DMK discovery and connect passthroughs on the transport middleware and bridge.
 
 ## [12.1.0]

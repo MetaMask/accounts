@@ -1411,13 +1411,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/device-management-kit@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@ledgerhq/device-management-kit@npm:1.1.0"
+"@ledgerhq/device-management-kit@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "@ledgerhq/device-management-kit@npm:1.5.0"
   dependencies:
     "@noble/hashes": "npm:^1.8.0"
     "@sentry/minimal": "npm:6.19.7"
-    axios: "npm:1.13.2"
     inversify: "npm:7.5.1"
     isomorphic-ws: "npm:^5.0.0"
     purify-ts: "npm:2.1.0"
@@ -1429,15 +1428,15 @@ __metadata:
     xstate: "npm:5.19.2"
   peerDependencies:
     rxjs: 7.8.2
-  checksum: 10/bb1c26a7e620dd393b6880c58826f7813c0948ff2e7bafb116956288287b1721556eca34d765807ff90d969a0c4f2b02cf7125827ba0e2cb220290a51b610a9f
+  checksum: 10/4a7f49b0f7f55179a30dca5b5814e338126a8d282ffbdf6ec36483f5016b869dfeef5c7081e8be8aeb8671dfdae94ea5126f77e49e3188edb245496790ecff96
   languageName: node
   linkType: hard
 
-"@ledgerhq/device-signer-kit-ethereum@npm:^1.11.1":
-  version: 1.11.1
-  resolution: "@ledgerhq/device-signer-kit-ethereum@npm:1.11.1"
+"@ledgerhq/device-signer-kit-ethereum@npm:^1.16.0":
+  version: 1.16.0
+  resolution: "@ledgerhq/device-signer-kit-ethereum@npm:1.16.0"
   dependencies:
-    "@ledgerhq/signer-utils": "npm:^1.1.2"
+    "@ledgerhq/signer-utils": "npm:^1.2.0"
     ethers: "npm:6.14.1"
     inversify: "npm:7.5.1"
     purify-ts: "npm:2.1.0"
@@ -1445,26 +1444,9 @@ __metadata:
     semver: "npm:7.7.2"
     xstate: "npm:5.19.2"
   peerDependencies:
-    "@ledgerhq/context-module": ^1.14.1
-    "@ledgerhq/device-management-kit": ^1.1.0
-  checksum: 10/4123d1658d0eec8a73343afe95299e21cfc7fe4683030b3043e4dfc6acb92e1f62c5a4862de926bc5e65ecc65bb13b58da02d761e22d01f19a161445c0f2f06f
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/device-transport-kit-react-native-ble@npm:^1.3.2":
-  version: 1.3.2
-  resolution: "@ledgerhq/device-transport-kit-react-native-ble@npm:1.3.2"
-  dependencies:
-    "@sentry/minimal": "npm:6.19.7"
-    js-base64: "npm:^3.7.8"
-    purify-ts: "npm:2.1.0"
-    uuid: "npm:11.0.3"
-  peerDependencies:
-    "@ledgerhq/device-management-kit": ^1.0.0
-    react-native: ">0.74.1"
-    react-native-ble-plx: 3.4.0
-    rxjs: 7.8.2
-  checksum: 10/50afe97ab1260f2537aa06ff107fddd3b1e906ca808c3a6bea672cfada8ef96a26088443a992a5795ec51441780225e84a8711b49e7987a720f4a8e02b9014ad
+    "@ledgerhq/context-module": ^2.0.0
+    "@ledgerhq/device-management-kit": ^1.5.0
+  checksum: 10/29869ce9a1a2284af4c89d8496fd347998aaa9462ffdf8ff5f805494e20e1ed76ddc667934111b6b17b24d5654307af51d5ba3567f4324bb3230d0abed0539e6
   languageName: node
   linkType: hard
 
@@ -1578,12 +1560,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/signer-utils@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "@ledgerhq/signer-utils@npm:1.1.2"
+"@ledgerhq/signer-utils@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@ledgerhq/signer-utils@npm:1.2.0"
+  dependencies:
+    semver: "npm:7.7.2"
   peerDependencies:
-    "@ledgerhq/device-management-kit": ^1.0.0
-  checksum: 10/2de50cb6f7eaf7193177776e822d9e4e629381bede9694cd6928e43b27cff44ccdbcd267d5ec201903061884af5d6935ba0497754fba3ad21cc974b396ef75db
+    "@ledgerhq/device-management-kit": ^1.2.0
+  checksum: 10/3665d0be9048df996d580c0f83c75e044f450fca57b19f060eca419cc78d2192fd8673c037d436be821da8c6f5a107bf413450628e7c9cd552759ce7a1fdcaaf
   languageName: node
   linkType: hard
 
@@ -1921,9 +1905,8 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@ledgerhq/context-module": "npm:^1.14.1"
-    "@ledgerhq/device-management-kit": "npm:^1.1.0"
-    "@ledgerhq/device-signer-kit-ethereum": "npm:^1.11.1"
-    "@ledgerhq/device-transport-kit-react-native-ble": "npm:^1.3.2"
+    "@ledgerhq/device-management-kit": "npm:^1.5.0"
+    "@ledgerhq/device-signer-kit-ethereum": "npm:^1.16.0"
     "@ledgerhq/hw-app-eth": "npm:^6.42.0"
     "@ledgerhq/hw-transport": "npm:^6.31.3"
     "@ledgerhq/types-cryptoassets": "npm:^7.15.1"
@@ -4696,17 +4679,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.191":
+"@types/lodash@npm:^4.14.191, @types/lodash@npm:^4.17.20":
   version: 4.17.24
   resolution: "@types/lodash@npm:4.17.24"
   checksum: 10/0f2082565f60f9787eefc046edc38458054512be5a8b3584ef0bad5fd9e85d0ab55ec5a1fbfae1ed6ba015cf1f9e837d5fb4da1f99fc60b8f74b2a46146fb00f
-  languageName: node
-  linkType: hard
-
-"@types/lodash@npm:^4.17.20":
-  version: 4.17.20
-  resolution: "@types/lodash@npm:4.17.20"
-  checksum: 10/8cd8ad3bd78d2e06a93ae8d6c9907981d5673655fec7cb274a4d9a59549aab5bb5b3017361280773b8990ddfccf363e14d1b37c97af8a9fe363de677f9a61524
   languageName: node
   linkType: hard
 
@@ -4791,17 +4767,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/semver@npm:^7":
+"@types/semver@npm:^7, @types/semver@npm:^7.3.6":
   version: 7.7.1
   resolution: "@types/semver@npm:7.7.1"
   checksum: 10/8f09e7e6ca3ded67d78ba7a8f7535c8d9cf8ced83c52e7f3ac3c281fe8c689c3fe475d199d94390dc04fc681d51f2358b430bb7b2e21c62de24f2bee2c719068
-  languageName: node
-  linkType: hard
-
-"@types/semver@npm:^7.3.6":
-  version: 7.5.8
-  resolution: "@types/semver@npm:7.5.8"
-  checksum: 10/3496808818ddb36deabfe4974fd343a78101fa242c4690044ccdc3b95dcf8785b494f5d628f2f47f38a702f8db9c53c67f47d7818f2be1b79f2efb09692e1178
   languageName: node
   linkType: hard
 
@@ -5194,16 +5163,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^8.1.0, acorn@npm:^8.11.0, acorn@npm:^8.4.1, acorn@npm:^8.8.1":
-  version: 8.12.1
-  resolution: "acorn@npm:8.12.1"
-  bin:
-    acorn: bin/acorn
-  checksum: 10/d08c2d122bba32d0861e0aa840b2ee25946c286d5dc5990abca991baf8cdbfbe199b05aacb221b979411a2fea36f83e26b5ac4f6b4e0ce49038c62316c1848f0
-  languageName: node
-  linkType: hard
-
-"acorn@npm:^8.15.0":
+"acorn@npm:^8.1.0, acorn@npm:^8.11.0, acorn@npm:^8.15.0, acorn@npm:^8.4.1, acorn@npm:^8.8.1":
   version: 8.16.0
   resolution: "acorn@npm:8.16.0"
   bin:
@@ -5492,7 +5452,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:1.13.2":
+"axios@npm:1.13.2, axios@npm:^1.8.4":
   version: 1.13.2
   resolution: "axios@npm:1.13.2"
   dependencies:
@@ -5511,17 +5471,6 @@ __metadata:
     form-data: "npm:^4.0.0"
     proxy-from-env: "npm:^1.1.0"
   checksum: 10/7f875ea13b9298cd7b40fd09985209f7a38d38321f1118c701520939de2f113c4ba137832fe8e3f811f99a38e12c8225481011023209a77b0c0641270e20cde1
-  languageName: node
-  linkType: hard
-
-"axios@npm:^1.8.4":
-  version: 1.10.0
-  resolution: "axios@npm:1.10.0"
-  dependencies:
-    follow-redirects: "npm:^1.15.6"
-    form-data: "npm:^4.0.0"
-    proxy-from-env: "npm:^1.1.0"
-  checksum: 10/d43c80316a45611fd395743e15d16ea69a95f2b7f7095f2bb12cb78f9ca0a905194a02e52a3bf4e0db9f85fd1186d6c690410644c10ecd8bb0a468e57c2040e4
   languageName: node
   linkType: hard
 
@@ -8055,7 +8004,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"for-each@npm:^0.3.3, for-each@npm:^0.3.5":
+"for-each@npm:^0.3.5":
   version: 0.3.5
   resolution: "for-each@npm:0.3.5"
   dependencies:
@@ -9664,13 +9613,6 @@ __metadata:
   bin:
     jest: bin/jest.js
   checksum: 10/97023d78446098c586faaa467fbf2c6b07ff06e2c85a19e3926adb5b0effe9ac60c4913ae03e2719f9c01ae8ffd8d92f6b262cedb9555ceeb5d19263d8c6362a
-  languageName: node
-  linkType: hard
-
-"js-base64@npm:^3.7.8":
-  version: 3.7.8
-  resolution: "js-base64@npm:3.7.8"
-  checksum: 10/4baa9a222bc094b072933e4894735653b59992477c731879784e3112f21862b08dd5c56b8b23b0b8e43bc5bb514d957621d1892a6c58950f29e12b731fe087b6
   languageName: node
   linkType: hard
 
@@ -13374,20 +13316,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"which-typed-array@npm:^1.1.14":
-  version: 1.1.15
-  resolution: "which-typed-array@npm:1.1.15"
-  dependencies:
-    available-typed-arrays: "npm:^1.0.7"
-    call-bind: "npm:^1.0.7"
-    for-each: "npm:^0.3.3"
-    gopd: "npm:^1.0.1"
-    has-tostringtag: "npm:^1.0.2"
-  checksum: 10/c3b6a99beadc971baa53c3ee5b749f2b9bdfa3b3b9a70650dd8511a48b61d877288b498d424712e9991d16019633086bd8b5923369460d93463c5825fa36c448
-  languageName: node
-  linkType: hard
-
-"which-typed-array@npm:^1.1.2":
+"which-typed-array@npm:^1.1.14, which-typed-array@npm:^1.1.2":
   version: 1.1.20
   resolution: "which-typed-array@npm:1.1.20"
   dependencies:
