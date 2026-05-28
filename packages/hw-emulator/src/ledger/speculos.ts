@@ -126,6 +126,12 @@ export class Speculos implements HardwareWalletEmulator {
       apiPort: config.deviceConfig.apiPort,
     });
 
+    await this.#clientInstance.connectWithRetry({
+      autoReconnect: true,
+      reconnectAttempts: 5,
+      reconnectDelayMs: 2000,
+    });
+
     this.#interactionInstance = createDeviceInteraction(
       this.#clientInstance,
       config.deviceModel,
@@ -194,7 +200,11 @@ export class Speculos implements HardwareWalletEmulator {
       this.#dockerManager = null;
     }
 
-    this.#clientInstance = null;
+    if (this.#clientInstance) {
+      await this.#clientInstance.disconnect();
+      this.#clientInstance = null;
+    }
+
     this.#interactionInstance = null;
     this.#started = false;
   }

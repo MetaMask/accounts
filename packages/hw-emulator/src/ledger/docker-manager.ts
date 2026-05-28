@@ -2,12 +2,11 @@
 import { execFile } from 'node:child_process';
 // eslint-disable-next-line import-x/no-nodejs-modules
 import { promisify } from 'node:util';
-// eslint-disable-next-line import-x/no-nodejs-modules
-import net from 'node:net';
 
 const execFileAsync = promisify(execFile);
 
-const HEALTH_CHECK_INTERVAL_MS = 500;
+const CONTAINER_NAME = 'metamask-speculos';
+const HEALTH_CHECK_INTERVAL_MS = 1000;
 const HEALTH_CHECK_TIMEOUT_MS = 60_000;
 
 export type DockerManagerOptions = {
@@ -29,28 +28,22 @@ export type DockerManagerStatus =
   | 'running'
   | 'stopping';
 
-async function isTcpReachable(
-  port: number,
-  host = '127.0.0.1',
-  timeoutMs = 1000,
-): Promise<boolean> {
-  return new Promise((resolve) => {
-    const sock = new net.Socket();
-    let settled = false;
-    const finish = (ok: boolean): void => {
-      if (settled) {
-        return;
-      }
-      settled = true;
-      sock.destroy();
-      resolve(ok);
-    };
-    sock.setTimeout(timeoutMs);
-    sock.once('connect', () => finish(true));
-    sock.once('timeout', () => finish(false));
-    sock.once('error', () => finish(false));
-    sock.connect(port, host);
-  });
+/**
+ * Check if the Docker container's health status is "healthy".
+ *
+ * @returns True if the container reports healthy.
+ */
+async function isContainerHealthy(): Promise<boolean> {
+  try {
+    const { stdout } = await execFileAsync('docker', [
+      'inspect',
+      '--format={{.State.Health.Status}}',
+      CONTAINER_NAME,
+    ]);
+    return stdout.trim() === 'healthy';
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -115,11 +108,7 @@ export class DockerManager {
 
       const deadline = Date.now() + timeout;
       while (Date.now() < deadline) {
-        const [apduOk, apiOk] = await Promise.all([
-          isTcpReachable(this.#options.apduPort),
-          isTcpReachable(this.#options.apiPort),
-        ]);
-        if (apduOk && apiOk) {
+        if (await isContainerHealthy()) {
           this.#containerStatus = 'running';
           return;
         }

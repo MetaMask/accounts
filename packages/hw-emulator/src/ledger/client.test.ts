@@ -57,11 +57,11 @@ describe('SpeculosClient', () => {
     });
   });
 
-  describe('connectWithResilience', () => {
+  describe('connectWithRetry', () => {
     it('returns immediately if already connected', async () => {
       const client = new SpeculosClient();
       await client
-        .connectWithResilience({
+        .connectWithRetry({
           autoReconnect: false,
           reconnectAttempts: 0,
         })

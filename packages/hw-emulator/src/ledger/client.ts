@@ -370,7 +370,7 @@ export class SpeculosClient {
    * @param options.reconnectAttempts - Maximum number of reconnection attempts.
    * @param options.reconnectDelayMs - Delay between reconnection attempts in milliseconds.
    */
-  async connectWithResilience(options?: {
+  async connectWithRetry(options?: {
     autoReconnect?: boolean;
     reconnectAttempts?: number;
     reconnectDelayMs?: number;
