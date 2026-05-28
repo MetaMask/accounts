@@ -2087,8 +2087,6 @@ __metadata:
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.3.3"
     ws: "npm:^8.18.0"
-  bin:
-    hw-emulator: ./dist/cli.mjs
   languageName: unknown
   linkType: soft
 
