@@ -26,7 +26,6 @@
     "nvram/",
     "docker-compose.yml"
   ],
-  "bin": "./dist/cli.mjs",
   "sideEffects": false,
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
