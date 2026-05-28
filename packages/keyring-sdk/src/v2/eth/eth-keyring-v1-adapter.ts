@@ -4,6 +4,7 @@ import type { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { normalize as ethNormalize } from '@metamask/eth-sig-util';
 import {
   EthBaseUserOperationStruct,
+  EthBytesStrictStruct,
   EthBytesStruct,
   EthMethod,
   EthUserOperationPatchStruct,
@@ -24,7 +25,7 @@ import {
 } from '@metamask/keyring-api/v2';
 import type { BaseKeyring, EthKeyring } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
-import { mask, object, string } from '@metamask/superstruct';
+import { mask, object } from '@metamask/superstruct';
 import type { Hex, Json } from '@metamask/utils';
 import {
   bigIntToHex,
@@ -207,17 +208,17 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
     const signature = mask(
       signedTx,
       object({
-        r: string(),
-        s: string(),
-        v: string(),
+        r: EthBytesStrictStruct,
+        s: EthBytesStrictStruct,
+        v: EthBytesStrictStruct,
       }),
     );
 
     return TransactionFactory.fromTxData({
       ...(tx as Record<string, Json>),
-      r: signature.r as Hex,
-      s: signature.s as Hex,
-      v: signature.v as Hex,
+      r: signature.r,
+      s: signature.s,
+      v: signature.v,
     });
   }
 

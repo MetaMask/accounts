@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add Stellar method `signAuthEntry` to `XlmMethod` ([#548](https://github.com/MetaMask/accounts/pull/548))
+- Add `EthBytesStrictStruct` ([#555](https://github.com/MetaMask/accounts/pull/555))
 
 ### Changed
 
