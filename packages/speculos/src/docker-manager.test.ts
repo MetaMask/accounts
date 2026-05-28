@@ -19,7 +19,7 @@ describe('DockerManager', () => {
       app: '/path/to/app.elf',
     });
     // Direct start with invalid compose file should fail
-    await expect(manager.start()).rejects.toThrow();
+    await expect(manager.start()).rejects.toThrow('docker compose');
     expect(manager.getStatus()).toBe('idle');
   });
 
@@ -30,7 +30,7 @@ describe('DockerManager', () => {
       apiPort: 5001,
       app: '/path/to/app.elf',
     });
-    await expect(manager.stop()).resolves.toBeUndefined();
+    await manager.stop();
     expect(manager.getStatus()).toBe('idle');
   });
 });

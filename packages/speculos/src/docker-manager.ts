@@ -37,7 +37,7 @@ async function isTcpReachable(
   return new Promise((resolve) => {
     const sock = new net.Socket();
     let settled = false;
-    const finish = (ok: boolean) => {
+    const finish = (ok: boolean): void => {
       if (settled) {
         return;
       }

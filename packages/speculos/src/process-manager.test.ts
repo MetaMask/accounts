@@ -19,7 +19,7 @@ describe('createProcessManager', () => {
     });
     // First start will try to spawn and fail (binary doesn't exist)
     // But we can test the status check by mocking
-    await expect(manager.start()).rejects.toThrow();
+    await expect(manager.start()).rejects.toThrow('ENOENT');
   });
 
   it('stop resolves immediately when idle', async () => {
@@ -27,7 +27,7 @@ describe('createProcessManager', () => {
       binary: '/usr/bin/speculos',
       app: '/path/to/app.elf',
     });
-    await expect(manager.stop()).resolves.toBeUndefined();
+    await manager.stop();
     expect(manager.status).toBe('idle');
   });
 });

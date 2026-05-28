@@ -54,8 +54,6 @@ export class ApduBridge {
 
   #signingInProgress = false;
 
-  #signingResponse: Buffer | null = null;
-
   #signingWaiters: SigningWaiter[] = [];
 
   #signTxTotalDataLen: number | null = null;
@@ -77,7 +75,7 @@ export class ApduBridge {
   async waitForSigningApdu(timeout = 30000): Promise<Buffer> {
     let timer: ReturnType<typeof setTimeout>;
     return new Promise((resolve, reject) => {
-      const handler = (apdu: Buffer) => {
+      const handler = (apdu: Buffer): void => {
         clearTimeout(timer);
         resolve(apdu);
       };
@@ -151,7 +149,7 @@ export class ApduBridge {
   async waitForSigningReady(timeout = 30000): Promise<void> {
     let timer: ReturnType<typeof setTimeout>;
     return new Promise((resolve, reject) => {
-      const handler = () => {
+      const handler = (): void => {
         clearTimeout(timer);
         resolve();
       };
@@ -203,53 +201,16 @@ export class ApduBridge {
       this.#wss.on('connection', (ws: WsWebSocket) => {
         this.#connectionState.set(ws, { framingSession: null });
 
-        ws.on('message', async (data: Buffer) => {
-          const messageStr = data.toString();
-
-          try {
-            const parsed = JSON.parse(messageStr);
-            if (parsed.type === 'DEBUG') {
-              return;
-            }
-          } catch {
-            // Not JSON, continue
-          }
-
-          let messageId: number | undefined;
-          try {
-            const message = JSON.parse(data.toString());
-            messageId = message.id;
-
-            if (message.type === 'HID_SEND') {
-              await this.handleHidSend(ws, message);
-              return;
-            }
-
-            if (message.type === 'APDU_REQUEST') {
-              const apduData = Buffer.from(message.data);
-              const response = await this.#client.exchange(apduData);
-
-              ws.send(
-                JSON.stringify({
-                  type: 'APDU_RESPONSE',
-                  id: message.id,
-                  data: Array.from(response),
-                }),
-              );
-            }
-          } catch (bridgeError: unknown) {
+        ws.on('message', (data: Buffer): void => {
+          this.#handleMessage(ws, data).catch((caughtError: unknown) => {
             const errorMessage =
-              bridgeError instanceof Error
-                ? bridgeError.message
-                : String(bridgeError);
+              caughtError instanceof Error
+                ? caughtError.message
+                : String(caughtError);
             ws.send(
-              JSON.stringify({
-                type: 'APDU_ERROR',
-                id: messageId,
-                error: errorMessage,
-              }),
+              JSON.stringify({ type: 'APDU_ERROR', error: errorMessage }),
             );
-          }
+          });
         });
 
         ws.on('close', () => {
@@ -268,20 +229,65 @@ export class ApduBridge {
     });
   }
 
+  async #handleMessage(ws: WsWebSocket, data: Buffer): Promise<void> {
+    const messageStr = data.toString();
+
+    try {
+      const parsed = JSON.parse(messageStr);
+      if (parsed.type === 'DEBUG') {
+        return;
+      }
+    } catch {
+      // Not JSON, continue
+    }
+
+    let messageId: number | undefined;
+    try {
+      const message = JSON.parse(data.toString());
+      messageId = message.id;
+
+      if (message.type === 'HID_SEND') {
+        await this.handleHidSend(ws, message);
+        return;
+      }
+
+      if (message.type === 'APDU_REQUEST') {
+        const apduData = Buffer.from(message.data);
+        const response = await this.#client.exchange(apduData);
+
+        ws.send(
+          JSON.stringify({
+            type: 'APDU_RESPONSE',
+            id: message.id,
+            data: Array.from(response),
+          }),
+        );
+      }
+    } catch (bridgeError: unknown) {
+      const errorMessage =
+        bridgeError instanceof Error
+          ? bridgeError.message
+          : String(bridgeError);
+      ws.send(
+        JSON.stringify({
+          type: 'APDU_ERROR',
+          id: messageId,
+          error: errorMessage,
+        }),
+      );
+    }
+  }
+
   async handleHidSend(
     ws: WsWebSocket,
     message: { id?: number; data: number[] },
   ): Promise<void> {
     const frame = Buffer.from(message.data);
     let state = this.#connectionState.get(ws);
-    if (!state) {
-      state = { framingSession: null };
-      this.#connectionState.set(ws, state);
-    }
+    state ??= { framingSession: null };
+    this.#connectionState.set(ws, state);
 
-    if (!state.framingSession) {
-      state.framingSession = createLedgerHidFramingSession(frame);
-    }
+    state.framingSession ??= createLedgerHidFramingSession(frame);
 
     const apdu = pushLedgerHidFrame(state.framingSession, frame);
     if (!apdu) {
@@ -351,7 +357,6 @@ export class ApduBridge {
     const shouldQueueSigning = isSigningIns && this.#signingInProgress;
     if (isSigningIns && !this.#signingInProgress) {
       this.#signingInProgress = true;
-      this.#signingResponse = null;
     }
 
     let response: Buffer;
@@ -368,7 +373,6 @@ export class ApduBridge {
       }
 
       if (isSigningIns) {
-        this.#signingResponse = response;
         this.#signingInProgress = false;
         for (const waiter of this.#signingWaiters) {
           waiter.resolve(response);

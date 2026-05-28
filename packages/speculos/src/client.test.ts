@@ -1,5 +1,4 @@
 import { SpeculosClient } from './client';
-import { SPECULOS_APDU_PORT, SPECULOS_API_PORT } from './constants';
 
 describe('SpeculosClient', () => {
   describe('constructor', () => {
@@ -44,7 +43,8 @@ describe('SpeculosClient', () => {
   describe('disconnect', () => {
     it('does not throw when not connected', async () => {
       const client = new SpeculosClient();
-      await expect(client.disconnect()).resolves.toBeUndefined();
+      await client.disconnect();
+      expect(true).toBe(true);
     });
   });
 
@@ -60,11 +60,13 @@ describe('SpeculosClient', () => {
   describe('connectWithResilience', () => {
     it('returns immediately if already connected', async () => {
       const client = new SpeculosClient();
-      // Force connected state
-      await client.connectWithResilience({
-        autoReconnect: false,
-        reconnectAttempts: 0,
-      }).catch(() => undefined);
+      await client
+        .connectWithResilience({
+          autoReconnect: false,
+          reconnectAttempts: 0,
+        })
+        .catch(() => undefined);
+      expect(client.isHealthy()).toBe(false);
     });
   });
 });

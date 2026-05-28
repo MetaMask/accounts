@@ -84,10 +84,9 @@ export class ExponentialBackoff {
  * @returns True if the error is retryable.
  */
 export function isRetryableError(error: Error): boolean {
-  const message = String(
-    (error as { message?: unknown }).message ?? '',
-  );
-  const code = String((error as { code?: unknown }).code ?? '');
+  const errorData = error as { message?: unknown; code?: unknown };
+  const message = typeof errorData.message === 'string' ? errorData.message : '';
+  const code = typeof errorData.code === 'string' ? errorData.code : '';
   const retryableCodes = new Set<string>([
     'ECONNREFUSED',
     'ETIMEDOUT',

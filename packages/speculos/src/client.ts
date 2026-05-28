@@ -54,7 +54,7 @@ export class SpeculosClient {
       return;
     }
 
-    return new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       this.#apduSocket = net.createConnection({
         host: this.#options.apduHost,
         port: this.#options.apduPort,
@@ -108,7 +108,9 @@ export class SpeculosClient {
   async exchangeOnce(apdu: Buffer): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
+      // eslint-disable-next-line prefer-const
       let timeoutId: ReturnType<typeof setTimeout> | undefined;
+      // eslint-disable-next-line prefer-const
       let cleanup: () => void;
 
       const onData = (data: Buffer): void => {
@@ -139,7 +141,7 @@ export class SpeculosClient {
         reject(exchangeError);
       };
 
-      cleanup = () => {
+      cleanup = (): void => {
         if (this.#apduSocket) {
           this.#apduSocket.off('data', onData);
           this.#apduSocket.off('error', onError);
@@ -203,32 +205,32 @@ export class SpeculosClient {
   /**
    * Simulate a finger tap on the emulated touchscreen.
    *
-   * @param x - X coordinate.
-   * @param y - Y coordinate.
+   * @param tapX - X coordinate.
+   * @param tapY - Y coordinate.
    * @param delay - Tap duration in seconds.
    */
-  async fingerTap(x: number, y: number, delay = 0.1): Promise<void> {
+  async fingerTap(tapX: number, tapY: number, delay = 0.1): Promise<void> {
     await this.fetchEndpoint('/finger', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'press-and-release', x, y, delay }),
+      body: JSON.stringify({ action: 'press-and-release', x: tapX, y: tapY, delay }),
     });
   }
 
   /**
    * Simulate a finger swipe on the emulated touchscreen.
    *
-   * @param x - Start X coordinate.
-   * @param y - Start Y coordinate.
-   * @param x2 - End X coordinate.
-   * @param y2 - End Y coordinate.
+   * @param startX - Start X coordinate.
+   * @param startY - Start Y coordinate.
+   * @param endX - End X coordinate.
+   * @param endY - End Y coordinate.
    * @param delay - Swipe duration in seconds.
    */
   async fingerSwipe(
-    x: number,
-    y: number,
-    x2: number,
-    y2: number,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
     delay = 0.3,
   ): Promise<void> {
     await this.fetchEndpoint('/finger', {
@@ -236,10 +238,10 @@ export class SpeculosClient {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'press-and-release',
-        x,
-        y,
-        x2,
-        y2,
+        x: startX,
+        y: startY,
+        x2: endX,
+        y2: endY,
         delay,
       }),
     });
@@ -359,9 +361,9 @@ export class SpeculosClient {
    * Connect with automatic retries on transient errors.
    *
    * @param options - Reconnection options.
-   * @param options.autoReconnect
-   * @param options.reconnectAttempts
-   * @param options.reconnectDelayMs
+   * @param options.autoReconnect - Whether to automatically reconnect.
+   * @param options.reconnectAttempts - Maximum number of reconnection attempts.
+   * @param options.reconnectDelayMs - Delay between reconnection attempts in milliseconds.
    */
   async connectWithResilience(options?: {
     autoReconnect?: boolean;
@@ -399,7 +401,7 @@ export class SpeculosClient {
    * @returns The response buffer.
    */
   async exchangeWithRetry(apdu: Buffer, maxAttempts = 3): Promise<Buffer> {
-    const exchangeFn = async () => this.exchange(apdu);
+    const exchangeFn = async (): Promise<Buffer> => this.exchange(apdu);
     return withRetry<Buffer>(exchangeFn, {
       maxRetries: maxAttempts - 1,
       shouldRetry: (retryError: Error) => isRetryableError(retryError),

@@ -46,7 +46,7 @@ async function isTcpReachable(
   return new Promise((resolve) => {
     const sock = new net.Socket();
     let settled = false;
-    const finish = (ok: boolean) => {
+    const finish = (ok: boolean): void => {
       if (settled) {
         return;
       }
@@ -117,7 +117,7 @@ export function createProcessManager(
       let pollHandle: ReturnType<typeof setTimeout> | undefined;
       let startTimer: ReturnType<typeof setTimeout> | undefined;
 
-      const onExit = (exitCode: number | null) => {
+      const onExit = (exitCode: number | null): void => {
         if (settled) {
           return;
         }
@@ -140,7 +140,7 @@ export function createProcessManager(
         }
       };
 
-      const cleanup = () => {
+      const cleanup = (): void => {
         if (pollHandle) {
           clearTimeout(pollHandle);
           pollHandle = undefined;
@@ -152,7 +152,7 @@ export function createProcessManager(
         proc?.removeListener('exit', onExit);
       };
 
-      const onStdout = (data: Buffer) => {
+      const onStdout = (data: Buffer): void => {
         const line = data.toString();
         emitter.emit('log', line);
         lastLog = line;
@@ -169,7 +169,7 @@ export function createProcessManager(
         reject(new Error('Speculos failed to start within timeout'));
       }, timeout);
 
-      const pollReady = async () => {
+      const pollReady = async (): Promise<void> => {
         if (settled) {
           return;
         }
@@ -192,7 +192,12 @@ export function createProcessManager(
           // probe failure is non-fatal
         }
         if (!settled) {
-          pollHandle = setTimeout(pollReady, READINESS_POLL_INTERVAL_MS);
+          pollHandle = setTimeout(
+            () =>
+              // eslint-disable-next-line no-void
+              void pollReady(),
+            READINESS_POLL_INTERVAL_MS,
+          );
         }
       };
 
@@ -205,7 +210,7 @@ export function createProcessManager(
       proc = spawn(binaryPath, args, spawnOpts);
       proc.stdout?.on('data', onStdout);
       proc.stderr?.on('data', onStdout);
-      proc.on('exit', onExit);
+      proc.on('exit', onExit as (code: number | null) => void);
       proc.on('error', (spawnError: Error) => {
         if (settled) {
           return;
@@ -216,19 +221,24 @@ export function createProcessManager(
         reject(spawnError);
       });
 
-      pollHandle = setTimeout(pollReady, READINESS_POLL_INTERVAL_MS);
+      pollHandle = setTimeout(
+        () =>
+          // eslint-disable-next-line no-void
+          void pollReady(),
+        READINESS_POLL_INTERVAL_MS,
+      );
     });
   }
 
   async function stop(): Promise<void> {
     if (!proc || status === 'idle') {
-      return;
+      return undefined;
     }
     status = 'stopping';
     const timeout = options.stopTimeout ?? 10_000;
 
     return new Promise((resolve) => {
-      const stopTimer = setTimeout(() => {
+      const stopTimer = setTimeout((): void => {
         proc?.kill('SIGKILL');
         status = 'idle';
         resolve();
@@ -253,10 +263,10 @@ export function createProcessManager(
   return {
     start,
     stop,
-    get status() {
+    get status(): ProcessManagerStatus {
       return status;
     },
-    get pid() {
+    get pid(): number | undefined {
       return proc?.pid;
     },
   };

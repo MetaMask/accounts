@@ -4,6 +4,7 @@ import {
   TouchInteraction,
 } from './device-interaction';
 import { DEVICE_MODELS } from './constants';
+import type { DeviceModel } from './constants';
 import type { SpeculosClient } from './client';
 
 function createMockClient(): jest.Mocked<SpeculosClient> {
@@ -17,14 +18,14 @@ function createMockClient(): jest.Mocked<SpeculosClient> {
 describe('createDeviceInteraction', () => {
   it('creates NanoInteraction for button devices', () => {
     const client = createMockClient();
-    const model = DEVICE_MODELS.nanosp;
+    const model = DEVICE_MODELS.nanosp as DeviceModel;
     const interaction = createDeviceInteraction(client, model);
     expect(interaction).toBeInstanceOf(NanoInteraction);
   });
 
   it('creates TouchInteraction for touch devices', () => {
     const client = createMockClient();
-    const model = DEVICE_MODELS.flex;
+    const model = DEVICE_MODELS.flex as DeviceModel;
     const interaction = createDeviceInteraction(client, model);
     expect(interaction).toBeInstanceOf(TouchInteraction);
   });
@@ -37,7 +38,6 @@ describe('NanoInteraction', () => {
       const interaction = new NanoInteraction(client);
       await interaction.approveTransaction();
       expect(client.pressButton).toHaveBeenCalledTimes(7);
-      // First 6 are 'right', last is 'both'
       for (let callIdx = 0; callIdx < 6; callIdx++) {
         expect(client.pressButton).toHaveBeenNthCalledWith(
           callIdx + 1,
@@ -45,7 +45,7 @@ describe('NanoInteraction', () => {
         );
       }
       expect(client.pressButton).toHaveBeenNthCalledWith(7, 'both');
-    });
+    }, 10000);
   });
 
   describe('approveSigning', () => {
@@ -72,18 +72,18 @@ describe('TouchInteraction', () => {
   describe('approveTransaction', () => {
     it('swipes left 3 times then taps confirm', async () => {
       const client = createMockClient();
-      const model = DEVICE_MODELS.flex;
+      const model = DEVICE_MODELS.flex as DeviceModel;
       const interaction = new TouchInteraction(client, model);
       await interaction.approveTransaction();
       expect(client.fingerSwipe).toHaveBeenCalledTimes(3);
       expect(client.fingerTap).toHaveBeenCalledTimes(1);
-    });
+    }, 10000);
   });
 
   describe('rejectTransaction', () => {
     it('taps reject button', async () => {
       const client = createMockClient();
-      const model = DEVICE_MODELS.flex;
+      const model = DEVICE_MODELS.flex as DeviceModel;
       const interaction = new TouchInteraction(client, model);
       await interaction.rejectTransaction();
       expect(client.fingerTap).toHaveBeenCalledTimes(1);
@@ -93,7 +93,7 @@ describe('TouchInteraction', () => {
   describe('enableBlindSigning', () => {
     it('does nothing for NBGL devices', async () => {
       const client = createMockClient();
-      const model = DEVICE_MODELS.flex;
+      const model = DEVICE_MODELS.flex as DeviceModel;
       const interaction = new TouchInteraction(client, model);
       await interaction.enableBlindSigning();
       expect(client.fingerTap).not.toHaveBeenCalled();

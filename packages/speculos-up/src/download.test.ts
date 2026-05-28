@@ -22,10 +22,11 @@ describe('getBinaryPath', () => {
 
 describe('ensureBinary', () => {
   it('returns cached binary path if binary exists', async () => {
-    const { existsSync } = jest.requireMock('node:fs');
-    existsSync.mockReturnValue(true);
+    const mockFs = jest.requireMock('node:fs');
+    // eslint-disable-next-line n/no-sync
+    mockFs.existsSync.mockReturnValue(true);
 
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    // eslint-disable-next-line n/global-require, @typescript-eslint/no-require-imports
     const { ensureBinary } = require('./download');
     const result = await ensureBinary({ cacheDir: '/tmp/test' });
     expect(result).toContain('speculos');

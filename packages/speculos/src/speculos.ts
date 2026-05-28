@@ -170,9 +170,9 @@ export class Speculos {
       apiPort: config.deviceConfig.apiPort,
       display: this.#options.display ?? DEFAULT_DISPLAY,
       loadNvram: this.#options.loadNvram ?? true,
-      ...(this.#options.startTimeout !== undefined
-        ? { startTimeout: this.#options.startTimeout }
-        : {}),
+      ...(this.#options.startTimeout === undefined
+        ? {}
+        : { startTimeout: this.#options.startTimeout }),
     });
 
     await this.#processManager.start();
@@ -188,9 +188,9 @@ export class Speculos {
       seed: config.seed,
       display: this.#options.display ?? DEFAULT_DISPLAY,
       loadNvram: this.#options.loadNvram ?? true,
-      ...(this.#options.startTimeout !== undefined
-        ? { startTimeout: this.#options.startTimeout }
-        : {}),
+      ...(this.#options.startTimeout === undefined
+        ? {}
+        : { startTimeout: this.#options.startTimeout }),
     });
 
     await this.#dockerManager.start();

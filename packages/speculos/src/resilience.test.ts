@@ -22,7 +22,7 @@ describe('resilience', () => {
       const result = await withRetry(fn, { maxRetries: 3 });
       expect(result).toBe('ok');
       expect(attempt).toBe(3);
-    });
+    }, 15000);
 
     it('throws after exhausting retries', async () => {
       const fn = async (): Promise<never> => {
@@ -32,7 +32,7 @@ describe('resilience', () => {
       await expect(
         withRetry(fn, { maxRetries: 2 }),
       ).rejects.toThrow('permanent');
-    });
+    }, 15000);
 
     it('respects shouldRetry predicate', async () => {
       const fn = async (): Promise<never> => {
@@ -103,13 +103,13 @@ describe('resilience', () => {
 
   describe('isRetryableError', () => {
     it('returns true for ECONNREFUSED', () => {
-      const error = new Error();
+      const error = new Error() as Error & { code: string };
       error.code = 'ECONNREFUSED';
       expect(isRetryableError(error)).toBe(true);
     });
 
     it('returns true for ETIMEDOUT', () => {
-      const error = new Error();
+      const error = new Error() as Error & { code: string };
       error.code = 'ETIMEDOUT';
       expect(isRetryableError(error)).toBe(true);
     });

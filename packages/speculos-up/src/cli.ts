@@ -3,8 +3,9 @@
 import { ensureBinary } from './download';
 
 ensureBinary()
-  .then((binaryPath) => {
+  .then((binaryPath: string) => {
     console.log(binaryPath);
+    return undefined;
   })
   .catch((error: unknown) => {
     console.error(error);
