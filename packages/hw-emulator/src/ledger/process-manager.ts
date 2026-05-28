@@ -1,7 +1,7 @@
 // eslint-disable-next-line import-x/no-nodejs-modules
-import { spawn  } from 'node:child_process';
+import { spawn } from 'node:child_process';
 // eslint-disable-next-line import-x/no-nodejs-modules
-import type {ChildProcess} from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 // eslint-disable-next-line import-x/no-nodejs-modules
 import { EventEmitter } from 'node:events';
 // eslint-disable-next-line import-x/no-nodejs-modules
@@ -12,33 +12,63 @@ const READINESS_PROBE_TIMEOUT_MS = 1000;
 const DEFAULT_APDU_PORT = 9999;
 const DEFAULT_API_PORT = 5000;
 
+/**
+ * Options for configuring the native Speculos process manager.
+ */
 export type ProcessManagerOptions = {
+  /** Path to the Speculos binary. */
   binary: string;
+  /** Path to the Ethereum app ELF binary. */
   app: string;
+  /** Speculos device model identifier. */
   model?: string;
+  /** BIP-39 mnemonic seed. */
   seed?: string;
+  /** TCP port for the APDU protocol. */
   apduPort?: number;
+  /** TCP port for the REST API. */
   apiPort?: number;
+  /** Display backend. */
   display?: string;
+  /** Whether to load NVRAM state. */
   loadNvram?: boolean;
+  /** Working directory for the spawned process. */
   cwd?: string;
+  /** Maximum time in milliseconds to wait for the process to start. */
   startTimeout?: number;
+  /** Maximum time in milliseconds to wait for the process to stop. */
   stopTimeout?: number;
 };
 
+/** Lifecycle status of the Speculos process. */
 export type ProcessManagerStatus =
   | 'idle'
   | 'starting'
   | 'listening'
   | 'stopping';
 
+/**
+ * Interface for managing the Speculos native process lifecycle.
+ */
 export type ProcessManager = {
+  /** Start the Speculos process and wait until APDU and API ports are reachable. */
   start(): Promise<void>;
+  /** Stop the Speculos process gracefully. */
   stop(): Promise<void>;
+  /** Current process status. */
   readonly status: ProcessManagerStatus;
+  /** Process ID of the running Speculos instance, or undefined. */
   readonly pid: number | undefined;
 };
 
+/**
+ * Check if a TCP port is reachable within a given timeout.
+ *
+ * @param port - The port number to check.
+ * @param host - The hostname to connect to.
+ * @param timeoutMs - Connection timeout in milliseconds.
+ * @returns True if the port is reachable.
+ */
 async function isTcpReachable(
   port: number,
   host = '127.0.0.1',

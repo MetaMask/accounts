@@ -4,5 +4,7 @@ const baseConfig = require('../../jest.config.packages');
 
 module.exports = merge(baseConfig, {
   displayName: path.basename(__dirname),
-  coverageThreshold: { global: { branches: 10, functions: 20, lines: 20, statements: 20 } },
+  coverageThreshold: {
+    global: { branches: 10, functions: 20, lines: 20, statements: 20 },
+  },
 });

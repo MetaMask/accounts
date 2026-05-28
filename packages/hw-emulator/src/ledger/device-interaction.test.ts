@@ -1,11 +1,11 @@
+import type { SpeculosClient } from './client';
+import { DEVICE_MODELS } from './constants';
+import type { DeviceModel } from './constants';
 import {
   createDeviceInteraction,
   NanoInteraction,
   TouchInteraction,
 } from './device-interaction';
-import { DEVICE_MODELS } from './constants';
-import type { DeviceModel } from './constants';
-import type { SpeculosClient } from './client';
 
 function createMockClient(): jest.Mocked<SpeculosClient> {
   return {

@@ -1,12 +1,22 @@
 import type { SpeculosClient } from './client';
 import type { DeviceModel } from './constants';
 
+/**
+ * Interface for device screen interaction — pressing buttons or tapping the screen
+ * to approve, reject, or navigate through on-screen prompts.
+ */
 export type DeviceInteraction = {
+  /** Approve a transaction on the device screen. */
   approveTransaction(): Promise<void>;
+  /** Approve a personal message or typed signing request. */
   approveSigning(): Promise<void>;
+  /** Reject a transaction on the device screen. */
   rejectTransaction(): Promise<void>;
+  /** Approve a blind signing request, scrolling through review screens. */
   approveBlindSigning(scrollCount?: number): Promise<void>;
+  /** Enable blind signing in the Ethereum app settings. */
   enableBlindSigning(): Promise<void>;
+  /** Navigate back to the main menu. */
   navigateToMainMenu(): Promise<void>;
 };
 
@@ -20,10 +30,16 @@ async function delay(ms: number): Promise<void> {
 export class NanoInteraction implements DeviceInteraction {
   readonly #client: SpeculosClient;
 
+  /**
+   * @param client - The Speculos client for sending button presses.
+   */
   constructor(client: SpeculosClient) {
     this.#client = client;
   }
 
+  /**
+   * Approve a transaction by scrolling through 6 review screens and confirming.
+   */
   async approveTransaction(): Promise<void> {
     for (let step = 0; step < 6; step++) {
       await this.#client.pressButton('right');
@@ -33,6 +49,9 @@ export class NanoInteraction implements DeviceInteraction {
     await delay(500);
   }
 
+  /**
+   * Approve a personal signing request by scrolling through 2 review screens and confirming.
+   */
   async approveSigning(): Promise<void> {
     for (let step = 0; step < 2; step++) {
       await this.#client.pressButton('right');
@@ -42,6 +61,11 @@ export class NanoInteraction implements DeviceInteraction {
     await delay(500);
   }
 
+  /**
+   * Approve blind signing by enabling it and scrolling through review screens.
+   *
+   * @param scrollCount - Number of screens to scroll through (default 4).
+   */
   async approveBlindSigning(scrollCount = 4): Promise<void> {
     await this.#client.pressButton('both');
     await delay(800);
@@ -53,6 +77,9 @@ export class NanoInteraction implements DeviceInteraction {
     await delay(500);
   }
 
+  /**
+   * Reject a transaction by scrolling to the reject option and pressing both buttons.
+   */
   async rejectTransaction(): Promise<void> {
     await this.#client.pressButton('right');
     await delay(300);
@@ -60,6 +87,9 @@ export class NanoInteraction implements DeviceInteraction {
     await delay(500);
   }
 
+  /**
+   * Enable blind signing in the Ethereum app settings via button navigation.
+   */
   async enableBlindSigning(): Promise<void> {
     await this.#client.pressButton('both');
     await delay(800);
@@ -79,6 +109,9 @@ export class NanoInteraction implements DeviceInteraction {
     await delay(400);
   }
 
+  /**
+   * Navigate back to the main menu by pressing the left button.
+   */
   async navigateToMainMenu(): Promise<void> {
     await this.#client.pressButton('left');
     await delay(400);
@@ -93,19 +126,37 @@ export class TouchInteraction implements DeviceInteraction {
 
   readonly #model: DeviceModel;
 
+  /**
+   * @param client - The Speculos client for sending touch events.
+   * @param model - The device model with screen and button coordinates.
+   */
   constructor(client: SpeculosClient, model: DeviceModel) {
     this.#client = client;
     this.#model = model;
   }
 
+  /**
+   * Swipe left on the touchscreen from center to near-center left.
+   */
   async swipeLeft(): Promise<void> {
     const { width, height } = this.#model.screenSize;
     const centerX = width / 2;
     const centerY = height / 2;
-    await this.#client.fingerSwipe(centerX, centerY, centerX - 10, centerY, 0.5);
+    await this.#client.fingerSwipe(
+      centerX,
+      centerY,
+      centerX - 10,
+      centerY,
+      0.5,
+    );
     await delay(800);
   }
 
+  /**
+   * Tap and hold the review confirm button.
+   *
+   * @param holdSeconds - Duration to hold the tap in seconds.
+   */
   async tapConfirm(holdSeconds = 3.0): Promise<void> {
     if (this.#model.reviewConfirmButton) {
       await this.#client.fingerTap(
@@ -116,6 +167,9 @@ export class TouchInteraction implements DeviceInteraction {
     }
   }
 
+  /**
+   * Tap the review reject button.
+   */
   async tapReject(): Promise<void> {
     if (this.#model.reviewRejectButton) {
       await this.#client.fingerTap(
@@ -126,6 +180,9 @@ export class TouchInteraction implements DeviceInteraction {
     }
   }
 
+  /**
+   * Tap the back button.
+   */
   async tapBack(): Promise<void> {
     if (this.#model.backButton) {
       await this.#client.fingerTap(
@@ -136,6 +193,9 @@ export class TouchInteraction implements DeviceInteraction {
     }
   }
 
+  /**
+   * Approve a transaction by swiping through review screens and tapping confirm.
+   */
   async approveTransaction(): Promise<void> {
     for (let step = 0; step < 3; step++) {
       await this.swipeLeft();
@@ -144,6 +204,9 @@ export class TouchInteraction implements DeviceInteraction {
     await delay(500);
   }
 
+  /**
+   * Approve a personal signing request by swiping through review screens and tapping confirm.
+   */
   async approveSigning(): Promise<void> {
     for (let step = 0; step < 2; step++) {
       await this.swipeLeft();
@@ -152,6 +215,11 @@ export class TouchInteraction implements DeviceInteraction {
     await delay(500);
   }
 
+  /**
+   * Approve blind signing by tapping confirm, scrolling, and confirming.
+   *
+   * @param scrollCount - Number of screens to scroll through (default 4).
+   */
   async approveBlindSigning(scrollCount = 4): Promise<void> {
     await this.#client.fingerTap(
       this.#model.confirmButton?.x ?? 240,
@@ -168,17 +236,26 @@ export class TouchInteraction implements DeviceInteraction {
     await delay(500);
   }
 
+  /**
+   * Reject a transaction by tapping the reject button.
+   */
   async rejectTransaction(): Promise<void> {
     await this.tapReject();
     await delay(500);
   }
 
+  /**
+   * Enable blind signing (no-op for NBGL devices — pre-enabled via NVRAM).
+   */
   async enableBlindSigning(): Promise<void> {
     console.log(
       '[DeviceInteraction] Blind signing pre-enabled via NVRAM for NBGL device',
     );
   }
 
+  /**
+   * Navigate back to the main menu by tapping the back button.
+   */
   async navigateToMainMenu(): Promise<void> {
     await this.tapBack();
     await delay(400);

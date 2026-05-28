@@ -1,17 +1,30 @@
 // eslint-disable-next-line import-x/no-nodejs-modules
 import net from 'node:net';
-import { withRetry, isRetryableError } from './resilience';
-import { SPECULOS_APDU_PORT, SPECULOS_API_PORT } from './constants';
 
+import { SPECULOS_APDU_PORT, SPECULOS_API_PORT } from './constants';
+import { withRetry, isRetryableError } from './resilience';
+
+/**
+ * Options for configuring the SpeculosClient.
+ */
 export type SpeculosClientOptions = {
+  /** Hostname for the APDU TCP socket. */
   apduHost?: string;
+  /** Port for the APDU TCP socket. */
   apduPort?: number;
+  /** Hostname for the REST API. */
   apiHost?: string;
+  /** Port for the REST API. */
   apiPort?: number;
+  /** Timeout in milliseconds for APDU exchanges and API requests. */
   timeout?: number;
 };
 
+/**
+ * Response from an APDU exchange.
+ */
 export type APDUResponse = {
+  /** Hex-encoded response data. */
   data: string;
 };
 
@@ -31,6 +44,9 @@ export class SpeculosClient {
 
   #exchangeChain: Promise<void> = Promise.resolve();
 
+  /**
+   * @param options - Client configuration options.
+   */
   constructor(options: SpeculosClientOptions = {}) {
     this.#options = {
       apduHost: '127.0.0.1',
@@ -105,6 +121,12 @@ export class SpeculosClient {
     }
   }
 
+  /**
+   * Send a single APDU frame without mutual exclusion.
+   *
+   * @param apdu - The APDU buffer to send.
+   * @returns The response buffer.
+   */
   async exchangeOnce(apdu: Buffer): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
@@ -169,11 +191,19 @@ export class SpeculosClient {
     });
   }
 
+  /**
+   * Fetch a Speculos REST API endpoint with timeout support.
+   *
+   * @param urlPath - The API path (e.g. '/screenshot').
+   * @param init - Fetch options with optional timeout override.
+   * @returns The fetch Response.
+   */
   async fetchEndpoint(
     urlPath: string,
     init: RequestInit & { timeout?: number } = {},
   ): Promise<Response> {
-    const { timeout: fetchTimeout = this.#options.timeout, ...requestInit } = init;
+    const { timeout: fetchTimeout = this.#options.timeout, ...requestInit } =
+      init;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), fetchTimeout);
     try {
@@ -216,7 +246,12 @@ export class SpeculosClient {
     await this.fetchEndpoint('/finger', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'press-and-release', x: tapX, y: tapY, delay }),
+      body: JSON.stringify({
+        action: 'press-and-release',
+        x: tapX,
+        y: tapY,
+        delay,
+      }),
     });
   }
 

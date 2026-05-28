@@ -1,31 +1,40 @@
 // eslint-disable-next-line import-x/no-nodejs-modules
 import { EventEmitter } from 'node:events';
- 
 import { WebSocketServer } from 'ws';
- 
 import type { WebSocket as WsWebSocket } from 'ws';
+
 import { SpeculosClient } from './client';
+import type { DeviceInteraction } from './device-interaction';
 import {
   createLedgerHidFramingSession,
   encodeLedgerHidResponse,
-  pushLedgerHidFrame
-  
+  pushLedgerHidFrame,
 } from './ledger-hid-framing';
-import type {LedgerHidFramingSession} from './ledger-hid-framing';
-import type { DeviceInteraction } from './device-interaction';
+import type { LedgerHidFramingSession } from './ledger-hid-framing';
 
+/**
+ * Per-connection state tracking the HID framing session.
+ */
 type WsConnectionState = {
   framingSession: LedgerHidFramingSession | null;
 };
 
+/**
+ * A pending signing APDU exchange waiting for a response.
+ */
 type SigningWaiter = {
   apdu: Buffer;
   resolve: (response: Buffer) => void;
   reject: (error: Error) => void;
 };
 
+/**
+ * Result of decoding an RLP length prefix.
+ */
 type RlpDecodeResult = {
+  /** Number of bytes in the RLP header. */
   headerSize: number;
+  /** Decoded payload length. */
   length: number;
 };
 
@@ -43,10 +52,7 @@ export class ApduBridge {
 
   readonly #signingReadyEmitter = new EventEmitter();
 
-  readonly #connectionState = new WeakMap<
-    WsWebSocket,
-    WsConnectionState
-  >();
+  readonly #connectionState = new WeakMap<WsWebSocket, WsConnectionState>();
 
   #signingGateResolve: (() => void) | null = null;
 
@@ -60,6 +66,10 @@ export class ApduBridge {
 
   #signTxDataSent = 0;
 
+  /**
+   * @param client - The Speculos client for APDU communication.
+   * @param port - The port to listen on for WebSocket connections.
+   */
   constructor(client: SpeculosClient, port: number) {
     this.#client = client;
     this.#port = port;
@@ -279,6 +289,15 @@ export class ApduBridge {
     }
   }
 
+  /**
+   * Handle an incoming HID_SEND WebSocket message, reassembling HID frames into
+   * APDUs, forwarding them to Speculos, and sending the HID-framed response back.
+   *
+   * @param ws - The WebSocket connection.
+   * @param message - The parsed message with raw frame data.
+   * @param message.id - Optional message identifier for response correlation.
+   * @param message.data - Raw HID frame bytes as a number array.
+   */
   async handleHidSend(
     ws: WsWebSocket,
     message: { id?: number; data: number[] },
@@ -302,8 +321,7 @@ export class ApduBridge {
       return;
     }
 
-    const isSignTx =
-      apdu.length >= 2 && apdu[0] === 0xe0 && apdu[1] === 0x04;
+    const isSignTx = apdu.length >= 2 && apdu[0] === 0xe0 && apdu[1] === 0x04;
     const isSigningIns =
       apdu.length >= 2 &&
       apdu[0] === 0xe0 &&
@@ -343,8 +361,7 @@ export class ApduBridge {
       this.#signTxTotalDataLen !== null &&
       this.#signTxDataSent >= this.#signTxTotalDataLen;
     const shouldStartSigningTimer =
-      isSigningIns &&
-      (!isSignTx || isLastSignTxChunk || isSingleChunkSignTx);
+      isSigningIns && (!isSignTx || isLastSignTxChunk || isSingleChunkSignTx);
 
     const shouldQueueSigning = isSigningIns && this.#signingInProgress;
     if (isSigningIns && !this.#signingInProgress) {
@@ -501,6 +518,12 @@ export class ApduBridge {
     return this.#port;
   }
 
+  /**
+   * Parse the total transaction payload length from the first signing APDU chunk.
+   *
+   * @param firstChunkData - The payload bytes from the first APDU chunk (after the header).
+   * @returns The total payload length in bytes, or null if parsing fails.
+   */
   parseTxPayloadLength(firstChunkData: Buffer): number | null {
     if (firstChunkData.length < 6) {
       return null;
@@ -533,10 +556,14 @@ export class ApduBridge {
     }
   }
 
-  decodeRlpLength(
-    data: Buffer,
-    offset: number,
-  ): RlpDecodeResult | null {
+  /**
+   * Decode an RLP length prefix at the given offset.
+   *
+   * @param data - The buffer containing RLP-encoded data.
+   * @param offset - The byte offset to start decoding from.
+   * @returns The header size and decoded length, or null if the data is incomplete.
+   */
+  decodeRlpLength(data: Buffer, offset: number): RlpDecodeResult | null {
     if (offset >= data.length) {
       return null;
     }

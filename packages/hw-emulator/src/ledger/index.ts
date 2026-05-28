@@ -1,5 +1,9 @@
 export { Speculos, type SpeculosOptions } from './speculos';
-export { SpeculosClient, type SpeculosClientOptions, type APDUResponse } from './client';
+export {
+  SpeculosClient,
+  type SpeculosClientOptions,
+  type APDUResponse,
+} from './client';
 export { ApduBridge } from './apdu-bridge';
 export {
   createDeviceInteraction,
@@ -7,8 +11,17 @@ export {
   TouchInteraction,
   type DeviceInteraction,
 } from './device-interaction';
-export { createProcessManager, type ProcessManager, type ProcessManagerOptions, type ProcessManagerStatus } from './process-manager';
-export { DockerManager, type DockerManagerOptions, type DockerManagerStatus } from './docker-manager';
+export {
+  createProcessManager,
+  type ProcessManager,
+  type ProcessManagerOptions,
+  type ProcessManagerStatus,
+} from './process-manager';
+export {
+  DockerManager,
+  type DockerManagerOptions,
+  type DockerManagerStatus,
+} from './docker-manager';
 export { getWebHidMockScript } from './webhid-mock-script';
 export {
   DEVICE_MODELS,
@@ -35,4 +48,3 @@ export {
   encodeLedgerHidResponse,
   type LedgerHidFramingSession,
 } from './ledger-hid-framing';
-

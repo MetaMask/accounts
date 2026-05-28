@@ -1,13 +1,20 @@
- 
 import createHIDframing from '@ledgerhq/devices/lib/hid-framing';
- 
 import type { ResponseAcc } from '@ledgerhq/devices/lib/hid-framing';
 
+/**
+ * HID packet size in bytes used by Ledger devices.
+ */
 const PACKET_SIZE = 64;
 
+/**
+ * Session state for reassembling and encoding Ledger HID frames.
+ */
 export type LedgerHidFramingSession = {
+  /** The communication channel ID. */
   channel: number;
+  /** The Ledger HID framing instance for encoding/decoding. */
   framing: ReturnType<typeof createHIDframing>;
+  /** The accumulated response accumulator. */
   acc: ResponseAcc;
 };
 

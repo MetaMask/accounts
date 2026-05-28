@@ -1,4 +1,5 @@
 import type { WebSocket as WsWebSocket } from 'ws';
+
 import { ApduBridge } from './apdu-bridge';
 import { SpeculosClient } from './client';
 import * as ledgerHidFraming from './ledger-hid-framing';
@@ -44,7 +45,9 @@ describe('ApduBridge', () => {
   });
 
   describe('handleHidSend signing-ready timer', () => {
-    const signTxContinuation = Buffer.from([0xe0, 0x04, 0x80, 0x00, 0x01, 0x00]);
+    const signTxContinuation = Buffer.from([
+      0xe0, 0x04, 0x80, 0x00, 0x01, 0x00,
+    ]);
     const personalSignApdu = Buffer.from([0xe0, 0x08, 0x00, 0x00, 0x00]);
 
     function createMockWebSocket(): WsWebSocket {
@@ -53,11 +56,13 @@ describe('ApduBridge', () => {
 
     beforeEach(() => {
       jest.useFakeTimers();
-      jest.spyOn(ledgerHidFraming, 'createLedgerHidFramingSession').mockReturnValue({
-        channel: 0,
-        framing: {} as never,
-        acc: null,
-      });
+      jest
+        .spyOn(ledgerHidFraming, 'createLedgerHidFramingSession')
+        .mockReturnValue({
+          channel: 0,
+          framing: {} as never,
+          acc: null,
+        });
       jest
         .spyOn(ledgerHidFraming, 'encodeLedgerHidResponse')
         .mockReturnValue([Buffer.alloc(1)]);
@@ -82,11 +87,14 @@ describe('ApduBridge', () => {
         .mockReturnValueOnce(personalSignApdu);
 
       let readyResolved = false;
+      // eslint-disable-next-line no-void, promise/always-return
       void bridge.waitForSigningReady(10_000).then(() => {
         readyResolved = true;
       });
 
+      // eslint-disable-next-line no-void
       void bridge.handleHidSend(ws, { id: 1, data: [] });
+      // eslint-disable-next-line no-void
       void bridge.handleHidSend(ws, { id: 2, data: [] });
 
       await jest.advanceTimersByTimeAsync(500);

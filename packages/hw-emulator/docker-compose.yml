@@ -4,8 +4,8 @@ services:
     image: ghcr.io/ledgerhq/speculos:latest
     container_name: metamask-speculos
     ports:
-      - '9998:9999'
-      - '5001:5000'
+      - '${SPECULOS_APDU_PORT:-9998}:9999'
+      - '${SPECULOS_API_PORT:-5001}:5000'
     volumes:
       - ./apps:/speculos/apps
       - ./nvram/main_nvram.bin:/speculos/main_nvram.bin
@@ -14,7 +14,7 @@ services:
     command: >
       --model ${SPECULOS_DEVICE:-nanosp}
       /speculos/apps/${SPECULOS_ELF_FILENAME:-ethereum-nanosp.elf}
-      --seed "urban secret spare tunnel rubber rally ladder spatial feature elite success"
+      --seed "${SPECULOS_SEED:-urban secret spare tunnel rubber rally ladder spatial feature elite success}"
       --display headless
       --apdu-port 9999
       --api-port 5000
@@ -29,8 +29,9 @@ services:
 
 ---
 # Note:
-# - APDU port mapped from host 9998 to container 9999 (9999 is used by PhishingWarningPageServer)
-# - REST API mapped from host 5001 to container 5000 (5000 used by macOS Control Center)
+# - SPECULOS_APDU_PORT / SPECULOS_API_PORT are host-side ports (defaults 9998 / 5001)
+# - Container listens on 9999 (APDU) and 5000 (API) internally
 # - SPECULOS_DEVICE selects the device model (nanosp, nanox, stax, flex)
 # - SPECULOS_ELF_FILENAME is the ELF filename inside /speculos/apps/ (NOT the host path)
+# - SPECULOS_SEED sets the mnemonic for deterministic accounts (DockerManager / Speculos seed option)
 # - Defaults to Nano S+ (nanosp) for local development without SPECULOS_DEVICE set

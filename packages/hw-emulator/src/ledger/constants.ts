@@ -1,10 +1,18 @@
+/**
+ * Port and connection configuration for a Speculos device instance.
+ */
 export type DeviceConfig = {
+  /** Unique identifier for this device configuration. */
   id: string;
+  /** TCP port for the APDU protocol. */
   apduPort: number;
+  /** TCP port for the REST API. */
   apiPort: number;
+  /** TCP port for the WebSocket bridge. */
   wsBridgePort: number;
 };
 
+/** Default device configuration with standard ports. */
 export const DEFAULT_DEVICE: DeviceConfig = {
   id: 'default',
   apduPort: 9998,
@@ -12,6 +20,7 @@ export const DEFAULT_DEVICE: DeviceConfig = {
   wsBridgePort: 9876,
 };
 
+/** Pre-configured device presets supporting multiple concurrent emulator instances. */
 export const DEVICE_PRESETS: DeviceConfig[] = [
   DEFAULT_DEVICE,
   {
@@ -22,10 +31,14 @@ export const DEVICE_PRESETS: DeviceConfig[] = [
   },
 ];
 
+/** Default APDU port, derived from the default device configuration. */
 export const SPECULOS_APDU_PORT = DEFAULT_DEVICE.apduPort;
+/** Default REST API port, derived from the default device configuration. */
 export const SPECULOS_API_PORT = DEFAULT_DEVICE.apiPort;
+/** Default WebSocket bridge port, derived from the default device configuration. */
 export const SPECULOS_WS_BRIDGE_PORT = DEFAULT_DEVICE.wsBridgePort;
 
+/** Ethereum addresses derived from the default Speculos seed. */
 export const SPECULOS_LEDGER_ADDRESSES = [
   '0x24fC293546A31F5Ce73bAfecE37969A95CCd1aBf',
   '0x730A5c73bC3ACcf56daba2D5D897bEb10F852865',
@@ -34,28 +47,48 @@ export const SPECULOS_LEDGER_ADDRESSES = [
   '0xDc660e6D52F6f774d0879f99929711155Bc03902',
 ] as const;
 
+/** Primary Ledger address derived from the default Speculos seed. */
 export const SPECULOS_LEDGER_ADDRESS = SPECULOS_LEDGER_ADDRESSES[0];
 
+/** BIP-39 mnemonic seed used by default in the Speculos emulator. */
 export const SPECULOS_SEED =
   'urban secret spare tunnel rubber rally ladder spatial feature elite success';
 
+/** Interaction method used by the device — button-based or touch-based. */
 export type InteractionType = 'button' | 'touch';
 
+/**
+ * Describes a Ledger device model with its Speculos configuration, screen size,
+ * and touch button coordinates (for touch-based devices).
+ */
 export type DeviceModel = {
+  /** Unique model identifier (e.g. 'nanosp', 'stax'). */
   id: string;
+  /** Human-readable model name. */
   name: string;
+  /** Model identifier passed to the Speculos binary. */
   speculosModel: string;
+  /** Whether the device uses button or touch interaction. */
   interactionType: InteractionType;
+  /** Filename of the Ethereum app ELF binary. */
   elfFile: string;
+  /** Screen dimensions in pixels. */
   screenSize: { width: number; height: number };
+  /** Touch coordinate for the generic confirm button. */
   confirmButton?: { x: number; y: number };
+  /** Touch coordinate for the generic reject button. */
   rejectButton?: { x: number; y: number };
+  /** Touch coordinate for the back button. */
   backButton?: { x: number; y: number };
+  /** Touch coordinate for the confirm button during transaction review. */
   reviewConfirmButton?: { x: number; y: number };
+  /** Touch coordinate for the reject button during transaction review. */
   reviewRejectButton?: { x: number; y: number };
+  /** Touch coordinate for the home button. */
   homeButton?: { x: number; y: number };
 };
 
+/** Registry of all supported Ledger device models. */
 export const DEVICE_MODELS: Record<string, DeviceModel> = {
   nanosp: {
     id: 'nanosp',
@@ -107,8 +140,16 @@ const FLEX_MODEL = DEVICE_MODELS.flex;
 if (!FLEX_MODEL) {
   throw new Error('Flex device model not found in DEVICE_MODELS');
 }
+/** The default device model used when none is specified. */
 export const DEFAULT_DEVICE_MODEL: DeviceModel = FLEX_MODEL;
 
+/**
+ * Look up a device model by its identifier.
+ *
+ * @param id - The device model identifier (defaults to 'flex').
+ * @returns The matching DeviceModel.
+ * @throws If the model identifier is not recognized.
+ */
 export function getDeviceModel(id = 'flex'): DeviceModel {
   const model = DEVICE_MODELS[id];
   if (!model) {
@@ -119,11 +160,15 @@ export function getDeviceModel(id = 'flex'): DeviceModel {
   return model;
 }
 
+/** Execution mode for Speculos — native binary or Docker container. */
 export type RunMode = 'native' | 'docker';
 
+/**
+ * Detect the appropriate Speculos run mode based on the current platform.
+ *
+ * @returns 'native' on Linux, 'docker' on all other platforms.
+ */
 export function detectRunMode(): RunMode {
   // eslint-disable-next-line no-restricted-globals
   return process.platform === 'linux' ? 'native' : 'docker';
 }
-
-

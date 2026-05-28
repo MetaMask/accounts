@@ -29,9 +29,9 @@ describe('resilience', () => {
         throw new Error('permanent');
       };
 
-      await expect(
-        withRetry(fn, { maxRetries: 2 }),
-      ).rejects.toThrow('permanent');
+      await expect(withRetry(fn, { maxRetries: 2 })).rejects.toThrow(
+        'permanent',
+      );
     }, 15000);
 
     it('respects shouldRetry predicate', async () => {

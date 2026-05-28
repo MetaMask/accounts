@@ -1,6 +1,6 @@
-import { Speculos } from './speculos';
 import { DEVICE_MODELS } from './constants';
 import type { DeviceModel } from './constants';
+import { Speculos } from './speculos';
 
 describe('Speculos', () => {
   it('constructs with default options', () => {
@@ -47,9 +47,7 @@ describe('Speculos', () => {
 
   it('throws when getInteraction called before start', () => {
     const speculos = new Speculos();
-    expect(() => speculos.getInteraction()).toThrow(
-      'Speculos not started',
-    );
+    expect(() => speculos.getInteraction()).toThrow('Speculos not started');
   });
 
   it('throws when startBridge called before start', async () => {

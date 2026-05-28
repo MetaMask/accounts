@@ -14,12 +14,12 @@ or
 
 ## Supported Devices
 
-| Device    | Model ID | Interaction Type |
-| --------- | -------- | ---------------- |
-| Nano S+   | `nanosp` | Button           |
-| Nano X    | `nanox`  | Button           |
-| Stax      | `stax`   | Touch            |
-| Flex      | `flex`   | Touch            |
+| Device  | Model ID | Interaction Type |
+| ------- | -------- | ---------------- |
+| Nano S+ | `nanosp` | Button           |
+| Nano X  | `nanox`  | Button           |
+| Stax    | `stax`   | Touch            |
+| Flex    | `flex`   | Touch            |
 
 ## Quick Start
 
@@ -67,31 +67,31 @@ Factory function that creates a `HardwareWalletEmulator` instance.
 
 ### `HardwareWalletEmulator`
 
-| Method                   | Description                              |
-| ------------------------ | ---------------------------------------- |
-| `start()`                | Start the emulator (Docker or native).   |
-| `stop()`                 | Stop the emulator and clean up resources.|
-| `isRunning()`            | Returns whether the emulator is active.  |
-| `approveTransaction()`   | Approve the current transaction on screen.|
-| `approveSigning()`       | Approve the current signing request.     |
-| `rejectTransaction()`    | Reject the current transaction on screen.|
-| `navigateToMainMenu()`   | Navigate back to the device main menu.   |
-| `getInteraction()`       | Get the low-level device interaction API. |
+| Method                 | Description                                |
+| ---------------------- | ------------------------------------------ |
+| `start()`              | Start the emulator (Docker or native).     |
+| `stop()`               | Stop the emulator and clean up resources.  |
+| `isRunning()`          | Returns whether the emulator is active.    |
+| `approveTransaction()` | Approve the current transaction on screen. |
+| `approveSigning()`     | Approve the current signing request.       |
+| `rejectTransaction()`  | Reject the current transaction on screen.  |
+| `navigateToMainMenu()` | Navigate back to the device main menu.     |
+| `getInteraction()`     | Get the low-level device interaction API.  |
 
 ### `SpeculosOptions`
 
-| Option          | Type     | Default     | Description                                     |
-| --------------- | -------- | ----------- | ----------------------------------------------- |
-| `device`        | `string` | `'flex'`    | Device model ID (`nanosp`, `nanox`, `stax`, `flex`). |
-| `seed`          | `string` | Built-in    | Mnemonic seed for deterministic accounts.        |
-| `apduPort`      | `number` | `9998`      | APDU communication port.                         |
-| `apiPort`       | `number` | `5001`      | Speculos REST API port.                          |
-| `wsBridgePort`  | `number` | `9876`      | WebSocket bridge port for WebHID mock.           |
-| `mode`          | `string` | Auto        | Run mode: `'docker'` or `'native'`. Auto-detected. |
-| `binary`        | `string` | —           | Path to Speculos binary (native mode only).      |
-| `display`       | `string` | `'headless'`| Display mode.                                    |
-| `loadNvram`     | `boolean`| `true`      | Load persisted NVRAM state.                      |
-| `startTimeout`  | `number` | `60000`     | Startup timeout in ms.                           |
+| Option         | Type      | Default      | Description                                          |
+| -------------- | --------- | ------------ | ---------------------------------------------------- |
+| `device`       | `string`  | `'flex'`     | Device model ID (`nanosp`, `nanox`, `stax`, `flex`). |
+| `seed`         | `string`  | Built-in     | Mnemonic seed for deterministic accounts.            |
+| `apduPort`     | `number`  | `9998`       | APDU communication port.                             |
+| `apiPort`      | `number`  | `5001`       | Speculos REST API port.                              |
+| `wsBridgePort` | `number`  | `9876`       | WebSocket bridge port for WebHID mock.               |
+| `mode`         | `string`  | Auto         | Run mode: `'docker'` or `'native'`. Auto-detected.   |
+| `binary`       | `string`  | —            | Path to Speculos binary (native mode only).          |
+| `display`      | `string`  | `'headless'` | Display mode.                                        |
+| `loadNvram`    | `boolean` | `true`       | Load persisted NVRAM state.                          |
+| `startTimeout` | `number`  | `60000`      | Startup timeout in ms.                               |
 
 ### Low-Level APIs
 
@@ -116,6 +116,9 @@ docker compose up -d
 
 # Start with a specific device
 SPECULOS_DEVICE=nanosp docker compose up -d
+
+# Start with custom host ports (must match apduPort / apiPort in createEmulator options)
+SPECULOS_APDU_PORT=9997 SPECULOS_API_PORT=5002 docker compose up -d
 ```
 
 The ELF app binaries for all supported devices are bundled in the `apps/` directory.
@@ -124,13 +127,13 @@ The ELF app binaries for all supported devices are bundled in the `apps/` direct
 
 The default seed produces these pre-funded Ethereum accounts:
 
-| Index | Address                                          |
-| ----- | ------------------------------------------------ |
-| 0     | `0x24fC293546A31F5Ce73bAfecE37969A95CCd1aBf`     |
-| 1     | `0x730A5c73bC3ACcf56daba2D5D897bEb10F852865`     |
-| 2     | `0x805c2797CCBa57887F5fA0DD95C017145d67604a`     |
-| 3     | `0x2Bf9972F600D8C3B3f0AEe8f1e17Fc4631242fF4`     |
-| 4     | `0xDc660e6D52F6f774d0879f99929711155Bc03902`     |
+| Index | Address                                      |
+| ----- | -------------------------------------------- |
+| 0     | `0x24fC293546A31F5Ce73bAfecE37969A95CCd1aBf` |
+| 1     | `0x730A5c73bC3ACcf56daba2D5D897bEb10F852865` |
+| 2     | `0x805c2797CCBa57887F5fA0DD95C017145d67604a` |
+| 3     | `0x2Bf9972F600D8C3B3f0AEe8f1e17Fc4631242fF4` |
+| 4     | `0xDc660e6D52F6f774d0879f99929711155Bc03902` |
 
 ## Contributing
 
