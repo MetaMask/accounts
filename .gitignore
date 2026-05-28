@@ -78,3 +78,6 @@ node_modules/
 
 # Cursor rules
 .cursorrules
+
+# Git worktrees
+.worktrees/
