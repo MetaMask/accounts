@@ -40,10 +40,10 @@ export class KeyringV1Adapter<
    */
   readonly type: string;
 
-  readonly #inner: InnerKeyring;
+  protected readonly inner: InnerKeyring;
 
   constructor(inner: InnerKeyring) {
-    this.#inner = inner;
+    this.inner = inner;
     this.type = inner.type;
   }
 
@@ -56,7 +56,7 @@ export class KeyringV1Adapter<
    * @returns The inner v2 keyring instance.
    */
   unwrap(): InnerKeyring {
-    return this.#inner;
+    return this.inner;
   }
 
   /**
@@ -68,7 +68,7 @@ export class KeyringV1Adapter<
    * @returns A promise resolving to the list of account addresses.
    */
   async getAccounts(): Promise<string[]> {
-    const accounts = await this.#inner.getAccounts();
+    const accounts = await this.inner.getAccounts();
     return accounts.map((account: KeyringAccount) => account.address);
   }
 
@@ -80,7 +80,7 @@ export class KeyringV1Adapter<
    * @returns A promise resolving to the serialized state.
    */
   async serialize(): Promise<Json> {
-    return this.#inner.serialize();
+    return this.inner.serialize();
   }
 
   /**
@@ -92,6 +92,6 @@ export class KeyringV1Adapter<
    * @returns A promise that resolves when deserialization is complete.
    */
   async deserialize(state: Json): Promise<void> {
-    return this.#inner.deserialize(state);
+    return this.inner.deserialize(state);
   }
 }
