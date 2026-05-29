@@ -8,6 +8,8 @@ import {
   GetPublicKeyParams,
   GetPublicKeyResponse,
   LedgerBridge,
+  LedgerSignDelegationAuthorizationParams,
+  LedgerSignDelegationAuthorizationResponse,
   LedgerSignMessageParams,
   LedgerSignMessageResponse,
   LedgerSignTransactionParams,
@@ -100,6 +102,17 @@ export class LedgerMobileBridge implements MobileBridge {
     message,
   }: LedgerSignTypedDataParams): Promise<LedgerSignTypedDataResponse> {
     return this.#getEthApp().signEIP712Message(hdPath, message);
+  }
+
+  async deviceSignDelegationAuthorization({
+    hdPath: _hdPath,
+    chainId: _chainId,
+    contractAddress: _contractAddress,
+    nonce: _nonce,
+  }: LedgerSignDelegationAuthorizationParams): Promise<LedgerSignDelegationAuthorizationResponse> {
+    throw new Error(
+      'Ledger: signDelegationAuthorization is not supported via mobile bridge',
+    );
   }
 
   /**
