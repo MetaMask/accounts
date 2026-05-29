@@ -4,6 +4,7 @@
     "baseUrl": "./",
     "outDir": "dist",
     "rootDir": "src",
+    "skipLibCheck": true,
     "paths": {}
   },
   "include": ["./src/**/*.ts"],

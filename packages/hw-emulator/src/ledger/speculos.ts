@@ -154,6 +154,22 @@ export class Speculos implements HardwareWalletEmulator {
   }
 
   /**
+   * Attempt to resolve the speculos binary via @metamask/speculosup.
+   *
+   * @returns The binary path if speculosup is installed, null otherwise.
+   */
+  async #resolveSpeculosupBinary(): Promise<string | null> {
+    try {
+      const mod = (await import('@metamask/speculosup' as string)) as {
+        getSpeculosBinaryPath: () => string | null;
+      };
+      return mod.getSpeculosBinaryPath();
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Start the Speculos emulator and connect the APDU client.
    *
    * @throws If already started.
@@ -194,16 +210,10 @@ export class Speculos implements HardwareWalletEmulator {
    * Start Speculos as a native process (Linux only).
    *
    * @param config - The resolved emulator configuration.
-   * @throws If the "binary" option is not provided.
    */
   async startNative(config: ResolvedConfig): Promise<void> {
-    const { binary } = this.#options;
-
-    if (!binary) {
-      throw new Error(
-        'The "binary" option is required when running in native mode. Provide the path to the Speculos binary.',
-      );
-    }
+    const speculosupBinary = await this.#resolveSpeculosupBinary();
+    const binary = this.#options.binary ?? speculosupBinary ?? 'speculos';
 
     this.#processManager = createProcessManager({
       binary,

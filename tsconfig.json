@@ -14,6 +14,7 @@
     { "path": "./packages/keyring-sdk" },
     { "path": "./packages/keyring-snap-sdk" },
     { "path": "./packages/keyring-utils" },
+    { "path": "./packages/speculosup" },
     { "path": "./packages/hw-emulator" }
   ],
   "files": [],
