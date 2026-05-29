@@ -20,15 +20,6 @@ type WsConnectionState = {
 };
 
 /**
- * A pending signing APDU exchange waiting for a response.
- */
-type SigningWaiter = {
-  apdu: Buffer;
-  resolve: (response: Buffer) => void;
-  reject: (error: Error) => void;
-};
-
-/**
  * Result of decoding an RLP length prefix.
  */
 type RlpDecodeResult = {
@@ -58,9 +49,9 @@ export class ApduBridge {
 
   #injectedErrorStatusCode: number | null = null;
 
-  #signingInProgress = false;
+  #signingLockChain: Promise<void> = Promise.resolve();
 
-  #signingWaiters: SigningWaiter[] = [];
+  #signingLockDepth = 0;
 
   #signTxTotalDataLen: number | null = null;
 
@@ -197,6 +188,35 @@ export class ApduBridge {
    */
   injectNextErrorResponse(statusCode: number): void {
     this.#injectedErrorStatusCode = statusCode;
+  }
+
+  /**
+   * Acquire the signing lock so concurrent signing APDUs are serialized.
+   *
+   * @returns A release function and whether this caller waited behind another signing flow.
+   */
+  async #acquireSigningLock(): Promise<{
+    release: () => void;
+    wasQueued: boolean;
+  }> {
+    const wasQueued = this.#signingLockDepth > 0;
+    this.#signingLockDepth += 1;
+
+    let releaseLock!: () => void;
+    const previousLock = this.#signingLockChain;
+    this.#signingLockChain = new Promise<void>((resolve) => {
+      releaseLock = resolve;
+    });
+
+    await previousLock;
+
+    return {
+      wasQueued,
+      release: (): void => {
+        this.#signingLockDepth -= 1;
+        releaseLock();
+      },
+    };
   }
 
   /**
@@ -363,14 +383,12 @@ export class ApduBridge {
     const shouldStartSigningTimer =
       isSigningIns && (!isSignTx || isLastSignTxChunk || isSingleChunkSignTx);
 
-    const shouldQueueSigning = isSigningIns && this.#signingInProgress;
-    if (isSigningIns && !this.#signingInProgress) {
-      this.#signingInProgress = true;
-    }
+    const signingLock = isSigningIns ? await this.#acquireSigningLock() : null;
+    const wasQueuedSigning = signingLock?.wasQueued ?? false;
 
     let signingReadyFired = false;
     const signingReadyTimer =
-      shouldStartSigningTimer && !shouldQueueSigning
+      shouldStartSigningTimer && !wasQueuedSigning
         ? setTimeout(() => {
             signingReadyFired = true;
             this.#signingReadyEmitter.emit('signing-ready');
@@ -381,101 +399,91 @@ export class ApduBridge {
 
     let response: Buffer;
 
-    if (shouldQueueSigning) {
-      response = await new Promise<Buffer>((resolve, reject) => {
-        this.#signingWaiters.push({ apdu, resolve, reject });
-      });
-    } else {
+    try {
       response = await this.#client.exchange(apdu);
 
       if (signingReadyTimer) {
         clearTimeout(signingReadyTimer);
       }
 
-      if (isSigningIns) {
-        this.#signingInProgress = false;
-        for (const waiter of this.#signingWaiters) {
-          waiter.resolve(response);
-        }
-        this.#signingWaiters = [];
-      }
-
       if (shouldEmitSigningReadyOnLastChunk && !signingReadyFired) {
         signingReadyFired = true;
         this.#signingReadyEmitter.emit('signing-ready');
       }
-    }
 
-    const isLastChunkWithAck =
-      (isSignTxContinuation || isSingleChunkSignTx) &&
-      this.#signTxTotalDataLen !== null &&
-      this.#signTxDataSent >= this.#signTxTotalDataLen &&
-      response.length === 2 &&
-      response[0] === 0x90 &&
-      response[1] === 0x00;
+      const isLastChunkWithAck =
+        (isSignTxContinuation || isSingleChunkSignTx) &&
+        this.#signTxTotalDataLen !== null &&
+        this.#signTxDataSent >= this.#signTxTotalDataLen &&
+        response.length === 2 &&
+        response[0] === 0x90 &&
+        response[1] === 0x00;
 
-    if (isLastChunkWithAck) {
-      // eslint-disable-next-line no-restricted-globals
-      const emptyChunk = Buffer.from([0xe0, 0x04, 0x80, 0x00, 0x00]);
-      const readyTimer = setTimeout(() => {
-        signingReadyFired = true;
-        this.#signingReadyEmitter.emit('signing-ready');
-      }, 500);
-      response = await this.#client.exchange(emptyChunk);
-      clearTimeout(readyTimer);
-      this.#signTxTotalDataLen = null;
-      this.#signTxDataSent = 0;
-    } else if (!isSignTx || (isSingleChunkSignTx && response.length > 2)) {
-      this.#signTxTotalDataLen = null;
-      this.#signTxDataSent = 0;
-    }
-
-    const injectedCode = this.#injectedErrorStatusCode;
-    this.#injectedErrorStatusCode = null;
-    if (injectedCode !== null) {
-      const sw1 = Math.floor(injectedCode / 256);
-      const sw2 = injectedCode % 256;
-      // eslint-disable-next-line no-restricted-globals
-      response = Buffer.from([sw1, sw2]);
-    }
-
-    if (
-      apdu.length >= 2 &&
-      apdu[0] === 0xe0 &&
-      apdu[1] === 0x06 &&
-      response.length >= 3
-    ) {
-      const responseSw1 = response[response.length - 2];
-      const responseSw2 = response[response.length - 1];
-      if (responseSw1 === 0x90 && responseSw2 === 0x00 && response[0] !== 1) {
+      if (isLastChunkWithAck) {
         // eslint-disable-next-line no-restricted-globals
-        response = Buffer.from([1, ...response.subarray(1)]);
+        const emptyChunk = Buffer.from([0xe0, 0x04, 0x80, 0x00, 0x00]);
+        const readyTimer = setTimeout(() => {
+          signingReadyFired = true;
+          this.#signingReadyEmitter.emit('signing-ready');
+        }, 500);
+        response = await this.#client.exchange(emptyChunk);
+        clearTimeout(readyTimer);
+        this.#signTxTotalDataLen = null;
+        this.#signTxDataSent = 0;
+      } else if (!isSignTx || (isSingleChunkSignTx && response.length > 2)) {
+        this.#signTxTotalDataLen = null;
+        this.#signTxDataSent = 0;
       }
-    }
 
-    const responseFrames = encodeLedgerHidResponse(
-      state.framingSession,
-      response,
-    );
+      const injectedCode = this.#injectedErrorStatusCode;
+      this.#injectedErrorStatusCode = null;
+      if (injectedCode !== null) {
+        const sw1 = Math.floor(injectedCode / 256);
+        const sw2 = injectedCode % 256;
+        // eslint-disable-next-line no-restricted-globals
+        response = Buffer.from([sw1, sw2]);
+      }
 
-    for (const responseFrame of responseFrames) {
+      if (
+        apdu.length >= 2 &&
+        apdu[0] === 0xe0 &&
+        apdu[1] === 0x06 &&
+        response.length >= 3
+      ) {
+        const responseSw1 = response[response.length - 2];
+        const responseSw2 = response[response.length - 1];
+        if (responseSw1 === 0x90 && responseSw2 === 0x00 && response[0] !== 1) {
+          // eslint-disable-next-line no-restricted-globals
+          response = Buffer.from([1, ...response.subarray(1)]);
+        }
+      }
+
+      const responseFrames = encodeLedgerHidResponse(
+        state.framingSession,
+        response,
+      );
+
+      for (const responseFrame of responseFrames) {
+        ws.send(
+          JSON.stringify({
+            type: 'HID_RECV',
+            id: message.id,
+            data: Array.from(responseFrame),
+          }),
+        );
+      }
+
       ws.send(
         JSON.stringify({
-          type: 'HID_RECV',
+          type: 'HID_EXCHANGE_COMPLETE',
           id: message.id,
-          data: Array.from(responseFrame),
         }),
       );
+
+      state.framingSession = null;
+    } finally {
+      signingLock?.release();
     }
-
-    ws.send(
-      JSON.stringify({
-        type: 'HID_EXCHANGE_COMPLETE',
-        id: message.id,
-      }),
-    );
-
-    state.framingSession = null;
   }
 
   /**

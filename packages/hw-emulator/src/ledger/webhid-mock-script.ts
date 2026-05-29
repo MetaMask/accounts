@@ -61,6 +61,7 @@ export function getWebHidMockScript(wsPort: number): string {
           } else if (response.type === 'HID_FRAME_ACK') {
             const pending = pendingExchanges.get(response.id);
             if (pending) {
+              pendingExchanges.delete(response.id);
               pending.resolve();
             }
           } else if (response.type === 'APDU_ERROR') {

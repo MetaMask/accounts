@@ -102,5 +102,40 @@ describe('ApduBridge', () => {
 
       expect(readyResolved).toBe(false);
     });
+
+    it('exchanges each queued signing APDU with Speculos individually', async () => {
+      const client = new SpeculosClient();
+      const bridge = new ApduBridge(client, 9880);
+      const ws = createMockWebSocket();
+
+      const firstResponse = Buffer.from([0x90, 0x00]);
+      const secondResponse = Buffer.from([0x41, 0x42, 0x90, 0x00]);
+
+      let resolveFirst!: (response: Buffer) => void;
+      const blockedFirst = new Promise<Buffer>((resolve) => {
+        resolveFirst = resolve;
+      });
+
+      const exchangeMock = jest
+        .spyOn(client, 'exchange')
+        .mockReturnValueOnce(blockedFirst)
+        .mockResolvedValueOnce(secondResponse);
+
+      jest
+        .spyOn(ledgerHidFraming, 'pushLedgerHidFrame')
+        .mockReturnValueOnce(signTxContinuation)
+        .mockReturnValueOnce(personalSignApdu);
+
+      const firstSend = bridge.handleHidSend(ws, { id: 1, data: [] });
+      const secondSend = bridge.handleHidSend(ws, { id: 2, data: [] });
+
+      resolveFirst(firstResponse);
+
+      await Promise.all([firstSend, secondSend]);
+
+      expect(exchangeMock).toHaveBeenCalledTimes(2);
+      expect(exchangeMock).toHaveBeenNthCalledWith(1, signTxContinuation);
+      expect(exchangeMock).toHaveBeenNthCalledWith(2, personalSignApdu);
+    });
   });
 });
