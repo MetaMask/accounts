@@ -15,7 +15,7 @@ services:
       --model ${SPECULOS_DEVICE:-nanosp}
       /speculos/apps/${SPECULOS_ELF_FILENAME:-ethereum-nanosp.elf}
       --seed "${SPECULOS_SEED:-urban secret spare tunnel rubber rally ladder spatial feature elite success}"
-      --display headless
+      --display ${SPECULOS_DISPLAY:-headless}
       --apdu-port 9999
       --api-port 5000
       --load-nvram
@@ -34,4 +34,5 @@ services:
 # - SPECULOS_DEVICE selects the device model (nanosp, nanox, stax, flex)
 # - SPECULOS_ELF_FILENAME is the ELF filename inside /speculos/apps/ (NOT the host path)
 # - SPECULOS_SEED sets the mnemonic for deterministic accounts (DockerManager / Speculos seed option)
+# - SPECULOS_DISPLAY sets the Speculos display backend (DockerManager display option, default headless)
 # - Defaults to Nano S+ (nanosp) for local development without SPECULOS_DEVICE set
