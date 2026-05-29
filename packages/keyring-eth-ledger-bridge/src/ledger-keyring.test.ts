@@ -1458,6 +1458,144 @@ describe('LedgerKeyring', function () {
       });
     });
 
+    describe('signEip7702Authorization', function () {
+      const chainId = 1;
+      const contractAddress = '0x1234567890abcdef1234567890abcdef12345678';
+      const nonce = 5;
+      const authorization: [number, Hex, number] = [
+        chainId,
+        contractAddress as Hex,
+        nonce,
+      ];
+
+      beforeEach(async function () {
+        jest
+          .spyOn(keyring, 'unlockAccountByAddress')
+          .mockResolvedValue(`m/44'/60'/15'`);
+        await basicSetupToUnlockOneAccount(15);
+      });
+
+      it('calls deviceSignDelegationAuthorization with correct params', async function () {
+        const signDelegationSpy = jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '1b',
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          });
+
+        jest.spyOn(sigUtil, 'recoverEIP7702Authorization').mockReturnValue(
+          fakeAccounts[15],
+        );
+
+        await keyring.signEip7702Authorization(
+          fakeAccounts[15],
+          authorization,
+        );
+
+        expect(signDelegationSpy).toHaveBeenCalledWith({
+          hdPath: "m/44'/60'/15'",
+          chainId,
+          contractAddress: remove0x(contractAddress),
+          nonce,
+        });
+      });
+
+      it('returns signature with yParity from v=0', async function () {
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '0',
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          });
+
+        jest.spyOn(sigUtil, 'recoverEIP7702Authorization').mockReturnValue(
+          fakeAccounts[15],
+        );
+
+        const result = await keyring.signEip7702Authorization(
+          fakeAccounts[15],
+          authorization,
+        );
+
+        expect(result).toBe(
+          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e3200',
+        );
+      });
+
+      it('returns signature with yParity from v=27', async function () {
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '27',
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          });
+
+        jest.spyOn(sigUtil, 'recoverEIP7702Authorization').mockReturnValue(
+          fakeAccounts[15],
+        );
+
+        const result = await keyring.signEip7702Authorization(
+          fakeAccounts[15],
+          authorization,
+        );
+
+        expect(result).toBe(
+          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e3200',
+        );
+      });
+
+      it('throws when recovered address does not match', async function () {
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '1',
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          });
+
+        jest.spyOn(sigUtil, 'recoverEIP7702Authorization').mockReturnValue(
+          fakeAccounts[0],
+        );
+
+        await expect(
+          keyring.signEip7702Authorization(fakeAccounts[15], authorization),
+        ).rejects.toThrow(
+          'Ledger: The EIP-7702 authorization signature does not match the right address',
+        );
+      });
+
+      it('throws when hdPath is not found', async function () {
+        jest
+          .spyOn(keyring, 'unlockAccountByAddress')
+          .mockResolvedValue(undefined);
+
+        await expect(
+          keyring.signEip7702Authorization(fakeAccounts[0], authorization),
+        ).rejects.toThrow(
+          'Ledger: Unknown error while signing EIP-7702 authorization',
+        );
+      });
+
+      it('handles transport errors', async function () {
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockRejectedValue(transportError);
+
+        await expect(
+          keyring.signEip7702Authorization(fakeAccounts[15], authorization),
+        ).rejects.toThrow('Ledger: User rejected action on device');
+      });
+    });
+
     describe('getAppNameAndVersion', function () {
       it('returns app name and version from bridge', async function () {
         const mockResponse = {

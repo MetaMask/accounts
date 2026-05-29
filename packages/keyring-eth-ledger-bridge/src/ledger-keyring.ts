@@ -4,6 +4,7 @@ import type { TypedTransaction } from '@ethereumjs/tx';
 import { publicToAddress } from '@ethereumjs/util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import {
+  recoverEIP7702Authorization,
   recoverPersonalSignature,
   recoverTypedSignature,
   SignTypedDataVersion,
@@ -589,6 +590,57 @@ export class LedgerKeyring implements Keyring {
       this.#getChecksumHexAddress(withAccount)
     ) {
       throw new Error('Ledger: The signature doesnt match the right address');
+    }
+    return signature;
+  }
+
+  async signEip7702Authorization(
+    withAccount: Hex,
+    authorization: [chainId: number, contractAddress: Hex, nonce: number],
+  ): Promise<string> {
+    const [chainId, contractAddress, nonce] = authorization;
+    const hdPath = await this.unlockAccountByAddress(withAccount);
+
+    if (!hdPath) {
+      throw new Error(
+        'Ledger: Unknown error while signing EIP-7702 authorization',
+      );
+    }
+
+    let payload;
+    try {
+      payload = await this.bridge.deviceSignDelegationAuthorization({
+        hdPath,
+        chainId,
+        contractAddress: remove0x(contractAddress),
+        nonce,
+      });
+    } catch (error: unknown) {
+      handleLedgerTransportError(
+        error,
+        'Ledger: Unknown error while signing EIP-7702 authorization',
+      );
+    }
+
+    const recoveryValue = parseInt(String(payload.v), 10);
+    const yParity =
+      recoveryValue === 0 || recoveryValue === 1
+        ? recoveryValue
+        : recoveryValue - 27;
+    const signature = `0x${payload.r}${payload.s}${yParity.toString(16).padStart(2, '0')}`;
+
+    const addressSignedWith = recoverEIP7702Authorization({
+      signature,
+      authorization,
+    });
+
+    if (
+      this.#getChecksumHexAddress(addressSignedWith) !==
+      this.#getChecksumHexAddress(withAccount)
+    ) {
+      throw new Error(
+        'Ledger: The EIP-7702 authorization signature does not match the right address',
+      );
     }
     return signature;
   }

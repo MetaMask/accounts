@@ -12,7 +12,7 @@ import type {
   KeyringCapabilities,
   Keyring,
 } from '@metamask/keyring-api/v2';
-import { EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
+import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import { add0x, getChecksumAddress } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
@@ -29,12 +29,13 @@ import type {
 
 /**
  * Methods supported by Ledger keyring EOA accounts.
- * Ledger keyrings support a subset of signing methods (no encryption, app keys, or EIP-7702).
+ * Ledger keyrings support a subset of signing methods (no encryption or app keys).
  */
 const LEDGER_KEYRING_METHODS = [
   EthMethod.SignTransaction,
   EthMethod.PersonalSign,
   EthMethod.SignTypedDataV4,
+  EthKeyringMethod.SignEip7702Authorization,
 ];
 
 const ledgerKeyringCapabilities: KeyringCapabilities = {

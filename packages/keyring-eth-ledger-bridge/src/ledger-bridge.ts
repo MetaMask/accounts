@@ -25,6 +25,19 @@ export type LedgerSignTypedDataResponse = Awaited<
   ReturnType<LedgerHwAppEth['signEIP712HashedMessage']>
 >;
 
+export type LedgerSignDelegationAuthorizationParams = {
+  hdPath: string;
+  chainId: number;
+  contractAddress: string;
+  nonce: number;
+};
+
+export type LedgerSignDelegationAuthorizationResponse = {
+  v: string;
+  r: string;
+  s: string;
+};
+
 export type GetAppNameAndVersionResponse = {
   appName: string;
   version: string;
@@ -76,6 +89,10 @@ export type LedgerBridge<T extends LedgerBridgeOptions> = {
   deviceSignTypedData(
     params: LedgerSignTypedDataParams,
   ): Promise<LedgerSignTypedDataResponse>;
+
+  deviceSignDelegationAuthorization(
+    params: LedgerSignDelegationAuthorizationParams,
+  ): Promise<LedgerSignDelegationAuthorizationResponse>;
 
   /**
    * Method to retrieve the name and version of the running application on the Ledger device.
