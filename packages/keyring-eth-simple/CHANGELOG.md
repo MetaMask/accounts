@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
-
 ### Changed
 
 - Bump `@metamask/keyring-sdk` from `^2.0.2` to `^2.1.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
@@ -67,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `SimpleKeyringV2` class implementing `KeyringV2` interface ([#409](https://github.com/MetaMask/accounts/pull/409), [#410](https://github.com/MetaMask/accounts/pull/410), [#413](https://github.com/MetaMask/accounts/pull/413), [#451](https://github.com/MetaMask/accounts/pull/451), [#478](https://github.com/MetaMask/accounts/pull/478), [#482](https://github.com/MetaMask/accounts/pull/482))
+- Add `SimpleKeyringV2` class implementing `KeyringV2` interface ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410)), ([#413](https://github.com/MetaMask/accounts/pull/413)), ([#451](https://github.com/MetaMask/accounts/pull/451)), ([#478](https://github.com/MetaMask/accounts/pull/478)), ([#482](https://github.com/MetaMask/accounts/pull/482))
   - Add new dependency `@metamask/keyring-api@22.0.0`.
   - Add new dependency `@metamask/keyring-sdk@1.0.0`.
   - Wraps legacy `SimpleKeyring` to expose accounts via the unified `KeyringV2` API and the `KeyringAccount` type.
@@ -117,8 +113,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177), [#134](https://github.com/MetaMask/accounts/pull/134))
-- Bump `@metamask/utils` dependency from `^9.3.1` to `11.1.0` ([#134](https://github.com/MetaMask/accounts/pull/134), [#167](https://github.com/MetaMask/accounts/pull/167))
+- Bump `@metamask/eth-sig-util` dependency from `^8.0.0` to `8.2.0` ([#177](https://github.com/MetaMask/accounts/pull/177)), ([#134](https://github.com/MetaMask/accounts/pull/134))
+- Bump `@metamask/utils` dependency from `^9.3.1` to `11.1.0` ([#134](https://github.com/MetaMask/accounts/pull/134)), ([#167](https://github.com/MetaMask/accounts/pull/167))
 
 ## [8.0.1]
 
