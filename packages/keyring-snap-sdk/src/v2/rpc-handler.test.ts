@@ -4,7 +4,6 @@ import type {
   GetAccountRequest,
   GetAccountsRequest,
   DeleteAccountRequest,
-  Keyring,
   ExportAccountRequest,
   SubmitRequestRequest,
   KeyringRpc,
