@@ -428,10 +428,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/snaps-controllers` from `^9.3.0` to `^9.6.0` ([#372](https://github.com/MetaMask/eth-snap-keyring/pull/372)), ([#389](https://github.com/MetaMask/eth-snap-keyring/pull/389))
+- Bump `@metamask/snaps-controllers` from `^9.3.0` to `^9.6.0` ([#372](https://github.com/MetaMask/eth-snap-keyring/pull/372), [#389](https://github.com/MetaMask/eth-snap-keyring/pull/389))
 - Bump `@metamask/snaps-sdk` from `^6.1.0` to `^6.4.0` ([#389](https://github.com/MetaMask/eth-snap-keyring/pull/389))
 - Bump `@metamask/utils` from `^9.1.0` to `^9.2.1` ([#385](https://github.com/MetaMask/eth-snap-keyring/pull/385))
-- Bump `@metamask/keyring-api` from `^8.0.1` to `^8.1.0` ([#374](https://github.com/MetaMask/eth-snap-keyring/pull/374)), ([#376](https://github.com/MetaMask/eth-snap-keyring/pull/376))
+- Bump `@metamask/keyring-api` from `^8.0.1` to `^8.1.0` ([#374](https://github.com/MetaMask/eth-snap-keyring/pull/374), [#376](https://github.com/MetaMask/eth-snap-keyring/pull/376))
 
 ## [4.3.2]
 
@@ -439,9 +439,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/eth-sig-util` from `^7.0.1` to `^7.0.3` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311))
 - Bump `@metamask/keyring-api` from `^8.0.0` to `^8.0.1` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311))
-- Bump `@metamask/snaps-controllers` from `^8.1.1` to `^9.3.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311)), ([#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
-- Bump `@metamask/snaps-sdk` from `^4.2.0` to `^6.1.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311)), ([#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
-- Bump `@metamask/snaps-utils` from `^7.4.0` to `^7.8.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311)), ([#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
+- Bump `@metamask/snaps-controllers` from `^8.1.1` to `^9.3.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311), [#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
+- Bump `@metamask/snaps-sdk` from `^4.2.0` to `^6.1.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311), [#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
+- Bump `@metamask/snaps-utils` from `^7.4.0` to `^7.8.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311), [#363](https://github.com/MetaMask/eth-snap-keyring/pull/363))
 - Bump `@metamask/utils` from `^8.4.0` to `^9.1.0` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311))
 - Set tsconfig options `module`, `moduleResolution` to `Node16` ([#311](https://github.com/MetaMask/eth-snap-keyring/pull/311))
 
