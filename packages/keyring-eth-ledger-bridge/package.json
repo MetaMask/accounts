@@ -75,8 +75,8 @@
     "@ledgerhq/hw-transport": "^6.31.3",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/hw-wallet-sdk": "^0.8.0",
-    "@metamask/keyring-api": "^23.1.0",
-    "@metamask/keyring-sdk": "^2.1.1",
+    "@metamask/keyring-api": "^23.2.0",
+    "@metamask/keyring-sdk": "^2.2.0",
     "hdkey": "^2.1.0"
   },
   "devDependencies": {

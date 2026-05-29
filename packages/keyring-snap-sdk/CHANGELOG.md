@@ -7,12 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.0.2]
+
 ### Changed
 
-- Use `KeyringRpc` instaed of `Keyring` (v2) in `handleKeyringRequest` ([#561](https://github.com/MetaMask/accounts/pull/561))
+- Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
+
+### Fixed
+
+- Use `KeyringRpc` instead of `Keyring` (v2) in `handleKeyringRequest` ([#561](https://github.com/MetaMask/accounts/pull/561))
   - Snaps do not need to implement the full `Keyring` (v2) interface, this one is meant to be used in the "client-world".
   - `KeyringRpc` is a subset of `Keyring` which only exposes the method that can be used through `onKeyringRequest` (`keyring_*` requests).
-- Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
 
 ## [9.0.1]
 
@@ -177,7 +182,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.2...HEAD
+[9.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.1...@metamask/keyring-snap-sdk@9.0.2
 [9.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.0...@metamask/keyring-snap-sdk@9.0.1
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@8.0.0...@metamask/keyring-snap-sdk@9.0.0
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.2.1...@metamask/keyring-snap-sdk@8.0.0

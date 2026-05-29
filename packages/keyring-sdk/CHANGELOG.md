@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0]
+
 ### Added
 
 - Add `EthKeyringV1Adapter` and typed errors for adapting v2 ETH keyrings to legacy ETH keyring signing flows ([#555](https://github.com/MetaMask/accounts/pull/555))
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^23.1.0` to `^23.2.0` ([#562](https://github.com/MetaMask/accounts/pull/562))
 
 ## [2.1.1]
 
@@ -82,7 +88,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release, extracted from `@metamask/keyring-api` ([#478](https://github.com/MetaMask/accounts/pull/478), [#482](https://github.com/MetaMask/accounts/pull/482))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.2.0...HEAD
+[2.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.1.1...@metamask/keyring-sdk@2.2.0
 [2.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.1.0...@metamask/keyring-sdk@2.1.1
 [2.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.2...@metamask/keyring-sdk@2.1.0
 [2.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.1...@metamask/keyring-sdk@2.0.2
