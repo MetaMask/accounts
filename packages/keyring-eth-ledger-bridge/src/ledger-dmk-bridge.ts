@@ -136,8 +136,8 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     if (this.#sessionOwnership) {
       try {
         await this.#transportMiddleware.dispose();
-      } catch (error) {
-        console.error('Failed to dispose DMK transport middleware:', error);
+      } catch {
+        // best-effort cleanup
       }
     }
 
@@ -171,11 +171,9 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @returns A promise that resolves with true if the session was updated successfully.
    */
   async updateSessionId(sessionId: string): Promise<boolean> {
-    console.log('[DMK] updateSessionId - sessionId:', sessionId);
     this.#transportMiddleware.setSessionId(sessionId);
     this.#isConnected = true;
     this.#startSessionMonitoring(sessionId);
-    console.log('[DMK] updateSessionId - done');
     return true;
   }
 
@@ -221,43 +219,26 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   }
 
   async openEthApp(): Promise<void> {
-    console.log('[DMK] openEthApp - called');
     const sessionId = this.#transportMiddleware.getSessionId();
-    console.log('[DMK] openEthApp - sessionId:', sessionId);
-    try {
-      const result = await this.#sdk.sendCommand({
-        sessionId,
-        command: new OpenAppCommand({ appName: 'Ethereum' }),
-      });
+    const result = await this.#sdk.sendCommand({
+      sessionId,
+      command: new OpenAppCommand({ appName: 'Ethereum' }),
+    });
 
-      if (!isSuccessCommandResult(result)) {
-        console.log('[DMK] openEthApp - failed:', result.error);
-        throw this.#toError(result.error);
-      }
-      console.log('[DMK] openEthApp - success');
-    } catch (error) {
-      console.log('[DMK] openEthApp - error:', error);
-      throw error;
+    if (!isSuccessCommandResult(result)) {
+      throw this.#toError(result.error);
     }
   }
 
   async closeApps(): Promise<void> {
-    console.log('[DMK] closeApps - called');
     const sessionId = this.#transportMiddleware.getSessionId();
-    try {
-      const result = await this.#sdk.sendCommand({
-        sessionId,
-        command: new CloseAppCommand(),
-      });
+    const result = await this.#sdk.sendCommand({
+      sessionId,
+      command: new CloseAppCommand(),
+    });
 
-      if (!isSuccessCommandResult(result)) {
-        console.log('[DMK] closeApps - failed:', result.error);
-        throw this.#toError(result.error);
-      }
-      console.log('[DMK] closeApps - success');
-    } catch (error) {
-      console.log('[DMK] closeApps - error:', error);
-      throw error;
+    if (!isSuccessCommandResult(result)) {
+      throw this.#toError(result.error);
     }
   }
 
@@ -268,7 +249,6 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @returns A promise that resolves with `true`.
    */
   async attemptMakeApp(): Promise<boolean> {
-    console.log('[DMK] attemptMakeApp - no-op, signer kit handles app opening');
     return true;
   }
 
@@ -282,27 +262,20 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   async getPublicKey({
     hdPath,
   }: GetPublicKeyParams): Promise<GetPublicKeyResponse> {
-    console.log('[DMK] getPublicKey - hdPath:', hdPath);
-    try {
-      const { observable } = this.#transportMiddleware
-        .getEthSigner()
-        .getAddress(this.#stripPathPrefix(hdPath), {
-          checkOnDevice: false,
-          returnChainCode: true,
-        });
-      const response =
-        await this.#waitForDeviceAction<PublicKeyOutput>(observable);
+    const { observable } = this.#transportMiddleware
+      .getEthSigner()
+      .getAddress(this.#stripPathPrefix(hdPath), {
+        checkOnDevice: false,
+        returnChainCode: true,
+      });
+    const response =
+      await this.#waitForDeviceAction<PublicKeyOutput>(observable);
 
-      console.log('[DMK] getPublicKey - success, address:', response.address);
-      return {
-        publicKey: response.publicKey,
-        address: response.address,
-        chainCode: response.chainCode,
-      };
-    } catch (error) {
-      console.log('[DMK] getPublicKey - error:', error);
-      throw error;
-    }
+    return {
+      publicKey: response.publicKey,
+      address: response.address,
+      chainCode: response.chainCode,
+    };
   }
 
   /**
@@ -317,28 +290,16 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     tx,
     hdPath,
   }: LedgerSignTransactionParams): Promise<LedgerSignTransactionResponse> {
-    console.log(
-      '[DMK] deviceSignTransaction - hdPath:',
-      hdPath,
-      'tx length:',
-      tx?.length,
-    );
-    try {
-      const { observable } = this.#transportMiddleware
-        .getEthSigner()
-        .signTransaction(this.#stripPathPrefix(hdPath), this.#hexToBytes(tx));
-      const signature = await this.#waitForDeviceAction<Signature>(observable);
+    const { observable } = this.#transportMiddleware
+      .getEthSigner()
+      .signTransaction(this.#stripPathPrefix(hdPath), this.#hexToBytes(tx));
+    const signature = await this.#waitForDeviceAction<Signature>(observable);
 
-      console.log('[DMK] deviceSignTransaction - success');
-      return {
-        v: this.#toHexString(signature.v),
-        r: this.#stripHexPrefix(signature.r),
-        s: this.#stripHexPrefix(signature.s),
-      };
-    } catch (error) {
-      console.log('[DMK] deviceSignTransaction - error:', error);
-      throw error;
-    }
+    return {
+      v: this.#toHexString(signature.v),
+      r: this.#stripHexPrefix(signature.r),
+      s: this.#stripHexPrefix(signature.s),
+    };
   }
 
   /**
@@ -353,23 +314,16 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     hdPath,
     message,
   }: LedgerSignMessageParams): Promise<LedgerSignMessageResponse> {
-    console.log('[DMK] deviceSignMessage - hdPath:', hdPath);
-    try {
-      const { observable } = this.#transportMiddleware
-        .getEthSigner()
-        .signMessage(this.#stripPathPrefix(hdPath), this.#hexToBytes(message));
-      const signature = await this.#waitForDeviceAction<Signature>(observable);
+    const { observable } = this.#transportMiddleware
+      .getEthSigner()
+      .signMessage(this.#stripPathPrefix(hdPath), this.#hexToBytes(message));
+    const signature = await this.#waitForDeviceAction<Signature>(observable);
 
-      console.log('[DMK] deviceSignMessage - success');
-      return {
-        v: signature.v,
-        r: this.#stripHexPrefix(signature.r),
-        s: this.#stripHexPrefix(signature.s),
-      };
-    } catch (error) {
-      console.log('[DMK] deviceSignMessage - error:', error);
-      throw error;
-    }
+    return {
+      v: signature.v,
+      r: this.#stripHexPrefix(signature.r),
+      s: this.#stripHexPrefix(signature.s),
+    };
   }
 
   /**
@@ -384,23 +338,16 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     hdPath,
     message,
   }: LedgerSignTypedDataParams): Promise<LedgerSignTypedDataResponse> {
-    console.log('[DMK] deviceSignTypedData - hdPath:', hdPath);
-    try {
-      const { observable } = this.#transportMiddleware
-        .getEthSigner()
-        .signTypedData(this.#stripPathPrefix(hdPath), message);
-      const signature = await this.#waitForDeviceAction<Signature>(observable);
+    const { observable } = this.#transportMiddleware
+      .getEthSigner()
+      .signTypedData(this.#stripPathPrefix(hdPath), message);
+    const signature = await this.#waitForDeviceAction<Signature>(observable);
 
-      console.log('[DMK] deviceSignTypedData - success');
-      return {
-        v: signature.v,
-        r: this.#stripHexPrefix(signature.r),
-        s: this.#stripHexPrefix(signature.s),
-      };
-    } catch (error) {
-      console.log('[DMK] deviceSignTypedData - error:', error);
-      throw error;
-    }
+    return {
+      v: signature.v,
+      r: this.#stripHexPrefix(signature.r),
+      s: this.#stripHexPrefix(signature.s),
+    };
   }
 
   async deviceSignDelegationAuthorization({
@@ -409,28 +356,21 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     contractAddress,
     nonce,
   }: LedgerSignDelegationAuthorizationParams): Promise<LedgerSignDelegationAuthorizationResponse> {
-    console.log('[DMK] deviceSignDelegationAuthorization - hdPath:', hdPath);
-    try {
-      const { observable } = this.#transportMiddleware
-        .getEthSigner()
-        .signDelegationAuthorization(
-          this.#stripPathPrefix(hdPath),
-          chainId,
-          contractAddress,
-          nonce,
-        );
-      const signature = await this.#waitForDeviceAction<Signature>(observable);
+    const { observable } = this.#transportMiddleware
+      .getEthSigner()
+      .signDelegationAuthorization(
+        this.#stripPathPrefix(hdPath),
+        chainId,
+        contractAddress,
+        nonce,
+      );
+    const signature = await this.#waitForDeviceAction<Signature>(observable);
 
-      console.log('[DMK] deviceSignDelegationAuthorization - success');
-      return {
-        v: this.#toHexString(signature.v),
-        r: this.#stripHexPrefix(signature.r),
-        s: this.#stripHexPrefix(signature.s),
-      };
-    } catch (error) {
-      console.log('[DMK] deviceSignDelegationAuthorization - error:', error);
-      throw error;
-    }
+    return {
+      v: this.#toHexString(signature.v),
+      r: this.#stripHexPrefix(signature.r),
+      s: this.#stripHexPrefix(signature.s),
+    };
   }
 
   /**
@@ -439,37 +379,21 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @returns A promise that resolves with the app name and version.
    */
   async getAppNameAndVersion(): Promise<GetAppNameAndVersionResponse> {
-    console.log('[DMK] getAppNameAndVersion - called');
     const sessionId = this.#transportMiddleware.getSessionId();
-    console.log('[DMK] getAppNameAndVersion - sessionId:', sessionId);
-    try {
-      const command = new GetAppAndVersionCommand();
-      const result = await this.#sdk.sendCommand({
-        sessionId,
-        command,
-      });
+    const command = new GetAppAndVersionCommand();
+    const result = await this.#sdk.sendCommand({
+      sessionId,
+      command,
+    });
 
-      if (!isSuccessCommandResult(result)) {
-        console.log(
-          '[DMK] getAppNameAndVersion - command failed:',
-          result.error,
-        );
-        throw this.#toError(result.error);
-      }
-
-      console.log(
-        '[DMK] getAppNameAndVersion - success:',
-        result.data.name,
-        result.data.version,
-      );
-      return {
-        appName: result.data.name,
-        version: result.data.version,
-      };
-    } catch (error) {
-      console.log('[DMK] getAppNameAndVersion - error:', error);
-      throw error;
+    if (!isSuccessCommandResult(result)) {
+      throw this.#toError(result.error);
     }
+
+    return {
+      appName: result.data.name,
+      version: result.data.version,
+    };
   }
 
   /**
@@ -504,7 +428,6 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   async #waitForDeviceAction<TOutput>(
     observable: Observable<DeviceActionState<TOutput, unknown, unknown>>,
   ): Promise<TOutput> {
-    console.log('[DMK] #waitForDeviceAction - subscribing to observable');
     const state = await firstValueFrom(
       observable.pipe(
         filter(
@@ -515,32 +438,11 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
       ),
     );
 
-    console.log(
-      '[DMK] #waitForDeviceAction - state received, status:',
-      state.status,
-    );
     if (state.status === DeviceActionStatus.Completed) {
       return state.output;
     }
 
     if (state.status === DeviceActionStatus.Error) {
-      console.log(
-        '[DMK] #waitForDeviceAction - error state:',
-        JSON.stringify({
-          errorType: typeof state.error,
-          errorConstructor: state.error?.constructor?.name,
-          errorMessage:
-            state.error instanceof Error
-              ? state.error.message
-              : String(state.error),
-          errorTag: (state.error as { _tag?: string })?._tag,
-          errorCode: (state.error as { errorCode?: string })?.errorCode,
-          errorKeys:
-            state.error && typeof state.error === 'object'
-              ? Object.keys(state.error)
-              : undefined,
-        }),
-      );
       throw translateDmkError(state.error);
     }
 
