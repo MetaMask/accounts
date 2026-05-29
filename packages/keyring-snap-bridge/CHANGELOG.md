@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Normalize `KeyringAccount`'s address with `:accountCreated` and `setAccounts` ([#556](https://github.com/MetaMask/accounts/pull/556))
+- Bump `@metamask/keyring-sdk` from `^2.1.1` to `^2.2.0` ([#562](https://github.com/MetaMask/accounts/pull/562))
+- Bump `@metamask/keyring-snap-sdk` from `^9.0.1` to `^9.0.2` ([#562](https://github.com/MetaMask/accounts/pull/562))
 
 ## [22.1.0]
 
