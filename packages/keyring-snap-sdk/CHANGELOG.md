@@ -9,18 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.0.2]
 
-### Uncategorized
-
-- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
-- chore: fixup CHANGELOG.md format + using `oxfmt` for changelog/releases ([#534](https://github.com/MetaMask/accounts/pull/534))
-- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
-
 ### Changed
 
-- Use `KeyringRpc` instaed of `Keyring` (v2) in `handleKeyringRequest` ([#561](https://github.com/MetaMask/accounts/pull/561))
+- Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
+
+### Fixed
+
+- Use `KeyringRpc` instead of `Keyring` (v2) in `handleKeyringRequest` ([#561](https://github.com/MetaMask/accounts/pull/561))
   - Snaps do not need to implement the full `Keyring` (v2) interface, this one is meant to be used in the "client-world".
   - `KeyringRpc` is a subset of `Keyring` which only exposes the method that can be used through `onKeyringRequest` (`keyring_*` requests).
-- Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
 
 ## [9.0.1]
 
