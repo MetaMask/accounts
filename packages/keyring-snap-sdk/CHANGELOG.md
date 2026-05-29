@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.0.2]
+
 ### Changed
 
 - Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
+
+### Fixed
+
+- Use `KeyringRpc` instead of `Keyring` (v2) in `handleKeyringRequest` ([#561](https://github.com/MetaMask/accounts/pull/561))
+  - Snaps do not need to implement the full `Keyring` (v2) interface, this one is meant to be used in the "client-world".
+  - `KeyringRpc` is a subset of `Keyring` which only exposes the method that can be used through `onKeyringRequest` (`keyring_*` requests).
 
 ## [9.0.1]
 
@@ -28,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Move and rename `handleKeyringRequestV2` to the `./v2` module ([#513](https://github.com/MetaMask/accounts/pull/513))
   - `handleKeyringRequestV2` is now `handleKeyringRequest` from `@metamask/keyring-snap-sdk/v2`.
 - **BREAKING:** Bump `@metamask/keyring-api` from `^22.0.0` to `^23.0.0` ([#515](https://github.com/MetaMask/accounts/pull/515))
-- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489)), ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [8.0.0]
 
@@ -54,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^21.2.0` to `^21.4.0` ([#460](https://github.com/MetaMask/accounts/pull/460))
-- Bump `@metamask/snaps-sdk` from `^9.0.0` to `^10.4.0` ([#422](https://github.com/MetaMask/accounts/pull/422)), ([#461](https://github.com/MetaMask/accounts/pull/461))
+- Bump `@metamask/snaps-sdk` from `^9.0.0` to `^10.4.0` ([#422](https://github.com/MetaMask/accounts/pull/422), [#461](https://github.com/MetaMask/accounts/pull/461))
 
 ## [7.1.1]
 
@@ -77,7 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Bump `@metamask/keyring-api` from `^20.0.0` to `^21.0.0` ([#355](https://github.com/MetaMask/accounts/pull/355)), ([#356](https://github.com/MetaMask/accounts/pull/356))
+- **BREAKING:** Bump `@metamask/keyring-api` from `^20.0.0` to `^21.0.0` ([#355](https://github.com/MetaMask/accounts/pull/355), [#356](https://github.com/MetaMask/accounts/pull/356))
 
 ## [6.0.0]
 
@@ -92,13 +100,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** Bump `@metamask/keyring-api` from `^18.0.0` to `^19.0.0` ([#317](https://github.com/MetaMask/accounts/pull/317))
   - The `KeyringAccount.options` field is now partially typed.
-- Bump `@metamask/snaps-sdk` dependency from `^6.16.0` to `^9.0.0` ([#273](https://github.com/MetaMask/accounts/pull/273)), ([#304](https://github.com/MetaMask/accounts/pull/304))
+- Bump `@metamask/snaps-sdk` dependency from `^6.16.0` to `^9.0.0` ([#273](https://github.com/MetaMask/accounts/pull/273), [#304](https://github.com/MetaMask/accounts/pull/304))
 
 ## [4.0.0]
 
 ### Changed
 
-- **BREAKING:** Make `@metamask/keyring-api@^18.0.0` a peer dependency ([#290](https://github.com/MetaMask/accounts/pull/290)), ([#291](https://github.com/MetaMask/accounts/pull/291))
+- **BREAKING:** Make `@metamask/keyring-api@^18.0.0` a peer dependency ([#290](https://github.com/MetaMask/accounts/pull/290), [#291](https://github.com/MetaMask/accounts/pull/291))
 
 ## [3.2.0]
 
@@ -109,7 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use event payload type for `emitSnapKeyringEvent` ([#203](https://github.com/MetaMask/accounts/pull/203))
-- Bump `@metamask/keyring-api` from `^17.2.0` to `^17.4.0` ([#263](https://github.com/MetaMask/accounts/pull/263)), ([#269](https://github.com/MetaMask/accounts/pull/269))
+- Bump `@metamask/keyring-api` from `^17.2.0` to `^17.4.0` ([#263](https://github.com/MetaMask/accounts/pull/263), [#269](https://github.com/MetaMask/accounts/pull/269))
 
 ## [3.1.0]
 
@@ -121,7 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/keyring-api` from `^17.0.0` to `^17.2.0` ([#212](https://github.com/MetaMask/accounts/pull/212)), ([#220](https://github.com/MetaMask/accounts/pull/220))
+- Bump `@metamask/keyring-api` from `^17.0.0` to `^17.2.0` ([#212](https://github.com/MetaMask/accounts/pull/212), [#220](https://github.com/MetaMask/accounts/pull/220))
 - Use `ts-bridge/cli@0.6.3` ([#214](https://github.com/MetaMask/accounts/pull/214))
   - This new version fixes a bug regarding some missing exports.
 
@@ -143,7 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/keyring-api` from `^14.0.0` to `^16.0.0` ([#172](https://github.com/MetaMask/accounts/pull/172)), [#160](https://github.com/MetaMask/accounts/pull/160)
+- Bump `@metamask/keyring-api` from `^14.0.0` to `^16.0.0` ([#172](https://github.com/MetaMask/accounts/pull/172), [#160](https://github.com/MetaMask/accounts/pull/160))
 - Bump `@metamask/utils` from `^11.0.1` to `^11.1.0` ([#167](https://github.com/MetaMask/accounts/pull/167))
 
 ## [2.1.0]
@@ -174,7 +182,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.2...HEAD
+[9.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.1...@metamask/keyring-snap-sdk@9.0.2
 [9.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.0...@metamask/keyring-snap-sdk@9.0.1
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@8.0.0...@metamask/keyring-snap-sdk@9.0.0
 [8.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@7.2.1...@metamask/keyring-snap-sdk@8.0.0

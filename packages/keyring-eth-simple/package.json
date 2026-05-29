@@ -69,8 +69,8 @@
   "dependencies": {
     "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^8.2.0",
-    "@metamask/keyring-api": "^23.1.0",
-    "@metamask/keyring-sdk": "^2.1.1",
+    "@metamask/keyring-api": "^23.2.0",
+    "@metamask/keyring-sdk": "^2.2.0",
     "@metamask/utils": "^11.11.0",
     "ethereum-cryptography": "^2.2.1",
     "randombytes": "^2.1.0"
