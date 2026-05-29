@@ -54,7 +54,9 @@ describe('LedgerDMKBridge', () => {
       startDiscovering: jest.fn().mockReturnValue(of({ id: 'device-id' })),
       getDeviceSessionState: jest
         .fn()
-        .mockReturnValue(new BehaviorSubject({ deviceStatus: DeviceStatus.CONNECTED })),
+        .mockReturnValue(
+          new BehaviorSubject({ deviceStatus: DeviceStatus.CONNECTED }),
+        ),
     };
 
     mockEthSigner = {
@@ -359,20 +361,20 @@ describe('LedgerDMKBridge', () => {
   });
 
   describe('getPublicKey', () => {
-     it('calls the DMK signer getAddress with hdPath (stripped m/ prefix)', async () => {
-       const hdPath = "m/44'/60'/0'/0/0";
-       const result = await bridge.getPublicKey({ hdPath });
+    it('calls the DMK signer getAddress with hdPath (stripped m/ prefix)', async () => {
+      const hdPath = "m/44'/60'/0'/0/0";
+      const result = await bridge.getPublicKey({ hdPath });
 
-       expect(mockTransportMiddleware.getEthSigner.mock.calls).toHaveLength(1);
-       expect(mockEthSigner.getAddress.mock.calls).toStrictEqual([
-         [
-           "44'/60'/0'/0/0",
-           {
-             checkOnDevice: false,
-             returnChainCode: true,
-           },
-         ],
-       ]);
+      expect(mockTransportMiddleware.getEthSigner.mock.calls).toHaveLength(1);
+      expect(mockEthSigner.getAddress.mock.calls).toStrictEqual([
+        [
+          "44'/60'/0'/0/0",
+          {
+            checkOnDevice: false,
+            returnChainCode: true,
+          },
+        ],
+      ]);
       expect(result).toStrictEqual({
         publicKey: '0xpublicKey',
         address: '0xaddress',
@@ -492,9 +494,9 @@ describe('LedgerDMKBridge', () => {
       const result = await bridge.deviceSignTransaction({ hdPath, tx });
 
       expect(mockTransportMiddleware.getEthSigner.mock.calls).toHaveLength(1);
-       expect(mockEthSigner.signTransaction.mock.calls).toStrictEqual([
-         ["44'/60'/0'/0/0", Uint8Array.from(Buffer.from(tx, 'hex'))],
-       ]);
+      expect(mockEthSigner.signTransaction.mock.calls).toStrictEqual([
+        ["44'/60'/0'/0/0", Uint8Array.from(Buffer.from(tx, 'hex'))],
+      ]);
       expect(result).toStrictEqual({
         v: '1b',
         r: 'r-value',
@@ -584,7 +586,7 @@ describe('LedgerDMKBridge', () => {
       const result = await bridge.deviceSignTypedData({ hdPath, message });
 
       expect(mockTransportMiddleware.getEthSigner.mock.calls).toHaveLength(1);
-       expect(mockEthSigner.signTypedData.mock.calls).toStrictEqual([
+      expect(mockEthSigner.signTypedData.mock.calls).toStrictEqual([
         ["44'/60'/0'/0/0", message],
       ]);
       expect(result).toStrictEqual({
@@ -609,14 +611,10 @@ describe('LedgerDMKBridge', () => {
         nonce,
       });
 
-      expect(
-        mockTransportMiddleware.getEthSigner.mock.calls,
-      ).toHaveLength(1);
+      expect(mockTransportMiddleware.getEthSigner.mock.calls).toHaveLength(1);
       expect(
         mockEthSigner.signDelegationAuthorization.mock.calls,
-      ).toStrictEqual([
-        ["44'/60'/0'/0/0", chainId, contractAddress, nonce],
-      ]);
+      ).toStrictEqual([["44'/60'/0'/0/0", chainId, contractAddress, nonce]]);
       expect(result).toStrictEqual({
         v: '0',
         r: 'r-value',
@@ -782,9 +780,7 @@ describe('LedgerDMKBridge', () => {
     });
 
     it('throws when neither dmk nor transportFactory is provided', () => {
-      expect(
-        () => new LedgerDMKBridge({}),
-      ).toThrow(
+      expect(() => new LedgerDMKBridge({})).toThrow(
         'LedgerDMKBridge requires either a transportFactory or a dmk instance.',
       );
     });

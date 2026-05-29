@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `signEip7702Authorization` method to `LedgerKeyring` for signing EIP-7702 delegation authorizations via Ledger device ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Add `deviceSignDelegationAuthorization` to `LedgerBridge` interface.
+  - Implement in `LedgerDMKBridge` using the DMK signer kit's `signDelegationAuthorization`.
+  - Add `eth_signEip7702Authorization` to v2 `LedgerKeyring` supported methods.
+
 ### Changed
 
 - Rename `LedgerMobileDMKBridge` to `LedgerDMKBridge` to reflect platform-agnostic design ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
