@@ -40,11 +40,11 @@ export const SPECULOS_WS_BRIDGE_PORT = DEFAULT_DEVICE.wsBridgePort;
 
 /** Ethereum addresses derived from the default Speculos seed. */
 export const SPECULOS_LEDGER_ADDRESSES = [
-  '0x24fC293546A31F5Ce73bAfecE37969A95CCd1aBf',
-  '0x730A5c73bC3ACcf56daba2D5D897bEb10F852865',
-  '0x805c2797CCBa57887F5fA0DD95C017145d67604a',
-  '0x2Bf9972F600D8C3B3f0AEe8f1e17Fc4631242fF4',
-  '0xDc660e6D52F6f774d0879f99929711155Bc03902',
+  '0xb0358b8F2314F6f6a392a4be8C7C422e631d9F63',
+  '0xE004F1e6F8bB51106fD488550f7e6e6f54430018',
+  '0xd957f2200aEDA0Ac1604d29F6C823bD113A13780',
+  '0x797b3EF4B1807c30F6831381dE79be50217B53a5',
+  '0x335Fcb7dd8d2190c9698026Df2dBa62A990371F4',
 ] as const;
 
 /** Primary Ledger address derived from the default Speculos seed. */
@@ -52,7 +52,7 @@ export const SPECULOS_LEDGER_ADDRESS = SPECULOS_LEDGER_ADDRESSES[0];
 
 /** BIP-39 mnemonic seed used by default in the Speculos emulator. */
 export const SPECULOS_SEED =
-  'urban secret spare tunnel rubber rally ladder rally spatial feature elite success';
+  'grit essence story volume tip entry situate found february olympic monitor hybrid';
 
 /** Interaction method used by the device — button-based or touch-based. */
 export type InteractionType = 'button' | 'touch';

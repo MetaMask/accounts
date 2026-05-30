@@ -16,14 +16,19 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - arch: amd64
-            platform: linux
+            runner: ubuntu-latest
+            file_arch: x86-64
           - arch: arm64
-            platform: linux
+            # PyInstaller bundles the host arch; arm64 must build on arm64.
+            runner: ubuntu-24.04-arm
+            file_arch: 'ARM aarch64'
+
+    runs-on: ${{ matrix.runner }}
 
     steps:
       - uses: actions/checkout@v4
@@ -32,12 +37,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Set up QEMU (for arm64 cross-compilation)
-        if: matrix.arch == 'arm64'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
 
       - name: Install dependencies
         run: |
@@ -59,13 +58,37 @@ jobs:
             --collect-all speculos \
             $(python -c 'import speculos; print(speculos.__file__)')
 
+      - name: Verify binary architecture
+        run: |
+          file dist/speculos | tee /tmp/speculos-file.txt
+          grep -Fq '${{ matrix.file_arch }}' /tmp/speculos-file.txt
+
       - name: Package archive
         run: |
           VERSION="${{ github.event.inputs.version || '0.25.13' }}"
           cd dist
-          tar -czf speculos-v${VERSION}-${{ matrix.platform }}-${{ matrix.arch }}.tar.gz speculos
+          tar -czf speculos-v${VERSION}-linux-${{ matrix.arch }}.tar.gz speculos
 
-      - name: Upload release asset
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: speculos-linux-${{ matrix.arch }}
+          path: dist/speculos-v*-linux-${{ matrix.arch }}.tar.gz
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: speculos-linux-*
+          path: dist
+          merge-multiple: true
+
+      - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: speculos-v${{ github.event.inputs.version || '0.25.13' }}

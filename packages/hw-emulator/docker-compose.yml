@@ -14,7 +14,7 @@ services:
     command: >
       --model ${SPECULOS_DEVICE:-nanosp}
       /speculos/apps/${SPECULOS_ELF_FILENAME:-ethereum-nanosp.elf}
-      --seed "${SPECULOS_SEED:-urban secret spare tunnel rubber rally ladder spatial feature elite success}"
+      --seed "${SPECULOS_SEED:-grit essence story volume tip entry situate found february olympic monitor hybrid}"
       --display ${SPECULOS_DISPLAY:-headless}
       --apdu-port 9999
       --api-port 5000

@@ -1,6 +1,3 @@
-// eslint-disable-next-line import-x/no-nodejs-modules
-import { join } from 'node:path';
-
 import type {
   HardwareWalletEmulator,
   DeviceInteraction as SharedDeviceInteraction,
@@ -130,7 +127,7 @@ export class Speculos implements HardwareWalletEmulator {
   getElfPath(): string {
     const config = this.resolveConfig();
     // eslint-disable-next-line no-restricted-globals
-    return join(__dirname, '..', '..', 'apps', config.deviceModel.elfFile);
+    return `${__dirname}/../../apps/${config.deviceModel.elfFile}`;
   }
 
   /**
@@ -140,7 +137,7 @@ export class Speculos implements HardwareWalletEmulator {
    */
   getNvramPath(): string {
     // eslint-disable-next-line no-restricted-globals
-    return join(__dirname, '..', '..', 'nvram', 'main_nvram.bin');
+    return `${__dirname}/../../nvram/main_nvram.bin`;
   }
 
   /**
@@ -150,7 +147,7 @@ export class Speculos implements HardwareWalletEmulator {
    */
   getDockerComposePath(): string {
     // eslint-disable-next-line no-restricted-globals
-    return join(__dirname, '..', '..', 'docker-compose.yml');
+    return `${__dirname}/../../docker-compose.yml`;
   }
 
   /**

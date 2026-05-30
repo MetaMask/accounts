@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 import { getInstallDir, getSpeculosBinaryPath, isSpeculosInstalled } from '.';
 import { Architecture, Platform } from './types';
 import {
@@ -5,6 +7,7 @@ import {
   getDefaultVersion,
   getDefaultRepo,
   getBinaryArchiveUrl,
+  getBundledArchivePath,
   normalizeSystemArchitecture,
 } from './utils';
 
@@ -52,6 +55,32 @@ describe('speculosup', () => {
     });
   });
 
+  describe('getBundledArchivePath', () => {
+    it('returns a path for a bundled archive that exists', () => {
+      const packageDir = join(__dirname, '..');
+      const result = getBundledArchivePath(
+        '0.25.13',
+        Platform.Linux,
+        Architecture.Amd64,
+        packageDir,
+      );
+      expect(result).toMatch(
+        /bundled\/speculos-v0\.25\.13-linux-amd64\.tar\.gz$/u,
+      );
+    });
+
+    it('returns null for a version that has no bundle', () => {
+      const packageDir = join(__dirname, '..');
+      const result = getBundledArchivePath(
+        '99.99.99',
+        Platform.Linux,
+        Architecture.Amd64,
+        packageDir,
+      );
+      expect(result).toBeNull();
+    });
+  });
+
   describe('getInstallDir', () => {
     it('includes version, platform, and arch', () => {
       const dir = getInstallDir();
@@ -74,10 +103,10 @@ describe('speculosup', () => {
   });
 
   describe('getSpeculosBinaryPath', () => {
-    it('returns a path containing speculos', () => {
-      const path = getSpeculosBinaryPath();
-      expect(path).toContain('speculos');
-      expect(path).not.toBeNull();
+    it('returns null when the managed binary is not installed', () => {
+      const options = { cacheDir: '/tmp/nonexistent-speculosup-test' };
+      expect(isSpeculosInstalled(options)).toBe(false);
+      expect(getSpeculosBinaryPath(options)).toBeNull();
     });
   });
 

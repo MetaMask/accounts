@@ -143,3 +143,42 @@ export function getBinaryPath(installDir: string): string {
 export function isInstalled(installDir: string): boolean {
   return existsSync(getBinaryPath(installDir));
 }
+
+/**
+ * Get the path to a bundled speculos archive, if one exists for the given
+ * platform and architecture.
+ *
+ * Bundled archives are pre-packaged tar.gz files in the `bundled/` directory
+ * next to the compiled `dist/` output. They allow the binary to be used
+ * without a network download.
+ *
+ * @param version - The speculos version.
+ * @param platform - The target platform.
+ * @param targetArch - The target architecture.
+ * @param packageDir - The package root directory containing bundled/.
+ * @returns The absolute path to the bundled archive, or `null` if not found.
+ */
+export function getBundledArchivePath(
+  version: string,
+  platform: Platform,
+  targetArch: string,
+  packageDir: string,
+): string | null {
+  const fileName = `speculos-v${version}-${String(platform)}-${targetArch}.tar.gz`;
+  const archivePath = join(packageDir, 'bundled', fileName);
+  return existsSync(archivePath) ? archivePath : null;
+}
+
+/**
+ * Get the SHA256 checksum for a bundled archive.
+ *
+ * @param archivePath - The path to the archive.
+ * @param checksums - The checksums map.
+ * @returns The expected checksum, or undefined if not found.
+ */
+export function getBundledChecksum(
+  archivePath: string,
+  checksums: Record<string, string>,
+): string | undefined {
+  return checksums[archivePath];
+}

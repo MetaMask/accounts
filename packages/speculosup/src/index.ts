@@ -3,6 +3,8 @@ import { createHash } from 'node:crypto';
 // eslint-disable-next-line import-x/no-nodejs-modules
 import type { Dir } from 'node:fs';
 // eslint-disable-next-line import-x/no-nodejs-modules
+import { readFile } from 'node:fs/promises';
+// eslint-disable-next-line import-x/no-nodejs-modules
 import {
   copyFile,
   mkdir,
@@ -14,12 +16,13 @@ import {
 // eslint-disable-next-line import-x/no-nodejs-modules
 import { dirname, join, relative } from 'node:path';
 
-import { extractFrom } from './extract';
+import { extractFrom, extractFromLocal } from './extract';
 import type { SpeculosupOptions } from './types';
 import { Binary, Platform } from './types';
 import {
   getBinaryArchiveUrl,
   getBinaryPath,
+  getBundledArchivePath,
   getDefaultCacheDir,
   getDefaultRepo,
   getDefaultVersion,
@@ -30,6 +33,63 @@ import {
   normalizeSystemArchitecture,
   say,
 } from './utils';
+
+let cachedPackageDir: string | undefined;
+
+/**
+ * Resolve the package root directory containing bundled/ and dist/.
+ * Works in both CJS and ESM contexts.
+ *
+ * @returns The package root directory, or undefined if not resolvable.
+ */
+function resolvePackageDir(): string | undefined {
+  if (cachedPackageDir) {
+    return cachedPackageDir;
+  }
+  try {
+    // eslint-disable-next-line no-restricted-globals
+    const utilsPath = require.resolve('./utils');
+    cachedPackageDir = dirname(dirname(utilsPath));
+    return cachedPackageDir;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Verify the SHA256 checksum of a bundled archive against checksums.json.
+ *
+ * @param archivePath - The path to the archive file.
+ * @param packageDir - The package root directory.
+ * @returns True if the checksum matches or no checksum is recorded.
+ */
+async function verifyBundledChecksum(
+  archivePath: string,
+  packageDir: string,
+): Promise<boolean> {
+  try {
+    const checksumsPath = join(packageDir, 'bundled', 'checksums.json');
+    const checksums = JSON.parse(
+      await readFile(checksumsPath, 'utf8'),
+    ) as Record<string, string>;
+    const fileName = archivePath.split('/').pop() ?? '';
+    const expected = checksums[fileName];
+    if (!expected) {
+      say('no checksum on file, skipping verification');
+      return true;
+    }
+    const fileBuffer = await readFile(archivePath);
+    const actual = createHash('sha256').update(fileBuffer).digest('hex');
+    if (actual !== expected) {
+      say(`checksum mismatch: expected ${expected}, got ${actual}`);
+      return false;
+    }
+    say('bundled archive checksum verified');
+    return true;
+  } catch {
+    return true;
+  }
+}
 
 /**
  * Resolve the installation directory for a given version and architecture.
@@ -52,14 +112,16 @@ export function getInstallDir(options: SpeculosupOptions = {}): string {
  * Get the path to the installed speculos binary.
  *
  * @param options - Installation options.
- * @returns The absolute path to the speculos binary.
+ * @returns The absolute path to the speculos binary, or `null` if not installed.
  */
 export function getSpeculosBinaryPath(
   options: SpeculosupOptions = {},
 ): string | null {
   const installDir = getInstallDir(options);
-  const binaryPath = getBinaryPath(installDir);
-  return binaryPath;
+  if (!isInstalled(installDir)) {
+    return null;
+  }
+  return getBinaryPath(installDir);
 }
 
 /**
@@ -103,6 +165,35 @@ export async function checkAndDownloadBinaries(
     }
   }
   return downloadedBinaries;
+}
+
+/**
+ * Check if binaries are already in the cache. If not, extract from a local archive.
+ *
+ * @param archivePath - The absolute path to the local tar.gz archive.
+ * @param cachePath - The cache directory.
+ * @returns A directory handle for the cached binaries.
+ */
+export async function checkAndExtractLocalBinaries(
+  archivePath: string,
+  cachePath: string,
+): Promise<Dir> {
+  let extractedBinaries: Dir;
+  try {
+    say('checking cache');
+    extractedBinaries = await opendir(cachePath);
+    say('found binaries in cache');
+  } catch (cacheError: unknown) {
+    say('binaries not in cache');
+    if ((cacheError as NodeJS.ErrnoException).code === 'ENOENT') {
+      say('extracting from bundled archive');
+      await extractFromLocal(archivePath, [Binary.Speculos], cachePath);
+      extractedBinaries = await opendir(cachePath);
+    } else {
+      throw cacheError;
+    }
+  }
+  return extractedBinaries;
 }
 
 /**
@@ -162,9 +253,9 @@ export async function downloadAndInstall(
 
   say(`fetching speculos v${version} for ${String(platform)} ${targetArch}`);
 
-  const archiveUrl = getBinaryArchiveUrl(repo, version, platform, targetArch);
-  const url = new URL(archiveUrl);
-  const cacheKey = createHash('sha256').update(archiveUrl).digest('hex');
+  const cacheKey = createHash('sha256')
+    .update(`speculos-v${version}-${String(platform)}-${targetArch}`)
+    .digest('hex');
   const cachePath = join(cacheDir, cacheKey);
 
   const binDir = join(
@@ -174,7 +265,27 @@ export async function downloadAndInstall(
     '.bin',
   );
 
-  const downloadedBinaries = await checkAndDownloadBinaries(url, cachePath);
+  const packageDir = resolvePackageDir();
+  const bundledArchive = packageDir
+    ? getBundledArchivePath(version, platform, targetArch, packageDir)
+    : null;
+  let downloadedBinaries: Dir;
+
+  if (
+    bundledArchive &&
+    packageDir &&
+    (await verifyBundledChecksum(bundledArchive, packageDir))
+  ) {
+    say('using bundled binary');
+    downloadedBinaries = await checkAndExtractLocalBinaries(
+      bundledArchive,
+      cachePath,
+    );
+  } else {
+    const archiveUrl = getBinaryArchiveUrl(repo, version, platform, targetArch);
+    const url = new URL(archiveUrl);
+    downloadedBinaries = await checkAndDownloadBinaries(url, cachePath);
+  }
 
   await installBinaries(downloadedBinaries, binDir, cachePath);
 

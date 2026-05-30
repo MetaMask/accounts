@@ -1,7 +1,9 @@
 // eslint-disable-next-line import-x/no-nodejs-modules
 import { createHash } from 'node:crypto';
 // eslint-disable-next-line import-x/no-nodejs-modules
-import { mkdir, readFile, rename, rm } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
+// eslint-disable-next-line import-x/no-nodejs-modules
+import { mkdir, readFile, rename, rm, stat } from 'node:fs/promises';
 // eslint-disable-next-line import-x/no-nodejs-modules
 import { join } from 'node:path';
 // eslint-disable-next-line import-x/no-nodejs-modules
@@ -54,6 +56,54 @@ export async function extractFrom(
           );
         }
       }
+      paths.push(join(dir, binary));
+    }
+
+    await rm(dir, rmOpts);
+    await rename(tempDir, dir);
+    return paths;
+  } catch (error) {
+    const rmErrors = (
+      await Promise.allSettled([rm(tempDir, rmOpts), rm(dir, rmOpts)])
+    )
+      .filter((result) => result.status === 'rejected')
+      .map((result) => (result as PromiseRejectedResult).reason);
+
+    if (rmErrors.length) {
+      throw new Error(
+        `Extraction failed and cleanup also failed: ${rmErrors.map((reason) => (reason instanceof Error ? reason.message : String(reason))).join(', ')}`,
+      );
+    }
+    throw error;
+  }
+}
+
+/**
+ * Extract the speculos binary from a local tar.gz archive.
+ *
+ * @param archivePath - The absolute path to the tar.gz archive.
+ * @param binaries - The binaries to extract.
+ * @param dir - The destination directory.
+ * @returns The list of extracted binary paths.
+ */
+export async function extractFromLocal(
+  archivePath: string,
+  binaries: Binary[],
+  dir: string,
+): Promise<string[]> {
+  const tempDir = `${dir}.extracting`;
+  const rmOpts = { recursive: true, maxRetries: 3, force: true };
+  try {
+    await rm(tempDir, rmOpts);
+    await mkdir(tempDir, { recursive: true });
+
+    say('extracting bundled archive');
+    await pipeline(createReadStream(archivePath), extractTar({ cwd: tempDir }));
+
+    const paths: string[] = [];
+    for (const binary of binaries) {
+      const extractedPath = join(tempDir, binary);
+      await stat(extractedPath);
       paths.push(join(dir, binary));
     }
 

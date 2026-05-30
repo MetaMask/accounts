@@ -32,7 +32,10 @@ yarn mm-speculosup
 ### Programmatic
 
 ```typescript
-import { getSpeculosBinaryPath, downloadAndInstall } from '@metamask/speculosup';
+import {
+  getSpeculosBinaryPath,
+  downloadAndInstall,
+} from '@metamask/speculosup';
 
 // Check if already installed
 const binaryPath = getSpeculosBinaryPath();
@@ -77,13 +80,13 @@ Removes all cached installations.
 
 ### `SpeculosupOptions`
 
-| Option     | Type   | Default                  | Description                        |
-| ---------- | ------ | ------------------------ | ---------------------------------- |
-| `version`  | string | `'0.25.13'`              | Speculos version to install.       |
-| `repo`     | string | `'MetaMask/accounts'`    | GitHub repo hosting releases.      |
-| `cacheDir` | string | `~/.cache/metamask/speculosup` | Custom cache directory.      |
-| `platform` | `Platform` | `Platform.Linux`     | Target platform.                   |
-| `arch`     | `Architecture` | Auto-detected      | Target architecture (amd64/arm64). |
+| Option     | Type           | Default                        | Description                        |
+| ---------- | -------------- | ------------------------------ | ---------------------------------- |
+| `version`  | string         | `'0.25.13'`                    | Speculos version to install.       |
+| `repo`     | string         | `'MetaMask/accounts'`          | GitHub repo hosting releases.      |
+| `cacheDir` | string         | `~/.cache/metamask/speculosup` | Custom cache directory.            |
+| `platform` | `Platform`     | `Platform.Linux`               | Target platform.                   |
+| `arch`     | `Architecture` | Auto-detected                  | Target architecture (amd64/arm64). |
 
 ## How It Works
 
@@ -97,6 +100,26 @@ Removes all cached installations.
 
 - **Linux** — native binary (pre-built via PyInstaller)
 - **macOS / Windows** — use Docker mode via `@metamask/hw-emulator` instead
+
+## Building release binaries (maintainers)
+
+Release archives are **Linux ELF** binaries (`speculos-v<version>-linux-<arch>.tar.gz`). CI builds them on native Linux runners (see `.github/workflows/build-speculos.yml`).
+
+On **macOS** (including Apple Silicon) or Windows, use Docker so PyInstaller runs inside Linux:
+
+```bash
+cd packages/speculosup
+
+# Both linux-amd64 and linux-arm64 (arm64 is fast on M-series; amd64 uses emulation)
+./scripts/build-speculos-docker.sh 0.25.13
+
+# Single architecture
+./scripts/build-speculos-docker.sh 0.25.13 arm64
+```
+
+Artifacts land in `packages/speculosup/dist-build/`. Upload them to a GitHub release tagged `speculos-v<version>` on `MetaMask/accounts`.
+
+On **Linux**, you can use `./scripts/build-speculos.sh` for the host architecture only, or the Docker script for both arches.
 
 ## Contributing
 

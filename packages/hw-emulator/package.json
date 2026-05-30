@@ -27,6 +27,10 @@
     "docker-compose.yml"
   ],
   "sideEffects": false,
+  "browser": {
+    "./dist/ledger/docker-manager.cjs": false,
+    "./dist/ledger/process-manager.cjs": false
+  },
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "exports": {

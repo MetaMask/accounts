@@ -18,5 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - HTTP streaming download with redirect support
   - tar.gz extraction with optional SHA-256 checksum verification
   - CLI entry point `mm-speculosup`
+  - Add pre-packaged speculos binaries (linux-amd64 + linux-arm64) to avoid runtime downloads
 
 [Unreleased]: https://github.com/MetaMask/accounts/

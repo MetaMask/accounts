@@ -22,7 +22,9 @@
     "mm-speculosup": "./dist/cli.mjs"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "bundled/*.tar.gz",
+    "bundled/checksums.json"
   ],
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -49,6 +51,7 @@
     "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
+    "build:speculos:docker": "bash ./scripts/build-speculos-docker.sh",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/speculosup",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/speculosup",
     "publish:preview": "yarn npm publish --tag preview",
