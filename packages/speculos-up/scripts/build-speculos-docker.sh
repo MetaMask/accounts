@@ -9,7 +9,7 @@ set -euo pipefail
 #   version  Speculos pip version (default: 0.25.13)
 #   arch     One or more of: amd64, arm64 (default: both)
 #
-# Produces in packages/speculosup/dist-build/:
+# Produces in packages/speculos-up/dist-build/:
 #   speculos-v<version>-linux-amd64.tar.gz
 #   speculos-v<version>-linux-arm64.tar.gz
 

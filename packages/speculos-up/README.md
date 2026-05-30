@@ -108,7 +108,7 @@ Release archives are **Linux ELF** binaries (`speculos-v<version>-linux-<arch>.t
 On **macOS** (including Apple Silicon) or Windows, use Docker so PyInstaller runs inside Linux:
 
 ```bash
-cd packages/speculosup
+cd packages/speculos-up
 
 # Both linux-amd64 and linux-arm64 (arm64 is fast on M-series; amd64 uses emulation)
 ./scripts/build-speculos-docker.sh 0.25.13
@@ -117,7 +117,7 @@ cd packages/speculosup
 ./scripts/build-speculos-docker.sh 0.25.13 arm64
 ```
 
-Artifacts land in `packages/speculosup/dist-build/`. Upload them to a GitHub release tagged `speculos-v<version>` on `MetaMask/accounts`.
+Artifacts land in `packages/speculos-up/dist-build/`. Upload them to a GitHub release tagged `speculos-v<version>` on `MetaMask/accounts`.
 
 On **Linux**, you can use `./scripts/build-speculos.sh` for the host architecture only, or the Docker script for both arches.
 

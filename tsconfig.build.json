@@ -16,7 +16,7 @@
     { "path": "./packages/keyring-sdk/tsconfig.build.json" },
     { "path": "./packages/keyring-snap-sdk/tsconfig.build.json" },
     { "path": "./packages/keyring-utils/tsconfig.build.json" },
-    { "path": "./packages/speculosup/tsconfig.build.json" },
+    { "path": "./packages/speculos-up/tsconfig.build.json" },
     { "path": "./packages/hw-emulator/tsconfig.build.json" }
   ],
   "files": [],
