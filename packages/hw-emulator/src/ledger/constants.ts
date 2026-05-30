@@ -52,7 +52,7 @@ export const SPECULOS_LEDGER_ADDRESS = SPECULOS_LEDGER_ADDRESSES[0];
 
 /** BIP-39 mnemonic seed used by default in the Speculos emulator. */
 export const SPECULOS_SEED =
-  'urban secret spare tunnel rubber rally ladder spatial feature elite success';
+  'urban secret spare tunnel rubber rally ladder rally spatial feature elite success';
 
 /** Interaction method used by the device — button-based or touch-based. */
 export type InteractionType = 'button' | 'touch';
