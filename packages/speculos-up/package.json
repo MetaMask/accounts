@@ -1,5 +1,5 @@
 {
-  "name": "@metamask/speculosup",
+  "name": "@metamask/speculos-up",
   "version": "0.1.0",
   "description": "Download and manage the Speculos Ledger emulator binary",
   "keywords": [
@@ -19,7 +19,7 @@
     "url": "https://github.com/MetaMask/accounts.git"
   },
   "bin": {
-    "mm-speculosup": "./dist/cli.mjs"
+    "mm-speculos-up": "./dist/cli.mjs"
   },
   "files": [
     "dist/",
@@ -52,8 +52,8 @@
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
     "build:speculos:docker": "bash ./scripts/build-speculos-docker.sh",
-    "changelog:update": "../../scripts/update-changelog.sh @metamask/speculosup",
-    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/speculosup",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/speculos-up",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/speculos-up",
     "publish:preview": "yarn npm publish --tag preview",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",

@@ -12,7 +12,7 @@ import {
   normalizeSystemArchitecture,
 } from './utils';
 
-describe('speculosup', () => {
+describe('speculos-up', () => {
   describe('getDefaultVersion', () => {
     it('returns a version string', () => {
       const version = getDefaultVersion();
@@ -37,8 +37,8 @@ describe('speculosup', () => {
   });
 
   describe('getDefaultCacheDir', () => {
-    it('returns a path containing speculosup', () => {
-      expect(getDefaultCacheDir()).toContain('speculosup');
+    it('returns a path containing speculos-up', () => {
+      expect(getDefaultCacheDir()).toContain('speculos-up');
     });
   });
 
@@ -125,7 +125,7 @@ describe('speculosup', () => {
 
   describe('getSpeculosBinaryPath', () => {
     it('returns null when the managed binary is not installed', () => {
-      const options = { cacheDir: '/tmp/nonexistent-speculosup-test' };
+      const options = { cacheDir: '/tmp/nonexistent-speculos-up-test' };
       expect(isSpeculosInstalled(options)).toBe(false);
       expect(getSpeculosBinaryPath(options)).toBeNull();
     });
@@ -134,7 +134,7 @@ describe('speculosup', () => {
   describe('isSpeculosInstalled', () => {
     it('returns false for non-existent path', () => {
       const result = isSpeculosInstalled({
-        cacheDir: '/tmp/nonexistent-speculosup-test',
+        cacheDir: '/tmp/nonexistent-speculos-up-test',
       });
       expect(result).toBe(false);
     });

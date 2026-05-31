@@ -2084,9 +2084,9 @@ __metadata:
     typescript: "npm:~5.3.3"
     ws: "npm:^8.18.0"
   peerDependencies:
-    "@metamask/speculosup": ^0.1.0
+    "@metamask/speculos-up": ^0.1.0
   peerDependenciesMeta:
-    "@metamask/speculosup":
+    "@metamask/speculos-up":
       optional: true
   languageName: unknown
   linkType: soft
@@ -2644,9 +2644,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/speculosup@workspace:packages/speculos-up":
+"@metamask/speculos-up@workspace:packages/speculos-up":
   version: 0.0.0-use.local
-  resolution: "@metamask/speculosup@workspace:packages/speculos-up"
+  resolution: "@metamask/speculos-up@workspace:packages/speculos-up"
   dependencies:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
@@ -2666,7 +2666,7 @@ __metadata:
     typedoc: "npm:^0.25.13"
     typescript: "npm:~5.3.3"
   bin:
-    mm-speculosup: ./dist/cli.mjs
+    mm-speculos-up: ./dist/cli.mjs
   languageName: unknown
   linkType: soft
 

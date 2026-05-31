@@ -61,16 +61,16 @@ export function normalizeSystemArchitecture(
  * @returns The cache directory path.
  */
 export function getDefaultCacheDir(): string {
-  return join(homedir(), '.cache', 'metamask', 'speculosup');
+  return join(homedir(), '.cache', 'metamask', 'speculos-up');
 }
 
 /**
- * Log a message with the speculosup prefix.
+ * Log a message with the speculos-up prefix.
  *
  * @param message - The message to log.
  */
 export function say(message: string): void {
-  console.log(`[speculosup] ${message}`);
+  console.log(`[speculos-up] ${message}`);
 }
 
 /**

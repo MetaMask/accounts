@@ -1,4 +1,4 @@
-# `@metamask/speculosup`
+# `@metamask/speculos-up`
 
 Download and manage pre-built [Speculos](https://github.com/LedgerHQ/speculos) Ledger emulator binaries from GitHub releases.
 
@@ -6,11 +6,11 @@ Inspired by [`@metamask/foundryup`](https://github.com/MetaMask/core/tree/main/p
 
 ## Installation
 
-`yarn add @metamask/speculosup`
+`yarn add @metamask/speculos-up`
 
 or
 
-`npm install @metamask/speculosup`
+`npm install @metamask/speculos-up`
 
 ## Overview
 
@@ -24,7 +24,7 @@ This avoids requiring developers to install Python, set up a virtual environment
 
 ```bash
 # Download and install the default version
-yarn mm-speculosup
+yarn mm-speculos-up
 
 # The binary is available at node_modules/.bin/speculos
 ```
@@ -35,7 +35,7 @@ yarn mm-speculosup
 import {
   getSpeculosBinaryPath,
   downloadAndInstall,
-} from '@metamask/speculosup';
+} from '@metamask/speculos-up';
 
 // Check if already installed
 const binaryPath = getSpeculosBinaryPath();
@@ -54,7 +54,7 @@ import { createEmulator, EmulatorType } from '@metamask/hw-emulator';
 const emulator = createEmulator(EmulatorType.Ledger, {
   device: 'flex',
   mode: 'native',
-  // No `binary` option needed — uses speculosup's managed binary
+  // No `binary` option needed — uses speculos-up's managed binary
 });
 
 await emulator.start();
@@ -84,14 +84,14 @@ Removes all cached installations.
 | ---------- | -------------- | ------------------------------ | ---------------------------------- |
 | `version`  | string         | `'0.25.13'`                    | Speculos version to install.       |
 | `repo`     | string         | `'MetaMask/accounts'`          | GitHub repo hosting releases.      |
-| `cacheDir` | string         | `~/.cache/metamask/speculosup` | Custom cache directory.            |
+| `cacheDir` | string         | `~/.cache/metamask/speculos-up` | Custom cache directory.            |
 | `platform` | `Platform`     | `Platform.Linux`               | Target platform.                   |
 | `arch`     | `Architecture` | Auto-detected                  | Target architecture (amd64/arm64). |
 
 ## How It Works
 
 1. Computes a download URL for the target platform/architecture
-2. Checks a local cache (`~/.cache/metamask/speculosup/`) for existing binaries
+2. Checks a local cache (`~/.cache/metamask/speculos-up/`) for existing binaries
 3. If not cached, downloads the tar.gz from GitHub releases
 4. Extracts and verifies checksums (if provided)
 5. Symlinks (or copies) into `node_modules/.bin/speculos`

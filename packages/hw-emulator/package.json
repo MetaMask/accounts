@@ -90,10 +90,10 @@
     "typescript": "~5.3.3"
   },
   "peerDependencies": {
-    "@metamask/speculosup": "^0.1.0"
+    "@metamask/speculos-up": "^0.1.0"
   },
   "peerDependenciesMeta": {
-    "@metamask/speculosup": {
+    "@metamask/speculos-up": {
       "optional": true
     }
   },

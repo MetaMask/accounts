@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Docker Compose configuration for Speculos
   - JSDoc documentation on all public types, classes, methods, and constants
   - `getElfFilePath` utility for resolving ELF binary paths (native mode)
-  - `startNative()` defaults to `@metamask/speculosup` managed binary when no `binary` option is provided
+  - `startNative()` defaults to `@metamask/speculos-up` managed binary when no `binary` option is provided
   - Fix Docker mode ignoring custom `apduPort` / `apiPort` by passing host ports to `docker-compose`
   - Fix Docker mode ignoring the `seed` option by wiring `SPECULOS_SEED` through `docker-compose.yml`
   - Fix Docker mode ignoring the `display` option by wiring `SPECULOS_DISPLAY` through `docker-compose.yml`
