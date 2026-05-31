@@ -16,19 +16,7 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - arch: amd64
-            runner: ubuntu-latest
-            file_arch: x86-64
-          - arch: arm64
-            # PyInstaller bundles the host arch; arm64 must build on arm64.
-            runner: macos-12.0
-            file_arch: 'ARM aarch64'
-
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -61,19 +49,20 @@ jobs:
       - name: Verify binary architecture
         run: |
           file dist/speculos | tee /tmp/speculos-file.txt
-          grep -Fq '${{ matrix.file_arch }}' /tmp/speculos-file.txt
+          grep -Fq 'ELF' /tmp/speculos-file.txt
+          grep -Fq 'x86-64' /tmp/speculos-file.txt
 
       - name: Package archive
         run: |
           VERSION="${{ github.event.inputs.version || '0.25.13' }}"
           cd dist
-          tar -czf speculos-v${VERSION}-linux-${{ matrix.arch }}.tar.gz speculos
+          tar -czf speculos-v${VERSION}-linux-amd64.tar.gz speculos
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: speculos-linux-${{ matrix.arch }}
-          path: dist/speculos-v*-linux-${{ matrix.arch }}.tar.gz
+          name: speculos-linux-amd64
+          path: dist/speculos-v*-linux-amd64.tar.gz
           if-no-files-found: error
 
   release:

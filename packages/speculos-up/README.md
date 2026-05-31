@@ -80,13 +80,13 @@ Removes all cached installations.
 
 ### `SpeculosupOptions`
 
-| Option     | Type           | Default                        | Description                        |
-| ---------- | -------------- | ------------------------------ | ---------------------------------- |
-| `version`  | string         | `'0.25.13'`                    | Speculos version to install.       |
-| `repo`     | string         | `'MetaMask/accounts'`          | GitHub repo hosting releases.      |
+| Option     | Type           | Default                         | Description                        |
+| ---------- | -------------- | ------------------------------- | ---------------------------------- |
+| `version`  | string         | `'0.25.13'`                     | Speculos version to install.       |
+| `repo`     | string         | `'MetaMask/accounts'`           | GitHub repo hosting releases.      |
 | `cacheDir` | string         | `~/.cache/metamask/speculos-up` | Custom cache directory.            |
-| `platform` | `Platform`     | `Platform.Linux`               | Target platform.                   |
-| `arch`     | `Architecture` | Auto-detected                  | Target architecture (amd64/arm64). |
+| `platform` | `Platform`     | `Platform.Linux`                | Target platform.                   |
+| `arch`     | `Architecture` | Auto-detected                   | Target architecture (amd64/arm64). |
 
 ## How It Works
 
@@ -103,7 +103,7 @@ Removes all cached installations.
 
 ## Building release binaries (maintainers)
 
-Release archives are **Linux ELF** binaries (`speculos-v<version>-linux-<arch>.tar.gz`). CI builds them on native Linux runners (see `.github/workflows/build-speculos.yml`).
+Release archives are **Linux ELF** binaries (`speculos-v<version>-linux-<arch>.tar.gz`). CI builds **linux-amd64** only (see `.github/workflows/build-speculos.yml`); build **linux-arm64** locally with the Docker script below.
 
 On **macOS** (including Apple Silicon) or Windows, use Docker so PyInstaller runs inside Linux:
 
