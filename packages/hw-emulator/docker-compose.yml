@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  speculos:
+    image: ghcr.io/ledgerhq/speculos:latest
+    container_name: metamask-speculos
+    ports:
+      - '${SPECULOS_APDU_PORT:-9998}:9999'
+      - '${SPECULOS_API_PORT:-5001}:5000'
+    volumes:
+      - ./apps:/speculos/apps
+      - ./nvram/main_nvram.bin:/speculos/main_nvram.bin
+    environment:
+      - DISPLAY=:99
+    command: >
+      --model ${SPECULOS_DEVICE:-nanosp}
+      /speculos/apps/${SPECULOS_ELF_FILENAME:-ethereum-nanosp.elf}
+      --seed "${SPECULOS_SEED:-grit essence story volume tip entry situate found february olympic monitor hybrid}"
+      --display ${SPECULOS_DISPLAY:-headless}
+      --apdu-port 9999
+      --api-port 5000
+      --load-nvram
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - python3 -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+---
+# Note:
+# - SPECULOS_APDU_PORT / SPECULOS_API_PORT are host-side ports (defaults 9998 / 5001)
+# - Container listens on 9999 (APDU) and 5000 (API) internally
+# - SPECULOS_DEVICE selects the device model (nanosp, nanox, stax, flex)
+# - SPECULOS_ELF_FILENAME is the ELF filename inside /speculos/apps/ (NOT the host path)
+# - SPECULOS_SEED sets the mnemonic for deterministic accounts (DockerManager / Speculos seed option)
+# - SPECULOS_DISPLAY sets the Speculos display backend (DockerManager display option, default headless)
+# - Defaults to Nano S+ (nanosp) for local development without SPECULOS_DEVICE set

@@ -1,0 +1,11 @@
+/** @type {import('ts-jest').JestConfigWithTsJest} */
+const merge = require('deepmerge');
+const path = require('path');
+const baseConfig = require('../../jest.config.packages');
+
+module.exports = merge(baseConfig, {
+  displayName: path.basename(__dirname),
+  coverageThreshold: {
+    global: { branches: 10, functions: 20, lines: 20, statements: 20 },
+  },
+});
