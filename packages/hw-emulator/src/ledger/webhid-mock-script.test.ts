@@ -5,7 +5,7 @@ describe('getWebHidMockScript', () => {
     const script = getWebHidMockScript(9876);
 
     const ackHandler = script.match(
-      /else if \(response\.type === 'HID_FRAME_ACK'\) \{[\s\S]*?\} else if \(response\.type === 'APDU_ERROR'\)/,
+      /else if \(response\.type === 'HID_FRAME_ACK'\) \{[\s\S]*?\} else if \(response\.type === 'APDU_ERROR'\)/u,
     )?.[0];
 
     expect(ackHandler).toBeDefined();
@@ -17,10 +17,10 @@ describe('getWebHidMockScript', () => {
     const script = getWebHidMockScript(9876);
 
     expect(script).toMatch(
-      /HID_EXCHANGE_COMPLETE[\s\S]*?pendingExchanges\.delete\(response\.id\)/,
+      /HID_EXCHANGE_COMPLETE[\s\S]*?pendingExchanges\.delete\(response\.id\)/u,
     );
     expect(script).toMatch(
-      /APDU_ERROR[\s\S]*?pendingExchanges\.delete\(response\.id\)/,
+      /APDU_ERROR[\s\S]*?pendingExchanges\.delete\(response\.id\)/u,
     );
   });
 });

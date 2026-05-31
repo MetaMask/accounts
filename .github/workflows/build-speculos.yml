@@ -56,7 +56,7 @@ jobs:
             --workpath build \
             --noupx \
             --collect-all speculos \
-            $(python -c 'import speculos; print(speculos.__file__)')
+            "$(python -c 'import speculos; print(speculos.__file__)')"
 
       - name: Verify binary architecture
         run: |
