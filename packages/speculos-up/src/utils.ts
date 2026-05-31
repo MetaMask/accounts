@@ -7,7 +7,7 @@ import { arch } from 'node:os';
 // eslint-disable-next-line import-x/no-nodejs-modules
 import { homedir } from 'node:os';
 // eslint-disable-next-line import-x/no-nodejs-modules
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 
 import { Architecture } from './types';
 import type { Platform } from './types';
@@ -180,5 +180,5 @@ export function getBundledChecksum(
   archivePath: string,
   checksums: Record<string, string>,
 ): string | undefined {
-  return checksums[archivePath];
+  return checksums[basename(archivePath)];
 }

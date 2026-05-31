@@ -8,6 +8,7 @@ import {
   getDefaultRepo,
   getBinaryArchiveUrl,
   getBundledArchivePath,
+  getBundledChecksum,
   normalizeSystemArchitecture,
 } from './utils';
 
@@ -52,6 +53,26 @@ describe('speculosup', () => {
       expect(url).toBe(
         'https://github.com/MetaMask/accounts/releases/download/speculos-v0.25.13/speculos-v0.25.13-linux-amd64.tar.gz',
       );
+    });
+  });
+
+  describe('getBundledChecksum', () => {
+    it('looks up checksums by archive filename, not full path', () => {
+      const checksums = {
+        'speculos-v0.25.13-linux-amd64.tar.gz': 'abc123',
+      };
+      expect(
+        getBundledChecksum(
+          '/some/package/bundled/speculos-v0.25.13-linux-amd64.tar.gz',
+          checksums,
+        ),
+      ).toBe('abc123');
+    });
+
+    it('returns undefined when no checksum exists for the archive', () => {
+      expect(
+        getBundledChecksum('/path/speculos-v99.tar.gz', {}),
+      ).toBeUndefined();
     });
   });
 

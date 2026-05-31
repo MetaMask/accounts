@@ -23,6 +23,7 @@ import {
   getBinaryArchiveUrl,
   getBinaryPath,
   getBundledArchivePath,
+  getBundledChecksum,
   getDefaultCacheDir,
   getDefaultRepo,
   getDefaultVersion,
@@ -72,8 +73,7 @@ async function verifyBundledChecksum(
     const checksums = JSON.parse(
       await readFile(checksumsPath, 'utf8'),
     ) as Record<string, string>;
-    const fileName = archivePath.split('/').pop() ?? '';
-    const expected = checksums[fileName];
+    const expected = getBundledChecksum(archivePath, checksums);
     if (!expected) {
       say('no checksum on file, skipping verification');
       return true;

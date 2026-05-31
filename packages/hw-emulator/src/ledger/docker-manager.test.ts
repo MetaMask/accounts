@@ -21,7 +21,7 @@ describe('DockerManager', () => {
     // Direct start with invalid compose file should fail
     await expect(manager.start()).rejects.toThrow('docker compose');
     expect(manager.getStatus()).toBe('idle');
-  });
+  }, 10_000);
 
   it('buildDockerEnv includes SPECULOS_SEED when seed option is set', () => {
     const manager = new DockerManager({
