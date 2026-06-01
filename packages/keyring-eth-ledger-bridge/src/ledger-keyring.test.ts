@@ -1544,6 +1544,33 @@ describe('LedgerKeyring', function () {
         );
       });
 
+      it('returns signature with yParity 0 when v is hex 1b (27)', async function () {
+        const signingAccount =
+          '0x9d8a62f656a8d1615c1294fd71e9cfb3e4855a4f' as Hex;
+        const signedAuthorization: [number, Hex, number] = [
+          chainId,
+          contractAddress as Hex,
+          0,
+        ];
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '1b',
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        const result = await keyring.signEip7702Authorization(
+          signingAccount,
+          signedAuthorization,
+        );
+
+        expect(result).toBe(
+          '0x0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd344ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f00',
+        );
+      });
+
       it('throws when recovered address does not match', async function () {
         jest
           .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')

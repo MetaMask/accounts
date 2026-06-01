@@ -484,7 +484,7 @@ export class LedgerKeyring implements Keyring {
     }
 
     const modifiedV = this.#normalizeRecoveryParam(
-      parseInt(String(payload.v), 10),
+      this.#parseLedgerRecoveryParam(payload.v),
     );
 
     const signature = `0x${payload.r}${payload.s}${modifiedV}`;
@@ -576,7 +576,7 @@ export class LedgerKeyring implements Keyring {
     }
 
     const recoveryId = this.#normalizeRecoveryParam(
-      parseInt(String(payload.v), 10),
+      this.#parseLedgerRecoveryParam(payload.v),
     );
     const signature = `0x${payload.r}${payload.s}${recoveryId}`;
     const addressSignedWith = recoverTypedSignature({
@@ -622,7 +622,7 @@ export class LedgerKeyring implements Keyring {
       );
     }
 
-    const recoveryValue = parseInt(String(payload.v), 10);
+    const recoveryValue = this.#parseLedgerRecoveryParam(payload.v);
     const yParity =
       recoveryValue === 0 || recoveryValue === 1
         ? recoveryValue
@@ -770,6 +770,26 @@ export class LedgerKeyring implements Keyring {
 
   #getChecksumHexAddress(address: string): Hex {
     return getChecksumAddress(add0x(address));
+  }
+
+  /**
+   * Parses the recovery parameter (`v`) returned by a Ledger device.
+   * Ledger may return `v` as a number or as a decimal/hex string (e.g. `'1b'` for 27).
+   *
+   * @param recoveryParam - The recovery parameter from Ledger.
+   * @returns The recovery parameter as a number.
+   */
+  #parseLedgerRecoveryParam(recoveryParam: string | number): number {
+    if (typeof recoveryParam === 'number') {
+      return recoveryParam;
+    }
+
+    const value = String(recoveryParam).trim();
+    const withoutPrefix =
+      value.startsWith('0x') || value.startsWith('0X') ? value.slice(2) : value;
+    const radix = /[a-f]/iu.test(withoutPrefix) ? 16 : 10;
+
+    return parseInt(withoutPrefix, radix);
   }
 
   /**

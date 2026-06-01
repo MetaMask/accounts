@@ -32,11 +32,9 @@ export type LedgerSignDelegationAuthorizationParams = {
   nonce: number;
 };
 
-export type LedgerSignDelegationAuthorizationResponse = {
-  v: string;
-  r: string;
-  s: string;
-};
+export type LedgerSignDelegationAuthorizationResponse = Awaited<
+  ReturnType<LedgerHwAppEth['signTransaction']>
+>;
 
 export type GetAppNameAndVersionResponse = {
   appName: string;
