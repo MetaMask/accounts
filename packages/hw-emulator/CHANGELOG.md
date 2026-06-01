@@ -30,5 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fix Docker mode ignoring custom `apduPort` / `apiPort` by passing host ports to `docker-compose`
   - Fix Docker mode ignoring the `seed` option by wiring `SPECULOS_SEED` through `docker-compose.yml`
   - Fix Docker mode ignoring the `display` option by wiring `SPECULOS_DISPLAY` through `docker-compose.yml`
+- Added `@metamask/speculos-up` as peer dependency
 
 [Unreleased]: https://github.com/MetaMask/accounts/
