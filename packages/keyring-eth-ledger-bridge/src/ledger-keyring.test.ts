@@ -1484,14 +1484,11 @@ describe('LedgerKeyring', function () {
             s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
           });
 
-        jest.spyOn(sigUtil, 'recoverEIP7702Authorization').mockReturnValue(
-          fakeAccounts[15],
-        );
+        jest
+          .spyOn(sigUtil, 'recoverEIP7702Authorization')
+          .mockReturnValue(fakeAccounts[15]);
 
-        await keyring.signEip7702Authorization(
-          fakeAccounts[15],
-          authorization,
-        );
+        await keyring.signEip7702Authorization(fakeAccounts[15], authorization);
 
         expect(signDelegationSpy).toHaveBeenCalledWith({
           hdPath: "m/44'/60'/15'",
@@ -1510,9 +1507,9 @@ describe('LedgerKeyring', function () {
             s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
           });
 
-        jest.spyOn(sigUtil, 'recoverEIP7702Authorization').mockReturnValue(
-          fakeAccounts[15],
-        );
+        jest
+          .spyOn(sigUtil, 'recoverEIP7702Authorization')
+          .mockReturnValue(fakeAccounts[15]);
 
         const result = await keyring.signEip7702Authorization(
           fakeAccounts[15],
@@ -1533,9 +1530,9 @@ describe('LedgerKeyring', function () {
             s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
           });
 
-        jest.spyOn(sigUtil, 'recoverEIP7702Authorization').mockReturnValue(
-          fakeAccounts[15],
-        );
+        jest
+          .spyOn(sigUtil, 'recoverEIP7702Authorization')
+          .mockReturnValue(fakeAccounts[15]);
 
         const result = await keyring.signEip7702Authorization(
           fakeAccounts[15],
@@ -1556,9 +1553,9 @@ describe('LedgerKeyring', function () {
             s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
           });
 
-        jest.spyOn(sigUtil, 'recoverEIP7702Authorization').mockReturnValue(
-          fakeAccounts[0],
-        );
+        jest
+          .spyOn(sigUtil, 'recoverEIP7702Authorization')
+          .mockReturnValue(fakeAccounts[0]);
 
         await expect(
           keyring.signEip7702Authorization(fakeAccounts[15], authorization),
