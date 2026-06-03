@@ -10,7 +10,7 @@ import {
 } from '@ledgerhq/device-management-kit';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 import { EIP712Message } from '@ledgerhq/types-live';
-import { BehaviorSubject, of, Subject } from 'rxjs';
+import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 
 import { LedgerDMKBridge } from './ledger-dmk-bridge';
 import { LedgerMobileDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
@@ -418,12 +418,73 @@ describe('LedgerDMKBridge', () => {
       ).rejects.toThrow(TransportStatusError);
     });
 
+    it('translates RxJS observable errors (DeviceExchangeError) to TransportStatusError', async () => {
+      const dmkError = Object.create(DeviceExchangeError.prototype) as Error & {
+        _tag: string;
+        errorCode: string;
+        message: string;
+      };
+      dmkError._tag = 'EthAppCommandError';
+      dmkError.errorCode = '6985';
+      dmkError.message = 'Conditions not satisfied';
+
+      mockEthSigner.getAddress.mockReturnValueOnce({
+        observable: throwError(() => dmkError),
+      });
+
+      let caughtError: unknown;
+      try {
+        await bridge.getPublicKey({ hdPath: "m/44'/60'/0'/0/0" });
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError).toBeInstanceOf(TransportStatusError);
+      expect((caughtError as TransportStatusError).statusCode).toBe(0x6985);
+    });
+
+    it('translates RxJS observable errors (raw Error) to TransportStatusError', async () => {
+      mockEthSigner.getAddress.mockReturnValueOnce({
+        observable: throwError(() => new Error('transport failure')),
+      });
+
+      let caughtError: unknown;
+      try {
+        await bridge.getPublicKey({ hdPath: "m/44'/60'/0'/0/0" });
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError).toBeInstanceOf(TransportStatusError);
+      expect((caughtError as TransportStatusError).statusCode).toBe(0x6f00);
+    });
+
+    it('translates RxJS observable errors (non-Error) to TransportStatusError', async () => {
+      mockEthSigner.getAddress.mockReturnValueOnce({
+        observable: throwError(() => 'string error'),
+      });
+
+      let caughtError: unknown;
+      try {
+        await bridge.getPublicKey({ hdPath: "m/44'/60'/0'/0/0" });
+      } catch (error) {
+        caughtError = error;
+      }
+
+      expect(caughtError).toBeInstanceOf(TransportStatusError);
+      expect((caughtError as TransportStatusError).statusCode).toBe(0x6f00);
+    });
+
     it('throws when a device action completes without a terminal status', async () => {
       jest.resetModules();
       let isolatedTest: Promise<void> | undefined;
 
       jest.isolateModules(() => {
         jest.doMock('rxjs/operators', () => ({
+          catchError:
+            () =>
+            (source: unknown): unknown =>
+              source,
           filter:
             () =>
             (source: unknown): unknown =>

@@ -430,6 +430,9 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   ): Promise<TOutput> {
     const state = await firstValueFrom(
       observable.pipe(
+        catchError((error: unknown) => {
+          throw translateDmkError(error);
+        }),
         filter(
           ({ status }) =>
             status === DeviceActionStatus.Completed ||
