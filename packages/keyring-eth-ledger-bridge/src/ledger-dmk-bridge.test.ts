@@ -272,18 +272,12 @@ describe('LedgerDMKBridge', () => {
       expect(bridge.isDeviceConnected).toBe(false);
     });
 
-    it('does not throw error when dispose fails', async () => {
+    it('throws when dispose fails', async () => {
+      await bridge.updateSessionId('test-session-id');
+      expect(bridge.isDeviceConnected).toBe(true);
       const error = new Error('dispose error');
       mockTransportMiddleware.dispose.mockRejectedValueOnce(error);
-      const consoleSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => undefined);
-      await bridge.destroy();
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Failed to dispose DMK transport middleware:',
-        error,
-      );
-      expect(bridge.isDeviceConnected).toBe(false);
+      await expect(bridge.destroy()).rejects.toThrow('dispose error');
     });
   });
 

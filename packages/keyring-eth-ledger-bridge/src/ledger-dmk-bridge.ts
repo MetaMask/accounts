@@ -134,11 +134,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     this.#sessionSubscription = null;
 
     if (this.#sessionOwnership) {
-      try {
-        await this.#transportMiddleware.dispose();
-      } catch {
-        // best-effort cleanup
-      }
+      await this.#transportMiddleware.dispose();
     }
 
     this.#isConnected = false;
