@@ -796,6 +796,8 @@ export class LedgerKeyring implements Keyring {
       return hexToNumber(value);
     }
 
+    // If the string contains hex letters (a-f), interpret it as hex;
+    // otherwise interpret it as a regular decimal number.
     const radix = /[a-f]/iu.test(value) ? 16 : 10;
     const result = parseInt(value, radix);
 
