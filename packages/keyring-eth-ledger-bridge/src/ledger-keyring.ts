@@ -605,7 +605,7 @@ export class LedgerKeyring implements Keyring {
 
     if (!hdPath) {
       throw new Error(
-        'Ledger: Unknown error while signing EIP-7702 authorization',
+        'Ledger: Missing hdPath while signing EIP-7702 authorization',
       );
     }
 
@@ -620,7 +620,7 @@ export class LedgerKeyring implements Keyring {
     } catch (error: unknown) {
       handleLedgerTransportError(
         error,
-        'Ledger: Unknown error while signing EIP-7702 authorization',
+        'Ledger: Error while signing EIP-7702 authorization',
       );
     }
 
