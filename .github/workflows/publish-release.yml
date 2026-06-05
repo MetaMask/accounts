@@ -18,6 +18,9 @@ jobs:
         uses: MetaMask/action-checkout-and-setup@v3
         with:
           is-high-risk-environment: true
+      - uses: MetaMask/action-publish-release@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: yarn build
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
