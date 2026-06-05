@@ -13,9 +13,11 @@ import {
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   add0x,
+  assert,
   bytesToHex,
   getChecksumAddress,
   Hex,
+  hexToNumber,
   remove0x,
 } from '@metamask/utils';
 import { Buffer } from 'buffer';
@@ -483,7 +485,7 @@ export class LedgerKeyring implements Keyring {
     }
 
     const modifiedV = this.#normalizeRecoveryParam(
-      parseInt(String(payload.v), 10),
+      this.#parseLedgerRecoveryParam(payload.v),
     );
 
     const signature = `0x${payload.r}${payload.s}${modifiedV}`;
@@ -575,7 +577,7 @@ export class LedgerKeyring implements Keyring {
     }
 
     const recoveryId = this.#normalizeRecoveryParam(
-      parseInt(String(payload.v), 10),
+      this.#parseLedgerRecoveryParam(payload.v),
     );
     const signature = `0x${payload.r}${payload.s}${recoveryId}`;
     const addressSignedWith = recoverTypedSignature({
@@ -621,12 +623,12 @@ export class LedgerKeyring implements Keyring {
       );
     }
 
-    const recoveryValue = parseInt(String(payload.v), 10);
-    const yParity =
-      recoveryValue === 0 || recoveryValue === 1
-        ? recoveryValue
-        : recoveryValue - 27;
-    const signature = `0x${payload.r}${payload.s}${yParity.toString(16).padStart(2, '0')}`;
+    // EIP-7702 authorization signatures use yParity (0 or 1), unlike
+    // EIP-191/EIP-712 signatures which use the legacy format (27 or 28).
+    const yParity = this.#normalizeYParity(
+      this.#parseLedgerRecoveryParam(payload.v),
+    );
+    const signature = `0x${payload.r}${payload.s}${yParity}`;
 
     const addressSignedWith = recoverEIP7702Authorization({
       signature,
@@ -772,6 +774,41 @@ export class LedgerKeyring implements Keyring {
   }
 
   /**
+   * Parses the recovery parameter (`v`) returned by a Ledger device.
+   * Ledger may return `v` as a number, a `0x`-prefixed hex string, a bare hex
+   * string (e.g. `'1b'` for 27), or a decimal string.
+   *
+   * @param recoveryParam - The recovery parameter from Ledger.
+   * @returns The recovery parameter as a number.
+   */
+  #parseLedgerRecoveryParam(recoveryParam: string | number): number {
+    if (typeof recoveryParam === 'number') {
+      return recoveryParam;
+    }
+
+    const value = String(recoveryParam).trim();
+
+    if (value.startsWith('0x') || value.startsWith('0X')) {
+      // `hexToNumber` validates the format (throws on `'0x'`, `'0xZZ'`, etc.)
+      // and asserts the result is a safe integer.
+      return hexToNumber(value);
+    }
+
+    // Unprefixed: detect bare hex by the presence of hex letters, else treat
+    // as decimal. Note that a bare `'100'` is ambiguous (decimal 100 vs hex
+    // 256); we default to decimal as the safer interpretation.
+    const radix = /[a-f]/iu.test(value) ? 16 : 10;
+    const result = parseInt(value, radix);
+
+    assert(
+      !Number.isNaN(result),
+      `Invalid recovery parameter: "${recoveryParam}"`,
+    );
+
+    return result;
+  }
+
+  /**
    * Normalizes the signature recovery parameter (v) to legacy format.
    * Ledger devices may return v as 0 or 1 (modern format), but signature
    * recovery expects 27 or 28 (legacy format per EIP-191/EIP-712).
@@ -784,5 +821,24 @@ export class LedgerKeyring implements Keyring {
       return (recoveryParam + 27).toString(16);
     }
     return recoveryParam.toString(16);
+  }
+
+  /**
+   * Normalizes the signature recovery parameter (`v`) to yParity format and
+   * returns it as a 2-character hex string suitable for appending to a signature.
+   *
+   * Ledger devices may return `v` as 0/1 (yParity) or 27/28 (legacy). EIP-7702
+   * authorization signatures require the yParity value (0 or 1), unlike
+   * EIP-191/EIP-712 signatures which use the legacy format (27 or 28).
+   *
+   * @param recoveryParam - The parsed recovery parameter from Ledger.
+   * @returns The yParity as a 2-character lowercase hex string ('00' or '01').
+   */
+  #normalizeYParity(recoveryParam: number): string {
+    const yParity =
+      recoveryParam === 0 || recoveryParam === 1
+        ? recoveryParam
+        : recoveryParam - 27;
+    return yParity.toString(16).padStart(2, '0');
   }
 }
