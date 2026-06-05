@@ -26,8 +26,33 @@ const WEB3_CHECKS_ENABLED_FLAG = 0x10;
 const WEB3_CHECKS_OPT_IN_FLAG = 0x20;
 
 /**
- * Reads the Ethereum app configuration using the same APDU contract as the DMK
- * Ethereum signer's GetAppConfiguration command.
+ * Reads the Ethereum app configuration via the Ethereum application's
+ * `getAppConfiguration` APDU (CLA `0xE0`, INS `0x06`).
+ *
+ * The wire-format of the response is documented by the Ledger Ethereum app
+ * APDU specification (`GET APP CONFIGURATION`):
+ *
+ *   https://github.com/LedgerHQ/app-ethereum/blob/develop/doc/ethapp.adoc
+ *
+ * Layout of the response payload (4 bytes):
+ *
+ *   byte 0       - feature flags bitmask
+ *                   bit 0 (0x01): arbitrary data signature enabled (blind signing)
+ *                   bit 4 (0x10): transaction check enabled (web3 checks)
+ *                   bit 5 (0x20): transaction check opt-in done (web3 checks opt-in)
+ *   bytes 1..3   - app version (major, minor, patch)
+ *
+ * This command mirrors the implementation in
+ * `@ledgerhq/device-signer-kit-ethereum` at
+ * `internal/app-binder/command/GetAppConfigurationCommand`, which is not
+ * re-exported from that package's public entry point. Until the signer kit
+ * exposes `GetAppConfiguration` publicly, this module is the only way to
+ * invoke the Ethereum `getAppConfiguration` APDU through the DMK
+ * `sendCommand` API.
+ *
+ * Note: this is distinct from the DMK OS-level `GetAppAndVersionCommand`
+ * (`@ledgerhq/device-management-kit`), which returns only the app's name and
+ * version and does not expose Ethereum-specific feature flags.
  */
 export class EthGetAppConfigurationCommand implements Command<
   EthGetAppConfigurationResponse,
