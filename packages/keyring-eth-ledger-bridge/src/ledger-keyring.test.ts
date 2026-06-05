@@ -1652,6 +1652,33 @@ describe('LedgerKeyring', function () {
         );
       });
 
+      it('parses v as a number (not a string)', async function () {
+        const signingAccount =
+          '0x9d8a62f656a8d1615c1294fd71e9cfb3e4855a4f' as Hex;
+        const signedAuthorization: [number, Hex, number] = [
+          chainId,
+          contractAddress as Hex,
+          0,
+        ];
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: 27 as unknown as string,
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        const result = await keyring.signEip7702Authorization(
+          signingAccount,
+          signedAuthorization,
+        );
+
+        expect(result).toBe(
+          '0x0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd344ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f00',
+        );
+      });
+
       it('correctly parses 0x-prefixed hex values that look decimal (regression)', async function () {
         // Regression: previously '0x100' was incorrectly parsed as 100 because
         // radix detection only switched to hex when the string contained hex
@@ -1775,7 +1802,7 @@ describe('LedgerKeyring', function () {
         await expect(
           keyring.signEip7702Authorization(fakeAccounts[0], authorization),
         ).rejects.toThrow(
-          'Ledger: Unknown error while signing EIP-7702 authorization',
+          'Ledger: Missing hdPath while signing EIP-7702 authorization',
         );
       });
 
