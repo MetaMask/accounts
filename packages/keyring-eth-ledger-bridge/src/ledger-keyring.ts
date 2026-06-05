@@ -13,11 +13,11 @@ import {
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   add0x,
-  assert,
   bytesToHex,
   getChecksumAddress,
   Hex,
   hexToNumber,
+  isStrictHexString,
   remove0x,
 } from '@metamask/utils';
 import { Buffer } from 'buffer';
@@ -790,21 +790,18 @@ export class LedgerKeyring implements Keyring {
     const value = String(recoveryParam).trim();
 
     if (value.startsWith('0x') || value.startsWith('0X')) {
-      // `hexToNumber` validates the format (throws on `'0x'`, `'0xZZ'`, etc.)
-      // and asserts the result is a safe integer.
+      if (!isStrictHexString(value)) {
+        throw new Error(`Invalid hex recovery parameter: "${recoveryParam}"`);
+      }
       return hexToNumber(value);
     }
 
-    // Unprefixed: detect bare hex by the presence of hex letters, else treat
-    // as decimal. Note that a bare `'100'` is ambiguous (decimal 100 vs hex
-    // 256); we default to decimal as the safer interpretation.
     const radix = /[a-f]/iu.test(value) ? 16 : 10;
     const result = parseInt(value, radix);
 
-    assert(
-      !Number.isNaN(result),
-      `Invalid recovery parameter: "${recoveryParam}"`,
-    );
+    if (Number.isNaN(result)) {
+      throw new Error(`Invalid recovery parameter: "${recoveryParam}"`);
+    }
 
     return result;
   }

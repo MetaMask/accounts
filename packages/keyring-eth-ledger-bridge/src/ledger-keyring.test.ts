@@ -1708,7 +1708,7 @@ describe('LedgerKeyring', function () {
 
         await expect(
           keyring.signEip7702Authorization(fakeAccounts[15], authorization),
-        ).rejects.toThrow('Value must be a hexadecimal string.');
+        ).rejects.toThrow('Invalid hex recovery parameter: "0x"');
       });
 
       it('throws on empty string v', async function () {
