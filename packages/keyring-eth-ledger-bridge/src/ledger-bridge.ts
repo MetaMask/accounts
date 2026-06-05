@@ -32,9 +32,12 @@ export type LedgerSignDelegationAuthorizationParams = {
   nonce: number;
 };
 
-export type LedgerSignDelegationAuthorizationResponse = Awaited<
-  ReturnType<LedgerHwAppEth['signTransaction']>
->;
+// TODO: Replace with 7702 return type
+export type LedgerSignDelegationAuthorizationResponse = Awaited<{
+  s: string;
+  v: string;
+  r: string;
+}>;
 
 export type GetAppNameAndVersionResponse = {
   appName: string;
