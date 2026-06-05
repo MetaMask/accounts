@@ -6,6 +6,8 @@ import {
   GetPublicKeyParams,
   GetPublicKeyResponse,
   LedgerBridge,
+  LedgerSignDelegationAuthorizationParams,
+  LedgerSignDelegationAuthorizationResponse,
   LedgerSignMessageParams,
   LedgerSignMessageResponse,
   LedgerSignTransactionParams,
@@ -235,6 +237,14 @@ export class LedgerIframeBridge implements LedgerBridge<LedgerIframeBridgeOption
     return this.#deviceActionMessage(
       IFrameMessageAction.LedgerSignTypedData,
       params,
+    );
+  }
+
+  async deviceSignDelegationAuthorization(
+    _params: LedgerSignDelegationAuthorizationParams,
+  ): Promise<LedgerSignDelegationAuthorizationResponse> {
+    throw new Error(
+      'Ledger: signDelegationAuthorization is not supported via iframe bridge',
     );
   }
 

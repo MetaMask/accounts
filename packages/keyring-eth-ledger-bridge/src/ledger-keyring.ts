@@ -4,6 +4,7 @@ import type { TypedTransaction } from '@ethereumjs/tx';
 import { publicToAddress } from '@ethereumjs/util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import {
+  recoverEIP7702Authorization,
   recoverPersonalSignature,
   recoverTypedSignature,
   SignTypedDataVersion,
@@ -15,6 +16,8 @@ import {
   bytesToHex,
   getChecksumAddress,
   Hex,
+  hexToNumber,
+  isStrictHexString,
   remove0x,
 } from '@metamask/utils';
 import { Buffer } from 'buffer';
@@ -483,7 +486,7 @@ export class LedgerKeyring implements Keyring {
     }
 
     const modifiedV = this.#normalizeRecoveryParam(
-      parseInt(String(payload.v), 10),
+      this.#parseLedgerRecoveryParam(payload.v),
     );
 
     const signature = `0x${payload.r}${payload.s}${modifiedV}`;
@@ -575,7 +578,7 @@ export class LedgerKeyring implements Keyring {
     }
 
     const recoveryId = this.#normalizeRecoveryParam(
-      parseInt(String(payload.v), 10),
+      this.#parseLedgerRecoveryParam(payload.v),
     );
     const signature = `0x${payload.r}${payload.s}${recoveryId}`;
     const addressSignedWith = recoverTypedSignature({
@@ -589,6 +592,57 @@ export class LedgerKeyring implements Keyring {
       this.#getChecksumHexAddress(withAccount)
     ) {
       throw new Error('Ledger: The signature doesnt match the right address');
+    }
+    return signature;
+  }
+
+  async signEip7702Authorization(
+    withAccount: Hex,
+    authorization: [chainId: number, contractAddress: Hex, nonce: number],
+  ): Promise<string> {
+    const [chainId, contractAddress, nonce] = authorization;
+    const hdPath = await this.unlockAccountByAddress(withAccount);
+
+    if (!hdPath) {
+      throw new Error(
+        'Ledger: Missing hdPath while signing EIP-7702 authorization',
+      );
+    }
+
+    let payload;
+    try {
+      payload = await this.bridge.deviceSignDelegationAuthorization({
+        hdPath,
+        chainId,
+        contractAddress: remove0x(contractAddress),
+        nonce,
+      });
+    } catch (error: unknown) {
+      handleLedgerTransportError(
+        error,
+        'Ledger: Error while signing EIP-7702 authorization',
+      );
+    }
+
+    // EIP-7702 authorization signatures use yParity (0 or 1), unlike
+    // EIP-191/EIP-712 signatures which use the legacy format (27 or 28).
+    const yParity = this.#normalizeYParity(
+      this.#parseLedgerRecoveryParam(payload.v),
+    );
+    const signature = `0x${payload.r}${payload.s}${yParity}`;
+
+    const addressSignedWith = recoverEIP7702Authorization({
+      signature,
+      authorization,
+    });
+
+    if (
+      this.#getChecksumHexAddress(addressSignedWith) !==
+      this.#getChecksumHexAddress(withAccount)
+    ) {
+      throw new Error(
+        'Ledger: The EIP-7702 authorization signature does not match the right address',
+      );
     }
     return signature;
   }
@@ -721,6 +775,40 @@ export class LedgerKeyring implements Keyring {
   }
 
   /**
+   * Parses the recovery parameter (`v`) returned by a Ledger device.
+   * Ledger may return `v` as a number, a `0x`-prefixed hex string, a bare hex
+   * string (e.g. `'1b'` for 27), or a decimal string.
+   *
+   * @param recoveryParam - The recovery parameter from Ledger.
+   * @returns The recovery parameter as a number.
+   */
+  #parseLedgerRecoveryParam(recoveryParam: string | number): number {
+    if (typeof recoveryParam === 'number') {
+      return recoveryParam;
+    }
+
+    const value = String(recoveryParam).trim();
+
+    if (value.startsWith('0x') || value.startsWith('0X')) {
+      if (!isStrictHexString(value)) {
+        throw new Error(`Invalid hex recovery parameter: "${recoveryParam}"`);
+      }
+      return hexToNumber(value);
+    }
+
+    // If the string contains hex letters (a-f), interpret it as hex;
+    // otherwise interpret it as a regular decimal number.
+    const radix = /[a-f]/iu.test(value) ? 16 : 10;
+    const result = parseInt(value, radix);
+
+    if (Number.isNaN(result)) {
+      throw new Error(`Invalid recovery parameter: "${recoveryParam}"`);
+    }
+
+    return result;
+  }
+
+  /**
    * Normalizes the signature recovery parameter (v) to legacy format.
    * Ledger devices may return v as 0 or 1 (modern format), but signature
    * recovery expects 27 or 28 (legacy format per EIP-191/EIP-712).
@@ -733,5 +821,24 @@ export class LedgerKeyring implements Keyring {
       return (recoveryParam + 27).toString(16);
     }
     return recoveryParam.toString(16);
+  }
+
+  /**
+   * Normalizes the signature recovery parameter (`v`) to yParity format and
+   * returns it as a 2-character hex string suitable for appending to a signature.
+   *
+   * Ledger devices may return `v` as 0/1 (yParity) or 27/28 (legacy). EIP-7702
+   * authorization signatures require the yParity value (0 or 1), unlike
+   * EIP-191/EIP-712 signatures which use the legacy format (27 or 28).
+   *
+   * @param recoveryParam - The parsed recovery parameter from Ledger.
+   * @returns The yParity as a 2-character lowercase hex string ('00' or '01').
+   */
+  #normalizeYParity(recoveryParam: number): string {
+    const yParity =
+      recoveryParam === 0 || recoveryParam === 1
+        ? recoveryParam
+        : recoveryParam - 27;
+    return yParity.toString(16).padStart(2, '0');
   }
 }

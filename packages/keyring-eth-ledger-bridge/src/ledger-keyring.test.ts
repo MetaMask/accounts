@@ -1458,6 +1458,371 @@ describe('LedgerKeyring', function () {
       });
     });
 
+    describe('signEip7702Authorization', function () {
+      const chainId = 1;
+      const contractAddress = '0x1234567890abcdef1234567890abcdef12345678';
+      const nonce = 5;
+      const authorization: [number, Hex, number] = [
+        chainId,
+        contractAddress as Hex,
+        nonce,
+      ];
+
+      beforeEach(async function () {
+        jest
+          .spyOn(keyring, 'unlockAccountByAddress')
+          .mockResolvedValue(`m/44'/60'/15'`);
+        await basicSetupToUnlockOneAccount(15);
+      });
+
+      it('calls deviceSignDelegationAuthorization with correct params', async function () {
+        const signDelegationSpy = jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '1b',
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          });
+
+        jest
+          .spyOn(sigUtil, 'recoverEIP7702Authorization')
+          .mockReturnValue(fakeAccounts[15]);
+
+        await keyring.signEip7702Authorization(fakeAccounts[15], authorization);
+
+        expect(signDelegationSpy).toHaveBeenCalledWith({
+          hdPath: "m/44'/60'/15'",
+          chainId,
+          contractAddress: remove0x(contractAddress),
+          nonce,
+        });
+      });
+
+      it('returns signature with yParity from v=0', async function () {
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '0',
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          });
+
+        jest
+          .spyOn(sigUtil, 'recoverEIP7702Authorization')
+          .mockReturnValue(fakeAccounts[15]);
+
+        const result = await keyring.signEip7702Authorization(
+          fakeAccounts[15],
+          authorization,
+        );
+
+        expect(result).toBe(
+          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e3200',
+        );
+      });
+
+      it('returns signature with yParity from v=27', async function () {
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '27',
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          });
+
+        jest
+          .spyOn(sigUtil, 'recoverEIP7702Authorization')
+          .mockReturnValue(fakeAccounts[15]);
+
+        const result = await keyring.signEip7702Authorization(
+          fakeAccounts[15],
+          authorization,
+        );
+
+        expect(result).toBe(
+          '0x72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b946759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e3200',
+        );
+      });
+
+      it('returns signature with yParity 0 when v is hex 1b (27)', async function () {
+        const signingAccount =
+          '0x9d8a62f656a8d1615c1294fd71e9cfb3e4855a4f' as Hex;
+        const signedAuthorization: [number, Hex, number] = [
+          chainId,
+          contractAddress as Hex,
+          0,
+        ];
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '1b',
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        const result = await keyring.signEip7702Authorization(
+          signingAccount,
+          signedAuthorization,
+        );
+
+        expect(result).toBe(
+          '0x0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd344ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f00',
+        );
+      });
+
+      it('parses v as a 0x-prefixed hex string', async function () {
+        const signingAccount =
+          '0x9d8a62f656a8d1615c1294fd71e9cfb3e4855a4f' as Hex;
+        const signedAuthorization: [number, Hex, number] = [
+          chainId,
+          contractAddress as Hex,
+          0,
+        ];
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '0x1b',
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        const result = await keyring.signEip7702Authorization(
+          signingAccount,
+          signedAuthorization,
+        );
+
+        expect(result).toBe(
+          '0x0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd344ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f00',
+        );
+      });
+
+      it('parses v as a 0X-prefixed hex string (uppercase prefix)', async function () {
+        const signingAccount =
+          '0x9d8a62f656a8d1615c1294fd71e9cfb3e4855a4f' as Hex;
+        const signedAuthorization: [number, Hex, number] = [
+          chainId,
+          contractAddress as Hex,
+          0,
+        ];
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '0X1b',
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        const result = await keyring.signEip7702Authorization(
+          signingAccount,
+          signedAuthorization,
+        );
+
+        expect(result).toBe(
+          '0x0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd344ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f00',
+        );
+      });
+
+      it('parses v as a decimal string', async function () {
+        const signingAccount =
+          '0x9d8a62f656a8d1615c1294fd71e9cfb3e4855a4f' as Hex;
+        const signedAuthorization: [number, Hex, number] = [
+          chainId,
+          contractAddress as Hex,
+          0,
+        ];
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '27',
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        const result = await keyring.signEip7702Authorization(
+          signingAccount,
+          signedAuthorization,
+        );
+
+        expect(result).toBe(
+          '0x0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd344ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f00',
+        );
+      });
+
+      it('parses v as a number (not a string)', async function () {
+        const signingAccount =
+          '0x9d8a62f656a8d1615c1294fd71e9cfb3e4855a4f' as Hex;
+        const signedAuthorization: [number, Hex, number] = [
+          chainId,
+          contractAddress as Hex,
+          0,
+        ];
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: 27 as unknown as string,
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        const result = await keyring.signEip7702Authorization(
+          signingAccount,
+          signedAuthorization,
+        );
+
+        expect(result).toBe(
+          '0x0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd344ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f00',
+        );
+      });
+
+      it('correctly parses 0x-prefixed hex values that look decimal (regression)', async function () {
+        // Regression: previously '0x100' was incorrectly parsed as 100 because
+        // radix detection only switched to hex when the string contained hex
+        // letters [a-f]. The fix uses the 0x prefix as the authoritative hex
+        // signal.
+        const signingAccount =
+          '0x9d8a62f656a8d1615c1294fd71e9cfb3e4855a4f' as Hex;
+        const signedAuthorization: [number, Hex, number] = [
+          chainId,
+          contractAddress as Hex,
+          0,
+        ];
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          // 0x100 = 256, falls outside the 0/1 normalization rule
+          .mockResolvedValue({
+            v: '0x100',
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        jest
+          .spyOn(sigUtil, 'recoverEIP7702Authorization')
+          .mockReturnValue(signingAccount);
+
+        const result = await keyring.signEip7702Authorization(
+          signingAccount,
+          signedAuthorization,
+        );
+
+        // 256 parsed correctly (not 100). `normalizeYParity` then subtracts 27
+        // → 229 (0xe5), padded to 2 chars. The unrealistic v is intentional:
+        // all realistic v values (27/28 = 0x1b/0x1c) contain hex letters, so
+        // the old regex-based radix detection happened to work for them. Only
+        // digit-only hex values like '0x100' expose the bug.
+        expect(result).toBe(
+          '0x0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd344ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587fe5',
+        );
+      });
+
+      it('throws on invalid hex prefix (0x without digits)', async function () {
+        jest
+          .spyOn(keyring, 'unlockAccountByAddress')
+          .mockResolvedValue(`m/44'/60'/15'`);
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '0x',
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        await expect(
+          keyring.signEip7702Authorization(fakeAccounts[15], authorization),
+        ).rejects.toThrow('Invalid hex recovery parameter: "0x"');
+      });
+
+      it('throws on empty string v', async function () {
+        jest
+          .spyOn(keyring, 'unlockAccountByAddress')
+          .mockResolvedValue(`m/44'/60'/15'`);
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '',
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        await expect(
+          keyring.signEip7702Authorization(fakeAccounts[15], authorization),
+        ).rejects.toThrow('Invalid recovery parameter: ""');
+      });
+
+      it('throws on garbage string v', async function () {
+        jest
+          .spyOn(keyring, 'unlockAccountByAddress')
+          .mockResolvedValue(`m/44'/60'/15'`);
+
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: 'not-a-number',
+            r: '0cab9d92511ba1089c6dda5b59b5e10ba73ec91d6576ee514f5e678468ebdd34',
+            s: '4ef284890f772272a9c00a84dfe949ad2513b42cd1053d1536330ddc01b5587f',
+          });
+
+        await expect(
+          keyring.signEip7702Authorization(fakeAccounts[15], authorization),
+        ).rejects.toThrow('Invalid recovery parameter: "not-a-number"');
+      });
+
+      it('throws when recovered address does not match', async function () {
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockResolvedValue({
+            v: '1',
+            r: '72d4e38a0e582e09a620fd38e236fe687a1ec782206b56d576f579c026a7e5b9',
+            s: '46759735981cd0c3efb02d36df28bb2feedfec3d90e408efc93f45b894946e32',
+          });
+
+        jest
+          .spyOn(sigUtil, 'recoverEIP7702Authorization')
+          .mockReturnValue(fakeAccounts[0]);
+
+        await expect(
+          keyring.signEip7702Authorization(fakeAccounts[15], authorization),
+        ).rejects.toThrow(
+          'Ledger: The EIP-7702 authorization signature does not match the right address',
+        );
+      });
+
+      it('throws when hdPath is not found', async function () {
+        jest
+          .spyOn(keyring, 'unlockAccountByAddress')
+          .mockResolvedValue(undefined);
+
+        await expect(
+          keyring.signEip7702Authorization(fakeAccounts[0], authorization),
+        ).rejects.toThrow(
+          'Ledger: Missing hdPath while signing EIP-7702 authorization',
+        );
+      });
+
+      it('handles transport errors', async function () {
+        const transportError = {
+          statusCode: 27013,
+          message: 'Ledger device: (denied by the user?) (0x6985)',
+          name: 'TransportStatusError',
+        };
+        Object.setPrototypeOf(transportError, TransportStatusError.prototype);
+        jest
+          .spyOn(keyring.bridge, 'deviceSignDelegationAuthorization')
+          .mockRejectedValue(transportError);
+
+        await expect(
+          keyring.signEip7702Authorization(fakeAccounts[15], authorization),
+        ).rejects.toThrow('Ledger: User rejected action on device');
+      });
+    });
+
     describe('getAppNameAndVersion', function () {
       it('returns app name and version from bridge', async function () {
         const mockResponse = {
