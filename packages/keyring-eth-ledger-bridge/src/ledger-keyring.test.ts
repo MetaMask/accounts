@@ -1043,9 +1043,8 @@ describe('LedgerKeyring', function () {
     describe('unlockAccountByAddress', function () {
       it('unlocks the given account if found on device', async function () {
         await basicSetupToUnlockOneAccount();
-        await keyring.unlockAccountByAddress(fakeAccounts[0]).then((hdPath) => {
-          expect(hdPath).toBe("m/44'/60'/0'/0");
-        });
+        const hdPath = await keyring.unlockAccountByAddress(fakeAccounts[0]);
+        expect(hdPath).toBe("m/44'/60'/0'/0");
       });
 
       it('rejects if the account is not found on device', async function () {
@@ -1206,7 +1205,7 @@ describe('LedgerKeyring', function () {
 
         const result = await keyring.signTypedData(
           fakeAccounts[15],
-          fixtureDataWithStringSalt as any,
+          fixtureDataWithStringSalt as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>,
           { version: sigUtil.SignTypedDataVersion.V4 },
         );
 
@@ -1257,7 +1256,7 @@ describe('LedgerKeyring', function () {
 
         const result = await keyring.signTypedData(
           fakeAccounts[15],
-          expectedMessage as any,
+          expectedMessage as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>,
           { version: sigUtil.SignTypedDataVersion.V4 },
         );
 
