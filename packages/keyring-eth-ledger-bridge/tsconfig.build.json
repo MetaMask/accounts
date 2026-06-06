@@ -5,7 +5,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "exactOptionalPropertyTypes": false,
-    "lib": ["ES2020", "ES2022.Error"]
+    "lib": ["ES2020", "ES2021.Promise", "ES2022.Error"]
   },
   "references": [
     { "path": "../hw-wallet-sdk/tsconfig.build.json" },
