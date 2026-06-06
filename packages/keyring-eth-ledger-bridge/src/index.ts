@@ -1,8 +1,8 @@
 export * from './ledger-keyring';
 export * from './ledger-iframe-bridge';
 export * from './ledger-mobile-bridge';
-export * from './ledger-dmk-bridge';
-export * from './ledger-dmk-transport-middleware';
+export * from './dmk/ledger-dmk-bridge';
+export * from './dmk/ledger-dmk-transport-middleware';
 export type * from './ledger-bridge';
 export * from './ledger-transport-middleware';
 export type * from './type';
@@ -11,4 +11,4 @@ export * from './errors';
 export * from './ledger-error-handler';
 export * from './constants';
 export * from './utils';
-export * from './dmk-error-translator';
+export * from './dmk/dmk-error-translator';

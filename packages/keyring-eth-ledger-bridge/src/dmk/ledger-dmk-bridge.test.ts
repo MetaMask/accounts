@@ -13,7 +13,7 @@ import { EIP712Message } from '@ledgerhq/types-live';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 
 import { LedgerDMKBridge } from './ledger-dmk-bridge';
-import { LedgerMobileDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
+import { LedgerDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
 
 jest.mock('./ledger-dmk-transport-middleware');
 
@@ -23,7 +23,7 @@ describe('LedgerDMKBridge', () => {
   let bridge: LedgerDMKBridge;
   let addTransportSpy: jest.SpyInstance;
   let buildSpy: jest.SpyInstance;
-  let mockTransportMiddleware: jest.Mocked<LedgerMobileDMKTransportMiddleware>;
+  let mockTransportMiddleware: jest.Mocked<LedgerDMKTransportMiddleware>;
   let mockSDK: {
     connect: jest.Mock;
     sendCommand: jest.Mock;
@@ -135,11 +135,11 @@ describe('LedgerDMKBridge', () => {
       dispose: jest.fn().mockResolvedValue(undefined),
       getEthSigner: jest.fn().mockReturnValue(mockEthSigner),
       startDiscovering: jest.fn().mockReturnValue(of({ id: 'device-id' })),
-    } as unknown as jest.Mocked<LedgerMobileDMKTransportMiddleware>;
+    } as unknown as jest.Mocked<LedgerDMKTransportMiddleware>;
 
     // Mock the constructor to return our mock
     (
-      LedgerMobileDMKTransportMiddleware as unknown as jest.Mock
+      LedgerDMKTransportMiddleware as unknown as jest.Mock
     ).mockImplementation(() => mockTransportMiddleware);
 
     bridge = new LedgerDMKBridge({ transportFactory: mockTransportFactory });
@@ -164,13 +164,7 @@ describe('LedgerDMKBridge', () => {
     });
 
     it('creates transport middleware with SDK', () => {
-      expect(LedgerMobileDMKTransportMiddleware).toHaveBeenCalledTimes(1);
-    });
-
-    it('exports LedgerMobileDMKBridge as deprecated alias', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, n/global-require
-      const mod = require('./ledger-dmk-bridge');
-      expect(mod.LedgerMobileDMKBridge).toBe(mod.LedgerDMKBridge);
+      expect(LedgerDMKTransportMiddleware).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -188,7 +182,7 @@ describe('LedgerDMKBridge', () => {
       const params = {
         device: { id: 'device-id' },
       } as unknown as Parameters<
-        LedgerMobileDMKTransportMiddleware['connect']
+        LedgerDMKTransportMiddleware['connect']
       >[0];
       await bridge.connect(params);
       expect(bridge.isDeviceConnected).toBe(true);
@@ -334,7 +328,7 @@ describe('LedgerDMKBridge', () => {
       const params = {
         device: { id: 'device-id' },
       } as unknown as Parameters<
-        LedgerMobileDMKTransportMiddleware['connect']
+        LedgerDMKTransportMiddleware['connect']
       >[0];
       const result = await bridge.connect(params);
 
@@ -496,7 +490,7 @@ describe('LedgerDMKBridge', () => {
           };
         });
         jest.doMock('./ledger-dmk-transport-middleware', () => ({
-          LedgerMobileDMKTransportMiddleware: jest
+          LedgerDMKTransportMiddleware: jest
             .fn()
             .mockImplementation(() => ({
               dispose: jest.fn(),
@@ -508,16 +502,6 @@ describe('LedgerDMKBridge', () => {
               getSessionId: jest.fn().mockReturnValue('test-session-id'),
               setSessionId: jest.fn(),
             })),
-          LedgerDMKTransportMiddleware: jest.fn().mockImplementation(() => ({
-            dispose: jest.fn(),
-            getEthSigner: jest.fn().mockReturnValue({
-              getAddress: jest.fn().mockReturnValue({
-                observable: of({ status: 'pending' }),
-              }),
-            }),
-            getSessionId: jest.fn().mockReturnValue('test-session-id'),
-            setSessionId: jest.fn(),
-          })),
         }));
 
         isolatedTest = (async (): Promise<void> => {

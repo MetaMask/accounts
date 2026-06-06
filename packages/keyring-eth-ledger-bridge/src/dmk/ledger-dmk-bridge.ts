@@ -43,18 +43,14 @@ import {
   LedgerSignTransactionResponse,
   LedgerSignTypedDataParams,
   LedgerSignTypedDataResponse,
-} from './ledger-bridge';
-import { LedgerMobileDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
+} from '../ledger-bridge';
+import { LedgerDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
 
 export type LedgerDMKBridgeOptions = {
   transportFactory?: Parameters<DeviceManagementKitBuilder['addTransport']>[0];
   dmk?: DeviceManagementKit;
 };
 
-/**
- * @deprecated Use {@link LedgerDMKBridge} instead.
- */
-export type LedgerMobileDMKBridgeOptions = LedgerDMKBridgeOptions;
 
 type PublicKeyOutput = Pick<
   GetPublicKeyResponse,
@@ -63,12 +59,12 @@ type PublicKeyOutput = Pick<
 
 /**
  * LedgerDMKBridge is a bridge between the LedgerKeyring and the
- * LedgerMobileDMKTransportMiddleware.
+ * LedgerDMKTransportMiddleware.
  * It initializes and manages the DeviceManagementKit internally.
  * The transport factory is injected via constructor, making it platform-agnostic.
  */
 export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
-  readonly #transportMiddleware: LedgerMobileDMKTransportMiddleware;
+  readonly #transportMiddleware: LedgerDMKTransportMiddleware;
 
   readonly #sdk: DeviceManagementKit;
 
@@ -109,7 +105,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
       );
     }
     this.#opts = opts;
-    this.#transportMiddleware = new LedgerMobileDMKTransportMiddleware(
+    this.#transportMiddleware = new LedgerDMKTransportMiddleware(
       this.#sdk,
     );
   }
@@ -180,8 +176,8 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @returns An observable that emits discovered devices.
    */
   startDiscovering(
-    ...args: Parameters<LedgerMobileDMKTransportMiddleware['startDiscovering']>
-  ): ReturnType<LedgerMobileDMKTransportMiddleware['startDiscovering']> {
+    ...args: Parameters<LedgerDMKTransportMiddleware['startDiscovering']>
+  ): ReturnType<LedgerDMKTransportMiddleware['startDiscovering']> {
     return this.#transportMiddleware.startDiscovering(...args);
   }
 
@@ -192,8 +188,8 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @returns The created session ID.
    */
   async connect(
-    ...args: Parameters<LedgerMobileDMKTransportMiddleware['connect']>
-  ): ReturnType<LedgerMobileDMKTransportMiddleware['connect']> {
+    ...args: Parameters<LedgerDMKTransportMiddleware['connect']>
+  ): ReturnType<LedgerDMKTransportMiddleware['connect']> {
     const sessionId = await this.#transportMiddleware.connect(...args);
     this.#isConnected = true;
     this.#startSessionMonitoring(sessionId);
@@ -510,18 +506,4 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   }
 }
 
-export type MobileLedgerBridge<
-  TOptions extends LedgerBridgeOptions = LedgerDMKBridgeOptions,
-> = LedgerBridge<TOptions> & {
-  openEthApp(): Promise<void>;
-  closeApps(): Promise<void>;
-  updateSessionId(sessionId: string): Promise<boolean>;
-  onSessionStateChange: Observable<{ connected: boolean }>;
-  readonly dmk: DeviceManagementKit;
-};
 
-/**
- * @deprecated Use {@link LedgerDMKBridge} instead. This alias will be removed
- * in a future major version.
- */
-export const LedgerMobileDMKBridge = LedgerDMKBridge;

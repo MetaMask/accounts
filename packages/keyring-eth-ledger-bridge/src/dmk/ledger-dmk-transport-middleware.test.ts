@@ -2,13 +2,13 @@ import type { DeviceManagementKit } from '@ledgerhq/device-management-kit';
 import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum';
 import { of } from 'rxjs';
 
-import { LedgerMobileDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
+import { LedgerDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
 
-describe('LedgerMobileDMKTransportMiddleware', () => {
+describe('LedgerDMKTransportMiddleware', () => {
   const mockDiscovery = of({ id: 'device-id' });
   const mockSigner = { signer: true };
 
-  let middleware: LedgerMobileDMKTransportMiddleware;
+  let middleware: LedgerDMKTransportMiddleware;
   let buildSpy: jest.SpyInstance;
   let mockSDK: {
     connect: jest.Mock;
@@ -28,7 +28,7 @@ describe('LedgerMobileDMKTransportMiddleware', () => {
       startDiscovering: jest.fn().mockReturnValue(mockDiscovery),
     };
 
-    middleware = new LedgerMobileDMKTransportMiddleware(
+    middleware = new LedgerDMKTransportMiddleware(
       mockSDK as unknown as DeviceManagementKit,
     );
   });
