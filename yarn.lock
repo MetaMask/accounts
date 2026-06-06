@@ -1385,7 +1385,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/context-module@npm:^2.1.0":
+"@ledgerhq/context-module@npm:2.1.0":
   version: 2.1.0
   resolution: "@ledgerhq/context-module@npm:2.1.0"
   dependencies:
@@ -1411,9 +1411,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/device-management-kit@npm:^1.5.0":
-  version: 1.5.0
-  resolution: "@ledgerhq/device-management-kit@npm:1.5.0"
+"@ledgerhq/device-management-kit@npm:1.5.1":
+  version: 1.5.1
+  resolution: "@ledgerhq/device-management-kit@npm:1.5.1"
   dependencies:
     "@noble/hashes": "npm:^1.8.0"
     "@sentry/minimal": "npm:6.19.7"
@@ -1428,11 +1428,11 @@ __metadata:
     xstate: "npm:5.19.2"
   peerDependencies:
     rxjs: 7.8.2
-  checksum: 10/4a7f49b0f7f55179a30dca5b5814e338126a8d282ffbdf6ec36483f5016b869dfeef5c7081e8be8aeb8671dfdae94ea5126f77e49e3188edb245496790ecff96
+  checksum: 10/b73a620b6955b70608672e8798e12611faa973bade7521694e1aeea8dc1e8b316475600108259fbad4aeb007b992bb812dd665d5a89c990ea3a6c31ec3c99c86
   languageName: node
   linkType: hard
 
-"@ledgerhq/device-signer-kit-ethereum@npm:^1.16.0":
+"@ledgerhq/device-signer-kit-ethereum@npm:1.16.0":
   version: 1.16.0
   resolution: "@ledgerhq/device-signer-kit-ethereum@npm:1.16.0"
   dependencies:
@@ -1904,9 +1904,9 @@ __metadata:
     "@ethereumjs/util": "npm:^9.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@ledgerhq/context-module": "npm:^2.1.0"
-    "@ledgerhq/device-management-kit": "npm:^1.5.0"
-    "@ledgerhq/device-signer-kit-ethereum": "npm:^1.16.0"
+    "@ledgerhq/context-module": "npm:2.1.0"
+    "@ledgerhq/device-management-kit": "npm:1.5.1"
+    "@ledgerhq/device-signer-kit-ethereum": "npm:1.16.0"
     "@ledgerhq/hw-app-eth": "npm:^6.42.0"
     "@ledgerhq/hw-transport": "npm:^6.31.3"
     "@ledgerhq/types-cryptoassets": "npm:^7.15.1"
