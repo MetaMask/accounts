@@ -13,7 +13,6 @@ import {
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   add0x,
-  assert,
   bytesToHex,
   getChecksumAddress,
   Hex,
