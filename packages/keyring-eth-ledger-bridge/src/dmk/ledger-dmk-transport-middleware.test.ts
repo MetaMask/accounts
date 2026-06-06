@@ -33,12 +33,6 @@ describe('LedgerDMKTransportMiddleware', () => {
     );
   });
 
-  describe('getSDK', () => {
-    it('returns the wrapped SDK instance', () => {
-      expect(middleware.getSDK()).toBe(mockSDK);
-    });
-  });
-
   describe('startDiscovering', () => {
     it('delegates discovery to the SDK', () => {
       const result = middleware.startDiscovering({});
@@ -73,6 +67,30 @@ describe('LedgerDMKTransportMiddleware', () => {
       expect(buildSpy).toHaveBeenCalledTimes(1);
       expect(signer).toBe(mockSigner);
     });
+
+    it('memoizes the signer across calls for the same session', async () => {
+      await middleware.connect({
+        device: { id: 'device-id' },
+      } as unknown as Parameters<DeviceManagementKit['connect']>[0]);
+
+      const first = middleware.getEthSigner();
+      const second = middleware.getEthSigner();
+
+      expect(first).toBe(second);
+      expect(buildSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('rebuilds the signer when the session ID changes', async () => {
+      await middleware.connect({
+        device: { id: 'device-id' },
+      } as unknown as Parameters<DeviceManagementKit['connect']>[0]);
+      middleware.getEthSigner();
+
+      middleware.setSessionId('other-session-id');
+      middleware.getEthSigner();
+
+      expect(buildSpy).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe('dispose', () => {
@@ -87,7 +105,7 @@ describe('LedgerDMKTransportMiddleware', () => {
         sessionId: 'test-session-id',
       });
       expect(() => middleware.getSessionId()).toThrow(
-        'Instance `sessionId` is not initialized.',
+        'Session ID not set. Call connect() or setSessionId() first.',
       );
     });
   });

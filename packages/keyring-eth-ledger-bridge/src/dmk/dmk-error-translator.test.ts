@@ -1,6 +1,6 @@
-import { DeviceExchangeError } from '@ledgerhq/device-management-kit';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 
+import { createMockDeviceExchangeError } from './__testhelpers__/mock-error';
 import { translateDmkError } from './dmk-error-translator';
 
 describe('translateDmkError', () => {
@@ -143,14 +143,3 @@ describe('translateDmkError', () => {
     });
   });
 });
-
-function createMockDeviceExchangeError<TErrorCode = string>(
-  errorCode: TErrorCode,
-): DeviceExchangeError<TErrorCode> {
-  return {
-    _tag: 'EthAppCommandError',
-    message: `DMK error: ${String(errorCode)}`,
-    errorCode,
-    originalError: undefined,
-  } as unknown as DeviceExchangeError<TErrorCode>;
-}

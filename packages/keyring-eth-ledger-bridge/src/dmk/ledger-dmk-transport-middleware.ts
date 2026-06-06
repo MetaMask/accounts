@@ -13,6 +13,10 @@ type ConnectParameters = Parameters<DeviceManagementKit['connect']>;
 
 type ConnectResult = ReturnType<DeviceManagementKit['connect']>;
 
+type EthSigner = ReturnType<SignerEthBuilder['build']>;
+
+type CachedSigner = { sessionId: string; signer: EthSigner };
+
 /**
  * LedgerDMKTransportMiddleware is a middleware to communicate with the
  * Ledger device via DMK.
@@ -23,17 +27,10 @@ export class LedgerDMKTransportMiddleware {
 
   #sessionId?: string;
 
+  #cachedSigner: CachedSigner | null = null;
+
   constructor(sdk: DeviceManagementKit) {
     this.#sdk = sdk;
-  }
-
-  /**
-   * Method to retrieve the DeviceManagementKit instance.
-   *
-   * @returns The DeviceManagementKit instance.
-   */
-  getSDK(): DeviceManagementKit {
-    return this.#sdk;
   }
 
   /**
@@ -49,11 +46,17 @@ export class LedgerDMKTransportMiddleware {
   }
 
   /**
-   * Method to set the session ID.
+   * Set the session ID used for subsequent DMK commands.
+   *
+   * Invalidates any cached signer so the next `getEthSigner()` call builds a
+   * fresh signer bound to the new session.
    *
    * @param sessionId - The session ID for the connected Ledger device.
    */
   setSessionId(sessionId: string): void {
+    if (this.#sessionId !== sessionId) {
+      this.#cachedSigner = null;
+    }
     this.#sessionId = sessionId;
   }
 
@@ -61,10 +64,13 @@ export class LedgerDMKTransportMiddleware {
    * Method to retrieve the session ID.
    *
    * @returns The session ID.
+   * @throws {Error} If `setSessionId` or `connect` has not been called yet.
    */
   getSessionId(): string {
     if (!this.#sessionId) {
-      throw new Error('Instance `sessionId` is not initialized.');
+      throw new Error(
+        'Session ID not set. Call connect() or setSessionId() first.',
+      );
     }
     return this.#sessionId;
   }
@@ -83,19 +89,52 @@ export class LedgerDMKTransportMiddleware {
   }
 
   /**
-   * Method to get a SignerEth instance.
+   * Build (or return the cached) Ethereum signer for the current session.
    *
-   * @returns An Ethereum signer instance.
+   * The signer is memoized per session ID. `getEthSigner()` is called from
+   * five different operations on the bridge (`getPublicKey`,
+   * `deviceSignTransaction`, `deviceSignMessage`, `deviceSignTypedData`,
+   * `deviceSignDelegationAuthorization`); a single bridge session therefore
+   * needs at most one signer instance.
+   *
+   * Rebuilding is not free: `SignerEthBuilder.build()` allocates a fresh
+   * `DefaultContextModule` from `@ledgerhq/context-module`, which in its
+   * constructor builds a DI container and instantiates the default loaders
+   * (calldata, dynamic-network, external-plugin, gated-signing, nft, proxy,
+   * safe, token, trusted-name, typed-data, reporter, transaction-check, plus
+   * the field loaders, typed-data loader and blind-signing reporter). See
+   * `node_modules/@ledgerhq/context-module/lib/esm/src/DefaultContextModule.js`.
+   *
+   * Neither `DefaultSignerEth` nor `DefaultContextModule` expose a
+   * `dispose()` / `disconnect()` / `destroy()` method (verified against
+   * `node_modules/@ledgerhq/device-signer-kit-ethereum/lib/esm/internal/DefaultSignerEth.js`
+   * and the `DefaultContextModule` source above). If any of those loaders
+   * hold subscriptions to device-session state, re-creating the signer on
+   * every call would leak them. Caching is therefore defensive against
+   * subscription leaks, not just a micro-optimization.
+   *
+   * The cache is invalidated by `setSessionId()` when the session changes
+   * and by `dispose()` on shutdown.
+   *
+   * @returns An Ethereum signer instance bound to the current session.
    */
-  getEthSigner(): ReturnType<SignerEthBuilder['build']> {
-    return new SignerEthBuilder({
+  getEthSigner(): EthSigner {
+    const sessionId = this.getSessionId();
+    if (this.#cachedSigner?.sessionId === sessionId) {
+      return this.#cachedSigner.signer;
+    }
+    const signer = new SignerEthBuilder({
       dmk: this.#sdk,
-      sessionId: this.getSessionId(),
+      sessionId,
     }).build();
+    this.#cachedSigner = { sessionId, signer };
+    return signer;
   }
 
   /**
-   * Method to close the session.
+   * Disconnect the current session and clear cached state.
+   *
+   * Silently no-ops when no session has been established.
    *
    * @returns A promise that resolves when the session is closed.
    */
@@ -103,6 +142,7 @@ export class LedgerDMKTransportMiddleware {
     if (this.#sessionId) {
       await this.#sdk.disconnect({ sessionId: this.#sessionId });
       this.#sessionId = undefined;
+      this.#cachedSigner = null;
     }
   }
 }

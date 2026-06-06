@@ -3,7 +3,10 @@ import {
   InvalidStatusWordError,
 } from '@ledgerhq/device-management-kit';
 
-import { EthGetAppConfigurationCommand } from './eth-get-app-configuration-command';
+import {
+  ETH_APP_COMMAND_ERROR_TAG,
+  EthGetAppConfigurationCommand,
+} from './eth-get-app-configuration-command';
 
 describe('EthGetAppConfigurationCommand', () => {
   const command = new EthGetAppConfigurationCommand();
@@ -41,7 +44,7 @@ describe('EthGetAppConfigurationCommand', () => {
     expect(result).toStrictEqual({
       status: CommandResultStatus.Error,
       error: {
-        _tag: 'EthAppCommandError',
+        _tag: ETH_APP_COMMAND_ERROR_TAG,
         errorCode: '6985',
         message: 'Ledger Ethereum app command failed with status 0x6985.',
         originalError: undefined,
@@ -61,7 +64,9 @@ describe('EthGetAppConfigurationCommand', () => {
     expect(error).toBeInstanceOf(InvalidStatusWordError);
     expect(error).toStrictEqual(
       expect.objectContaining({
-        originalError: new Error('Cannot extract config flags'),
+        originalError: new Error(
+          'Cannot extract config flags from response body',
+        ),
       }),
     );
   });
@@ -78,7 +83,9 @@ describe('EthGetAppConfigurationCommand', () => {
     expect(error).toBeInstanceOf(InvalidStatusWordError);
     expect(error).toStrictEqual(
       expect.objectContaining({
-        originalError: new Error('Cannot extract version'),
+        originalError: new Error(
+          'Cannot extract version bytes from response body',
+        ),
       }),
     );
   });

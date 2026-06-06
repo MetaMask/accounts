@@ -21,36 +21,74 @@ export type EthGetAppConfigurationResponse = {
 
 const CLA = 0xe0;
 const INS = 0x06;
+// Feature flags defined by the Ethereum app `getAppConfiguration` APDU spec.
+// See: https://github.com/LedgerHQ/app-ethereum/blob/master/doc/ethapp.adoc#get-app-configuration
+//   0x01 - arbitrary data signature enabled by user (blind signing)
+//   0x02 - ERC 20 Token information needs to be provided externally
+//   0x10 - Transaction Check enabled (web3 checks)
+//   0x20 - Transaction Check Opt-In done (web3 checks opt-in)
 const BLIND_SIGNING_FLAG = 0x01;
 const WEB3_CHECKS_ENABLED_FLAG = 0x10;
 const WEB3_CHECKS_OPT_IN_FLAG = 0x20;
+const SUCCESS_STATUS_WORD_HI = 0x90;
+const SUCCESS_STATUS_WORD_LO = 0x00;
+
+/**
+ * Discriminator (`_tag`) used by `EthGetAppConfigurationCommand` when raising
+ * a {@link DeviceExchangeError}. Exported so tests and translators can
+ * reference the canonical string instead of repeating a magic literal.
+ */
+export const ETH_APP_COMMAND_ERROR_TAG = 'EthAppCommandError';
 
 /**
  * Reads the Ethereum app configuration via the Ethereum application's
  * `getAppConfiguration` APDU (CLA `0xE0`, INS `0x06`).
  *
- * The wire-format of the response is documented by the Ledger Ethereum app
- * APDU specification (`GET APP CONFIGURATION`):
+ * ## Wire format
  *
- *   https://github.com/LedgerHQ/app-ethereum/blob/develop/doc/ethapp.adoc
+ * Defined by the Ethereum application APDU specification
+ * ([`doc/ethapp.adoc`](https://github.com/LedgerHQ/app-ethereum/blob/master/doc/ethapp.adoc#get-app-configuration),
+ * § *GET APP CONFIGURATION*).
  *
- * Layout of the response payload (4 bytes):
+ * The 4-byte response payload is laid out as:
  *
- *   byte 0       - feature flags bitmask
- *                   bit 0 (0x01): arbitrary data signature enabled (blind signing)
- *                   bit 4 (0x10): transaction check enabled (web3 checks)
- *                   bit 5 (0x20): transaction check opt-in done (web3 checks opt-in)
- *   bytes 1..3   - app version (major, minor, patch)
+ * ```
+ *  byte 0       flags bitmask
+ *  bytes 1..3   app version (major, minor, patch)
+ * ```
+ *
+ * The `flags` byte is defined by the spec as:
+ *
+ * ```
+ *  0x01  arbitrary data signature enabled by user     (blind signing)
+ *  0x02  ERC 20 Token information needs to be provided externally
+ *  0x10  Transaction Check enabled                    (web3 checks)
+ *  0x20  Transaction Check Opt-In done                (web3 checks opt-in)
+ * ```
  *
  * This command mirrors the implementation in
- * `@ledgerhq/device-signer-kit-ethereum` at
- * `internal/app-binder/command/GetAppConfigurationCommand`, which is not
+ * [`@ledgerhq/device-signer-kit-ethereum`](https://github.com/LedgerHQ/device-sdk-ts/blob/main/packages/signer/signer-eth/src/internal/app-binder/command/GetAppConfigurationCommand.ts)
+ * (`internal/app-binder/command/GetAppConfigurationCommand`), which is not
  * re-exported from that package's public entry point. Until the signer kit
  * exposes `GetAppConfiguration` publicly, this module is the only way to
  * invoke the Ethereum `getAppConfiguration` APDU through the DMK
  * `sendCommand` API.
  *
- * Note: this is distinct from the DMK OS-level `GetAppAndVersionCommand`
+ * ## Related APDU docs
+ *
+ * The other Ethereum APDUs the DMK signer kit sends on our behalf are also
+ * defined in the same `ethapp.adoc` document:
+ *
+ * - `GET ETH PUBLIC ADDRESS`        — INS `0x02`
+ * - `SIGN ETH TRANSACTION`          — INS `0x04`
+ * - `SIGN ETH PERSONAL MESSAGE`     — INS `0x08`
+ * - `SIGN ETH EIP 712`              — INS `0x0C`
+ * - `SIGN EIP 7702 AUTHORIZATION`   — INS `0x34`
+ *
+ * ## Distinguishing DMK commands
+ *
+ * Note: this command is distinct from the DMK OS-level
+ * [`GetAppAndVersionCommand`](https://github.com/LedgerHQ/device-sdk-ts/blob/main/packages/device-management-kit/src/api/command/os/GetAppAndVersionCommand.ts)
  * (`@ledgerhq/device-management-kit`), which returns only the app's name and
  * version and does not expose Ethereum-specific feature flags.
  */
@@ -79,7 +117,9 @@ export class EthGetAppConfigurationCommand implements Command<
     const flags = parser.extract8BitUInt();
     if (flags === undefined) {
       return CommandResultFactory({
-        error: new InvalidStatusWordError('Cannot extract config flags'),
+        error: new InvalidStatusWordError(
+          'Cannot extract config flags from response body',
+        ),
       });
     }
 
@@ -88,7 +128,9 @@ export class EthGetAppConfigurationCommand implements Command<
     const patch = parser.extract8BitUInt();
     if (major === undefined || minor === undefined || patch === undefined) {
       return CommandResultFactory({
-        error: new InvalidStatusWordError('Cannot extract version'),
+        error: new InvalidStatusWordError(
+          'Cannot extract version bytes from response body',
+        ),
       });
     }
 
@@ -103,12 +145,37 @@ export class EthGetAppConfigurationCommand implements Command<
   }
 }
 
+/**
+ * Test whether a single-bit flag is set in a bitmask.
+ *
+ * Per the Ethereum `getAppConfiguration` APDU spec
+ * ([ethapp.adoc](https://github.com/LedgerHQ/app-ethereum/blob/master/doc/ethapp.adoc#get-app-configuration)),
+ * each supported feature occupies one bit of the `flags` byte. The spec
+ * defines *which* bits carry meaning (`0x01`, `0x10`, `0x20`); it does not
+ * prescribe an implementation technique for testing them. Bitwise AND is
+ * the idiomatic way to test a single bit in any language, and is the
+ * same formulation used by Ledger's own
+ * [`GetAppConfiguration`](https://github.com/LedgerHQ/device-sdk-ts/blob/main/packages/signer/signer-eth/src/internal/app-binder/command/GetAppConfigurationCommand.ts)
+ * implementation upstream.
+ *
+ * @param flags - The bitmask (the first response byte).
+ * @param flag - The single-bit value to test (e.g. `0x01`, `0x10`, `0x20`).
+ * @returns `true` if the bit is set, `false` otherwise.
+ */
 function isFlagSet(flags: number, flag: number): boolean {
-  return Math.floor(flags / flag) % 2 === 1;
+  // Bitwise AND is the idiomatic way to test a single-bit flag in a
+  // bitmask and matches the upstream Ledger implementation; the
+  // `ethapp.adoc` spec defines the flag *values* (0x01, 0x10, 0x20) but
+  // leaves the testing technique to the implementer.
+  // eslint-disable-next-line no-bitwise
+  return (flags & flag) !== 0;
 }
 
 function isSuccessStatusCode(statusCode: Uint8Array): boolean {
-  return statusCode[0] === 0x90 && statusCode[1] === 0x00;
+  return (
+    statusCode[0] === SUCCESS_STATUS_WORD_HI &&
+    statusCode[1] === SUCCESS_STATUS_WORD_LO
+  );
 }
 
 function createEthAppCommandError(
@@ -119,7 +186,7 @@ function createEthAppCommandError(
     .join('');
 
   return {
-    _tag: 'EthAppCommandError',
+    _tag: ETH_APP_COMMAND_ERROR_TAG,
     errorCode,
     message: `Ledger Ethereum app command failed with status 0x${errorCode}.`,
     originalError: undefined,

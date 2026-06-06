@@ -14,7 +14,7 @@ import type {
 import type { Signature } from '@ledgerhq/device-signer-kit-ethereum';
 import type Transport from '@ledgerhq/hw-transport';
 import type { Observable } from 'rxjs';
-import { firstValueFrom, of, Subject } from 'rxjs';
+import { firstValueFrom, of, Subject, Subscription } from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
@@ -24,17 +24,11 @@ import {
 } from 'rxjs/operators';
 
 import {
-  isDeviceExchangeError,
-  translateDmkError,
-} from './dmk-error-translator';
-import { EthGetAppConfigurationCommand } from './eth-get-app-configuration-command';
-import {
   AppConfigurationResponse,
   GetAppNameAndVersionResponse,
   GetPublicKeyParams,
   GetPublicKeyResponse,
   LedgerBridge,
-  LedgerBridgeOptions,
   LedgerSignDelegationAuthorizationParams,
   LedgerSignDelegationAuthorizationResponse,
   LedgerSignMessageParams,
@@ -44,13 +38,23 @@ import {
   LedgerSignTypedDataParams,
   LedgerSignTypedDataResponse,
 } from '../ledger-bridge';
+import {
+  isDeviceExchangeError,
+  translateDmkError,
+} from './dmk-error-translator';
+import { EthGetAppConfigurationCommand } from './eth-get-app-configuration-command';
+import {
+  hexToBytes,
+  stripHexPrefix,
+  stripPathPrefix,
+  toHexString,
+} from './internal-utils';
 import { LedgerDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
 
 export type LedgerDMKBridgeOptions = {
   transportFactory?: Parameters<DeviceManagementKitBuilder['addTransport']>[0];
   dmk?: DeviceManagementKit;
 };
-
 
 type PublicKeyOutput = Pick<
   GetPublicKeyResponse,
@@ -79,8 +83,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   readonly onSessionStateChange: Observable<{ connected: boolean }> =
     this.#sessionState$.asObservable();
 
-  #sessionSubscription: ReturnType<Observable<unknown>['subscribe']> | null =
-    null;
+  #sessionSubscription: Subscription | null = null;
 
   get isDeviceConnected(): boolean {
     return this.#isConnected;
@@ -105,14 +108,14 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
       );
     }
     this.#opts = opts;
-    this.#transportMiddleware = new LedgerDMKTransportMiddleware(
-      this.#sdk,
-    );
+    this.#transportMiddleware = new LedgerDMKTransportMiddleware(this.#sdk);
   }
 
   /**
-   * Compatibility hook for the shared LedgerBridge interface.
-   * DMK session setup happens externally via updateSessionId.
+   * Compatibility shim for the shared {@link LedgerBridge} interface.
+   *
+   * DMK session setup happens externally via `updateSessionId` or `connect`,
+   * so this method is a no-op.
    *
    * @returns A promise that resolves immediately.
    */
@@ -123,22 +126,34 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   /**
    * Destroys the bridge and cleans up resources.
    *
+   * Unsubscribes session monitoring, disposes the transport middleware (if
+   * owned), and completes the session-state subject so all subscribers are
+   * released. State cleanup happens in a `finally` block so the bridge is
+   * marked disconnected even when middleware `dispose()` rejects.
+   *
    * @returns A promise that resolves when cleanup is complete.
    */
   async destroy(): Promise<void> {
     this.#sessionSubscription?.unsubscribe();
     this.#sessionSubscription = null;
 
-    if (this.#sessionOwnership) {
-      await this.#transportMiddleware.dispose();
+    try {
+      if (this.#sessionOwnership) {
+        await this.#transportMiddleware.dispose();
+      }
+    } finally {
+      this.#isConnected = false;
+      this.#sessionState$.next({ connected: false });
+      this.#sessionState$.complete();
     }
-
-    this.#isConnected = false;
-    this.#sessionState$.next({ connected: false });
   }
 
   /**
-   * Gets bridge options.
+   * Returns the bridge options captured at construction.
+   *
+   * Compatibility shim for the shared {@link LedgerBridge} interface. The DMK
+   * bridge does not use runtime-reconfigurable options; this method exists
+   * only to satisfy the interface contract.
    *
    * @returns A promise that resolves with the current bridge options.
    */
@@ -147,7 +162,11 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   }
 
   /**
-   * Sets bridge options.
+   * Replaces the stored bridge options.
+   *
+   * Compatibility shim for the shared {@link LedgerBridge} interface. Stored
+   * options are not re-applied to the underlying DMK instance or transport
+   * middleware; the values used at construction time remain in effect.
    *
    * @param opts - The options to set for the bridge.
    * @returns A promise that resolves when options are set.
@@ -198,11 +217,13 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   }
 
   /**
-   * Compatibility method for the shared LedgerBridge interface.
-   * DMK transport selection happens through the injected transport factory.
+   * Compatibility shim for the shared {@link LedgerBridge} interface.
    *
-   * @param _transportType - The requested transport type.
-   * @returns `true`.
+   * DMK transport selection happens through the injected transport factory
+   * at construction time, so this method is a no-op that always succeeds.
+   *
+   * @param _transportType - The requested transport type (ignored).
+   * @returns A promise that resolves with `true`.
    */
   async updateTransportMethod(
     _transportType: string | Transport,
@@ -235,8 +256,11 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   }
 
   /**
-   * No-op — the Ethereum signer kit automatically opens the Ethereum
-   * app before each signing operation via DMK's CallTaskInAppDeviceAction.
+   * Compatibility shim for the shared {@link LedgerBridge} interface.
+   *
+   * The Ethereum signer kit automatically opens the Ethereum app before each
+   * signing operation via DMK's `CallTaskInAppDeviceAction`, so this method
+   * is a no-op that always succeeds.
    *
    * @returns A promise that resolves with `true`.
    */
@@ -256,7 +280,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   }: GetPublicKeyParams): Promise<GetPublicKeyResponse> {
     const { observable } = this.#transportMiddleware
       .getEthSigner()
-      .getAddress(this.#stripPathPrefix(hdPath), {
+      .getAddress(stripPathPrefix(hdPath), {
         checkOnDevice: false,
         returnChainCode: true,
       });
@@ -284,13 +308,13 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   }: LedgerSignTransactionParams): Promise<LedgerSignTransactionResponse> {
     const { observable } = this.#transportMiddleware
       .getEthSigner()
-      .signTransaction(this.#stripPathPrefix(hdPath), this.#hexToBytes(tx));
+      .signTransaction(stripPathPrefix(hdPath), hexToBytes(tx));
     const signature = await this.#waitForDeviceAction<Signature>(observable);
 
     return {
-      v: this.#toHexString(signature.v),
-      r: this.#stripHexPrefix(signature.r),
-      s: this.#stripHexPrefix(signature.s),
+      v: toHexString(signature.v),
+      r: stripHexPrefix(signature.r),
+      s: stripHexPrefix(signature.s),
     };
   }
 
@@ -308,13 +332,13 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   }: LedgerSignMessageParams): Promise<LedgerSignMessageResponse> {
     const { observable } = this.#transportMiddleware
       .getEthSigner()
-      .signMessage(this.#stripPathPrefix(hdPath), this.#hexToBytes(message));
+      .signMessage(stripPathPrefix(hdPath), hexToBytes(message));
     const signature = await this.#waitForDeviceAction<Signature>(observable);
 
     return {
       v: signature.v,
-      r: this.#stripHexPrefix(signature.r),
-      s: this.#stripHexPrefix(signature.s),
+      r: stripHexPrefix(signature.r),
+      s: stripHexPrefix(signature.s),
     };
   }
 
@@ -332,13 +356,13 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   }: LedgerSignTypedDataParams): Promise<LedgerSignTypedDataResponse> {
     const { observable } = this.#transportMiddleware
       .getEthSigner()
-      .signTypedData(this.#stripPathPrefix(hdPath), message);
+      .signTypedData(stripPathPrefix(hdPath), message);
     const signature = await this.#waitForDeviceAction<Signature>(observable);
 
     return {
       v: signature.v,
-      r: this.#stripHexPrefix(signature.r),
-      s: this.#stripHexPrefix(signature.s),
+      r: stripHexPrefix(signature.r),
+      s: stripHexPrefix(signature.s),
     };
   }
 
@@ -351,7 +375,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     const { observable } = this.#transportMiddleware
       .getEthSigner()
       .signDelegationAuthorization(
-        this.#stripPathPrefix(hdPath),
+        stripPathPrefix(hdPath),
         chainId,
         contractAddress,
         nonce,
@@ -359,9 +383,9 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     const signature = await this.#waitForDeviceAction<Signature>(observable);
 
     return {
-      v: this.#toHexString(signature.v),
-      r: this.#stripHexPrefix(signature.r),
-      s: this.#stripHexPrefix(signature.s),
+      v: toHexString(signature.v),
+      r: stripHexPrefix(signature.r),
+      s: stripHexPrefix(signature.s),
     };
   }
 
@@ -408,6 +432,19 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
 
     const { data } = result;
 
+    // The `ethapp.adoc` spec for `getAppConfiguration`
+    // (https://github.com/LedgerHQ/app-ethereum/blob/develop/doc/ethapp.adoc#get-app-configuration)
+    // defines four flag bits. This bridge only consumes three (blind signing,
+    // web3 checks enabled, web3 checks opt-in). The fourth — `0x02` *ERC 20
+    // Token information needs to be provided externally* — is intentionally
+    // mapped to `erc20ProvisioningNecessary: 0` because the rest of the
+    // keyring does not implement the `PROVIDE ERC 20 TOKEN INFORMATION`
+    // provisioning flow.
+    //
+    // TODO: The shared `AppConfigurationResponse` interface also requires
+    // `starkEnabled` and `starkv2Supported`, which are not exposed by the
+    // `getAppConfiguration` APDU at all. They are stubbed to 0 to satisfy
+    // the interface contract.
     return {
       arbitraryDataEnabled: data.blindSigningEnabled ? 1 : 0,
       erc20ProvisioningNecessary: 0,
@@ -441,15 +478,9 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
       throw translateDmkError(state.error);
     }
 
+    // Unreachable: the filter above only lets Completed or Error states
+    // through. Defensive guard retained for type safety.
     throw new Error('Ledger device action ended without completion.');
-  }
-
-  #stripHexPrefix(value: string): string {
-    return value.startsWith('0x') ? value.slice(2) : value;
-  }
-
-  #stripPathPrefix(path: string): string {
-    return path.replace(/^m\//u, '');
   }
 
   #toError(error: unknown): Error {
@@ -462,23 +493,6 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     }
 
     return new Error('Ledger command failed.');
-  }
-
-  #toHexString(value: bigint | number | string): string {
-    if (typeof value === 'string') {
-      return this.#stripHexPrefix(value);
-    }
-
-    return value.toString(16);
-  }
-
-  #hexToBytes(value: string): Uint8Array {
-    const normalizedValue = this.#stripHexPrefix(value);
-    const bytes = normalizedValue
-      .match(/.{1,2}/gu)
-      ?.map((byte) => parseInt(byte, 16));
-
-    return Uint8Array.from(bytes ?? []);
   }
 
   #startSessionMonitoring(sessionId: string): void {
@@ -505,5 +519,3 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
       });
   }
 }
-
-

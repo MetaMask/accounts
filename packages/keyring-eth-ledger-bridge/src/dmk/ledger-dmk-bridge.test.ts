@@ -12,6 +12,7 @@ import { TransportStatusError } from '@ledgerhq/hw-transport';
 import { EIP712Message } from '@ledgerhq/types-live';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 
+import { createMockDeviceExchangeError } from './__testhelpers__/mock-error';
 import { LedgerDMKBridge } from './ledger-dmk-bridge';
 import { LedgerDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
 
@@ -138,9 +139,9 @@ describe('LedgerDMKBridge', () => {
     } as unknown as jest.Mocked<LedgerDMKTransportMiddleware>;
 
     // Mock the constructor to return our mock
-    (
-      LedgerDMKTransportMiddleware as unknown as jest.Mock
-    ).mockImplementation(() => mockTransportMiddleware);
+    (LedgerDMKTransportMiddleware as unknown as jest.Mock).mockImplementation(
+      () => mockTransportMiddleware,
+    );
 
     bridge = new LedgerDMKBridge({ transportFactory: mockTransportFactory });
   });
@@ -181,9 +182,7 @@ describe('LedgerDMKBridge', () => {
     it('returns true after connect', async () => {
       const params = {
         device: { id: 'device-id' },
-      } as unknown as Parameters<
-        LedgerDMKTransportMiddleware['connect']
-      >[0];
+      } as unknown as Parameters<LedgerDMKTransportMiddleware['connect']>[0];
       await bridge.connect(params);
       expect(bridge.isDeviceConnected).toBe(true);
     });
@@ -266,12 +265,30 @@ describe('LedgerDMKBridge', () => {
       expect(bridge.isDeviceConnected).toBe(false);
     });
 
-    it('throws when dispose fails', async () => {
+    it('throws when dispose fails but still cleans up state', async () => {
       await bridge.updateSessionId('test-session-id');
       expect(bridge.isDeviceConnected).toBe(true);
       const error = new Error('dispose error');
       mockTransportMiddleware.dispose.mockRejectedValueOnce(error);
       await expect(bridge.destroy()).rejects.toThrow('dispose error');
+      // try/finally must ensure state cleanup even when dispose rejects.
+      expect(bridge.isDeviceConnected).toBe(false);
+    });
+
+    it('completes the session state subject so subscribers are released', async () => {
+      await bridge.updateSessionId('test-session-id');
+
+      let completed = false;
+      bridge.onSessionStateChange.subscribe({
+        next: () => undefined,
+        error: () => undefined,
+        complete: () => {
+          completed = true;
+        },
+      });
+
+      await bridge.destroy();
+      expect(completed).toBe(true);
     });
   });
 
@@ -327,9 +344,7 @@ describe('LedgerDMKBridge', () => {
     it('connects through the transport middleware and marks the device as connected', async () => {
       const params = {
         device: { id: 'device-id' },
-      } as unknown as Parameters<
-        LedgerDMKTransportMiddleware['connect']
-      >[0];
+      } as unknown as Parameters<LedgerDMKTransportMiddleware['connect']>[0];
       const result = await bridge.connect(params);
 
       expect(mockTransportMiddleware.connect.mock.calls).toStrictEqual([
@@ -462,68 +477,6 @@ describe('LedgerDMKBridge', () => {
       expect(caughtError).toBeInstanceOf(TransportStatusError);
       expect((caughtError as TransportStatusError).statusCode).toBe(0x6f00);
     });
-
-    it('throws when a device action completes without a terminal status', async () => {
-      jest.resetModules();
-      let isolatedTest: Promise<void> | undefined;
-
-      jest.isolateModules(() => {
-        jest.doMock('rxjs/operators', () => ({
-          catchError:
-            () =>
-            (source: unknown): unknown =>
-              source,
-          filter:
-            () =>
-            (source: unknown): unknown =>
-              source,
-        }));
-        jest.doMock('@ledgerhq/device-management-kit', () => {
-          const actual = jest.requireActual('@ledgerhq/device-management-kit');
-
-          return {
-            ...actual,
-            DeviceManagementKitBuilder: jest.fn().mockImplementation(() => ({
-              addTransport: jest.fn().mockReturnThis(),
-              build: jest.fn().mockReturnValue({}),
-            })),
-          };
-        });
-        jest.doMock('./ledger-dmk-transport-middleware', () => ({
-          LedgerDMKTransportMiddleware: jest
-            .fn()
-            .mockImplementation(() => ({
-              dispose: jest.fn(),
-              getEthSigner: jest.fn().mockReturnValue({
-                getAddress: jest.fn().mockReturnValue({
-                  observable: of({ status: 'pending' }),
-                }),
-              }),
-              getSessionId: jest.fn().mockReturnValue('test-session-id'),
-              setSessionId: jest.fn(),
-            })),
-        }));
-
-        isolatedTest = (async (): Promise<void> => {
-          // eslint-disable-next-line @typescript-eslint/no-require-imports, n/global-require
-          const Bridge = require('./ledger-dmk-bridge').LedgerDMKBridge;
-
-          await expect(
-            new Bridge({ transportFactory: jest.fn() }).getPublicKey({
-              hdPath: "m/44'/60'/0'/0/0",
-            }),
-          ).rejects.toThrow('Ledger device action ended without completion.');
-        })();
-      });
-
-      await isolatedTest;
-
-      jest.resetModules();
-    });
-  });
-
-  afterAll(() => {
-    jest.resetModules();
   });
 
   describe('deviceSignTransaction', () => {
@@ -567,7 +520,7 @@ describe('LedgerDMKBridge', () => {
   describe('deviceSignMessage', () => {
     it('calls the DMK signer signMessage with hdPath and message', async () => {
       const hdPath = "m/44'/60'/0'/0/0";
-      const message = 'test message';
+      const message = 'deadbeef';
       const result = await bridge.deviceSignMessage({ hdPath, message });
 
       expect(mockTransportMiddleware.getEthSigner.mock.calls).toHaveLength(1);
@@ -596,7 +549,7 @@ describe('LedgerDMKBridge', () => {
 
       const result = await bridge.deviceSignMessage({
         hdPath: "m/44'/60'/0'/0/0",
-        message: 'test message',
+        message: 'deadbeef',
       });
 
       expect(result).toStrictEqual({
@@ -604,6 +557,22 @@ describe('LedgerDMKBridge', () => {
         r: 'r-value',
         s: 's-value',
       });
+    });
+
+    it('throws when message is not valid hex', async () => {
+      await expect(
+        bridge.deviceSignMessage({
+          hdPath: "m/44'/60'/0'/0/0",
+          message: 'test message',
+        }),
+      ).rejects.toThrow(/non-hex characters/u);
+
+      await expect(
+        bridge.deviceSignMessage({
+          hdPath: "m/44'/60'/0'/0/0",
+          message: '0xabc',
+        }),
+      ).rejects.toThrow(/even number of characters/u);
     });
   });
 
@@ -935,14 +904,3 @@ describe('LedgerDMKBridge', () => {
     });
   });
 });
-
-function createMockDeviceExchangeError<TErrorCode = string>(
-  errorCode: TErrorCode,
-): DeviceExchangeError<TErrorCode> {
-  return {
-    _tag: 'EthAppCommandError',
-    message: `DMK error: ${String(errorCode)}`,
-    errorCode,
-    originalError: undefined,
-  } as unknown as DeviceExchangeError<TErrorCode>;
-}

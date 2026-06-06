@@ -4,8 +4,8 @@ import { TransportStatusError } from '@ledgerhq/hw-transport';
 const GENERIC_ERROR_STATUS_CODE = 0x6f00;
 
 /**
- * Translates a DMK error (DeviceExchangeError with hex error codes)
- * into a TransportStatusError that the Ledger keyring error handler can process.
+ * Translates a DMK error (DeviceExchangeError with hex error codes) into a
+ * TransportStatusError that the Ledger keyring error handler can process.
  *
  * @param error - The error from a DMK device action or command.
  * @returns A TransportStatusError with the corresponding APDU status code.
