@@ -418,7 +418,7 @@ export const TransactionStruct = object({
    * Additional transaction details {@see TransactionDetailsStruct}.
    *
    * Contains contextual information about the transaction such as its origin,
-   * security assessment, and additional transaction data.
+   * security assessment and additional transaction data.
    * This field is optional and may not be present for all transactions.
    */
   details: exactOptional(TransactionDetailsStruct),
