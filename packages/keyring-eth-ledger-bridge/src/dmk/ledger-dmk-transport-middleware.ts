@@ -27,6 +27,13 @@ export class LedgerDMKTransportMiddleware {
 
   #sessionId?: string;
 
+  /**
+   * Session created by this middleware's `connect()` call. Only managed
+   * sessions are disconnected automatically; IDs assigned via `setSessionId`
+   * are owned by the host.
+   */
+  #managedSessionId?: string;
+
   #cachedSigner: CachedSigner | null = null;
 
   constructor(sdk: DeviceManagementKit) {
@@ -48,8 +55,10 @@ export class LedgerDMKTransportMiddleware {
   /**
    * Set the session ID used for subsequent DMK commands.
    *
-   * When the session ID changes, disconnects the previous DMK session (if any)
-   * so reconnecting or swapping sessions does not leave orphaned sessions open.
+   * Binds the middleware to an existing DMK session without disconnecting
+   * any prior session. If the current session was created by this middleware's
+   * `connect()`, that managed session is released when replaced.
+   *
    * Invalidates any cached signer so the next `getEthSigner()` call builds a
    * fresh signer bound to the new session.
    *
@@ -60,12 +69,12 @@ export class LedgerDMKTransportMiddleware {
       return;
     }
 
-    const previousSessionId = this.#sessionId;
-    this.#cachedSigner = null;
-    this.#sessionId = sessionId;
+    const managedToRelease = this.#managedSessionId;
+    this.#assignSession(sessionId);
 
-    if (previousSessionId) {
-      await this.#sdk.disconnect({ sessionId: previousSessionId });
+    if (managedToRelease && managedToRelease !== sessionId) {
+      await this.#sdk.disconnect({ sessionId: managedToRelease });
+      this.#managedSessionId = undefined;
     }
   }
 
@@ -91,8 +100,14 @@ export class LedgerDMKTransportMiddleware {
    * @returns The created session ID.
    */
   async connect(...args: ConnectParameters): ConnectResult {
+    const previousManagedSessionId = this.#managedSessionId;
     const sessionId = await this.#sdk.connect(...args);
-    await this.setSessionId(sessionId);
+    this.#assignSession(sessionId);
+    this.#managedSessionId = sessionId;
+
+    if (previousManagedSessionId && previousManagedSessionId !== sessionId) {
+      await this.#sdk.disconnect({ sessionId: previousManagedSessionId });
+    }
 
     return sessionId;
   }
@@ -149,6 +164,7 @@ export class LedgerDMKTransportMiddleware {
    */
   clearSession(): void {
     this.#sessionId = undefined;
+    this.#managedSessionId = undefined;
     this.#cachedSigner = null;
   }
 
@@ -160,9 +176,15 @@ export class LedgerDMKTransportMiddleware {
    * @returns A promise that resolves when the session is closed.
    */
   async dispose(): Promise<void> {
-    if (this.#sessionId) {
-      await this.#sdk.disconnect({ sessionId: this.#sessionId });
+    const sessionToDisconnect = this.#managedSessionId ?? this.#sessionId;
+    if (sessionToDisconnect) {
+      await this.#sdk.disconnect({ sessionId: sessionToDisconnect });
       this.clearSession();
     }
+  }
+
+  #assignSession(sessionId: string): void {
+    this.#cachedSigner = null;
+    this.#sessionId = sessionId;
   }
 }

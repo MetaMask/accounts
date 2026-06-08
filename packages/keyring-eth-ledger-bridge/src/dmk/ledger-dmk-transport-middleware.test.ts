@@ -71,6 +71,21 @@ describe('LedgerDMKTransportMiddleware', () => {
       expect(sessionId).toBe('new-session-id');
       expect(middleware.getSessionId()).toBe('new-session-id');
     });
+
+    it('does not disconnect a host-assigned session when reconnecting after setSessionId', async () => {
+      const params = {
+        device: { id: 'device-id' },
+      } as unknown as Parameters<DeviceManagementKit['connect']>[0];
+
+      await middleware.setSessionId('host-session-id');
+      mockSDK.connect.mockResolvedValueOnce('new-session-id');
+
+      const sessionId = await middleware.connect(params);
+
+      expect(mockSDK.disconnect).not.toHaveBeenCalled();
+      expect(sessionId).toBe('new-session-id');
+      expect(middleware.getSessionId()).toBe('new-session-id');
+    });
   });
 
   describe('getSessionId', () => {
@@ -119,7 +134,7 @@ describe('LedgerDMKTransportMiddleware', () => {
   });
 
   describe('setSessionId', () => {
-    it('disconnects the previous session when the session ID changes', async () => {
+    it('releases a connect()-created session when replaced by a host session id', async () => {
       await middleware.connect({
         device: { id: 'device-id' },
       } as unknown as Parameters<DeviceManagementKit['connect']>[0]);
@@ -140,6 +155,15 @@ describe('LedgerDMKTransportMiddleware', () => {
       await middleware.setSessionId('test-session-id');
 
       expect(mockSDK.disconnect).not.toHaveBeenCalled();
+    });
+
+    it('does not disconnect host-assigned sessions when switching session ids', async () => {
+      await middleware.setSessionId('first-session-id');
+
+      await middleware.setSessionId('second-session-id');
+
+      expect(mockSDK.disconnect).not.toHaveBeenCalled();
+      expect(middleware.getSessionId()).toBe('second-session-id');
     });
   });
 
@@ -191,6 +215,16 @@ describe('LedgerDMKTransportMiddleware', () => {
     it('does nothing and does not throw when no session has been set', async () => {
       await middleware.dispose();
       expect(mockSDK.disconnect).not.toHaveBeenCalled();
+    });
+
+    it('disconnects a host-assigned session when no managed session exists', async () => {
+      await middleware.setSessionId('host-session-id');
+
+      await middleware.dispose();
+
+      expect(mockSDK.disconnect).toHaveBeenCalledWith({
+        sessionId: 'host-session-id',
+      });
     });
   });
 });

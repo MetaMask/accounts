@@ -167,6 +167,9 @@ describe('LedgerDMKBridge', () => {
 
     it('creates transport middleware with SDK', () => {
       expect(LedgerDMKTransportMiddleware).toHaveBeenCalledTimes(1);
+      expect(LedgerDMKTransportMiddleware).toHaveBeenCalledWith(
+        expect.anything(),
+      );
     });
   });
 
