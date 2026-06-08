@@ -175,8 +175,8 @@ export enum TransactionType {
    * Represents a custom transaction type.
    *
    * Use this when the transaction does not fit any predefined type.
-   * Additional transaction details may be provided in
-   * {@link TransactionDetailsStruct.transactionData}.
+   * Additional transaction details may be provided via the `details.transactionData`
+   * field (see {@link TransactionDetailsStruct}).
    */
   Custom = 'custom',
 
