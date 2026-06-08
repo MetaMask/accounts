@@ -14,13 +14,22 @@ import type {
 import type { Signature } from '@ledgerhq/device-signer-kit-ethereum';
 import type Transport from '@ledgerhq/hw-transport';
 import type { Observable } from 'rxjs';
-import { concat, defer, firstValueFrom, of, Subject, Subscription } from 'rxjs';
+import {
+  concat,
+  defer,
+  firstValueFrom,
+  of,
+  Subject,
+  Subscription,
+  timer,
+} from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
   endWith,
   filter,
   map,
+  switchMap,
 } from 'rxjs/operators';
 
 import {
@@ -504,17 +513,30 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   #startSessionMonitoring(sessionId: string): void {
     this.#sessionSubscription?.unsubscribe();
 
-    const createMonitoringStream = (): Observable<{ connected: boolean }> =>
+    const MAX_BACKOFF_MS = 30_000;
+    const BASE_DELAY_MS = 1_000;
+
+    const createMonitoringStream = (
+      retryCount = 0,
+    ): Observable<{ connected: boolean }> =>
       this.#sdk.getDeviceSessionState({ sessionId }).pipe(
         map((state) => ({
           connected: state.deviceStatus !== DeviceStatus.NOT_CONNECTED,
         })),
-        catchError(() =>
-          concat(
-            of({ connected: false } as { connected: boolean }),
-            defer(createMonitoringStream),
-          ),
-        ),
+        catchError(() => {
+          const delay = Math.min(
+            BASE_DELAY_MS * 2 ** retryCount,
+            MAX_BACKOFF_MS,
+          );
+          return concat(
+            of({ connected: false }),
+            defer(() =>
+              timer(delay).pipe(
+                switchMap(() => createMonitoringStream(retryCount + 1)),
+              ),
+            ),
+          );
+        }),
         endWith({ connected: false } as { connected: boolean }),
       );
 

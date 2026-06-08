@@ -73,6 +73,14 @@ describe('LedgerDMKTransportMiddleware', () => {
     });
   });
 
+  describe('getSessionId', () => {
+    it('throws when called before connect or setSessionId', () => {
+      expect(() => middleware.getSessionId()).toThrow(
+        'Session ID not set. Call connect() or setSessionId() first.',
+      );
+    });
+  });
+
   describe('getEthSigner', () => {
     it('builds a signer using the current session ID', async () => {
       await middleware.connect({
@@ -178,6 +186,11 @@ describe('LedgerDMKTransportMiddleware', () => {
       expect(() => middleware.getSessionId()).toThrow(
         'Session ID not set. Call connect() or setSessionId() first.',
       );
+    });
+
+    it('does nothing and does not throw when no session has been set', async () => {
+      await middleware.dispose();
+      expect(mockSDK.disconnect).not.toHaveBeenCalled();
     });
   });
 });

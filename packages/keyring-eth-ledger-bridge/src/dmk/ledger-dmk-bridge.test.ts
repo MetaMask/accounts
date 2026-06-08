@@ -245,6 +245,7 @@ describe('LedgerDMKBridge', () => {
     });
 
     it('resumes monitoring after a transient session observable error', async () => {
+      jest.useFakeTimers();
       const firstSessionState$ = new Subject();
       const secondSessionState$ = new Subject();
       mockSDK.getDeviceSessionState
@@ -261,10 +262,14 @@ describe('LedgerDMKBridge', () => {
 
       expect(bridge.isDeviceConnected).toBe(false);
 
+      jest.runAllTimers();
+
       secondSessionState$.next({ deviceStatus: DeviceStatus.CONNECTED });
 
       expect(emitted).toContainEqual({ connected: true });
       expect(bridge.isDeviceConnected).toBe(true);
+
+      jest.useRealTimers();
     });
   });
 
