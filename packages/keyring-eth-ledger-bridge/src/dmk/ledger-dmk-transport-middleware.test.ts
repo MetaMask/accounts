@@ -135,6 +135,35 @@ describe('LedgerDMKTransportMiddleware', () => {
     });
   });
 
+  describe('clearSession', () => {
+    it('clears the session ID and signer cache without disconnecting', async () => {
+      await middleware.connect({
+        device: { id: 'device-id' },
+      } as unknown as Parameters<DeviceManagementKit['connect']>[0]);
+      middleware.getEthSigner();
+
+      middleware.clearSession();
+
+      expect(mockSDK.disconnect).not.toHaveBeenCalled();
+      expect(() => middleware.getSessionId()).toThrow(
+        'Session ID not set. Call connect() or setSessionId() first.',
+      );
+    });
+
+    it('rebuilds the signer after clearSession and reconnect', async () => {
+      await middleware.connect({
+        device: { id: 'device-id' },
+      } as unknown as Parameters<DeviceManagementKit['connect']>[0]);
+      middleware.getEthSigner();
+
+      middleware.clearSession();
+      await middleware.setSessionId('other-session-id');
+      middleware.getEthSigner();
+
+      expect(buildSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('dispose', () => {
     it('disconnects the current session and clears it', async () => {
       await middleware.connect({

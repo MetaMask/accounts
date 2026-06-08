@@ -133,6 +133,7 @@ describe('LedgerDMKBridge', () => {
       getSDK: jest
         .fn()
         .mockReturnValue(mockSDK as unknown as DeviceManagementKit),
+      clearSession: jest.fn(),
       dispose: jest.fn().mockResolvedValue(undefined),
       getEthSigner: jest.fn().mockReturnValue(mockEthSigner),
       startDiscovering: jest.fn().mockReturnValue(of({ id: 'device-id' })),
@@ -835,11 +836,13 @@ describe('LedgerDMKBridge', () => {
       expect(dmkBridge.dmk).toBe(externalDmk);
     });
 
-    it('does not call dispose on destroy when dmk is provided', async () => {
+    it('clears middleware session state without disconnecting when dmk is provided', async () => {
       const externalDmk = mockSDK as unknown as DeviceManagementKit;
       const dmkBridge = new LedgerDMKBridge({ dmk: externalDmk });
+      await dmkBridge.updateSessionId('test-session-id');
       await dmkBridge.destroy();
       expect(mockTransportMiddleware.dispose).not.toHaveBeenCalled();
+      expect(mockTransportMiddleware.clearSession.mock.calls).toHaveLength(1);
     });
 
     it('throws when neither dmk nor transportFactory is provided', () => {

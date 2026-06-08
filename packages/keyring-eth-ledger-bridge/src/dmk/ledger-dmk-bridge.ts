@@ -127,8 +127,9 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   /**
    * Destroys the bridge and cleans up resources.
    *
-   * Unsubscribes session monitoring, disposes the transport middleware (if
-   * owned), and completes the session-state subject so all subscribers are
+   * Unsubscribes session monitoring, disposes the transport middleware when the
+   * bridge owns the DMK instance, or clears middleware session state when an
+   * external DMK is injected, and completes the session-state subject so all
    * released. A fresh subject is installed afterward so the bridge can be
    * reconnected after destroy. State cleanup happens in a `finally` block so
    * the bridge is marked disconnected even when middleware `dispose()` rejects.
@@ -142,6 +143,8 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     try {
       if (this.#sessionOwnership) {
         await this.#transportMiddleware.dispose();
+      } else {
+        this.#transportMiddleware.clearSession();
       }
     } finally {
       this.#isConnected = false;

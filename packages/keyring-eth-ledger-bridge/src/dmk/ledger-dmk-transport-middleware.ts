@@ -141,6 +141,18 @@ export class LedgerDMKTransportMiddleware {
   }
 
   /**
+   * Clears the stored session ID and signer cache without disconnecting from
+   * DMK.
+   *
+   * Use when the bridge does not own the DMK instance and the host manages
+   * session lifecycle externally.
+   */
+  clearSession(): void {
+    this.#sessionId = undefined;
+    this.#cachedSigner = null;
+  }
+
+  /**
    * Disconnect the current session and clear cached state.
    *
    * Silently no-ops when no session has been established.
@@ -150,8 +162,7 @@ export class LedgerDMKTransportMiddleware {
   async dispose(): Promise<void> {
     if (this.#sessionId) {
       await this.#sdk.disconnect({ sessionId: this.#sessionId });
-      this.#sessionId = undefined;
-      this.#cachedSigner = null;
+      this.clearSession();
     }
   }
 }
