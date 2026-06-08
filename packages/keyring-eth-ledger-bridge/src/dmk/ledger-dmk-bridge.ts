@@ -14,7 +14,7 @@ import type {
 import type { Signature } from '@ledgerhq/device-signer-kit-ethereum';
 import type Transport from '@ledgerhq/hw-transport';
 import type { Observable } from 'rxjs';
-import { firstValueFrom, of, Subject, Subscription } from 'rxjs';
+import { concat, defer, firstValueFrom, of, Subject, Subscription } from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
@@ -185,7 +185,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @returns A promise that resolves with true if the session was updated successfully.
    */
   async updateSessionId(sessionId: string): Promise<boolean> {
-    this.#transportMiddleware.setSessionId(sessionId);
+    await this.#transportMiddleware.setSessionId(sessionId);
     this.#isConnected = true;
     this.#startSessionMonitoring(sessionId);
     return true;
@@ -501,16 +501,22 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   #startSessionMonitoring(sessionId: string): void {
     this.#sessionSubscription?.unsubscribe();
 
-    this.#sessionSubscription = this.#sdk
-      .getDeviceSessionState({ sessionId })
-      .pipe(
+    const createMonitoringStream = (): Observable<{ connected: boolean }> =>
+      this.#sdk.getDeviceSessionState({ sessionId }).pipe(
         map((state) => ({
           connected: state.deviceStatus !== DeviceStatus.NOT_CONNECTED,
         })),
-        catchError(() => {
-          return of({ connected: false } as { connected: boolean });
-        }),
+        catchError(() =>
+          concat(
+            of({ connected: false } as { connected: boolean }),
+            defer(createMonitoringStream),
+          ),
+        ),
         endWith({ connected: false } as { connected: boolean }),
+      );
+
+    this.#sessionSubscription = createMonitoringStream()
+      .pipe(
         distinctUntilChanged(
           (a: { connected: boolean }, b: { connected: boolean }) =>
             a.connected === b.connected,

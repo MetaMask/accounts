@@ -48,16 +48,25 @@ export class LedgerDMKTransportMiddleware {
   /**
    * Set the session ID used for subsequent DMK commands.
    *
+   * When the session ID changes, disconnects the previous DMK session (if any)
+   * so reconnecting or swapping sessions does not leave orphaned sessions open.
    * Invalidates any cached signer so the next `getEthSigner()` call builds a
    * fresh signer bound to the new session.
    *
    * @param sessionId - The session ID for the connected Ledger device.
    */
-  setSessionId(sessionId: string): void {
-    if (this.#sessionId !== sessionId) {
-      this.#cachedSigner = null;
+  async setSessionId(sessionId: string): Promise<void> {
+    if (this.#sessionId === sessionId) {
+      return;
     }
+
+    const previousSessionId = this.#sessionId;
+    this.#cachedSigner = null;
     this.#sessionId = sessionId;
+
+    if (previousSessionId) {
+      await this.#sdk.disconnect({ sessionId: previousSessionId });
+    }
   }
 
   /**
@@ -83,7 +92,7 @@ export class LedgerDMKTransportMiddleware {
    */
   async connect(...args: ConnectParameters): ConnectResult {
     const sessionId = await this.#sdk.connect(...args);
-    this.setSessionId(sessionId);
+    await this.setSessionId(sessionId);
 
     return sessionId;
   }

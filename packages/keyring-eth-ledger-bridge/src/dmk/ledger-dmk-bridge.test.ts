@@ -242,6 +242,29 @@ describe('LedgerDMKBridge', () => {
       expect(emitted).toStrictEqual([{ connected: false }]);
       expect(bridge.isDeviceConnected).toBe(false);
     });
+
+    it('resumes monitoring after a transient session observable error', async () => {
+      const firstSessionState$ = new Subject();
+      const secondSessionState$ = new Subject();
+      mockSDK.getDeviceSessionState
+        .mockReturnValueOnce(firstSessionState$)
+        .mockReturnValueOnce(secondSessionState$);
+
+      await bridge.updateSessionId('session-1');
+
+      const emitted: { connected: boolean }[] = [];
+      bridge.onSessionStateChange.subscribe((state) => emitted.push(state));
+
+      firstSessionState$.next({ deviceStatus: DeviceStatus.CONNECTED });
+      firstSessionState$.error(new Error('transient disconnect'));
+
+      expect(bridge.isDeviceConnected).toBe(false);
+
+      secondSessionState$.next({ deviceStatus: DeviceStatus.CONNECTED });
+
+      expect(emitted).toContainEqual({ connected: true });
+      expect(bridge.isDeviceConnected).toBe(true);
+    });
   });
 
   describe('init', () => {

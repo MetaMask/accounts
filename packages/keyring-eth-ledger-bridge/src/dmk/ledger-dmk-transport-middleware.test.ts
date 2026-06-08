@@ -54,6 +54,23 @@ describe('LedgerDMKTransportMiddleware', () => {
       expect(sessionId).toBe('test-session-id');
       expect(middleware.getSessionId()).toBe('test-session-id');
     });
+
+    it('disconnects the previous session when reconnecting', async () => {
+      const params = {
+        device: { id: 'device-id' },
+      } as unknown as Parameters<DeviceManagementKit['connect']>[0];
+
+      await middleware.connect(params);
+      mockSDK.connect.mockResolvedValueOnce('new-session-id');
+
+      const sessionId = await middleware.connect(params);
+
+      expect(mockSDK.disconnect).toHaveBeenCalledWith({
+        sessionId: 'test-session-id',
+      });
+      expect(sessionId).toBe('new-session-id');
+      expect(middleware.getSessionId()).toBe('new-session-id');
+    });
   });
 
   describe('getEthSigner', () => {
@@ -86,10 +103,35 @@ describe('LedgerDMKTransportMiddleware', () => {
       } as unknown as Parameters<DeviceManagementKit['connect']>[0]);
       middleware.getEthSigner();
 
-      middleware.setSessionId('other-session-id');
+      await middleware.setSessionId('other-session-id');
       middleware.getEthSigner();
 
       expect(buildSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('setSessionId', () => {
+    it('disconnects the previous session when the session ID changes', async () => {
+      await middleware.connect({
+        device: { id: 'device-id' },
+      } as unknown as Parameters<DeviceManagementKit['connect']>[0]);
+
+      await middleware.setSessionId('other-session-id');
+
+      expect(mockSDK.disconnect).toHaveBeenCalledWith({
+        sessionId: 'test-session-id',
+      });
+      expect(middleware.getSessionId()).toBe('other-session-id');
+    });
+
+    it('does not disconnect when the session ID is unchanged', async () => {
+      await middleware.connect({
+        device: { id: 'device-id' },
+      } as unknown as Parameters<DeviceManagementKit['connect']>[0]);
+
+      await middleware.setSessionId('test-session-id');
+
+      expect(mockSDK.disconnect).not.toHaveBeenCalled();
     });
   });
 
