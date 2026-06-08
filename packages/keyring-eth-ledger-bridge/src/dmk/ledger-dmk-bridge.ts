@@ -78,10 +78,11 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
 
   #isConnected = false;
 
-  readonly #sessionState$ = new Subject<{ connected: boolean }>();
+  #sessionState$ = new Subject<{ connected: boolean }>();
 
-  readonly onSessionStateChange: Observable<{ connected: boolean }> =
-    this.#sessionState$.asObservable();
+  get onSessionStateChange(): Observable<{ connected: boolean }> {
+    return this.#sessionState$.asObservable();
+  }
 
   #sessionSubscription: Subscription | null = null;
 
@@ -128,8 +129,9 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    *
    * Unsubscribes session monitoring, disposes the transport middleware (if
    * owned), and completes the session-state subject so all subscribers are
-   * released. State cleanup happens in a `finally` block so the bridge is
-   * marked disconnected even when middleware `dispose()` rejects.
+   * released. A fresh subject is installed afterward so the bridge can be
+   * reconnected after destroy. State cleanup happens in a `finally` block so
+   * the bridge is marked disconnected even when middleware `dispose()` rejects.
    *
    * @returns A promise that resolves when cleanup is complete.
    */
@@ -145,6 +147,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
       this.#isConnected = false;
       this.#sessionState$.next({ connected: false });
       this.#sessionState$.complete();
+      this.#sessionState$ = new Subject<{ connected: boolean }>();
     }
   }
 

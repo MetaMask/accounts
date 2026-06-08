@@ -290,6 +290,38 @@ describe('LedgerDMKBridge', () => {
       await bridge.destroy();
       expect(completed).toBe(true);
     });
+
+    it('allows session state subscriptions after reconnecting from destroy', async () => {
+      const firstSessionState$ = new Subject();
+      const secondSessionState$ = new Subject();
+      mockSDK.getDeviceSessionState
+        .mockReturnValueOnce(firstSessionState$)
+        .mockReturnValueOnce(secondSessionState$);
+
+      await bridge.updateSessionId('session-1');
+      await bridge.destroy();
+      await bridge.updateSessionId('session-2');
+
+      const emitted: { connected: boolean }[] = [];
+      bridge.onSessionStateChange.subscribe({
+        next: (state) => emitted.push(state),
+        error: () => undefined,
+        complete: () => undefined,
+      });
+
+      secondSessionState$.next({ deviceStatus: DeviceStatus.CONNECTED });
+
+      expect(emitted).toStrictEqual([{ connected: true }]);
+      expect(bridge.isDeviceConnected).toBe(true);
+    });
+
+    it('is safe to destroy more than once', async () => {
+      await bridge.updateSessionId('test-session-id');
+      await bridge.destroy();
+
+      expect(await bridge.destroy()).toBeUndefined();
+      expect(bridge.isDeviceConnected).toBe(false);
+    });
   });
 
   describe('getOptions', () => {
