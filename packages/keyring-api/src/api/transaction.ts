@@ -2,6 +2,7 @@ import type { InferEquals } from '@metamask/keyring-utils';
 import { exactOptional, object, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, enums, nullable, number, string } from '@metamask/superstruct';
+import { JsonStruct } from '@metamask/utils';
 
 import { AssetStruct } from './asset';
 import { CaipChainIdStruct } from './caip';
@@ -171,6 +172,15 @@ export enum TransactionType {
   TokenApprove = 'token:approve',
 
   /**
+   * Represents a custom transaction type.
+   *
+   * Use this when the transaction does not fit any predefined type.
+   * Additional transaction details may be provided in
+   * {@link TransactionDetailsStruct.transactionData}.
+   */
+  Custom = 'custom',
+
+  /**
    * The transaction type is unknown. It's not possible to determine the
    * transaction type based on the information available.
    */
@@ -215,6 +225,17 @@ export enum SecurityAlertResponse {
  *   securityAlertResponse: 'Warning',
  * }
  * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *   transactionData: {
+ *     type: 'claim-rewards',
+ *     protocol: 'lido',
+ *     label: 'Claim staking rewards',
+ *   },
+ * }
+ * ```
  */
 export const TransactionDetailsStruct = object({
   /**
@@ -236,6 +257,11 @@ export const TransactionDetailsStruct = object({
       `${SecurityAlertResponse.Malicious}`,
     ]),
   ),
+
+  /**
+   * Optional JSON metadata for additional transaction details.
+   */
+  transactionData: exactOptional(JsonStruct),
 });
 
 /**
@@ -361,6 +387,7 @@ export const TransactionStruct = object({
     `${TransactionType.StakeDeposit}`,
     `${TransactionType.StakeWithdraw}`,
     `${TransactionType.TokenApprove}`,
+    `${TransactionType.Custom}`,
     `${TransactionType.Unknown}`,
   ]),
 
@@ -390,9 +417,9 @@ export const TransactionStruct = object({
   /**
    * Additional transaction details {@see TransactionDetailsStruct}.
    *
-   * Contains contextual information about the transaction such as its origin and
-   * security assessment. This field is optional and may not be present for all
-   * transactions.
+   * Contains contextual information about the transaction such as its origin,
+   * security assessment, and additional transaction data.
+   * This field is optional and may not be present for all transactions.
    */
   details: exactOptional(TransactionDetailsStruct),
 });

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `TransactionType.Custom` and optional `transactionData` JSON field to `TransactionDetails` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [23.2.0]
 
 ### Added

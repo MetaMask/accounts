@@ -46,6 +46,28 @@ describe('TransactionStruct', () => {
         },
         expected: true,
       },
+      // With transactionData
+      {
+        transaction: {
+          ...baseTransaction,
+          details: {
+            transactionData: { label: 'Custom action', category: 'defi' },
+          },
+        },
+        expected: true,
+      },
+      // With all details fields
+      {
+        transaction: {
+          ...baseTransaction,
+          details: {
+            origin: 'metamask',
+            securityAlertResponse: 'Benign',
+            transactionData: { foo: 'bar' },
+          },
+        },
+        expected: true,
+      },
       // All valid securityAlertResponse values
       {
         transaction: {
