@@ -46,13 +46,11 @@ describe('TransactionStruct', () => {
         },
         expected: true,
       },
-      // With transactionData
+      // With typeLabel
       {
         transaction: {
           ...baseTransaction,
-          details: {
-            transactionData: { label: 'Custom action', category: 'defi' },
-          },
+          details: { typeLabel: 'Revoke USDC approval' },
         },
         expected: true,
       },
@@ -63,7 +61,7 @@ describe('TransactionStruct', () => {
           details: {
             origin: 'metamask',
             securityAlertResponse: 'Benign',
-            transactionData: { foo: 'bar' },
+            typeLabel: 'Some label',
           },
         },
         expected: true,
@@ -95,6 +93,14 @@ describe('TransactionStruct', () => {
         transaction: {
           ...baseTransaction,
           details: { securityAlertResponse: 'Invalid' },
+        },
+        expected: false,
+      },
+      // Invalid typeLabel
+      {
+        transaction: {
+          ...baseTransaction,
+          details: { typeLabel: 123 },
         },
         expected: false,
       },

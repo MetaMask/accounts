@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `TransactionType.Custom` and optional `transactionData` JSON field to `TransactionDetails` ([#568](https://github.com/MetaMask/accounts/pull/568))
+- Add `TransactionType.TokenDisapprove` for token disapproval transactions and optional `typeLabel` string field to `TransactionDetails` ([#568](https://github.com/MetaMask/accounts/pull/568))
 
 ## [23.2.0]
 
