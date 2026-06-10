@@ -18,11 +18,11 @@ type EthSigner = ReturnType<SignerEthBuilder['build']>;
 type CachedSigner = { sessionId: string; signer: EthSigner };
 
 /**
- * LedgerDMKTransportMiddleware is a middleware to communicate with the
+ * LedgerDmkTransportMiddleware is a middleware to communicate with the
  * Ledger device via DMK.
  * It adapts the new DMK Signer ETH to the existing bridging architectural patterns.
  */
-export class LedgerDMKTransportMiddleware {
+export class LedgerDmkTransportMiddleware {
   readonly #sdk: DeviceManagementKit;
 
   #sessionId?: string;

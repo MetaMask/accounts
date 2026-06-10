@@ -58,11 +58,10 @@ import {
   stripPathPrefix,
   toHexString,
 } from './internal-utils';
-import { LedgerDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
+import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware';
 
-export type LedgerDMKBridgeOptions = {
-  transportFactory?: Parameters<DeviceManagementKitBuilder['addTransport']>[0];
-  dmk?: DeviceManagementKit;
+export type LedgerDmkBridgeOptions = {
+  transportFactory: Parameters<DeviceManagementKitBuilder['addTransport']>[0];
 };
 
 type PublicKeyOutput = Pick<
@@ -71,19 +70,17 @@ type PublicKeyOutput = Pick<
 >;
 
 /**
- * LedgerDMKBridge is a bridge between the LedgerKeyring and the
- * LedgerDMKTransportMiddleware.
+ * LedgerDmkBridge is a bridge between the LedgerKeyring and the
+ * LedgerDmkTransportMiddleware.
  * It initializes and manages the DeviceManagementKit internally.
  * The transport factory is injected via constructor, making it platform-agnostic.
  */
-export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
-  readonly #transportMiddleware: LedgerDMKTransportMiddleware;
+export class LedgerDmkBridge implements LedgerBridge<LedgerDmkBridgeOptions> {
+  readonly #transportMiddleware: LedgerDmkTransportMiddleware;
 
   readonly #sdk: DeviceManagementKit;
 
-  #opts: LedgerDMKBridgeOptions;
-
-  readonly #sessionOwnership: boolean;
+  #opts: LedgerDmkBridgeOptions;
 
   #isConnected = false;
 
@@ -99,26 +96,12 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     return this.#isConnected;
   }
 
-  get dmk(): DeviceManagementKit {
-    return this.#sdk;
-  }
-
-  constructor(opts: LedgerDMKBridgeOptions) {
-    if (opts.dmk) {
-      this.#sdk = opts.dmk;
-      this.#sessionOwnership = false;
-    } else if (opts.transportFactory) {
-      this.#sdk = new DeviceManagementKitBuilder()
-        .addTransport(opts.transportFactory)
-        .build();
-      this.#sessionOwnership = true;
-    } else {
-      throw new Error(
-        'LedgerDMKBridge requires either a transportFactory or a dmk instance.',
-      );
-    }
+  constructor(opts: LedgerDmkBridgeOptions) {
+    this.#sdk = new DeviceManagementKitBuilder()
+      .addTransport(opts.transportFactory)
+      .build();
     this.#opts = opts;
-    this.#transportMiddleware = new LedgerDMKTransportMiddleware(this.#sdk);
+    this.#transportMiddleware = new LedgerDmkTransportMiddleware(this.#sdk);
   }
 
   /**
@@ -136,12 +119,11 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
   /**
    * Destroys the bridge and cleans up resources.
    *
-   * Unsubscribes session monitoring, disposes the transport middleware when the
-   * bridge owns the DMK instance, or clears middleware session state when an
-   * external DMK is injected, and completes the session-state subject so all
-   * released. A fresh subject is installed afterward so the bridge can be
-   * reconnected after destroy. State cleanup happens in a `finally` block so
-   * the bridge is marked disconnected even when middleware `dispose()` rejects.
+   * Unsubscribes session monitoring, disposes the transport middleware, and
+   * completes the session-state subject so all subscribers are released. A
+   * fresh subject is installed afterward so the bridge can be reconnected
+   * after destroy. State cleanup happens in a `finally` block so the bridge
+   * is marked disconnected even when middleware `dispose()` rejects.
    *
    * @returns A promise that resolves when cleanup is complete.
    */
@@ -150,11 +132,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     this.#sessionSubscription = null;
 
     try {
-      if (this.#sessionOwnership) {
-        await this.#transportMiddleware.dispose();
-      } else {
-        this.#transportMiddleware.clearSession();
-      }
+      await this.#transportMiddleware.dispose();
     } finally {
       this.#isConnected = false;
       this.#sessionState$.next({ connected: false });
@@ -172,7 +150,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    *
    * @returns A promise that resolves with the current bridge options.
    */
-  async getOptions(): Promise<LedgerDMKBridgeOptions> {
+  async getOptions(): Promise<LedgerDmkBridgeOptions> {
     return this.#opts;
   }
 
@@ -186,7 +164,7 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @param opts - The options to set for the bridge.
    * @returns A promise that resolves when options are set.
    */
-  async setOptions(opts: LedgerDMKBridgeOptions): Promise<void> {
+  async setOptions(opts: LedgerDmkBridgeOptions): Promise<void> {
     this.#opts = opts;
   }
 
@@ -210,8 +188,8 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @returns An observable that emits discovered devices.
    */
   startDiscovering(
-    ...args: Parameters<LedgerDMKTransportMiddleware['startDiscovering']>
-  ): ReturnType<LedgerDMKTransportMiddleware['startDiscovering']> {
+    ...args: Parameters<LedgerDmkTransportMiddleware['startDiscovering']>
+  ): ReturnType<LedgerDmkTransportMiddleware['startDiscovering']> {
     return this.#transportMiddleware.startDiscovering(...args);
   }
 
@@ -222,8 +200,8 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
    * @returns The created session ID.
    */
   async connect(
-    ...args: Parameters<LedgerDMKTransportMiddleware['connect']>
-  ): ReturnType<LedgerDMKTransportMiddleware['connect']> {
+    ...args: Parameters<LedgerDmkTransportMiddleware['connect']>
+  ): ReturnType<LedgerDmkTransportMiddleware['connect']> {
     const sessionId = await this.#transportMiddleware.connect(...args);
     this.#isConnected = true;
     this.#startSessionMonitoring(sessionId);
@@ -510,11 +488,33 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
     return new Error('Ledger command failed.');
   }
 
+  /**
+   * Monitors the DMK session connection state with exponential backoff retries.
+   *
+   * This is necessary because the DMK does not emit disconnection events on its
+   * own — the bridge must actively poll the session state to detect when a
+   * Ledger device is unplugged, the Bluetooth/WUSB link drops, or the session
+   * is invalidated. Without this monitoring the keyring would retain a stale
+   * `isDeviceConnected = true` and subsequent signing requests would hang or
+   * fail with cryptic transport errors.
+   *
+   * Subscribes to the device session state and emits connection changes through
+   * {@link #sessionState$}. On error, retries up to 10 times with exponential
+   * backoff (capped at 30 s) and emits a `connected: false` state in between
+   * attempts. Once the retry limit is exhausted the stream ends with a final
+   * `connected: false`. Duplicate consecutive states are suppressed via
+   * `distinctUntilChanged`.
+   *
+   * Any previous monitoring subscription is cancelled before a new one is created.
+   *
+   * @param sessionId - The DMK session ID to monitor.
+   */
   #startSessionMonitoring(sessionId: string): void {
     this.#sessionSubscription?.unsubscribe();
 
     const MAX_BACKOFF_MS = 30_000;
     const BASE_DELAY_MS = 1_000;
+    const MAX_RETRIES = 10;
 
     const createMonitoringStream = (
       retryCount = 0,
@@ -524,6 +524,9 @@ export class LedgerDMKBridge implements LedgerBridge<LedgerDMKBridgeOptions> {
           connected: state.deviceStatus !== DeviceStatus.NOT_CONNECTED,
         })),
         catchError(() => {
+          if (retryCount >= MAX_RETRIES) {
+            return of({ connected: false });
+          }
           const delay = Math.min(
             BASE_DELAY_MS * 2 ** retryCount,
             MAX_BACKOFF_MS,

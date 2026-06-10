@@ -13,18 +13,18 @@ import { EIP712Message } from '@ledgerhq/types-live';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 
 import { createMockDeviceExchangeError } from './__testhelpers__/mock-error';
-import { LedgerDMKBridge } from './ledger-dmk-bridge';
-import { LedgerDMKTransportMiddleware } from './ledger-dmk-transport-middleware';
+import { LedgerDmkBridge } from './ledger-dmk-bridge';
+import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware';
 
 jest.mock('./ledger-dmk-transport-middleware');
 
 const mockTransportFactory = jest.fn();
 
 describe('LedgerDMKBridge', () => {
-  let bridge: LedgerDMKBridge;
+  let bridge: LedgerDmkBridge;
   let addTransportSpy: jest.SpyInstance;
   let buildSpy: jest.SpyInstance;
-  let mockTransportMiddleware: jest.Mocked<LedgerDMKTransportMiddleware>;
+  let mockTransportMiddleware: jest.Mocked<LedgerDmkTransportMiddleware>;
   let mockSDK: {
     connect: jest.Mock;
     sendCommand: jest.Mock;
@@ -137,14 +137,14 @@ describe('LedgerDMKBridge', () => {
       dispose: jest.fn().mockResolvedValue(undefined),
       getEthSigner: jest.fn().mockReturnValue(mockEthSigner),
       startDiscovering: jest.fn().mockReturnValue(of({ id: 'device-id' })),
-    } as unknown as jest.Mocked<LedgerDMKTransportMiddleware>;
+    } as unknown as jest.Mocked<LedgerDmkTransportMiddleware>;
 
     // Mock the constructor to return our mock
-    (LedgerDMKTransportMiddleware as unknown as jest.Mock).mockImplementation(
+    (LedgerDmkTransportMiddleware as unknown as jest.Mock).mockImplementation(
       () => mockTransportMiddleware,
     );
 
-    bridge = new LedgerDMKBridge({ transportFactory: mockTransportFactory });
+    bridge = new LedgerDmkBridge({ transportFactory: mockTransportFactory });
   });
 
   afterEach(() => {
@@ -166,8 +166,8 @@ describe('LedgerDMKBridge', () => {
     });
 
     it('creates transport middleware with SDK', () => {
-      expect(LedgerDMKTransportMiddleware).toHaveBeenCalledTimes(1);
-      expect(LedgerDMKTransportMiddleware).toHaveBeenCalledWith(
+      expect(LedgerDmkTransportMiddleware).toHaveBeenCalledTimes(1);
+      expect(LedgerDmkTransportMiddleware).toHaveBeenCalledWith(
         expect.anything(),
       );
     });
@@ -186,7 +186,7 @@ describe('LedgerDMKBridge', () => {
     it('returns true after connect', async () => {
       const params = {
         device: { id: 'device-id' },
-      } as unknown as Parameters<LedgerDMKTransportMiddleware['connect']>[0];
+      } as unknown as Parameters<LedgerDmkTransportMiddleware['connect']>[0];
       await bridge.connect(params);
       expect(bridge.isDeviceConnected).toBe(true);
     });
@@ -408,7 +408,7 @@ describe('LedgerDMKBridge', () => {
     it('connects through the transport middleware and marks the device as connected', async () => {
       const params = {
         device: { id: 'device-id' },
-      } as unknown as Parameters<LedgerDMKTransportMiddleware['connect']>[0];
+      } as unknown as Parameters<LedgerDmkTransportMiddleware['connect']>[0];
       const result = await bridge.connect(params);
 
       expect(mockTransportMiddleware.connect.mock.calls).toStrictEqual([
@@ -834,35 +834,6 @@ describe('LedgerDMKBridge', () => {
       await expect(bridge.getAppConfiguration()).rejects.toThrow(
         'Ledger command failed.',
       );
-    });
-  });
-
-  describe('constructor with dmk option', () => {
-    it('uses the provided DMK instance', () => {
-      const externalDmk = mockSDK as unknown as DeviceManagementKit;
-      const dmkBridge = new LedgerDMKBridge({ dmk: externalDmk });
-      expect(dmkBridge.dmk).toBe(externalDmk);
-    });
-
-    it('clears middleware session state without disconnecting when dmk is provided', async () => {
-      const externalDmk = mockSDK as unknown as DeviceManagementKit;
-      const dmkBridge = new LedgerDMKBridge({ dmk: externalDmk });
-      await dmkBridge.updateSessionId('test-session-id');
-      await dmkBridge.destroy();
-      expect(mockTransportMiddleware.dispose).not.toHaveBeenCalled();
-      expect(mockTransportMiddleware.clearSession.mock.calls).toHaveLength(1);
-    });
-
-    it('throws when neither dmk nor transportFactory is provided', () => {
-      expect(() => new LedgerDMKBridge({})).toThrow(
-        'LedgerDMKBridge requires either a transportFactory or a dmk instance.',
-      );
-    });
-  });
-
-  describe('dmk getter', () => {
-    it('returns the DMK instance', () => {
-      expect(bridge.dmk).toBeDefined();
     });
   });
 
