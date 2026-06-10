@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `TransactionType.TokenDisapprove` for token disapproval transactions ([#568](https://github.com/MetaMask/accounts/pull/568))
+- Add optional `TransactionDetails.typeLabel` ([#568](https://github.com/MetaMask/accounts/pull/568))
+  - This can be used to display a custom label regarding the transaction type.
+
 ## [23.2.0]
 
 ### Added
