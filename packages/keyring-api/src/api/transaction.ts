@@ -250,7 +250,7 @@ export const TransactionDetailsStruct = object({
   ),
 
   /**
-   * Optional label for UI display purposes.
+   * Optional transaction type label (for UI display purposes).
    */
   typeLabel: exactOptional(string()),
 });
