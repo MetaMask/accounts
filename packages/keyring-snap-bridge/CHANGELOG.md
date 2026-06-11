@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [22.3.0]
+
 ### Added
 
 - Add `static type` for v2 `SnapKeyring` ([#570](https://github.com/MetaMask/accounts/pull/570))
@@ -743,7 +745,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.3.0...HEAD
+[22.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.2.0...@metamask/eth-snap-keyring@22.3.0
 [22.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.1.0...@metamask/eth-snap-keyring@22.2.0
 [22.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.0.1...@metamask/eth-snap-keyring@22.1.0
 [22.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.0.0...@metamask/eth-snap-keyring@22.0.1
