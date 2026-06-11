@@ -1,6 +1,6 @@
 /**
  * Pure helpers shared by the DMK bridge and its tests. Extracted from
- * `LedgerDMKBridge` so they can be unit-tested in isolation and reused
+ * `LedgerDmkBridge` so they can be unit-tested in isolation and reused
  * without an instance.
  *
  * @module dmk/internal-utils

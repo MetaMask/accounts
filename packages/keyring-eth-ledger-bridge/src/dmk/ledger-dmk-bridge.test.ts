@@ -20,7 +20,7 @@ jest.mock('./ledger-dmk-transport-middleware');
 
 const mockTransportFactory = jest.fn();
 
-describe('LedgerDMKBridge', () => {
+describe('LedgerDmkBridge', () => {
   let bridge: LedgerDmkBridge;
   let addTransportSpy: jest.SpyInstance;
   let buildSpy: jest.SpyInstance;

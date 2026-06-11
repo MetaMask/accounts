@@ -9,13 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `LedgerDMKBridge` and `LedgerDMKTransportMiddleware` for Ledger Device Management Kit (DMK) support ([#473](https://github.com/MetaMask/accounts/pull/473))
-  - New `LedgerDMKBridge` class implementing the `LedgerBridge` interface via Ledger's DMK.
-  - New `LedgerDMKTransportMiddleware` managing sessions, device discovery, and Ethereum signer lifecycle.
+- Add `LedgerDmkBridge` and `LedgerDmkTransportMiddleware` for Ledger Device Management Kit (DMK) support ([#473](https://github.com/MetaMask/accounts/pull/473))
+  - New `LedgerDmkBridge` class implementing the `LedgerBridge` interface via Ledger's DMK.
+  - New `LedgerDmkTransportMiddleware` managing sessions, device discovery, and Ethereum signer lifecycle.
   - DMK error translation utilities (`translateDmkError`, `isDeviceExchangeError`) mapping to `TransportStatusError`.
   - Custom `EthGetAppConfigurationCommand` for retrieving Ethereum app config via DMK.
   - Session state monitoring with `onSessionStateChange` observable and `isDeviceConnected` getter.
-  - Exports `LedgerDMKBridge`, `LedgerDMKBridgeOptions`, `LedgerDMKTransportMiddleware`, and DMK error utilities from the package root.
+  - Exports `LedgerDmkBridge`, `LedgerDmkBridgeOptions`, `LedgerDmkTransportMiddleware`, and DMK error utilities from the package root.
 - Add EIP-7702 authorization signing to the Ledger keyring ([#564](https://github.com/MetaMask/accounts/pull/564))
   - Not yet functional: both iframe and mobile bridges throw until DMK support lands.
   - Fixes hex `v` parsing (`'1b'`) for personal_sign and typed data.

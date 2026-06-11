@@ -4,7 +4,7 @@ import { of } from 'rxjs';
 
 import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware';
 
-describe('LedgerDMKTransportMiddleware', () => {
+describe('LedgerDmkTransportMiddleware', () => {
   const mockDiscovery = of({ id: 'device-id' });
   const mockSigner = { signer: true };
 
