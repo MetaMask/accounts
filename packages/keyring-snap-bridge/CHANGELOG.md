@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `static type` for v2 `SnapKeyring` ([#570](https://github.com/MetaMask/accounts/pull/570))
+
 ## [22.2.0]
 
 ### Added
