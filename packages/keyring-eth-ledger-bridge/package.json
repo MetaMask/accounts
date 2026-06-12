@@ -71,13 +71,17 @@
     "@ethereumjs/rlp": "^5.0.2",
     "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
+    "@ledgerhq/context-module": "2.1.0",
+    "@ledgerhq/device-management-kit": "1.5.1",
+    "@ledgerhq/device-signer-kit-ethereum": "1.16.0",
     "@ledgerhq/hw-app-eth": "^6.42.0",
     "@ledgerhq/hw-transport": "^6.31.3",
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/hw-wallet-sdk": "^0.8.0",
     "@metamask/keyring-api": "^23.3.0",
     "@metamask/keyring-sdk": "^2.2.0",
-    "hdkey": "^2.1.0"
+    "hdkey": "^2.1.0",
+    "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@ethereumjs/common": "^4.4.0",
@@ -94,8 +98,8 @@
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.12.12",
     "@types/web": "^0.0.69",
+    "@types/ws": "^8.18.1",
     "deepmerge": "^4.2.2",
     "depcheck": "^1.4.7",
     "ethereum-cryptography": "^2.2.1",
