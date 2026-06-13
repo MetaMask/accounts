@@ -114,6 +114,8 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
 
   readonly type = `${KeyringType.Snap}` as const;
 
+  static readonly type = `${KeyringType.Snap}` as const;
+
   /**
    * Capabilities are snap-specific. Initialized empty and can be updated
    * by the parent when snap metadata becomes available.

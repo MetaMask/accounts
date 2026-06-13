@@ -1,13 +1,12 @@
 import { KeyringRpcMethod, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type {
-  KeyringType,
   CreateAccountsRequest,
   GetAccountRequest,
   GetAccountsRequest,
   DeleteAccountRequest,
-  Keyring,
   ExportAccountRequest,
   SubmitRequestRequest,
+  KeyringRpc,
 } from '@metamask/keyring-api/v2';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
@@ -21,13 +20,6 @@ describe('handleKeyringRequest', () => {
     deleteAccount: jest.fn(),
     exportAccount: jest.fn(),
     submitRequest: jest.fn(),
-    // Not required by this test.
-    type: 'Mocked Keyring' as KeyringType,
-    capabilities: {
-      scopes: [],
-    },
-    serialize: jest.fn(),
-    deserialize: jest.fn(),
   };
 
   afterEach(() => {
@@ -196,7 +188,7 @@ describe('handleKeyringRequest', () => {
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
-    const partialKeyring: Keyring = {
+    const partialKeyring: KeyringRpc = {
       ...keyring,
     };
     delete partialKeyring.exportAccount;

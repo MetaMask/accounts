@@ -7,9 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [23.3.0]
+
+### Added
+
+- Add `TransactionType.TokenDisapprove` for token disapproval transactions ([#568](https://github.com/MetaMask/accounts/pull/568))
+- Add optional `TransactionDetails.typeLabel` ([#568](https://github.com/MetaMask/accounts/pull/568))
+  - This can be used to display a custom label regarding the transaction type.
+
+## [23.2.0]
+
 ### Added
 
 - Add Stellar method `signAuthEntry` to `XlmMethod` ([#548](https://github.com/MetaMask/accounts/pull/548))
+- Add `EthBytesStrictStruct` ([#555](https://github.com/MetaMask/accounts/pull/555))
 
 ### Changed
 
@@ -44,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `KeyringCapabilities`, `KeyringType`, account creation options (except `CreateAccountOptions`), and account export options are now exclusively available from `@metamask/keyring-api/v2`.
   - `CreateAccountOptions` and its subtypes (`Bip44CreateAccountOptions`, `PrivateKeyCreateAccountOptions`, `CustomCreateAccountOptions`) remain available from both `@metamask/keyring-api` and `@metamask/keyring-api/v2`.
 - Improve return type of `isKeyringRpcMethod` to use type predicate `method is KeyringRpcMethod` ([#408](https://github.com/MetaMask/accounts/pull/408))
-- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489)), ([#483](https://github.com/MetaMask/accounts/pull/483))
+- Bump `@metamask/utils` from `^11.1.0` to `^11.11.0` ([#489](https://github.com/MetaMask/accounts/pull/489), [#483](https://github.com/MetaMask/accounts/pull/483))
 
 ## [22.0.0]
 
@@ -97,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add `AccountCreationType.Custom` and `CreateAccountCustomOptions` for custom account creation flows.
 - Add `EthKeyringWrapper` abstract class for Ethereum-based `KeyringV2` implementations ([#404](https://github.com/MetaMask/accounts/pull/404))
   - Provides common Ethereum signing method routing (`submitRequest`) for all Ethereum-based keyrings.
-- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398)),([#402](https://github.com/MetaMask/accounts/pull/402)), ([#409](https://github.com/MetaMask/accounts/pull/409)), ([#410](https://github.com/MetaMask/accounts/pull/410))
+- Add `KeyringWrapper` base class to adapt legacy keyrings to `KeyringV2` ([#398](https://github.com/MetaMask/accounts/pull/398), [#402](https://github.com/MetaMask/accounts/pull/402), [#409](https://github.com/MetaMask/accounts/pull/409), [#410](https://github.com/MetaMask/accounts/pull/410))
 
 ### Changed
 
@@ -138,7 +149,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **BREAKING:** Add new bitcoin methods to `BtcMethod` enum ([#355](https://github.com/MetaMask/accounts/pull/355)), ([#356](https://github.com/MetaMask/accounts/pull/356))
+- **BREAKING:** Add new bitcoin methods to `BtcMethod` enum ([#355](https://github.com/MetaMask/accounts/pull/355), [#356](https://github.com/MetaMask/accounts/pull/356))
   - This change was not properly reported as breaking on the `20.1.1`.
 
 ### Removed
@@ -757,7 +768,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.3.0...HEAD
+[23.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.2.0...@metamask/keyring-api@23.3.0
+[23.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.1.0...@metamask/keyring-api@23.2.0
 [23.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.0.1...@metamask/keyring-api@23.1.0
 [23.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.0.0...@metamask/keyring-api@23.0.1
 [23.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@22.0.0...@metamask/keyring-api@23.0.0

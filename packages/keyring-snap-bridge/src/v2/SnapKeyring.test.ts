@@ -92,6 +92,15 @@ async function makeKeyring(
 }
 
 describe('SnapKeyring', () => {
+  describe('type', () => {
+    it('returns `KeyringType.Snap`', async () => {
+      expect(SnapKeyring.type).toBe(KeyringType.Snap);
+
+      const { keyring } = await makeKeyring();
+      expect(keyring.type).toBe(KeyringType.Snap);
+    });
+  });
+
   describe('snapId', () => {
     it('returns the snap ID set during deserialize', async () => {
       const { keyring } = await makeKeyring();

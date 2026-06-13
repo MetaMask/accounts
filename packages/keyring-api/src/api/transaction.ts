@@ -171,6 +171,11 @@ export enum TransactionType {
   TokenApprove = 'token:approve',
 
   /**
+   * Represents a token disapproval transaction.
+   */
+  TokenDisapprove = 'token:disapprove',
+
+  /**
    * The transaction type is unknown. It's not possible to determine the
    * transaction type based on the information available.
    */
@@ -215,6 +220,13 @@ export enum SecurityAlertResponse {
  *   securityAlertResponse: 'Warning',
  * }
  * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *   typeLabel: 'Some label',
+ * }
+ * ```
  */
 export const TransactionDetailsStruct = object({
   /**
@@ -236,6 +248,11 @@ export const TransactionDetailsStruct = object({
       `${SecurityAlertResponse.Malicious}`,
     ]),
   ),
+
+  /**
+   * Optional transaction type label (for UI display purposes).
+   */
+  typeLabel: exactOptional(string()),
 });
 
 /**
@@ -361,6 +378,7 @@ export const TransactionStruct = object({
     `${TransactionType.StakeDeposit}`,
     `${TransactionType.StakeWithdraw}`,
     `${TransactionType.TokenApprove}`,
+    `${TransactionType.TokenDisapprove}`,
     `${TransactionType.Unknown}`,
   ]),
 
@@ -390,9 +408,9 @@ export const TransactionStruct = object({
   /**
    * Additional transaction details {@see TransactionDetailsStruct}.
    *
-   * Contains contextual information about the transaction such as its origin and
-   * security assessment. This field is optional and may not be present for all
-   * transactions.
+   * Contains contextual information about the transaction such as its origin,
+   * security assessment, and optional `typeLabel`. This field is optional and
+   * may not be present for all transactions.
    */
   details: exactOptional(TransactionDetailsStruct),
 });

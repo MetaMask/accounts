@@ -11,7 +11,13 @@ import {
   KeyringAccountStruct,
 } from '../api';
 
-export const EthBytesStruct = definePattern('EthBytes', /^0x[0-9a-f]*$/iu);
+const ETH_BYTES_REGEX = /^0x[0-9a-f]*$/iu;
+export const EthBytesStruct = definePattern('EthBytes', ETH_BYTES_REGEX);
+// Stricter struct that uses `Hex` as final type.
+export const EthBytesStrictStruct = definePattern<Hex>(
+  'EthBytesStrict',
+  ETH_BYTES_REGEX,
+);
 
 const ETH_ADDRESS_REGEX = /^0x[0-9a-f]{40}$/iu;
 export const EthAddressStruct = definePattern('EthAddress', ETH_ADDRESS_REGEX);

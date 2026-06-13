@@ -7,6 +7,7 @@ import {
 } from '@metamask/keyring-api';
 import type { KeyringAccount } from '@metamask/keyring-api';
 import { KeyringType } from '@metamask/keyring-api/v2';
+import { EthKeyringMethod } from '@metamask/keyring-sdk/v2';
 import HDKey from 'hdkey';
 
 import type { LedgerBridge, LedgerBridgeOptions } from '../ledger-bridge';
@@ -47,6 +48,7 @@ const EXPECTED_METHODS = [
   EthMethod.SignTransaction,
   EthMethod.PersonalSign,
   EthMethod.SignTypedDataV4,
+  EthKeyringMethod.SignEip7702Authorization,
 ];
 
 /**
