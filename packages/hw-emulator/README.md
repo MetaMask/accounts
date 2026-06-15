@@ -105,6 +105,72 @@ The package also exports granular components for advanced use cases:
 - **`withRetry()` / `ExponentialBackoff`** — Resilience utilities for flaky device communication.
 - **`createLedgerHidFramingSession()`** — Low-level Ledger HID frame encoding/decoding.
 - **`getWebHidMockScript()`** — Generates a browser script to mock WebHID for E2E tests.
+- **`SpeculosBleRunner`** — Manages the lifecycle of the BLE bridge Python service (see [BLE Bridge](#ble-bridge)).
+
+## BLE Bridge
+
+The package includes a Python BLE bridge that wraps the Speculos APDU stream into a Bluetooth Low Energy GATT server, enabling Bluetooth-based Ledger device testing on Android emulators and physical devices. It emulates a Bluetooth Ledger device (advertised as a Nano X) using [Speculos](https://github.com/LedgerHQ/speculos) + [Bumble](https://github.com/nickoala/pygatt).
+
+It bridges three surfaces:
+
+1. **BLE GATT server** — advertises as a Ledger Nano X, accepts BLE connections
+2. **APDU bridge** — forwards BLE APDU packets to/from the Speculos emulator
+3. **Control API** — HTTP endpoint for test automation (button presses, screenshots, BLE disconnect)
+
+The Python source lives in `python_src/speculos_ble/`, and the `SpeculosBleRunner` TypeScript class (in `src/ble/`) provides a programmatic API for starting, monitoring, and stopping the bridge process.
+
+### Setup
+
+```bash
+# Create the Python virtualenv (first time only)
+./scripts/setup-python.sh
+```
+
+### Programmatic Usage
+
+```typescript
+import { SpeculosBleRunner } from '@metamask/hw-emulator';
+
+// One-time venv setup
+if (!SpeculosBleRunner.isVenvReady()) {
+  SpeculosBleRunner.setupVenv();
+}
+
+const runner = new SpeculosBleRunner({
+  controlApiPort: 5002,
+  deviceName: 'Ledger Nano X',
+  transport: 'android-netsim',
+});
+
+runner.start();
+await runner.waitForControlApi();
+
+// ... run tests ...
+
+await runner.disconnectBle();
+await runner.stop();
+```
+
+### Transport Modes
+
+| Transport         | Description                                                        |
+| ----------------- | ------------------------------------------------------------------ |
+| `android-netsim`  | Android emulator with Bluetooth netsim support (default).          |
+| `vhci`            | Linux VHCI kernel module (for other Bluetooth stacks).             |
+
+### Python Tests
+
+```bash
+yarn test:python
+# or: cd python_tests && python -m pytest -v
+```
+
+### Requirements
+
+- Python 3.10–3.13 (for the BLE bridge)
+- Docker (for the Speculos emulator)
+- Android emulator with Bluetooth netsim support (for `android-netsim` transport)
+- VHCI kernel module (for `vhci` transport on Linux)
 
 ## Docker Setup
 

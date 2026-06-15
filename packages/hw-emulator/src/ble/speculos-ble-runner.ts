@@ -31,17 +31,17 @@ export class SpeculosBleRunner {
 
   /**
    * Resolve the Python source directory relative to the compiled
-   * TypeScript output (`dist/`).
+   * TypeScript output (`dist/ble/`).
    */
   static get pythonDir(): string {
-    return resolve(dirname(__dirname), 'python_src');
+    return resolve(dirname(__dirname), '..', 'python_src');
   }
 
   /**
-   * Resolve the package root directory (parent of `dist/`).
+   * Resolve the package root directory (parent of `dist/ble/`).
    */
   static get packageDir(): string {
-    return dirname(__dirname);
+    return dirname(dirname(__dirname));
   }
 
   /**

@@ -1,8 +1,10 @@
 {
   "name": "@metamask/hw-emulator",
   "version": "0.1.0",
-  "description": "Hardware wallet emulator lifecycle, transport, and device interaction for E2E testing",
+  "description": "Hardware wallet emulator lifecycle, transport, BLE bridge, and device interaction for E2E testing",
   "keywords": [
+    "ble",
+    "bluetooth",
     "e2e",
     "emulator",
     "hardware-wallet",
@@ -24,7 +26,12 @@
     "dist/",
     "apps/",
     "nvram/",
-    "docker-compose.yml"
+    "docker-compose.yml",
+    "python_src/",
+    "python_tests/",
+    "scripts/",
+    "Dockerfile",
+    "pyproject.toml"
   ],
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -64,7 +71,8 @@
     "test:source": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
     "test:types": "../../scripts/tsd-test.sh ./src",
     "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:python": "cd python_tests && python -m pytest -v"
   },
   "dependencies": {
     "@ledgerhq/devices": "^7.0.0",

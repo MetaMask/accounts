@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Merged `@metamask/speculos-ble` package into `@metamask/hw-emulator`. The BLE bridge (Python source, TypeScript `SpeculosBleRunner` wrapper, Docker config) now lives in this package under `python_src/`, `src/ble/`, and `scripts/`.
+
 ### Added
 
 - Initial release of `@metamask/hw-emulator` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))

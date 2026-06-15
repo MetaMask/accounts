@@ -49,3 +49,9 @@ export {
   encodeLedgerHidResponse,
   type LedgerHidFramingSession,
 } from './ledger';
+
+export {
+  SpeculosBleRunner,
+  type SpeculosBleConfig,
+  type SpeculosBleRunnerOptions,
+} from './ble';
