@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `SpeculosBleRunner` now honors `SPECULOS_BLE_PACKAGE_DIR` and `SPECULOS_BLE_VENV_DIR` environment variables (mirroring `scripts/setup-python.sh`) so it can locate `python_src/` and the virtualenv at a stable path even when the package is copied into a consumer's `node_modules` via a Yarn `file:` resolution.
+- `SpeculosBleRunner.start()` now accepts an optional `onLog(line, stream)` callback that receives BLE process stdout/stderr/exit/error output (previously silently discarded).
 - Merged `@metamask/speculos-ble` package into `@metamask/hw-emulator`. The BLE bridge (Python source, TypeScript `SpeculosBleRunner` wrapper, Docker config) now lives in this package under `python_src/`, `src/ble/`, and `scripts/`.
 
 ### Added

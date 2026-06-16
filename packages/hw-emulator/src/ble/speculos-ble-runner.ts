@@ -1,7 +1,11 @@
 import { execSync, spawn, type ChildProcess } from 'child_process';
 import { existsSync } from 'fs';
 import { dirname, join, resolve } from 'path';
-import type { SpeculosBleConfig, SpeculosBleRunnerOptions } from './types';
+import type {
+  SpeculosBleConfig,
+  SpeculosBleLogStream,
+  SpeculosBleRunnerOptions,
+} from './types';
 
 const DEFAULT_CONFIG: SpeculosBleConfig = {
   speculosHost: '127.0.0.1',
@@ -27,28 +31,52 @@ const DEFAULT_CONFIG: SpeculosBleConfig = {
 export class SpeculosBleRunner {
   private readonly config: SpeculosBleConfig;
 
+  private readonly onLog:
+    | ((line: string, stream: SpeculosBleLogStream) => void)
+    | undefined;
+
   private childProcess: ChildProcess | undefined;
 
   /**
-   * Resolve the Python source directory relative to the compiled
-   * TypeScript output (`dist/ble/`).
+   * Resolve the package root directory.
+   *
+   * Defaults to the directory two levels above the compiled output
+   * (`dist/ble/` → package root). Override with the `SPECULOS_BLE_PACKAGE_DIR`
+   * environment variable so the runner can locate `python_src/`, `scripts/`,
+   * and the venv even when the package has been copied into a consumer's
+   * `node_modules` (e.g. via a Yarn `file:` resolution), where the relative
+   * resolution would point at the copy rather than the source of truth.
    */
-  static get pythonDir(): string {
-    return resolve(dirname(__dirname), '..', 'python_src');
+  static get packageDir(): string {
+    const envDir = process.env.SPECULOS_BLE_PACKAGE_DIR;
+    return envDir ? resolve(envDir) : dirname(dirname(__dirname));
   }
 
   /**
-   * Resolve the package root directory (parent of `dist/ble/`).
+   * Resolve the Python source directory (`<packageDir>/python_src`).
    */
-  static get packageDir(): string {
-    return dirname(dirname(__dirname));
+  static get pythonDir(): string {
+    return join(SpeculosBleRunner.packageDir, 'python_src');
+  }
+
+  /**
+   * Resolve the virtualenv directory.
+   *
+   * Defaults to `<packageDir>/.venv`. Override with the
+   * `SPECULOS_BLE_VENV_DIR` environment variable (mirrors
+   * `scripts/setup-python.sh`) to keep the venv at a stable location
+   * independent of where the package is resolved.
+   */
+  static get venvDir(): string {
+    const envVenv = process.env.SPECULOS_BLE_VENV_DIR;
+    return envVenv ? resolve(envVenv) : join(SpeculosBleRunner.packageDir, '.venv');
   }
 
   /**
    * Path to the Python venv interpreter.
    */
   static get venvPython(): string {
-    return join(SpeculosBleRunner.packageDir, '.venv', 'bin', 'python');
+    return join(SpeculosBleRunner.venvDir, 'bin', 'python');
   }
 
   /**
@@ -68,6 +96,7 @@ export class SpeculosBleRunner {
 
   constructor(options: SpeculosBleRunnerOptions = {}) {
     this.config = { ...DEFAULT_CONFIG, ...options };
+    this.onLog = options.onLog;
   }
 
   /** Speculos host. */
@@ -124,9 +153,32 @@ export class SpeculosBleRunner {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: {
         ...process.env,
-        VIRTUAL_ENV: join(SpeculosBleRunner.packageDir, '.venv'),
+        VIRTUAL_ENV: SpeculosBleRunner.venvDir,
       },
     });
+
+    const proc = this.childProcess;
+    const onLog = this.onLog;
+    if (onLog) {
+      proc.stdout?.on('data', (data: Buffer) => {
+        const line = data.toString().trim();
+        if (line) {
+          onLog(line, 'stdout');
+        }
+      });
+      proc.stderr?.on('data', (data: Buffer) => {
+        const line = data.toString().trim();
+        if (line) {
+          onLog(line, 'stderr');
+        }
+      });
+      proc.on('error', (err: Error) => {
+        onLog(err.message, 'error');
+      });
+      proc.on('exit', (code, signal) => {
+        onLog(`exited code=${code} signal=${signal}`, 'exit');
+      });
+    }
 
     return this.childProcess;
   }

@@ -19,7 +19,19 @@ export interface SpeculosBleConfig {
 }
 
 /**
+ * The BLE process stream (or lifecycle event) that produced a log line.
+ */
+export type SpeculosBleLogStream = 'stdout' | 'stderr' | 'exit' | 'error';
+
+/**
  * Options for constructing a {@link SpeculosBleRunner}.
  * All fields are optional; defaults are applied.
  */
-export type SpeculosBleRunnerOptions = Partial<SpeculosBleConfig>;
+export type SpeculosBleRunnerOptions = Partial<SpeculosBleConfig> & {
+  /**
+   * Optional sink for BLE process output and lifecycle events.
+   * When omitted, stdout/stderr/exit/error are silently dropped.
+   * Useful for wiring the runner into a host logger (e.g. Detox test logger).
+   */
+  onLog?: (line: string, stream: SpeculosBleLogStream) => void;
+};
