@@ -4,10 +4,10 @@
   "proposedName": "MetaMask Simple Snap Keyring",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MetaMask/snap-simple-keyring.git"
+    "url": "git+https://github.com/MetaMask/accounts.git"
   },
   "source": {
-    "shasum": "V1nc4Dr3tA6lrG2DKSmEzecmlFXsny+wcxz2SmVfJyY=",
+    "shasum": "9ATXUtxBZ8cygzoAa0LW3jcdi+HxBZWJWq/Q2XTMvvQ=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -27,6 +27,7 @@
     "snap_manageAccounts": {},
     "snap_manageState": {}
   },
-  "platformVersion": "11.1.0",
+  "platformVersion": "11.1.1",
   "manifestVersion": "0.1"
 }
+

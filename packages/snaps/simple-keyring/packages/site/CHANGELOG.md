@@ -182,25 +182,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.1.1...HEAD
-[2.1.1]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.1...v2.1.1
-[2.0.1]: https://github.com/MetaMask/snap-simple-keyring/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.6...v2.0.0
-[1.1.6]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.2...v1.1.6
-[1.1.2]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.1...v1.1.2
-[1.1.1]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.1.0...v1.1.1
-[1.1.0]: https://github.com/MetaMask/snap-simple-keyring/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.4.0...v1.0.0
-[0.4.0]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.3.1...v0.4.0
-[0.3.1]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.3.0...v0.3.1
-[0.3.0]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.2.4...v0.3.0
-[0.2.4]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.2.3...v0.2.4
-[0.2.3]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.2.2...v0.2.3
-[0.2.2]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.2.1...v0.2.2
-[0.2.1]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.1.4...v0.2.0
-[0.1.4]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.1.3...v0.1.4
-[0.1.3]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.1.2...v0.1.3
-[0.1.2]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/MetaMask/snap-simple-keyring/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/MetaMask/snap-simple-keyring/releases/tag/v0.1.0
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@2.1.1...HEAD
+[2.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@2.0.1...@metamask/snap-simple-keyring-site@2.1.1
+[2.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@2.0.0...@metamask/snap-simple-keyring-site@2.0.1
+[2.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@1.1.6...@metamask/snap-simple-keyring-site@2.0.0
+[1.1.6]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@1.1.2...@metamask/snap-simple-keyring-site@1.1.6
+[1.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@1.1.1...@metamask/snap-simple-keyring-site@1.1.2
+[1.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@1.1.0...@metamask/snap-simple-keyring-site@1.1.1
+[1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@1.0.0...@metamask/snap-simple-keyring-site@1.1.0
+[1.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.4.0...@metamask/snap-simple-keyring-site@1.0.0
+[0.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.3.1...@metamask/snap-simple-keyring-site@0.4.0
+[0.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.3.0...@metamask/snap-simple-keyring-site@0.3.1
+[0.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.2.4...@metamask/snap-simple-keyring-site@0.3.0
+[0.2.4]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.2.3...@metamask/snap-simple-keyring-site@0.2.4
+[0.2.3]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.2.2...@metamask/snap-simple-keyring-site@0.2.3
+[0.2.2]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.2.1...@metamask/snap-simple-keyring-site@0.2.2
+[0.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.2.0...@metamask/snap-simple-keyring-site@0.2.1
+[0.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.1.4...@metamask/snap-simple-keyring-site@0.2.0
+[0.1.4]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.1.3...@metamask/snap-simple-keyring-site@0.1.4
+[0.1.3]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.1.2...@metamask/snap-simple-keyring-site@0.1.3
+[0.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.1.1...@metamask/snap-simple-keyring-site@0.1.2
+[0.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/snap-simple-keyring-site@0.1.0...@metamask/snap-simple-keyring-site@0.1.1
+[0.1.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/snap-simple-keyring-site@0.1.0

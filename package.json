@@ -8,12 +8,15 @@
     "url": "https://github.com/MetaMask/accounts.git"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/snaps/*",
+    "packages/snaps/*/packages/*"
   ],
   "files": [],
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json",
     "build:clean": "yarn build --clean",
+    "build:snaps": "yarn workspaces foreach --include '@metamask/snap-simple-keyring' --parallel --verbose run build",
     "build:docs": "yarn foreach build:docs",
     "build:only-clean": "rimraf -g 'packages/*/dist'",
     "build:types": "tsc --build tsconfig.build.json --verbose",

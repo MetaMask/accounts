@@ -2,7 +2,15 @@
   "name": "@metamask/snap-simple-keyring-site",
   "version": "2.1.1",
   "description": "A snap simple keyring dapp used in MetaMask e2e tests.",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/snaps/simple-keyring#readme",
+  "bugs": {
+    "url": "https://github.com/MetaMask/accounts/issues"
+  },
   "license": "(MIT-0 OR Apache-2.0)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/accounts.git"
+  },
   "scripts": {
     "build": "rimraf .cache && cross-env GATSBY_TELEMETRY_DISABLED=1 gatsby build --prefix-paths",
     "clean": "rimraf public .cache",
@@ -12,6 +20,8 @@
     "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write",
     "lint:misc": "prettier '**/*.json' '**/*.md' '!CHANGELOG.md' --check",
     "lint:types": "tsc --noEmit",
+    "changelog:update": "../../../../../scripts/update-changelog.sh @metamask/snap-simple-keyring-site",
+    "changelog:validate": "../../../../../scripts/validate-changelog.sh @metamask/snap-simple-keyring-site",
     "start": "rimraf .cache && cross-env GATSBY_TELEMETRY_DISABLED=1 gatsby develop"
   },
   "files": [

@@ -8,13 +8,13 @@
     "keyring",
     "account"
   ],
-  "homepage": "https://github.com/MetaMask/snap-simple-keyring#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/snaps/simple-keyring#readme",
   "bugs": {
-    "url": "https://github.com/MetaMask/snap-simple-keyring/issues"
+    "url": "https://github.com/MetaMask/accounts/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MetaMask/snap-simple-keyring.git"
+    "url": "git+https://github.com/MetaMask/accounts.git"
   },
   "license": "(MIT-0 OR Apache-2.0)",
   "main": "dist/bundle.js",
@@ -34,6 +34,8 @@
     "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write",
     "lint:misc": "prettier '**/*.json' '**/*.md' '!CHANGELOG.md' '!snap.manifest.json' --check",
     "lint:types": "tsc --noEmit",
+    "changelog:update": "../../../../../scripts/update-changelog.sh @metamask/snap-simple-keyring-snap",
+    "changelog:validate": "../../../../../scripts/validate-changelog.sh @metamask/snap-simple-keyring-snap",
     "serve": "mm-snap serve",
     "start": "NODE_ENV='development' mm-snap watch"
   },
@@ -72,7 +74,6 @@
     "rimraf": "^3.0.2",
     "typescript": "^4.7.4"
   },
-  "packageManager": "yarn@3.2.1",
   "engines": {
     "node": ">=18.0.0"
   },
