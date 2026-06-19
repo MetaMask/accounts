@@ -4,6 +4,7 @@
     "@metamask/auto-changelog",
     "@svgr/webpack",
     "gatsby-plugin-*",
-    "react-scripts"
+    "react-scripts",
+    "raw-loader"
   ]
 }

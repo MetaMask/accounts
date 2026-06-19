@@ -14,10 +14,24 @@ const config: GatsbyConfig = {
       resolve: 'gatsby-plugin-manifest',
       options: {
         name: 'Template Snap',
-        icon: 'src/assets/logo.svg',
         theme_color: '#6F4CFF',
         background_color: '#FFFFFF',
         display: 'standalone',
+        // Pre-built icons avoid sharp (native binary) which can't run its
+        // install script in the monorepo's isolated node_modules. Regenerate
+        // from src/assets/logo.svg if the icon changes.
+        icons: [
+          {
+            src: 'icons/icon-192.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+          {
+            src: 'icons/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+          },
+        ],
       },
     },
     {

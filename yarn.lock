@@ -5500,6 +5500,7 @@ __metadata:
     gatsby-plugin-svgr: "npm:^3.0.0-beta.0"
     gatsby-plugin-webfonts: "npm:^2.3.2"
     prettier: "npm:^2.8.4"
+    raw-loader: "npm:^4.0.2"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-helmet: "npm:^6.1.0"
