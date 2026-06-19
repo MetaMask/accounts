@@ -16,7 +16,8 @@
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json",
     "build:clean": "yarn build --clean",
-    "build:snaps": "yarn workspaces foreach --include '@metamask/snap-simple-keyring' --parallel --verbose run build",
+    "build:snaps": "yarn build:snaps:deps && yarn workspaces foreach --all --include '@metamask/snap-simple-keyring' --parallel --verbose run build",
+    "build:snaps:deps": "yarn workspaces foreach --all --include '@metamask/keyring-utils' --include '@metamask/keyring-api' --include '@metamask/keyring-snap-sdk' --topological --verbose run build",
     "build:docs": "yarn foreach build:docs",
     "build:only-clean": "rimraf -g 'packages/*/dist'",
     "build:types": "tsc --build tsconfig.build.json --verbose",

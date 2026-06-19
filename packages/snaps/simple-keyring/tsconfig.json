@@ -10,6 +10,10 @@
     "noErrorTruncation": true,
     "noUncheckedIndexedAccess": true,
     "strict": true,
-    "target": "es2020"
+    "target": "es2020",
+    "paths": {
+      "@metamask/*/v2": ["../../*/src/v2"],
+      "@metamask/*": ["../../*/src"]
+    }
   }
 }
