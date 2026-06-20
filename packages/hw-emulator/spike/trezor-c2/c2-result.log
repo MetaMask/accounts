@@ -1,0 +1,36 @@
+ext dir: /var/folders/nb/1gzzfp_96qj41jsq011zll840000gn/T/c2-confirm-8mr88O
+user data: /var/folders/nb/1gzzfp_96qj41jsq011zll840000gn/T/c2-confirm-ud-2iJ2Hl
+exec: /Users/montelai/Library/Caches/ms-playwright/chromium-1208/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
+bundle size: 7262756 bytes
+
+--- c2-confirm result ---
+status: DONE
+results: [12:09:17] start
+[12:09:17] transport-construct
+[12:09:17] init-start
+[12:09:17] init-done
+[12:09:17] getPublicKey-start
+[12:09:17] getPublicKey-done (success=false)
+[12:09:17] getPublicKey (ok=false)
+
+=== FINAL ===
+{
+  "ok": false,
+  "stage": "getPublicKey",
+  "success": false,
+  "xpubMatchesExpected": false,
+  "expectedXpub": "xpub6DainZd2Amf7GkkBwKLnfBRDBBrWCf9GWCRwjbMJKweKa9MN2xqhbAH5Myh3uJXkna47WLK8qH7NYn4CsasoqAyHxa4BB5daRqaVBfauhMP",
+  "raw": {
+    "id": 1,
+    "success": false,
+    "payload": {
+      "error": "Transport is missing",
+      "code": "Transport_Missing"
+    }
+  }
+}
+
+=== C2 CONFIRMATION DECISION ===
+C2 FAILED
+stage: null
+error: null

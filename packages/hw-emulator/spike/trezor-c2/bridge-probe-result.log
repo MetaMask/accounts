@@ -1,0 +1,40 @@
+ext dir: /var/folders/nb/1gzzfp_96qj41jsq011zll840000gn/T/c2-probe-JFsvHv
+--- bridge probe result ---
+status: DONE
+results: {
+  "bridgeEnumeratePost": {
+    "offscreen": {
+      "context": "offscreen-document",
+      "errorMessage": "Failed to fetch",
+      "errorName": "TypeError",
+      "errorString": "TypeError: Failed to fetch",
+      "ms": 3,
+      "ok": false
+    },
+    "sw": {
+      "context": "service-worker",
+      "errorMessage": "Failed to fetch",
+      "errorName": "TypeError",
+      "ms": 1,
+      "ok": false
+    }
+  },
+  "loopbackGet": {
+    "offscreen": {
+      "context": "offscreen-document",
+      "errorMessage": "Failed to fetch",
+      "errorName": "TypeError",
+      "errorString": "TypeError: Failed to fetch",
+      "ms": 2,
+      "ok": false
+    },
+    "sw": {
+      "context": "service-worker",
+      "errorMessage": "Failed to fetch",
+      "errorName": "TypeError",
+      "ms": 7,
+      "ok": false
+    }
+  },
+  "startedAt": "2026-06-20T12:06:02.285Z"
+}

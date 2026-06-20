@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Trezor C2 Full Confirmation (headless @trezor/connect in offscreen)",
+  "version": "0.0.1",
+  "description": "Loads the headless @trezor/connect SDK + injected BridgeTransport in the offscreen document and verifies getPublicKey({m/44'/60'/0'/0, eth}) returns the canonical SLIP-14 xpub against the real trezor-user-env bridge. This is the production C2 mechanism in miniature.",
+  "permissions": ["offscreen", "storage", "tabs"],
+  "host_permissions": ["http://127.0.0.1:21325/*", "http://127.0.0.1:21328/*"],
+  "background": { "service_worker": "background-c2.js" },
+  "action": {
+    "default_title": "C2 Full Confirmation"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["test-c2.html", "offscreen-c2.html", "trezor-connect.bundle.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

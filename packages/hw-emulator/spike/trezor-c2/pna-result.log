@@ -1,0 +1,90 @@
+=== variant: with ===
+ext dir: /var/folders/nb/1gzzfp_96qj41jsq011zll840000gn/T/c2-pna-WS852D
+user data: /var/folders/nb/1gzzfp_96qj41jsq011zll840000gn/T/c2-pna-ud-vJfN7V
+exec: /Users/montelai/Library/Caches/ms-playwright/chromium-1208/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
+
+--- result: with ---
+status: DONE
+results: {
+  "loopbackUrl": "http://127.0.0.1:21325/",
+  "offscreen": {
+    "bodySnippet": "{\"ok\":true,\"method\":\"GET\",\"url\":\"/\",\"origin\":null,\"server\":\"c2-spike-loopback\"}",
+    "context": "offscreen-document",
+    "ms": 1,
+    "ok": true,
+    "status": 200,
+    "statusText": "OK"
+  },
+  "startedAt": "2026-06-20T12:04:48.934Z",
+  "sw": {
+    "bodySnippet": "{\"ok\":true,\"method\":\"GET\",\"url\":\"/\",\"origin\":null,\"server\":\"c2-spike-loopback\"}",
+    "context": "service-worker",
+    "ms": 6,
+    "ok": true,
+    "status": 200,
+    "statusText": "OK"
+  }
+}
+classified: {
+  "sw": {
+    "name": "sw",
+    "ok": true,
+    "status": 200,
+    "ms": 6
+  },
+  "offscreen": {
+    "name": "offscreen",
+    "ok": true,
+    "status": 200,
+    "ms": 1
+  }
+}
+=== variant: without ===
+ext dir: /var/folders/nb/1gzzfp_96qj41jsq011zll840000gn/T/c2-pna-KMzXW9
+user data: /var/folders/nb/1gzzfp_96qj41jsq011zll840000gn/T/c2-pna-ud-CmY6bi
+exec: /Users/montelai/Library/Caches/ms-playwright/chromium-1208/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
+
+--- result: without ---
+status: DONE
+results: {
+  "loopbackUrl": "http://127.0.0.1:21325/",
+  "offscreen": {
+    "bodySnippet": "{\"ok\":true,\"method\":\"GET\",\"url\":\"/\",\"origin\":\"chrome-extension://hkphombdgohcgdooikjmgbpcgaflnemp\",\"server\":\"c2-spike-loopback\"}",
+    "context": "offscreen-document",
+    "ms": 5,
+    "ok": true,
+    "status": 200,
+    "statusText": "OK"
+  },
+  "startedAt": "2026-06-20T12:04:51.361Z",
+  "sw": {
+    "bodySnippet": "{\"ok\":true,\"method\":\"GET\",\"url\":\"/\",\"origin\":\"chrome-extension://hkphombdgohcgdooikjmgbpcgaflnemp\",\"server\":\"c2-spike-loopback\"}",
+    "context": "service-worker",
+    "ms": 3,
+    "ok": true,
+    "status": 200,
+    "statusText": "OK"
+  }
+}
+classified: {
+  "sw": {
+    "name": "sw",
+    "ok": true,
+    "status": 200,
+    "ms": 3
+  },
+  "offscreen": {
+    "name": "offscreen",
+    "ok": true,
+    "status": 200,
+    "ms": 5
+  }
+}
+
+=== PNA DECISION ===
+C2 PNA-ALLOWED
+Both offscreen document and service worker (chrome-extension:// origin) successfully fetched http://127.0.0.1:21325 with host_permissions.
+
+=== HOST_PERMISSIONS IMPLICATION ===
+NO_NEW_HOST_PERMISSIONS_NEEDED
+Loopback fetch succeeded even WITHOUT host_permissions for 127.0.0.1:21325 — extension origins may fetch loopback without explicit permission.

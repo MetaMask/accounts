@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>C2 Confirmation Offscreen</title>
+    <!-- MV3 CSP blocks inline scripts — all diagnostics live in
+         external files (probe-before.js, probe-after.js). -->
+    <script src="probe-before.js"></script>
+    <!-- The bundled @trezor/connect SDK (build artifact, gitignored). -->
+    <script src="trezor-connect.bundle.js"></script>
+    <script src="probe-after.js"></script>
+    <script src="offscreen-c2.js"></script>
+  </head>
+  <body></body>
+</html>

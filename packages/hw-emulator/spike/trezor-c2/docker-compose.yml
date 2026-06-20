@@ -1,0 +1,15 @@
+services:
+  trezor-user-env:
+    image: ghcr.io/trezor/trezor-user-env:latest
+    container_name: trezor-c2-spike
+    ports:
+      - '9001:9001' # WebSocket controller
+      # The :latest image ships BOTH bridges — Node bridge on 21328 (modern
+      # default) AND trezord-go (started on-demand via bridge-start version=2.0.33)
+      # on 21325. We expose 21325 because we use trezord-go for the actual C2
+      # confirmation (Phase 0 verified it works; the Node bridge doesn't
+      # enumerate our emulator in this spike container).
+      - '21325:21325'
+      # NOTE: 21328 (Node bridge) intentionally NOT exposed.
+      # PNA is keyed on address space (loopback), not port.
+    restart: 'no'

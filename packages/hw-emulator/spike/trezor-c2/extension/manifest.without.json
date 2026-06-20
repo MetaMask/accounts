@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Trezor C2 PNA Spike (WITHOUT host_permissions)",
+  "version": "0.0.1",
+  "description": "Tests whether a chrome-extension:// origin can fetch http://127.0.0.1:21325 without Private Network Access blocking it. This variant does NOT declare host_permissions for the loopback URL — isolating whether any failure is permission/PNA-related.",
+  "permissions": ["offscreen", "storage", "tabs"],
+  "host_permissions": [],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_title": "C2 PNA Spike (no host_perms)"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["test.html", "offscreen.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
