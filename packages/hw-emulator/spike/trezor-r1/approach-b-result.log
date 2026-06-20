@@ -1,0 +1,11 @@
+Boot: emulator + bridge
+Boot: ready
+Transport constructed: BridgeTransport
+init() with transports override…
+init() ok
+getPublicKey({ path: "m/44'/60'/0'/0", coin: 'eth' })…
+Result: {"id":1,"success":true,"payload":{"path":[2147483692,2147483708,2147483648,0],"serializedPath":"m/44'/60'/0'/0","childNum":0,"xpub":"xpub6DainZd2Amf7GkkBwKLnfBRDBBrWCf9GWCRwjbMJKweKa9MN2xqhbAH5Myh3uJXkna47WLK8qH7NYn4CsasoqAyHxa4BB5daRqaVBfauhMP","chainCode":"1246786f9c0d4701b7b7789bd912d819e42fd3264a6c8473e305cfc95cb08cc4","publicKey":"0217ebaac6b4c12d3c7e0fc21d8d53d89adf007ff7988840926032c89eb966a37c","fingerprint":110857680,"depth":4,"descriptor":"pkh([5c9e228d/44h/60h/0h/0]xpub6DainZd2Amf7GkkBwKLnfBRDBBrWCf9GWCRwjbMJKweKa9MN2xqhbAH5Myh3uJXkna47WLK8qH7NYn4CsasoqAyHxa4BB5daRqaVBfauhMP/<0;1>/*)#gck6a57s"},"device":{"path":"e4a71055","state":{"deriveCardano":false,"sessionId":"4a0d361a211cb3660c87f58ffb96e18f1ea08e2be50867e900a592025f549fe8","staticSessionId":"mvbu1Gdy8SUjTenqerxUaZyYjmveZvt33q@CB916436AE3C744E355C8175:0"},"instance":0}}
+
+=== APPROACH B VERDICT ===
+APPROACH B WORKS
+Reason: BridgeTransport injected → no iframe → fetch to 127.0.0.1:21325 succeeded; getPublicKey returned success:true.

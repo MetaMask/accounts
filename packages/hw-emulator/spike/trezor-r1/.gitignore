@@ -1,3 +1,11 @@
 # Symlink to a node_modules tree that has playwright + ws.
 # Created at run time; see README "How to run".
 node_modules
+
+# Locally cached SDK script (downloaded by run-spike.mjs setup step).
+# Mimics bundling @trezor/connect-web; see README.
+trezor-connect.cached.js
+
+# Track result logs explicitly (the repo root .gitignore drops *.log;
+# the spike outcome logs are part of the recorded evidence).
+!*.log

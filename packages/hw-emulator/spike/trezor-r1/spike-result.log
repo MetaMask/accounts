@@ -1,0 +1,54 @@
+Boot: emulator + bridge + proxy on :21328
+Boot: ready — proxy :21328, static :21329, emulator + bridge started
+
+=== RUN 1: ONLINE (control) ===
+{
+  "mode": "online",
+  "stage": "timeout",
+  "init": "ok",
+  "load": "loaded",
+  "console": [
+    "error: Access to fetch at 'http://127.0.0.1:21328/' from origin 'https://connect.trezor.io' has been blocked by CORS policy: Permission was denied for this request to access the `loopback` address space.",
+    "error: Failed to load resource: net::ERR_FAILED",
+    "error: Access to fetch at 'http://127.0.0.1:21325/' from origin 'https://connect.trezor.io' has been blocked by CORS policy: Permission was denied for this request to access the `loopback` address space.",
+    "error: Failed to load resource: net::ERR_FAILED",
+    "error: WebSocket connection to 'ws://127.0.0.1:21335/connect-ws' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED"
+  ],
+  "iframeRequests": [
+    "document https://connect.trezor.io/9/iframe.html?version=9.7.3&manifest=IntcImVtYWlsXCI6XCJzQHAubG9jYWxcIixcImFwcFVybFwiOlwiaHR0cDovLzEyNy4wLjAuMVwiLFwiYXBwTmFtZVwiOlwic3Bpa2VcIn0i",
+    "script https://connect.trezor.io/9/js/iframe.8de5c65ea252d50fbe84.js",
+    "script https://connect.trezor.io/9/workers/shared-logger-worker.js"
+  ],
+  "result": "pending",
+  "error": "TimeoutError: page.waitForFunction: Timeout 60000ms exceeded.",
+  "proxyHitsDuringRun": [],
+  "classification": "INIT_OK_BUT_CALL_FAILED"
+}
+
+=== RUN 2: OFFLINE (connect.trezor.io blocked — the CI case) ===
+{
+  "mode": "offline",
+  "stage": "init-ok-call-ok",
+  "init": "ok",
+  "load": "loaded",
+  "console": [
+    "warning: Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://connect.trezor.io') does not match the recipient window's origin ('null').",
+    "error: WebSocket connection to 'ws://127.0.0.1:21335/connect-ws' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED"
+  ],
+  "iframeRequests": [
+    "document https://connect.trezor.io/9/iframe.html?version=9.7.3&manifest=IntcImVtYWlsXCI6XCJzQHAubG9jYWxcIixcImFwcFVybFwiOlwiaHR0cDovLzEyNy4wLjAuMVwiLFwiYXBwTmFtZVwiOlwic3Bpa2VcIn0i"
+  ],
+  "result": "{\"success\":false,\"payload\":{\"error\":\"handshake failed\"}}",
+  "error": null,
+  "proxyHitsDuringRun": [],
+  "classification": "TRANSPORT_OK_BUT_CALL_RETURNED_NON_SUCCESS"
+}
+
+=== DECISION ===
+APPROACH A FAILS offline
+Classification: TRANSPORT_OK_BUT_CALL_RETURNED_NON_SUCCESS
+Transport reached proxy offline? false (hits: [])
+Iframe requests observed: ["document https://connect.trezor.io/9/iframe.html?version=9.7.3&manifest=IntcImVtYWlsXCI6XCJzQHAubG9jYWxcIixcImFwcFVybFwiOlwiaHR0cDovLzEyNy4wLjAuMVwiLFwiYXBwTmFtZVwiOlwic3Bpa2VcIn0i"]
+Failure detail: {"success":false,"payload":{"error":"handshake failed"}}
+
+Re-run run-approach-b.mjs to confirm the locked fallback works.
