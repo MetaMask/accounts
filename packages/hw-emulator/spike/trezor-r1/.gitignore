@@ -1,0 +1,3 @@
+# Symlink to a node_modules tree that has playwright + ws.
+# Created at run time; see README "How to run".
+node_modules

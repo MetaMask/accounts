@@ -1,0 +1,9 @@
+services:
+  trezor-user-env:
+    image: ghcr.io/trezor/trezor-user-env:latest
+    container_name: trezor-spike
+    ports:
+      - '9001:9001' # WebSocket controller
+      - '21325:21325' # trezord-go HTTP bridge
+      - '21324:21324' # emulator UDP debug-link (informational)
+    restart: 'no'
