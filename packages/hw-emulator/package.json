@@ -1,6 +1,6 @@
 {
   "name": "@metamask/hw-emulator",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Hardware wallet emulator lifecycle, transport, BLE bridge, and device interaction for E2E testing",
   "keywords": [
     "ble",
@@ -75,16 +75,33 @@
     "test:python": "cd python_tests && python -m pytest -v"
   },
   "dependencies": {
+    "@ethereumjs/rlp": "^5.0.2",
+    "@ethereumjs/tx": "^5.4.0",
+    "@ethereumjs/util": "^9.1.0",
+    "@keystonehq/bc-ur-registry-eth": "^0.19.1",
     "@ledgerhq/devices": "^7.0.0",
+    "@metamask/bip39": "^4.0.0",
+    "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/utils": "^11.11.0",
+    "@ngraveio/bc-ur": "^1.1.13",
+    "@zxing/library": "^0.21.3",
+    "ethereum-cryptography": "^2.2.1",
+    "hdkey": "^2.1.0",
+    "qrcode-generator": "^2.0.4",
+    "secp256k1": "^4.0.3",
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@ethereumjs/common": "^4.4.0",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^6.1.0",
+    "@metamask/eth-qr-keyring": "workspace:^",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
+    "@types/secp256k1": "^4.0.0",
+    "@types/uuid": "^9.0.8",
     "@types/ws": "^8.18.1",
     "deepmerge": "^4.2.2",
     "depcheck": "^1.4.7",
@@ -95,7 +112,8 @@
     "ts-node": "^10.9.2",
     "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
-    "typescript": "~5.3.3"
+    "typescript": "~5.3.3",
+    "uuid": "^9.0.1"
   },
   "peerDependencies": {
     "@metamask/speculos-up": "^0.1.0"

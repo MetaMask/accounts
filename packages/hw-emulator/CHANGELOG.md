@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added QR hardware wallet emulator (`EmulatorType.Qr`) with UR synthesis, ECDSA signer, BC-UR fountain codec, QR rendering (PNG and Y4M), and QR screenshot decoding ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 - Initial release of `@metamask/hw-emulator` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
   - Hardware wallet emulator lifecycle, transport, and device interaction for E2E testing
   - Ledger emulator via Speculos with support for Nano S+, Nano X, Stax, and Flex devices

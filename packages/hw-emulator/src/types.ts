@@ -4,6 +4,7 @@
 export const EmulatorType = {
   Ledger: 'ledger',
   Trezor: 'trezor',
+  Qr: 'qr',
 } as const;
 
 /**
