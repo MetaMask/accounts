@@ -5,6 +5,7 @@ import {
   Category,
   HardwareWalletError,
   LEDGER_ERROR_MAPPINGS,
+  KEYRING_ERROR_MAPPINGS,
 } from '@metamask/hw-wallet-sdk';
 
 /**
@@ -66,4 +67,34 @@ export function getLedgerErrorMapping(
   ledgerErrorCode: string,
 ): ErrorMapping | undefined {
   return LEDGER_ERROR_MAPPINGS[ledgerErrorCode];
+}
+
+/**
+ * Factory function to create a HardwareWalletError from a keyring-level error code.
+ *
+ * @param code - The keyring error code (e.g., ErrorCode.DeviceStateOnlyV4Supported)
+ * @returns A HardwareWalletError instance with mapped error details
+ */
+export function createKeyringStateError(code: ErrorCode): HardwareWalletError {
+  const errorMapping = KEYRING_ERROR_MAPPINGS[code];
+
+  if (errorMapping) {
+    const message = `Ledger: ${errorMapping.message}`;
+
+    return new HardwareWalletError(message, {
+      code: errorMapping.code,
+      severity: errorMapping.severity,
+      category: errorMapping.category,
+      userMessage: errorMapping.userMessage ?? message,
+    });
+  }
+
+  const fallbackMessage = `Unknown Ledger keyring error: ${code}`;
+
+  return new HardwareWalletError(fallbackMessage, {
+    code: ErrorCode.Unknown,
+    severity: Severity.Err,
+    category: Category.Unknown,
+    userMessage: fallbackMessage,
+  });
 }

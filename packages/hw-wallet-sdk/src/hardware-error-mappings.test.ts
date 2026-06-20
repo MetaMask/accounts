@@ -4,6 +4,7 @@ import {
   MOBILE_ERROR_MAPPINGS,
   QR_WALLET_ERROR_MAPPINGS,
   TREZOR_ERROR_MAPPINGS,
+  KEYRING_ERROR_MAPPINGS,
 } from './hardware-error-mappings';
 import type { ErrorMapping } from './hardware-error-mappings';
 import { ErrorCode, Severity, Category } from './hardware-errors-enums';
@@ -334,6 +335,21 @@ describe('HARDWARE_ERROR_MAPPINGS', () => {
         severity: Severity.Err,
         category: Category.Connection,
       });
+    });
+  });
+
+  describe('Keyring mappings', () => {
+    it('maps DeviceStateOnlyV4Supported to typed data V4-only error', () => {
+      const mapping =
+        KEYRING_ERROR_MAPPINGS[ErrorCode.DeviceStateOnlyV4Supported];
+      expect(mapping).toBeDefined();
+      expect(mapping?.code).toBe(ErrorCode.DeviceStateOnlyV4Supported);
+      expect(mapping?.severity).toBe(Severity.Err);
+      expect(mapping?.category).toBe(Category.DeviceState);
+      expect(mapping?.userMessage).toBeDefined();
+      expect(mapping?.message).toBe(
+        'Only version 4 of typed data signing is supported',
+      );
     });
   });
 });

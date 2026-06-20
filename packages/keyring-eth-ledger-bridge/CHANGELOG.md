@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Throw `HardwareWalletError` with `DeviceStateOnlyV4Supported` when `signTypedData` is called with a non-V4 version ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [12.2.0]
 
 ### Added
