@@ -1,0 +1,64 @@
+{
+  "name": "@metamask/snap-simple-keyring",
+  "private": true,
+  "description": "A simple keyring snap that integrates with MetaMask accounts.",
+  "keywords": [
+    "metamask",
+    "snap",
+    "keyring",
+    "account"
+  ],
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/snaps/simple-keyring#readme",
+  "bugs": {
+    "url": "https://github.com/MetaMask/accounts/issues"
+  },
+  "license": "(MIT-0 OR Apache-2.0)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/accounts.git"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces foreach --worktree --parallel --verbose --no-private run build",
+    "build:clean": "yarn clean && yarn build",
+    "clean": "yarn workspaces foreach --worktree --parallel --verbose --no-private run clean",
+    "lint": "yarn workspaces foreach --worktree --parallel --verbose --interlaced --no-private run lint && yarn lint:dependencies",
+    "lint:dependencies": "depcheck",
+    "lint:eslint": "eslint . --cache",
+    "lint:fix": "yarn lint:eslint --fix && yarn lint:misc --write",
+    "lint:misc": "prettier --no-error-on-unmatched-pattern --log-level warn \"**/*.json\" \"**/*.md\" \"!packages/**\" --ignore-path ../../.gitignore",
+    "lint:types": "yarn workspaces foreach --worktree --parallel --verbose --no-private run lint:types",
+    "since-latest-release": "../../scripts/since-latest-release.sh",
+    "start": "yarn workspaces foreach --worktree --parallel --interlaced --no-private --jobs unlimited run start",
+    "test": "yarn workspaces foreach --worktree --parallel --verbose --no-private run test",
+    "test:verbose": "yarn workspaces foreach --worktree --parallel --verbose --no-private run test:verbose",
+    "test:watch": "yarn workspaces foreach --worktree --parallel --verbose --no-private run test:watch"
+  },
+  "devDependencies": {
+    "@metamask/eslint-config": "^12.2.0",
+    "@metamask/eslint-config-jest": "^12.1.0",
+    "@metamask/eslint-config-nodejs": "^12.1.0",
+    "@metamask/eslint-config-typescript": "^12.1.0",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
+    "depcheck": "^1.4.7",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.7.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jest": "^27.2.1",
+    "eslint-plugin-jsdoc": "^40.0.3",
+    "eslint-plugin-n": "^16.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "prettier": "^2.8.4",
+    "typescript": "^4.9.5"
+  },
+  "engines": {
+    "node": "^18.18 || >=20"
+  },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  }
+}

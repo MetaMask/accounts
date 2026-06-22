@@ -34,6 +34,8 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/keyring-snap-client`](packages/keyring-snap-client)
 - [`@metamask/keyring-snap-sdk`](packages/keyring-snap-sdk)
 - [`@metamask/keyring-utils`](packages/keyring-utils)
+- [`@metamask/snap-simple-keyring-site`](packages/snaps/simple-keyring/packages/site)
+- [`@metamask/snap-simple-keyring-snap`](packages/snaps/simple-keyring/packages/snap)
 
 <!-- end package list -->
 
@@ -61,6 +63,8 @@ linkStyle default opacity:0.5
   keyring_snap_client(["@metamask/keyring-snap-client"]);
   keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
   keyring_utils(["@metamask/keyring-utils"]);
+  snap_simple_keyring_site(["@metamask/snap-simple-keyring-site"]);
+  snap_simple_keyring_snap(["@metamask/snap-simple-keyring-snap"]);
   account_api --> keyring_api;
   account_api --> keyring_utils;
   keyring_api --> keyring_utils;
@@ -107,6 +111,10 @@ linkStyle default opacity:0.5
   keyring_snap_client --> keyring_utils;
   keyring_snap_sdk --> keyring_utils;
   keyring_snap_sdk --> keyring_api;
+  snap_simple_keyring_site --> keyring_api;
+  snap_simple_keyring_site --> keyring_snap_client;
+  snap_simple_keyring_snap --> keyring_api;
+  snap_simple_keyring_snap --> keyring_snap_sdk;
 ```
 
 <!-- end dependency graph -->

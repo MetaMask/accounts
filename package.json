@@ -8,12 +8,16 @@
     "url": "https://github.com/MetaMask/accounts.git"
   },
   "workspaces": [
+    "packages/snaps/*/packages/*",
+    "packages/snaps/*",
     "packages/*"
   ],
   "files": [],
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json",
     "build:clean": "yarn build --clean",
+    "build:snaps": "yarn build:snaps:deps && yarn workspaces foreach --all --include '@metamask/snap-simple-keyring' --parallel --verbose run build",
+    "build:snaps:deps": "yarn workspaces foreach --all --include '@metamask/keyring-utils' --include '@metamask/keyring-api' --include '@metamask/keyring-snap-sdk' --include '@metamask/keyring-snap-client' --topological --verbose run build",
     "build:docs": "yarn foreach build:docs",
     "build:only-clean": "rimraf -g 'packages/*/dist'",
     "build:types": "tsc --build tsconfig.build.json --verbose",
@@ -24,7 +28,7 @@
     "lint:dependencies:fix": "yarn foreach depcheck && yarn dedupe",
     "lint:eslint": "yarn build:only-clean && yarn eslint",
     "lint:fix": "yarn lint:eslint --fix --prune-suppressions && yarn lint:misc --write && yarn constraints --fix && yarn lint:dependencies:fix",
-    "lint:misc": "oxfmt --ignore-path .gitignore",
+    "lint:misc": "oxfmt --ignore-path .gitignore --ignore-path .prettierignore",
     "lint:misc:check": "yarn lint:misc --check",
     "lint:readme": "yarn readme:update",
     "prepare:preview": "ts-node --project tsconfig.scripts.json scripts/prepare-preview-builds.ts",

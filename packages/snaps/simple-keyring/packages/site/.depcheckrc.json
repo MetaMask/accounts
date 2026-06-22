@@ -1,0 +1,10 @@
+{
+  "ignore-patterns": [".cache/"],
+  "ignores": [
+    "@metamask/auto-changelog",
+    "@svgr/webpack",
+    "gatsby-plugin-*",
+    "react-scripts",
+    "raw-loader"
+  ]
+}

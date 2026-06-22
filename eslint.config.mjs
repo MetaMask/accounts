@@ -16,6 +16,9 @@ const config = createConfig([
       '**/dist/**',
       '**/docs/**',
       '**/coverage/**',
+      // Snap packages use older tooling (ESLint v8, different configs).
+      // Linting will be aligned in a follow-up.
+      'packages/snaps/**',
     ],
   },
 

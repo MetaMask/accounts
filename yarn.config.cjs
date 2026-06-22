@@ -19,11 +19,54 @@ const semver = require('semver');
 const { inspect } = require('util');
 
 /**
+ * Snap inner packages (snap bundle + site dapp) are exempt from all
+ * constraints for now. Add a new entry here when migrating additional snaps.
+ *
+ * TODO: align these packages with monorepo conventions and remove this list.
+ */
+const SNAP_PACKAGES = new Set([
+  'packages/snaps/simple-keyring',
+  'packages/snaps/simple-keyring/packages/snap',
+  'packages/snaps/simple-keyring/packages/site',
+]);
+
+/**
  * These packages and ranges are allowed to mismatch expected consistency checks
  * Only intended as temporary measures to faciliate upgrades and releases.
  * This should trend towards empty.
  */
-const ALLOWED_INCONSISTENT_DEPENDENCIES = {};
+const ALLOWED_INCONSISTENT_DEPENDENCIES = {
+  // Snap packages (simple-keyring) carry older dep versions from their
+  // standalone repo origin. These will be aligned in a follow-up.
+  '@lavamoat/allow-scripts': ['^2.0.3'],
+  '@metamask/auto-changelog': ['^3.3.0'],
+  '@metamask/eslint-config': ['^12.2.0'],
+  '@metamask/eslint-config-jest': ['^12.1.0'],
+  '@metamask/eslint-config-nodejs': ['^12.1.0'],
+  '@metamask/eslint-config-typescript': ['^12.1.0'],
+  '@typescript-eslint/eslint-plugin': ['^5.33.0', '^5.55.0'],
+  '@typescript-eslint/parser': ['^5.33.0', '^5.55.0'],
+  '@ethereumjs/common': ['^3.1.2'],
+  '@ethereumjs/tx': ['^4.1.2'],
+  '@ethereumjs/util': ['^8.0.5'],
+  '@metamask/eth-sig-util': ['^7.0.1'],
+  '@metamask/snaps-sdk': ['^11.0.0', '^11.1.0'],
+  '@types/node': ['^20.6.2'],
+  depcheck: ['^1.4.6'],
+  eslint: ['^8.21.0', '^8.36.0'],
+  'eslint-config-prettier': ['^8.1.0', '^8.7.0'],
+  'eslint-plugin-import': ['^2.26.0', '^2.27.5'],
+  'eslint-plugin-jest': ['^26.8.2', '^27.2.1'],
+  'eslint-plugin-jsdoc': ['^39.2.9', '^40.0.3'],
+  'eslint-plugin-n': ['^16.1.0', '^16.6.2'],
+  'eslint-plugin-prettier': ['^4.2.1'],
+  'eslint-plugin-promise': ['^6.1.1'],
+  prettier: ['^2.2.1', '^2.8.4'],
+  rimraf: ['^3.0.2', '^4.4.0'],
+  typescript: ['^4.7.4', '^4.9.5'],
+  uuid: ['^9.0.0'],
+  semver: ['^7.5.4'],
+};
 
 /**
  * Aliases for the Yarn type definitions, to make the code more readable.
@@ -52,6 +95,10 @@ module.exports = defineConfig({
     );
 
     for (const workspace of Yarn.workspaces()) {
+      if (SNAP_PACKAGES.has(workspace.cwd)) {
+        continue;
+      }
+
       const workspaceBasename = getWorkspaceBasename(workspace);
       const isChildWorkspace = workspace.cwd !== '.';
       const isPrivate =
