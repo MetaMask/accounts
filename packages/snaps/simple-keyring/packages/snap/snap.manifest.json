@@ -7,7 +7,7 @@
     "url": "git+https://github.com/MetaMask/accounts.git"
   },
   "source": {
-    "shasum": "9ATXUtxBZ8cygzoAa0LW3jcdi+HxBZWJWq/Q2XTMvvQ=",
+    "shasum": "Le/tiuHg6h6i4CI1U2r9et1iJn1qO4deuTzcyBARmk0=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
