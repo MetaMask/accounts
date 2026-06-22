@@ -1,0 +1,27 @@
+diff --git a/esm/cryptoNode.js b/esm/cryptoNode.js
+index 4f77e8f46c5e242e1e3cb92712dc65e95a8b8eb0..acd05d884061e18adf27d33ba4a1c55e9cc85e7f 100644
+--- a/esm/cryptoNode.js
++++ b/esm/cryptoNode.js
+@@ -7,9 +7,19 @@
+  */
+ // @ts-ignore
+ import * as nc from 'node:crypto';
+-export const crypto = nc && typeof nc === 'object' && 'webcrypto' in nc
+-    ? nc.webcrypto
+-    : nc && typeof nc === 'object' && 'randomBytes' in nc
++// It seems `webpack` is not able to resolve `nc.webcrypto` at build time. Probably because
++// we use `crypto-browserify` under the hood, and this package does not expose `webcrypto`.
++// While this work when using `require` imports, it seems to fail with ESM exports (at least
++// in this case).
++// export const crypto = nc && typeof nc === 'object' && 'webcrypto' in nc
++//     ? nc.webcrypto
++//     : nc && typeof nc === 'object' && 'randomBytes' in nc
++//         ? nc
++//         : undefined;
++
++// We just fallback to the "normal crypto" object to workaround this.
++export const crypto =
++    nc && typeof nc === 'object' && 'randomBytes' in nc
+         ? nc
+         : undefined;
+ //# sourceMappingURL=cryptoNode.js.map

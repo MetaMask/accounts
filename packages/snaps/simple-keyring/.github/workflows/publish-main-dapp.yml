@@ -1,0 +1,16 @@
+name: Publish main branch dapp to GitHub Pages
+
+on:
+  push:
+    branches: main
+
+jobs:
+  publish-to-gh-pages:
+    name: Publish dapp to `staging` directory of `gh-pages` branch
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-dapp.yml
+    with:
+      destination_dir: staging
+    secrets:
+      PUBLISH_DOCS_TOKEN: ${{ secrets.PUBLISH_DOCS_TOKEN }}
