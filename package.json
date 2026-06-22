@@ -8,9 +8,9 @@
     "url": "https://github.com/MetaMask/accounts.git"
   },
   "workspaces": [
-    "packages/*",
+    "packages/snaps/*/packages/*",
     "packages/snaps/*",
-    "packages/snaps/*/packages/*"
+    "packages/*"
   ],
   "files": [],
   "scripts": {
