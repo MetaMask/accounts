@@ -1,0 +1,549 @@
+STATUS: DONE
+RESULTS:
+[15:05:32] start
+[15:05:32] init-start :: {"spikeForcePopupFalse":false}
+[15:05:34] init-done :: {"iframes":[{"at":1782054332701,"src":"http://localhost:8088/iframe.html"}],"iframeCount":1}
+[15:05:37] pre-getPublicKey-dom :: {"iframes":[{"src":"http://localhost:8088/iframe.html","sandbox":"","visible":false}],"iframeCreations":[{"at":1782054332701,"src":"http://localhost:8088/iframe.html"}],"messages":[{"at":1782054332737,"from":"http://localhost:8088","summary":{"event":"UI_EVENT","type":"iframe-bootstrap"}},{"at":1782054334839,"from":"http://localhost:8088","summary":{"event":"UI_EVENT","type":"iframe-loaded","payloadType":"object","payloadKeys":["useBroadcastChannel","systemInfo"]}},{"at":1782054334839,"from":"http://localhost:8088","summary":{"event":"DEVICE_EVENT","type":"device-connect","payloadType":"object
+[15:05:37] getPublicKey-start :: {"path":"m/44'/60'/0'/0","coin":"eth"}
+[15:06:07] getPublicKey-TIMEOUT :: {"ok":false}
+
+=== FINAL ===
+{
+  "ok": false,
+  "stage": "getPublicKey-TIMEOUT",
+  "error": "Error: getPublicKey-timeout-after-30s\n    at chrome-extension://ojcmmcdbmlmejpjemcjdnmpjeippijjj/offscreen.js:88:33",
+  "messageCount": 5,
+  "messages": [
+    {
+      "at": 1782054332737,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "UI_EVENT",
+        "type": "iframe-bootstrap"
+      }
+    },
+    {
+      "at": 1782054334839,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "UI_EVENT",
+        "type": "iframe-loaded",
+        "payloadType": "object",
+        "payloadKeys": [
+          "useBroadcastChannel",
+          "systemInfo"
+        ]
+      }
+    },
+    {
+      "at": 1782054334839,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "DEVICE_EVENT",
+        "type": "device-connect",
+        "payloadType": "object",
+        "payloadKeys": [
+          "path",
+          "name",
+          "descriptor",
+          "type",
+          "id"
+        ]
+      }
+    },
+    {
+      "at": 1782054334841,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "RESPONSE_EVENT",
+        "type": "RESPONSE_EVENT",
+        "id": 1,
+        "success": true,
+        "payloadType": "object",
+        "payloadKeys": [
+          "0"
+        ]
+      }
+    },
+    {
+      "at": 1782054337862,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "DEVICE_EVENT",
+        "type": "device-changed",
+        "payloadType": "object",
+        "payloadKeys": [
+          "path",
+          "name",
+          "descriptor",
+          "type",
+          "id"
+        ]
+      }
+    }
+  ],
+  "allEvents": [
+    {
+      "at": 1782054332737,
+      "from": "http://localhost:8088",
+      "raw": {
+        "event": "UI_EVENT",
+        "type": "iframe-bootstrap",
+        "channel": {
+          "here": "@trezor/connect-iframe",
+          "peer": "@trezor/connect-web"
+        }
+      }
+    },
+    {
+      "at": 1782054334839,
+      "from": "http://localhost:8088",
+      "raw": {
+        "event": "UI_EVENT",
+        "type": "iframe-loaded",
+        "payload": {
+          "useBroadcastChannel": true,
+          "systemInfo": {
+            "os": {
+              "family": "MacOS",
+              "mobile": false
+            },
+            "browser": {
+              "supported": true,
+              "outdated": false
+            }
+          }
+        },
+        "channel": {
+          "here": "@trezor/connect-iframe",
+          "peer": "@trezor/connect-web"
+        }
+      }
+    },
+    {
+      "at": 1782054334839,
+      "from": "http://localhost:8088",
+      "raw": {
+        "event": "DEVICE_EVENT",
+        "type": "device-connect",
+        "payload": {
+          "path": "eab72c7c",
+          "name": "Trezor Model T",
+          "descriptor": {
+            "apiType": "usb",
+            "id": "127.0.0.1:21324"
+          },
+          "type": "acquired",
+          "id": "CB916436AE3C744E355C8175",
+          "label": "ZeroSrcSpike",
+          "status": "available",
+          "mode": "normal",
+          "firmware": "valid",
+          "firmwareReleaseConfigInfo": {
+            "firmwareType": "universal",
+            "isBitcoinOnlyAvailable": true,
+            "releaseConditions": {
+              "environment": {
+                "min_suite_version": "26.6.1",
+                "min_suite_native_version": "26.6.1"
+              },
+              "rollout_probability": 100,
+              "shouldBeOffered": true
+            },
+            "release": {
+              "required": false,
+              "version": [
+                2,
+                12,
+                1
+              ],
+              "min_bridge_version": [
+                2,
+                0,
+                7
+              ],
+              "min_bootloader_version": [
+                2,
+                0,
+                0
+              ],
+              "min_firmware_version": [
+                2,
+                0,
+                8
+              ],
+              "bootloader_version": [
+                2,
+                1,
+                16
+              ],
+              "firmware_revision": "64698d0d844e3322eca435beaae3df602aa08b10",
+              "url": "firmware/t2t1/trezor-t2t1-2.12.1.bin",
+              "fingerprint": "1992799b6a5b40a7474fbf17330ce94b190a7213ad8a4f84492a9e75afe4a009",
+              "changelog": "* Added support for `AccountDelete` transaction in Ripple.\n* Added support for Solana off-chain message signing (OCMS) v0.\n* Solana System Program Transfer instruction now supports multisig.\n* Hide written characters in passphrase keyboard.\n* Improved Tron TRX transfer flow.\n* Improved Stellar confirmation flows.\n* Fixed device locking if only SD card protection is enabled.",
+              "translations": {
+                "cs-CZ": "firmware/translations/t2t1/translation-T2T1-cs-CZ-2.12.1.bin",
+                "de-DE": "firmware/translations/t2t1/translation-T2T1-de-DE-2.12.1.bin",
+                "es-ES": "firmware/translations/t2t1/translation-T2T1-es-ES-2.12.1.bin",
+                "fr-FR": "firmware/translations/t2t1/translation-T2T1-fr-FR-2.12.1.bin",
+                "pt-BR": "firmware/translations/t2t1/translation-T2T1-pt-BR-2.12.1.bin"
+              }
+            },
+            "isRequired": null,
+            "isNewer": false,
+            "translations": {
+              "cs-CZ": "firmware/translations/t2t1/translation-T2T1-cs-CZ-2.12.1.bin",
+              "de-DE": "firmware/translations/t2t1/translation-T2T1-de-DE-2.12.1.bin",
+              "es-ES": "firmware/translations/t2t1/translation-T2T1-es-ES-2.12.1.bin",
+              "fr-FR": "firmware/translations/t2t1/translation-T2T1-fr-FR-2.12.1.bin",
+              "pt-BR": "firmware/translations/t2t1/translation-T2T1-pt-BR-2.12.1.bin"
+            }
+          },
+          "firmwareType": "universal",
+          "features": {
+            "vendor": "trezor.io",
+            "major_version": 2,
+            "minor_version": 12,
+            "patch_version": 1,
+            "bootloader_mode": null,
+            "device_id": "CB916436AE3C744E355C8175",
+            "pin_protection": false,
+            "passphrase_protection": false,
+            "language": "en-US",
+            "label": "ZeroSrcSpike",
+            "initialized": true,
+            "revision": "a74303056ba569eac8e77e0ed5240925545739d7",
+            "bootloader_hash": null,
+            "imported": null,
+            "unlocked": true,
+            "_passphrase_cached": null,
+            "firmware_present": null,
+            "backup_availability": "NotAvailable",
+            "flags": 0,
+            "model": "T",
+            "fw_major": null,
+            "fw_minor": null,
+            "fw_patch": null,
+            "fw_vendor": "EMULATOR",
+            "unfinished_backup": false,
+            "no_backup": false,
+            "recovery_status": "Nothing",
+            "capabilities": [
+              "Capability_Bitcoin",
+              "Capability_Bitcoin_like",
+              "Capability_Binance",
+              "Capability_Cardano",
+              "Capability_Crypto",
+              "Capability_Ethereum",
+              "Capability_Monero",
+              "Capability_Ripple",
+              "Capability_Stellar",
+              "Capability_Tezos",
+              "Capability_Tron",
+              "Capability_U2F",
+              "Capability_Shamir",
+              "Capability_ShamirGroups",
+              "Capability_PassphraseEntry",
+              "Capability_Solana",
+              "Capability_Translations",
+              "Capability_NEM",
+              "Capability_EOS",
+              "Capability_Brightness"
+            ],
+            "backup_type": "Bip39",
+            "sd_card_present": true,
+            "sd_protection": false,
+            "wipe_code_protection": false,
+            "session_id": null,
+            "passphrase_always_on_device": false,
+            "safety_checks": "Strict",
+            "auto_lock_delay_ms": 600000,
+            "display_rotation": "North",
+            "experimental_features": false,
+            "busy": false,
+            "homescreen_format": "Jpeg",
+            "hide_passphrase_from_host": false,
+            "internal_model": "T2T1",
+            "unit_color": null,
+            "unit_btconly": null,
+            "homescreen_width": 240,
+            "homescreen_height": 240,
+            "bootloader_locked": null,
+            "language_version_matches": true,
+            "unit_packaging": null,
+            "haptic_feedback": null,
+            "optiga_sec": null,
+            "soc": null,
+            "firmware_corrupted": null,
+            "auto_lock_delay_battery_ms": null,
+            "led": null,
+            "usb_connected": null,
+            "wireless_connected": null
+          },
+          "unavailableCapabilities": {
+            "maid": "no-capability",
+            "omni": "no-capability",
+            "usdt": "no-capability",
+            "tutorial": "no-support"
+          },
+          "availableTranslations": {
+            "cs-CZ": "firmware/translations/t2t1/translation-T2T1-cs-CZ-2.12.1.bin",
+            "de-DE": "firmware/translations/t2t1/translation-T2T1-de-DE-2.12.1.bin",
+            "es-ES": "firmware/translations/t2t1/translation-T2T1-es-ES-2.12.1.bin",
+            "fr-FR": "firmware/translations/t2t1/translation-T2T1-fr-FR-2.12.1.bin",
+            "pt-BR": "firmware/translations/t2t1/translation-T2T1-pt-BR-2.12.1.bin"
+          },
+          "authenticityChecks": {
+            "firmwareRevision": {
+              "success": false,
+              "error": "revision-mismatch"
+            },
+            "firmwareHash": {
+              "success": false,
+              "error": "check-skipped",
+              "attemptCount": 1
+            }
+          }
+        },
+        "channel": {
+          "here": "@trezor/connect-iframe",
+          "peer": "@trezor/connect-web"
+        }
+      }
+    },
+    {
+      "at": 1782054334841,
+      "from": "http://localhost:8088",
+      "raw": {
+        "event": "RESPONSE_EVENT",
+        "type": "RESPONSE_EVENT",
+        "id": 1,
+        "success": true,
+        "payload": [
+          {
+            "apiType": "usb",
+            "type": "BridgeTransport",
+            "version": "3.2.1",
+            "outdated": false
+          }
+        ],
+        "channel": {
+          "here": "@trezor/connect-iframe",
+          "peer": "@trezor/connect-web"
+        }
+      }
+    },
+    {
+      "at": 1782054337862,
+      "from": "http://localhost:8088",
+      "raw": {
+        "event": "DEVICE_EVENT",
+        "type": "device-changed",
+        "payload": {
+          "path": "eab72c7c",
+          "name": "Trezor Model T",
+          "descriptor": {
+            "apiType": "usb",
+            "id": "127.0.0.1:21324"
+          },
+          "type": "acquired",
+          "id": "CB916436AE3C744E355C8175",
+          "label": "ZeroSrcSpike",
+          "status": "available",
+          "mode": "normal",
+          "firmware": "valid",
+          "firmwareReleaseConfigInfo": {
+            "firmwareType": "universal",
+            "isBitcoinOnlyAvailable": true,
+            "releaseConditions": {
+              "environment": {
+                "min_suite_version": "26.6.1",
+                "min_suite_native_version": "26.6.1"
+              },
+              "rollout_probability": 100,
+              "shouldBeOffered": true
+            },
+            "release": {
+              "required": false,
+              "version": [
+                2,
+                12,
+                1
+              ],
+              "min_bridge_version": [
+                2,
+                0,
+                7
+              ],
+              "min_bootloader_version": [
+                2,
+                0,
+                0
+              ],
+              "min_firmware_version": [
+                2,
+                0,
+                8
+              ],
+              "bootloader_version": [
+                2,
+                1,
+                16
+              ],
+              "firmware_revision": "64698d0d844e3322eca435beaae3df602aa08b10",
+              "url": "firmware/t2t1/trezor-t2t1-2.12.1.bin",
+              "fingerprint": "1992799b6a5b40a7474fbf17330ce94b190a7213ad8a4f84492a9e75afe4a009",
+              "changelog": "* Added support for `AccountDelete` transaction in Ripple.\n* Added support for Solana off-chain message signing (OCMS) v0.\n* Solana System Program Transfer instruction now supports multisig.\n* Hide written characters in passphrase keyboard.\n* Improved Tron TRX transfer flow.\n* Improved Stellar confirmation flows.\n* Fixed device locking if only SD card protection is enabled.",
+              "translations": {
+                "cs-CZ": "firmware/translations/t2t1/translation-T2T1-cs-CZ-2.12.1.bin",
+                "de-DE": "firmware/translations/t2t1/translation-T2T1-de-DE-2.12.1.bin",
+                "es-ES": "firmware/translations/t2t1/translation-T2T1-es-ES-2.12.1.bin",
+                "fr-FR": "firmware/translations/t2t1/translation-T2T1-fr-FR-2.12.1.bin",
+                "pt-BR": "firmware/translations/t2t1/translation-T2T1-pt-BR-2.12.1.bin"
+              }
+            },
+            "isRequired": null,
+            "isNewer": false,
+            "translations": {
+              "cs-CZ": "firmware/translations/t2t1/translation-T2T1-cs-CZ-2.12.1.bin",
+              "de-DE": "firmware/translations/t2t1/translation-T2T1-de-DE-2.12.1.bin",
+              "es-ES": "firmware/translations/t2t1/translation-T2T1-es-ES-2.12.1.bin",
+              "fr-FR": "firmware/translations/t2t1/translation-T2T1-fr-FR-2.12.1.bin",
+              "pt-BR": "firmware/translations/t2t1/translation-T2T1-pt-BR-2.12.1.bin"
+            }
+          },
+          "firmwareType": "universal",
+          "features": {
+            "vendor": "trezor.io",
+            "major_version": 2,
+            "minor_version": 12,
+            "patch_version": 1,
+            "bootloader_mode": null,
+            "device_id": "CB916436AE3C744E355C8175",
+            "pin_protection": false,
+            "passphrase_protection": false,
+            "language": "en-US",
+            "label": "ZeroSrcSpike",
+            "initialized": true,
+            "revision": "a74303056ba569eac8e77e0ed5240925545739d7",
+            "bootloader_hash": null,
+            "imported": null,
+            "unlocked": true,
+            "_passphrase_cached": null,
+            "firmware_present": null,
+            "backup_availability": "NotAvailable",
+            "flags": 0,
+            "model": "T",
+            "fw_major": null,
+            "fw_minor": null,
+            "fw_patch": null,
+            "fw_vendor": "EMULATOR",
+            "unfinished_backup": false,
+            "no_backup": false,
+            "recovery_status": "Nothing",
+            "capabilities": [
+              "Capability_Bitcoin",
+              "Capability_Bitcoin_like",
+              "Capability_Binance",
+              "Capability_Cardano",
+              "Capability_Crypto",
+              "Capability_Ethereum",
+              "Capability_Monero",
+              "Capability_Ripple",
+              "Capability_Stellar",
+              "Capability_Tezos",
+              "Capability_Tron",
+              "Capability_U2F",
+              "Capability_Shamir",
+              "Capability_ShamirGroups",
+              "Capability_PassphraseEntry",
+              "Capability_Solana",
+              "Capability_Translations",
+              "Capability_NEM",
+              "Capability_EOS",
+              "Capability_Brightness"
+            ],
+            "backup_type": "Bip39",
+            "sd_card_present": true,
+            "sd_protection": false,
+            "wipe_code_protection": false,
+            "session_id": null,
+            "passphrase_always_on_device": false,
+            "safety_checks": "Strict",
+            "auto_lock_delay_ms": 600000,
+            "display_rotation": "North",
+            "experimental_features": false,
+            "busy": false,
+            "homescreen_format": "Jpeg",
+            "hide_passphrase_from_host": false,
+            "internal_model": "T2T1",
+            "unit_color": null,
+            "unit_btconly": null,
+            "homescreen_width": 240,
+            "homescreen_height": 240,
+            "bootloader_locked": null,
+            "language_version_matches": true,
+            "unit_packaging": null,
+            "haptic_feedback": null,
+            "optiga_sec": null,
+            "soc": null,
+            "firmware_corrupted": null,
+            "auto_lock_delay_battery_ms": null,
+            "led": null,
+            "usb_connected": null,
+            "wireless_connected": null
+          },
+          "unavailableCapabilities": {
+            "maid": "no-capability",
+            "omni": "no-capability",
+            "usdt": "no-capability",
+            "tutorial": "no-support"
+          },
+          "availableTranslations": {
+            "cs-CZ": "firmware/translations/t2t1/translation-T2T1-cs-CZ-2.12.1.bin",
+            "de-DE": "firmware/translations/t2t1/translation-T2T1-de-DE-2.12.1.bin",
+            "es-ES": "firmware/translations/t2t1/translation-T2T1-es-ES-2.12.1.bin",
+            "fr-FR": "firmware/translations/t2t1/translation-T2T1-fr-FR-2.12.1.bin",
+            "pt-BR": "firmware/translations/t2t1/translation-T2T1-pt-BR-2.12.1.bin"
+          },
+          "authenticityChecks": {
+            "firmwareRevision": {
+              "success": false,
+              "error": "revision-mismatch"
+            },
+            "firmwareHash": {
+              "success": false,
+              "error": "check-skipped",
+              "attemptCount": 1
+            }
+          }
+        },
+        "channel": {
+          "here": "@trezor/connect-iframe",
+          "peer": "@trezor/connect-web"
+        }
+      }
+    }
+  ],
+  "openCalls": [
+    {
+      "at": 1782054337854,
+      "url": "http://localhost:8088/popup.html?version=9.6.0&env=webextension&extension-id=ojcmmcdbmlmejpjemcjdnmpjeippijjj&cs-ver=1",
+      "name": "modal"
+    }
+  ],
+  "chromeAccess": [],
+  "iframeCreations": [
+    {
+      "at": 1782054332701,
+      "src": "http://localhost:8088/iframe.html"
+    }
+  ],
+  "iframes": [
+    {
+      "src": "http://localhost:8088/iframe.html",
+      "sandbox": "",
+      "visible": false
+    }
+  ]
+}

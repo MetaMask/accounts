@@ -1,0 +1,48 @@
+STATUS: DONE
+RESULTS:
+[15:04:38] start
+[15:04:38] init-start :: {"spikeForcePopupFalse":true}
+[15:04:41] init-done :: {"iframes":[{"at":1782054278125,"src":"http://localhost:8088/iframe.html"}],"iframeCount":1}
+[15:04:44] pre-getPublicKey-dom :: {"iframes":[{"src":"http://localhost:8088/iframe.html","sandbox":"","visible":false}],"iframeCreations":[{"at":1782054278125,"src":"http://localhost:8088/iframe.html"}],"messages":[{"at":1782054278160,"from":"http://localhost:8088","summary":{"event":"UI_EVENT","type":"iframe-bootstrap"}},{"at":1782054281052,"from":"http://localhost:8088","summary":{"event":"UI_EVENT","type":"iframe-loaded","payloadType":"object","payloadKeys":["useBroadcastChannel","systemInfo"]}},{"at":1782054281054,"from":"http://localhost:8088","summary":{"event":"DEVICE_EVENT","type":"device-connect","payloadType":"object
+[15:04:44] getPublicKey-start :: {"path":"m/44'/60'/0'/0","coin":"eth"}
+[15:04:44] getPublicKey-done :: {"success":true}
+[15:04:44] getPublicKey :: {"ok":true}
+
+=== FINAL ===
+{
+  "ok": true,
+  "stage": "getPublicKey",
+  "success": true,
+  "xpub": "xpub6DainZd2Amf7GkkBwKLnfBRDBBrWCf9GWCRwjbMJKweKa9MN2xqhbAH5Myh3uJXkna47WLK8qH7NYn4CsasoqAyHxa4BB5daRqaVBfauhMP",
+  "xpubMatchesExpected": true,
+  "expectedXpub": "xpub6DainZd2Amf7GkkBwKLnfBRDBBrWCf9GWCRwjbMJKweKa9MN2xqhbAH5Myh3uJXkna47WLK8qH7NYn4CsasoqAyHxa4BB5daRqaVBfauhMP",
+  "raw": {
+    "id": 2,
+    "success": true,
+    "payload": {
+      "path": [
+        2147483692,
+        2147483708,
+        2147483648,
+        0
+      ],
+      "serializedPath": "m/44'/60'/0'/0",
+      "childNum": 0,
+      "xpub": "xpub6DainZd2Amf7GkkBwKLnfBRDBBrWCf9GWCRwjbMJKweKa9MN2xqhbAH5Myh3uJXkna47WLK8qH7NYn4CsasoqAyHxa4BB5daRqaVBfauhMP",
+      "chainCode": "1246786f9c0d4701b7b7789bd912d819e42fd3264a6c8473e305cfc95cb08cc4",
+      "publicKey": "0217ebaac6b4c12d3c7e0fc21d8d53d89adf007ff7988840926032c89eb966a37c",
+      "fingerprint": 110857680,
+      "depth": 4,
+      "descriptor": "pkh([5c9e228d/44h/60h/0h/0]xpub6DainZd2Amf7GkkBwKLnfBRDBBrWCf9GWCRwjbMJKweKa9MN2xqhbAH5Myh3uJXkna47WLK8qH7NYn4CsasoqAyHxa4BB5daRqaVBfauhMP/<0;1>/*)#gck6a57s"
+    },
+    "device": {
+      "path": "eab65a67",
+      "state": {
+        "deriveCardano": false,
+        "sessionId": "4a0d361a211cb3660c87f58ffb96e18f1ea08e2be50867e900a592025f549fe8",
+        "staticSessionId": "mvbu1Gdy8SUjTenqerxUaZyYjmveZvt33q@CB916436AE3C744E355C8175:0"
+      },
+      "instance": 0
+    }
+  }
+}

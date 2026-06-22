@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Zero-Source Spike Offscreen</title>
+    <!-- MV3 CSP blocks inline scripts; everything is an external file. -->
+    <!-- 1. error capture (before bundle) -->
+    <script src="probe-before.js"></script>
+    <!-- 2. THE zero-source-change intervention: __TREZOR_CONNECT_SRC injection -->
+    <script src="inject-global.js"></script>
+    <!-- 3. the bundled @trezor/connect-web SDK -->
+    <script src="trezor-connect-web.bundle.js"></script>
+    <!-- 4. probe to capture post-load state -->
+    <script src="probe-after.js"></script>
+    <!-- 5. offscreen logic: init + getPublicKey on demand -->
+    <script src="offscreen.js"></script>
+  </head>
+  <body></body>
+</html>

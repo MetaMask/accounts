@@ -1,0 +1,19 @@
+services:
+  trezor-user-env:
+    image: ghcr.io/trezor/trezor-user-env:latest
+    container_name: trezor-zero-src-spike
+    ports:
+      - '9001:9001' # WebSocket controller
+      # NOTE: 21328 (transport-bridge) and 21324 (emulator UDP) are NOT
+      # mapped. We run transport-bridge on the HOST (fetched bin.js from
+      # trezor-suite), and it needs to talk UDP to the emulator. The
+      # emulator's UDP port 21324 is bound to 127.0.0.1 INSIDE the
+      # container — host can't reach it. So we use socat to forward
+      # host:21324 → container:21324 (set up by the run script).
+      # Actually simpler: use the controller's `bridge-start` to start
+      # the node-bridge INSIDE the container (it's bundled), then expose
+      # 21328 from the container. We'll use whichever path works; see
+      # README for the resolution.
+      - '21324:21324/udp' # emulator UDP debug-link (host side: transport-bridge hits this)
+      - '21328:21328' # node bridge (in case we use the bundled one)
+    restart: 'no'

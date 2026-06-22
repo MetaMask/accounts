@@ -1,0 +1,18 @@
+# Symlink to a node_modules tree that has playwright + ws + esbuild.
+# Created at run time; see README "How to run".
+node_modules
+
+# Build artifacts — generated at run time.
+extension/trezor-connect-web.bundle.js
+_entry.js
+
+# Fetched at run time from connect.trezor.io and dev.suite.sldev.cz.
+# Cached, not source. Documented in README.
+connect-web-assets/iframe.html
+connect-web-assets/trezor-connect.js
+connect-web-assets/js/
+transport-bridge/bin.js
+
+# Track result logs explicitly (the repo root .gitignore drops *.log;
+# the spike outcomes are part of the recorded evidence).
+!*.log

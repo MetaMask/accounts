@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Trezor Zero-Source Spike",
+  "version": "0.0.1",
+  "description": "Validates that @trezor/connect-web runs UNMODIFIED in the chrome-extension:// offscreen document when the only test-side intervention is window.__TREZOR_CONNECT_SRC HTML injection. Mirrors MM's production trezor.ts:52 init call.",
+  "permissions": ["offscreen", "storage", "tabs"],
+  "host_permissions": [
+    "http://127.0.0.1:21328/*",
+    "http://127.0.0.1:8088/*",
+    "http://localhost:8088/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_title": "Zero-Source Spike" },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "test.html", "offscreen.html", "inject-global.js",
+        "trezor-connect-web.bundle.js", "probe-before.js", "probe-after.js"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

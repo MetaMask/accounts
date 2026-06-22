@@ -1,0 +1,131 @@
+
+=========== variant: zero-src ===========
+ext dir: /var/folders/nb/1gzzfp_96qj41jsq011zll840000gn/T/zero-src-zero-src-k0xLRQ
+--- zero-src result ---
+status: DONE
+results: [15:02:28] start
+[15:02:28] init-start :: {"spikeForcePopupFalse":false}
+[15:02:31] init-done :: {"iframes":[{"at":1782054148760,"src":"http://localhost:8088/iframe.html"}],"iframeCount":1}
+[15:02:34] pre-getPublicKey-dom :: {"iframes":[{"src":"http://localhost:8088/iframe.html","sandbox":"","visible":false}],"iframeCreations":[{"at":1782054148760,"src":"http://localhost:8088/iframe.html"}],"messages":[{"at":1782054148788,"from":"http://localhost:8088","summary":{"event":"UI_EVENT","type":"iframe-bootstrap"}},{"at":1782054151366,"from":"http://localhost:8088","summary":{"event":"UI_EVENT","type":"iframe-loaded","payloadType":"object","payloadKeys":["useBroadcastChannel","systemInfo"]}},{"at":1782054151366,"from":"http://localhost:8088","summary":{"event":"DEVICE_EVENT","type":"device-connect","payloadType":"object
+[15:02:34] getPublicKey-start :: {"path":"m/44'/60'/0'/0","coin":"eth"}
+[15:03:04] getPublicKey-TIMEOUT :: {"ok":false}
+
+=== FINAL ===
+{
+  "ok": false,
+  "stage": "getPublicKey-TIMEOUT",
+  "error": "Error: getPublicKey-timeout-after-30s\n    at chrome-extension://meiaiglbgjfppnfbpaecjcehlfpabdhe/offscreen.js:88:33",
+  "messageCount": 5,
+  "messages": [
+    {
+      "at": 1782054148788,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "UI_EVENT",
+        "type": "iframe-bootstrap"
+      }
+    },
+    {
+      "at": 1782054151366,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "UI_EVENT",
+        "type": "iframe-loaded",
+        "payloadType": "object",
+        "payloadKeys": [
+          "useBroadcastChannel",
+          "systemInfo"
+        ]
+      }
+    },
+    {
+      "at": 1782054151366,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "DEVICE_EVENT",
+        "type": "device-connect",
+        "payloadType": "object",
+        "payloadKeys": [
+          "path",
+          "name",
+          "descriptor",
+          "type",
+          "id"
+        ]
+      }
+    },
+    {
+      "at": 17820
+
+=========== variant: popup-false ===========
+ext dir: /var/folders/nb/1gzzfp_96qj41jsq011zll840000gn/T/zero-src-popup-false-tlBaBW
+--- popup-false result ---
+status: DONE
+results: [15:03:06] start
+[15:03:06] init-start :: {"spikeForcePopupFalse":true}
+[15:03:07] init-done :: {"iframes":[{"at":1782054186382,"src":"http://localhost:8088/iframe.html"}],"iframeCount":1}
+[15:03:10] pre-getPublicKey-dom :: {"iframes":[{"src":"http://localhost:8088/iframe.html","sandbox":"","visible":false}],"iframeCreations":[{"at":1782054186382,"src":"http://localhost:8088/iframe.html"}],"messages":[{"at":1782054186405,"from":"http://localhost:8088","summary":{"event":"UI_EVENT","type":"iframe-bootstrap"}},{"at":1782054187936,"from":"http://localhost:8088","summary":{"event":"UI_EVENT","type":"iframe-loaded","payloadType":"object","payloadKeys":["useBroadcastChannel","systemInfo"]}},{"at":1782054187936,"from":"http://localhost:8088","summary":{"event":"DEVICE_EVENT","type":"device-connect_unacquired","payloadTy
+[15:03:10] getPublicKey-start :: {"path":"m/44'/60'/0'/0","coin":"eth"}
+[15:03:40] getPublicKey-TIMEOUT :: {"ok":false}
+
+=== FINAL ===
+{
+  "ok": false,
+  "stage": "getPublicKey-TIMEOUT",
+  "error": "Error: getPublicKey-timeout-after-30s\n    at chrome-extension://ekhikdijggejdpfcmdpdeoojdmddehia/offscreen.js:88:33",
+  "messageCount": 6,
+  "messages": [
+    {
+      "at": 1782054186405,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "UI_EVENT",
+        "type": "iframe-bootstrap"
+      }
+    },
+    {
+      "at": 1782054187936,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "UI_EVENT",
+        "type": "iframe-loaded",
+        "payloadType": "object",
+        "payloadKeys": [
+          "useBroadcastChannel",
+          "systemInfo"
+        ]
+      }
+    },
+    {
+      "at": 1782054187936,
+      "from": "http://localhost:8088",
+      "summary": {
+        "event": "DEVICE_EVENT",
+        "type": "device-connect_unacquired",
+        "payloadType": "object",
+        "payloadKeys": [
+          "path",
+          "name",
+          "descriptor",
+          "type",
+          "label"
+        ]
+      }
+    },
+    {
+    
+
+=========== OVERALL DECISION ===========
+
+[zero-src]
+  ok: false stage: getPublicKey-TIMEOUT success: undefined
+  error: Error: getPublicKey-timeout-after-30s
+    at chrome-extension://meiaiglbgjfppnfbpaecjcehlfpabdhe/offscreen.js:88:33
+
+[popup-false]
+  ok: false stage: getPublicKey-TIMEOUT success: undefined
+  error: Error: getPublicKey-timeout-after-30s
+    at chrome-extension://ekhikdijggejdpfcmdpdeoojdmddehia/offscreen.js:88:33
+
+=== FINAL DECISION ===
+FAILED — neither variant succeeded
