@@ -52,8 +52,8 @@ const ALLOWED_INCONSISTENT_DEPENDENCIES = {
   '@metamask/eth-sig-util': ['^7.0.1'],
   '@metamask/snaps-sdk': ['^11.0.0', '^11.1.0'],
   '@types/node': ['^20.6.2'],
-  'depcheck': ['^1.4.6'],
-  'eslint': ['^8.21.0', '^8.36.0'],
+  depcheck: ['^1.4.6'],
+  eslint: ['^8.21.0', '^8.36.0'],
   'eslint-config-prettier': ['^8.1.0', '^8.7.0'],
   'eslint-plugin-import': ['^2.26.0', '^2.27.5'],
   'eslint-plugin-jest': ['^26.8.2', '^27.2.1'],
@@ -61,11 +61,11 @@ const ALLOWED_INCONSISTENT_DEPENDENCIES = {
   'eslint-plugin-n': ['^16.1.0', '^16.6.2'],
   'eslint-plugin-prettier': ['^4.2.1'],
   'eslint-plugin-promise': ['^6.1.1'],
-  'prettier': ['^2.2.1', '^2.8.4'],
-  'rimraf': ['^3.0.2', '^4.4.0'],
-  'typescript': ['^4.7.4', '^4.9.5'],
-  'uuid': ['^9.0.0'],
-  'semver': ['^7.5.4'],
+  prettier: ['^2.2.1', '^2.8.4'],
+  rimraf: ['^3.0.2', '^4.4.0'],
+  typescript: ['^4.7.4', '^4.9.5'],
+  uuid: ['^9.0.0'],
+  semver: ['^7.5.4'],
 };
 
 /**

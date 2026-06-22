@@ -1,0 +1,3 @@
+# Snap packages use older tooling (Prettier v2, different configs).
+# Formatting will be aligned in a follow-up.
+packages/snaps/
