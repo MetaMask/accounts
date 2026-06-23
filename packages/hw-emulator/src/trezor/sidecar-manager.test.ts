@@ -1,33 +1,28 @@
 import { createSidecarManager } from './sidecar-manager';
 
 describe('TrezorSidecarManager', () => {
-  it('start() runs the bridge binary + asset server, stop() kills them', async () => {
-    const forks: string[][] = [];
+  it('start() serves assets, stop() closes the server', async () => {
     const started = createSidecarManager({
-      bridgeBin: '/fake/bridge/bin.js',
       assetDir: __dirname,
-      bridgeStartupDelayMs: 0,
-      forkFn: (bin: string, args?: string[]) => {
-        forks.push([bin, ...(args ?? [])]);
-        // return a minimal child-process stub
-        return { on: () => {}, kill: () => {}, connected: true } as any;
-      },
     });
 
     await started.start();
-    expect(forks[0]).toEqual(['/fake/bridge/bin.js', 'udp']);
     expect(started.isRunning()).toBe(true);
+
+    // Verify the server responds
+    const resp = await fetch(`http://127.0.0.1:8088/`);
+    expect(resp.status).toBe(200);
 
     await started.stop();
     expect(started.isRunning()).toBe(false);
+
+    // After stop, the port should be closed
+    await expect(fetch(`http://127.0.0.1:8088/`)).rejects.toThrow();
   });
 
   it('rejects when the asset dir does not exist', async () => {
     const started = createSidecarManager({
-      bridgeBin: '/fake/bridge/bin.js',
       assetDir: '/does/not/exist',
-      bridgeStartupDelayMs: 0,
-      forkFn: () => ({ on: () => {}, connected: true } as any),
     });
     await expect(started.start()).rejects.toThrow(
       'connect-web iframe assets not found',

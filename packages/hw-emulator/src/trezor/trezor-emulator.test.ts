@@ -2,7 +2,6 @@ import { TrezorEmulator } from './trezor-emulator';
 import type { TrezorDockerManager } from './docker-manager';
 import type { TrezorControllerClient } from './controller-client';
 import type { TrezorSidecarManager } from './sidecar-manager';
-import type { TrezorModel } from './model-profiles';
 
 function stub<T>(shape: Partial<T> = {}): T {
   return shape as T;
@@ -63,5 +62,13 @@ describe('TrezorEmulator', () => {
       composeFile: '/tmp/x.yml',
     });
     expect(emu.getModel()).toBe('T1B1');
+  });
+
+  it('constructs with defaults when no mocks are injected', () => {
+    const emu = new TrezorEmulator({
+      composeFile: '/tmp/x.yml',
+    });
+    expect(emu.getModel()).toBe('T2T1');
+    expect(emu.isRunning()).toBe(false);
   });
 });

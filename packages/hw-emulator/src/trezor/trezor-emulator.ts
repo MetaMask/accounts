@@ -2,10 +2,16 @@ import type { HardwareWalletEmulator } from '../types';
 import type { DeviceInteraction } from './device-interaction';
 import { TrezorDeviceInteraction } from './device-interaction';
 import type { TrezorDockerManager } from './docker-manager';
+import { TrezorDockerManager as RealTrezorDockerManager } from './docker-manager';
 import type { TrezorControllerClient } from './controller-client';
+import { TrezorControllerClient as RealTrezorControllerClient } from './controller-client';
 import type { TrezorSidecarManager } from './sidecar-manager';
+import { createSidecarManager } from './sidecar-manager';
 import { MODEL_PROFILES, type TrezorModel } from './model-profiles';
-import { TREZOR_DEFAULT_MODEL, TREZOR_EMULATOR_SEED } from './constants';
+import {
+  TREZOR_DEFAULT_MODEL,
+  TREZOR_EMULATOR_SEED,
+} from './constants';
 
 export interface TrezorEmulatorOptions {
   model?: TrezorModel;
@@ -15,6 +21,8 @@ export interface TrezorEmulatorOptions {
   connectSrcPort?: number;
   transportBridgePort?: number;
   controllerPort?: number;
+  /** Absolute path to the connect-web iframe assets directory. */
+  assetDir?: string;
   // Injectable for tests; production constructs real instances:
   docker?: TrezorDockerManager;
   controller?: TrezorControllerClient;
@@ -23,7 +31,10 @@ export interface TrezorEmulatorOptions {
 
 function assert<T>(val: T | undefined, name: string): T {
   if (!val) {
-    throw new Error(`TrezorEmulator: ${name} not provided. Use the factory (createEmulator) for real instances, or inject mocks for tests.`);
+    throw new Error(
+      `TrezorEmulator: ${name} not provided. ` +
+        `Use the factory (createEmulator) for real instances, or inject mocks for tests.`,
+    );
   }
   return val;
 }
@@ -35,16 +46,28 @@ export class TrezorEmulator implements HardwareWalletEmulator {
   readonly #model: TrezorModel;
   readonly #seed: string;
   readonly #label: string;
+  readonly #composeFile: string;
+  readonly #connectSrcPort: number;
   #interaction: TrezorDeviceInteraction | null = null;
   #running = false;
 
   constructor(opts: TrezorEmulatorOptions) {
-    this.#docker = assert(opts.docker, 'docker');
-    this.#controller = assert(opts.controller, 'controller');
-    this.#sidecar = assert(opts.sidecarManager, 'sidecarManager');
     this.#model = opts.model ?? TREZOR_DEFAULT_MODEL;
     this.#seed = opts.seed ?? TREZOR_EMULATOR_SEED;
     this.#label = opts.label ?? 'MetaMask Test';
+    this.#composeFile = opts.composeFile ?? '';
+    this.#connectSrcPort = opts.connectSrcPort ?? 8088;
+    this.#docker = opts.docker ?? new RealTrezorDockerManager({ composeFile: this.#composeFile });
+    this.#controller = opts.controller ?? new RealTrezorControllerClient(
+      opts.controllerPort ? { port: opts.controllerPort } : {},
+    );
+    const sidecarOpts: any = {
+      assetServerPort: this.#connectSrcPort,
+    };
+    if (opts.assetDir) {
+      sidecarOpts.assetDir = opts.assetDir;
+    }
+    this.#sidecar = opts.sidecarManager ?? createSidecarManager(sidecarOpts);
   }
 
   getModel(): TrezorModel {

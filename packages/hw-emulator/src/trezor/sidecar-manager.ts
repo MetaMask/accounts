@@ -1,20 +1,12 @@
-import { fork, type ChildProcess } from 'node:child_process';
-import path from 'node:path';
 import http from 'node:http';
 import fs from 'node:fs';
-import { TREZOR_TRANSPORT_BRIDGE_PORT } from './constants';
+import path from 'node:path';
 
 export interface SidecarManagerOptions {
-  /** Path to @trezor/transport-bridge's bin.js. */
-  bridgeBin?: string;
   /** Port for the static iframe-asset server. Default 8088. */
   assetServerPort?: number;
   /** Path to the connect-web iframe assets directory. */
   assetDir?: string;
-  /** Delay (ms) to wait for the bridge to bind. Default 2000. Set 0 in tests. */
-  bridgeStartupDelayMs?: number;
-  /** Injectable for tests. */
-  forkFn?: (modulePath: string, args?: string[], options?: any) => any;
 }
 
 export interface TrezorSidecarManager {
@@ -26,23 +18,11 @@ export interface TrezorSidecarManager {
 export function createSidecarManager(
   opts: SidecarManagerOptions = {},
 ): TrezorSidecarManager {
-  const bridgeBin =
-    opts.bridgeBin ??
-    path.join(
-      __dirname,
-      '../../../../node_modules/@trezor/transport-bridge/dist/bin.js',
-    );
   const assetPort = opts.assetServerPort ?? 8088;
   const assetDir =
     opts.assetDir ??
-    path.join(
-      __dirname,
-      '../../../../node_modules/@trezor/connect-web-iface',
-    );
-  const forkFn = opts.forkFn ?? fork;
-  const startupDelay = opts.bridgeStartupDelayMs ?? 2000;
+    path.join(__dirname, '../../../../test/e2e/trezor/iframe-assets');
 
-  let bridgeProcess: ChildProcess | null = null;
   let assetServer: http.Server | null = null;
   let running = false;
 
@@ -52,16 +32,13 @@ export function createSidecarManager(
         return reject(
           new Error(
             `connect-web iframe assets not found at ${assetDir}. ` +
-              `Run the iframe-asset fetcher first (see spec §5.3).`,
+              `Run the iframe-asset fetcher first.`,
           ),
         );
       }
       assetServer = http.createServer((req, res) => {
-        // match connect-web's expected structure: /iframe.html, /js/, /popup.html
-        const filePath = path.join(
-          assetDir,
-          req.url === '/' ? 'iframe.html' : req.url ?? '',
-        );
+        const url = req.url === '/' ? '/iframe.html' : req.url ?? '';
+        const filePath = path.join(assetDir, url);
         if (!filePath.startsWith(assetDir)) {
           res.writeHead(403);
           res.end();
@@ -86,29 +63,12 @@ export function createSidecarManager(
           res.end();
         }
       });
-      assetServer!.listen(assetPort, () => resolve());
+      assetServer.listen(assetPort, () => resolve());
     });
 
   return {
     async start() {
-      // 1. Start transport-bridge in UDP mode
-      const bp = forkFn(bridgeBin, ['udp'], {
-        stdio: 'pipe',
-        env: { ...process.env },
-      });
-      bridgeProcess = bp;
-      bp.on('error', (err: Error) => {
-        console.error('[sidecar] transport-bridge error:', err.message);
-      });
-
-      // 2. Wait for the bridge to bind
-      if (startupDelay > 0) {
-        await new Promise((res) => setTimeout(res, startupDelay));
-      }
-
-      // 3. Start the iframe-asset server
       await serveAssets();
-
       running = true;
     },
 
@@ -116,10 +76,6 @@ export function createSidecarManager(
       if (assetServer) {
         await new Promise<void>((res) => assetServer!.close(() => res()));
         assetServer = null;
-      }
-      if (bridgeProcess && bridgeProcess.connected) {
-        bridgeProcess.kill();
-        bridgeProcess = null;
       }
       running = false;
     },

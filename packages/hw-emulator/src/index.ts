@@ -114,8 +114,6 @@ export {
   type SidecarManagerOptions,
   getTrezorConnectSrcInjectionScript,
   TrezorDockerManager,
-  type DockerManagerOptions,
-  type DockerRunner,
   TrezorDeviceInteraction,
   type DeviceInteraction as TrezorDeviceInteractionType,
   MODEL_PROFILES,
