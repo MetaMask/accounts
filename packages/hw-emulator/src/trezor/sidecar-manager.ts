@@ -63,11 +63,16 @@ export function createSidecarManager(
           res.end();
         }
       });
-      assetServer.listen(assetPort, () => resolve());
+      assetServer.listen(assetPort, '127.0.0.1', () => resolve());
     });
 
   return {
     async start() {
+      // Close any existing server (from a previous run or retry)
+      if (assetServer) {
+        await new Promise<void>((res) => assetServer!.close(() => res()));
+        assetServer = null;
+      }
       await serveAssets();
       running = true;
     },

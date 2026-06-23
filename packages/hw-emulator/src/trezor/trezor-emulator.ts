@@ -94,8 +94,22 @@ export class TrezorEmulator implements HardwareWalletEmulator {
 
   async start(): Promise<void> {
     await this.#docker.start();
-    await this.#controller.connect();
-    await this.#controller.ping();
+
+    // Wait for the controller to become available (Docker startup takes 30+ s)
+    for (let attempt = 0; attempt < 60; attempt++) {
+      try {
+        await this.#controller.connect();
+        await this.#controller.ping();
+        break;
+      } catch {
+        await this.#controller.disconnect().catch(() => {});
+        if (attempt === 59) {
+          throw new Error('Controller not reachable within 120s');
+        }
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    }
+
     await this.#controller.emulatorStart({
       model: this.#model,
       wipe: true,
@@ -106,7 +120,7 @@ export class TrezorEmulator implements HardwareWalletEmulator {
       passphrase_protection: false,
       label: this.#label,
     });
-    await this.#controller.bridgeStart();
+    await this.#controller.bridgeStart('node-bridge');
     await this.#sidecar.start();
     this.#interaction = new TrezorDeviceInteraction(
       this.#controller,

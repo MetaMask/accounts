@@ -108,8 +108,8 @@ export class TrezorControllerClient {
   emulatorSetup(p: SetupParams): Promise<unknown> {
     return this.#send({ type: 'emulator-setup', ...p });
   }
-  bridgeStart(): Promise<unknown> {
-    return this.#send({ type: 'bridge-start' });
+  bridgeStart(version?: string): Promise<unknown> {
+    return this.#send({ type: 'bridge-start', version });
   }
   bridgeStop(): Promise<unknown> {
     return this.#send({ type: 'bridge-stop' });
