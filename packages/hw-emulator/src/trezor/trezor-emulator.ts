@@ -121,6 +121,8 @@ export class TrezorEmulator implements HardwareWalletEmulator {
       label: this.#label,
     });
     await this.#controller.bridgeStart('node-bridge');
+    // Wait for the bridge HTTP server to bind inside the container
+    await new Promise((r) => setTimeout(r, 5000));
     await this.#sidecar.start();
     this.#interaction = new TrezorDeviceInteraction(
       this.#controller,
