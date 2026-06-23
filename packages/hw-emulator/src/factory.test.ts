@@ -24,10 +24,23 @@ describe('createEmulator', () => {
     expect(emu.isRunning()).toBe(false);
   });
 
-  it('throws for trezor (not yet implemented)', () => {
-    expect(() => createEmulator(EmulatorType.Trezor)).toThrow(
-      'Trezor emulator is not yet implemented',
-    );
+  it('creates a Trezor emulator with mock injections', () => {
+    const emu = createEmulator(EmulatorType.Trezor, {
+      docker: { start: async () => {}, stop: async () => {} },
+      controller: {
+        connect: async () => {}, disconnect: async () => {},
+        ping: async () => ({}),
+        emulatorStart: async () => ({}),
+        emulatorSetup: async () => ({}),
+        bridgeStart: async () => ({}),
+        pressYes: async () => ({}), pressNo: async () => ({}),
+        click: async () => ({}), swipe: async () => ({}),
+        input: async () => ({}), getScreenshot: async () => Buffer.alloc(0),
+      },
+      sidecarManager: { start: async () => {}, stop: async () => {}, isRunning: () => false },
+    } as Record<string, unknown>);
+    expect(emu).toBeDefined();
+    expect(emu.isRunning()).toBe(false);
   });
 
   it('throws for unknown emulator type', () => {

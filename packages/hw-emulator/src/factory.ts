@@ -2,6 +2,8 @@ import type { SpeculosOptions } from './ledger/speculos';
 import { Speculos } from './ledger/speculos';
 import type { QrEmulatorOptions } from './qr';
 import { QrEmulator } from './qr';
+import type { TrezorEmulatorOptions } from './trezor';
+import { TrezorEmulator } from './trezor';
 import { EmulatorType } from './types';
 import type {
   EmulatorType as EmulatorTypeValue,
@@ -40,7 +42,7 @@ export function createEmulator(
     case EmulatorType.Qr:
       return new QrEmulator(options as QrEmulatorOptions);
     case EmulatorType.Trezor:
-      throw new Error('Trezor emulator is not yet implemented');
+      return new TrezorEmulator(options as unknown as TrezorEmulatorOptions);
     default:
       throw new Error(`Unknown emulator type: ${String(type)}`);
   }
