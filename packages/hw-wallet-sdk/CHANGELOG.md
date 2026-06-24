@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `KEYRING_ERROR_MAPPINGS` with `DeviceStateOnlyV4Supported` for keyring-level typed data version validation ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `KEYRING_ERROR_MAPPINGS` with `DeviceStateOnlyV4Supported` for keyring-level typed data version validation ([#575](https://github.com/MetaMask/accounts/pull/575))
 
 ## [0.8.0]
 
