@@ -133,6 +133,94 @@ describe('handleTrezorTransportError', () => {
     );
   });
 
+  it.each([
+    {
+      tc: 'user cancelled action message',
+      input: new Error('User cancelled action'),
+      code: ErrorCode.UserCancelled,
+    },
+    {
+      tc: 'action cancelled by user message',
+      input: new Error('Action cancelled by user'),
+      code: ErrorCode.UserCancelled,
+    },
+    {
+      tc: 'action canceled by user message',
+      input: new Error('Action canceled by user'),
+      code: ErrorCode.UserCancelled,
+    },
+    {
+      tc: 'failure_actioncancelled message',
+      input: new Error('failure_actioncancelled'),
+      code: ErrorCode.UserCancelled,
+    },
+    {
+      tc: 'user rejected message',
+      input: new Error('User rejected the request'),
+      code: ErrorCode.UserRejected,
+    },
+  ])('maps $tc to HardwareWalletError', ({ input, code }) => {
+    let thrownError: unknown;
+    try {
+      handleTrezorTransportError(input, fallbackMessage);
+    } catch (error) {
+      thrownError = error;
+    }
+
+    expect(thrownError).toBeInstanceOf(HardwareWalletError);
+    expect((thrownError as HardwareWalletError).code).toBe(code);
+  });
+
+  it('maps nested cancellation cause to UserCancelled', () => {
+    const originalError = new Error('Wrapped error');
+    Object.assign(originalError, {
+      cause: new Error('Action cancelled by user'),
+    });
+
+    let thrownError: unknown;
+    try {
+      handleTrezorTransportError(originalError, fallbackMessage);
+    } catch (error) {
+      thrownError = error;
+    }
+
+    expect(thrownError).toBeInstanceOf(HardwareWalletError);
+    expect((thrownError as HardwareWalletError).code).toBe(
+      ErrorCode.UserCancelled,
+    );
+  });
+
+  it('maps numeric error codes when present', () => {
+    const error = new Error('error') as Error & { code: number };
+    error.code = 4001;
+
+    let thrownError: unknown;
+    try {
+      handleTrezorTransportError(error, fallbackMessage);
+    } catch (error_) {
+      thrownError = error_;
+    }
+
+    expect(thrownError).toBeInstanceOf(HardwareWalletError);
+    expect((thrownError as HardwareWalletError).code).toBe(
+      ErrorCode.UserCancelled,
+    );
+  });
+
+  it('maps string rejection inputs to HardwareWalletError', () => {
+    let thrownError: unknown;
+    try {
+      handleTrezorTransportError('User rejected the request', fallbackMessage);
+    } catch (error) {
+      thrownError = error;
+    }
+
+    expect(thrownError).toBeInstanceOf(HardwareWalletError);
+    expect((thrownError as HardwareWalletError).code).toBe(
+      ErrorCode.UserRejected,
+    );
+  });
+
   it.each([null, undefined, 'string error', { message: 'not an error' }])(
     'uses fallback for non-Error input: %p',
     (value) => {

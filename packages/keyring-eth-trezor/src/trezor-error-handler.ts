@@ -3,6 +3,7 @@ import {
   Severity,
   Category,
   HardwareWalletError,
+  resolveUserRejectionErrorCode,
 } from '@metamask/hw-wallet-sdk';
 
 import { createTrezorError, isKnownTrezorError } from './trezor-errors';
@@ -11,6 +12,14 @@ type ErrorDetails = {
   message?: string;
   code?: string;
   name?: string;
+};
+
+const USER_REJECTION_TREZOR_IDENTIFIERS: Record<
+  ErrorCode.UserCancelled | ErrorCode.UserRejected,
+  string
+> = {
+  [ErrorCode.UserCancelled]: 'Failure_ActionCancelled',
+  [ErrorCode.UserRejected]: 'Method_PermissionsNotGranted',
 };
 
 function getErrorDetails(error: Error): ErrorDetails {
@@ -23,6 +32,8 @@ function getErrorDetails(error: Error): ErrorDetails {
     const { code } = error as Error & { code?: unknown };
     if (typeof code === 'string') {
       details.code = code;
+    } else if (typeof code === 'number') {
+      details.code = String(code);
     }
   }
 
@@ -55,6 +66,14 @@ export function handleTrezorTransportError(
       throw createTrezorError(identifier, details.message);
     }
 
+    const userRejectionCode = resolveUserRejectionErrorCode(error);
+    if (userRejectionCode !== undefined) {
+      throw createTrezorError(
+        USER_REJECTION_TREZOR_IDENTIFIERS[userRejectionCode],
+        details.message,
+      );
+    }
+
     throw new HardwareWalletError(details.message ?? fallbackMessage, {
       code: ErrorCode.Unknown,
       severity: Severity.Err,
@@ -62,6 +81,13 @@ export function handleTrezorTransportError(
       userMessage: details.message ?? fallbackMessage,
       cause: error,
     });
+  }
+
+  const userRejectionCode = resolveUserRejectionErrorCode(error);
+  if (userRejectionCode !== undefined) {
+    throw createTrezorError(
+      USER_REJECTION_TREZOR_IDENTIFIERS[userRejectionCode],
+    );
   }
 
   throw new HardwareWalletError(fallbackMessage, {

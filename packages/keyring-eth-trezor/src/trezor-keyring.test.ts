@@ -605,7 +605,7 @@ describe('TrezorKeyring', function () {
       expect(ethereumSignMessageStub.calledOnce).toBe(true);
     });
 
-    it('converts message-only failures to ErrorCode.Unknown', async function () {
+    it('converts user cancellation failures to ErrorCode.UserCancelled', async function () {
       const ethereumSignMessageStub = sinon.stub().resolves({
         success: false,
         payload: { error: 'User cancelled action' },
@@ -618,7 +618,8 @@ describe('TrezorKeyring', function () {
       await expect(
         keyring.signPersonalMessage(fakeAccounts[0], 'some msg'),
       ).rejects.toMatchObject({
-        code: ErrorCode.Unknown,
+        code: ErrorCode.UserCancelled,
+        userMessage: 'Action was cancelled on your Trezor device.',
       });
     });
   });

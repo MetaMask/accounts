@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Add shared user-rejection detection helpers so hardware wallet libraries can classify cancellation-like errors consistently ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [0.8.0]
 
 ### Added
