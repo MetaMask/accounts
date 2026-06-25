@@ -1,5 +1,6 @@
 import type { Infer } from '@metamask/superstruct';
-import { array, literal, object } from '@metamask/superstruct';
+import { array, literal } from '@metamask/superstruct';
+import { object } from '@metamask/keyring-utils';
 
 import { CaipChainIdStruct } from './caip';
 import { DerivationPathStruct } from './derivation';

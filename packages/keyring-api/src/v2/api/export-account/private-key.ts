@@ -1,5 +1,6 @@
-import { literal, object, string } from '@metamask/superstruct';
+import { literal, string } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
+import { object, sensitive } from '@metamask/keyring-utils';
 
 import { PrivateKeyEncodingStruct } from '../private-key';
 
@@ -14,7 +15,7 @@ export const PrivateKeyExportedAccountStruct = object({
   /**
    * The private key of the exported account.
    */
-  privateKey: string(),
+  privateKey: sensitive(string()),
   /**
    * The encoding of the exported private key.
    */

@@ -1,5 +1,5 @@
 import type { Infer } from '@metamask/superstruct';
-import { object } from '@metamask/superstruct';
+import { object } from '@metamask/keyring-utils';
 import { CaipAccountIdStruct } from '@metamask/utils';
 
 /**
