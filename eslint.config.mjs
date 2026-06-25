@@ -156,6 +156,12 @@ const config = createConfig([
               message:
                 "Import object() from '@metamask/keyring-utils' instead — it supports exactOptional() and sensitive() field redaction.",
             },
+            {
+              name: '@metamask/superstruct',
+              importNames: ['exactOptional'],
+              message:
+                "Import exactOptional() from '@metamask/keyring-utils' instead — mixing superstruct's exactOptional with keyring-utils' object() breaks ExactOptionalize and makes optional fields appear required.",
+            },
           ],
         },
       ],
