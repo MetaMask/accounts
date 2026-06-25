@@ -152,10 +152,7 @@ function withRedactedBranch(
     },
     // Propagate branch redaction recursively so that failures originating from
     // any depth inside a sibling struct are also sanitised.
-    *entries(
-      value: unknown,
-      context: Context,
-    ): ReturnType<Struct['entries']> {
+    *entries(value: unknown, context: Context): ReturnType<Struct['entries']> {
       for (const entry of struct.entries(value, context)) {
         const [fieldKey, fieldValue, fieldStruct] = entry;
         // Array structs appear only in tuple types and do not carry the same
@@ -170,7 +167,11 @@ function withRedactedBranch(
             // by TypeScript's entries tuple inference, which does not match
             // AnyStruct (Struct<any,any>) exactly. The cast is safe because both
             // shapes represent untyped structs and behave identically at runtime.
-            withRedactedBranch(fieldStruct as AnyStruct, parentObj, sensitiveKeys),
+            withRedactedBranch(
+              fieldStruct as AnyStruct,
+              parentObj,
+              sensitiveKeys,
+            ),
           ];
         }
       }
@@ -250,7 +251,10 @@ export function object<Schema extends ObjectSchema>(
   // `as unknown as` is required because our ObjectType differs from
   // superstruct's own ObjectType (it supports ExactOptional), and the two
   // types are not directly comparable without an intermediate unknown cast.
-  const base = stObject(schema) as unknown as Struct<ObjectType<Schema>, Schema>;
+  const base = stObject(schema) as unknown as Struct<
+    ObjectType<Schema>,
+    Schema
+  >;
 
   // `schema[key]` can theoretically be undefined when the compiler has
   // noUncheckedIndexedAccess enabled, even though Object.keys only returns
@@ -271,10 +275,7 @@ export function object<Schema extends ObjectSchema>(
   // contains secret values.
   return new Struct({
     ...base,
-    *entries(
-      value: unknown,
-      context: Context,
-    ): ReturnType<Struct['entries']> {
+    *entries(value: unknown, context: Context): ReturnType<Struct['entries']> {
       for (const entry of base.entries(value, context)) {
         const [fieldKey, fieldValue, fieldStruct] = entry;
         if (Array.isArray(fieldStruct)) {

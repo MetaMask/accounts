@@ -1,6 +1,6 @@
+import { object, sensitive } from '@metamask/keyring-utils';
 import { literal, string } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
-import { object, sensitive } from '@metamask/keyring-utils';
 
 import { PrivateKeyEncodingStruct } from '../private-key';
 

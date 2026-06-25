@@ -1,6 +1,6 @@
+import { object } from '@metamask/keyring-utils';
 import { literal, number, string } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
-import { object } from '@metamask/keyring-utils';
 
 import { DerivationPathStruct } from '../../../api/derivation';
 

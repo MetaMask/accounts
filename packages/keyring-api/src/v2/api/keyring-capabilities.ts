@@ -1,5 +1,5 @@
-import { array, boolean, nonempty, partial } from '@metamask/superstruct';
 import { exactOptional, object } from '@metamask/keyring-utils';
+import { array, boolean, nonempty, partial } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 
 import { CaipChainIdStruct } from '../../api/caip';
