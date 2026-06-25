@@ -28,6 +28,7 @@ export type ExactOptionalTag = {
 /**
  * Exclude type `Type` from the properties of `Obj`.
  *
+ * @example
  * ```ts
  * type Foo = { a: string | null; b: number };
  * type Bar = ExcludeType<Foo, null>;
@@ -41,10 +42,11 @@ export type ExcludeType<Obj, Type> = {
 /**
  * Make optional all properties that have the `ExactOptionalTag` type.
  *
+ * @example
  * ```ts
- * type Foo = { a: string | ExactOptionalTag; b: number};
+ * type Foo = { a: string | ExactOptionalTag; b: number };
  * type Bar = ExactOptionalize<Foo>;
- * // Bar = { a?: string; b: number}
+ * // Bar = { a?: string; b: number }
  * ```
  */
 export type ExactOptionalize<Schema extends object> = OmitBy<
@@ -62,7 +64,7 @@ export type ObjectType<Schema extends ObjectSchema> = Simplify<
 
 export const SENSITIVE_REDACTED = '***';
 
-// Tracks which struct instances were created by `sensitive()`. Using a WeakSet
+// Tracks which struct instances were created by `sensitive()`. Using a `WeakSet`
 // avoids mutating the struct object itself and does not prevent garbage
 // collection when a struct goes out of scope.
 const sensitiveStructs = new WeakSet<AnyStruct>();
@@ -138,10 +140,10 @@ function withRedactedBranch(
     }
   }
 
-  // `as unknown as AnyStruct` is necessary because the Struct constructor
+  // `as unknown as AnyStruct` is necessary because the `Struct` constructor
   // infers `Type = unknown` when the generics cannot be resolved from the
-  // spread of an AnyStruct, producing Struct<unknown, ...> which is not
-  // directly assignable to Struct<any, ...> (AnyStruct) without the cast.
+  // spread of an `AnyStruct`, producing `Struct<unknown, ...>` which is not
+  // directly assignable to `Struct<any, ...>` (`AnyStruct`) without the cast.
   return new Struct({
     ...struct,
     validator(value, context): ReturnType<Struct['validator']> {
@@ -155,9 +157,9 @@ function withRedactedBranch(
     *entries(value: unknown, context: Context): ReturnType<Struct['entries']> {
       for (const entry of struct.entries(value, context)) {
         const [fieldKey, fieldValue, fieldStruct] = entry;
-        // The superstruct entries type allows AnyStruct | AnyStruct[], but in
-        // practice object() never yields an array — it is a type-level guard
-        // for future or exotic struct types.
+        // The superstruct `entries` type allows `AnyStruct | AnyStruct[]`, but
+        // in practice `object()` never yields an array - it is a type-level
+        // guard for future or exotic struct types.
         // istanbul ignore next
         if (Array.isArray(fieldStruct)) {
           yield entry;
@@ -165,9 +167,9 @@ function withRedactedBranch(
           yield [
             fieldKey,
             fieldValue,
-            // `fieldStruct` is typed as Struct<any,unknown>|Struct<never,unknown>
+            // `fieldStruct` is typed as `Struct<any, unknown> | Struct<never, unknown>`
             // by TypeScript's entries tuple inference, which does not match
-            // AnyStruct (Struct<any,any>) exactly. The cast is safe because both
+            // `AnyStruct` (`Struct<any, any>`) exactly. The cast is safe because both
             // shapes represent untyped structs and behave identically at runtime.
             withRedactedBranch(
               fieldStruct as AnyStruct,
@@ -192,11 +194,12 @@ function withRedactedBranch(
  * their branch. This does **not** apply when using superstruct's own `object()`
  * directly, since that function is unaware of the sensitive marker.
  *
+ * @example
  * ```ts
  * const MyStruct = object({ privateKey: sensitive(string()) });
  * assert({ privateKey: 123 }, MyStruct);
  * // throws: At path: privateKey -- Expected a value of type `string`,
- * //         but received: `[REDACTED]`
+ * //         but received: `***`
  * ```
  *
  * @param struct - The struct to wrap.
@@ -217,9 +220,9 @@ export function sensitive<Type, Schema>(
     }
   }
 
-  // `as unknown as Struct<Type, Schema>` is necessary because the Struct
-  // constructor loses the generic Type parameter when the result is stored in
-  // a variable (it infers Struct<unknown, Schema> from the spread), so we must
+  // `as unknown as Struct<Type, Schema>` is necessary because the `Struct`
+  // constructor loses the generic `Type` parameter when the result is stored in
+  // a variable (it infers `Struct<unknown, Schema>` from the spread), so we must
   // reassert the type we know is correct.
   const wrapped = new Struct({
     ...struct,
@@ -231,7 +234,7 @@ export function sensitive<Type, Schema>(
     },
   }) as unknown as Struct<Type, Schema>;
 
-  // Register the wrapped struct so that object() can detect which schema keys
+  // Register the wrapped struct so that `object()` can detect which schema keys
   // are sensitive and patch sibling-field failures accordingly.
   sensitiveStructs.add(wrapped as AnyStruct);
   return wrapped;
@@ -250,23 +253,23 @@ export function sensitive<Type, Schema>(
 export function object<Schema extends ObjectSchema>(
   schema: Schema,
 ): Struct<ObjectType<Schema>, Schema> {
-  // `as unknown as` is required because our ObjectType differs from
-  // superstruct's own ObjectType (it supports ExactOptional), and the two
-  // types are not directly comparable without an intermediate unknown cast.
+  // `as unknown as` is required because our `ObjectType` differs from
+  // superstruct's own `ObjectType` (it supports `ExactOptional`), and the two
+  // types are not directly comparable without an intermediate `unknown` cast.
   const base = stObject(schema) as unknown as Struct<
     ObjectType<Schema>,
     Schema
   >;
 
-  // `schema[key]` can theoretically be undefined when the compiler has
-  // noUncheckedIndexedAccess enabled, even though Object.keys only returns
+  // `schema[key]` can theoretically be `undefined` when the compiler has
+  // `noUncheckedIndexedAccess` enabled, even though `Object.keys` only returns
   // keys that exist in the object. The explicit guard makes this safe.
   const sensitiveKeys = Object.keys(schema).filter((key) => {
     const fieldStruct = schema[key];
     return fieldStruct !== undefined && sensitiveStructs.has(fieldStruct);
   });
 
-  // No sensitive fields — return the base struct directly to avoid the
+  // No sensitive fields - return the base struct directly to avoid the
   // overhead of wrapping every entry.
   if (sensitiveKeys.length === 0) {
     return base;
@@ -280,8 +283,8 @@ export function object<Schema extends ObjectSchema>(
     *entries(value: unknown, context: Context): ReturnType<Struct['entries']> {
       for (const entry of base.entries(value, context)) {
         const [fieldKey, fieldValue, fieldStruct] = entry;
-        // See comment in withRedactedBranch.entries — array structs are a
-        // type-system possibility that object() never produces at runtime.
+        // See comment in `withRedactedBranch.entries` - array structs are a
+        // type-system possibility that `object()` never produces at runtime.
         // istanbul ignore next
         if (Array.isArray(fieldStruct)) {
           yield entry;
@@ -289,8 +292,8 @@ export function object<Schema extends ObjectSchema>(
           yield [
             fieldKey,
             fieldValue,
-            // Same inference mismatch as in withRedactedBranch — see that
-            // function's entries block for the explanation of this cast.
+            // Same inference mismatch as in `withRedactedBranch` - see that
+            // function's `entries` block for the explanation of this cast.
             withRedactedBranch(fieldStruct as AnyStruct, value, sensitiveKeys),
           ];
         }
@@ -331,6 +334,7 @@ function hasOptional(ctx: Context): boolean {
  * Augment a struct to allow exact-optional values. Exact-optional values can
  * be omitted but cannot be `undefined`.
  *
+ * @example
  * ```ts
  * const foo = object({ bar: exactOptional(string()) });
  * type Foo = Infer<typeof foo>;
