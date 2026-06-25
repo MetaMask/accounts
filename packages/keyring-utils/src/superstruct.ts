@@ -155,8 +155,10 @@ function withRedactedBranch(
     *entries(value: unknown, context: Context): ReturnType<Struct['entries']> {
       for (const entry of struct.entries(value, context)) {
         const [fieldKey, fieldValue, fieldStruct] = entry;
-        // Array structs appear only in tuple types and do not carry the same
-        // branch structure as object entries — pass them through unchanged.
+        // The superstruct entries type allows AnyStruct | AnyStruct[], but in
+        // practice object() never yields an array — it is a type-level guard
+        // for future or exotic struct types.
+        // istanbul ignore next
         if (Array.isArray(fieldStruct)) {
           yield entry;
         } else {
@@ -278,6 +280,9 @@ export function object<Schema extends ObjectSchema>(
     *entries(value: unknown, context: Context): ReturnType<Struct['entries']> {
       for (const entry of base.entries(value, context)) {
         const [fieldKey, fieldValue, fieldStruct] = entry;
+        // See comment in withRedactedBranch.entries — array structs are a
+        // type-system possibility that object() never produces at runtime.
+        // istanbul ignore next
         if (Array.isArray(fieldStruct)) {
           yield entry;
         } else {
