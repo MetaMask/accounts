@@ -7,8 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [23.4.0]
-
 ### Added
 
 - Use `sensitive(string())` for `privateKey` in `PrivateKeyExportedAccountStruct` to prevent raw private keys from leaking into validation error messages ([#577](https://github.com/MetaMask/accounts/pull/577))
