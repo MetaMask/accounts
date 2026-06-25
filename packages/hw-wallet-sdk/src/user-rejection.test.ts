@@ -1,4 +1,5 @@
-import { ErrorCode } from './hardware-errors-enums';
+import { HardwareWalletError } from './hardware-error';
+import { ErrorCode, Severity, Category } from './hardware-errors-enums';
 import {
   isUserRejectionLikeError,
   resolveUserRejectionErrorCode,
@@ -17,6 +18,28 @@ describe('isUserRejectionLikeError', () => {
 
   it('returns true for code 4001', () => {
     expect(isUserRejectionLikeError({ code: 4001 })).toBe(true);
+  });
+
+  it('returns false for HardwareWalletError ConnectionClosed', () => {
+    const error = new HardwareWalletError('Connection closed', {
+      code: ErrorCode.ConnectionClosed,
+      severity: Severity.Warning,
+      category: Category.Connection,
+      userMessage: 'Connection closed',
+    });
+
+    expect(isUserRejectionLikeError(error)).toBe(false);
+    expect(resolveUserRejectionErrorCode(error)).toBeUndefined();
+  });
+
+  it('returns false for serialized HardwareWalletError ConnectionClosed', () => {
+    expect(
+      isUserRejectionLikeError({
+        name: 'HardwareWalletError',
+        code: ErrorCode.ConnectionClosed,
+        message: 'Connection closed',
+      }),
+    ).toBe(false);
   });
 
   it('returns true for nested cause', () => {

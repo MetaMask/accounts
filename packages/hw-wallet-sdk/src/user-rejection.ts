@@ -1,4 +1,7 @@
+import { HardwareWalletError } from './hardware-error';
 import { ErrorCode } from './hardware-errors-enums';
+
+const PROVIDER_USER_REJECTED_CODE = 4001;
 
 const USER_REJECTION_PATTERN =
   /(?:\buser rejected\b|\baction cancelled\b|\bcancelled\b|\bcanceled\b|failure_actioncancelled)/iu;
@@ -31,10 +34,27 @@ function isUserRejectedString(value: string): boolean {
 type ErrorLikeObject = {
   code?: unknown;
   message?: unknown;
+  name?: unknown;
   stack?: unknown;
   cause?: unknown;
   originalError?: unknown;
 };
+
+function isHardwareWalletConnectionClosedError(error: object): boolean {
+  if (error instanceof HardwareWalletError) {
+    return error.code === ErrorCode.ConnectionClosed;
+  }
+
+  const errorObject = error as ErrorLikeObject;
+  return (
+    errorObject.name === 'HardwareWalletError' &&
+    errorObject.code === ErrorCode.ConnectionClosed
+  );
+}
+
+function isProviderUserRejectedCode(code: unknown): boolean {
+  return code === PROVIDER_USER_REJECTED_CODE;
+}
 
 /**
  * Recursively checks whether an error value represents a user rejection or
@@ -63,7 +83,11 @@ export function isUserRejectionLikeError(
 
   const errorObject = error as ErrorLikeObject;
 
-  if (errorObject.code === 4001) {
+  if (isHardwareWalletConnectionClosedError(error)) {
+    return false;
+  }
+
+  if (isProviderUserRejectedCode(errorObject.code)) {
     return true;
   }
 

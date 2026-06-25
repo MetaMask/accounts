@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Add shared user-rejection detection helpers so hardware wallet libraries can classify cancellation-like errors consistently ([#576](https://github.com/MetaMask/accounts/pull/576))
+  - Provider-style `4001` codes are distinguished from this SDK's `ConnectionClosed` error code.
 
 ## [0.8.0]
 
