@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `sensitive()` superstruct wrapper to redact sensitive values from validation errors ([#577](https://github.com/MetaMask/accounts/pull/577))
+  - Wrapping a struct with `sensitive()` replaces the value, message, and branch in any `StructError` with `'***'` to prevent secrets (private keys, mnemonics) from leaking into logs or external services.
+- Update `object()` to automatically redact sensitive sibling fields from `StructError.branch` when the schema contains `sensitive()`-wrapped fields ([#577](https://github.com/MetaMask/accounts/pull/577))
+
 ## [3.3.1]
 
 ### Fixed
