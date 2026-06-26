@@ -467,6 +467,9 @@ export const TREZOR_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
 /**
  * Keyring error mappings - static error data for keyring-level validation errors
  * that are not tied to a Ledger transport status code.
+ *
+ * TODO: Wire DeviceStateOnlyV4Supported into keyring-eth-trezor and keyring-eth-qr
+ * so all hardware keyrings throw HardwareWalletError for unsupported typed data versions.
  */
 export const KEYRING_ERROR_MAPPINGS: Partial<Record<ErrorCode, ErrorMapping>> =
   {

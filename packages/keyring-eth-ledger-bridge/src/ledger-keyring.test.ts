@@ -4,7 +4,7 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 import * as sigUtil from '@metamask/eth-sig-util';
-import { ErrorCode, HardwareWalletError } from '@metamask/hw-wallet-sdk';
+import { ErrorCode } from '@metamask/hw-wallet-sdk';
 import { bytesToHex, Hex, remove0x } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
@@ -1293,37 +1293,23 @@ describe('LedgerKeyring', function () {
       });
 
       it('throws an error if the signTypedData version is not v4', async function () {
-        let thrownError: unknown;
-        try {
-          await keyring.signTypedData(fakeAccounts[0], fixtureData, {
+        await expect(
+          keyring.signTypedData(fakeAccounts[0], fixtureData, {
             // @ts-expect-error we want to test an invalid version
             version: sigUtil.SignTypedDataVersion.V3,
-          });
-        } catch (error) {
-          thrownError = error;
-        }
-
-        expect(thrownError).toBeInstanceOf(HardwareWalletError);
-        expect((thrownError as HardwareWalletError).code).toBe(
-          ErrorCode.DeviceStateOnlyV4Supported,
-        );
-        expect((thrownError as HardwareWalletError).message).toBe(
-          'Ledger: Only version 4 of typed data signing is supported',
-        );
+          }),
+        ).rejects.toMatchObject({
+          code: ErrorCode.DeviceStateOnlyV4Supported,
+          message: 'Ledger: Only version 4 of typed data signing is supported',
+        });
       });
 
       it('throws an error if the version is not provided', async function () {
-        let thrownError: unknown;
-        try {
-          await keyring.signTypedData(fakeAccounts[0], fixtureData);
-        } catch (error) {
-          thrownError = error;
-        }
-
-        expect(thrownError).toBeInstanceOf(HardwareWalletError);
-        expect((thrownError as HardwareWalletError).code).toBe(
-          ErrorCode.DeviceStateOnlyV4Supported,
-        );
+        await expect(
+          keyring.signTypedData(fakeAccounts[0], fixtureData),
+        ).rejects.toMatchObject({
+          code: ErrorCode.DeviceStateOnlyV4Supported,
+        });
       });
 
       it('throws an error if the hdPath is not found', async function () {
