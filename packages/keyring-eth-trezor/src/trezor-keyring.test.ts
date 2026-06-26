@@ -9,7 +9,7 @@ import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { ErrorCode, HardwareWalletError } from '@metamask/hw-wallet-sdk';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
-import * as sinon from 'sinon';
+import { assert, restore, stub } from 'sinon';
 
 import { TrezorBridge } from './trezor-bridge';
 import { TrezorKeyring, TREZOR_CONNECT_MANIFEST } from './trezor-keyring';
@@ -100,7 +100,7 @@ describe('TrezorKeyring', function () {
   });
 
   afterEach(function () {
-    sinon.restore();
+    restore();
   });
 
   describe('Keyring.type', function () {
@@ -136,13 +136,13 @@ describe('TrezorKeyring', function () {
 
   describe('init', function () {
     it('initialises the bridge', async function () {
-      const initStub = sinon.stub().resolves();
+      const initStub = stub().resolves();
       bridge.init = initStub;
 
       await keyring.init();
 
       expect(initStub.calledOnce).toBe(true);
-      sinon.assert.calledWithExactly(initStub, {
+      assert.calledWithExactly(initStub, {
         manifest: TREZOR_CONNECT_MANIFEST,
         lazyLoad: true,
       });
@@ -151,13 +151,13 @@ describe('TrezorKeyring', function () {
 
   describe('destroy', function () {
     it('calls dispose on bridge', async function () {
-      const disposeStub = sinon.stub().resolves();
+      const disposeStub = stub().resolves();
       bridge.dispose = disposeStub;
 
       await keyring.destroy();
 
       expect(disposeStub.calledOnce).toBe(true);
-      sinon.assert.calledWithExactly(disposeStub);
+      assert.calledWithExactly(disposeStub);
     });
   });
 
@@ -200,7 +200,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('should call TrezorConnect.getPublicKey if we dont have a public key', async function () {
-      const getPublicKeyStub = sinon.stub().resolves();
+      const getPublicKeyStub = stub().resolves();
       bridge.getPublicKey = getPublicKeyStub;
 
       keyring.hdk = new HDKey();
@@ -212,7 +212,7 @@ describe('TrezorKeyring', function () {
       }
 
       expect(getPublicKeyStub.calledOnce).toBe(true);
-      sinon.assert.calledWithExactly(getPublicKeyStub, {
+      assert.calledWithExactly(getPublicKeyStub, {
         path: `m/44'/60'/0'/0`,
         coin: 'ETH',
       });
@@ -404,18 +404,16 @@ describe('TrezorKeyring', function () {
 
   describe('signTransaction', function () {
     it('should pass serialized transaction to trezor and return signed tx', async function () {
-      const ethereumSignTransactionStub = sinon.stub().resolves({
+      const ethereumSignTransactionStub = stub().resolves({
         success: true,
         payload: { v: '0x1', r: '0x0', s: '0x0' },
       });
       bridge.ethereumSignTransaction = ethereumSignTransactionStub;
 
-      sinon.stub(fakeTx, 'verifySignature').callsFake(() => true);
-      sinon
-        .stub(fakeTx, 'getSenderAddress')
-        .callsFake(() =>
-          Buffer.from(Address.fromString(fakeAccounts[0]).bytes),
-        );
+      stub(fakeTx, 'verifySignature').callsFake(() => true);
+      stub(fakeTx, 'getSenderAddress').callsFake(() =>
+        Buffer.from(Address.fromString(fakeAccounts[0]).bytes),
+      );
 
       const returnedTx = await keyring.signTransaction(fakeAccounts[0], fakeTx);
       // assert that the v,r,s values got assigned to tx.
@@ -429,23 +427,23 @@ describe('TrezorKeyring', function () {
     });
 
     it('should pass serialized newer transaction to trezor and return signed tx', async function () {
-      sinon.stub(TransactionFactory, 'fromTxData').callsFake(() => {
+      stub(TransactionFactory, 'fromTxData').callsFake(() => {
         // without having a private key/public key pair in this test, we have
         // mock out this method and return the original tx because we can't
         // replicate r and s values without the private key.
         return newFakeTx;
       });
 
-      const ethereumSignTransactionStub = sinon.stub().resolves({
+      const ethereumSignTransactionStub = stub().resolves({
         success: true,
         payload: { v: '0x25', r: '0x0', s: '0x0' },
       });
       bridge.ethereumSignTransaction = ethereumSignTransactionStub;
 
-      sinon
-        .stub(newFakeTx, 'getSenderAddress')
-        .callsFake(() => Address.fromString(fakeAccounts[0]));
-      sinon.stub(newFakeTx, 'verifySignature').callsFake(() => true);
+      stub(newFakeTx, 'getSenderAddress').callsFake(() =>
+        Address.fromString(fakeAccounts[0]),
+      );
+      stub(newFakeTx, 'verifySignature').callsFake(() => true);
 
       const returnedTx = await keyring.signTransaction(
         fakeAccounts[0],
@@ -460,26 +458,24 @@ describe('TrezorKeyring', function () {
     });
 
     it('should pass serialized contract deployment transaction to trezor and return signed tx', async function () {
-      sinon.stub(TransactionFactory, 'fromTxData').callsFake(() => {
+      stub(TransactionFactory, 'fromTxData').callsFake(() => {
         // without having a private key/public key pair in this test, we have
         // mock out this method and return the original tx because we can't
         // replicate r and s values without the private key.
         return contractDeploymentFakeTx;
       });
 
-      const ethereumSignTransactionStub = sinon.stub().resolves({
+      const ethereumSignTransactionStub = stub().resolves({
         success: true,
         payload: { v: '0x25', r: '0x0', s: '0x0' },
       });
       bridge.ethereumSignTransaction = ethereumSignTransactionStub;
 
-      sinon
-        .stub(contractDeploymentFakeTx, 'getSenderAddress')
-        .callsFake(() => Address.fromString(fakeAccounts[0]));
+      stub(contractDeploymentFakeTx, 'getSenderAddress').callsFake(() =>
+        Address.fromString(fakeAccounts[0]),
+      );
 
-      sinon
-        .stub(contractDeploymentFakeTx, 'verifySignature')
-        .callsFake(() => true);
+      stub(contractDeploymentFakeTx, 'verifySignature').callsFake(() => true);
 
       const returnedTx = await keyring.signTransaction(
         fakeAccounts[0],
@@ -510,16 +506,16 @@ describe('TrezorKeyring', function () {
         s: '0x28b234a5403d31564e18258df84c51a62683e3f54fa2b106fdc1a9058006a112',
       };
       // Override actual address of 0x391535104b6e0Ea6dDC2AD0158aB3Fbd7F04ed1B
-      const fromTxDataStub = sinon.stub(TransactionFactory, 'fromTxData');
+      const fromTxDataStub = stub(TransactionFactory, 'fromTxData');
       fromTxDataStub.callsFake((...args) => {
         const tx = fromTxDataStub.wrappedMethod(...args);
-        sinon
-          .stub(tx, 'getSenderAddress')
-          .returns(Address.fromString(fakeAccounts[0]));
+        stub(tx, 'getSenderAddress').returns(
+          Address.fromString(fakeAccounts[0]),
+        );
         return tx;
       });
 
-      const ethereumSignTransactionStub = sinon.stub().resolves({
+      const ethereumSignTransactionStub = stub().resolves({
         success: true,
         payload: expectedRSV,
       });
@@ -531,7 +527,7 @@ describe('TrezorKeyring', function () {
       );
 
       expect(ethereumSignTransactionStub.calledOnce).toBe(true);
-      sinon.assert.calledWithExactly(ethereumSignTransactionStub, {
+      assert.calledWithExactly(ethereumSignTransactionStub, {
         path: "m/44'/60'/0'/0/0",
         transaction: {
           type: '0x2',
@@ -557,7 +553,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('converts message-only failures to ErrorCode.Unknown', async function () {
-      const ethereumSignTransactionStub = sinon.stub().resolves({
+      const ethereumSignTransactionStub = stub().resolves({
         success: false,
         payload: { error: 'Trezor device disconnected' },
       });
@@ -576,7 +572,7 @@ describe('TrezorKeyring', function () {
 
   describe('signMessage', function () {
     it('should call TrezorConnect.ethereumSignMessage', async function () {
-      const ethereumSignMessageStub = sinon.stub().resolves({});
+      const ethereumSignMessageStub = stub().resolves({});
       bridge.ethereumSignMessage = ethereumSignMessageStub;
 
       try {
@@ -592,7 +588,7 @@ describe('TrezorKeyring', function () {
 
   describe('signPersonalMessage', function () {
     it('should call TrezorConnect.ethereumSignMessage', async function () {
-      const ethereumSignMessageStub = sinon.stub().resolves({});
+      const ethereumSignMessageStub = stub().resolves({});
       bridge.ethereumSignMessage = ethereumSignMessageStub;
 
       try {
@@ -606,7 +602,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('converts user cancellation failures to ErrorCode.UserCancelled', async function () {
-      const ethereumSignMessageStub = sinon.stub().resolves({
+      const ethereumSignMessageStub = stub().resolves({
         success: false,
         payload: { error: 'User cancelled action' },
       });
@@ -624,7 +620,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('converts message-only failures to ErrorCode.Unknown', async function () {
-      const ethereumSignMessageStub = sinon.stub().resolves({
+      const ethereumSignMessageStub = stub().resolves({
         success: false,
         payload: { error: 'Trezor device disconnected' },
       });
@@ -643,7 +639,7 @@ describe('TrezorKeyring', function () {
 
   describe('signTypedData', function () {
     it('should throw an error on signTypedData_v3 because it is not supported', async function () {
-      const ethereumSignTypedDataStub = sinon.stub().resolves({
+      const ethereumSignTypedDataStub = stub().resolves({
         success: true,
         payload: { signature: '0x00', address: fakeAccounts[0] },
       });
@@ -676,7 +672,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('should call TrezorConnect.ethereumSignTypedData', async function () {
-      const ethereumSignTypedDataStub = sinon.stub().resolves({
+      const ethereumSignTypedDataStub = stub().resolves({
         success: true,
         payload: { signature: '0x00', address: fakeAccounts[0] },
       });
@@ -699,7 +695,7 @@ describe('TrezorKeyring', function () {
       );
 
       expect(ethereumSignTypedDataStub.calledOnce).toBe(true);
-      sinon.assert.calledWithExactly(ethereumSignTypedDataStub, {
+      assert.calledWithExactly(ethereumSignTypedDataStub, {
         path: "m/44'/60'/0'/0/0",
         data: {
           // Empty message that trezor-connect/EIP-712 spec accepts
@@ -717,7 +713,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('converts unknown typed-data signing failures to ErrorCode.Unknown', async function () {
-      const ethereumSignTypedDataStub = sinon.stub().resolves({
+      const ethereumSignTypedDataStub = stub().resolves({
         success: false,
         payload: { error: 'Unexpected bridge failure' },
       });
@@ -863,7 +859,7 @@ describe('TrezorKeyring', function () {
 
   describe('signMessage delegation', function () {
     it('delegates to signPersonalMessage', async function () {
-      const ethereumSignMessageStub = sinon.stub().resolves({
+      const ethereumSignMessageStub = stub().resolves({
         success: true,
         payload: { signature: 'signature', address: fakeAccounts[0] },
       });
@@ -878,7 +874,7 @@ describe('TrezorKeyring', function () {
 
   describe('signPersonalMessage error handling', function () {
     it('signs a personal message successfully', async function () {
-      const ethereumSignMessageStub = sinon.stub().resolves({
+      const ethereumSignMessageStub = stub().resolves({
         success: true,
         payload: { signature: 'signature', address: fakeAccounts[0] },
       });
@@ -894,7 +890,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('throws error when signature address does not match', async function () {
-      const ethereumSignMessageStub = sinon.stub().resolves({
+      const ethereumSignMessageStub = stub().resolves({
         success: true,
         payload: { signature: 'signature', address: fakeAccounts[1] },
       });
@@ -906,7 +902,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('converts non-address errors to HardwareWalletError', async function () {
-      const ethereumSignMessageStub = sinon.stub().resolves({
+      const ethereumSignMessageStub = stub().resolves({
         success: false,
         payload: { error: 'Device disconnected' },
       });
@@ -920,7 +916,7 @@ describe('TrezorKeyring', function () {
 
   describe('signTypedData error handling', function () {
     it('signs typed data successfully', async function () {
-      const ethereumSignTypedDataStub = sinon.stub().resolves({
+      const ethereumSignTypedDataStub = stub().resolves({
         success: true,
         payload: { signature: '0xsignature', address: fakeAccounts[0] },
       });
@@ -942,7 +938,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('throws error when signature address does not match', async function () {
-      const ethereumSignTypedDataStub = sinon.stub().resolves({
+      const ethereumSignTypedDataStub = stub().resolves({
         success: true,
         payload: { signature: '0xsignature', address: fakeAccounts[1] },
       });
@@ -963,7 +959,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('converts non-address errors to HardwareWalletError', async function () {
-      const ethereumSignTypedDataStub = sinon.stub().resolves({
+      const ethereumSignTypedDataStub = stub().resolves({
         success: false,
         payload: { error: 'Device disconnected' },
       });
@@ -986,7 +982,7 @@ describe('TrezorKeyring', function () {
 
   describe('unlock error handling', function () {
     it('handles unsuccessful response from getPublicKey', async function () {
-      const getPublicKeyStub = sinon.stub().resolves({
+      const getPublicKeyStub = stub().resolves({
         success: false,
         payload: { error: 'Device not connected' },
       });
@@ -998,9 +994,7 @@ describe('TrezorKeyring', function () {
     });
 
     it('converts unlock errors to HardwareWalletError', async function () {
-      const getPublicKeyStub = sinon
-        .stub()
-        .rejects(new Error('Transport error'));
+      const getPublicKeyStub = stub().rejects(new Error('Transport error'));
       bridge.getPublicKey = getPublicKeyStub;
 
       keyring.hdk = new HDKey();
@@ -1011,7 +1005,7 @@ describe('TrezorKeyring', function () {
 
   describe('signTransaction error handling', function () {
     it('throws HardwareWalletError on bridge failure', async function () {
-      const ethereumSignTransactionStub = sinon.stub().resolves({
+      const ethereumSignTransactionStub = stub().resolves({
         success: false,
         payload: { error: 'Device disconnected' },
       });
@@ -1023,17 +1017,15 @@ describe('TrezorKeyring', function () {
     });
 
     it('throws error when signature address does not match', async function () {
-      const ethereumSignTransactionStub = sinon.stub().resolves({
+      const ethereumSignTransactionStub = stub().resolves({
         success: true,
         payload: { v: '0x1', r: '0x0', s: '0x0' },
       });
       bridge.ethereumSignTransaction = ethereumSignTransactionStub;
 
-      sinon
-        .stub(fakeTx, 'getSenderAddress')
-        .callsFake(() =>
-          Buffer.from(Address.fromString(fakeAccounts[1]).bytes),
-        );
+      stub(fakeTx, 'getSenderAddress').callsFake(() =>
+        Buffer.from(Address.fromString(fakeAccounts[1]).bytes),
+      );
 
       await expect(
         keyring.signTransaction(fakeAccounts[0], fakeTx),

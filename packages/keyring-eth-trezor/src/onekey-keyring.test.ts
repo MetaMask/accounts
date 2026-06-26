@@ -1,5 +1,5 @@
 import HDKey from 'hdkey';
-import * as sinon from 'sinon';
+import { restore } from 'sinon';
 
 import { OneKeyKeyring } from './onekey-keyring';
 import { TrezorBridge } from './trezor-bridge';
@@ -20,7 +20,7 @@ describe('OneKeyKeyring', function () {
   });
 
   afterEach(function () {
-    sinon.restore();
+    restore();
   });
 
   it('extends TrezorKeyring', () => {
