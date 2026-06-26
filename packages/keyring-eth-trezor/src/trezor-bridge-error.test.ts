@@ -1,35 +1,53 @@
+import { ErrorCode, HardwareWalletError } from '@metamask/hw-wallet-sdk';
+
 import { createErrorFromTrezorResponse } from './trezor-bridge-error';
 
 describe('createErrorFromTrezorResponse', () => {
-  it('creates an error with the payload message', () => {
+  it('returns UserCancelled for cancellation messages', () => {
     const error = createErrorFromTrezorResponse({
       error: 'User cancelled action',
     });
 
-    expect(error).toBeInstanceOf(Error);
-    expect(error.message).toBe('User cancelled action');
-    expect('code' in error).toBe(false);
+    expect(error).toBeInstanceOf(HardwareWalletError);
+    expect(error.code).toBe(ErrorCode.UserCancelled);
+    expect(error.userMessage).toBe(
+      'Action was cancelled on your Trezor device.',
+    );
   });
 
-  it('attaches payload code when present', () => {
+  it('returns mapped error when payload code is present', () => {
     const error = createErrorFromTrezorResponse({
       error: 'User cancelled action',
       code: 'Method_Cancel',
-    }) as Error & { code?: string };
+    });
 
-    expect(error.message).toBe('User cancelled action');
-    expect(error.code).toBe('Method_Cancel');
+    expect(error).toBeInstanceOf(HardwareWalletError);
+    expect(error.code).toBe(ErrorCode.UserCancelled);
   });
 
-  it('uses Unknown error when payload is undefined', () => {
+  it('returns Unknown for non-cancellation message-only failures', () => {
+    const error = createErrorFromTrezorResponse({
+      error: 'Trezor device disconnected',
+    });
+
+    expect(error).toBeInstanceOf(HardwareWalletError);
+    expect(error.code).toBe(ErrorCode.Unknown);
+    expect(error.message).toBe('Trezor device disconnected');
+  });
+
+  it('returns Unknown when payload is undefined', () => {
     const error = createErrorFromTrezorResponse(undefined);
 
+    expect(error).toBeInstanceOf(HardwareWalletError);
+    expect(error.code).toBe(ErrorCode.Unknown);
     expect(error.message).toBe('Unknown error');
   });
 
-  it('uses Unknown error when payload has no error field', () => {
+  it('returns Unknown when payload has no error field', () => {
     const error = createErrorFromTrezorResponse({});
 
+    expect(error).toBeInstanceOf(HardwareWalletError);
+    expect(error.code).toBe(ErrorCode.Unknown);
     expect(error.message).toBe('Unknown error');
   });
 });

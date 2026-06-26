@@ -622,6 +622,23 @@ describe('TrezorKeyring', function () {
         userMessage: 'Action was cancelled on your Trezor device.',
       });
     });
+
+    it('converts message-only failures to ErrorCode.Unknown', async function () {
+      const ethereumSignMessageStub = sinon.stub().resolves({
+        success: false,
+        payload: { error: 'Trezor device disconnected' },
+      });
+      bridge.ethereumSignMessage = ethereumSignMessageStub;
+
+      await expect(
+        keyring.signPersonalMessage(fakeAccounts[0], 'some msg'),
+      ).rejects.toThrow(HardwareWalletError);
+      await expect(
+        keyring.signPersonalMessage(fakeAccounts[0], 'some msg'),
+      ).rejects.toMatchObject({
+        code: ErrorCode.Unknown,
+      });
+    });
   });
 
   describe('signTypedData', function () {

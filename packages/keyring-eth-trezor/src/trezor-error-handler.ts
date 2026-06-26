@@ -45,14 +45,14 @@ function getErrorDetails(error: Error): ErrorDetails {
  *
  * @param error - Error thrown from Trezor bridge or keyring flow.
  * @param fallbackMessage - Default message for unknown non-Error inputs.
- * @throws HardwareWalletError Always throws typed errors.
+ * @returns A typed hardware wallet error.
  */
-export function handleTrezorTransportError(
+export function convertToHardwareWalletError(
   error: unknown,
   fallbackMessage: string,
-): never {
+): HardwareWalletError {
   if (error instanceof HardwareWalletError) {
-    throw error;
+    return error;
   }
 
   if (error instanceof Error) {
@@ -63,18 +63,18 @@ export function handleTrezorTransportError(
     );
 
     if (identifier) {
-      throw createTrezorError(identifier, details.message);
+      return createTrezorError(identifier, details.message);
     }
 
     const userRejectionCode = resolveUserRejectionErrorCode(error);
     if (userRejectionCode !== undefined) {
-      throw createTrezorError(
+      return createTrezorError(
         USER_REJECTION_TREZOR_IDENTIFIERS[userRejectionCode],
         details.message,
       );
     }
 
-    throw new HardwareWalletError(details.message ?? fallbackMessage, {
+    return new HardwareWalletError(details.message ?? fallbackMessage, {
       code: ErrorCode.Unknown,
       severity: Severity.Err,
       category: Category.Unknown,
@@ -85,15 +85,29 @@ export function handleTrezorTransportError(
 
   const userRejectionCode = resolveUserRejectionErrorCode(error);
   if (userRejectionCode !== undefined) {
-    throw createTrezorError(
+    return createTrezorError(
       USER_REJECTION_TREZOR_IDENTIFIERS[userRejectionCode],
     );
   }
 
-  throw new HardwareWalletError(fallbackMessage, {
+  return new HardwareWalletError(fallbackMessage, {
     code: ErrorCode.Unknown,
     severity: Severity.Err,
     category: Category.Unknown,
     userMessage: fallbackMessage,
   });
+}
+
+/**
+ * Converts unknown Trezor errors into typed HardwareWalletError instances.
+ *
+ * @param error - Error thrown from Trezor bridge or keyring flow.
+ * @param fallbackMessage - Default message for unknown non-Error inputs.
+ * @throws HardwareWalletError Always throws typed errors.
+ */
+export function handleTrezorTransportError(
+  error: unknown,
+  fallbackMessage: string,
+): never {
+  throw convertToHardwareWalletError(error, fallbackMessage);
 }
