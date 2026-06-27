@@ -145,7 +145,7 @@ export class TrezorKeyring implements Keyring {
   async init(): Promise<void> {
     return this.bridge.init({
       manifest: TREZOR_CONNECT_MANIFEST,
-      lazyLoad: true,
+      lazyLoad: process.env.IN_TEST ? false : true,
     });
   }
 
