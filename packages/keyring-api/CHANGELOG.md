@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Use `sensitive(string())` for `privateKey` in `PrivateKeyExportedAccountStruct` to prevent raw private keys from leaking into validation error messages ([#577](https://github.com/MetaMask/accounts/pull/577))
+
+### Changed
+
+- Migrate all `object()` usages from `@metamask/superstruct` to `@metamask/keyring-utils` ([#577](https://github.com/MetaMask/accounts/pull/577))
+  - This ensures `sensitive()` field redaction and `exactOptional()` support are always active.
+
 ## [23.3.0]
 
 ### Added

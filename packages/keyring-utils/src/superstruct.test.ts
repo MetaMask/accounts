@@ -1,4 +1,4 @@
-import type { Struct } from '@metamask/superstruct';
+import type { Struct, StructError } from '@metamask/superstruct';
 import {
   assert,
   coerce,
@@ -7,12 +7,163 @@ import {
   literal,
   max,
   number,
+  refine,
   string,
   union,
 } from '@metamask/superstruct';
 import { isPlainObject } from '@metamask/utils';
 
-import { exactOptional, object, strictMask, selectiveUnion, type } from '.';
+import {
+  exactOptional,
+  object,
+  sensitive,
+  SENSITIVE_REDACTED,
+  strictMask,
+  selectiveUnion,
+  type,
+} from '.';
+
+describe('sensitive', () => {
+  const RAW_SECRET = '0xdeadbeef1234567890abcdef';
+
+  it('accepts a valid value', () => {
+    expect(is(RAW_SECRET, sensitive(string()))).toBe(true);
+  });
+
+  it('rejects an invalid value', () => {
+    expect(is(123, sensitive(string()))).toBe(false);
+  });
+
+  it('redacts the value in the error message', () => {
+    expect(() => assert(123, sensitive(string()))).toThrow(SENSITIVE_REDACTED);
+  });
+
+  it('does not expose the raw value in the error message', () => {
+    let error: StructError | undefined;
+    try {
+      assert(RAW_SECRET, sensitive(refine(string(), 'hex', () => false)));
+    } catch (caughtError) {
+      error = caughtError as StructError;
+    }
+    expect(error?.message).toContain(SENSITIVE_REDACTED);
+    expect(error?.message).not.toContain(RAW_SECRET);
+  });
+
+  it('redacts error.value', () => {
+    let error: StructError | undefined;
+    try {
+      assert(123, sensitive(string()));
+    } catch (caughtError) {
+      error = caughtError as StructError;
+    }
+    expect(error?.value).toBe(SENSITIVE_REDACTED);
+  });
+
+  it('does not expose the raw value in error.branch', () => {
+    let error: StructError | undefined;
+    try {
+      assert(123, sensitive(string()));
+    } catch (caughtError) {
+      error = caughtError as StructError;
+    }
+    expect(error?.branch).not.toContain(123);
+  });
+
+  it('redacts the value when used inside an object struct', () => {
+    const struct = object({ privateKey: sensitive(string()) });
+    let error: StructError | undefined;
+    try {
+      assert({ privateKey: 123 }, struct);
+    } catch (caughtError) {
+      error = caughtError as StructError;
+    }
+    expect(error?.message).toContain(SENSITIVE_REDACTED);
+    expect(error?.message).not.toContain('123');
+  });
+
+  it('redacts refinement failures', () => {
+    const hexString = sensitive(
+      refine(string(), 'hex', (str) => str.startsWith('0x') || 'not hex'),
+    );
+    let error: StructError | undefined;
+    try {
+      assert('not-a-hex-string', hexString);
+    } catch (caughtError) {
+      error = caughtError as StructError;
+    }
+    expect(error?.message).toContain(SENSITIVE_REDACTED);
+    expect(error?.message).not.toContain('not-a-hex-string');
+    expect(error?.value).toBe(SENSITIVE_REDACTED);
+  });
+
+  it('does not alter coercion behaviour', () => {
+    const struct = sensitive(string());
+    expect(is(RAW_SECRET, struct)).toBe(true);
+  });
+
+  describe('branch redaction for sibling fields via object()', () => {
+    const struct = object({
+      privateKey: sensitive(string()),
+      encoding: literal('hex'),
+    });
+
+    it('redacts the sensitive key from branch[0] when a sibling field fails', () => {
+      let error: StructError | undefined;
+      try {
+        assert({ privateKey: RAW_SECRET, encoding: 'invalid' }, struct);
+      } catch (caughtError) {
+        error = caughtError as StructError;
+      }
+      // The error is about `encoding`, not `privateKey`.
+      expect(error?.message).toContain('encoding');
+      // But the parent object at branch[0] must not expose the raw secret.
+      const parentInBranch = error?.branch[0] as Record<string, unknown>;
+      expect(parentInBranch?.privateKey).toBe(SENSITIVE_REDACTED);
+      expect(parentInBranch?.privateKey).not.toBe(RAW_SECRET);
+    });
+
+    it('redacts the sensitive key from every failure returned by error.failures()', () => {
+      let error: StructError | undefined;
+      try {
+        assert({ privateKey: RAW_SECRET, encoding: 'invalid' }, struct);
+      } catch (caughtError) {
+        error = caughtError as StructError;
+      }
+      // Collect every object appearing in any failure branch and assert that
+      // none of them expose the raw private key.
+      const allBranchItems = (error?.failures() ?? []).flatMap(
+        (failure) => failure.branch,
+      );
+      expect(allBranchItems).not.toContainEqual(
+        expect.objectContaining({ privateKey: RAW_SECRET }),
+      );
+    });
+
+    it('redacts the sensitive key from branch when a deeply nested sibling field fails', () => {
+      const nestedStruct = object({
+        privateKey: sensitive(string()),
+        // `meta` is a sibling whose inner field will fail validation.
+        meta: object({ tag: literal('valid') }),
+      });
+
+      let error: StructError | undefined;
+      try {
+        assert(
+          { privateKey: RAW_SECRET, meta: { tag: 'invalid' } },
+          nestedStruct,
+        );
+      } catch (caughtError) {
+        error = caughtError as StructError;
+      }
+      // The error path leads into the nested `meta.tag` field.
+      expect(error?.path).toContain('tag');
+      // The top-level parent at branch[0] must still have the key redacted.
+      const parentInBranch = error?.branch[0] as Record<string, unknown>;
+      expect(parentInBranch?.privateKey).toBe(SENSITIVE_REDACTED);
+      expect(parentInBranch?.privateKey).not.toBe(RAW_SECRET);
+    });
+  });
+});
 
 describe('exactOptional', () => {
   const simpleStruct = object({

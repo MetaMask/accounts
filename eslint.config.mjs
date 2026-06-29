@@ -138,6 +138,36 @@ const config = createConfig([
     },
   },
 
+  // @metamask/keyring-api
+  {
+    files: ['packages/keyring-api/src/**/*.ts'],
+    rules: {
+      // Prevent importing superstruct's `object` directly. The keyring-utils
+      // wrapper must be used instead: it supports `exactOptional()` fields and,
+      // critically, redacts sensitive() field values from sibling-failure
+      // branches so secrets never appear in error metadata.
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@metamask/superstruct',
+              importNames: ['object'],
+              message:
+                "Import object() from '@metamask/keyring-utils' instead — it supports exactOptional() and sensitive() field redaction.",
+            },
+            {
+              name: '@metamask/superstruct',
+              importNames: ['exactOptional'],
+              message:
+                "Import exactOptional() from '@metamask/keyring-utils' instead — mixing superstruct's exactOptional with keyring-utils' object() breaks ExactOptionalize and makes optional fields appear required.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
   // @metamask/keyring-eth-trezor
   {
     files: ['packages/keyring-eth-trezor/src/**/*.ts'],
