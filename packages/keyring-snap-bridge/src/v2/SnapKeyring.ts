@@ -32,7 +32,7 @@ import { equalsIgnoreCase } from '../util';
  * `deserialize`. Typed (no cast) so that adding a new required
  * `KeyringCapabilities` field surfaces here as a compile error.
  */
-const EMPTY_CAPABILITIES: KeyringCapabilities = { scopes: [] };
+const EMPTY_CAPABILITIES: KeyringCapabilities = Object.freeze({ scopes: [] });
 
 /**
  * Superstruct schema for {@link SnapKeyringState}.
