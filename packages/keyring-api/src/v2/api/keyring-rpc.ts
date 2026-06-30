@@ -99,7 +99,9 @@ export type GetAccountResponse = Infer<typeof GetAccountResponseStruct>;
 export const CreateAccountsRequestStruct = object({
   ...CommonHeader,
   method: literal(`${KeyringRpcMethod.CreateAccounts}`),
-  params: CreateAccountOptionsStruct,
+  params: object({
+    options: CreateAccountOptionsStruct,
+  }),
 });
 
 export type CreateAccountsRequest = Infer<typeof CreateAccountsRequestStruct>;

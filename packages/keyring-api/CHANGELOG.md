@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Wrap v2 `CreateAccountsRequestStruct` params in `options` to be wire-compatible with v1 ([#579](https://github.com/MetaMask/accounts/pull/579))
+
 ## [23.3.0]
 
 ### Added
