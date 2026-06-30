@@ -28,6 +28,13 @@ import type {
 import { equalsIgnoreCase } from '../util';
 
 /**
+ * Default, empty capabilities used until the snap manifest is read on
+ * `deserialize`. Typed (no cast) so that adding a new required
+ * `KeyringCapabilities` field surfaces here as a compile error.
+ */
+const EMPTY_CAPABILITIES: KeyringCapabilities = { scopes: [] };
+
+/**
  * Superstruct schema for {@link SnapKeyringState}.
  *
  * Accepts both v1 accounts (missing `scopes`) and v2 accounts so that
@@ -133,10 +140,8 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     this.#callbacks = options.callbacks;
     this.#lock = new Mutex();
 
-    // Default capabilities — parent updates this when snap metadata is available.
-    // We cast here because KeyringCapabilities requires a non-empty scopes array,
-    // but we don't have the snap metadata at construction time (e.g. during deserialization).
-    this.capabilities = { scopes: [] } as unknown as KeyringCapabilities;
+    // Default capabilities; replaced from the snap manifest on `deserialize`.
+    this.capabilities = EMPTY_CAPABILITIES;
   }
 
   /**
@@ -501,9 +506,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     // Refresh capabilities from the snap manifest on every deserialize, falling
     // back to the empty default so a re-hydrate clears any previously-loaded
     // capabilities when the snap no longer declares them.
-    this.capabilities =
-      this.#resolveKeyringCapabilities() ??
-      ({ scopes: [] } as unknown as KeyringCapabilities);
+    this.capabilities = this.#resolveKeyringCapabilities() ?? EMPTY_CAPABILITIES;
 
     // Migrate v1 accounts to v2.
     const migratedAccounts: Record<string, KeyringAccount> = {};
