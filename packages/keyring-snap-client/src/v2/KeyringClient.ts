@@ -80,7 +80,7 @@ export class KeyringClient implements KeyringRpc {
         jsonrpc: '2.0',
         id: uuid(),
         method: KeyringRpcMethod.CreateAccounts,
-        params,
+        params: { options: params },
       }),
       CreateAccountsResponseStruct,
     );

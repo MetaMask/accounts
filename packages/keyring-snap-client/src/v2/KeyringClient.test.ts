@@ -89,7 +89,7 @@ describe('KeyringClient', () => {
           jsonrpc: '2.0',
           id: expect.any(String),
           method: `${KeyringRpcMethod.CreateAccounts}`,
-          params: createAccountOptions,
+          params: { options: createAccountOptions },
         });
         expect(account).toStrictEqual(expectedResponse);
       });
