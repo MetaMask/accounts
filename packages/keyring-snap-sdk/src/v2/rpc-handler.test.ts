@@ -104,9 +104,11 @@ describe('handleKeyringRequest', () => {
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
       method: `${KeyringRpcMethod.CreateAccounts}`,
       params: {
-        type: 'bip44:derive-index',
-        groupIndex: 0,
-        entropySource: 'mock-entropy-source',
+        options: {
+          type: 'bip44:derive-index',
+          groupIndex: 0,
+          entropySource: 'mock-entropy-source',
+        },
       },
     };
 
@@ -114,8 +116,27 @@ describe('handleKeyringRequest', () => {
     keyring.createAccounts.mockResolvedValue(mockedResult);
     const result = await handleKeyringRequest(keyring, request);
 
-    expect(keyring.createAccounts).toHaveBeenCalledWith(request.params);
+    expect(keyring.createAccounts).toHaveBeenCalledWith(request.params.options);
     expect(result).toBe(mockedResult);
+  });
+
+  it('fails to call `keyring_v2_createAccounts` with unwrapped (flat) params', async () => {
+    const request = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringRpcMethod.CreateAccounts}`,
+      // Flat options (v1 shape) instead of `{ options }` — must be rejected.
+      params: {
+        type: 'bip44:derive-index',
+        groupIndex: 0,
+        entropySource: 'mock-entropy-source',
+      },
+    };
+
+    await expect(
+      handleKeyringRequest(keyring, request as unknown as JsonRpcRequest),
+    ).rejects.toThrow('At path: params.options');
+    expect(keyring.createAccounts).not.toHaveBeenCalled();
   });
 
   it('calls `keyring_v2_deleteAccount`', async () => {

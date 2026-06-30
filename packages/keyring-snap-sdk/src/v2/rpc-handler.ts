@@ -48,7 +48,7 @@ async function dispatchKeyringRequest(
 
     case `${KeyringRpcMethod.CreateAccounts}`: {
       assert(request, CreateAccountsRequestStruct);
-      return keyring.createAccounts(request.params);
+      return keyring.createAccounts(request.params.options);
     }
 
     case `${KeyringRpcMethod.DeleteAccount}`: {

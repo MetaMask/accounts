@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Read `params.options` for v2 `keyring_createAccounts` to match the wrapped request shape ([#579](https://github.com/MetaMask/accounts/pull/579))
+
 ## [9.0.2]
 
 ### Changed
