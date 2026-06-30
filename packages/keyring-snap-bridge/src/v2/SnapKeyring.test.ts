@@ -158,6 +158,34 @@ describe('SnapKeyring', () => {
       const keyring = await makeKeyringWithSnap(undefined);
       expect(keyring.capabilities).toStrictEqual({ scopes: [] });
     });
+
+    it('clears stale capabilities on a later deserialize without capabilities', async () => {
+      const snapWith = (keyringPermission: unknown): unknown => ({
+        manifest: {
+          initialPermissions: { 'endowment:keyring': keyringPermission },
+        },
+      });
+      const getSnap = jest
+        .fn()
+        .mockReturnValueOnce(snapWith({ capabilities: manifestCapabilities }))
+        .mockReturnValueOnce(snapWith({ allowedOrigins: [] }));
+      const messenger = {
+        call: jest.fn((action: string) =>
+          action === 'SnapController:getSnap' ? getSnap() : undefined,
+        ),
+        publish: jest.fn(),
+      } as unknown as SnapKeyringMessenger;
+      const keyring = new SnapKeyring({
+        messenger,
+        callbacks: makeMockCallbacks(),
+      });
+
+      await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+      expect(keyring.capabilities).toStrictEqual(manifestCapabilities);
+
+      await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+      expect(keyring.capabilities).toStrictEqual({ scopes: [] });
+    });
   });
 
   describe('initialization guard', () => {
