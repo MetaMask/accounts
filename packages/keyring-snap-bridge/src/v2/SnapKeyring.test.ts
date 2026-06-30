@@ -101,6 +101,65 @@ describe('SnapKeyring', () => {
     });
   });
 
+  describe('capabilities', () => {
+    const manifestCapabilities = {
+      scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+      bip44: { deriveIndex: true, deriveIndexRange: true, discover: true },
+    };
+
+    /**
+     * Build and deserialize a keyring whose messenger returns a snap with the
+     * given `endowment:keyring` permission value from `SnapController:getSnap`.
+     *
+     * @param keyringPermission - The `endowment:keyring` initial-permission value
+     * (or `undefined` to simulate a snap that is not found).
+     * @returns The deserialized keyring.
+     */
+    async function makeKeyringWithSnap(
+      keyringPermission: unknown,
+    ): Promise<SnapKeyring> {
+      const messenger = {
+        call: jest.fn((action: string) =>
+          action === 'SnapController:getSnap' && keyringPermission !== undefined
+            ? {
+                manifest: {
+                  initialPermissions: {
+                    'endowment:keyring': keyringPermission,
+                  },
+                },
+              }
+            : undefined,
+        ),
+        publish: jest.fn(),
+      } as unknown as SnapKeyringMessenger;
+      const keyring = new SnapKeyring({
+        messenger,
+        callbacks: makeMockCallbacks(),
+      });
+      await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+      return keyring;
+    }
+
+    it('populates capabilities from the snap manifest on deserialize', async () => {
+      const keyring = await makeKeyringWithSnap({
+        capabilities: manifestCapabilities,
+      });
+      expect(keyring.capabilities).toStrictEqual(manifestCapabilities);
+    });
+
+    it('keeps the empty default when the snap declares no capabilities', async () => {
+      const keyring = await makeKeyringWithSnap({
+        allowedOrigins: ['https://portfolio.metamask.io'],
+      });
+      expect(keyring.capabilities).toStrictEqual({ scopes: [] });
+    });
+
+    it('keeps the empty default when the snap cannot be found', async () => {
+      const keyring = await makeKeyringWithSnap(undefined);
+      expect(keyring.capabilities).toStrictEqual({ scopes: [] });
+    });
+  });
+
   describe('snapId', () => {
     it('returns the snap ID set during deserialize', async () => {
       const { keyring } = await makeKeyring();

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Populate v2 `SnapKeyring` `capabilities` from the Snap manifest (`endowment:keyring`) on `deserialize` ([#579](https://github.com/MetaMask/accounts/pull/579))
+
+### Changed
+
+- Bump `@metamask/snaps-utils` from `^12.1.3` to `^12.2.1` ([#579](https://github.com/MetaMask/accounts/pull/579))
+
 ## [22.3.0]
 
 ### Added

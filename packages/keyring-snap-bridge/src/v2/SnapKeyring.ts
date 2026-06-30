@@ -487,6 +487,12 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     // mismatch to prevent swapping a keyring's identity via deserialize).
     this.bindSnapId(state.snapId as SnapId);
 
+    const capabilities = this.#resolveKeyringCapabilities();
+
+    if (capabilities) {
+      this.capabilities = capabilities;
+    }
+
     // Migrate v1 accounts to v2.
     const migratedAccounts: Record<string, KeyringAccount> = {};
     for (const [id, rawAccount] of Object.entries(state.accounts)) {
@@ -513,4 +519,10 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
   // ──────────────────────────────────────────────
   // Private helpers
   // ──────────────────────────────────────────────
+
+  #resolveKeyringCapabilities(): KeyringCapabilities | undefined {
+    const snap = this.messenger.call('SnapController:getSnap', this.snapId);
+    return snap?.manifest.initialPermissions['endowment:keyring']
+      ?.capabilities as KeyringCapabilities | undefined;
+  }
 }
