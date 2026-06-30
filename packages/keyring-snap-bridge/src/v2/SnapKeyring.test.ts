@@ -160,6 +160,56 @@ describe('SnapKeyring', () => {
     });
   });
 
+  describe('initialization guard', () => {
+    const ERROR = 'SnapKeyring has not been initialized';
+
+    /**
+     * Build a `SnapKeyring` WITHOUT calling `deserialize`.
+     *
+     * @returns The uninitialized keyring.
+     */
+    function makeUninitializedKeyring(): SnapKeyring {
+      const messenger = {
+        call: jest.fn(),
+        publish: jest.fn(),
+      } as unknown as SnapKeyringMessenger;
+      return new SnapKeyring({ messenger, callbacks: makeMockCallbacks() });
+    }
+
+    it('rejects getAccounts before deserialize is called', async () => {
+      await expect(makeUninitializedKeyring().getAccounts()).rejects.toThrow(
+        ERROR,
+      );
+    });
+
+    it('rejects getAccount before deserialize is called', async () => {
+      await expect(
+        makeUninitializedKeyring().getAccount(account1.id),
+      ).rejects.toThrow(ERROR);
+    });
+
+    it('rejects createAccounts before deserialize is called', async () => {
+      await expect(
+        makeUninitializedKeyring().createAccounts({
+          type: 'bip44:derive-index',
+          entropySource: 'mock-entropy-source',
+          groupIndex: 0,
+        } as CreateAccountOptions),
+      ).rejects.toThrow(ERROR);
+    });
+
+    it('rejects deleteAccount before deserialize is called', async () => {
+      await expect(
+        makeUninitializedKeyring().deleteAccount(account1.id),
+      ).rejects.toThrow(ERROR);
+    });
+
+    it('allows operations after deserialize', async () => {
+      const { keyring } = await makeKeyring();
+      expect(await keyring.getAccounts()).toStrictEqual([]);
+    });
+  });
+
   describe('snapId', () => {
     it('returns the snap ID set during deserialize', async () => {
       const { keyring } = await makeKeyring();

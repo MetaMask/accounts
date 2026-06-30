@@ -108,6 +108,12 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    */
   readonly #lock: Mutex;
 
+  /**
+   * Whether `deserialize` has completed. Keyring operations are guarded against
+   * use before the keyring has been bound to a snap and its state loaded.
+   */
+  #initialized = false;
+
   // ──────────────────────────────────────────────
   // Keyring properties
   // ──────────────────────────────────────────────
@@ -172,6 +178,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns A promise that resolves to an array of all accounts.
    */
   async getAccounts(): Promise<KeyringAccount[]> {
+    this.#assertInitialized();
     return this.accounts();
   }
 
@@ -182,6 +189,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns A promise that resolves to the account.
    */
   async getAccount(accountId: AccountId): Promise<KeyringAccount> {
+    this.#assertInitialized();
     const account = this.lookupAccount(accountId);
     if (!account) {
       throw new Error(
@@ -209,6 +217,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
+    this.#assertInitialized();
     return this.#withLock(async () => {
       // Keep track of address/account ID part of this batch, to avoid having duplicates.
       const batchAddresses = new Set<string>();
@@ -294,6 +303,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @param accountId - ID of the account to delete.
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
+    this.#assertInitialized();
     // Always remove the account from the registry, even if the Snap is going to
     // fail to delete it. removeAccount fires onUnregister to clean #accountIndex.
     this.removeAccount(accountId);
@@ -338,6 +348,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
       params?: Json[] | Record<string, Json>;
     };
   }): Promise<Json> {
+    this.#assertInitialized();
     const account = this.lookupAccount(request.account);
     if (!account) {
       throw new Error(
@@ -514,11 +525,21 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     for (const account of Object.values(migratedAccounts)) {
       this.setAccount(account);
     }
+
+    this.#initialized = true;
   }
 
   // ──────────────────────────────────────────────
   // Private helpers
   // ──────────────────────────────────────────────
+
+  #assertInitialized(): void {
+    if (!this.#initialized) {
+      throw new Error(
+        'SnapKeyring has not been initialized: call deserialize() first',
+      );
+    }
+  }
 
   #resolveKeyringCapabilities(): KeyringCapabilities | undefined {
     const snap = this.messenger.call('SnapController:getSnap', this.snapId);
