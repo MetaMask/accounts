@@ -1,10 +1,9 @@
 import {
-  object,
   selectiveUnion,
   StringNumberStruct,
 } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { literal, string } from '@metamask/superstruct';
+import { literal, object, string } from '@metamask/superstruct';
 import {
   CaipAssetIdStruct,
   CaipAssetTypeStruct,

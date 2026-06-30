@@ -1,9 +1,9 @@
-import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   string,
   array,
   enums,
+  object,
   refine,
   literal,
   nonempty,

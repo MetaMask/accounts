@@ -1,10 +1,9 @@
-import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { nonempty, array, enums, literal } from '@metamask/superstruct';
+import { nonempty, array, enums, literal, object } from '@metamask/superstruct';
 import { definePattern } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
-import { EthScope } from '.';
+import { EthScope } from './constants';
 import {
   CaipChainIdStruct,
   EthAccountType,

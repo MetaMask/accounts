@@ -99,4 +99,12 @@ describe('api', () => {
       `At path: entropy.type -- Expected the literal \`"mnemonic"\`, but received: "${options.entropy.type}"`,
     );
   });
+
+  it('throws if entropy is not an object', () => {
+    expect(() =>
+      assert({ entropy: null }, KeyringAccountOptionsStruct),
+    ).toThrow(
+      'At path: entropy -- Expected an object, but received: null',
+    );
+  });
 });

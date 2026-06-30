@@ -3,16 +3,18 @@ import {
   assert,
   coerce,
   create,
+  exactOptional,
   is,
   literal,
   max,
   number,
+  object,
   string,
   union,
 } from '@metamask/superstruct';
 import { isPlainObject } from '@metamask/utils';
 
-import { exactOptional, object, strictMask, selectiveUnion, type } from '.';
+import { strictMask, selectiveUnion, type } from '.';
 
 describe('exactOptional', () => {
   const simpleStruct = object({
@@ -168,5 +170,41 @@ describe('type', () => {
     expect(() => assert({ foo: 1, bar: 1 }, struct)).toThrow(
       'At path: foo -- Expected a string, but received: 1',
     );
+  });
+
+  it('throws an error if value is a non-object string', () => {
+    expect(() => assert('not an object', struct)).toThrow(
+      'Expected an object, but received: "not an object"',
+    );
+  });
+
+  it('throws an error if value is a non-object non-string', () => {
+    expect(() => assert(42, struct)).toThrow(
+      'Expected an object, but received: 42',
+    );
+  });
+
+  it('coerces an object value', () => {
+    expect(create({ foo: 'foo', bar: 1 }, struct)).toStrictEqual({
+      foo: 'foo',
+      bar: 1,
+    });
+  });
+
+  it('passes through non-object values during coercion', () => {
+    expect(() => create(null, struct)).toThrow(
+      'Expected an object, but received: null',
+    );
+  });
+
+  it('supports exactOptional properties', () => {
+    const exactStruct = type({
+      foo: string(),
+      bar: exactOptional(number()),
+    });
+
+    expect(is({ foo: 'foo' }, exactStruct)).toBe(true);
+    expect(is({ foo: 'foo', bar: 1 }, exactStruct)).toBe(true);
+    expect(is({ foo: 'foo', bar: undefined }, exactStruct)).toBe(false);
   });
 });
