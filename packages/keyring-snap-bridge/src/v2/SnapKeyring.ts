@@ -506,7 +506,8 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     // Refresh capabilities from the snap manifest on every deserialize, falling
     // back to the empty default so a re-hydrate clears any previously-loaded
     // capabilities when the snap no longer declares them.
-    this.capabilities = this.#resolveKeyringCapabilities() ?? EMPTY_CAPABILITIES;
+    this.capabilities =
+      this.#resolveKeyringCapabilities() ?? EMPTY_CAPABILITIES;
 
     // Migrate v1 accounts to v2.
     const migratedAccounts: Record<string, KeyringAccount> = {};
