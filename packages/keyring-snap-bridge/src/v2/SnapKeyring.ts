@@ -534,6 +534,11 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
   // Private helpers
   // ──────────────────────────────────────────────
 
+  /**
+   * Assert that the keyring has been initialized.
+   *
+   * @throws An error if the keyring has not been initialized.
+   */
   #assertInitialized(): void {
     if (!this.#initialized) {
       throw new Error(
@@ -542,6 +547,11 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     }
   }
 
+  /**
+   * Resolve the keyring capabilities from the snap manifest.
+   *
+   * @returns The keyring capabilities, or `undefined` if the snap manifest does not declare any capabilities.
+   */
   #resolveKeyringCapabilities(): KeyringCapabilities | undefined {
     const snap = this.messenger.call('SnapController:getSnap', this.snapId);
     return snap?.manifest.initialPermissions['endowment:keyring']
