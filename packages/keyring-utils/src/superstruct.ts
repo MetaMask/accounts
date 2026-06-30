@@ -1,128 +1,71 @@
 import {
   Struct,
+  ExactOptionalStruct,
   assert,
-  object as stObject,
-  type as stType,
 } from '@metamask/superstruct';
 import type {
   Infer,
-  Context,
-  ObjectSchema,
-  OmitBy,
-  Optionalize,
-  PickBy,
-  Simplify,
   AnyStruct,
+  ObjectSchema,
+  ObjectType,
 } from '@metamask/superstruct';
 
 import type { Equals } from './types';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-declare const ExactOptionalSymbol: unique symbol;
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
 
-export type ExactOptionalTag = {
-  type: typeof ExactOptionalSymbol;
-};
-
-/**
- * Exclude type `Type` from the properties of `Obj`.
- *
- * ```ts
- * type Foo = { a: string | null; b: number };
- * type Bar = ExcludeType<Foo, null>;
- * // Bar = { a: string, b: number }
- * ```
- */
-export type ExcludeType<Obj, Type> = {
-  [K in keyof Obj]: Exclude<Obj[K], Type>;
-};
-
-/**
- * Make optional all properties that have the `ExactOptionalTag` type.
- *
- * ```ts
- * type Foo = { a: string | ExactOptionalTag; b: number};
- * type Bar = ExactOptionalize<Foo>;
- * // Bar = { a?: string; b: number}
- * ```
- */
-export type ExactOptionalize<Schema extends object> = OmitBy<
-  Schema,
-  ExactOptionalTag
-> &
-  Partial<ExcludeType<PickBy<Schema, ExactOptionalTag>, ExactOptionalTag>>;
-
-/**
- * Infer a type from an superstruct object schema.
- */
-export type ObjectType<Schema extends ObjectSchema> = Simplify<
-  ExactOptionalize<Optionalize<{ [K in keyof Schema]: Infer<Schema[K]> }>>
->;
-
-/**
- * Change the return type of a superstruct's `object` function to support
- * exact optional properties.
- *
- * @param schema - The object schema.
- * @returns A struct representing an object with a known set of properties.
- */
-export function object<Schema extends ObjectSchema>(
-  schema: Schema,
-): Struct<ObjectType<Schema>, Schema> {
-  return stObject(schema) as any;
+function printValue(value: unknown): string {
+  return typeof value === 'string' ? JSON.stringify(value) : String(value);
 }
 
 /**
- * Change the return type of a superstruct's `type` function to support
- * exact optional properties.
+ * A variant of superstruct's `type()` that properly supports `exactOptional()`
+ * fields. Unlike the upstream `type()`, this wrapper skips validation for
+ * `exactOptional` properties that are absent from the value, matching the same
+ * behaviour as `object()`.
+ *
+ * Use this instead of importing `type` from `@metamask/superstruct` when the
+ * schema contains `exactOptional()` fields.
  *
  * @param schema - The object schema.
- * @returns A struct representing an object with a known set of properties
- * and ignore unknown properties.
+ * @returns A struct representing an object with a known set of properties,
+ * ignoring unknown properties.
  */
 export function type<Schema extends ObjectSchema>(
   schema: Schema,
 ): Struct<ObjectType<Schema>, Schema> {
-  return stType(schema) as any;
-}
-
-/**
- * Check if the current property is present in its parent object.
- *
- * @param ctx - The context to check.
- * @returns `true` if the property is present, `false` otherwise.
- */
-function hasOptional(ctx: Context): boolean {
-  const property: string = ctx.path[ctx.path.length - 1];
-  const parent: Record<string, unknown> = ctx.branch[ctx.branch.length - 2];
-
-  return property in parent;
-}
-
-/**
- * Augment a struct to allow exact-optional values. Exact-optional values can
- * be omitted but cannot be `undefined`.
- *
- * ```ts
- * const foo = object({ bar: exactOptional(string()) });
- * type Foo = Infer<typeof foo>;
- * // Foo = { bar?: string }
- * ```
- *
- * @param struct - The struct to augment.
- * @returns The augmented struct.
- */
-export function exactOptional<Type, Schema>(
-  struct: Struct<Type, Schema>,
-): Struct<Type | ExactOptionalTag, Schema> {
+  const keys = Object.keys(schema);
   return new Struct({
-    ...struct,
-
-    validator: (value, ctx) =>
-      !hasOptional(ctx) || struct.validator(value, ctx),
-
-    refiner: (value, ctx) =>
-      !hasOptional(ctx) || struct.refiner(value as Type, ctx),
+    type: 'type',
+    schema,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    *entries(value: unknown): any {
+      if (isPlainObject(value)) {
+        for (const k of keys) {
+          const propertySchema = schema[k];
+          if (
+            ExactOptionalStruct.isExactOptional(propertySchema) &&
+            !Object.prototype.hasOwnProperty.call(value, k)
+          ) {
+            continue;
+          }
+          yield [k, value[k], schema[k]];
+        }
+      }
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    validator(value: unknown): any {
+      return (
+        isPlainObject(value) ||
+        `Expected an object, but received: ${printValue(value)}`
+      );
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    coercer(value: unknown): any {
+      return isPlainObject(value) ? Object.assign({}, value) : value;
+    },
   });
 }
 

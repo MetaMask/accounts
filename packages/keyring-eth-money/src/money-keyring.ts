@@ -4,8 +4,8 @@ import { EthAddressStrictStruct } from '@metamask/keyring-api';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   assert,
+  exactOptional,
   object,
-  optional,
   string as stringStruct,
 } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
@@ -57,7 +57,7 @@ export type MoneyKeyringOptions = {
  */
 const MoneyKeyringSerializedStateStruct = object({
   entropySource: stringStruct(),
-  account: optional(EthAddressStrictStruct),
+  account: exactOptional(EthAddressStrictStruct),
 });
 
 /**

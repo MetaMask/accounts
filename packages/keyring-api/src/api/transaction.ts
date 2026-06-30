@@ -1,7 +1,7 @@
 import type { InferEquals } from '@metamask/keyring-utils';
-import { exactOptional, object, UuidStruct } from '@metamask/keyring-utils';
+import { UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { array, enums, nullable, number, string } from '@metamask/superstruct';
+import { array, enums, exactOptional, nullable, number, object, string } from '@metamask/superstruct';
 
 import { AssetStruct } from './asset';
 import { CaipChainIdStruct } from './caip';

@@ -1,8 +1,8 @@
 import type { Infer } from '@metamask/superstruct';
 import {
   array,
+  exactOptional,
   object,
-  optional,
   record,
   string,
   union,
@@ -11,7 +11,7 @@ import { JsonStruct } from '@metamask/utils';
 
 export const SnapMessageStruct = object({
   method: string(),
-  params: optional(union([array(JsonStruct), record(string(), JsonStruct)])),
+  params: exactOptional(union([array(JsonStruct), record(string(), JsonStruct)])),
 });
 
 /**

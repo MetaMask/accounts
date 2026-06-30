@@ -1,5 +1,6 @@
-import { exactOptional, object, UuidStruct } from '@metamask/keyring-utils';
+import { UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
+import { exactOptional, object } from '@metamask/superstruct';
 
 export const MetaMaskOptionsStruct = object({
   /**

@@ -1,6 +1,5 @@
-import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { array, enums, literal, nonempty } from '@metamask/superstruct';
+import { array, enums, literal, nonempty, object } from '@metamask/superstruct';
 import { definePattern } from '@metamask/utils';
 
 import {

@@ -1,5 +1,4 @@
 import {
-  object,
   UuidStruct,
   JsonRpcRequestStruct,
 } from '@metamask/keyring-utils';
@@ -9,6 +8,7 @@ import {
   literal,
   nullable,
   number,
+  object,
   record,
   string,
   union,

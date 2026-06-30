@@ -6,19 +6,19 @@
  * incoming requests before processing.
  */
 
-import { object } from '@metamask/keyring-utils';
+import { type } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   any,
   array,
+  exactOptional,
   literal,
   nullable,
   number,
-  optional,
+  object,
   record,
   string,
   tuple,
-  type,
   union,
   unknown,
 } from '@metamask/superstruct';
@@ -37,17 +37,17 @@ import {
  * The actual transaction validation is performed by the transaction library.
  */
 export const EthTransactionDataStruct = type({
-  to: optional(nullable(EthAddressStruct)),
-  from: optional(EthAddressStruct),
-  nonce: optional(union([string(), number()])),
-  value: optional(union([string(), number()])),
-  data: optional(EthBytesStruct),
-  gas: optional(union([string(), number()])),
-  gasLimit: optional(union([string(), number()])),
-  gasPrice: optional(union([string(), number()])),
-  maxFeePerGas: optional(union([string(), number()])),
-  maxPriorityFeePerGas: optional(union([string(), number()])),
-  accessList: optional(
+  to: exactOptional(nullable(EthAddressStruct)),
+  from: exactOptional(EthAddressStruct),
+  nonce: exactOptional(union([string(), number()])),
+  value: exactOptional(union([string(), number()])),
+  data: exactOptional(EthBytesStruct),
+  gas: exactOptional(union([string(), number()])),
+  gasLimit: exactOptional(union([string(), number()])),
+  gasPrice: exactOptional(union([string(), number()])),
+  maxFeePerGas: exactOptional(union([string(), number()])),
+  maxPriorityFeePerGas: exactOptional(union([string(), number()])),
+  accessList: exactOptional(
     array(
       type({
         address: EthAddressStruct,
@@ -55,8 +55,8 @@ export const EthTransactionDataStruct = type({
       }),
     ),
   ),
-  type: optional(union([string(), number()])),
-  chainId: optional(union([string(), number()])),
+  type: exactOptional(union([string(), number()])),
+  chainId: exactOptional(union([string(), number()])),
 });
 
 export type EthTransactionData = Infer<typeof EthTransactionDataStruct>;
@@ -232,5 +232,5 @@ export type EthSignEip7702AuthorizationParams = Infer<
  */
 export const EthGetEncryptionPublicKeyParamsStruct = tuple([
   EthAddressStruct, // address
-  optional(EthGetEncryptionPublicKeyOptionsStruct), // options
+  exactOptional(EthGetEncryptionPublicKeyOptionsStruct), // options
 ]);

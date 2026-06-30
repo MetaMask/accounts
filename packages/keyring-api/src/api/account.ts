@@ -1,6 +1,6 @@
-import { AccountIdStruct, object } from '@metamask/keyring-utils';
+import { AccountIdStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { nonempty, array, enums, string } from '@metamask/superstruct';
+import { nonempty, array, enums, object, string } from '@metamask/superstruct';
 
 import { KeyringAccountOptionsStruct } from './account-options';
 import { CaipChainIdStruct } from './caip';

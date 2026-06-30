@@ -6,8 +6,7 @@ import {
   RequestRejectedEventStruct,
   KeyringAccountStruct,
 } from '@metamask/keyring-api';
-import { object } from '@metamask/keyring-utils';
-import { union } from '@metamask/superstruct';
+import { object, union } from '@metamask/superstruct';
 
 import { KeyringAccountV1Struct } from './account';
 

@@ -1,7 +1,8 @@
-import { exactOptional, selectiveUnion, type } from '@metamask/keyring-utils';
+import { selectiveUnion, type } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   boolean,
+  exactOptional,
   intersection,
   literal,
   number,
