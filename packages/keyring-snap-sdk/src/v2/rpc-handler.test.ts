@@ -15,7 +15,6 @@ import type {
   GetAccountAssetsRequest,
   GetAccountBalancesRequest,
   KeyringRpc,
-  SnapKeyringRpc,
 } from '@metamask/keyring-api/v2';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
@@ -263,7 +262,7 @@ describe('handleKeyringRequest', () => {
       params: { accounts: ['4f983fa2-4f53-4c63-a7c2-f9a5ed750041'] },
     };
 
-    const partialKeyring: SnapKeyringRpc = { ...keyring };
+    const partialKeyring: KeyringRpc = { ...keyring };
     delete partialKeyring.setSelectedAccounts;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
@@ -304,7 +303,7 @@ describe('handleKeyringRequest', () => {
       },
     };
 
-    const partialKeyring: SnapKeyringRpc = { ...keyring };
+    const partialKeyring: KeyringRpc = { ...keyring };
     delete partialKeyring.getAccountTransactions;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
@@ -338,7 +337,7 @@ describe('handleKeyringRequest', () => {
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
-    const partialKeyring: SnapKeyringRpc = { ...keyring };
+    const partialKeyring: KeyringRpc = { ...keyring };
     delete partialKeyring.getAccountAssets;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
@@ -384,7 +383,7 @@ describe('handleKeyringRequest', () => {
       },
     };
 
-    const partialKeyring: SnapKeyringRpc = { ...keyring };
+    const partialKeyring: KeyringRpc = { ...keyring };
     delete partialKeyring.getAccountBalances;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(

@@ -6,9 +6,9 @@ import {
 } from '@metamask/keyring-api/v2';
 import type { Json } from '@metamask/utils';
 
-import { SnapKeyringClient } from './KeyringClient';
+import { KeyringClient } from './KeyringClient';
 
-describe('SnapKeyringClient', () => {
+describe('KeyringClient', () => {
   const mockSender = {
     send: jest.fn(),
   };
@@ -17,8 +17,8 @@ describe('SnapKeyringClient', () => {
     mockSender.send.mockClear();
   });
 
-  describe('SnapKeyringClient', () => {
-    const client = new SnapKeyringClient(mockSender);
+  describe('KeyringClient', () => {
+    const client = new KeyringClient(mockSender);
 
     describe('getAccounts', () => {
       it('sends a request to get accounts and return the response', async () => {

@@ -1,5 +1,4 @@
 import { UuidStruct } from '@metamask/keyring-utils';
-import type { AccountId } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   array,
@@ -12,13 +11,9 @@ import {
 } from '@metamask/superstruct';
 
 import { CaipAssetTypeOrIdStruct, CaipAssetTypeStruct } from '../../api/caip';
-import type { CaipAssetType, CaipAssetTypeOrId } from '../../api/caip';
 import { BalanceStruct } from '../../api/balance';
-import type { Balance } from '../../api/balance';
 import { PaginationStruct } from '../../api/pagination';
-import type { Pagination } from '../../api/pagination';
 import { TransactionsPageStruct } from '../../api/transaction';
-import type { TransactionsPage } from '../../api/transaction';
 import { KeyringRpcMethod } from './keyring-rpc';
 import type { KeyringRpc, KeyringRpcRequests } from './keyring-rpc';
 
@@ -172,37 +167,6 @@ export type SnapKeyringRpcRequest<RpcMethod extends SnapKeyringRpcMethod> =
 // ----------------------------------------------------------------------------
 
 /**
- * Snap keyring RPC interface - extends the base {@link KeyringRpc} with
- * optional snap-specific methods that a Snap may expose.
+ * @deprecated Use {@link KeyringRpc} instead.
  */
-export type SnapKeyringRpc = KeyringRpc & {
-  /**
-   * Notify the Snap of the currently selected accounts.
-   * Maps to `keyring_setSelectedAccounts`.
-   */
-  setSelectedAccounts?: (accounts: AccountId[]) => Promise<void>;
-
-  /**
-   * Get transactions for an account with pagination.
-   * Maps to `keyring_getAccountTransactions`.
-   */
-  getAccountTransactions?: (
-    id: AccountId,
-    pagination: Pagination,
-  ) => Promise<TransactionsPage>;
-
-  /**
-   * Get the asset types supported by an account.
-   * Maps to `keyring_getAccountAssets`.
-   */
-  getAccountAssets?: (id: AccountId) => Promise<CaipAssetTypeOrId[]>;
-
-  /**
-   * Get balances for an account for the requested asset types.
-   * Maps to `keyring_getAccountBalances`.
-   */
-  getAccountBalances?: (
-    id: AccountId,
-    assets: CaipAssetType[],
-  ) => Promise<Record<CaipAssetType, Balance>>;
-};
+export type SnapKeyringRpc = KeyringRpc;

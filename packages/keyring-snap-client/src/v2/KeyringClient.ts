@@ -17,7 +17,7 @@ import type {
   CreateAccountOptions,
   ExportAccountOptions,
   ExportedAccount,
-  SnapKeyringRpc,
+  KeyringRpc,
   KeyringRpcRequest,
 } from '@metamask/keyring-api/v2';
 import type {
@@ -35,7 +35,7 @@ import { v4 as uuid } from 'uuid';
 
 import type { Sender } from '../KeyringClient';
 
-export class SnapKeyringClient implements SnapKeyringRpc {
+export class KeyringClient implements KeyringRpc {
   readonly #sender: Sender;
 
   /**

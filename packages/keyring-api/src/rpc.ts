@@ -461,8 +461,8 @@ export type RejectRequestResponse = Infer<typeof RejectRequestResponseStruct>;
 // Keyring RPC interfaces
 
 /**
- * Core keyring RPC interface - all standard account management and request
- * handling methods, excluding snap-specific extensions.
+ * Keyring RPC interface - all standard account management and request
+ * handling methods, including optional snap-specific extensions.
  */
 export type KeyringRpc = {
   listAccounts(): Promise<KeyringAccount[]>;
@@ -489,14 +489,6 @@ export type KeyringRpc = {
     scope: CaipChainId,
     request: JsonRpcRequest,
   ): Promise<ResolvedAccountAddress | null>;
-};
-
-/**
- * Snap keyring RPC interface - extends {@link KeyringRpc} with optional
- * snap-specific methods for assets, transactions, balances, and account
- * selection.
- */
-export type SnapKeyringRpc = KeyringRpc & {
   listAccountAssets?(id: string): Promise<CaipAssetTypeOrId[]>;
   listAccountTransactions?(
     id: string,
@@ -508,3 +500,8 @@ export type SnapKeyringRpc = KeyringRpc & {
   ): Promise<Record<CaipAssetType, Balance>>;
   setSelectedAccounts?(accounts: AccountId[]): Promise<void>;
 };
+
+/**
+ * @deprecated Use {@link KeyringRpc} instead.
+ */
+export type SnapKeyringRpc = KeyringRpc;

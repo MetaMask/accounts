@@ -1,8 +1,13 @@
+import type { AccountId } from '@metamask/keyring-utils';
 import { object, exactOptional, UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { array, literal, number, string, union } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
+import type { Balance } from '../../api/balance';
+import type { CaipAssetType, CaipAssetTypeOrId } from '../../api/caip';
+import type { Pagination } from '../../api/pagination';
+import type { TransactionsPage } from '../../api/transaction';
 import { KeyringAccountStruct } from '../../api/account';
 import { KeyringRequestStruct } from '../../api/request';
 import { CreateAccountOptionsStruct } from './create-account';
@@ -14,7 +19,7 @@ import type { Keyring } from './keyring';
 
 /**
  * Keyring interface for keyring methods that can be invoked through
- * RPC calls.
+ * RPC calls, including optional snap-specific extensions.
  */
 export type KeyringRpc = {
   getAccount: Keyring['getAccount'];
@@ -23,6 +28,16 @@ export type KeyringRpc = {
   deleteAccount: Keyring['deleteAccount'];
   submitRequest: Keyring['submitRequest'];
   exportAccount?: Keyring['exportAccount'];
+  setSelectedAccounts?: (accounts: AccountId[]) => Promise<void>;
+  getAccountTransactions?: (
+    id: AccountId,
+    pagination: Pagination,
+  ) => Promise<TransactionsPage>;
+  getAccountAssets?: (id: AccountId) => Promise<CaipAssetTypeOrId[]>;
+  getAccountBalances?: (
+    id: AccountId,
+    assets: CaipAssetType[],
+  ) => Promise<Record<CaipAssetType, Balance>>;
 };
 
 /**
