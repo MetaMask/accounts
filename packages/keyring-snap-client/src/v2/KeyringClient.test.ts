@@ -2,7 +2,7 @@ import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import {
   KeyringRpcMethod,
   PrivateKeyEncoding,
-  SnapKeyringRpcMethod,
+  KeyringSnapRpcMethod,
 } from '@metamask/keyring-api/v2';
 import type { Json } from '@metamask/utils';
 
@@ -202,7 +202,7 @@ describe('KeyringClient', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${SnapKeyringRpcMethod.SetSelectedAccounts}`,
+          method: `${KeyringSnapRpcMethod.SetSelectedAccounts}`,
           params: { accounts },
         });
       });
@@ -222,7 +222,7 @@ describe('KeyringClient', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${SnapKeyringRpcMethod.GetAccountTransactions}`,
+          method: `${KeyringSnapRpcMethod.GetAccountTransactions}`,
           params: { id, pagination },
         });
         expect(response).toStrictEqual(expectedResponse);
@@ -239,7 +239,7 @@ describe('KeyringClient', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${SnapKeyringRpcMethod.GetAccountAssets}`,
+          method: `${KeyringSnapRpcMethod.GetAccountAssets}`,
           params: { id },
         });
         expect(response).toStrictEqual(expectedResponse);
@@ -262,7 +262,7 @@ describe('KeyringClient', () => {
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${SnapKeyringRpcMethod.GetAccountBalances}`,
+          method: `${KeyringSnapRpcMethod.GetAccountBalances}`,
           params: { id, assets },
         });
         expect(response).toStrictEqual(expectedResponse);

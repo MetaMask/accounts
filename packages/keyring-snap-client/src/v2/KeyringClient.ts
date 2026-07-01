@@ -7,7 +7,7 @@ import {
   SubmitRequestResponseStruct,
   KeyringRpcMethod,
   ExportAccountResponseStruct,
-  SnapKeyringRpcMethod,
+  KeyringSnapRpcMethod,
   SetSelectedAccountsResponseStruct,
   GetAccountTransactionsResponseStruct,
   GetAccountAssetsResponseStruct,
@@ -17,7 +17,7 @@ import type {
   CreateAccountOptions,
   ExportAccountOptions,
   ExportedAccount,
-  KeyringRpc,
+  KeyringSnapRpc,
   KeyringRpcRequest,
 } from '@metamask/keyring-api/v2';
 import type {
@@ -35,7 +35,7 @@ import { v4 as uuid } from 'uuid';
 
 import type { Sender } from '../KeyringClient';
 
-export class KeyringClient implements KeyringRpc {
+export class KeyringClient implements KeyringSnapRpc {
   readonly #sender: Sender;
 
   /**
@@ -184,7 +184,7 @@ export class KeyringClient implements KeyringRpc {
       await this.#sender.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: SnapKeyringRpcMethod.SetSelectedAccounts,
+        method: KeyringSnapRpcMethod.SetSelectedAccounts,
         params: { accounts },
       }),
       SetSelectedAccountsResponseStruct,
@@ -206,7 +206,7 @@ export class KeyringClient implements KeyringRpc {
       await this.#sender.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: SnapKeyringRpcMethod.GetAccountTransactions,
+        method: KeyringSnapRpcMethod.GetAccountTransactions,
         params: { id, pagination },
       }),
       GetAccountTransactionsResponseStruct,
@@ -224,7 +224,7 @@ export class KeyringClient implements KeyringRpc {
       await this.#sender.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: SnapKeyringRpcMethod.GetAccountAssets,
+        method: KeyringSnapRpcMethod.GetAccountAssets,
         params: { id },
       }),
       GetAccountAssetsResponseStruct,
@@ -246,7 +246,7 @@ export class KeyringClient implements KeyringRpc {
       await this.#sender.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: SnapKeyringRpcMethod.GetAccountBalances,
+        method: KeyringSnapRpcMethod.GetAccountBalances,
         params: { id, assets },
       }),
       GetAccountBalancesResponseStruct,

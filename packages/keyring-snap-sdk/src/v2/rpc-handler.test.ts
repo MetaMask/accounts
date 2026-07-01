@@ -1,7 +1,7 @@
 import {
   KeyringRpcMethod,
   PrivateKeyEncoding,
-  SnapKeyringRpcMethod,
+  KeyringSnapRpcMethod,
 } from '@metamask/keyring-api/v2';
 import type {
   CreateAccountsRequest,
@@ -15,6 +15,7 @@ import type {
   GetAccountAssetsRequest,
   GetAccountBalancesRequest,
   KeyringRpc,
+  KeyringSnapRpc,
 } from '@metamask/keyring-api/v2';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
@@ -241,7 +242,7 @@ describe('handleKeyringRequest', () => {
     const request: SetSelectedAccountsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.SetSelectedAccounts}`,
+      method: `${KeyringSnapRpcMethod.SetSelectedAccounts}`,
       params: { accounts: ['4f983fa2-4f53-4c63-a7c2-f9a5ed750041'] },
     };
 
@@ -258,15 +259,15 @@ describe('handleKeyringRequest', () => {
     const request: SetSelectedAccountsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.SetSelectedAccounts}`,
+      method: `${KeyringSnapRpcMethod.SetSelectedAccounts}`,
       params: { accounts: ['4f983fa2-4f53-4c63-a7c2-f9a5ed750041'] },
     };
 
-    const partialKeyring: KeyringRpc = { ...keyring };
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
     delete partialKeyring.setSelectedAccounts;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
-      `Method not supported: ${SnapKeyringRpcMethod.SetSelectedAccounts}`,
+      `Method not supported: ${KeyringSnapRpcMethod.SetSelectedAccounts}`,
     );
   });
 
@@ -274,7 +275,7 @@ describe('handleKeyringRequest', () => {
     const request: GetAccountTransactionsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.GetAccountTransactions}`,
+      method: `${KeyringSnapRpcMethod.GetAccountTransactions}`,
       params: {
         id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
         pagination: { limit: 10 },
@@ -296,18 +297,18 @@ describe('handleKeyringRequest', () => {
     const request: GetAccountTransactionsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.GetAccountTransactions}`,
+      method: `${KeyringSnapRpcMethod.GetAccountTransactions}`,
       params: {
         id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
         pagination: { limit: 10 },
       },
     };
 
-    const partialKeyring: KeyringRpc = { ...keyring };
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
     delete partialKeyring.getAccountTransactions;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
-      `Method not supported: ${SnapKeyringRpcMethod.GetAccountTransactions}`,
+      `Method not supported: ${KeyringSnapRpcMethod.GetAccountTransactions}`,
     );
   });
 
@@ -315,7 +316,7 @@ describe('handleKeyringRequest', () => {
     const request: GetAccountAssetsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.GetAccountAssets}`,
+      method: `${KeyringSnapRpcMethod.GetAccountAssets}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
@@ -333,15 +334,15 @@ describe('handleKeyringRequest', () => {
     const request: GetAccountAssetsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.GetAccountAssets}`,
+      method: `${KeyringSnapRpcMethod.GetAccountAssets}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
-    const partialKeyring: KeyringRpc = { ...keyring };
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
     delete partialKeyring.getAccountAssets;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
-      `Method not supported: ${SnapKeyringRpcMethod.GetAccountAssets}`,
+      `Method not supported: ${KeyringSnapRpcMethod.GetAccountAssets}`,
     );
   });
 
@@ -349,7 +350,7 @@ describe('handleKeyringRequest', () => {
     const request: GetAccountBalancesRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.GetAccountBalances}`,
+      method: `${KeyringSnapRpcMethod.GetAccountBalances}`,
       params: {
         id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
         assets: ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'],
@@ -376,18 +377,18 @@ describe('handleKeyringRequest', () => {
     const request: GetAccountBalancesRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.GetAccountBalances}`,
+      method: `${KeyringSnapRpcMethod.GetAccountBalances}`,
       params: {
         id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
         assets: ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'],
       },
     };
 
-    const partialKeyring: KeyringRpc = { ...keyring };
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
     delete partialKeyring.getAccountBalances;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
-      `Method not supported: ${SnapKeyringRpcMethod.GetAccountBalances}`,
+      `Method not supported: ${KeyringSnapRpcMethod.GetAccountBalances}`,
     );
   });
 
