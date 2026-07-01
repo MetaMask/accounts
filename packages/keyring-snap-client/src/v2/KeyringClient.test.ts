@@ -232,7 +232,9 @@ describe('KeyringClient', () => {
     describe('getAccountAssets', () => {
       it('sends a request to get account assets', async () => {
         const id = '49116980-0712-4fa5-b045-e4294f1d440e';
-        const expectedResponse = ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'];
+        const expectedResponse = [
+          'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
+        ];
 
         mockSender.send.mockResolvedValue(expectedResponse);
         const response = await client.getAccountAssets(id);
@@ -249,7 +251,9 @@ describe('KeyringClient', () => {
     describe('getAccountBalances', () => {
       it('sends a request to get account balances', async () => {
         const id = '49116980-0712-4fa5-b045-e4294f1d440e';
-        const assets = ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'] as const;
+        const assets = [
+          'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
+        ] as const;
         const expectedResponse = {
           'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f': {
             amount: '1000000000000000000',

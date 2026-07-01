@@ -4,7 +4,10 @@ import {
   KeyringRpcMethod,
   isKeyringRpcMethod,
 } from '@metamask/keyring-api';
-import type { KeyringSnapRpc, GetAccountBalancesRequest } from '@metamask/keyring-api';
+import type {
+  KeyringSnapRpc,
+  GetAccountBalancesRequest,
+} from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { UserRejectedRequestError } from '@metamask/snaps-sdk';
 

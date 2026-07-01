@@ -1,4 +1,11 @@
 import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
+import type {
+  Balance,
+  CaipAssetType,
+  CaipAssetTypeOrId,
+  Pagination,
+  TransactionsPage,
+} from '@metamask/keyring-api';
 import {
   CreateAccountsResponseStruct,
   DeleteAccountResponseStruct,
@@ -20,13 +27,6 @@ import type {
   KeyringSnapRpc,
   KeyringRpcRequest,
 } from '@metamask/keyring-api/v2';
-import type {
-  Balance,
-  CaipAssetType,
-  CaipAssetTypeOrId,
-  Pagination,
-  TransactionsPage,
-} from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
