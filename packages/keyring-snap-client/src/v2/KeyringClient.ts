@@ -39,7 +39,7 @@ export class KeyringClient implements KeyringSnapRpc {
   readonly #sender: Sender;
 
   /**
-   * Create a new instance of `SnapKeyringClient`.
+   * Create a new instance of `KeyringClient`.
    *
    * @param sender - The `Sender` instance to use to send requests to the snap.
    */
