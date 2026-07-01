@@ -10,7 +10,7 @@ import type { SnapId } from '@metamask/snaps-sdk';
 
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
 import type { SnapKeyringCallbacks } from './SnapKeyring';
-import { isSnapKeyring, SnapKeyring } from './SnapKeyring';
+import { EMPTY_CAPABILITIES, isSnapKeyring, SnapKeyring } from './SnapKeyring';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 
@@ -151,12 +151,12 @@ describe('SnapKeyring', () => {
       const keyring = await makeKeyringWithSnap({
         allowedOrigins: ['https://portfolio.metamask.io'],
       });
-      expect(keyring.capabilities).toStrictEqual({ scopes: [] });
+      expect(keyring.capabilities).toStrictEqual(EMPTY_CAPABILITIES);
     });
 
     it('keeps the empty default when the snap cannot be found', async () => {
       const keyring = await makeKeyringWithSnap(undefined);
-      expect(keyring.capabilities).toStrictEqual({ scopes: [] });
+      expect(keyring.capabilities).toStrictEqual(EMPTY_CAPABILITIES);
     });
 
     it('clears stale capabilities on a later deserialize without capabilities', async () => {
@@ -165,13 +165,10 @@ describe('SnapKeyring', () => {
           initialPermissions: { 'endowment:keyring': keyringPermission },
         },
       });
-      const getSnap = jest
-        .fn()
-        .mockReturnValueOnce(snapWith({ capabilities: manifestCapabilities }))
-        .mockReturnValueOnce(snapWith({ allowedOrigins: [] }));
+      const mockGetSnap = jest.fn();
       const messenger = {
         call: jest.fn((action: string) =>
-          action === 'SnapController:getSnap' ? getSnap() : undefined,
+          action === 'SnapController:getSnap' ? mockGetSnap() : undefined,
         ),
         publish: jest.fn(),
       } as unknown as SnapKeyringMessenger;
@@ -179,12 +176,16 @@ describe('SnapKeyring', () => {
         messenger,
         callbacks: makeMockCallbacks(),
       });
-
+      mockGetSnap.mockReturnValueOnce(
+        snapWith({ capabilities: manifestCapabilities }),
+      );
       await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
       expect(keyring.capabilities).toStrictEqual(manifestCapabilities);
-
+      // Manifest won't yield any capabilities this time, so we end up
+      // clearing the old ones and fallback to the `EMPTY_CAPABILITIES`.
+      mockGetSnap.mockReturnValueOnce(snapWith({ allowedOrigins: [] }));
       await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
-      expect(keyring.capabilities).toStrictEqual({ scopes: [] });
+      expect(keyring.capabilities).toStrictEqual(EMPTY_CAPABILITIES);
     });
   });
 
