@@ -558,6 +558,9 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    */
   #resolveKeyringCapabilities(): KeyringCapabilities | undefined {
     const snap = this.messenger.call('SnapController:getSnap', this.snapId);
+    // we are not validating the shape of the capabilities here, because there is
+    // manifest validation done already on the snaps side, the snaps repo maintains
+    // a copy of the KeyringCapabilitiesStruct
     return snap?.manifest.initialPermissions['endowment:keyring']
       ?.capabilities as KeyringCapabilities | undefined;
   }
