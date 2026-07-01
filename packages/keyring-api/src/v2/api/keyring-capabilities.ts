@@ -74,6 +74,42 @@ export const KeyringCapabilitiesStruct = object({
       }),
     ),
   ),
+  /**
+   * Snap-specific capabilities supported by this keyring.
+   *
+   * Each flag maps to a Snap keyring RPC method that the Snap implements.
+   */
+  snap: exactOptional(
+    object({
+      /**
+       * Asset-related capabilities.
+       */
+      assets: exactOptional(
+        object({
+          /**
+           * Whether the keyring supports listing account assets
+           * (`keyring_listAccountAssets`).
+           */
+          metadata: exactOptional(boolean()),
+          /**
+           * Whether the keyring supports getting account balances
+           * (`keyring_getAccountBalances`).
+           */
+          balances: exactOptional(boolean()),
+        }),
+      ),
+      /**
+       * Whether the keyring supports listing account transactions
+       * (`keyring_listAccountTransactions`).
+       */
+      transactions: exactOptional(boolean()),
+      /**
+       * Whether the keyring supports receiving selected accounts notifications
+       * (`keyring_setSelectedAccounts`).
+       */
+      selectedAccounts: exactOptional(boolean()),
+    }),
+  ),
 });
 
 /**

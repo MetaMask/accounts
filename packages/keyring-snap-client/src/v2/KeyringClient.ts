@@ -7,14 +7,26 @@ import {
   SubmitRequestResponseStruct,
   KeyringRpcMethod,
   ExportAccountResponseStruct,
+  SnapKeyringRpcMethod,
+  SetSelectedAccountsResponseStruct,
+  ListAccountTransactionsResponseStruct,
+  ListAccountAssetsResponseStruct,
+  GetAccountBalancesResponseStruct,
 } from '@metamask/keyring-api/v2';
 import type {
   CreateAccountOptions,
   ExportAccountOptions,
   ExportedAccount,
-  KeyringRpc,
+  SnapKeyringRpc,
   KeyringRpcRequest,
 } from '@metamask/keyring-api/v2';
+import type {
+  Balance,
+  CaipAssetType,
+  CaipAssetTypeOrId,
+  Pagination,
+  TransactionsPage,
+} from '@metamask/keyring-api';
 import type { AccountId } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
@@ -23,11 +35,11 @@ import { v4 as uuid } from 'uuid';
 
 import type { Sender } from '../KeyringClient';
 
-export class KeyringClient implements KeyringRpc {
+export class SnapKeyringClient implements SnapKeyringRpc {
   readonly #sender: Sender;
 
   /**
-   * Create a new instance of `KeyringClient`.
+   * Create a new instance of `SnapKeyringClient`.
    *
    * @param sender - The `Sender` instance to use to send requests to the snap.
    */
@@ -49,6 +61,11 @@ export class KeyringClient implements KeyringRpc {
     });
   }
 
+  /**
+   * Returns all accounts.
+   *
+   * @returns A promise that resolves to the list of accounts.
+   */
   async getAccounts(): Promise<KeyringAccount[]> {
     return strictMask(
       await this.send({
@@ -60,6 +77,12 @@ export class KeyringClient implements KeyringRpc {
     );
   }
 
+  /**
+   * Returns the account with the specified ID.
+   *
+   * @param id - ID of the account to retrieve.
+   * @returns A promise that resolves to the account with the given ID.
+   */
   async getAccount(id: string): Promise<KeyringAccount> {
     return strictMask(
       await this.send({
@@ -72,6 +95,12 @@ export class KeyringClient implements KeyringRpc {
     );
   }
 
+  /**
+   * Creates one or more new accounts according to the provided options.
+   *
+   * @param params - Options describing how to create the account(s).
+   * @returns A promise that resolves to the list of created accounts.
+   */
   async createAccounts(
     params: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
@@ -86,6 +115,13 @@ export class KeyringClient implements KeyringRpc {
     );
   }
 
+  /**
+   * Exports the private key or secret material for the specified account.
+   *
+   * @param id - ID of the account to export.
+   * @param options - Optional export options.
+   * @returns A promise that resolves to the exported account data.
+   */
   async exportAccount(
     id: AccountId,
     options?: ExportAccountOptions,
@@ -101,6 +137,12 @@ export class KeyringClient implements KeyringRpc {
     );
   }
 
+  /**
+   * Deletes the account with the specified ID.
+   *
+   * @param id - ID of the account to delete.
+   * @returns A promise that resolves when the account has been deleted.
+   */
   async deleteAccount(id: AccountId): Promise<void> {
     assert(
       await this.send({
@@ -113,6 +155,12 @@ export class KeyringClient implements KeyringRpc {
     );
   }
 
+  /**
+   * Submits a request to the keyring.
+   *
+   * @param request - The `KeyringRequest` object to submit.
+   * @returns A promise that resolves to the response for the request.
+   */
   async submitRequest(request: KeyringRequest): Promise<Json> {
     return strictMask(
       await this.send({
@@ -122,6 +170,86 @@ export class KeyringClient implements KeyringRpc {
         params: request,
       }),
       SubmitRequestResponseStruct,
+    );
+  }
+
+  /**
+   * Notifies the Snap of the currently selected accounts.
+   *
+   * @param accounts - List of selected account IDs.
+   * @returns A promise that resolves when the notification has been sent.
+   */
+  async setSelectedAccounts(accounts: AccountId[]): Promise<void> {
+    assert(
+      await this.#sender.send({
+        jsonrpc: '2.0',
+        id: uuid(),
+        method: SnapKeyringRpcMethod.SetSelectedAccounts,
+        params: { accounts },
+      }),
+      SetSelectedAccountsResponseStruct,
+    );
+  }
+
+  /**
+   * Lists transactions for an account with pagination.
+   *
+   * @param id - ID of the account.
+   * @param pagination - Pagination options.
+   * @returns A promise that resolves to a page of transactions.
+   */
+  async listAccountTransactions(
+    id: AccountId,
+    pagination: Pagination,
+  ): Promise<TransactionsPage> {
+    return strictMask(
+      await this.#sender.send({
+        jsonrpc: '2.0',
+        id: uuid(),
+        method: SnapKeyringRpcMethod.ListAccountTransactions,
+        params: { id, pagination },
+      }),
+      ListAccountTransactionsResponseStruct,
+    );
+  }
+
+  /**
+   * Lists the asset types supported by an account.
+   *
+   * @param id - ID of the account.
+   * @returns A promise that resolves to the list of CAIP asset type IDs.
+   */
+  async listAccountAssets(id: AccountId): Promise<CaipAssetTypeOrId[]> {
+    return strictMask(
+      await this.#sender.send({
+        jsonrpc: '2.0',
+        id: uuid(),
+        method: SnapKeyringRpcMethod.ListAccountAssets,
+        params: { id },
+      }),
+      ListAccountAssetsResponseStruct,
+    );
+  }
+
+  /**
+   * Gets balances for an account for the requested asset types.
+   *
+   * @param id - ID of the account.
+   * @param assets - List of CAIP asset types to fetch balances for.
+   * @returns A promise that resolves to a map of asset type to balance.
+   */
+  async getAccountBalances(
+    id: AccountId,
+    assets: CaipAssetType[],
+  ): Promise<Record<CaipAssetType, Balance>> {
+    return strictMask(
+      await this.#sender.send({
+        jsonrpc: '2.0',
+        id: uuid(),
+        method: SnapKeyringRpcMethod.GetAccountBalances,
+        params: { id, assets },
+      }),
+      GetAccountBalancesResponseStruct,
     );
   }
 }
