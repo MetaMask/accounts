@@ -1,4 +1,8 @@
-import { KeyringRpcMethod as KeyringRpcMethodV1 } from '@metamask/keyring-api';
+import {
+  KeyringRpcMethod as KeyringRpcMethodV1,
+  ListAccountTransactionsRequestStruct as ListAccountTransactionsRequestStructV1,
+  ListAccountAssetsRequestStruct as ListAccountAssetsRequestStructV1,
+} from '@metamask/keyring-api';
 import {
   KeyringRpcMethod,
   KeyringSnapRpcMethod,
@@ -83,7 +87,17 @@ async function dispatchKeyringRequest(
       return keyring.setSelectedAccounts(request.params.accounts);
     }
 
-    case `${KeyringRpcMethodV1.ListAccountTransactions}`: // v1 fallback
+    case `${KeyringRpcMethodV1.ListAccountTransactions}`: {
+      if (keyring.getAccountTransactions === undefined) {
+        throw new MethodNotSupportedError(request.method);
+      }
+      assert(request, ListAccountTransactionsRequestStructV1);
+      return keyring.getAccountTransactions(
+        request.params.id,
+        request.params.pagination,
+      );
+    }
+
     case `${KeyringSnapRpcMethod.GetAccountTransactions}`: {
       if (keyring.getAccountTransactions === undefined) {
         throw new MethodNotSupportedError(request.method);
@@ -95,7 +109,14 @@ async function dispatchKeyringRequest(
       );
     }
 
-    case `${KeyringRpcMethodV1.ListAccountAssets}`: // v1 fallback
+    case `${KeyringRpcMethodV1.ListAccountAssets}`: {
+      if (keyring.getAccountAssets === undefined) {
+        throw new MethodNotSupportedError(request.method);
+      }
+      assert(request, ListAccountAssetsRequestStructV1);
+      return keyring.getAccountAssets(request.params.id);
+    }
+
     case `${KeyringSnapRpcMethod.GetAccountAssets}`: {
       if (keyring.getAccountAssets === undefined) {
         throw new MethodNotSupportedError(request.method);
