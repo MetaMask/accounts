@@ -559,14 +559,32 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns The keyring capabilities, or `undefined` if the snap manifest does not declare any capabilities.
    */
   #resolveKeyringCapabilities(): KeyringCapabilities | undefined {
+    type StripOptionalUndefined<Capabilities> = Capabilities extends (infer U)[]
+      ? StripOptionalUndefined<U>[]
+      : Capabilities extends Record<string, unknown>
+        ? {
+            // Required keys: keep required, just recurse:
+            // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+            [K in keyof Capabilities as {} extends Pick<Capabilities, K>
+              ? never
+              : K]: StripOptionalUndefined<Capabilities[K]>;
+          } & {
+            // Optional keys: keep optional, strip `| undefined` then recurse:
+            // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+            [K in keyof Capabilities as {} extends Pick<Capabilities, K>
+              ? K
+              : never]?: StripOptionalUndefined<
+              Exclude<Capabilities[K], undefined>
+            >;
+          }
+        : Capabilities;
+
     const snap = this.messenger.call('SnapController:getSnap', this.snapId);
-    // READ THIS CAREFULLY:
-    // We are not validating the shape of the capabilities here, because there is
-    // manifest validation done already on the snaps side, the snaps repo maintains
-    // a copy of the `KeyringCapabilitiesStruct`.
-    // We must ensure that both structs are always in-sync, otherwise the type-cast
-    // could cause runtime issues!
-    return snap?.manifest.initialPermissions['endowment:keyring']
-      ?.capabilities as KeyringCapabilities | undefined;
+    const capabilities =
+      snap?.manifest.initialPermissions['endowment:keyring']?.capabilities;
+
+    return capabilities as
+      | StripOptionalUndefined<typeof capabilities>
+      | undefined;
   }
 }
