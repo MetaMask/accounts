@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `KeyringRpc` and `KeyringSnapRpc` RPC interfaces to v1 ([#582](https://github.com/MetaMask/accounts/pull/582))
+  - `KeyringRpc` covers the standard account-management and request-handling methods.
+  - `KeyringSnapRpc` extends `KeyringRpc` with optional snap-specific methods: `listAccountAssets`, `listAccountTransactions`, `getAccountBalances`, and `setSelectedAccounts`.
+- Add `KeyringSnapRpc`, `KeyringSnapRpcMethod`, `isKeyringSnapRpcMethod`, and related request/response structs to keyring v2 (`./v2`) ([#582](https://github.com/MetaMask/accounts/pull/582))
+  - `KeyringSnapRpc` extends `KeyringRpc` (v2) with four optional snap-specific methods: `setSelectedAccounts`, `getAccountTransactions`, `getAccountAssets`, and `getAccountBalances`.
+  - `KeyringSnapRpcMethod` spreads all base `KeyringRpcMethod` values and adds the four snap-specific method names.
+- Add optional `snap` capability field to `KeyringCapabilities` (v2) ([#582](https://github.com/MetaMask/accounts/pull/582))
+  - Flags: `snap.assets.metadata` (`keyring_getAccountAssets`), `snap.assets.balances` (`keyring_getAccountBalances`), `snap.transactions` (`keyring_getAccountTransactions`), `snap.selectedAccounts` (`keyring_setSelectedAccounts`).
+
 ## [23.3.0]
 
 ### Added

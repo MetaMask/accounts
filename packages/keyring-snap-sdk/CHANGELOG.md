@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Supports new `KeyringSnapRpc` (v2) in `handleKeyringRequest` (v2) ([#582](https://github.com/MetaMask/accounts/pull/582))
+  - Handles the four snap-specific methods (`keyring_setSelectedAccounts`, `keyring_getAccountTransactions`, `keyring_getAccountAssets`, `keyring_getAccountBalances`) in addition to all core v2 methods.
+  - Includes backwards-compatible dispatch for the deprecated v1 method names `keyring_listAccountTransactions` and `keyring_listAccountAssets`, forwarding them to `getAccountTransactions` and `getAccountAssets` respectively.
+
+### Changed
+
+- Update v1 `handleKeyringRequest` to accept `KeyringSnapRpc` instead of `Keyring` ([#582](https://github.com/MetaMask/accounts/pull/582))
+
 ## [9.0.2]
 
 ### Changed
