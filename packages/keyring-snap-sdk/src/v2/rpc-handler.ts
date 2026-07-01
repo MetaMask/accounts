@@ -8,8 +8,8 @@ import {
   ExportAccountRequestStruct,
   SubmitRequestRequestStruct,
   SetSelectedAccountsRequestStruct,
-  ListAccountTransactionsRequestStruct,
-  ListAccountAssetsRequestStruct,
+  GetAccountTransactionsRequestStruct,
+  GetAccountAssetsRequestStruct,
   GetAccountBalancesRequestStruct,
 } from '@metamask/keyring-api/v2';
 import type { SnapKeyringRpc } from '@metamask/keyring-api/v2';
@@ -82,23 +82,25 @@ async function dispatchKeyringRequest(
       return keyring.setSelectedAccounts(request.params.accounts);
     }
 
-    case `${SnapKeyringRpcMethod.ListAccountTransactions}`: {
-      if (keyring.listAccountTransactions === undefined) {
+    case 'keyring_listAccountTransactions': // v1 fallback
+    case `${SnapKeyringRpcMethod.GetAccountTransactions}`: {
+      if (keyring.getAccountTransactions === undefined) {
         throw new MethodNotSupportedError(request.method);
       }
-      assert(request, ListAccountTransactionsRequestStruct);
-      return keyring.listAccountTransactions(
+      assert(request, GetAccountTransactionsRequestStruct);
+      return keyring.getAccountTransactions(
         request.params.id,
         request.params.pagination,
       );
     }
 
-    case `${SnapKeyringRpcMethod.ListAccountAssets}`: {
-      if (keyring.listAccountAssets === undefined) {
+    case 'keyring_listAccountAssets': // v1 fallback
+    case `${SnapKeyringRpcMethod.GetAccountAssets}`: {
+      if (keyring.getAccountAssets === undefined) {
         throw new MethodNotSupportedError(request.method);
       }
-      assert(request, ListAccountAssetsRequestStruct);
-      return keyring.listAccountAssets(request.params.id);
+      assert(request, GetAccountAssetsRequestStruct);
+      return keyring.getAccountAssets(request.params.id);
     }
 
     case `${SnapKeyringRpcMethod.GetAccountBalances}`: {

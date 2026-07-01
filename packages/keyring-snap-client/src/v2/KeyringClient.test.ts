@@ -208,8 +208,8 @@ describe('SnapKeyringClient', () => {
       });
     });
 
-    describe('listAccountTransactions', () => {
-      it('sends a request to list account transactions', async () => {
+    describe('getAccountTransactions', () => {
+      it('sends a request to get account transactions', async () => {
         const id = '49116980-0712-4fa5-b045-e4294f1d440e';
         const pagination = { limit: 10 };
         const expectedResponse = {
@@ -218,28 +218,28 @@ describe('SnapKeyringClient', () => {
         };
 
         mockSender.send.mockResolvedValue(expectedResponse);
-        const response = await client.listAccountTransactions(id, pagination);
+        const response = await client.getAccountTransactions(id, pagination);
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${SnapKeyringRpcMethod.ListAccountTransactions}`,
+          method: `${SnapKeyringRpcMethod.GetAccountTransactions}`,
           params: { id, pagination },
         });
         expect(response).toStrictEqual(expectedResponse);
       });
     });
 
-    describe('listAccountAssets', () => {
-      it('sends a request to list account assets', async () => {
+    describe('getAccountAssets', () => {
+      it('sends a request to get account assets', async () => {
         const id = '49116980-0712-4fa5-b045-e4294f1d440e';
         const expectedResponse = ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'];
 
         mockSender.send.mockResolvedValue(expectedResponse);
-        const response = await client.listAccountAssets(id);
+        const response = await client.getAccountAssets(id);
         expect(mockSender.send).toHaveBeenCalledWith({
           jsonrpc: '2.0',
           id: expect.any(String),
-          method: `${SnapKeyringRpcMethod.ListAccountAssets}`,
+          method: `${SnapKeyringRpcMethod.GetAccountAssets}`,
           params: { id },
         });
         expect(response).toStrictEqual(expectedResponse);

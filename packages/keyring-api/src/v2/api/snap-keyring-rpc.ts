@@ -29,8 +29,8 @@ import type { KeyringRpc, KeyringRpcRequests } from './keyring-rpc';
 export const SnapKeyringRpcMethod = {
   ...KeyringRpcMethod,
   SetSelectedAccounts: 'keyring_setSelectedAccounts',
-  ListAccountTransactions: 'keyring_listAccountTransactions',
-  ListAccountAssets: 'keyring_listAccountAssets',
+  GetAccountTransactions: 'keyring_getAccountTransactions',
+  GetAccountAssets: 'keyring_getAccountAssets',
   GetAccountBalances: 'keyring_getAccountBalances',
 } as const;
 
@@ -83,46 +83,46 @@ export type SetSelectedAccountsResponse = Infer<
 >;
 
 // ----------------------------------------------------------------------------
-// List account transactions
+// Get account transactions
 
-export const ListAccountTransactionsRequestStruct = object({
+export const GetAccountTransactionsRequestStruct = object({
   ...CommonHeader,
-  method: literal(`${SnapKeyringRpcMethod.ListAccountTransactions}`),
+  method: literal(`${SnapKeyringRpcMethod.GetAccountTransactions}`),
   params: object({
     id: UuidStruct,
     pagination: PaginationStruct,
   }),
 });
 
-export type ListAccountTransactionsRequest = Infer<
-  typeof ListAccountTransactionsRequestStruct
+export type GetAccountTransactionsRequest = Infer<
+  typeof GetAccountTransactionsRequestStruct
 >;
 
-export const ListAccountTransactionsResponseStruct = TransactionsPageStruct;
+export const GetAccountTransactionsResponseStruct = TransactionsPageStruct;
 
-export type ListAccountTransactionsResponse = Infer<
-  typeof ListAccountTransactionsResponseStruct
+export type GetAccountTransactionsResponse = Infer<
+  typeof GetAccountTransactionsResponseStruct
 >;
 
 // ----------------------------------------------------------------------------
-// List account assets
+// Get account assets
 
-export const ListAccountAssetsRequestStruct = object({
+export const GetAccountAssetsRequestStruct = object({
   ...CommonHeader,
-  method: literal(`${SnapKeyringRpcMethod.ListAccountAssets}`),
+  method: literal(`${SnapKeyringRpcMethod.GetAccountAssets}`),
   params: object({
     id: UuidStruct,
   }),
 });
 
-export type ListAccountAssetsRequest = Infer<
-  typeof ListAccountAssetsRequestStruct
+export type GetAccountAssetsRequest = Infer<
+  typeof GetAccountAssetsRequestStruct
 >;
 
-export const ListAccountAssetsResponseStruct = array(CaipAssetTypeOrIdStruct);
+export const GetAccountAssetsResponseStruct = array(CaipAssetTypeOrIdStruct);
 
-export type ListAccountAssetsResponse = Infer<
-  typeof ListAccountAssetsResponseStruct
+export type GetAccountAssetsResponse = Infer<
+  typeof GetAccountAssetsResponseStruct
 >;
 
 // ----------------------------------------------------------------------------
@@ -159,8 +159,8 @@ export type GetAccountBalancesResponse = Infer<
 export type SnapKeyringRpcRequests =
   | KeyringRpcRequests
   | SetSelectedAccountsRequest
-  | ListAccountTransactionsRequest
-  | ListAccountAssetsRequest
+  | GetAccountTransactionsRequest
+  | GetAccountAssetsRequest
   | GetAccountBalancesRequest;
 
 /**
@@ -183,19 +183,19 @@ export type SnapKeyringRpc = KeyringRpc & {
   setSelectedAccounts?: (accounts: AccountId[]) => Promise<void>;
 
   /**
-   * List transactions for an account with pagination.
-   * Maps to `keyring_listAccountTransactions`.
+   * Get transactions for an account with pagination.
+   * Maps to `keyring_getAccountTransactions`.
    */
-  listAccountTransactions?: (
+  getAccountTransactions?: (
     id: AccountId,
     pagination: Pagination,
   ) => Promise<TransactionsPage>;
 
   /**
-   * List the asset types supported by an account.
-   * Maps to `keyring_listAccountAssets`.
+   * Get the asset types supported by an account.
+   * Maps to `keyring_getAccountAssets`.
    */
-  listAccountAssets?: (id: AccountId) => Promise<CaipAssetTypeOrId[]>;
+  getAccountAssets?: (id: AccountId) => Promise<CaipAssetTypeOrId[]>;
 
   /**
    * Get balances for an account for the requested asset types.

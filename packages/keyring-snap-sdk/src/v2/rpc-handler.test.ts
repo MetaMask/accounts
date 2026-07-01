@@ -11,8 +11,8 @@ import type {
   ExportAccountRequest,
   SubmitRequestRequest,
   SetSelectedAccountsRequest,
-  ListAccountTransactionsRequest,
-  ListAccountAssetsRequest,
+  GetAccountTransactionsRequest,
+  GetAccountAssetsRequest,
   GetAccountBalancesRequest,
   KeyringRpc,
   SnapKeyringRpc,
@@ -30,8 +30,8 @@ describe('handleKeyringRequest', () => {
     exportAccount: jest.fn(),
     submitRequest: jest.fn(),
     setSelectedAccounts: jest.fn(),
-    listAccountTransactions: jest.fn(),
-    listAccountAssets: jest.fn(),
+    getAccountTransactions: jest.fn(),
+    getAccountAssets: jest.fn(),
     getAccountBalances: jest.fn(),
   };
 
@@ -271,11 +271,11 @@ describe('handleKeyringRequest', () => {
     );
   });
 
-  it('calls `keyring_listAccountTransactions`', async () => {
-    const request: ListAccountTransactionsRequest = {
+  it('calls `keyring_getAccountTransactions`', async () => {
+    const request: GetAccountTransactionsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.ListAccountTransactions}`,
+      method: `${SnapKeyringRpcMethod.GetAccountTransactions}`,
       params: {
         id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
         pagination: { limit: 10 },
@@ -283,21 +283,21 @@ describe('handleKeyringRequest', () => {
     };
 
     const mockedResult = { data: [], next: null };
-    keyring.listAccountTransactions.mockResolvedValue(mockedResult);
+    keyring.getAccountTransactions.mockResolvedValue(mockedResult);
     const result = await handleKeyringRequest(keyring, request);
 
-    expect(keyring.listAccountTransactions).toHaveBeenCalledWith(
+    expect(keyring.getAccountTransactions).toHaveBeenCalledWith(
       request.params.id,
       request.params.pagination,
     );
     expect(result).toStrictEqual(mockedResult);
   });
 
-  it('throws an error if `keyring_listAccountTransactions` is not implemented', async () => {
-    const request: ListAccountTransactionsRequest = {
+  it('throws an error if `keyring_getAccountTransactions` is not implemented', async () => {
+    const request: GetAccountTransactionsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.ListAccountTransactions}`,
+      method: `${SnapKeyringRpcMethod.GetAccountTransactions}`,
       params: {
         id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
         pagination: { limit: 10 },
@@ -305,44 +305,44 @@ describe('handleKeyringRequest', () => {
     };
 
     const partialKeyring: SnapKeyringRpc = { ...keyring };
-    delete partialKeyring.listAccountTransactions;
+    delete partialKeyring.getAccountTransactions;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
-      `Method not supported: ${SnapKeyringRpcMethod.ListAccountTransactions}`,
+      `Method not supported: ${SnapKeyringRpcMethod.GetAccountTransactions}`,
     );
   });
 
-  it('calls `keyring_listAccountAssets`', async () => {
-    const request: ListAccountAssetsRequest = {
+  it('calls `keyring_getAccountAssets`', async () => {
+    const request: GetAccountAssetsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.ListAccountAssets}`,
+      method: `${SnapKeyringRpcMethod.GetAccountAssets}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
     const mockedResult = [
       'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
     ];
-    keyring.listAccountAssets.mockResolvedValue(mockedResult);
+    keyring.getAccountAssets.mockResolvedValue(mockedResult);
     const result = await handleKeyringRequest(keyring, request);
 
-    expect(keyring.listAccountAssets).toHaveBeenCalledWith(request.params.id);
+    expect(keyring.getAccountAssets).toHaveBeenCalledWith(request.params.id);
     expect(result).toStrictEqual(mockedResult);
   });
 
-  it('throws an error if `keyring_listAccountAssets` is not implemented', async () => {
-    const request: ListAccountAssetsRequest = {
+  it('throws an error if `keyring_getAccountAssets` is not implemented', async () => {
+    const request: GetAccountAssetsRequest = {
       jsonrpc: '2.0',
       id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
-      method: `${SnapKeyringRpcMethod.ListAccountAssets}`,
+      method: `${SnapKeyringRpcMethod.GetAccountAssets}`,
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
     const partialKeyring: SnapKeyringRpc = { ...keyring };
-    delete partialKeyring.listAccountAssets;
+    delete partialKeyring.getAccountAssets;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
-      `Method not supported: ${SnapKeyringRpcMethod.ListAccountAssets}`,
+      `Method not supported: ${SnapKeyringRpcMethod.GetAccountAssets}`,
     );
   });
 

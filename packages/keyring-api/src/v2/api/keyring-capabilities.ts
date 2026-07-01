@@ -87,8 +87,8 @@ export const KeyringCapabilitiesStruct = object({
       assets: exactOptional(
         object({
           /**
-           * Whether the keyring supports listing account assets
-           * (`keyring_listAccountAssets`).
+           * Whether the keyring supports getting account assets
+           * (`keyring_getAccountAssets`).
            */
           metadata: exactOptional(boolean()),
           /**
@@ -99,8 +99,8 @@ export const KeyringCapabilitiesStruct = object({
         }),
       ),
       /**
-       * Whether the keyring supports listing account transactions
-       * (`keyring_listAccountTransactions`).
+       * Whether the keyring supports getting account transactions
+       * (`keyring_getAccountTransactions`).
        */
       transactions: exactOptional(boolean()),
       /**

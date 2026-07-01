@@ -9,8 +9,8 @@ import {
   ExportAccountResponseStruct,
   SnapKeyringRpcMethod,
   SetSelectedAccountsResponseStruct,
-  ListAccountTransactionsResponseStruct,
-  ListAccountAssetsResponseStruct,
+  GetAccountTransactionsResponseStruct,
+  GetAccountAssetsResponseStruct,
   GetAccountBalancesResponseStruct,
 } from '@metamask/keyring-api/v2';
 import type {
@@ -192,13 +192,13 @@ export class SnapKeyringClient implements SnapKeyringRpc {
   }
 
   /**
-   * Lists transactions for an account with pagination.
+   * Gets transactions for an account with pagination.
    *
    * @param id - ID of the account.
    * @param pagination - Pagination options.
    * @returns A promise that resolves to a page of transactions.
    */
-  async listAccountTransactions(
+  async getAccountTransactions(
     id: AccountId,
     pagination: Pagination,
   ): Promise<TransactionsPage> {
@@ -206,28 +206,28 @@ export class SnapKeyringClient implements SnapKeyringRpc {
       await this.#sender.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: SnapKeyringRpcMethod.ListAccountTransactions,
+        method: SnapKeyringRpcMethod.GetAccountTransactions,
         params: { id, pagination },
       }),
-      ListAccountTransactionsResponseStruct,
+      GetAccountTransactionsResponseStruct,
     );
   }
 
   /**
-   * Lists the asset types supported by an account.
+   * Gets the asset types supported by an account.
    *
    * @param id - ID of the account.
    * @returns A promise that resolves to the list of CAIP asset type IDs.
    */
-  async listAccountAssets(id: AccountId): Promise<CaipAssetTypeOrId[]> {
+  async getAccountAssets(id: AccountId): Promise<CaipAssetTypeOrId[]> {
     return strictMask(
       await this.#sender.send({
         jsonrpc: '2.0',
         id: uuid(),
-        method: SnapKeyringRpcMethod.ListAccountAssets,
+        method: SnapKeyringRpcMethod.GetAccountAssets,
         params: { id },
       }),
-      ListAccountAssetsResponseStruct,
+      GetAccountAssetsResponseStruct,
     );
   }
 
