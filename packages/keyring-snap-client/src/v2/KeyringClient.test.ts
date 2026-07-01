@@ -1,5 +1,9 @@
 import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
-import { KeyringRpcMethod, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
+import {
+  KeyringRpcMethod,
+  PrivateKeyEncoding,
+  KeyringSnapRpcMethod,
+} from '@metamask/keyring-api/v2';
 import type { Json } from '@metamask/utils';
 
 import { KeyringClient } from './KeyringClient';
@@ -181,6 +185,89 @@ describe('KeyringClient', () => {
           id: expect.any(String),
           method: `${KeyringRpcMethod.SubmitRequest}`,
           params: request,
+        });
+        expect(response).toStrictEqual(expectedResponse);
+      });
+    });
+
+    describe('setSelectedAccounts', () => {
+      it('sends a request to set selected accounts', async () => {
+        const accounts = [
+          '49116980-0712-4fa5-b045-e4294f1d440e',
+          '46b5ccd3-4786-427c-89d2-cef626dffe9b',
+        ];
+
+        mockSender.send.mockResolvedValue(null);
+        await client.setSelectedAccounts(accounts);
+        expect(mockSender.send).toHaveBeenCalledWith({
+          jsonrpc: '2.0',
+          id: expect.any(String),
+          method: `${KeyringSnapRpcMethod.SetSelectedAccounts}`,
+          params: { accounts },
+        });
+      });
+    });
+
+    describe('getAccountTransactions', () => {
+      it('sends a request to get account transactions', async () => {
+        const id = '49116980-0712-4fa5-b045-e4294f1d440e';
+        const pagination = { limit: 10 };
+        const expectedResponse = {
+          data: [],
+          next: null,
+        };
+
+        mockSender.send.mockResolvedValue(expectedResponse);
+        const response = await client.getAccountTransactions(id, pagination);
+        expect(mockSender.send).toHaveBeenCalledWith({
+          jsonrpc: '2.0',
+          id: expect.any(String),
+          method: `${KeyringSnapRpcMethod.GetAccountTransactions}`,
+          params: { id, pagination },
+        });
+        expect(response).toStrictEqual(expectedResponse);
+      });
+    });
+
+    describe('getAccountAssets', () => {
+      it('sends a request to get account assets', async () => {
+        const id = '49116980-0712-4fa5-b045-e4294f1d440e';
+        const expectedResponse = [
+          'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
+        ];
+
+        mockSender.send.mockResolvedValue(expectedResponse);
+        const response = await client.getAccountAssets(id);
+        expect(mockSender.send).toHaveBeenCalledWith({
+          jsonrpc: '2.0',
+          id: expect.any(String),
+          method: `${KeyringSnapRpcMethod.GetAccountAssets}`,
+          params: { id },
+        });
+        expect(response).toStrictEqual(expectedResponse);
+      });
+    });
+
+    describe('getAccountBalances', () => {
+      it('sends a request to get account balances', async () => {
+        const id = '49116980-0712-4fa5-b045-e4294f1d440e';
+        const assets = [
+          'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
+        ] as const;
+        const expectedResponse = {
+          'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f': {
+            amount: '1000000000000000000',
+            unit: 'DAI',
+          },
+        };
+
+        mockSender.send.mockResolvedValue(expectedResponse);
+        const response = await client.getAccountBalances(id, [...assets]);
+        expect(mockSender.send).toHaveBeenCalledWith({
+          jsonrpc: '2.0',
+          id: expect.any(String),
+          method: `${KeyringSnapRpcMethod.GetAccountBalances}`,
+          params: { id, assets },
         });
         expect(response).toStrictEqual(expectedResponse);
       });

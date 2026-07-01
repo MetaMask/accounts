@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Implements `KeyringSnapRpc` (v2) in `KeyringClient` (v2) ([#582](https://github.com/MetaMask/accounts/pull/582))
+  - Exposes all core v2 keyring methods plus optional snap-specific ones: `setSelectedAccounts`, `getAccountTransactions`, `getAccountAssets`, and `getAccountBalances`.
+
 ### Changed
 
 - Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
