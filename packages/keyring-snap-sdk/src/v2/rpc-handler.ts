@@ -87,6 +87,7 @@ async function dispatchKeyringRequest(
       return keyring.setSelectedAccounts(request.params.accounts);
     }
 
+    // Deprecated, but still supported for backwards compatibility with v1 of the Keyring API.
     case `${KeyringRpcMethodV1.ListAccountTransactions}`: {
       if (keyring.getAccountTransactions === undefined) {
         throw new MethodNotSupportedError(request.method);
@@ -109,6 +110,7 @@ async function dispatchKeyringRequest(
       );
     }
 
+    // Deprecated, but still supported for backwards compatibility with v1 of the Keyring API.
     case `${KeyringRpcMethodV1.ListAccountAssets}`: {
       if (keyring.getAccountAssets === undefined) {
         throw new MethodNotSupportedError(request.method);
