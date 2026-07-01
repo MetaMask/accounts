@@ -10,7 +10,7 @@ import type { SnapId } from '@metamask/snaps-sdk';
 
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
 import type { SnapKeyringCallbacks } from './SnapKeyring';
-import { isSnapKeyring, SnapKeyring } from './SnapKeyring';
+import { EMPTY_CAPABILITIES, isSnapKeyring, SnapKeyring } from './SnapKeyring';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 
@@ -98,6 +98,144 @@ describe('SnapKeyring', () => {
 
       const { keyring } = await makeKeyring();
       expect(keyring.type).toBe(KeyringType.Snap);
+    });
+  });
+
+  describe('capabilities', () => {
+    const manifestCapabilities = {
+      scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+      bip44: { deriveIndex: true, deriveIndexRange: true, discover: true },
+    };
+
+    /**
+     * Build and deserialize a keyring whose messenger returns a snap with the
+     * given `endowment:keyring` permission value from `SnapController:getSnap`.
+     *
+     * @param keyringPermission - The `endowment:keyring` initial-permission value
+     * (or `undefined` to simulate a snap that is not found).
+     * @returns The deserialized keyring.
+     */
+    async function makeKeyringWithSnap(
+      keyringPermission: unknown,
+    ): Promise<SnapKeyring> {
+      const messenger = {
+        call: jest.fn((action: string) =>
+          action === 'SnapController:getSnap' && keyringPermission !== undefined
+            ? {
+                manifest: {
+                  initialPermissions: {
+                    'endowment:keyring': keyringPermission,
+                  },
+                },
+              }
+            : undefined,
+        ),
+        publish: jest.fn(),
+      } as unknown as SnapKeyringMessenger;
+      const keyring = new SnapKeyring({
+        messenger,
+        callbacks: makeMockCallbacks(),
+      });
+      await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+      return keyring;
+    }
+
+    it('populates capabilities from the snap manifest on deserialize', async () => {
+      const keyring = await makeKeyringWithSnap({
+        capabilities: manifestCapabilities,
+      });
+      expect(keyring.capabilities).toStrictEqual(manifestCapabilities);
+    });
+
+    it('keeps the empty default when the snap declares no capabilities', async () => {
+      const keyring = await makeKeyringWithSnap({
+        allowedOrigins: ['https://portfolio.metamask.io'],
+      });
+      expect(keyring.capabilities).toStrictEqual(EMPTY_CAPABILITIES);
+    });
+
+    it('keeps the empty default when the snap cannot be found', async () => {
+      const keyring = await makeKeyringWithSnap(undefined);
+      expect(keyring.capabilities).toStrictEqual(EMPTY_CAPABILITIES);
+    });
+
+    it('clears stale capabilities on a later deserialize without capabilities', async () => {
+      const snapWith = (keyringPermission: unknown): unknown => ({
+        manifest: {
+          initialPermissions: { 'endowment:keyring': keyringPermission },
+        },
+      });
+      const mockGetSnap = jest.fn();
+      const messenger = {
+        call: jest.fn((action: string) =>
+          action === 'SnapController:getSnap' ? mockGetSnap() : undefined,
+        ),
+        publish: jest.fn(),
+      } as unknown as SnapKeyringMessenger;
+      const keyring = new SnapKeyring({
+        messenger,
+        callbacks: makeMockCallbacks(),
+      });
+      mockGetSnap.mockReturnValueOnce(
+        snapWith({ capabilities: manifestCapabilities }),
+      );
+      await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+      expect(keyring.capabilities).toStrictEqual(manifestCapabilities);
+      // Manifest won't yield any capabilities this time, so we end up
+      // clearing the old ones and fallback to the `EMPTY_CAPABILITIES`.
+      mockGetSnap.mockReturnValueOnce(snapWith({ allowedOrigins: [] }));
+      await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+      expect(keyring.capabilities).toStrictEqual(EMPTY_CAPABILITIES);
+    });
+  });
+
+  describe('initialization guard', () => {
+    const ERROR = 'SnapKeyring has not been initialized';
+
+    /**
+     * Build a `SnapKeyring` WITHOUT calling `deserialize`.
+     *
+     * @returns The uninitialized keyring.
+     */
+    function makeUninitializedKeyring(): SnapKeyring {
+      const messenger = {
+        call: jest.fn(),
+        publish: jest.fn(),
+      } as unknown as SnapKeyringMessenger;
+      return new SnapKeyring({ messenger, callbacks: makeMockCallbacks() });
+    }
+
+    it('rejects getAccounts before deserialize is called', async () => {
+      await expect(makeUninitializedKeyring().getAccounts()).rejects.toThrow(
+        ERROR,
+      );
+    });
+
+    it('rejects getAccount before deserialize is called', async () => {
+      await expect(
+        makeUninitializedKeyring().getAccount(account1.id),
+      ).rejects.toThrow(ERROR);
+    });
+
+    it('rejects createAccounts before deserialize is called', async () => {
+      await expect(
+        makeUninitializedKeyring().createAccounts({
+          type: 'bip44:derive-index',
+          entropySource: 'mock-entropy-source',
+          groupIndex: 0,
+        } as CreateAccountOptions),
+      ).rejects.toThrow(ERROR);
+    });
+
+    it('rejects deleteAccount before deserialize is called', async () => {
+      await expect(
+        makeUninitializedKeyring().deleteAccount(account1.id),
+      ).rejects.toThrow(ERROR);
+    });
+
+    it('allows operations after deserialize', async () => {
+      const { keyring } = await makeKeyring();
+      expect(await keyring.getAccounts()).toStrictEqual([]);
     });
   });
 
