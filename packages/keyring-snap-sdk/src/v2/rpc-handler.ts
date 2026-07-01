@@ -1,3 +1,4 @@
+import { KeyringRpcMethod as KeyringRpcMethodV1 } from '@metamask/keyring-api';
 import {
   KeyringRpcMethod,
   SnapKeyringRpcMethod,
@@ -82,7 +83,7 @@ async function dispatchKeyringRequest(
       return keyring.setSelectedAccounts(request.params.accounts);
     }
 
-    case 'keyring_listAccountTransactions': // v1 fallback
+    case `${KeyringRpcMethodV1.ListAccountTransactions}`: // v1 fallback
     case `${SnapKeyringRpcMethod.GetAccountTransactions}`: {
       if (keyring.getAccountTransactions === undefined) {
         throw new MethodNotSupportedError(request.method);
@@ -94,7 +95,7 @@ async function dispatchKeyringRequest(
       );
     }
 
-    case 'keyring_listAccountAssets': // v1 fallback
+    case `${KeyringRpcMethodV1.ListAccountAssets}`: // v1 fallback
     case `${SnapKeyringRpcMethod.GetAccountAssets}`: {
       if (keyring.getAccountAssets === undefined) {
         throw new MethodNotSupportedError(request.method);

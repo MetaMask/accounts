@@ -1,3 +1,4 @@
+import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import {
   object,
   UuidStruct,
@@ -14,7 +15,25 @@ import {
   union,
 } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
+import type { Json } from '@metamask/utils';
 
+import type {
+  Balance,
+  CaipAssetType,
+  CaipAssetTypeOrId,
+  CaipChainId,
+  DiscoveredAccount,
+  EntropySourceId,
+  KeyringAccount,
+  KeyringAccountData,
+  KeyringRequest,
+  KeyringResponse,
+  MetaMaskOptions,
+  Paginated,
+  Pagination,
+  ResolvedAccountAddress,
+  Transaction,
+} from './api';
 import {
   CaipAssetTypeStruct,
   CaipAssetTypeOrIdStruct,
@@ -29,6 +48,7 @@ import {
   CaipAccountIdStruct,
   DiscoveredAccountStruct,
 } from './api';
+import type { CreateAccountOptions } from './v2/api/create-account';
 import { CreateAccountOptionsStruct } from './v2/api/create-account';
 
 /**
@@ -436,3 +456,55 @@ export type RejectRequestRequest = Infer<typeof RejectRequestRequestStruct>;
 export const RejectRequestResponseStruct = literal(null);
 
 export type RejectRequestResponse = Infer<typeof RejectRequestResponseStruct>;
+
+// ----------------------------------------------------------------------------
+// Keyring RPC interfaces
+
+/**
+ * Core keyring RPC interface - all standard account management and request
+ * handling methods, excluding snap-specific extensions.
+ */
+export type KeyringRpc = {
+  listAccounts(): Promise<KeyringAccount[]>;
+  getAccount(id: string): Promise<KeyringAccount | undefined>;
+  createAccount(
+    options?: Record<string, Json> & MetaMaskOptions,
+  ): Promise<KeyringAccount>;
+  createAccounts?(options: CreateAccountOptions): Promise<KeyringAccount[]>;
+  discoverAccounts?(
+    scopes: CaipChainId[],
+    entropySource: EntropySourceId,
+    groupIndex: number,
+  ): Promise<DiscoveredAccount[]>;
+  filterAccountChains(id: string, chains: string[]): Promise<string[]>;
+  updateAccount(account: KeyringAccount): Promise<void>;
+  deleteAccount(id: string): Promise<void>;
+  exportAccount?(id: string): Promise<KeyringAccountData>;
+  listRequests?(): Promise<KeyringRequest[]>;
+  getRequest?(id: string): Promise<KeyringRequest | undefined>;
+  submitRequest(request: KeyringRequest): Promise<KeyringResponse>;
+  approveRequest?(id: string, data?: Record<string, Json>): Promise<void>;
+  rejectRequest?(id: string): Promise<void>;
+  resolveAccountAddress?(
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+  ): Promise<ResolvedAccountAddress | null>;
+};
+
+/**
+ * Snap keyring RPC interface - extends {@link KeyringRpc} with optional
+ * snap-specific methods for assets, transactions, balances, and account
+ * selection.
+ */
+export type SnapKeyringRpc = KeyringRpc & {
+  listAccountAssets?(id: string): Promise<CaipAssetTypeOrId[]>;
+  listAccountTransactions?(
+    id: string,
+    pagination: Pagination,
+  ): Promise<Paginated<Transaction>>;
+  getAccountBalances?(
+    id: string,
+    assets: CaipAssetType[],
+  ): Promise<Record<CaipAssetType, Balance>>;
+  setSelectedAccounts?(accounts: AccountId[]): Promise<void>;
+};

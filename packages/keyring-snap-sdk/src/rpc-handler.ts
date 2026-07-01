@@ -1,4 +1,4 @@
-import type { Keyring } from '@metamask/keyring-api';
+import type { SnapKeyringRpc } from '@metamask/keyring-api';
 import {
   KeyringRpcMethod,
   GetAccountRequestStruct,
@@ -50,7 +50,7 @@ export class MethodNotSupportedError extends MethodNotSupportedRpcError {
  * @returns A promise that resolves to the keyring response.
  */
 async function dispatchRequest(
-  keyring: Keyring,
+  keyring: SnapKeyringRpc,
   request: JsonRpcRequest,
 ): Promise<Json | void> {
   // We first have to make sure that the request is a valid JSON-RPC request so
@@ -231,7 +231,7 @@ async function dispatchRequest(
  * ```
  */
 export async function handleKeyringRequest(
-  keyring: Keyring,
+  keyring: SnapKeyringRpc,
   request: JsonRpcRequest,
 ): Promise<Json | void> {
   try {
