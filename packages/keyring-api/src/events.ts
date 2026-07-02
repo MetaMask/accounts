@@ -1,9 +1,14 @@
-import {
-  UuidStruct,
-  AccountIdStruct,
-} from '@metamask/keyring-utils';
+import { UuidStruct, AccountIdStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { array, boolean, literal, record, string, object, exactOptional } from '@metamask/superstruct';
+import {
+  array,
+  boolean,
+  literal,
+  record,
+  string,
+  object,
+  exactOptional,
+} from '@metamask/superstruct';
 import {
   CaipAssetTypeStruct,
   CaipAssetTypeOrIdStruct,

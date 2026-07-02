@@ -1,5 +1,11 @@
 import type { Infer } from '@metamask/superstruct';
-import { exactOptional, literal, object, string, union } from '@metamask/superstruct';
+import {
+  exactOptional,
+  literal,
+  object,
+  string,
+  union,
+} from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
 export const KeyringResponseStruct = union([

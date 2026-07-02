@@ -1,5 +1,12 @@
 import type { Infer } from '@metamask/superstruct';
-import { object, exactOptional, boolean, number, optional, string } from '@metamask/superstruct';
+import {
+  object,
+  exactOptional,
+  boolean,
+  number,
+  optional,
+  string,
+} from '@metamask/superstruct';
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
 // NOTE: Kept this test as non-regression tests after the migration from ours `exactOptional`

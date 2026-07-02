@@ -1,5 +1,11 @@
 import type { Infer } from '@metamask/superstruct';
-import { exactOptional, nullable, number, object, string } from '@metamask/superstruct';
+import {
+  exactOptional,
+  nullable,
+  number,
+  object,
+  string,
+} from '@metamask/superstruct';
 
 /**
  * Pagination struct. This struct is used to specify the limit of items to

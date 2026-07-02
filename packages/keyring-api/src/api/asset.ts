@@ -1,7 +1,4 @@
-import {
-  selectiveUnion,
-  StringNumberStruct,
-} from '@metamask/keyring-utils';
+import { selectiveUnion, StringNumberStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { literal, object, string } from '@metamask/superstruct';
 import {

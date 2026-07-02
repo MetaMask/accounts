@@ -1,6 +1,14 @@
 import { UuidStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { array, exactOptional, literal, number, object, string, union } from '@metamask/superstruct';
+import {
+  array,
+  exactOptional,
+  literal,
+  number,
+  object,
+  string,
+  union,
+} from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
 import { KeyringAccountStruct } from '../../api/account';

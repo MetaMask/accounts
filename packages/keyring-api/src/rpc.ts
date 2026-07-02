@@ -1,8 +1,5 @@
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
-import {
-  UuidStruct,
-  JsonRpcRequestStruct,
-} from '@metamask/keyring-utils';
+import { UuidStruct, JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   array,
