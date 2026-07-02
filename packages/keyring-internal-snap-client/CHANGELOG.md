@@ -9,12 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [10.0.4]
 
-### Uncategorized
-
-- feat(keyring-snap-bridge): populate v2 SnapKeyring capabilities from the manifest ([#581](https://github.com/MetaMask/accounts/pull/581))
-- chore: fix changelogs PR grouping ([#563](https://github.com/MetaMask/accounts/pull/563))
-- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
-
 ### Changed
 
 - Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))

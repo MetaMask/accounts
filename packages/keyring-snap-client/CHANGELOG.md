@@ -9,11 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.1.0]
 
-### Uncategorized
-
-- chore: fix changelogs PR grouping ([#563](https://github.com/MetaMask/accounts/pull/563))
-- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
-
 ### Added
 
 - Implements `KeyringSnapRpc` (v2) in `KeyringClient` (v2) ([#582](https://github.com/MetaMask/accounts/pull/582))
