@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- chore: fix changelogs PR grouping ([#563](https://github.com/MetaMask/accounts/pull/563))
-
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^23.1.0` to `^23.3.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569))
@@ -66,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Replace inheritance with composition; `MoneyKeyring` now wraps an inner `HdKeyring` instead of extending it ([#484](https://github.com/MetaMask/accounts/pull/484), [#492](https://github.com/MetaMask/accounts/pull/492), [#488](https://github.com/MetaMask/accounts/pull/488))
+- **BREAKING:** Replace inheritance with composition; `MoneyKeyring` now wraps an inner `HdKeyring` instead of extending it ([#484](https://github.com/MetaMask/accounts/pull/484), [#492](https://github.com/MetaMask/accounts/pull/488), [#488](https://github.com/MetaMask/accounts/pull/492))
   - Constructor now requires a `MoneyKeyringOptions` object with a `getMnemonic` callback. The `entropySource` is set by `deserialize()` from the serialized state.
   - The inner `HdKeyring` is created on the first signing call (lazily), protected by a mutex to ensure single initialization under concurrency.
   - Serialized state now stores `entropySource` instead of `mnemonic`; the mnemonic is resolved at deserialization time via the callback.

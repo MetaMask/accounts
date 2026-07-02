@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.4]
+
 ### Uncategorized
 
 - feat(keyring-snap-bridge): populate v2 SnapKeyring capabilities from the manifest ([#581](https://github.com/MetaMask/accounts/pull/581))
@@ -239,7 +241,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.3...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.4...HEAD
+[10.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.3...@metamask/keyring-internal-snap-client@10.0.4
 [10.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.2...@metamask/keyring-internal-snap-client@10.0.3
 [10.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.1...@metamask/keyring-internal-snap-client@10.0.2
 [10.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.0...@metamask/keyring-internal-snap-client@10.0.1

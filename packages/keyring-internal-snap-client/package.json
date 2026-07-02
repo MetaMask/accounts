@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-internal-snap-client",
-  "version": "10.0.3",
+  "version": "10.0.4",
   "description": "MetaMask Keyring Snap internal clients",
   "keywords": [
     "keyring",
@@ -66,9 +66,9 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-api": "^23.3.0",
+    "@metamask/keyring-api": "^23.4.0",
     "@metamask/keyring-internal-api": "^11.0.1",
-    "@metamask/keyring-snap-client": "^9.0.2",
+    "@metamask/keyring-snap-client": "^9.1.0",
     "@metamask/keyring-utils": "^3.3.1",
     "@metamask/messenger": "^1.1.1"
   },
