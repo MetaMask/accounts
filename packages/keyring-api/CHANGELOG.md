@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [23.4.0]
+
+### Added
+
+- Add `KeyringRpc` and `KeyringSnapRpc` RPC interfaces to v1 ([#582](https://github.com/MetaMask/accounts/pull/582))
+  - `KeyringRpc` covers the standard account-management and request-handling methods.
+  - `KeyringSnapRpc` extends `KeyringRpc` with optional snap-specific methods: `listAccountAssets`, `listAccountTransactions`, `getAccountBalances`, and `setSelectedAccounts`.
+- Add `KeyringSnapRpc`, `KeyringSnapRpcMethod`, `isKeyringSnapRpcMethod`, and related request/response structs to keyring v2 (`./v2`) ([#582](https://github.com/MetaMask/accounts/pull/582))
+  - `KeyringSnapRpc` extends `KeyringRpc` (v2) with four optional snap-specific methods: `setSelectedAccounts`, `getAccountTransactions`, `getAccountAssets`, and `getAccountBalances`.
+  - `KeyringSnapRpcMethod` spreads all base `KeyringRpcMethod` values and adds the four snap-specific method names.
+- Add optional `snap` capability field to `KeyringCapabilities` (v2) ([#582](https://github.com/MetaMask/accounts/pull/582))
+  - Flags: `snap.assets.metadata` (`keyring_getAccountAssets`), `snap.assets.balances` (`keyring_getAccountBalances`), `snap.transactions` (`keyring_getAccountTransactions`), `snap.selectedAccounts` (`keyring_setSelectedAccounts`).
+
 ## [23.3.0]
 
 ### Added
@@ -768,7 +781,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.3.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.4.0...HEAD
+[23.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.3.0...@metamask/keyring-api@23.4.0
 [23.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.2.0...@metamask/keyring-api@23.3.0
 [23.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.1.0...@metamask/keyring-api@23.2.0
 [23.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.0.1...@metamask/keyring-api@23.1.0

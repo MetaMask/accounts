@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [22.4.0]
+
+### Added
+
+- Populate v2 `SnapKeyring` `capabilities` from the Snap manifest (`endowment:keyring`) on `deserialize` ([#581](https://github.com/MetaMask/accounts/pull/581))
+- Guard v2 `SnapKeyring` operations until `deserialize` has run (throws "SnapKeyring has not been initialized") ([#581](https://github.com/MetaMask/accounts/pull/581))
+
+### Changed
+
+- Bump `@metamask/snaps-utils` from `^12.1.3` to `^12.2.1` ([#581](https://github.com/MetaMask/accounts/pull/581))
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.3` to `^10.0.4` ([#583](https://github.com/MetaMask/accounts/pull/583))
+- Bump `@metamask/keyring-snap-sdk` from `^9.0.2` to `^9.1.0` ([#583](https://github.com/MetaMask/accounts/pull/583))
+
 ## [22.3.0]
 
 ### Added
@@ -745,7 +758,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.3.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.4.0...HEAD
+[22.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.3.0...@metamask/eth-snap-keyring@22.4.0
 [22.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.2.0...@metamask/eth-snap-keyring@22.3.0
 [22.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.1.0...@metamask/eth-snap-keyring@22.2.0
 [22.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.0.1...@metamask/eth-snap-keyring@22.1.0

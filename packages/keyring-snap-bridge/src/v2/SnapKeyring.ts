@@ -28,6 +28,15 @@ import type {
 import { equalsIgnoreCase } from '../util';
 
 /**
+ * Default, empty capabilities used until the snap manifest is read on
+ * `deserialize`. Typed (no cast) so that adding a new required
+ * `KeyringCapabilities` field surfaces here as a compile error.
+ */
+export const EMPTY_CAPABILITIES: KeyringCapabilities = Object.freeze({
+  scopes: [],
+});
+
+/**
  * Superstruct schema for {@link SnapKeyringState}.
  *
  * Accepts both v1 accounts (missing `scopes`) and v2 accounts so that
@@ -108,6 +117,12 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    */
   readonly #lock: Mutex;
 
+  /**
+   * Whether `deserialize` has completed. Keyring operations are guarded against
+   * use before the keyring has been bound to a snap and its state loaded.
+   */
+  #initialized = false;
+
   // ──────────────────────────────────────────────
   // Keyring properties
   // ──────────────────────────────────────────────
@@ -127,10 +142,8 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     this.#callbacks = options.callbacks;
     this.#lock = new Mutex();
 
-    // Default capabilities — parent updates this when snap metadata is available.
-    // We cast here because KeyringCapabilities requires a non-empty scopes array,
-    // but we don't have the snap metadata at construction time (e.g. during deserialization).
-    this.capabilities = { scopes: [] } as unknown as KeyringCapabilities;
+    // Default capabilities; replaced from the snap manifest on `deserialize`.
+    this.capabilities = EMPTY_CAPABILITIES;
   }
 
   /**
@@ -172,6 +185,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns A promise that resolves to an array of all accounts.
    */
   async getAccounts(): Promise<KeyringAccount[]> {
+    this.#assertInitialized();
     return this.accounts();
   }
 
@@ -182,6 +196,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns A promise that resolves to the account.
    */
   async getAccount(accountId: AccountId): Promise<KeyringAccount> {
+    this.#assertInitialized();
     const account = this.lookupAccount(accountId);
     if (!account) {
       throw new Error(
@@ -209,6 +224,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
   async createAccounts(
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
+    this.#assertInitialized();
     return this.#withLock(async () => {
       // Keep track of address/account ID part of this batch, to avoid having duplicates.
       const batchAddresses = new Set<string>();
@@ -294,6 +310,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @param accountId - ID of the account to delete.
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
+    this.#assertInitialized();
     // Always remove the account from the registry, even if the Snap is going to
     // fail to delete it. removeAccount fires onUnregister to clean #accountIndex.
     this.removeAccount(accountId);
@@ -338,6 +355,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
       params?: Json[] | Record<string, Json>;
     };
   }): Promise<Json> {
+    this.#assertInitialized();
     const account = this.lookupAccount(request.account);
     if (!account) {
       throw new Error(
@@ -487,6 +505,12 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     // mismatch to prevent swapping a keyring's identity via deserialize).
     this.bindSnapId(state.snapId as SnapId);
 
+    // Refresh capabilities from the snap manifest on every deserialize, falling
+    // back to the empty default so a re-hydrate clears any previously-loaded
+    // capabilities when the snap no longer declares them.
+    this.capabilities =
+      this.#resolveKeyringCapabilities() ?? EMPTY_CAPABILITIES;
+
     // Migrate v1 accounts to v2.
     const migratedAccounts: Record<string, KeyringAccount> = {};
     for (const [id, rawAccount] of Object.entries(state.accounts)) {
@@ -508,9 +532,41 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     for (const account of Object.values(migratedAccounts)) {
       this.setAccount(account);
     }
+
+    this.#initialized = true;
   }
 
   // ──────────────────────────────────────────────
   // Private helpers
   // ──────────────────────────────────────────────
+
+  /**
+   * Assert that the keyring has been initialized.
+   *
+   * @throws An error if the keyring has not been initialized.
+   */
+  #assertInitialized(): void {
+    if (!this.#initialized) {
+      throw new Error(
+        'SnapKeyring has not been initialized: call deserialize() first',
+      );
+    }
+  }
+
+  /**
+   * Resolve the keyring capabilities from the snap manifest.
+   *
+   * @returns The keyring capabilities, or `undefined` if the snap manifest does not declare any capabilities.
+   */
+  #resolveKeyringCapabilities(): KeyringCapabilities | undefined {
+    const snap = this.messenger.call('SnapController:getSnap', this.snapId);
+    // READ THIS CAREFULLY:
+    // We are not validating the shape of the capabilities here, because there is
+    // manifest validation done already on the snaps side, the snaps repo maintains
+    // a copy of the `KeyringCapabilitiesStruct`.
+    // We must ensure that both structs are always in-sync, otherwise the type-cast
+    // could cause runtime issues!
+    return snap?.manifest.initialPermissions['endowment:keyring']
+      ?.capabilities as KeyringCapabilities | undefined;
+  }
 }
