@@ -233,7 +233,7 @@
   },
   "packages/keyring-utils/src/superstruct.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 7
+      "count": 5
     }
   },
   "packages/keyring-utils/src/types.test.ts": {
