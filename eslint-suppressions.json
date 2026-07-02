@@ -122,11 +122,6 @@
       "count": 11
     }
   },
-  "packages/keyring-eth-trezor/src/onekey-keyring.test.ts": {
-    "import-x/namespace": {
-      "count": 1
-    }
-  },
   "packages/keyring-eth-trezor/src/trezor-bridge.ts": {
     "@typescript-eslint/naming-convention": {
       "count": 1
@@ -157,9 +152,6 @@
     },
     "id-length": {
       "count": 1
-    },
-    "import-x/namespace": {
-      "count": 42
     }
   },
   "packages/keyring-eth-trezor/src/trezor-keyring.ts": {
