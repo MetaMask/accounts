@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/snaps-utils` from `^12.1.3` to `^12.2.1` ([#581](https://github.com/MetaMask/accounts/pull/581))
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.3` to `^10.0.4` ([#583](https://github.com/MetaMask/accounts/pull/583))
+- Bump `@metamask/keyring-snap-sdk` from `^9.0.2` to `^10.0.0` ([#583](https://github.com/MetaMask/accounts/pull/583))
 
 ## [22.3.0]
 
