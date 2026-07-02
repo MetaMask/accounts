@@ -4,7 +4,10 @@ import {
   KeyringRpcMethod,
   isKeyringRpcMethod,
 } from '@metamask/keyring-api';
-import type { Keyring, GetAccountBalancesRequest } from '@metamask/keyring-api';
+import type {
+  KeyringSnapRpc,
+  GetAccountBalancesRequest,
+} from '@metamask/keyring-api';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { UserRejectedRequestError } from '@metamask/snaps-sdk';
 
@@ -163,7 +166,7 @@ describe('handleKeyringRequest', () => {
       params: { options },
     };
 
-    const partialKeyring: Keyring = { ...keyring };
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
     delete partialKeyring.createAccounts;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
@@ -214,7 +217,7 @@ describe('handleKeyringRequest', () => {
       },
     };
 
-    const partialKeyring: Keyring = { ...keyring };
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
     delete partialKeyring.discoverAccounts;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
@@ -257,7 +260,7 @@ describe('handleKeyringRequest', () => {
       },
     };
 
-    const partialKeyring: Keyring = { ...keyring };
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
     delete partialKeyring.listAccountTransactions;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
@@ -294,7 +297,7 @@ describe('handleKeyringRequest', () => {
       },
     };
 
-    const partialKeyring: Keyring = { ...keyring };
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
     delete partialKeyring.listAccountAssets;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
@@ -360,7 +363,7 @@ describe('handleKeyringRequest', () => {
       },
     };
 
-    const partialKeyring: Keyring = { ...keyring };
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
     delete partialKeyring.resolveAccountAddress;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
@@ -392,7 +395,7 @@ describe('handleKeyringRequest', () => {
       method: 'keyring_setSelectedAccounts',
       params: { accounts: ['4f983fa2-4f53-4c63-a7c2-f9a5ed750041'] },
     };
-    const partialKeyring: Keyring = { ...keyring };
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
     delete partialKeyring.setSelectedAccounts;
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
@@ -499,7 +502,7 @@ describe('handleKeyringRequest', () => {
       params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
     };
 
-    const partialKeyring: Keyring = {
+    const partialKeyring: KeyringSnapRpc = {
       ...keyring,
     };
     delete partialKeyring.exportAccount;
@@ -530,7 +533,7 @@ describe('handleKeyringRequest', () => {
       method: 'keyring_listRequests',
     };
 
-    const partialKeyring: Keyring = {
+    const partialKeyring: KeyringSnapRpc = {
       ...keyring,
     };
     delete partialKeyring.listRequests;
@@ -565,7 +568,7 @@ describe('handleKeyringRequest', () => {
       params: { id: '0cea396f-54e4-4fa9-bf33-8419da668add' },
     };
 
-    const partialKeyring: Keyring = {
+    const partialKeyring: KeyringSnapRpc = {
       ...keyring,
     };
     delete partialKeyring.getRequest;
@@ -631,7 +634,7 @@ describe('handleKeyringRequest', () => {
       params: { id: 'request_id', data: {} },
     };
 
-    const partialKeyring: Keyring = {
+    const partialKeyring: KeyringSnapRpc = {
       ...keyring,
     };
     delete partialKeyring.approveRequest;
@@ -712,7 +715,7 @@ describe('handleKeyringRequest', () => {
       params: { id: 'request_id' },
     };
 
-    const partialKeyring: Keyring = {
+    const partialKeyring: KeyringSnapRpc = {
       ...keyring,
     };
     delete partialKeyring.rejectRequest;
