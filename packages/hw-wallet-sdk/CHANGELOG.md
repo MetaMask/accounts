@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `KEYRING_ERROR_MAPPINGS` with `DeviceStateOnlyV4Supported` for keyring-level typed data version validation ([#575](https://github.com/MetaMask/accounts/pull/575))
+
 ### Fixed
 
 - Add shared user-rejection detection helpers so hardware wallet libraries can classify cancellation-like errors consistently ([#576](https://github.com/MetaMask/accounts/pull/576))
