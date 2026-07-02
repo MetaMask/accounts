@@ -3,15 +3,11 @@ import {
   assert,
   coerce,
   create,
-  exactOptional,
   is,
   literal,
-  max,
   number,
   object,
   string,
-  type,
-  union,
 } from '@metamask/superstruct';
 import { isPlainObject } from '@metamask/utils';
 
