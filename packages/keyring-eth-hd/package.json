@@ -74,7 +74,7 @@
     "@metamask/keyring-sdk": "^2.2.0",
     "@metamask/keyring-utils": "^3.3.1",
     "@metamask/scure-bip39": "^2.1.1",
-    "@metamask/superstruct": "^3.1.0",
+    "@metamask/superstruct": "^3.3.0",
     "@metamask/utils": "^11.11.0",
     "ethereum-cryptography": "^2.2.1"
   },

@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "@metamask/keyring-utils": "^3.3.1",
-    "@metamask/superstruct": "^3.1.0",
+    "@metamask/superstruct": "^3.3.0",
     "@metamask/utils": "^11.11.0",
     "bitcoin-address-validation": "^2.2.3"
   },
