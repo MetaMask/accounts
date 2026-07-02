@@ -10,11 +10,12 @@ import {
   number,
   object,
   string,
+  type,
   union,
 } from '@metamask/superstruct';
 import { isPlainObject } from '@metamask/utils';
 
-import { strictMask, selectiveUnion, type } from '.';
+import { strictMask, selectiveUnion } from '.';
 
 describe('exactOptional', () => {
   const simpleStruct = object({

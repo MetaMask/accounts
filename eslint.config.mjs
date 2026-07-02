@@ -39,15 +39,9 @@ const config = createConfig([
             },
             {
               name: '@metamask/keyring-utils',
-              importNames: ['object', 'exactOptional'],
+              importNames: ['object', 'exactOptional', 'type'],
               message:
-                "Import 'object' and 'exactOptional' from '@metamask/superstruct' instead.",
-            },
-            {
-              name: '@metamask/superstruct',
-              importNames: ['optional'],
-              message:
-                "Use 'exactOptional' from '@metamask/superstruct' instead of 'optional'.",
+                "Import 'object', 'exactOptional', and 'type' from '@metamask/superstruct' instead.",
             },
           ],
         },

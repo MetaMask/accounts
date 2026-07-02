@@ -1,73 +1,7 @@
-import {
-  Struct,
-  ExactOptionalStruct,
-  assert,
-} from '@metamask/superstruct';
-import type {
-  Infer,
-  AnyStruct,
-  ObjectSchema,
-  ObjectType,
-} from '@metamask/superstruct';
+import { Struct, assert } from '@metamask/superstruct';
+import type { Infer, AnyStruct } from '@metamask/superstruct';
 
 import type { Equals } from './types';
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function printValue(value: unknown): string {
-  return typeof value === 'string' ? JSON.stringify(value) : String(value);
-}
-
-/**
- * A variant of superstruct's `type()` that properly supports `exactOptional()`
- * fields. Unlike the upstream `type()`, this wrapper skips validation for
- * `exactOptional` properties that are absent from the value, matching the same
- * behaviour as `object()`.
- *
- * Use this instead of importing `type` from `@metamask/superstruct` when the
- * schema contains `exactOptional()` fields.
- *
- * @param schema - The object schema.
- * @returns A struct representing an object with a known set of properties,
- * ignoring unknown properties.
- */
-export function type<Schema extends ObjectSchema>(
-  schema: Schema,
-): Struct<ObjectType<Schema>, Schema> {
-  const keys = Object.keys(schema);
-  return new Struct({
-    type: 'type',
-    schema,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    *entries(value: unknown): any {
-      if (isPlainObject(value)) {
-        for (const k of keys) {
-          const propertySchema = schema[k];
-          if (
-            ExactOptionalStruct.isExactOptional(propertySchema) &&
-            !Object.prototype.hasOwnProperty.call(value, k)
-          ) {
-            continue;
-          }
-          yield [k, value[k], schema[k]];
-        }
-      }
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    validator(value: unknown): any {
-      return (
-        isPlainObject(value) ||
-        `Expected an object, but received: ${printValue(value)}`
-      );
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    coercer(value: unknown): any {
-      return isPlainObject(value) ? Object.assign({}, value) : value;
-    },
-  });
-}
 
 /**
  * Assert that a value is valid according to a struct.

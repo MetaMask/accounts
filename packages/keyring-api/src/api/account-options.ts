@@ -1,4 +1,4 @@
-import { selectiveUnion, type } from '@metamask/keyring-utils';
+import { selectiveUnion } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   boolean,
@@ -9,6 +9,7 @@ import {
   object,
   record,
   string,
+  type,
 } from '@metamask/superstruct';
 import { isPlainObject, JsonStruct } from '@metamask/utils';
 
