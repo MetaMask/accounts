@@ -4,6 +4,7 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 import * as sigUtil from '@metamask/eth-sig-util';
+import { ErrorCode } from '@metamask/hw-wallet-sdk';
 import { bytesToHex, Hex, remove0x } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
@@ -1297,17 +1298,18 @@ describe('LedgerKeyring', function () {
             // @ts-expect-error we want to test an invalid version
             version: sigUtil.SignTypedDataVersion.V3,
           }),
-        ).rejects.toThrow(
-          'Ledger: Only version 4 of typed data signing is supported',
-        );
+        ).rejects.toMatchObject({
+          code: ErrorCode.DeviceStateOnlyV4Supported,
+          message: 'Ledger: Only version 4 of typed data signing is supported',
+        });
       });
 
       it('throws an error if the version is not provided', async function () {
         await expect(
           keyring.signTypedData(fakeAccounts[0], fixtureData),
-        ).rejects.toThrow(
-          'Ledger: Only version 4 of typed data signing is supported',
-        );
+        ).rejects.toMatchObject({
+          code: ErrorCode.DeviceStateOnlyV4Supported,
+        });
       });
 
       it('throws an error if the hdPath is not found', async function () {

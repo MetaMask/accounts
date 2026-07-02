@@ -463,3 +463,22 @@ export const TREZOR_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
       'Your Trezor device failed to initialize. Please unlock it and try again.',
   },
 };
+
+/**
+ * Keyring error mappings - static error data for keyring-level validation errors
+ * that are not tied to a Ledger transport status code.
+ *
+ * TODO: Wire DeviceStateOnlyV4Supported into keyring-eth-trezor and keyring-eth-qr
+ * so all hardware keyrings throw HardwareWalletError for unsupported typed data versions.
+ */
+export const KEYRING_ERROR_MAPPINGS: Partial<Record<ErrorCode, ErrorMapping>> =
+  {
+    [ErrorCode.DeviceStateOnlyV4Supported]: {
+      code: ErrorCode.DeviceStateOnlyV4Supported,
+      message: 'Only version 4 of typed data signing is supported',
+      severity: Severity.Err,
+      category: Category.DeviceState,
+      userMessage:
+        'This device can only sign version 4 (V4) typed data. This site requested an older signature type that is not supported.',
+    },
+  };

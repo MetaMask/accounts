@@ -10,6 +10,7 @@ import {
   SignTypedDataVersion,
   TypedDataUtils,
 } from '@metamask/eth-sig-util';
+import { ErrorCode } from '@metamask/hw-wallet-sdk';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   add0x,
@@ -24,6 +25,7 @@ import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
+import { createKeyringStateError } from './errors';
 import {
   AppConfigurationResponse,
   GetAppNameAndVersionResponse,
@@ -535,9 +537,7 @@ export class LedgerKeyring implements Keyring {
     const { version } = options ?? {};
     const isV4 = version === 'V4';
     if (!isV4) {
-      throw new Error(
-        'Ledger: Only version 4 of typed data signing is supported',
-      );
+      throw createKeyringStateError(ErrorCode.DeviceStateOnlyV4Supported);
     }
 
     const { domain, types, primaryType, message } =
