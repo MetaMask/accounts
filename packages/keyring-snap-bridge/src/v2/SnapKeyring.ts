@@ -6,6 +6,7 @@ import type {
   KeyringCapabilities,
 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
+import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { Infer } from '@metamask/superstruct';
@@ -83,6 +84,15 @@ type SnapKeyringOptions = Omit<SnapKeyringV1Options, 'callbacks'> & {
 };
 
 /**
+ * Holds the v2 snap client once a {@link SnapKeyring} instance has been bound
+ * via {@link SnapKeyring.bindSnapId}.
+ */
+type SnapKeyringContext = {
+  snapId: SnapId;
+  client: KeyringInternalSnapClient;
+};
+
+/**
  * Checks if a given keyring is a Snap keyring (v2).
  *
  * @param keyring - The keyring to check.
@@ -123,6 +133,9 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    */
   #initialized = false;
 
+  /** V2 snap client. Set via {@link bindSnapId}. */
+  #context: SnapKeyringContext | undefined;
+
   // ──────────────────────────────────────────────
   // Keyring properties
   // ──────────────────────────────────────────────
@@ -144,6 +157,36 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
 
     // Default capabilities; replaced from the snap manifest on `deserialize`.
     this.capabilities = EMPTY_CAPABILITIES;
+  }
+
+  /**
+   * Bind this keyring to a snap ID and initialize both the v1 and v2 clients.
+   *
+   * Calls `super.bindSnapId` first so the inherited v1 request lifecycle (pending
+   * map, async redirect) is fully set up, then creates the v2-specific context.
+   *
+   * @param snapId - The snap ID to bind to.
+   */
+  protected override bindSnapId(snapId: SnapId): void {
+    super.bindSnapId(snapId);
+    if (this.#context === undefined) {
+      this.#context = {
+        snapId,
+        client: new KeyringInternalSnapClient({
+          messenger: this.messenger,
+          snapId,
+        }),
+      };
+    }
+  }
+
+  /** Returns the v2 snap client. Throws if the keyring is not yet initialized. */
+  get #client(): KeyringInternalSnapClient {
+    /* istanbul ignore next */
+    if (this.#context === undefined) {
+      throw new Error('SnapKeyring is not bound to a snap ID');
+    }
+    return this.#context.client;
   }
 
   /**
