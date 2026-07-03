@@ -2689,7 +2689,7 @@ describe('SnapKeyring', () => {
       const result = await keyring.createAccounts(snapId, options);
 
       expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
-        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, options),
       );
 
       // Verify all accounts were returned
@@ -2735,7 +2735,7 @@ describe('SnapKeyring', () => {
       const result = await keyring.createAccounts(snapId, options);
 
       expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
-        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, options),
       );
 
       expect(result).toStrictEqual(accountToCreate);
@@ -2771,7 +2771,7 @@ describe('SnapKeyring', () => {
       const result = await keyring.createAccounts(snapId, options);
 
       expect(mockMessenger.handleRequest).toHaveBeenLastCalledWith(
-        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, options),
       );
 
       expect(result).toStrictEqual(accountsToCreate);
@@ -2899,7 +2899,7 @@ describe('SnapKeyring', () => {
       // We still have sent a Snap request to create accounts
       expect(mockMessenger.handleRequest).toHaveBeenNthCalledWith(
         1,
-        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, { options }),
+        mockKeyringRpcRequest(KeyringRpcMethod.CreateAccounts, options),
       );
 
       // BUT, we should roll back Snap state by deleting the accounts that were created

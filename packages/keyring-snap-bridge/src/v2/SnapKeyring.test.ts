@@ -6,6 +6,7 @@ import type {
 import type { Keyring } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
+import { KeyringInternalSnapClient as KeyringInternalSnapClientV2 } from '@metamask/keyring-internal-snap-client/v2';
 import type { SnapId } from '@metamask/snaps-sdk';
 
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
@@ -473,7 +474,7 @@ describe('SnapKeyring', () => {
       it('creates new accounts and saves state', async () => {
         const { keyring, callbacks, registered } = await makeKeyring();
         jest
-          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .spyOn(KeyringInternalSnapClientV2.prototype, 'createAccounts')
           .mockResolvedValue([account1, account2]);
 
         const result = await keyring.createAccounts(options);
@@ -487,7 +488,7 @@ describe('SnapKeyring', () => {
       it('skips existing accounts (idempotent)', async () => {
         const { keyring, callbacks } = await makeKeyring();
         jest
-          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .spyOn(KeyringInternalSnapClientV2.prototype, 'createAccounts')
           .mockResolvedValue([account1]);
         // Pre-populate the account
         keyring.setAccount(account1);
@@ -509,7 +510,7 @@ describe('SnapKeyring', () => {
             .mockRejectedValueOnce(new Error('duplicate address')),
         });
         jest
-          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .spyOn(KeyringInternalSnapClientV2.prototype, 'createAccounts')
           .mockResolvedValue([account1, account2]);
         const deleteSpy = jest
           .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
@@ -525,7 +526,7 @@ describe('SnapKeyring', () => {
       it('rejects duplicate accounts within a batch', async () => {
         const { keyring } = await makeKeyring();
         jest
-          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .spyOn(KeyringInternalSnapClientV2.prototype, 'createAccounts')
           .mockResolvedValue([account1, account1]);
 
         await expect(keyring.createAccounts(options)).rejects.toThrow(

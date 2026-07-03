@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Send v2 `SnapKeyring.createAccounts` options as flat `params` (via the v2 internal Snap client) instead of the v1 `{ options }` wrapping, so Snaps using the v2 keyring handler accept the request ([#584](https://github.com/MetaMask/accounts/pull/584))
+
 ## [22.4.0]
 
 ### Added

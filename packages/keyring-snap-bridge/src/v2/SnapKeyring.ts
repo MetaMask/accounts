@@ -6,6 +6,7 @@ import type {
   KeyringCapabilities,
 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
+import { KeyringInternalSnapClient as KeyringInternalSnapClientV2 } from '@metamask/keyring-internal-snap-client/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { Infer } from '@metamask/superstruct';
@@ -232,7 +233,17 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
 
       const accounts: KeyringAccount[] = [];
       const newAccounts: KeyringAccount[] = [];
-      const snapAccounts = await this.client.createAccounts(options);
+      // `createAccounts` is a v2-only keyring method: it sends its options as
+      // flat `params`. The inherited v1 `this.client` wraps them as
+      // `{ options }`, which v2 Snaps reject, so we dispatch through the v2
+      // internal client here. `this.client` is kept for the v1-only methods the
+      // bridge still relies on (`submitRequestWithoutOrigin`,
+      // `resolveAccountAddress`, `createAccount`), which the v2 client lacks.
+      const clientV2 = new KeyringInternalSnapClientV2({
+        messenger: this.messenger,
+        snapId: this.snapId,
+      });
+      const snapAccounts = await clientV2.createAccounts(options);
 
       try {
         for (const snapAccount of snapAccounts) {
