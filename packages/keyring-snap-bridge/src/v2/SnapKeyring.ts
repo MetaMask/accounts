@@ -269,7 +269,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
 
       const accounts: KeyringAccount[] = [];
       const newAccounts: KeyringAccount[] = [];
-      const snapAccounts = await this.client.createAccounts(options);
+      const snapAccounts = await this.#client.createAccounts(options);
 
       try {
         for (const snapAccount of snapAccounts) {
@@ -322,7 +322,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
           // Make sure to only delete accounts that were not part of the keyring state.
           if (!this.getExistingAccount(snapAccount)) {
             try {
-              await this.client.deleteAccount(snapAccount.id);
+              await this.#client.deleteAccount(snapAccount.id);
             } catch (rollbackError) {
               // Best-effort rollback; log snap-side failures for observability.
               console.error(
@@ -353,7 +353,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     this.removeAccount(accountId);
 
     try {
-      await this.client.deleteAccount(accountId);
+      await this.#client.deleteAccount(accountId);
     } catch (error) {
       // If the Snap failed to delete the account, log the error and continue
       // with the account deletion, otherwise the account will be stuck in the
