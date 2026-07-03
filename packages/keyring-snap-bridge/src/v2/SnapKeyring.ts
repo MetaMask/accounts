@@ -127,12 +127,6 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    */
   readonly #lock: Mutex;
 
-  /**
-   * Whether `deserialize` has completed. Keyring operations are guarded against
-   * use before the keyring has been bound to a snap and its state loaded.
-   */
-  #initialized = false;
-
   /** V2 snap client. Set via {@link bindSnapId}. */
   #context: SnapKeyringContext | undefined;
 
@@ -576,7 +570,6 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
       this.setAccount(account);
     }
 
-    this.#initialized = true;
   }
 
   // ──────────────────────────────────────────────
@@ -589,7 +582,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @throws An error if the keyring has not been initialized.
    */
   #assertInitialized(): void {
-    if (!this.#initialized) {
+    if (this.#context === undefined) {
       throw new Error(
         'SnapKeyring has not been initialized: call deserialize() first',
       );
