@@ -799,6 +799,8 @@ export class SnapKeyring {
       bySnap.set(snapId, snapAccounts);
     }
 
+    // v1 snaps receive a keyring_setSelectedAccounts notification; v2 snaps
+    // have no equivalent concept in the protocol so they are intentionally skipped.
     await Promise.all(
       [...this.#snapKeyrings.entries()].map(async ([snapId, keyring]) =>
         keyring.v1?.setSelectedAccounts(
