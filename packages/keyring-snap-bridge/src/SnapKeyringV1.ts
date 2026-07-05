@@ -157,6 +157,12 @@ export type SnapKeyringV1Options = {
    * Defaults to `false`.
    */
   isAnyAccountTypeAllowed?: boolean;
+  /**
+   * Account registry to use. When provided (e.g. by a owning `SnapKeyring`
+   * v2 instance), the registry is shared by reference. When omitted, a new
+   * registry is created (useful for standalone / test usage).
+   */
+  registry?: KeyringAccountRegistry;
 };
 
 /**
@@ -241,8 +247,9 @@ export class SnapKeyringV1 {
     messenger,
     callbacks,
     isAnyAccountTypeAllowed = false,
+    registry,
   }: SnapKeyringV1Options) {
-    this.registry = new KeyringAccountRegistry();
+    this.registry = registry ?? new KeyringAccountRegistry();
     this.messenger = messenger;
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
@@ -260,7 +267,7 @@ export class SnapKeyringV1 {
    * @param snapId - The snap ID to bind this keyring to.
    * @throws If the keyring is already bound to a different snap ID.
    */
-  protected bindSnapId(snapId: SnapId): void {
+  bindSnapId(snapId: SnapId): void {
     if (this.#context !== undefined && this.#context.snapId !== snapId) {
       throw new Error(
         `SnapKeyring bound to '${this.#context.snapId}' cannot be rebound to '${snapId}'`,

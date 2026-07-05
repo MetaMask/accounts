@@ -88,9 +88,10 @@ export class SnapKeyring {
   readonly #messenger: SnapKeyringMessenger;
 
   /**
-   * Per-snap keyring instances. Each `SnapKeyringV2` (which extends
-   * `SnapKeyringV1`) owns a single `KeyringAccountRegistry` and handles
-   * both the event-driven v1 flow and the `KeyringV2` batch interface.
+   * Per-snap keyring instances. Each `SnapKeyringV2` owns the
+   * `KeyringAccountRegistry` and handles the `KeyringV2` batch interface.
+   * For v1 snaps, `SnapKeyringV2.v1` holds a `SnapKeyringV1` instance
+   * (with a shared registry reference) for the event-driven flow.
    */
   readonly #snapKeyrings: Map<SnapId, SnapKeyringV2>;
 
@@ -344,7 +345,7 @@ export class SnapKeyring {
     }
 
     try {
-      return await keyring.handleKeyringSnapMessage(message);
+      return await (keyring.v1 ?? throwError(`Snap '${snapId}' does not support v1 messages`)).handleKeyringSnapMessage(message);
     } finally {
       // Clean up if AccountCreated was rejected (e.g. duplicate address,
       // invalid account), leaving the snap with no registered accounts.
@@ -468,7 +469,7 @@ export class SnapKeyring {
   /**
    * Create an account (v1 event-driven flow).
    *
-   * Delegates to the per-snap SnapKeyringV1 instance.
+   * Delegates to the per-snap SnapKeyringV2 instance (v1 flow).
    *
    * @param snapId - Snap ID to create the account for.
    * @param options - Account creation options. Differs between keyrings.
@@ -481,7 +482,7 @@ export class SnapKeyring {
     internalOptions?: SnapKeyringInternalOptions,
   ): Promise<KeyringAccount> {
     const keyring = await this.#getOrCreateKeyring(snapId);
-    return keyring.createAccount(options, internalOptions);
+    return (keyring.v1 ?? throwError(`Snap '${snapId}' does not support v1 account creation`)).createAccount(options, internalOptions);
   }
 
   /**
@@ -535,7 +536,7 @@ export class SnapKeyring {
     }
 
     const keyring = await this.#getOrCreateKeyring(snapId);
-    return keyring.resolveAccountAddress(scope, request);
+    return (keyring.v1 ?? throwError(`Snap '${snapId}' does not support v1 address resolution`)).resolveAccountAddress(scope, request);
   }
 
   /**
@@ -572,7 +573,7 @@ export class SnapKeyring {
       this.#snapKeyrings.get(snapId) ??
       throwError(`No keyring found for snap '${snapId}'`);
 
-    return await keyring.submitSnapRequest({
+    return await (keyring.v1 ?? throwError(`Snap '${snapId}' does not support v1 requests`)).submitSnapRequest({
       origin,
       account,
       method: method as AccountMethod,
@@ -598,7 +599,7 @@ export class SnapKeyring {
     _opts = {},
   ): Promise<Json | TypedTransaction> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.signTransaction(account, transaction, _opts);
+    return (keyring.v1 ?? throwError(`Snap '${keyring.snapId}' does not support v1 signing`)).signTransaction(account, transaction, _opts);
   }
 
   /**
@@ -615,7 +616,7 @@ export class SnapKeyring {
     opts = { version: SignTypedDataVersion.V1 },
   ): Promise<string> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.signTypedData(account, data, opts);
+    return (keyring.v1 ?? throwError(`Snap '${keyring.snapId}' does not support v1 signing`)).signTypedData(account, data, opts);
   }
 
   /**
@@ -627,7 +628,7 @@ export class SnapKeyring {
    */
   async signMessage(address: string, hash: any): Promise<string> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.signMessage(account, hash);
+    return (keyring.v1 ?? throwError(`Snap '${keyring.snapId}' does not support v1 signing`)).signMessage(account, hash);
   }
 
   /**
@@ -642,7 +643,7 @@ export class SnapKeyring {
    */
   async signPersonalMessage(address: string, data: any): Promise<string> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.signPersonalMessage(account, data);
+    return (keyring.v1 ?? throwError(`Snap '${keyring.snapId}' does not support v1 signing`)).signPersonalMessage(account, data);
   }
 
   /**
@@ -659,7 +660,7 @@ export class SnapKeyring {
     context: KeyringExecutionContext,
   ): Promise<EthBaseUserOperation> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.prepareUserOperation(account, transactions, context);
+    return (keyring.v1 ?? throwError(`Snap '${keyring.snapId}' does not support v1 signing`)).prepareUserOperation(account, transactions, context);
   }
 
   /**
@@ -677,7 +678,7 @@ export class SnapKeyring {
     context: KeyringExecutionContext,
   ): Promise<EthUserOperationPatch> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.patchUserOperation(account, userOp, context);
+    return (keyring.v1 ?? throwError(`Snap '${keyring.snapId}' does not support v1 signing`)).patchUserOperation(account, userOp, context);
   }
 
   /**
@@ -694,7 +695,7 @@ export class SnapKeyring {
     context: KeyringExecutionContext,
   ): Promise<string> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.signUserOperation(account, userOp, context);
+    return (keyring.v1 ?? throwError(`Snap '${keyring.snapId}' does not support v1 signing`)).signUserOperation(account, userOp, context);
   }
 
   /**
@@ -768,7 +769,7 @@ export class SnapKeyring {
 
     await Promise.all(
       [...this.#snapKeyrings.entries()].map(async ([snapId, keyring]) =>
-        keyring.setSelectedAccounts(
+        keyring.v1?.setSelectedAccounts(
           /* istanbul ignore next */
           bySnap.get(snapId) ?? [],
         ),

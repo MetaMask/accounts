@@ -5,7 +5,7 @@ import type {
 } from '@metamask/keyring-api';
 import type { Keyring } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
-import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
+import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
 import type { SnapId } from '@metamask/snaps-sdk';
 
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
@@ -569,14 +569,17 @@ describe('SnapKeyring', () => {
     });
 
     describe('submitRequest', () => {
-      it('delegates to inherited submitSnapRequest for a known account', async () => {
+      it('delegates to v1.submitSnapRequest for a v1 snap (no declared capabilities)', async () => {
         const mockResult = { success: true };
         const { keyring } = await makeKeyring();
         keyring.setAccount(account1);
 
-        // Spy on the inherited V1 method directly
+        // The snap has no declared capabilities (messenger returns undefined),
+        // so keyring.v1 is set and submitRequest should delegate to it.
+        const v1 = keyring.v1;
+        expect(v1).toBeDefined();
         const submitSpy = jest
-          .spyOn(keyring, 'submitSnapRequest')
+          .spyOn(v1!, 'submitSnapRequest')
           .mockResolvedValue(mockResult as any);
 
         const request = {
@@ -599,6 +602,58 @@ describe('SnapKeyring', () => {
             noPending: false,
           }),
         );
+      });
+
+      it('calls the v2 client directly for a v2 snap (with declared capabilities)', async () => {
+        const mockResult = { success: true };
+        const messenger = {
+          call: jest.fn((action: string) =>
+            action === 'SnapController:getSnap'
+              ? {
+                  manifest: {
+                    initialPermissions: {
+                      'endowment:keyring': {
+                        capabilities: {
+                          scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+                        },
+                      },
+                    },
+                  },
+                }
+              : undefined,
+          ),
+          publish: jest.fn(),
+        } as unknown as SnapKeyringMessenger;
+        const keyring = new SnapKeyring({ messenger, callbacks: makeMockCallbacks() });
+        await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+
+        keyring.setAccount(account1);
+        expect(keyring.v1).toBeUndefined();
+
+        const submitSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'submitRequest')
+          .mockResolvedValue(mockResult as any);
+
+        const request = {
+          id: 'req-1',
+          origin: 'metamask',
+          scope: 'eip155:1',
+          account: account1.id,
+          request: { method: 'eth_sign' },
+        };
+
+        const result = await keyring.submitRequest(request);
+
+        expect(result).toStrictEqual(mockResult);
+        expect(submitSpy).toHaveBeenCalledWith({
+          id: 'req-1',
+          origin: 'metamask',
+          scope: 'eip155:1',
+          account: account1.id,
+          request: { method: 'eth_sign' },
+        });
+
+        submitSpy.mockRestore();
       });
 
       it('throws for an unknown account', async () => {

@@ -7,6 +7,7 @@ import type {
 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
+import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { Infer } from '@metamask/superstruct';
@@ -17,6 +18,7 @@ import { Mutex } from 'async-mutex';
 import {
   KeyringAccountV1Struct,
   normalizeAccount,
+  normalizeAccountAddress,
   transformAccount,
 } from '../account';
 import { isAccountV1, migrateAccountV1 } from '../migrations';
@@ -24,8 +26,8 @@ import { SnapKeyringV1 } from '../SnapKeyringV1';
 import type {
   AccountMethod,
   SnapKeyringV1Callbacks,
-  SnapKeyringV1Options,
 } from '../SnapKeyringV1';
+import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
 import { equalsIgnoreCase } from '../util';
 
 /**
@@ -79,8 +81,10 @@ export type SnapKeyringCallbacks = SnapKeyringV1Callbacks & {
   withLock?: <Result>(callback: () => Promise<Result>) => Promise<Result>;
 };
 
-type SnapKeyringOptions = Omit<SnapKeyringV1Options, 'callbacks'> & {
+type SnapKeyringOptions = {
+  messenger: SnapKeyringMessenger;
   callbacks: SnapKeyringCallbacks;
+  isAnyAccountTypeAllowed?: boolean;
 };
 
 /**
@@ -103,23 +107,24 @@ export function isSnapKeyring(keyring: Keyring): keyring is SnapKeyring {
 }
 
 /**
- * Per-snap keyring wrapper that implements `Keyring`.
+ * Per-snap keyring that implements `Keyring` (v2).
  *
- * Extends `SnapKeyringV1` — the v1 event-driven flow (account lifecycle,
- * request handling, asset events) is inherited. This class adds the
- * `KeyringV2` batch interface (`createAccounts`, `deleteAccount`, etc.) and
- * owns the `capabilities` property.
- *
- * The `KeyringAccountRegistry`, snap client, and messenger are all inherited
- * from `SnapKeyringV1` so there is no duplicated state.
+ * Owns the account registry and messenger. For v1 snaps (those that do not
+ * declare `endowment:keyring` capabilities in their manifest), a
+ * {@link SnapKeyringV1} instance is created on `deserialize` and held under
+ * {@link SnapKeyring.v1}. V2 snaps have `v1 === undefined` and communicate
+ * directly through the v2 client without the `{ pending, result }` envelope.
  */
-export class SnapKeyring extends SnapKeyringV1 implements Keyring {
-  /**
-   * V2-typed view of the callbacks. Stored separately from the V1 private
-   * field so that V2-specific callbacks are accessible without casting.
-   * Both fields hold the same object reference.
-   */
+export class SnapKeyring implements Keyring {
+  /** Account registry — shared by reference with the v1 instance when present. */
+  readonly #registry: KeyringAccountRegistry;
+
+  /** Messenger for snap controller calls and event publishing. */
+  readonly #messenger: SnapKeyringMessenger;
+
   readonly #callbacks: SnapKeyringCallbacks;
+
+  readonly #isAnyAccountTypeAllowed: boolean;
 
   /**
    * Mutex that serializes `createAccounts` calls on this snap instance.
@@ -129,6 +134,12 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
 
   /** V2 snap client. Set via {@link bindSnapId}. */
   #context: SnapKeyringContext | undefined;
+
+  /**
+   * V1 instance, present only when the snap does not declare v2 capabilities.
+   * Created on `deserialize()` after reading the snap manifest.
+   */
+  #v1: SnapKeyringV1 | undefined;
 
   // ──────────────────────────────────────────────
   // Keyring properties
@@ -144,9 +155,15 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    */
   capabilities: KeyringCapabilities;
 
-  constructor(options: SnapKeyringOptions) {
-    super(options);
-    this.#callbacks = options.callbacks;
+  constructor({
+    messenger,
+    callbacks,
+    isAnyAccountTypeAllowed = false,
+  }: SnapKeyringOptions) {
+    this.#registry = new KeyringAccountRegistry();
+    this.#messenger = messenger;
+    this.#callbacks = callbacks;
+    this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
     this.#lock = new Mutex();
 
     // Default capabilities; replaced from the snap manifest on `deserialize`.
@@ -154,20 +171,51 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
   }
 
   /**
-   * Bind this keyring to a snap ID and initialize both the v1 and v2 clients.
+   * The v1 instance for this snap, or `undefined` if the snap is v2-only.
    *
-   * Calls `super.bindSnapId` first so the inherited v1 request lifecycle (pending
-   * map, async redirect) is fully set up, then creates the v2-specific context.
+   * Use this to make v1 calls explicit:
+   * ```ts
+   * keyring.v1?.signTransaction(account, tx);
+   * ```
+   */
+  get v1(): SnapKeyringV1 | undefined {
+    return this.#v1;
+  }
+
+  /**
+   * The snap ID this instance is scoped to.
+   *
+   * @throws If the keyring has not been initialized yet.
+   */
+  get snapId(): SnapId {
+    /* istanbul ignore next */
+    if (this.#context === undefined) {
+      throw new Error(
+        'SnapKeyring has not been initialized: call deserialize() first',
+      );
+    }
+    return this.#context.snapId;
+  }
+
+  /**
+   * Bind this keyring to a snap ID and initialize the v2 client.
+   *
+   * Idempotent for the same `snapId`; throws if called again with a different
+   * one to prevent accidentally swapping a keyring's identity.
    *
    * @param snapId - The snap ID to bind to.
    */
-  protected override bindSnapId(snapId: SnapId): void {
-    super.bindSnapId(snapId);
+  protected bindSnapId(snapId: SnapId): void {
+    if (this.#context !== undefined && this.#context.snapId !== snapId) {
+      throw new Error(
+        `SnapKeyring bound to '${this.#context.snapId}' cannot be rebound to '${snapId}'`,
+      );
+    }
     if (this.#context === undefined) {
       this.#context = {
         snapId,
         client: new KeyringInternalSnapClient({
-          messenger: this.messenger,
+          messenger: this.#messenger,
           snapId,
         }),
       };
@@ -184,13 +232,11 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
   }
 
   /**
-   * Destroy this keyring.
-   *
-   * Delegates to the parent `SnapKeyringV1.destroy()` to reject any pending
-   * requests inherited from the v1 flow.
+   * Destroy this keyring, rejecting any pending v1 requests.
    */
-  override async destroy(): Promise<void> {
-    await super.destroy();
+  async destroy(): Promise<void> {
+    await this.#v1?.destroy();
+    this.#v1 = undefined;
   }
 
   /**
@@ -199,7 +245,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * Prefers the injected `withLock` callback (global lock provided by
    * `SnapKeyring`) so that `createAccounts` calls across different snaps
    * are serialized. Falls back to the per-instance `#lock` when no global
-   * lock is provided.g. standalone use in tests).
+   * lock is provided (e.g. standalone use in tests).
    *
    * @param callback - Operation to run under the lock.
    * @returns The result of the callback.
@@ -277,7 +323,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
           const { address } = account;
 
           // Check for idempotency.
-          const existingAccount = this.getExistingAccount(account);
+          const existingAccount = this.#getExistingAccount(account);
           if (existingAccount) {
             // NOTE: We re-use the account from the internal state to avoid having the Snap
             // mutating the account object without updating the map.
@@ -320,7 +366,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
         // Rollback Snap state.
         for (const snapAccount of snapAccounts) {
           // Make sure to only delete accounts that were not part of the keyring state.
-          if (!this.getExistingAccount(snapAccount)) {
+          if (!this.#getExistingAccount(snapAccount)) {
             try {
               await this.#client.deleteAccount(snapAccount.id);
             } catch (rollbackError) {
@@ -368,12 +414,13 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
   /**
    * Submits a request to the keyring.
    *
-   * Validates that the account belongs to this wrapper, then delegates
-   * to the inherited `submitSnapRequest` for the full request lifecycle
-   * (sync / async / redirect).
+   * For v1 snaps (those without declared capabilities), delegates to the v1
+   * event-driven flow that handles the `{ pending, result }` envelope.
+   * For v2 snaps, calls the snap directly via the v2 client which returns
+   * `Json` with no envelope.
    *
    * @param request - The keyring request to submit.
-   * @param request.id - The request ID (unused — a fresh ID is generated internally).
+   * @param request.id - The request ID.
    * @param request.origin - The sender origin.
    * @param request.scope - The CAIP-2 chain ID.
    * @param request.account - The account ID.
@@ -399,13 +446,24 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
         `Account '${request.account}' not found in snap '${this.snapId}'`,
       );
     }
-    return this.submitSnapRequest({
+    if (this.#v1) {
+      // v1 snap: use event-driven flow with { pending, result } envelope handling.
+      return this.#v1.submitSnapRequest({
+        origin: request.origin,
+        account,
+        method: request.request.method as AccountMethod,
+        params: request.request.params,
+        scope: request.scope,
+        noPending: false,
+      });
+    }
+    // v2 snap: call snap directly, returns Json (no envelope).
+    return this.#client.submitRequest({
+      id: request.id,
       origin: request.origin,
-      account,
-      method: request.request.method as AccountMethod,
-      params: request.request.params,
       scope: request.scope,
-      noPending: false,
+      account: request.account,
+      request: request.request,
     });
   }
 
@@ -423,8 +481,8 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @param account - The account to add or update.
    */
   setAccount(account: KeyringAccount): void {
-    const isNew = !this.registry.has(account.id);
-    this.registry.set(account);
+    const isNew = !this.#registry.has(account.id);
+    this.#registry.set(account);
     if (isNew) {
       this.#callbacks.onRegister?.(account.id);
     }
@@ -439,10 +497,10 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns `true` if the account was removed, `false` if it was not found.
    */
   removeAccount(id: AccountId): boolean {
-    if (!this.registry.has(id)) {
+    if (!this.#registry.has(id)) {
       return false;
     }
-    this.registry.delete(id);
+    this.#registry.delete(id);
     this.#callbacks.onUnregister?.(id);
     return true;
   }
@@ -454,7 +512,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns `true` if the account exists.
    */
   hasAccount(id: AccountId): boolean {
-    return this.registry.has(id);
+    return this.#registry.has(id);
   }
 
   /**
@@ -464,7 +522,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns The account, or `undefined` if not found.
    */
   lookupAccount(id: AccountId): KeyringAccount | undefined {
-    return this.registry.get(id);
+    return this.#registry.get(id);
   }
 
   /**
@@ -477,15 +535,15 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns The account, or `undefined` if not found.
    */
   lookupByAddress(address: string): KeyringAccount | undefined {
-    const id = this.registry.getAccountId(address);
+    const id = this.#registry.getAccountId(address);
     if (id !== undefined) {
-      return this.registry.get(id);
+      return this.#registry.get(id);
     }
     // The fallback only runs when the exact-match branch above misses,
     // which in practice only happens for EVM addresses with casing
     // differences (checksummed vs lowercase). Non-EVM addresses are
     // case-sensitive and always resolve on the exact branch.
-    return this.registry
+    return this.#registry
       .values()
       .find((account) => equalsIgnoreCase(account.address, address));
   }
@@ -500,7 +558,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns An array of all accounts.
    */
   accounts(): KeyringAccount[] {
-    return this.registry.values();
+    return this.#registry.values();
   }
 
   /**
@@ -514,7 +572,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    */
   async serialize(): Promise<SnapKeyringState> {
     const accounts: SnapKeyringState['accounts'] = {};
-    for (const account of this.registry.values()) {
+    for (const account of this.#registry.values()) {
       accounts[account.id] = account;
     }
     const state: SnapKeyringState = {
@@ -527,9 +585,11 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
   /**
    * Restore this keyring from a serialized state.
    *
-   * Validates the payload (accepting both v1 and v2 accounts), migrates any
-   * v1 accounts to v2, then replaces the registry. If validation fails, the
-   * existing registry is left untouched.
+   * Validates the payload (accepting both v1 and v2 account shapes), migrates
+   * any v1 accounts to v2, then replaces the registry. Also determines whether
+   * the snap is v1 or v2 by reading its manifest capabilities: if no
+   * capabilities are declared, a {@link SnapKeyringV1} instance is created and
+   * held under {@link SnapKeyring.v1}.
    *
    * @param state - The state to deserialize.
    * @returns A promise that resolves when deserialization is complete.
@@ -548,6 +608,25 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     this.capabilities =
       this.#resolveKeyringCapabilities() ?? EMPTY_CAPABILITIES;
 
+    // Determine snap version and create a v1 instance if needed.
+    if (this.capabilities.scopes.length === 0) {
+      // v1 snap: no declared capabilities. Create a SnapKeyringV1 instance
+      // that shares the registry and messenger owned by this class.
+      if (this.#v1 === undefined) {
+        this.#v1 = new SnapKeyringV1({
+          messenger: this.#messenger,
+          callbacks: this.#callbacks,
+          registry: this.#registry,
+          isAnyAccountTypeAllowed: this.#isAnyAccountTypeAllowed,
+        });
+        this.#v1.bindSnapId(state.snapId as SnapId);
+      }
+    } else {
+      // v2 snap: tear down any stale v1 instance (e.g. after a manifest update).
+      await this.#v1?.destroy();
+      this.#v1 = undefined;
+    }
+
     // Migrate v1 accounts to v2.
     const migratedAccounts: Record<string, KeyringAccount> = {};
     for (const [id, rawAccount] of Object.entries(state.accounts)) {
@@ -562,14 +641,13 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     }
 
     // Apply the migrated state to the registry.
-    for (const id of [...this.registry.keys()]) {
+    for (const id of [...this.#registry.keys()]) {
       this.removeAccount(id);
     }
 
     for (const account of Object.values(migratedAccounts)) {
       this.setAccount(account);
     }
-
   }
 
   // ──────────────────────────────────────────────
@@ -595,7 +673,7 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
    * @returns The keyring capabilities, or `undefined` if the snap manifest does not declare any capabilities.
    */
   #resolveKeyringCapabilities(): KeyringCapabilities | undefined {
-    const snap = this.messenger.call('SnapController:getSnap', this.snapId);
+    const snap = this.#messenger.call('SnapController:getSnap', this.snapId);
     // READ THIS CAREFULLY:
     // We are not validating the shape of the capabilities here, because there is
     // manifest validation done already on the snaps side, the snaps repo maintains
@@ -604,5 +682,21 @@ export class SnapKeyring extends SnapKeyringV1 implements Keyring {
     // could cause runtime issues!
     return snap?.manifest.initialPermissions['endowment:keyring']
       ?.capabilities as KeyringCapabilities | undefined;
+  }
+
+  /**
+   * Check whether an account with the same ID and address already exists in
+   * the registry. Used for idempotent account creation.
+   *
+   * @param account - The account to check against the registry.
+   * @returns The existing account if found, `undefined` otherwise.
+   */
+  #getExistingAccount(account: KeyringAccount): KeyringAccount | undefined {
+    const address = normalizeAccountAddress(account);
+    const existing = this.#registry.get(account.id);
+    if (existing && normalizeAccountAddress(existing) === address) {
+      return existing;
+    }
+    return undefined;
   }
 }
