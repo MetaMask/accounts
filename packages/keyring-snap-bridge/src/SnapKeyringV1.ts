@@ -24,6 +24,7 @@ import {
   AccountAssetListUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
 } from '@metamask/keyring-api';
+import type { CreateAccountOptions } from '@metamask/keyring-api/v2';
 import { toKeyringRequestWithoutOrigin } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
@@ -319,6 +320,23 @@ export class SnapKeyringV1 {
     internalOptions?: SnapKeyringInternalOptions,
   ): Promise<KeyringAccount> {
     return this.#createSnapAccount(options, internalOptions);
+  }
+
+  /**
+   * Create one or more accounts using the v1 synchronous RPC flow.
+   *
+   * Delegates to the v1 internal snap client, which wraps `options` in
+   * `{ options }` before sending `keyring_createAccounts` — unlike the v2
+   * client which sends flat `options`. Called by `SnapKeyring` (v2) when the
+   * snap has no declared capabilities (i.e. it is a v1 snap).
+   *
+   * @param options - Account creation options forwarded to the snap.
+   * @returns The array of accounts returned by the snap.
+   */
+  async createAccounts(
+    options: CreateAccountOptions,
+  ): Promise<KeyringAccount[]> {
+    return this.client.createAccounts(options);
   }
 
   /**

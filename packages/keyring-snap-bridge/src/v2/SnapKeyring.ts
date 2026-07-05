@@ -322,7 +322,16 @@ export class SnapKeyring implements Keyring {
 
       const accounts: KeyringAccount[] = [];
       const newAccounts: KeyringAccount[] = [];
-      const snapAccounts = await this.#client.createAccounts(options);
+      let snapAccounts: KeyringAccount[];
+      if (this.#v1) {
+        // v1 snap: the v1 client wraps options in `{ options }` before sending
+        // `keyring_createAccounts`, while the v2 client sends flat options.
+        // Route through v1 so v1 snaps receive the format they expect.
+        snapAccounts = await this.#v1.createAccounts(options);
+      } else {
+        // v2 snap: call snap directly with flat options.
+        snapAccounts = await this.#client.createAccounts(options);
+      }
 
       try {
         for (const snapAccount of snapAccounts) {
