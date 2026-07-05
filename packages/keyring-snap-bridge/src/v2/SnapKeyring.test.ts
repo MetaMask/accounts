@@ -40,13 +40,11 @@ const account2: KeyringAccount = {
 function makeMockCallbacks(): SnapKeyringCallbacks {
   return {
     // V1 base callbacks
-    addAccount: jest.fn<Promise<void>, any[]>().mockResolvedValue(undefined),
-    removeAccount: jest.fn<Promise<void>, any[]>().mockResolvedValue(undefined),
-    saveState: jest.fn<Promise<void>, []>().mockResolvedValue(undefined),
-    redirectUser: jest.fn<Promise<void>, any[]>().mockResolvedValue(undefined),
-    assertAccountCanBeUsed: jest
-      .fn<Promise<void>, [KeyringAccount]>()
-      .mockResolvedValue(undefined),
+    addAccount: jest.fn().mockResolvedValue(undefined),
+    removeAccount: jest.fn().mockResolvedValue(undefined),
+    saveState: jest.fn().mockResolvedValue(undefined),
+    redirectUser: jest.fn().mockResolvedValue(undefined),
+    assertAccountCanBeUsed: jest.fn().mockResolvedValue(undefined),
   };
 }
 
@@ -576,10 +574,10 @@ describe('SnapKeyring', () => {
 
         // The snap has no declared capabilities (messenger returns undefined),
         // so keyring.v1 is set and submitRequest should delegate to it.
-        const v1 = keyring.v1;
+        const { v1 } = keyring;
         expect(v1).toBeDefined();
         const submitSpy = jest
-          .spyOn(v1!, 'submitSnapRequest')
+          .spyOn(v1, 'submitSnapRequest')
           .mockResolvedValue(mockResult as any);
 
         const request = {
@@ -624,7 +622,10 @@ describe('SnapKeyring', () => {
           ),
           publish: jest.fn(),
         } as unknown as SnapKeyringMessenger;
-        const keyring = new SnapKeyring({ messenger, callbacks: makeMockCallbacks() });
+        const keyring = new SnapKeyring({
+          messenger,
+          callbacks: makeMockCallbacks(),
+        });
         await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
 
         keyring.setAccount(account1);
@@ -632,7 +633,7 @@ describe('SnapKeyring', () => {
 
         const submitSpy = jest
           .spyOn(KeyringInternalSnapClient.prototype, 'submitRequest')
-          .mockResolvedValue(mockResult as any);
+          .mockResolvedValue(mockResult);
 
         const request = {
           id: 'req-1',

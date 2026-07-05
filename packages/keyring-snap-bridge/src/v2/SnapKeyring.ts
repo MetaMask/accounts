@@ -22,12 +22,9 @@ import {
   transformAccount,
 } from '../account';
 import { isAccountV1, migrateAccountV1 } from '../migrations';
-import { SnapKeyringV1 } from '../SnapKeyringV1';
-import type {
-  AccountMethod,
-  SnapKeyringV1Callbacks,
-} from '../SnapKeyringV1';
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
+import { SnapKeyringV1 } from '../SnapKeyringV1';
+import type { AccountMethod, SnapKeyringV1Callbacks } from '../SnapKeyringV1';
 import { equalsIgnoreCase } from '../util';
 
 /**
@@ -171,7 +168,9 @@ export class SnapKeyring implements Keyring {
   }
 
   /**
-   * The v1 instance for this snap, or `undefined` if the snap is v2-only.
+   * Gets the v1 instance for this snap, or `undefined` if the snap is v2-only.
+   *
+   * @returns The v1 instance, or `undefined` if the snap is v2-only.
    *
    * Use this to make v1 calls explicit:
    * ```ts
@@ -185,6 +184,7 @@ export class SnapKeyring implements Keyring {
   /**
    * The snap ID this instance is scoped to.
    *
+   * @returns The snap ID.
    * @throws If the keyring has not been initialized yet.
    */
   get snapId(): SnapId {
@@ -222,7 +222,12 @@ export class SnapKeyring implements Keyring {
     }
   }
 
-  /** Returns the v2 snap client. Throws if the keyring is not yet initialized. */
+  /**
+   * Returns the v2 snap client.
+   *
+   * @returns The v2 snap client.
+   * @throws If the keyring is not yet initialized.
+   */
   get #client(): KeyringInternalSnapClient {
     /* istanbul ignore next */
     if (this.#context === undefined) {
@@ -233,6 +238,8 @@ export class SnapKeyring implements Keyring {
 
   /**
    * Destroy this keyring, rejecting any pending v1 requests.
+   *
+   * @returns A promise that resolves when the keyring is destroyed.
    */
   async destroy(): Promise<void> {
     await this.#v1?.destroy();

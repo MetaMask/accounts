@@ -1,7 +1,7 @@
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import { SnapKeyringV1 } from './SnapKeyringV1';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
+import { SnapKeyringV1, SnapKeyringV1Callbacks } from './SnapKeyringV1';
 
 const SNAP_ID = 'local:snap.mock' as SnapId;
 const OTHER_SNAP_ID = 'local:snap.other' as SnapId;
@@ -13,7 +13,7 @@ function makeMessenger(): SnapKeyringMessenger {
   } as unknown as SnapKeyringMessenger;
 }
 
-function makeCallbacks() {
+function makeCallbacks(): SnapKeyringV1Callbacks {
   return {
     addAccount: jest.fn(),
     removeAccount: jest.fn(),

@@ -210,7 +210,7 @@
   },
   "packages/keyring-snap-bridge/src/v2/SnapKeyring.test.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 4
+      "count": 1
     }
   },
   "packages/keyring-snap-sdk/src/rpc-handler.test.ts": {

@@ -3793,11 +3793,11 @@ describe('SnapKeyring', () => {
 
     it('resolveAccountAddress throws for a v2 snap', async () => {
       await expect(
-        v2Keyring.resolveAccountAddress(
-          v2SnapId,
-          EthScope.Eoa,
-          { id: 1, jsonrpc: '2.0', method: 'eth_sign' } as JsonRpcRequest,
-        ),
+        v2Keyring.resolveAccountAddress(v2SnapId, EthScope.Eoa, {
+          id: 1,
+          jsonrpc: '2.0',
+          method: 'eth_sign',
+        } as JsonRpcRequest),
       ).rejects.toThrow(
         `Snap '${v2SnapId}' does not support v1 address resolution`,
       );
