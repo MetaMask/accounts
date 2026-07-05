@@ -9,6 +9,7 @@ import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-clien
 import type { SnapId } from '@metamask/snaps-sdk';
 
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
+import { SnapKeyringV1 } from '../SnapKeyringV1';
 import type { SnapKeyringCallbacks } from './SnapKeyring';
 import { EMPTY_CAPABILITIES, isSnapKeyring, SnapKeyring } from './SnapKeyring';
 
@@ -574,8 +575,8 @@ describe('SnapKeyring', () => {
 
         // The snap has no declared capabilities (messenger returns undefined),
         // so keyring.v1 is set and submitRequest should delegate to it.
-        const { v1 } = keyring;
-        expect(v1).toBeDefined();
+        expect(keyring.v1).toBeDefined();
+        const v1 = keyring.v1 as SnapKeyringV1;
         const submitSpy = jest
           .spyOn(v1, 'submitSnapRequest')
           .mockResolvedValue(mockResult as any);
