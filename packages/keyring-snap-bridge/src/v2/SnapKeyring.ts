@@ -621,11 +621,12 @@ export class SnapKeyring implements Keyring {
     // Refresh capabilities from the snap manifest on every deserialize, falling
     // back to the empty default so a re-hydrate clears any previously-loaded
     // capabilities when the snap no longer declares them.
-    this.capabilities =
-      this.#resolveKeyringCapabilities() ?? EMPTY_CAPABILITIES;
+    const capabilities = this.#resolveKeyringCapabilities();
+    this.capabilities = capabilities ?? EMPTY_CAPABILITIES;
 
     // Determine snap version and create a v1 instance if needed.
-    if (this.capabilities.scopes.length === 0) {
+    const v1 = capabilities === undefined;
+    if (v1) {
       // v1 snap: no declared capabilities. Create a SnapKeyringV1 instance
       // that shares the registry and messenger owned by this class.
       if (this.#v1 === undefined) {
