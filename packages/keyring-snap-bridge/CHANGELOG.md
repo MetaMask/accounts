@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** `SnapKeyring` (v2) no longer inherits `SnapKeyringV1` ([#584](https://github.com/MetaMask/accounts/pull/584))
+  - Use `.v1` getter to access a v1 instance instead.
+  - `.v1` will yield `undefined` if the Snap declares v2 `capabilities` in its `endowment:keyring`.
+
 ## [22.4.0]
 
 ### Added

@@ -1,4 +1,9 @@
-import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
+import type {
+  CaipChainId,
+  KeyringAccount,
+  KeyringRequest,
+  ResolvedAccountAddress,
+} from '@metamask/keyring-api';
 import type {
   Balance,
   CaipAssetType,
@@ -19,6 +24,7 @@ import {
   GetAccountTransactionsResponseStruct,
   GetAccountAssetsResponseStruct,
   GetAccountBalancesResponseStruct,
+  ResolveAccountAddressResponseStruct,
 } from '@metamask/keyring-api/v2';
 import type {
   CreateAccountOptions,
@@ -27,6 +33,7 @@ import type {
   KeyringSnapRpc,
   KeyringRpcRequest,
 } from '@metamask/keyring-api/v2';
+import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { AccountId } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
@@ -250,6 +257,29 @@ export class KeyringClient implements KeyringSnapRpc {
         params: { id, assets },
       }),
       GetAccountBalancesResponseStruct,
+    );
+  }
+
+  /**
+   * Resolves the account address to use for routing a signing request.
+   *
+   * @param scope - CAIP-2 chain ID of the signing request.
+   * @param request - The signing JSON-RPC request.
+   * @returns A promise that resolves to the resolved address, or `null` if
+   * the Snap cannot determine an address for this request.
+   */
+  async resolveAccountAddress(
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+  ): Promise<ResolvedAccountAddress | null> {
+    return strictMask(
+      await this.#sender.send({
+        jsonrpc: '2.0',
+        id: uuid(),
+        method: KeyringSnapRpcMethod.ResolveAccountAddress,
+        params: { scope, request },
+      }),
+      ResolveAccountAddressResponseStruct,
     );
   }
 }

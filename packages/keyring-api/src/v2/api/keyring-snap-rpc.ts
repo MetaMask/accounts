@@ -1,9 +1,10 @@
-import type { AccountId } from '@metamask/keyring-utils';
-import { UuidStruct } from '@metamask/keyring-utils';
+import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
+import { UuidStruct, JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   array,
   literal,
+  nullable,
   number,
   object,
   record,
@@ -11,10 +12,20 @@ import {
   union,
 } from '@metamask/superstruct';
 
+import { ResolvedAccountAddressStruct } from '../../api/address';
+import type { ResolvedAccountAddress } from '../../api/address';
 import { BalanceStruct } from '../../api/balance';
 import type { Balance } from '../../api/balance';
-import { CaipAssetTypeOrIdStruct, CaipAssetTypeStruct } from '../../api/caip';
-import type { CaipAssetType, CaipAssetTypeOrId } from '../../api/caip';
+import {
+  CaipAssetTypeOrIdStruct,
+  CaipAssetTypeStruct,
+  CaipChainIdStruct,
+} from '../../api/caip';
+import type {
+  CaipAssetType,
+  CaipAssetTypeOrId,
+  CaipChainId,
+} from '../../api/caip';
 import { PaginationStruct } from '../../api/pagination';
 import type { Pagination } from '../../api/pagination';
 import { TransactionsPageStruct } from '../../api/transaction';
@@ -32,6 +43,7 @@ export const KeyringSnapRpcMethod = {
   GetAccountTransactions: 'keyring_getAccountTransactions',
   GetAccountAssets: 'keyring_getAccountAssets',
   GetAccountBalances: 'keyring_getAccountBalances',
+  ResolveAccountAddress: 'keyring_resolveAccountAddress',
 } as const;
 
 /**
@@ -151,6 +163,30 @@ export type GetAccountBalancesResponse = Infer<
 >;
 
 // ----------------------------------------------------------------------------
+// Resolve account address
+
+export const ResolveAccountAddressRequestStruct = object({
+  ...CommonHeader,
+  method: literal(`${KeyringSnapRpcMethod.ResolveAccountAddress}`),
+  params: object({
+    scope: CaipChainIdStruct,
+    request: JsonRpcRequestStruct,
+  }),
+});
+
+export type ResolveAccountAddressRequest = Infer<
+  typeof ResolveAccountAddressRequestStruct
+>;
+
+export const ResolveAccountAddressResponseStruct = nullable(
+  ResolvedAccountAddressStruct,
+);
+
+export type ResolveAccountAddressResponse = Infer<
+  typeof ResolveAccountAddressResponseStruct
+>;
+
+// ----------------------------------------------------------------------------
 
 /**
  * All keyring RPC requests available to a Snap - includes base
@@ -161,7 +197,8 @@ export type KeyringSnapRpcRequests =
   | SetSelectedAccountsRequest
   | GetAccountTransactionsRequest
   | GetAccountAssetsRequest
-  | GetAccountBalancesRequest;
+  | GetAccountBalancesRequest
+  | ResolveAccountAddressRequest;
 
 /**
  * Extract the proper request type for a given {@link KeyringSnapRpcMethod}.
@@ -205,4 +242,13 @@ export type KeyringSnapRpc = KeyringRpc & {
     id: AccountId,
     assets: CaipAssetType[],
   ) => Promise<Record<CaipAssetType, Balance>>;
+
+  /**
+   * Resolve the account address to use for routing a signing request.
+   * Maps to `keyring_resolveAccountAddress`.
+   */
+  resolveAccountAddress?: (
+    scope: CaipChainId,
+    request: JsonRpcRequest,
+  ) => Promise<ResolvedAccountAddress | null>;
 };

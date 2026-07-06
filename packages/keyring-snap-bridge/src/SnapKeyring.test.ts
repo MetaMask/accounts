@@ -3738,4 +3738,143 @@ describe('SnapKeyring', () => {
       );
     });
   });
+
+  describe('v2 snap error paths', () => {
+    const v2SnapId = 'local:snap.v2mock' as SnapId;
+    let v2Keyring: SnapKeyring;
+
+    beforeEach(async () => {
+      // After the outer beforeEach resets mockMessenger.get, configure it to
+      // return capabilities for the v2 snap so inner SnapKeyring treats it as
+      // a v2 snap (v1 === undefined).
+      mockMessenger.get.mockImplementation((id: SnapId) =>
+        id === v2SnapId
+          ? {
+              manifest: {
+                initialPermissions: {
+                  'endowment:keyring': {
+                    capabilities: { scopes: [EthScope.Eoa] },
+                  },
+                },
+              },
+            }
+          : undefined,
+      );
+
+      v2Keyring = new SnapKeyring({
+        messenger: mockSnapKeyringMessenger,
+        callbacks: mockCallbacks,
+        isAnyAccountTypeAllowed: true,
+      });
+
+      // Load an account for the v2 snap so #snapKeyrings and #accountIndex are
+      // populated, enabling tests for address-based methods.
+      await v2Keyring.deserialize({
+        accounts: {
+          [ethEoaAccount1.id]: { account: ethEoaAccount1, snapId: v2SnapId },
+        },
+      });
+    });
+
+    it('handleKeyringSnapMessage throws for a v2 snap', async () => {
+      await expect(
+        v2Keyring.handleKeyringSnapMessage(v2SnapId, {
+          method: KeyringEvent.AccountUpdated,
+          params: { account: ethEoaAccount1 },
+        }),
+      ).rejects.toThrow(`Snap '${v2SnapId}' does not support v1 messages`);
+    });
+
+    it('createAccount throws for a v2 snap', async () => {
+      await expect(v2Keyring.createAccount(v2SnapId, {})).rejects.toThrow(
+        `Snap '${v2SnapId}' does not support v1 account creation`,
+      );
+    });
+
+    it('resolveAccountAddress throws for a v2 snap', async () => {
+      await expect(
+        v2Keyring.resolveAccountAddress(v2SnapId, EthScope.Eoa, {
+          id: 1,
+          jsonrpc: '2.0',
+          method: 'eth_sign',
+        } as JsonRpcRequest),
+      ).rejects.toThrow(
+        `Snap '${v2SnapId}' does not support v1 address resolution`,
+      );
+    });
+
+    it('submitRequest throws for a v2 snap', async () => {
+      await expect(
+        v2Keyring.submitRequest({
+          origin: 'metamask',
+          account: ethEoaAccount1.id,
+          method: EthMethod.Sign,
+          scope: EthScope.Eoa,
+        }),
+      ).rejects.toThrow(`Snap '${v2SnapId}' does not support v1 requests`);
+    });
+
+    it('signTransaction throws for a v2 snap', async () => {
+      await expect(
+        v2Keyring.signTransaction(
+          ethEoaAccount1.address,
+          TransactionFactory.fromTxData({ type: '0x0' }),
+        ),
+      ).rejects.toThrow(`Snap '${v2SnapId}' does not support v1 signing`);
+    });
+
+    it('signTypedData throws for a v2 snap', async () => {
+      await expect(
+        v2Keyring.signTypedData(ethEoaAccount1.address, []),
+      ).rejects.toThrow(`Snap '${v2SnapId}' does not support v1 signing`);
+    });
+
+    it('signMessage throws for a v2 snap', async () => {
+      await expect(
+        v2Keyring.signMessage(ethEoaAccount1.address, '0xdeadbeef'),
+      ).rejects.toThrow(`Snap '${v2SnapId}' does not support v1 signing`);
+    });
+
+    it('signPersonalMessage throws for a v2 snap', async () => {
+      await expect(
+        v2Keyring.signPersonalMessage(ethEoaAccount1.address, '0xdeadbeef'),
+      ).rejects.toThrow(`Snap '${v2SnapId}' does not support v1 signing`);
+    });
+
+    it('prepareUserOperation throws for a v2 snap', async () => {
+      await expect(
+        v2Keyring.prepareUserOperation(
+          ethEoaAccount1.address,
+          [],
+          executionContext,
+        ),
+      ).rejects.toThrow(
+        `Snap '${v2SnapId}' does not support v1 prepareUserOperation`,
+      );
+    });
+
+    it('patchUserOperation throws for a v2 snap', async () => {
+      await expect(
+        v2Keyring.patchUserOperation(
+          ethEoaAccount1.address,
+          {} as EthUserOperation,
+          executionContext,
+        ),
+      ).rejects.toThrow(
+        `Snap '${v2SnapId}' does not support v1 patchUserOperation`,
+      );
+    });
+
+    it('signUserOperation throws for a v2 snap', async () => {
+      await expect(
+        v2Keyring.signUserOperation(
+          ethEoaAccount1.address,
+          {} as EthUserOperation,
+          executionContext,
+        ),
+      ).rejects.toThrow(
+        `Snap '${v2SnapId}' does not support v1 signUserOperation`,
+      );
+    });
+  });
 });

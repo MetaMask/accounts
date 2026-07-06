@@ -24,6 +24,7 @@ import {
   AccountAssetListUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
 } from '@metamask/keyring-api';
+import type { CreateAccountOptions } from '@metamask/keyring-api/v2';
 import { toKeyringRequestWithoutOrigin } from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
@@ -157,6 +158,12 @@ export type SnapKeyringV1Options = {
    * Defaults to `false`.
    */
   isAnyAccountTypeAllowed?: boolean;
+  /**
+   * Account registry to use. When provided (e.g. by a owning `SnapKeyring`
+   * v2 instance), the registry is shared by reference. When omitted, a new
+   * registry is created (useful for standalone / test usage).
+   */
+  registry?: KeyringAccountRegistry;
 };
 
 /**
@@ -241,8 +248,9 @@ export class SnapKeyringV1 {
     messenger,
     callbacks,
     isAnyAccountTypeAllowed = false,
+    registry,
   }: SnapKeyringV1Options) {
-    this.registry = new KeyringAccountRegistry();
+    this.registry = registry ?? new KeyringAccountRegistry();
     this.messenger = messenger;
     this.#callbacks = callbacks;
     this.#isAnyAccountTypeAllowed = isAnyAccountTypeAllowed;
@@ -260,7 +268,7 @@ export class SnapKeyringV1 {
    * @param snapId - The snap ID to bind this keyring to.
    * @throws If the keyring is already bound to a different snap ID.
    */
-  protected bindSnapId(snapId: SnapId): void {
+  bindSnapId(snapId: SnapId): void {
     if (this.#context !== undefined && this.#context.snapId !== snapId) {
       throw new Error(
         `SnapKeyring bound to '${this.#context.snapId}' cannot be rebound to '${snapId}'`,
@@ -312,6 +320,23 @@ export class SnapKeyringV1 {
     internalOptions?: SnapKeyringInternalOptions,
   ): Promise<KeyringAccount> {
     return this.#createSnapAccount(options, internalOptions);
+  }
+
+  /**
+   * Create one or more accounts using the v1 synchronous RPC flow.
+   *
+   * Delegates to the v1 internal snap client, which wraps `options` in
+   * `{ options }` before sending `keyring_createAccounts` — unlike the v2
+   * client which sends flat `options`. Called by `SnapKeyring` (v2) when the
+   * snap has no declared capabilities (i.e. it is a v1 snap).
+   *
+   * @param options - Account creation options forwarded to the snap.
+   * @returns The array of accounts returned by the snap.
+   */
+  async createAccounts(
+    options: CreateAccountOptions,
+  ): Promise<KeyringAccount[]> {
+    return this.client.createAccounts(options);
   }
 
   /**

@@ -1,14 +1,15 @@
-import { EthAccountType, EthScope } from '@metamask/keyring-api';
+import { EthAccountType, EthScope, KeyringEvent } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
   CreateAccountOptions,
 } from '@metamask/keyring-api';
 import type { Keyring } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
-import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
+import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
 import type { SnapId } from '@metamask/snaps-sdk';
 
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
+import { SnapKeyringV1 } from '../SnapKeyringV1';
 import type { SnapKeyringCallbacks } from './SnapKeyring';
 import { EMPTY_CAPABILITIES, isSnapKeyring, SnapKeyring } from './SnapKeyring';
 
@@ -40,13 +41,11 @@ const account2: KeyringAccount = {
 function makeMockCallbacks(): SnapKeyringCallbacks {
   return {
     // V1 base callbacks
-    addAccount: jest.fn<Promise<void>, any[]>().mockResolvedValue(undefined),
-    removeAccount: jest.fn<Promise<void>, any[]>().mockResolvedValue(undefined),
-    saveState: jest.fn<Promise<void>, []>().mockResolvedValue(undefined),
-    redirectUser: jest.fn<Promise<void>, any[]>().mockResolvedValue(undefined),
-    assertAccountCanBeUsed: jest
-      .fn<Promise<void>, [KeyringAccount]>()
-      .mockResolvedValue(undefined),
+    addAccount: jest.fn().mockResolvedValue(undefined),
+    removeAccount: jest.fn().mockResolvedValue(undefined),
+    saveState: jest.fn().mockResolvedValue(undefined),
+    redirectUser: jest.fn().mockResolvedValue(undefined),
+    assertAccountCanBeUsed: jest.fn().mockResolvedValue(undefined),
   };
 }
 
@@ -473,7 +472,7 @@ describe('SnapKeyring', () => {
       it('creates new accounts and saves state', async () => {
         const { keyring, callbacks, registered } = await makeKeyring();
         jest
-          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .spyOn(SnapKeyringV1.prototype, 'createAccounts')
           .mockResolvedValue([account1, account2]);
 
         const result = await keyring.createAccounts(options);
@@ -487,7 +486,7 @@ describe('SnapKeyring', () => {
       it('skips existing accounts (idempotent)', async () => {
         const { keyring, callbacks } = await makeKeyring();
         jest
-          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .spyOn(SnapKeyringV1.prototype, 'createAccounts')
           .mockResolvedValue([account1]);
         // Pre-populate the account
         keyring.setAccount(account1);
@@ -509,7 +508,7 @@ describe('SnapKeyring', () => {
             .mockRejectedValueOnce(new Error('duplicate address')),
         });
         jest
-          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .spyOn(SnapKeyringV1.prototype, 'createAccounts')
           .mockResolvedValue([account1, account2]);
         const deleteSpy = jest
           .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
@@ -525,12 +524,68 @@ describe('SnapKeyring', () => {
       it('rejects duplicate accounts within a batch', async () => {
         const { keyring } = await makeKeyring();
         jest
-          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .spyOn(SnapKeyringV1.prototype, 'createAccounts')
           .mockResolvedValue([account1, account1]);
 
         await expect(keyring.createAccounts(options)).rejects.toThrow(
           'already part of this batch',
         );
+      });
+
+      it('delegates to v1.createAccounts for a v1 snap (uses { options } wrapper)', async () => {
+        // makeKeyring() yields a v1 snap (messenger returns no capabilities)
+        const { keyring } = await makeKeyring();
+        expect(keyring.v1).toBeDefined();
+
+        const v1Spy = jest
+          .spyOn(SnapKeyringV1.prototype, 'createAccounts')
+          .mockResolvedValue([account1]);
+        const v2Spy = jest.spyOn(
+          KeyringInternalSnapClient.prototype,
+          'createAccounts',
+        );
+
+        await keyring.createAccounts(options);
+
+        expect(v1Spy).toHaveBeenCalledWith(options);
+        expect(v2Spy).not.toHaveBeenCalled();
+      });
+
+      it('calls the v2 client directly for a v2 snap (flat options, no wrapper)', async () => {
+        const messenger = {
+          call: jest.fn((action: string) =>
+            action === 'SnapController:getSnap'
+              ? {
+                  manifest: {
+                    initialPermissions: {
+                      'endowment:keyring': {
+                        capabilities: {
+                          scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+                        },
+                      },
+                    },
+                  },
+                }
+              : undefined,
+          ),
+          publish: jest.fn(),
+        } as unknown as SnapKeyringMessenger;
+        const keyring = new SnapKeyring({
+          messenger,
+          callbacks: makeMockCallbacks(),
+        });
+        await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+        expect(keyring.v1).toBeUndefined();
+
+        const v2Spy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'createAccounts')
+          .mockResolvedValue([account1]);
+        const v1Spy = jest.spyOn(SnapKeyringV1.prototype, 'createAccounts');
+
+        await keyring.createAccounts(options);
+
+        expect(v2Spy).toHaveBeenCalledWith(options);
+        expect(v1Spy).not.toHaveBeenCalled();
       });
     });
 
@@ -569,14 +624,17 @@ describe('SnapKeyring', () => {
     });
 
     describe('submitRequest', () => {
-      it('delegates to inherited submitSnapRequest for a known account', async () => {
+      it('delegates to v1.submitSnapRequest for a v1 snap (no declared capabilities)', async () => {
         const mockResult = { success: true };
         const { keyring } = await makeKeyring();
         keyring.setAccount(account1);
 
-        // Spy on the inherited V1 method directly
+        // The snap has no declared capabilities (messenger returns undefined),
+        // so keyring.v1 is set and submitRequest should delegate to it.
+        expect(keyring.v1).toBeDefined();
+        const v1 = keyring.v1 as SnapKeyringV1;
         const submitSpy = jest
-          .spyOn(keyring, 'submitSnapRequest')
+          .spyOn(v1, 'submitSnapRequest')
           .mockResolvedValue(mockResult as any);
 
         const request = {
@@ -601,6 +659,61 @@ describe('SnapKeyring', () => {
         );
       });
 
+      it('calls the v2 client directly for a v2 snap (with declared capabilities)', async () => {
+        const mockResult = { success: true };
+        const messenger = {
+          call: jest.fn((action: string) =>
+            action === 'SnapController:getSnap'
+              ? {
+                  manifest: {
+                    initialPermissions: {
+                      'endowment:keyring': {
+                        capabilities: {
+                          scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+                        },
+                      },
+                    },
+                  },
+                }
+              : undefined,
+          ),
+          publish: jest.fn(),
+        } as unknown as SnapKeyringMessenger;
+        const keyring = new SnapKeyring({
+          messenger,
+          callbacks: makeMockCallbacks(),
+        });
+        await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+
+        keyring.setAccount(account1);
+        expect(keyring.v1).toBeUndefined();
+
+        const submitSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'submitRequest')
+          .mockResolvedValue(mockResult);
+
+        const request = {
+          id: 'req-1',
+          origin: 'metamask',
+          scope: 'eip155:1',
+          account: account1.id,
+          request: { method: 'eth_sign' },
+        };
+
+        const result = await keyring.submitRequest(request);
+
+        expect(result).toStrictEqual(mockResult);
+        expect(submitSpy).toHaveBeenCalledWith({
+          id: 'req-1',
+          origin: 'metamask',
+          scope: 'eip155:1',
+          account: account1.id,
+          request: { method: 'eth_sign' },
+        });
+
+        submitSpy.mockRestore();
+      });
+
       it('throws for an unknown account', async () => {
         const { keyring } = await makeKeyring();
 
@@ -615,6 +728,46 @@ describe('SnapKeyring', () => {
         await expect(keyring.submitRequest(request)).rejects.toThrow(
           "Account 'unknown-id' not found",
         );
+      });
+    });
+
+    describe('v1/v2 shared registry', () => {
+      it('accounts created via v1 createAccounts are visible through v2 getAccounts', async () => {
+        const { keyring } = await makeKeyring();
+        jest
+          .spyOn(SnapKeyringV1.prototype, 'createAccounts')
+          .mockResolvedValue([account1]);
+
+        await keyring.createAccounts({} as unknown as CreateAccountOptions);
+
+        expect(await keyring.getAccounts()).toStrictEqual([account1]);
+      });
+
+      it('accounts added via v1 AccountCreated event are visible through v2 getAccounts', async () => {
+        // The default addAccount mock resolves without calling handleUserInput,
+        // so the account never reaches the registry. Override it to accept.
+        const { keyring } = await makeKeyring(SNAP_ID, {
+          addAccount: jest
+            .fn()
+            .mockImplementation(
+              async (
+                _address: string,
+                _snapId: string,
+                handleUserInput: (accepted: boolean) => Promise<void>,
+              ) => {
+                await handleUserInput(true);
+              },
+            ),
+        });
+        expect(keyring.v1).toBeDefined();
+        const v1 = keyring.v1 as SnapKeyringV1;
+
+        await v1.handleKeyringSnapMessage({
+          method: KeyringEvent.AccountCreated,
+          params: { account: account1 },
+        });
+
+        expect(await keyring.getAccounts()).toStrictEqual([account1]);
       });
     });
   });

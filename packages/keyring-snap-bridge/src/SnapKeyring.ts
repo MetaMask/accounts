@@ -24,10 +24,28 @@ import { normalizeAccountAddress } from './account';
 import type { SnapKeyringInternalOptions } from './options';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
 import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
-import type { AccountMethod } from './SnapKeyringV1';
+import type { AccountMethod, SnapKeyringV1 } from './SnapKeyringV1';
 import type { SnapMessage } from './types';
 import { throwError, unique } from './util';
 import { SnapKeyring as SnapKeyringV2 } from './v2/SnapKeyring';
+
+/**
+ * Return the v1 instance of a per-snap keyring, throwing if the snap only
+ * supports the v2 protocol.
+ *
+ * @param keyring - The per-snap v2 keyring.
+ * @param feature - Human-readable feature name used in the error message.
+ * @returns The v1 instance.
+ */
+function getKeyringV1For(
+  keyring: SnapKeyringV2,
+  feature: string,
+): SnapKeyringV1 {
+  return (
+    keyring.v1 ??
+    throwError(`Snap '${keyring.snapId}' does not support v1 ${feature}`)
+  );
+}
 
 export const SNAP_KEYRING_TYPE = 'Snap Keyring';
 
@@ -88,9 +106,10 @@ export class SnapKeyring {
   readonly #messenger: SnapKeyringMessenger;
 
   /**
-   * Per-snap keyring instances. Each `SnapKeyringV2` (which extends
-   * `SnapKeyringV1`) owns a single `KeyringAccountRegistry` and handles
-   * both the event-driven v1 flow and the `KeyringV2` batch interface.
+   * Per-snap keyring instances. Each `SnapKeyringV2` owns the
+   * `KeyringAccountRegistry` and handles the `KeyringV2` batch interface.
+   * For v1 snaps, `SnapKeyringV2.v1` holds a `SnapKeyringV1` instance
+   * (with a shared registry reference) for the event-driven flow.
    */
   readonly #snapKeyrings: Map<SnapId, SnapKeyringV2>;
 
@@ -344,7 +363,10 @@ export class SnapKeyring {
     }
 
     try {
-      return await keyring.handleKeyringSnapMessage(message);
+      return await getKeyringV1For(
+        keyring,
+        'messages',
+      ).handleKeyringSnapMessage(message);
     } finally {
       // Clean up if AccountCreated was rejected (e.g. duplicate address,
       // invalid account), leaving the snap with no registered accounts.
@@ -468,7 +490,7 @@ export class SnapKeyring {
   /**
    * Create an account (v1 event-driven flow).
    *
-   * Delegates to the per-snap SnapKeyringV1 instance.
+   * Delegates to the per-snap SnapKeyringV2 instance (v1 flow).
    *
    * @param snapId - Snap ID to create the account for.
    * @param options - Account creation options. Differs between keyrings.
@@ -481,7 +503,10 @@ export class SnapKeyring {
     internalOptions?: SnapKeyringInternalOptions,
   ): Promise<KeyringAccount> {
     const keyring = await this.#getOrCreateKeyring(snapId);
-    return keyring.createAccount(options, internalOptions);
+    return getKeyringV1For(keyring, 'account creation').createAccount(
+      options,
+      internalOptions,
+    );
   }
 
   /**
@@ -535,7 +560,10 @@ export class SnapKeyring {
     }
 
     const keyring = await this.#getOrCreateKeyring(snapId);
-    return keyring.resolveAccountAddress(scope, request);
+    return getKeyringV1For(keyring, 'address resolution').resolveAccountAddress(
+      scope,
+      request,
+    );
   }
 
   /**
@@ -572,7 +600,7 @@ export class SnapKeyring {
       this.#snapKeyrings.get(snapId) ??
       throwError(`No keyring found for snap '${snapId}'`);
 
-    return await keyring.submitSnapRequest({
+    return await getKeyringV1For(keyring, 'requests').submitSnapRequest({
       origin,
       account,
       method: method as AccountMethod,
@@ -598,7 +626,11 @@ export class SnapKeyring {
     _opts = {},
   ): Promise<Json | TypedTransaction> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.signTransaction(account, transaction, _opts);
+    return getKeyringV1For(keyring, 'signing').signTransaction(
+      account,
+      transaction,
+      _opts,
+    );
   }
 
   /**
@@ -615,7 +647,11 @@ export class SnapKeyring {
     opts = { version: SignTypedDataVersion.V1 },
   ): Promise<string> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.signTypedData(account, data, opts);
+    return getKeyringV1For(keyring, 'signing').signTypedData(
+      account,
+      data,
+      opts,
+    );
   }
 
   /**
@@ -627,7 +663,7 @@ export class SnapKeyring {
    */
   async signMessage(address: string, hash: any): Promise<string> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.signMessage(account, hash);
+    return getKeyringV1For(keyring, 'signing').signMessage(account, hash);
   }
 
   /**
@@ -642,7 +678,10 @@ export class SnapKeyring {
    */
   async signPersonalMessage(address: string, data: any): Promise<string> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.signPersonalMessage(account, data);
+    return getKeyringV1For(keyring, 'signing').signPersonalMessage(
+      account,
+      data,
+    );
   }
 
   /**
@@ -659,7 +698,10 @@ export class SnapKeyring {
     context: KeyringExecutionContext,
   ): Promise<EthBaseUserOperation> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.prepareUserOperation(account, transactions, context);
+    return getKeyringV1For(
+      keyring,
+      'prepareUserOperation',
+    ).prepareUserOperation(account, transactions, context);
   }
 
   /**
@@ -677,7 +719,11 @@ export class SnapKeyring {
     context: KeyringExecutionContext,
   ): Promise<EthUserOperationPatch> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.patchUserOperation(account, userOp, context);
+    return getKeyringV1For(keyring, 'patchUserOperation').patchUserOperation(
+      account,
+      userOp,
+      context,
+    );
   }
 
   /**
@@ -694,7 +740,11 @@ export class SnapKeyring {
     context: KeyringExecutionContext,
   ): Promise<string> {
     const { account, keyring } = this.#resolveAddress(address);
-    return keyring.signUserOperation(account, userOp, context);
+    return getKeyringV1For(keyring, 'signUserOperation').signUserOperation(
+      account,
+      userOp,
+      context,
+    );
   }
 
   /**
@@ -766,9 +816,11 @@ export class SnapKeyring {
       bySnap.set(snapId, snapAccounts);
     }
 
+    // v1 snaps receive a keyring_setSelectedAccounts notification; v2 snaps
+    // have no equivalent concept in the protocol so they are intentionally skipped.
     await Promise.all(
       [...this.#snapKeyrings.entries()].map(async ([snapId, keyring]) =>
-        keyring.setSelectedAccounts(
+        keyring.v1?.setSelectedAccounts(
           /* istanbul ignore next */
           bySnap.get(snapId) ?? [],
         ),

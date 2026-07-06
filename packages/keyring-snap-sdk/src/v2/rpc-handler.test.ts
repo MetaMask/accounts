@@ -19,6 +19,7 @@ import type {
   GetAccountTransactionsRequest,
   GetAccountAssetsRequest,
   GetAccountBalancesRequest,
+  ResolveAccountAddressRequest,
   KeyringRpc,
   KeyringSnapRpc,
 } from '@metamask/keyring-api/v2';
@@ -38,6 +39,7 @@ describe('handleKeyringRequest', () => {
     getAccountTransactions: jest.fn(),
     getAccountAssets: jest.fn(),
     getAccountBalances: jest.fn(),
+    resolveAccountAddress: jest.fn(),
   };
 
   afterEach(() => {
@@ -469,6 +471,60 @@ describe('handleKeyringRequest', () => {
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
       `Method not supported: ${KeyringSnapRpcMethod.GetAccountBalances}`,
+    );
+  });
+
+  it('calls `keyring_resolveAccountAddress`', async () => {
+    const request: ResolveAccountAddressRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.ResolveAccountAddress}`,
+      params: {
+        scope: 'bip122:000000000019d6689c085ae165831e93',
+        request: {
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'signPsbt',
+          params: {},
+        },
+      },
+    };
+
+    const mockedResult = {
+      address:
+        'bip122:000000000019d6689c085ae165831e93:1A1zP1eP5QGefi2DMPTfTL5SLmv7Divf',
+    };
+    keyring.resolveAccountAddress.mockResolvedValue(mockedResult);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.resolveAccountAddress).toHaveBeenCalledWith(
+      request.params.scope,
+      request.params.request,
+    );
+    expect(result).toStrictEqual(mockedResult);
+  });
+
+  it('throws an error if `keyring_resolveAccountAddress` is not implemented', async () => {
+    const request: ResolveAccountAddressRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.ResolveAccountAddress}`,
+      params: {
+        scope: 'bip122:000000000019d6689c085ae165831e93',
+        request: {
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'signPsbt',
+          params: {},
+        },
+      },
+    };
+
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
+    delete partialKeyring.resolveAccountAddress;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      `Method not supported: ${KeyringSnapRpcMethod.ResolveAccountAddress}`,
     );
   });
 
