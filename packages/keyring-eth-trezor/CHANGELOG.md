@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/keyring-api` from `^23.1.0` to `^23.4.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583))
 - Bump `@metamask/keyring-sdk` from `^2.1.1` to `^2.2.0` ([#562](https://github.com/MetaMask/accounts/pull/562))
-- Bump `@metamask/hw-wallet-sdk` from `^0.8.0` to `^0.9.0` ([#576](https://github.com/MetaMask/accounts/pull/576))
+- Bump `@metamask/hw-wallet-sdk` from `^0.8.0` to `^0.10.0` ([#576](https://github.com/MetaMask/accounts/pull/576), [#587](https://github.com/MetaMask/accounts/pull/587))
 
 ### Fixed
 
