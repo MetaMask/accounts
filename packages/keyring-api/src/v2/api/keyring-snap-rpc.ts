@@ -21,7 +21,11 @@ import {
   CaipAssetTypeStruct,
   CaipChainIdStruct,
 } from '../../api/caip';
-import type { CaipAssetType, CaipAssetTypeOrId, CaipChainId } from '../../api/caip';
+import type {
+  CaipAssetType,
+  CaipAssetTypeOrId,
+  CaipChainId,
+} from '../../api/caip';
 import { PaginationStruct } from '../../api/pagination';
 import type { Pagination } from '../../api/pagination';
 import { TransactionsPageStruct } from '../../api/transaction';

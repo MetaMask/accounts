@@ -272,5 +272,45 @@ describe('KeyringClient', () => {
         expect(response).toStrictEqual(expectedResponse);
       });
     });
+
+    describe('resolveAccountAddress', () => {
+      it('sends a request to resolve an account address and returns the response', async () => {
+        const scope = 'bip122:000000000019d6689c085ae165831e93';
+        const request = {
+          jsonrpc: '2.0' as const,
+          id: '1',
+          method: 'signPsbt',
+          params: {},
+        };
+        const expectedResponse = {
+          address:
+            'bip122:000000000019d6689c085ae165831e93:1A1zP1eP5QGefi2DMPTfTL5SLmv7Divf',
+        };
+
+        mockSender.send.mockResolvedValue(expectedResponse);
+        const response = await client.resolveAccountAddress(scope, request);
+        expect(mockSender.send).toHaveBeenCalledWith({
+          jsonrpc: '2.0',
+          id: expect.any(String),
+          method: `${KeyringSnapRpcMethod.ResolveAccountAddress}`,
+          params: { scope, request },
+        });
+        expect(response).toStrictEqual(expectedResponse);
+      });
+
+      it('returns null when the snap cannot resolve an address', async () => {
+        const scope = 'bip122:000000000019d6689c085ae165831e93';
+        const request = {
+          jsonrpc: '2.0' as const,
+          id: '1',
+          method: 'signPsbt',
+          params: {},
+        };
+
+        mockSender.send.mockResolvedValue(null);
+        const response = await client.resolveAccountAddress(scope, request);
+        expect(response).toBeNull();
+      });
+    });
   });
 });
