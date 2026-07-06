@@ -3,11 +3,6 @@ import type { TypedDataV1, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
   KeyringAccount,
-  KeyringExecutionContext,
-  EthBaseTransaction,
-  EthBaseUserOperation,
-  EthUserOperation,
-  EthUserOperationPatch,
   ResolvedAccountAddress,
   CaipChainId,
   CreateAccountOptions,
@@ -681,69 +676,6 @@ export class SnapKeyring {
     return getKeyringV1For(keyring, 'signing').signPersonalMessage(
       account,
       data,
-    );
-  }
-
-  /**
-   * Convert a base transaction to a base UserOperation.
-   *
-   * @param address - Address of the sender.
-   * @param transactions - Base transactions to include in the UserOperation.
-   * @param context - Keyring execution context.
-   * @returns A pseudo-UserOperation that can be used to construct a real.
-   */
-  async prepareUserOperation(
-    address: string,
-    transactions: EthBaseTransaction[],
-    context: KeyringExecutionContext,
-  ): Promise<EthBaseUserOperation> {
-    const { account, keyring } = this.#resolveAddress(address);
-    return getKeyringV1For(
-      keyring,
-      'prepareUserOperation',
-    ).prepareUserOperation(account, transactions, context);
-  }
-
-  /**
-   * Patches properties of a UserOperation. Currently, only the
-   * `paymasterAndData` can be patched.
-   *
-   * @param address - Address of the sender.
-   * @param userOp - UserOperation to patch.
-   * @param context - Keyring execution context.
-   * @returns A patch to apply to the UserOperation.
-   */
-  async patchUserOperation(
-    address: string,
-    userOp: EthUserOperation,
-    context: KeyringExecutionContext,
-  ): Promise<EthUserOperationPatch> {
-    const { account, keyring } = this.#resolveAddress(address);
-    return getKeyringV1For(keyring, 'patchUserOperation').patchUserOperation(
-      account,
-      userOp,
-      context,
-    );
-  }
-
-  /**
-   * Signs a UserOperation.
-   *
-   * @param address - Address of the sender.
-   * @param userOp - UserOperation to sign.
-   * @param context - Keyring execution context.
-   * @returns The signature of the UserOperation.
-   */
-  async signUserOperation(
-    address: string,
-    userOp: EthUserOperation,
-    context: KeyringExecutionContext,
-  ): Promise<string> {
-    const { account, keyring } = this.#resolveAddress(address);
-    return getKeyringV1For(keyring, 'signUserOperation').signUserOperation(
-      account,
-      userOp,
-      context,
     );
   }
 

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **BREAKING:** Removed ERC-4337 (account abstraction) support ([#588](https://github.com/MetaMask/accounts/pull/588))
+  - Removed `prepareUserOperation`, `patchUserOperation`, and `signUserOperation` methods from `SnapKeyring` and `SnapKeyringV1`.
+  - Removed ERC-4337 account type handling from `assertKeyringAccount` and the v1 account migration.
+
 ## [23.0.1]
 
 ### Fixed

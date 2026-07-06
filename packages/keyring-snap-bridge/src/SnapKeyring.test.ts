@@ -4,9 +4,6 @@ import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import type {
   KeyringAccount,
   KeyringExecutionContext,
-  EthBaseUserOperation,
-  EthUserOperation,
-  EthUserOperationPatch,
   AccountBalancesUpdatedEventPayload,
   AccountTransactionsUpdatedEventPayload,
   AccountAssetListUpdatedEventPayload,
@@ -47,7 +44,7 @@ import type { SnapControllerHandleRequestAction } from '@metamask/snaps-controll
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 import { assert } from '@metamask/superstruct';
-import type { Hex, Json } from '@metamask/utils';
+import type { Json } from '@metamask/utils';
 import {
   KnownCaipNamespace,
   toCaipChainId,
@@ -67,12 +64,6 @@ type SnapRpcRequest = Parameters<
 
 const regexForUUIDInRequiredSyncErrorMessage =
   /Request '[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}' to Snap 'local:snap.mock' is pending and noPending is true/u;
-
-const ETH_4337_METHODS = [
-  EthMethod.PatchUserOperation,
-  EthMethod.PrepareUserOperation,
-  EthMethod.SignUserOperation,
-];
 
 const ETH_EOA_METHODS = [
   EthMethod.PersonalSign,
@@ -161,14 +152,6 @@ describe('SnapKeyring', () => {
     methods: ETH_EOA_METHODS,
     scopes: [EthScope.Eoa],
     type: EthAccountType.Eoa,
-  };
-  const ethErc4337Account = {
-    id: 'fc926fff-f515-4eb5-9952-720bbd9b9849',
-    address: '0x2f15b30952aebe0ed5fdbfe5bf16fb9ecdb31d9a'.toLowerCase() as Hex,
-    options: {},
-    methods: ETH_4337_METHODS,
-    scopes: [EthScope.Testnet],
-    type: EthAccountType.Erc4337,
   };
   const btcAccount = {
     id: '11cffca0-12cc-4779-8f82-23273c062e29',
@@ -270,7 +253,6 @@ describe('SnapKeyring', () => {
     ethEoaAccount1,
     ethEoaAccount2,
     ethEoaAccount3,
-    ethErc4337Account,
     btcAccount,
     btcAccountP2pkh,
     btcAccountP2sh,
@@ -1183,23 +1165,6 @@ describe('SnapKeyring', () => {
         expect(keyringAccounts[0]?.scopes).toStrictEqual([EthScope.Eoa]);
       });
 
-      it('updates a ERC4337 account with the no scope will throw an error', async () => {
-        // Omit `scopes` from non-EVM `account`.
-        const account = noScopes(ethErc4337Account);
-
-        // Return the updated list of accounts when the keyring requests it.
-        mockMessenger.handleRequest.mockResolvedValue([{ ...account }]);
-
-        await expect(
-          keyring.handleKeyringSnapMessage(snapId, {
-            method: KeyringEvent.AccountUpdated,
-            params: { account },
-          }),
-        ).rejects.toThrow(
-          'At path: scopes -- Expected an array value, but received: undefined',
-        );
-      });
-
       it('updates a non-EVM account with the no scope will throw an error', async () => {
         // Omit `scopes` from non-EVM `account`.
         const account = noScopes(btcAccount);
@@ -1235,7 +1200,6 @@ describe('SnapKeyring', () => {
         expect(await keyring.getAccounts()).toStrictEqual([
           ethEoaAccount2.address.toLowerCase(),
           ethEoaAccount3.address.toLowerCase(),
-          ethErc4337Account.address.toLowerCase(),
           btcAccount.address,
           btcAccountP2pkh.address,
           btcAccountP2sh.address,
@@ -1260,7 +1224,6 @@ describe('SnapKeyring', () => {
           ethEoaAccount1.address.toLowerCase(),
           ethEoaAccount2.address.toLowerCase(),
           ethEoaAccount3.address.toLowerCase(),
-          ethErc4337Account.address.toLowerCase(),
           btcAccount.address,
           btcAccountP2pkh.address,
           btcAccountP2sh.address,
@@ -1477,7 +1440,6 @@ describe('SnapKeyring', () => {
         ethEoaAccount1.address.toLowerCase(),
         ethEoaAccount2.address.toLowerCase(),
         ethEoaAccount3.address.toLowerCase(),
-        ethErc4337Account.address.toLowerCase(),
         btcAccount.address,
         btcAccountP2pkh.address,
         btcAccountP2sh.address,
@@ -1524,7 +1486,6 @@ describe('SnapKeyring', () => {
           [ethEoaAccount1.id]: { account: ethEoaAccount1, snapId },
           [ethEoaAccount2.id]: { account: ethEoaAccount2, snapId },
           [ethEoaAccount3.id]: { account: ethEoaAccount3, snapId },
-          [ethErc4337Account.id]: { account: ethErc4337Account, snapId },
           [btcAccount.id]: { account: btcAccount, snapId },
           [btcAccountP2pkh.id]: { account: btcAccountP2pkh, snapId },
           [btcAccountP2sh.id]: { account: btcAccountP2sh, snapId },
@@ -1603,7 +1564,6 @@ describe('SnapKeyring', () => {
 
     it.each([
       ethEoaAccount1,
-      ethErc4337Account,
       btcAccount,
       btcAccountP2pkh,
       btcAccountP2sh,
@@ -1630,7 +1590,6 @@ describe('SnapKeyring', () => {
 
     it.each([
       ethEoaAccount1,
-      ethErc4337Account,
       btcAccount,
       btcTestnetAccount,
       solDataAccount,
@@ -2029,182 +1988,6 @@ describe('SnapKeyring', () => {
       });
       expect(signature).toStrictEqual(expectedSignature);
     });
-
-    it('calls eth_prepareUserOperation', async () => {
-      const baseTxs = [
-        {
-          to: '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb' as Hex,
-          value: '0x0',
-          data: '0x',
-        },
-        {
-          to: '0x660265edc169bab511a40c0e049cc1e33774443d' as Hex,
-          value: '0x0',
-          data: '0x619a309f',
-        },
-      ];
-
-      const expectedBaseUserOp = {
-        callData: '0x70641a22000000000000000000000000f3de3c0d654fda23da',
-        initCode: '0x',
-        nonce: '0x1',
-        gasLimits: {
-          callGasLimit: '0x58a83',
-          verificationGasLimit: '0xe8c4',
-          preVerificationGas: '0xc57c',
-        },
-        dummySignature: '0x',
-        dummyPaymasterAndData: '0x',
-        bundlerUrl: 'https://bundler.example.com/rpc',
-      };
-
-      mockMessenger.handleRequest.mockReturnValueOnce({
-        pending: false,
-        result: expectedBaseUserOp,
-      });
-
-      const baseUserOp = await keyring.prepareUserOperation(
-        ethErc4337Account.address,
-        baseTxs,
-        executionContext,
-      );
-
-      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
-        snapId,
-        handler: 'onKeyringRequest',
-        origin: 'metamask',
-        request: {
-          id: expect.any(String),
-          jsonrpc: '2.0',
-          method: 'keyring_submitRequest',
-          params: {
-            id: expect.any(String),
-            scope: toCaipChainId(
-              KnownCaipNamespace.Eip155,
-              executionContext.chainId,
-            ),
-            origin: 'metamask',
-            account: ethErc4337Account.id,
-            request: {
-              method: 'eth_prepareUserOperation',
-              params: baseTxs,
-            },
-          },
-        },
-      });
-
-      expect(baseUserOp).toStrictEqual(expectedBaseUserOp);
-    });
-
-    it('calls eth_patchUserOperation', async () => {
-      const userOp = {
-        sender: ethErc4337Account.address,
-        nonce: '0x1',
-        initCode: '0x',
-        callData: '0x1234',
-        callGasLimit: '0x58a83',
-        verificationGasLimit: '0xe8c4',
-        preVerificationGas: '0xc57c',
-        maxFeePerGas: '0x87f0878c0',
-        maxPriorityFeePerGas: '0x1dcd6500',
-        paymasterAndData: '0x',
-        signature: '0x',
-      };
-
-      const expectedPatch = {
-        paymasterAndData: '0x1234',
-      };
-
-      mockMessenger.handleRequest.mockReturnValueOnce({
-        pending: false,
-        result: expectedPatch,
-      });
-
-      const patch = await keyring.patchUserOperation(
-        ethErc4337Account.address,
-        userOp,
-        executionContext,
-      );
-
-      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
-        snapId,
-        handler: 'onKeyringRequest',
-        origin: 'metamask',
-        request: {
-          id: expect.any(String),
-          jsonrpc: '2.0',
-          method: 'keyring_submitRequest',
-          params: {
-            id: expect.any(String),
-            scope: toCaipChainId(
-              KnownCaipNamespace.Eip155,
-              executionContext.chainId,
-            ),
-            origin: 'metamask',
-            account: ethErc4337Account.id,
-            request: {
-              method: 'eth_patchUserOperation',
-              params: [userOp],
-            },
-          },
-        },
-      });
-
-      expect(patch).toStrictEqual(expectedPatch);
-    });
-
-    it('calls eth_signUserOperation', async () => {
-      const userOp = {
-        sender: ethErc4337Account.address,
-        nonce: '0x1',
-        initCode: '0x',
-        callData: '0x1234',
-        callGasLimit: '0x58a83',
-        verificationGasLimit: '0xe8c4',
-        preVerificationGas: '0xc57c',
-        maxFeePerGas: '0x87f0878c0',
-        maxPriorityFeePerGas: '0x1dcd6500',
-        paymasterAndData: '0x',
-        signature: '0x',
-      };
-
-      mockMessenger.handleRequest.mockReturnValueOnce({
-        pending: false,
-        result: expectedSignature,
-      });
-
-      const signature = await keyring.signUserOperation(
-        ethErc4337Account.address,
-        userOp,
-        executionContext,
-      );
-
-      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
-        snapId,
-        handler: 'onKeyringRequest',
-        origin: 'metamask',
-        request: {
-          id: expect.any(String),
-          jsonrpc: '2.0',
-          method: 'keyring_submitRequest',
-          params: {
-            id: expect.any(String),
-            scope: toCaipChainId(
-              KnownCaipNamespace.Eip155,
-              executionContext.chainId,
-            ),
-            origin: 'metamask',
-            account: ethErc4337Account.id,
-            request: {
-              method: 'eth_signUserOperation',
-              params: [userOp],
-            },
-          },
-        },
-      });
-
-      expect(signature).toStrictEqual(expectedSignature);
-    });
   });
 
   describe('signPersonalMessage', () => {
@@ -2296,7 +2079,6 @@ describe('SnapKeyring', () => {
         accounts[8].address,
         accounts[9].address,
         accounts[10].address,
-        accounts[11].address,
       ]);
     });
 
@@ -2366,7 +2148,6 @@ describe('SnapKeyring', () => {
         accounts[8].address,
         accounts[9].address,
         accounts[10].address,
-        accounts[11].address,
       ]);
       expect(console.error).toHaveBeenCalledWith(
         `Account '${ethEoaAccount1.id}' may not have been removed from snap '${snapId}':`,
@@ -3471,7 +3252,7 @@ describe('SnapKeyring', () => {
     });
 
     it('throws an error when the method is not supported by the account', async () => {
-      const unknownAccountMethod = EthMethod.PrepareUserOperation; // Not available for EOAs.
+      const unknownAccountMethod = BtcMethod.SendTransfer; // Not available for EOA accounts.
 
       await expect(
         keyring.submitRequest({
@@ -3508,152 +3289,6 @@ describe('SnapKeyring', () => {
           scope,
         }),
       ).rejects.toThrow('An `origin` is required');
-    });
-  });
-
-  describe('prepareUserOperation', () => {
-    const mockIntents = [
-      {
-        to: '0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb' as Hex,
-        value: '0x0',
-        data: '0x',
-      },
-    ];
-
-    const mockExpectedUserOp: EthBaseUserOperation = {
-      callData: '0x70641a22000000000000000000000000f3de3c0d654fda23da',
-      initCode: '0x',
-      nonce: '0x1',
-      gasLimits: {
-        callGasLimit: '0x58a83',
-        verificationGasLimit: '0xe8c4',
-        preVerificationGas: '0xc57c',
-      },
-      dummySignature: '0x',
-      dummyPaymasterAndData: '0x',
-      bundlerUrl: 'https://bundler.example.com/rpc',
-    };
-
-    it('calls eth_prepareUserOperation', async () => {
-      mockMessenger.handleRequest.mockReturnValueOnce({
-        pending: false,
-        result: mockExpectedUserOp,
-      });
-
-      await keyring.prepareUserOperation(
-        ethErc4337Account.address,
-        mockIntents,
-        executionContext,
-      );
-
-      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
-        handler: 'onKeyringRequest',
-        origin: 'metamask',
-        request: {
-          id: expect.any(String),
-          jsonrpc: '2.0',
-          method: 'keyring_submitRequest',
-          params: {
-            id: expect.any(String),
-            scope: toCaipChainId(
-              KnownCaipNamespace.Eip155,
-              executionContext.chainId,
-            ),
-            origin: 'metamask',
-            account: ethErc4337Account.id,
-            request: {
-              method: 'eth_prepareUserOperation',
-              params: mockIntents,
-            },
-          },
-        },
-        snapId: 'local:snap.mock',
-      });
-    });
-
-    it('throws error if an pending response is returned from the Snap', async () => {
-      mockMessenger.handleRequest.mockReturnValueOnce({
-        pending: true,
-      });
-
-      await expect(
-        keyring.prepareUserOperation(
-          ethErc4337Account.address,
-          mockIntents,
-          executionContext,
-        ),
-      ).rejects.toThrow(regexForUUIDInRequiredSyncErrorMessage);
-    });
-  });
-
-  describe('patchUserOperation', () => {
-    const mockUserOp: EthUserOperation = {
-      sender: ethErc4337Account.address,
-      callData: '0x70641a22000000000000000000000000f3de3c0d654fda23da',
-      initCode: '0x',
-      nonce: '0x1',
-      callGasLimit: '0x58a83',
-      verificationGasLimit: '0xe8c4',
-      preVerificationGas: '0xc57c',
-      maxFeePerGas: '0x87f0878c0',
-      maxPriorityFeePerGas: '0x1dcd6500',
-      signature: '0x',
-      paymasterAndData: '0x',
-    };
-
-    const mockExpectedPatch: EthUserOperationPatch = {
-      paymasterAndData: '0x1234',
-    };
-
-    it('calls eth_patchUserOperation', async () => {
-      mockMessenger.handleRequest.mockReturnValueOnce({
-        pending: false,
-        result: mockExpectedPatch,
-      });
-
-      await keyring.patchUserOperation(
-        ethErc4337Account.address,
-        mockUserOp,
-        executionContext,
-      );
-
-      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
-        handler: 'onKeyringRequest',
-        origin: 'metamask',
-        request: {
-          id: expect.any(String),
-          jsonrpc: '2.0',
-          method: 'keyring_submitRequest',
-          params: {
-            id: expect.any(String),
-            scope: toCaipChainId(
-              KnownCaipNamespace.Eip155,
-              executionContext.chainId,
-            ),
-            origin: 'metamask',
-            account: ethErc4337Account.id,
-            request: {
-              method: 'eth_patchUserOperation',
-              params: [mockUserOp],
-            },
-          },
-        },
-        snapId: 'local:snap.mock',
-      });
-    });
-
-    it('throws error if an pending response is returned from the Snap', async () => {
-      mockMessenger.handleRequest.mockReturnValueOnce({
-        pending: true,
-      });
-
-      await expect(
-        keyring.patchUserOperation(
-          ethErc4337Account.address,
-          mockUserOp,
-          executionContext,
-        ),
-      ).rejects.toThrow(regexForUUIDInRequiredSyncErrorMessage);
     });
   });
 

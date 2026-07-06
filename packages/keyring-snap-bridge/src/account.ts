@@ -7,7 +7,6 @@ import {
   BtcP2trAccountStruct,
   EthAccountType,
   EthEoaAccountStruct,
-  EthErc4337AccountStruct,
   AnyAccountType,
   KeyringAccountStruct,
   SolAccountType,
@@ -61,10 +60,6 @@ export function assertKeyringAccount<
     }
     case SolAccountType.DataAccount: {
       assert(account, SolDataAccountStruct);
-      return account;
-    }
-    case EthAccountType.Erc4337: {
-      assert(account, EthErc4337AccountStruct);
       return account;
     }
     case EthAccountType.Eoa: {

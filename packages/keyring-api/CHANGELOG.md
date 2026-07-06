@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add support for `base32` private key encoding in `exportAccount` ([#589](https://github.com/MetaMask/accounts/pull/589))
 
+### Removed
+
+- **BREAKING:** Removed ERC-4337 (account abstraction) support ([#588](https://github.com/MetaMask/accounts/pull/588))
+  - Removed `EthAccountType.Erc4337` (`eip155:erc4337`) from the `EthAccountType` enum.
+  - Removed `EthErc4337AccountStruct` and `EthErc4337Account` types.
+  - Removed `EthMethod.PrepareUserOperation`, `EthMethod.PatchUserOperation`, and `EthMethod.SignUserOperation` from the `EthMethod` enum.
+  - Removed `EthUserOperationStruct`/`EthUserOperation`, `EthBaseUserOperationStruct`/`EthBaseUserOperation`, `EthUserOperationPatchStruct`/`EthUserOperationPatch`, and `EthBaseTransactionStruct`/`EthBaseTransaction` types.
+
 ## [23.5.0]
 
 ### Added

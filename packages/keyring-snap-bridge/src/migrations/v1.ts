@@ -46,14 +46,6 @@ export function getScopesForAccountV1(
       // See: https://namespaces.chainagnostic.org/eip155/caip10
       return [EthScope.Eoa];
     }
-    case EthAccountType.Erc4337: {
-      // EVM Erc4337 account
-      // NOTE: A Smart Contract account might not be compatible with every chain, in this case we just default
-      // to testnet since we cannot really "guess" it from here.
-      // Also, there's no official Snap as of today that uses this account type. So this case should never happen
-      // in production.
-      return [EthScope.Testnet];
-    }
     case BtcAccountType.P2pkh:
     case BtcAccountType.P2sh:
     case BtcAccountType.P2wpkh:
@@ -108,8 +100,8 @@ export function transformAccountV1(
     };
   }
 
-  // For all other non-EVM and ERC4337 Snap accounts, the `scopes` is required, and
-  // each `*AccountStruct` should assert that automatically.
+  // For all other non-EVM Snap accounts, the `scopes` is required, and each
+  // `*AccountStruct` should assert that automatically.
   return assertKeyringAccount(accountV1);
 }
 

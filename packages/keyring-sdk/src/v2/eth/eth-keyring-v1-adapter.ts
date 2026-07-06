@@ -3,19 +3,12 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import type { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { normalize as ethNormalize } from '@metamask/eth-sig-util';
 import {
-  EthBaseUserOperationStruct,
   EthBytesStrictStruct,
   EthBytesStruct,
   EthMethod,
-  EthUserOperationPatchStruct,
 } from '@metamask/keyring-api';
 import type {
-  EthBaseTransaction,
-  EthBaseUserOperation,
-  EthUserOperation,
-  EthUserOperationPatch,
   KeyringAccount,
-  KeyringExecutionContext,
   KeyringRequest,
 } from '@metamask/keyring-api';
 import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
@@ -35,7 +28,6 @@ import {
 } from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
-import type { Eth4337Keyring } from '../../eth';
 import { KeyringV1Adapter } from '../keyring-v1-adapter';
 import { EthKeyringMethod } from './eth-keyring-wrapper';
 
@@ -95,8 +87,7 @@ export type BaseEthKeyring = BaseKeyring &
     | 'signPersonalMessage'
     | 'signTypedData'
     | 'signTransaction'
-  > &
-  Eth4337Keyring;
+  >;
 
 /**
  * Error thrown when an account cannot be resolved from the requested address.
@@ -349,112 +340,6 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
         method,
         toJson<Json[]>([normalizedAddress, typedData]),
         chainId === undefined ? '' : toEip155Scope(chainId),
-      ),
-      EthBytesStruct,
-    );
-  }
-
-  /**
-   * Convert base transactions to a base UserOperation.
-   *
-   * @param address - Address of the sender.
-   * @param transactions - Base transactions to include in the UserOperation.
-   * @param context - Keyring execution context.
-   * @returns A pseudo-UserOperation that can be used to construct a real one.
-   * @throws {@link EthKeyringV1AccountNotFoundError} if no account matches the
-   * address.
-   * @throws {@link EthKeyringV1MethodNotSupportedError} if the account does
-   * not support UserOperation preparation.
-   */
-  async prepareUserOperation(
-    address: string,
-    transactions: EthBaseTransaction[],
-    context: KeyringExecutionContext,
-  ): Promise<EthBaseUserOperation> {
-    const { account } = await this.#getAccountForMethod(
-      address,
-      EthMethod.PrepareUserOperation,
-    );
-
-    return strictMask(
-      await this.#submitRequest(
-        account,
-        EthMethod.PrepareUserOperation,
-        // NOTE: This is inconsistent with the other methods. We are not wrapping `transactions` in an array.
-        // Which means the receiver of the `submitRequest` call would see individual transactions spread as
-        // separate params rather than a single transactions array as the first param, which doesn't match
-        // the method signature of `prepareUserOperation(address, transactions, context)`.
-        // This was already implemented like this in the legacy Snap keyring, so we keep the same logic here
-        // too!
-        toJson<Json[]>(transactions),
-        toEip155Scope(context.chainId),
-      ),
-      EthBaseUserOperationStruct,
-    );
-  }
-
-  /**
-   * Patches properties of a UserOperation. Currently, only the
-   * `paymasterAndData` can be patched.
-   *
-   * @param address - Address of the sender.
-   * @param userOperation - UserOperation to patch.
-   * @param context - Keyring execution context.
-   * @returns A patch to apply to the UserOperation.
-   * @throws {@link EthKeyringV1AccountNotFoundError} if no account matches the
-   * address.
-   * @throws {@link EthKeyringV1MethodNotSupportedError} if the account does
-   * not support UserOperation patching.
-   */
-  async patchUserOperation(
-    address: string,
-    userOperation: EthUserOperation,
-    context: KeyringExecutionContext,
-  ): Promise<EthUserOperationPatch> {
-    const { account } = await this.#getAccountForMethod(
-      address,
-      EthMethod.PatchUserOperation,
-    );
-
-    return strictMask(
-      await this.#submitRequest(
-        account,
-        EthMethod.PatchUserOperation,
-        toJson<Json[]>([userOperation]),
-        toEip155Scope(context.chainId),
-      ),
-      EthUserOperationPatchStruct,
-    );
-  }
-
-  /**
-   * Signs a UserOperation.
-   *
-   * @param address - Address of the sender.
-   * @param userOperation - UserOperation to sign.
-   * @param context - Keyring execution context.
-   * @returns The signature of the UserOperation.
-   * @throws {@link EthKeyringV1AccountNotFoundError} if no account matches the
-   * address.
-   * @throws {@link EthKeyringV1MethodNotSupportedError} if the account does
-   * not support UserOperation signing.
-   */
-  async signUserOperation(
-    address: string,
-    userOperation: EthUserOperation,
-    context: KeyringExecutionContext,
-  ): Promise<string> {
-    const { account } = await this.#getAccountForMethod(
-      address,
-      EthMethod.SignUserOperation,
-    );
-
-    return strictMask(
-      await this.#submitRequest(
-        account,
-        EthMethod.SignUserOperation,
-        toJson<Json[]>([userOperation]),
-        toEip155Scope(context.chainId),
       ),
       EthBytesStruct,
     );

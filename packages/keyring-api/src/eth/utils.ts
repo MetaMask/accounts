@@ -8,5 +8,5 @@ import type { KeyringAccountType } from '../api';
  * @returns Returns true if the type is an EVM account type, false otherwise.
  */
 export function isEvmAccountType(type: KeyringAccountType): boolean {
-  return type === EthAccountType.Eoa || type === EthAccountType.Erc4337;
+  return type === EthAccountType.Eoa;
 }
