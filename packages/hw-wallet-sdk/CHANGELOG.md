@@ -9,12 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.0]
 
-### Uncategorized
-
-- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
-- chore: update tooling (same as `core`) ([#517](https://github.com/MetaMask/accounts/pull/517))
-- chore: add `yarn constraints` support ([#514](https://github.com/MetaMask/accounts/pull/514))
-
 ### Added
 
 - Add `KEYRING_ERROR_MAPPINGS` with `DeviceStateOnlyV4Supported` for keyring-level typed data version validation ([#575](https://github.com/MetaMask/accounts/pull/575))
