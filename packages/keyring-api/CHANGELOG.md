@@ -7,10 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [23.5.0]
+
 ### Added
 
 - Add `resolveAccountAddress` to `KeyringSnapRpc` (v2) ([#585](https://github.com/MetaMask/accounts/pull/585))
   - Add `snap.resolveAccountAddress` boolean flag to `KeyringCapabilities` to declare support for this method.
+
+### Changed
+
+- Bump `@metamask/superstruct` from `^3.1.0` to `^3.3.0` ([#580](https://github.com/MetaMask/accounts/pull/580))
 
 ## [23.4.0]
 
@@ -786,7 +792,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.4.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.5.0...HEAD
+[23.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.4.0...@metamask/keyring-api@23.5.0
 [23.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.3.0...@metamask/keyring-api@23.4.0
 [23.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.2.0...@metamask/keyring-api@23.3.0
 [23.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.1.0...@metamask/keyring-api@23.2.0
