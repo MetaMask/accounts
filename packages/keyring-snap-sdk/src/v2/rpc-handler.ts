@@ -16,6 +16,7 @@ import {
   GetAccountTransactionsRequestStruct,
   GetAccountAssetsRequestStruct,
   GetAccountBalancesRequestStruct,
+  ResolveAccountAddressRequestStruct,
 } from '@metamask/keyring-api/v2';
 import type { KeyringSnapRpc } from '@metamask/keyring-api/v2';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
@@ -135,6 +136,17 @@ async function dispatchKeyringRequest(
       return keyring.getAccountBalances(
         request.params.id,
         request.params.assets,
+      );
+    }
+
+    case `${KeyringSnapRpcMethod.ResolveAccountAddress}`: {
+      if (keyring.resolveAccountAddress === undefined) {
+        throw new MethodNotSupportedError(request.method);
+      }
+      assert(request, ResolveAccountAddressRequestStruct);
+      return keyring.resolveAccountAddress(
+        request.params.scope,
+        request.params.request,
       );
     }
 

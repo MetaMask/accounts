@@ -108,6 +108,11 @@ export const KeyringCapabilitiesStruct = object({
        * (`keyring_setSelectedAccounts`).
        */
       selectedAccounts: exactOptional(boolean()),
+      /**
+       * Whether the keyring supports resolving the account address to use for
+       * routing a signing request (`keyring_resolveAccountAddress`).
+       */
+      resolveAccountAddress: exactOptional(boolean()),
     }),
   ),
 });

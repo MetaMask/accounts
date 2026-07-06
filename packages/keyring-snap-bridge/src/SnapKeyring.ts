@@ -560,10 +560,7 @@ export class SnapKeyring {
     }
 
     const keyring = await this.#getOrCreateKeyring(snapId);
-    return getKeyringV1For(keyring, 'address resolution').resolveAccountAddress(
-      scope,
-      request,
-    );
+    return keyring.resolveAccountAddress(scope, request);
   }
 
   /**
