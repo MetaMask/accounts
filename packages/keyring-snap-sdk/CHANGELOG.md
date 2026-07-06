@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `keyring_resolveAccountAddress` dispatch to v2 `handleKeyringRequest` ([#585](https://github.com/MetaMask/accounts/pull/585))
+
 ## [9.1.0]
 
 ### Added
