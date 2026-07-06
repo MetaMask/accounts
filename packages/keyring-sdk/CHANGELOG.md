@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- feat: use `@metamask/superstruct` `exactOptional` support ([#580](https://github.com/MetaMask/accounts/pull/580))
+
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^23.2.0` to `^23.4.0` ([#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583))
