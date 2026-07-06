@@ -1,4 +1,4 @@
-import { EthAccountType, EthScope } from '@metamask/keyring-api';
+import { EthAccountType, EthScope, KeyringEvent } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
   CreateAccountOptions,
@@ -728,6 +728,46 @@ describe('SnapKeyring', () => {
         await expect(keyring.submitRequest(request)).rejects.toThrow(
           "Account 'unknown-id' not found",
         );
+      });
+    });
+
+    describe('v1/v2 shared registry', () => {
+      it('accounts created via v1 createAccounts are visible through v2 getAccounts', async () => {
+        const { keyring } = await makeKeyring();
+        jest
+          .spyOn(SnapKeyringV1.prototype, 'createAccounts')
+          .mockResolvedValue([account1]);
+
+        await keyring.createAccounts({} as unknown as CreateAccountOptions);
+
+        expect(await keyring.getAccounts()).toStrictEqual([account1]);
+      });
+
+      it('accounts added via v1 AccountCreated event are visible through v2 getAccounts', async () => {
+        // The default addAccount mock resolves without calling handleUserInput,
+        // so the account never reaches the registry. Override it to accept.
+        const { keyring } = await makeKeyring(SNAP_ID, {
+          addAccount: jest
+            .fn()
+            .mockImplementation(
+              async (
+                _address: string,
+                _snapId: string,
+                handleUserInput: (accepted: boolean) => Promise<void>,
+              ) => {
+                await handleUserInput(true);
+              },
+            ),
+        });
+        expect(keyring.v1).toBeDefined();
+        const v1 = keyring.v1 as SnapKeyringV1;
+
+        await v1.handleKeyringSnapMessage({
+          method: KeyringEvent.AccountCreated,
+          params: { account: account1 },
+        });
+
+        expect(await keyring.getAccounts()).toStrictEqual([account1]);
       });
     });
   });
