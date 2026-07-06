@@ -1,8 +1,4 @@
-import type {
-  CaipChainId,
-  KeyringAccount,
-  ResolvedAccountAddress,
-} from '@metamask/keyring-api';
+import type { KeyringAccount } from '@metamask/keyring-api';
 import { KeyringAccountStruct } from '@metamask/keyring-api';
 import type {
   CreateAccountOptions,
@@ -12,7 +8,7 @@ import type {
 import { KeyringType } from '@metamask/keyring-api/v2';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
-import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
+import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { Infer } from '@metamask/superstruct';
 import { assert, object, record, string, union } from '@metamask/superstruct';
@@ -485,30 +481,6 @@ export class SnapKeyring implements Keyring {
       account: request.account,
       request: request.request,
     });
-  }
-
-  /**
-   * Resolve the account address to use for routing a signing request.
-   *
-   * Delegates to the v1 snap for v1 snaps, or calls the v2 client directly
-   * for v2 snaps. Returns `null` if the snap does not support this method.
-   *
-   * @param scope - CAIP-2 chain ID of the signing request.
-   * @param request - The signing JSON-RPC request.
-   * @returns The resolved address, or `null`.
-   */
-  async resolveAccountAddress(
-    scope: CaipChainId,
-    request: JsonRpcRequest,
-  ): Promise<ResolvedAccountAddress | null> {
-    this.#assertInitialized();
-    if (this.#v1) {
-      return this.#v1.resolveAccountAddress(scope, request);
-    }
-    if (this.#client.resolveAccountAddress === undefined) {
-      return null;
-    }
-    return this.#client.resolveAccountAddress(scope, request);
   }
 
   // ──────────────────────────────────────────────
