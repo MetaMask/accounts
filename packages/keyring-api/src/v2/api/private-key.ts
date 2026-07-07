@@ -16,6 +16,11 @@ export enum PrivateKeyEncoding {
    * Base58 encoding format.
    */
   Base58 = 'base58',
+
+  /**
+   * Base32 encoding format.
+   */
+  Base32 = 'base32',
 }
 
 /**
@@ -24,6 +29,7 @@ export enum PrivateKeyEncoding {
 export const PrivateKeyEncodingStruct = enums([
   `${PrivateKeyEncoding.Hexadecimal}`,
   `${PrivateKeyEncoding.Base58}`,
+  `${PrivateKeyEncoding.Base32}`,
 ]);
 
 /**
