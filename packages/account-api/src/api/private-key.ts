@@ -1,3 +1,4 @@
+import { KeyringAccountEntropyTypeOption } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
   KeyringAccountEntropyPrivateKeyOptions,
@@ -23,9 +24,12 @@ export type PrivateKeyAccount<Account extends KeyringAccount> = Account & {
 export function isPrivateKeyAccount<Account extends KeyringAccount>(
   account: Account,
 ): account is PrivateKeyAccount<Account> {
-  // To be private key compatible, we just check for the entropy type
-  // (the `entropy` shape will be inferred automatically).
-  return account.options.entropy?.type === 'private-key';
+  // To be private key compatible, we just check for the entropy type (the
+  // the `entropy` shape will be inferred automatically).
+  return (
+    account.options.entropy?.type ===
+    `${KeyringAccountEntropyTypeOption.PrivateKey}`
+  );
 }
 
 /**
