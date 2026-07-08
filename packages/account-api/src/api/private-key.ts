@@ -38,6 +38,6 @@ export function assertIsPrivateKeyAccount<Account extends KeyringAccount>(
   account: Account,
 ): asserts account is PrivateKeyAccount<Account> {
   if (!isPrivateKeyAccount(account)) {
-    throw new Error('Account is not private key compatible');
+    throw new Error('Account is not private key account');
   }
 }

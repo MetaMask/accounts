@@ -77,7 +77,7 @@ describe('private-key', () => {
 
         expect(isPrivateKeyAccount(account)).toBe(false);
         expect(() => assertIsPrivateKeyAccount(account)).toThrow(
-          'Account is not private key compatible',
+          'Account is not private key account',
         );
       },
     );
