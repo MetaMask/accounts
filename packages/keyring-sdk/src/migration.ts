@@ -1,6 +1,7 @@
 import type { Infer, Struct } from '@metamask/superstruct';
 import { assert, integer, is, object } from '@metamask/superstruct';
-import { JsonStruct, type Json } from '@metamask/utils';
+import { JsonStruct } from '@metamask/utils';
+import type { Json } from '@metamask/utils';
 
 /**
  * A single migration step that transforms keyring state from one version to the next.
