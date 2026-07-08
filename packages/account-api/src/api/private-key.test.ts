@@ -35,7 +35,7 @@ const MOCK_PRIVATE_KEY_ACCOUNT: PrivateKeyAccount<KeyringAccount> = {
 
 describe('private-key', () => {
   describe('isPrivateKeyAccount', () => {
-    it('returns true if the account is private key compatible', () => {
+    it('returns true if the account is a private key account', () => {
       expect(isPrivateKeyAccount(MOCK_PRIVATE_KEY_ACCOUNT)).toBe(true);
       expect(() =>
         assertIsPrivateKeyAccount(MOCK_PRIVATE_KEY_ACCOUNT),
@@ -64,7 +64,7 @@ describe('private-key', () => {
         options: {},
       },
     ])(
-      'returns false if the account is not private key compatible with: $tc',
+      'returns false if the account is not a private key account with: $tc',
       ({ options }) => {
         const account = {
           ...MOCK_HD_ACCOUNT_1,

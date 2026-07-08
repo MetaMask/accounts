@@ -4,7 +4,7 @@ import type {
 } from '@metamask/keyring-api';
 
 /**
- * Private key compatible account type.
+ * Private key account type.
  */
 export type PrivateKeyAccount<Account extends KeyringAccount> = Account & {
   // We force the option type for those accounts. (That's how we identify
@@ -15,10 +15,10 @@ export type PrivateKeyAccount<Account extends KeyringAccount> = Account & {
 };
 
 /**
- * Checks if an account is private key compatible.
+ * Checks if an account is a private key account.
  *
  * @param account - The account to be tested.
- * @returns True if the account is private key compatible.
+ * @returns True if the account is a private key account.
  */
 export function isPrivateKeyAccount<Account extends KeyringAccount>(
   account: Account,
@@ -29,10 +29,10 @@ export function isPrivateKeyAccount<Account extends KeyringAccount>(
 }
 
 /**
- * Asserts a keyring account is private keycompatible.
+ * Asserts a keyring account is a private key account.
  *
  * @param account - Keyring account to check.
- * @throws If the keyring account is not compatible.
+ * @throws If the keyring account is not a private key account.
  */
 export function assertIsPrivateKeyAccount<Account extends KeyringAccount>(
   account: Account,
