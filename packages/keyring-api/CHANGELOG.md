@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add support for `base32` private key encoding in `exportAccount` ([#589](https://github.com/MetaMask/accounts/pull/589))
+
 ## [23.5.0]
 
 ### Added
