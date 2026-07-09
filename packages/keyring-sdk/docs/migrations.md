@@ -11,14 +11,15 @@ Versioned state is stored as an envelope:
 }
 ```
 
-Unversioned state (vaults created before migration support was added) has no envelope. The framework treats it as version 0 and applies all migrations.
+Unversioned state (vaults created before migration support was added) has no envelope. The framework treats it as version 0 and applies all steps.
 
 ## Key Concepts
 
-- **`schema`**: Validates the **output** of a migration at runtime.
+- **`createMigrations()`**: Starts an empty migration chain.
+- **`.add(step)`**: Appends a step to the chain and returns a new chain typed to that step's output. Each `.add()` call's `migrate` receives the previous step's output type directly — no manual cast needed.
+- **`outputSchema`**: (Optional) Validates the **output** of a step at runtime.
 - **`inputSchema`**: (Optional) Validates the **input** before the `migrate` function is called.
-- **`defineMigration<Output, Input>`**: Ensures the `migrate` function's return type matches the `schema` type at compile time.
-- **`as const` arrays**: Use an array with `as const` to allow TypeScript to infer the final state type via `applyMigrations`.
+- **Positional versions**: The first `.add()` call produces version 1, the second version 2, and so on — there's no version field to set or get wrong.
 
 ## Example
 
@@ -56,37 +57,34 @@ type HdStateV2 = Infer<typeof HdStateV2Schema>;
 ### 2. Define the Migration Chain
 
 ```typescript
-import { defineMigration } from '@metamask/keyring-sdk';
+import { createMigrations } from '@metamask/keyring-sdk';
 
-const migrations = [
-  defineMigration({
-    version: 1,
+const migrations = createMigrations()
+  .add({
     inputSchema: HdStateV0Schema,
-    schema: HdStateV1Schema,
+    outputSchema: HdStateV1Schema,
     migrate: (data) => ({
       accountCount: data.numberOfAccounts,
       mnemonic: data.mnemonic,
       hdPath: data.hdPath,
     }),
-  }),
-  defineMigration<HdStateV2, HdStateV1>({
-    version: 2,
-    schema: HdStateV2Schema,
-    migrate: (data) => ({ ...data, createdAt: Date.now() }),
-  }),
-] as const;
+  })
+  .add({
+    outputSchema: HdStateV2Schema,
+    migrate: (data) => ({ ...data, createdAt: Date.now() }), // data is typed as HdStateV1, no cast
+  });
 ```
 
 ### 3. Implement in your Keyring
 
 ```typescript
-import { applyMigrations, getLatestVersion } from '@metamask/keyring-sdk';
+import { createMigrations } from '@metamask/keyring-sdk';
 import type { VersionedState } from '@metamask/keyring-sdk';
 import type { Json } from '@metamask/utils';
 
 class MyKeyring {
   async deserialize(state: Json): Promise<void> {
-    const { data } = await applyMigrations(state, migrations);
+    const { data } = await migrations.apply(state);
 
     // data is typed as HdStateV2
     this.#mnemonic = data.mnemonic;
@@ -96,7 +94,7 @@ class MyKeyring {
 
   async serialize(): Promise<VersionedState<HdStateV2>> {
     return {
-      version: getLatestVersion(migrations),
+      version: migrations.version,
       data: {
         mnemonic: this.#mnemonic,
         accountCount: this.#accountCount,
@@ -109,12 +107,11 @@ class MyKeyring {
 
 ## Best Practices
 
-- **`as const` arrays**: Declare the migrations array with `as const` so TypeScript infers the final state type from `applyMigrations`. Without it, `data` falls back to `Json`.
-- **Idempotent migrations**: Design migrations so re-running them on already-migrated data is harmless.
+- **Idempotent migrations**: Design steps so re-running them on already-migrated data is harmless.
 - **Immutability**: Treat the input `data` as immutable within the `migrate` function.
-- **Schema coverage**: Ensure `schema` covers all fields expected in the new version to prevent runtime errors.
+- **Schema coverage**: Ensure `outputSchema` covers all fields expected in the new version to prevent runtime errors.
+- **Non-mutating chains**: `.add()` returns a new chain rather than mutating the one it's called on, so it's safe to branch multiple chains off a shared base.
 
 ## Constraints
 
-- **Sequential versions**: migrations must be numbered 1, 2, 3, ... with no gaps.
 - **Forward-only**: there is no downgrade path; code that does not understand the versioned envelope will fail on migrated state.
