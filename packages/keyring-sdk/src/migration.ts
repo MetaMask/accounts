@@ -198,10 +198,10 @@ function validateMigrations(migrations: readonly KeyringMigration[]): void {
 }
 
 /**
- * Get the version number from state, treating unversioned state as version 0.
+ * Get the version and data from state, treating unversioned state as version 0.
  *
  * @param state - The state to check.
- * @returns The version number.
+ * @returns The version and data.
  */
 function getVersionAndData<State extends Json = Json>(
   state: State | VersionedState<State>,
