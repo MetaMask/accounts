@@ -83,14 +83,12 @@ export type MigrationStep<Output extends Json, Input extends Json = Json> = {
   /**
    * Optional schema validating this step's output at runtime.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  outputSchema?: Struct<any>;
+  outputSchema?: Struct<Output>;
   /**
    * Optional schema validating this step's input before `migrate` is called. Defaults to a
    * generic JSON-shape check when omitted.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  inputSchema?: Struct<any>;
+  inputSchema?: Struct<Input>;
 };
 
 /**
@@ -116,11 +114,16 @@ export type MigrationChain<Data extends Json = Json> = {
    * Returns a new chain typed to `Output`; does not mutate the chain it's called on, so
    * branching from a shared base chain is safe.
    *
+   * `Input` defaults to the chain's current `Data` type. Providing `inputSchema` lets
+   * TypeScript infer a narrower `Input` (bounded to extend `Data`), so `migrate` receives a
+   * schema-typed argument when narrowing raw state into a specific shape — typically on a
+   * chain's first step, where `Data` is `Json`.
+   *
    * @param step - The migration step to append.
    * @returns A new chain whose data type is the step's `Output`.
    */
-  add<Output extends Json>(
-    step: MigrationStep<Output, Data>,
+  add<Output extends Json, Input extends Data = Data>(
+    step: MigrationStep<Output, Input>,
   ): MigrationChain<Output>;
   /**
    * Apply all pending steps to `state`.
@@ -147,8 +150,8 @@ function buildChain<Data extends Json>(
 ): MigrationChain<Data> {
   return {
     version: steps.length,
-    add<Output extends Json>(
-      step: MigrationStep<Output, Data>,
+    add<Output extends Json, Input extends Data>(
+      step: MigrationStep<Output, Input>,
     ): MigrationChain<Output> {
       return buildChain<Output>([...steps, step as unknown as InternalStep]);
     },
@@ -165,9 +168,7 @@ function buildChain<Data extends Json>(
 
       let migrated = false;
       for (const step of steps.slice(version)) {
-        // `assert` can't accept `Struct<Input> | Struct<Json>`; cast is safe because
-        // `Input extends Json`.
-        assert(data, (step.inputSchema ?? JsonStruct) as Struct<Json>);
+        assert(data, step.inputSchema ?? JsonStruct);
         data = await step.migrate(data);
 
         if (step.outputSchema) {

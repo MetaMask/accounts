@@ -381,8 +381,7 @@ describe('when a step declares an inputSchema', () => {
 
     const migrations = createMigrations().add({
       inputSchema: V0Schema,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      migrate: (data: any) => ({ count: data.oldCount }),
+      migrate: (data) => ({ count: data.oldCount }),
     });
 
     const result = await migrations.apply({ oldCount: 7 });
