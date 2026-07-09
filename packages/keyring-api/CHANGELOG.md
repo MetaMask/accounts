@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
+
 ### Added
 
 - Add support for `base32` private key encoding in `exportAccount` ([#589](https://github.com/MetaMask/accounts/pull/589))
