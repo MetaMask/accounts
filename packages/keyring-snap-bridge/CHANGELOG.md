@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix deadlock in `SnapKeyring.createAccounts` (v2) ([#591](https://github.com/MetaMask/accounts/pull/591))
+  - We do not need to call `saveState` here, we expect this call to be wrapped in a `:withKeyringV2` transaction call.
+
 ## [23.0.0]
 
 ### Changed
