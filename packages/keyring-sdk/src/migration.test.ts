@@ -64,14 +64,14 @@ describe('createMigrations', () => {
 
   it('rejects a step whose migrate assumes the wrong input shape', () => {
     // This test verifies that TypeScript rejects chaining with incompatible types
-    // via @ts-expect-error. The assertion below is for the linter only.
-    createMigrations()
+    // via @ts-expect-error; the assertion below also confirms the chain still built.
+    const chain = createMigrations()
       .add({ migrate: (): { count: number } => ({ count: 1 }) })
       .add({
         // @ts-expect-error - `data` is `{ count: number }`, not `{ label: string }`
         migrate: (data: { label: string }) => data.label,
       });
-    expect(true).toBe(true);
+    expect(chain.version).toBe(2);
   });
 });
 

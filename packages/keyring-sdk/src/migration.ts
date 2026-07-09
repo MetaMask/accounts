@@ -28,10 +28,10 @@ export type VersionedState<Data extends Json = Json> = Omit<
 /**
  * Return value of {@link MigrationChain.apply}.
  *
- * Extends {@link VersionedState} with a `migrated` flag that is `true` when at least one
- * step was applied during the call. Callers can use this to detect that the in-memory
- * state has been upgraded and schedule a persist so the new version is written to storage
- * — even when no other state change happens in the session.
+ * Extends {@link VersionedState} with a `migrated` flag that is `true` when at least
+ * one step was applied during the call. Callers can use this to detect that the
+ * in-memory state has been upgraded and schedule a persist so the new version is
+ * written to storage — even when no other state change happens in the session.
  */
 export type MigrationResult<Data extends Json = Json> = VersionedState<Data> & {
   migrated: boolean;
@@ -66,8 +66,9 @@ function getVersionAndData<State extends Json = Json>(
 /**
  * A single migration step, added to a {@link MigrationChain} via `.add()`.
  *
- * `Input` is bound automatically to the chain's current data type when the step is passed
- * to `.add()`, so `migrate` receives a correctly typed argument with no manual cast.
+ * `Input` is bound automatically to the chain's current data type when the step is
+ * passed to `.add()`, so `migrate` receives a correctly typed argument with no manual
+ * cast.
  */
 export type MigrationStep<Output extends Json, Input extends Json = Json> = {
   /**
@@ -85,8 +86,8 @@ export type MigrationStep<Output extends Json, Input extends Json = Json> = {
    */
   outputSchema?: Struct<Output>;
   /**
-   * Optional schema validating this step's input before `migrate` is called. Defaults to a
-   * generic JSON-shape check when omitted.
+   * Optional schema validating this step's input before `migrate` is called. Defaults
+   * to a generic JSON-shape check when omitted.
    */
   inputSchema?: Struct<Input>;
 };
@@ -99,8 +100,8 @@ type InternalStep = MigrationStep<Json, Json>;
 /**
  * A chain of migration steps for evolving keyring serialized state across versions.
  *
- * Steps are versioned by position: the first `.add()` call produces version 1, the second
- * version 2, and so on. Create one with {@link createMigrations}.
+ * Steps are versioned by position: the first `.add()` call produces version 1, the
+ * second version 2, and so on. Create one with {@link createMigrations}.
  */
 export type MigrationChain<Data extends Json = Json> = {
   /**
@@ -115,9 +116,9 @@ export type MigrationChain<Data extends Json = Json> = {
    * branching from a shared base chain is safe.
    *
    * `Input` defaults to the chain's current `Data` type. Providing `inputSchema` lets
-   * TypeScript infer a narrower `Input` (bounded to extend `Data`), so `migrate` receives a
-   * schema-typed argument when narrowing raw state into a specific shape — typically on a
-   * chain's first step, where `Data` is `Json`.
+   * TypeScript infer a narrower `Input` (bounded to extend `Data`), so `migrate`
+   * receives a schema-typed argument when narrowing raw state into a specific shape —
+   * typically on a chain's first step, where `Data` is `Json`.
    *
    * @param step - The migration step to append.
    * @returns A new chain whose data type is the step's `Output`.
@@ -128,11 +129,12 @@ export type MigrationChain<Data extends Json = Json> = {
   /**
    * Apply all pending steps to `state`.
    *
-   * Handles both versioned state (wrapped in `{ version, data }` envelope) and unversioned
-   * legacy state (treated as version 0).
+   * Handles both versioned state (wrapped in `{ version, data }` envelope) and
+   * unversioned legacy state (treated as version 0).
    *
    * @param state - The serialized keyring state (from vault or previous serialize).
-   * @returns The migrated state wrapped in a versioned envelope, plus a `migrated` flag.
+   * @returns The migrated state wrapped in a versioned envelope, plus a `migrated`
+   * flag.
    * @throws If `state`'s version is newer than this chain's latest version, or if a
    * step's `inputSchema`/`outputSchema` validation fails.
    */
