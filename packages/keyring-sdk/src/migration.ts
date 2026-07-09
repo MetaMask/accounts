@@ -70,7 +70,10 @@ function getVersionAndData<State extends Json = Json>(
  * passed to `.add()`, so `migrate` receives a correctly typed argument with no manual
  * cast.
  */
-export type MigrationStep<Output extends Json, Input extends Json = Json> = {
+export type MigrationStep<
+  Input extends Json = Json,
+  Output extends Json = Json,
+> = {
   /**
    * Transform state from the previous step's output to this step's output.
    *
@@ -91,11 +94,6 @@ export type MigrationStep<Output extends Json, Input extends Json = Json> = {
    */
   inputSchema?: Struct<Input>;
 };
-
-/**
- * Internal, type-erased form of a {@link MigrationStep} as stored inside a chain.
- */
-type InternalStep = MigrationStep<Json, Json>;
 
 /**
  * A chain of migration steps for evolving keyring serialized state across versions.
@@ -123,8 +121,8 @@ export type MigrationChain<Data extends Json = Json> = {
    * @param step - The migration step to append.
    * @returns A new chain whose data type is the step's `Output`.
    */
-  add<Output extends Json, Input extends Data = Data>(
-    step: MigrationStep<Output, Input>,
+  add<Input extends Data = Data, Output extends Json = Json>(
+    step: MigrationStep<Input, Output>,
   ): MigrationChain<Output>;
   /**
    * Apply all pending steps to `state`.
@@ -151,7 +149,7 @@ export type MigrationChain<Data extends Json = Json> = {
  * @returns The migrated state wrapped in a versioned envelope, plus a `migrated` flag.
  */
 async function applySteps<Data extends Json>(
-  steps: readonly InternalStep[],
+  steps: readonly MigrationStep[],
   state: Json,
 ): Promise<MigrationResult<Data>> {
   const latestVersion = steps.length;
@@ -186,13 +184,13 @@ async function applySteps<Data extends Json>(
  * @returns A chain exposing `add`, `version`, and `apply`.
  */
 function buildChain<Data extends Json>(
-  steps: readonly InternalStep[],
+  steps: readonly MigrationStep[],
 ): MigrationChain<Data> {
   return {
     version: steps.length,
-    add: <Output extends Json, Input extends Data>(
-      step: MigrationStep<Output, Input>,
-    ) => buildChain<Output>([...steps, step as unknown as InternalStep]),
+    add: <Input extends Data, Output extends Json>(
+      step: MigrationStep<Input, Output>,
+    ) => buildChain<Output>([...steps, step as unknown as MigrationStep]),
     apply: async (state) => applySteps<Data>(steps, state),
   };
 }
