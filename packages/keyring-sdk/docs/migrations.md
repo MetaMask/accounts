@@ -16,10 +16,10 @@ Unversioned state (vaults created before migration support was added) has no env
 ## Key Concepts
 
 - **`createMigrations()`**: Starts an empty migration chain.
-- **`.add(step)`**: Appends a step to the chain and returns a new chain typed to that step's output. Each `.add()` call's `migrate` receives the previous step's output type directly — no manual cast needed.
+- **`.add(step)`**: Appends a step to the chain and returns a new chain typed to that step's output. Each `.add()` call's `migrate` receives the previous step's output type directly, with no manual cast needed.
 - **`outputSchema`**: (Optional) Validates the **output** of a step at runtime.
 - **`inputSchema`**: (Optional) Validates the **input** before the `migrate` function is called.
-- **Positional versions**: The first `.add()` call produces version 1, the second version 2, and so on — there's no version field to set or get wrong.
+- **Positional versions**: The first `.add()` call produces version 1, the second version 2, and so on. There's no version field to set or get wrong.
 
 ## Example
 
@@ -113,4 +113,4 @@ class MyKeyring {
 
 ## Constraints
 
-- **Forward-only**: there is no downgrade path; code that does not understand the versioned envelope will fail on migrated state.
+- **Forward-only**: there is no downgrade path. Code that does not understand the versioned envelope will fail on migrated state.

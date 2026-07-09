@@ -31,7 +31,7 @@ export type VersionedState<Data extends Json = Json> = Omit<
  * Extends {@link VersionedState} with a `migrated` flag that is `true` when at least
  * one step was applied during the call. Callers can use this to detect that the
  * in-memory state has been upgraded and schedule a persist so the new version is
- * written to storage — even when no other state change happens in the session.
+ * written to storage, even when no other state change happens in the session.
  */
 export type MigrationResult<Data extends Json = Json> = VersionedState<Data> & {
   migrated: boolean;
@@ -106,18 +106,18 @@ type InternalStep = MigrationStep<Json, Json>;
 export type MigrationChain<Data extends Json = Json> = {
   /**
    * The number of steps added so far. Since steps are versioned by position starting at 1,
-   * this also doubles as "the latest version" — use it in `serialize()`.
+   * this also doubles as "the latest version" (use it in `serialize()`).
    */
   readonly version: number;
   /**
    * Append a step to the chain.
    *
-   * Returns a new chain typed to `Output`; does not mutate the chain it's called on, so
-   * branching from a shared base chain is safe.
+   * Returns a new chain typed to `Output`. It does not mutate the chain it's called on,
+   * so branching from a shared base chain is safe.
    *
    * `Input` defaults to the chain's current `Data` type. Providing `inputSchema` lets
    * TypeScript infer a narrower `Input` (bounded to extend `Data`), so `migrate`
-   * receives a schema-typed argument when narrowing raw state into a specific shape —
+   * receives a schema-typed argument when narrowing raw state into a specific shape,
    * typically on a chain's first step, where `Data` is `Json`.
    *
    * @param step - The migration step to append.
