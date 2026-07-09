@@ -91,7 +91,7 @@
     "ws@7.4.6": "^7.5.10"
   },
   "engines": {
-    "node": "^18.18 || >=20"
+    "node": "^22 || >=24"
   },
   "packageManager": "yarn@4.16.0",
   "lavamoat": {
