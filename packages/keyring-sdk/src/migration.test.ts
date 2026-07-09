@@ -1,40 +1,6 @@
-import type { Infer } from '@metamask/superstruct';
-import { object, number, string, array } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
-import type { KeyringMigration } from './migration';
-import {
-  applyMigrations,
-  defineMigration,
-  getLatestVersion,
-  isVersionedState,
-} from './migration';
-
-// -- State types used across tests -----------------------------------------------
-
-type UnversionedHdState = {
-  oldField: string;
-  existing: boolean;
-};
-
-type HdStateV1 = {
-  oldField: string;
-  existing: boolean;
-  newField: string;
-};
-
-type HdStateV2 = {
-  existing: boolean;
-  newField: string;
-  renamedField: string;
-};
-
-type PrivateKeysV1 = {
-  keys: string[];
-  format: string;
-};
-
-// --------------------------------------------------------------------------------
+import { createMigrations, isVersionedState } from './migration';
 
 describe('isVersionedState', () => {
   it('returns true for a valid versioned state', () => {
@@ -70,140 +36,72 @@ describe('isVersionedState', () => {
   });
 });
 
-describe('getLatestVersion', () => {
-  it('returns 0 for empty migrations', () => {
-    expect(getLatestVersion([])).toBe(0);
+describe('createMigrations', () => {
+  it('starts at version 0 with no steps', () => {
+    expect(createMigrations().version).toBe(0);
   });
 
-  it('returns the last migration version', () => {
-    const migrations: KeyringMigration[] = [
-      { version: 1, migrate: (state) => state },
-      { version: 2, migrate: (state) => state },
-      { version: 3, migrate: (state) => state },
-    ] as const;
-    expect(getLatestVersion(migrations)).toBe(3);
+  it('increments version by 1 for each added step', () => {
+    const chain = createMigrations()
+      .add({ migrate: (data) => data })
+      .add({ migrate: (data) => data })
+      .add({ migrate: (data) => data });
+
+    expect(chain.version).toBe(3);
   });
 
-  it('returns the version for a single migration', () => {
-    const migrations: KeyringMigration[] = [
-      { version: 1, migrate: (state) => state },
-    ] as const;
-    expect(getLatestVersion(migrations)).toBe(1);
-  });
-});
-
-describe('defineMigration', () => {
-  it('attaches a validate function that asserts against the schema', () => {
-    const V1Schema = object({ count: number() });
-
-    const migration = defineMigration({
-      version: 1,
-      schema: V1Schema,
-      migrate: () => ({ count: 42 }),
+  it('does not mutate the chain a step was added to', () => {
+    const base = createMigrations().add({ migrate: () => ({ count: 1 }) });
+    const extended = base.add({
+      migrate: (data: { count: number }) => ({ ...data, label: 'x' }),
     });
 
-    expect(() => migration.validate({ count: 42 })).not.toThrow();
-    expect(() => migration.validate({ count: 'wrong' })).toThrow(
-      'Expected a number',
-    );
+    expect(base.version).toBe(1);
+    expect(extended.version).toBe(2);
   });
 
-  it('attaches a no-op validate function when schema is omitted', () => {
-    const migration = defineMigration({
-      version: 1,
-      migrate: () => ({ count: 42 }),
-    });
-
-    expect(() => migration.validate({ count: 42 })).not.toThrow();
-    expect(() => migration.validate({ wrongField: 'x' })).not.toThrow();
-  });
-
-  describe('when inputSchema is provided', () => {
-    it('applies the migration when input matches the inputSchema', async () => {
-      const V0Schema = object({ oldCount: number() });
-
-      const migrations = [
-        defineMigration({
-          version: 1,
-          inputSchema: V0Schema,
-          migrate: (state) => ({ count: state.oldCount }),
-        }),
-      ] as const;
-
-      const result = await applyMigrations({ oldCount: 7 }, migrations);
-
-      expect(result).toStrictEqual({
-        version: 1,
-        data: { count: 7 },
-        migrated: true,
+  it('rejects a step whose migrate assumes the wrong input shape', () => {
+    // This test verifies that TypeScript rejects chaining with incompatible types
+    // via @ts-expect-error. The assertion below is for the linter only.
+    createMigrations()
+      .add({ migrate: (): { count: number } => ({ count: 1 }) })
+      .add({
+        // @ts-expect-error - `data` is `{ count: number }`, not `{ label: string }`
+        migrate: (data: { label: string }) => data.label,
       });
-    });
-
-    it('throws before calling migrate when input does not match inputSchema', async () => {
-      const V0Schema = object({ oldCount: number() });
-
-      const migrateFn = jest.fn();
-      const migrations = [
-        defineMigration({
-          version: 1,
-          inputSchema: V0Schema,
-          migrate: migrateFn,
-        }),
-      ] as const;
-
-      await expect(
-        applyMigrations({ wrongField: 'oops' }, migrations),
-      ).rejects.toThrow('Expected a number');
-
-      expect(migrateFn).not.toHaveBeenCalled();
-    });
-
-    it('validates input as JSON even when inputSchema is omitted', async () => {
-      const migrateFn = jest.fn();
-      const migrations = [
-        defineMigration({ version: 1, migrate: migrateFn }),
-      ] as const;
-
-      // undefined is not valid JSON
-      await expect(
-        applyMigrations(undefined as unknown as Json, migrations),
-      ).rejects.toThrow(
-        'Expected a value of type `JSON`, but received: `undefined`',
-      );
-
-      expect(migrateFn).not.toHaveBeenCalled();
-    });
+    expect(true).toBe(true);
   });
 });
 
-describe('applyMigrations', () => {
+describe('apply', () => {
   describe('when given unversioned state', () => {
-    it('applies all migrations to an unversioned object', async () => {
-      const migrations = [
-        defineMigration<HdStateV1>({
-          version: 1,
-          migrate: (state) => {
-            const prev = state as UnversionedHdState;
-            return { ...prev, newField: 'added' };
-          },
-        }),
-        defineMigration<HdStateV2>({
-          version: 2,
-          migrate: (state) => {
-            const prev = state as HdStateV1;
-            return {
-              existing: prev.existing,
-              newField: prev.newField,
-              renamedField: prev.oldField,
-            };
-          },
-        }),
-      ] as const;
+    it('applies all steps to an unversioned object', async () => {
+      type UnversionedHdState = { oldField: string; existing: boolean };
+      type HdStateV2 = {
+        existing: boolean;
+        newField: string;
+        renamedField: string;
+      };
 
-      const result = await applyMigrations(
-        { oldField: 'value', existing: true } satisfies UnversionedHdState,
-        migrations,
-      );
+      const migrations = createMigrations()
+        .add({
+          migrate: (data: UnversionedHdState) => ({
+            ...data,
+            newField: 'added',
+          }),
+        })
+        .add({
+          migrate: (data): HdStateV2 => ({
+            existing: data.existing,
+            newField: data.newField,
+            renamedField: data.oldField,
+          }),
+        });
+
+      const result = await migrations.apply({
+        oldField: 'value',
+        existing: true,
+      } satisfies UnversionedHdState);
 
       expect(result).toStrictEqual({
         version: 2,
@@ -216,34 +114,29 @@ describe('applyMigrations', () => {
       });
     });
 
-    it('applies all migrations to an unversioned array', async () => {
-      const migrations = [
-        defineMigration<PrivateKeysV1>({
-          version: 1,
-          migrate: (state) => {
-            const keys = state as string[];
-            return { keys, format: 'v1' };
-          },
-        }),
-      ] as const;
+    it('applies all steps to an unversioned array', async () => {
+      type PrivateKeysV1 = { keys: string[]; format: string };
 
-      const result = await applyMigrations(
+      const migrations = createMigrations().add({
+        migrate: (data: string[]): PrivateKeysV1 => ({
+          keys: data,
+          format: 'v1',
+        }),
+      });
+
+      const result = await migrations.apply(
         ['key1', 'key2'] as unknown as Json,
-        migrations,
       );
 
       expect(result).toStrictEqual({
         version: 1,
-        data: {
-          keys: ['key1', 'key2'],
-          format: 'v1',
-        } satisfies PrivateKeysV1,
+        data: { keys: ['key1', 'key2'], format: 'v1' } satisfies PrivateKeysV1,
         migrated: true,
       });
     });
 
-    it('wraps in envelope at version 0 when no migrations exist', async () => {
-      const result = await applyMigrations({ foo: 'bar' }, []);
+    it('wraps in envelope at version 0 when the chain has no steps', async () => {
+      const result = await createMigrations().apply({ foo: 'bar' });
 
       expect(result).toStrictEqual({
         version: 0,
@@ -252,8 +145,10 @@ describe('applyMigrations', () => {
       });
     });
 
-    it('wraps array state in envelope at version 0 when no migrations exist', async () => {
-      const result = await applyMigrations(['a', 'b'] as unknown as Json, []);
+    it('wraps array state in envelope at version 0 when the chain has no steps', async () => {
+      const result = await createMigrations().apply(
+        ['a', 'b'] as unknown as Json,
+      );
 
       expect(result).toStrictEqual({
         version: 0,
@@ -264,23 +159,22 @@ describe('applyMigrations', () => {
   });
 
   describe('when given versioned state', () => {
-    it('skips already-applied migrations', async () => {
+    it('skips already-applied steps', async () => {
       type StateV2 = { existing: boolean; v2: boolean };
 
-      const migrateFn = jest.fn((state) => {
-        const prev = state as { existing: boolean };
-        return { ...prev, v2: true };
+      const migrateFn = jest.fn((data: { existing: boolean }) => ({
+        ...data,
+        v2: true,
+      }));
+
+      const migrations = createMigrations()
+        .add({ migrate: (data: { existing: boolean }) => data })
+        .add({ migrate: migrateFn });
+
+      const result = await migrations.apply({
+        version: 1,
+        data: { existing: true },
       });
-
-      const migrations: KeyringMigration[] = [
-        { version: 1, migrate: (state) => state },
-        { version: 2, migrate: migrateFn },
-      ] as const;
-
-      const result = await applyMigrations(
-        { version: 1, data: { existing: true } },
-        migrations,
-      );
 
       expect(migrateFn).toHaveBeenCalledWith({ existing: true });
       expect(result).toStrictEqual({
@@ -290,17 +184,15 @@ describe('applyMigrations', () => {
       });
     });
 
-    it('returns state unchanged when already at latest version', async () => {
-      const migrateFn = jest.fn((state) => state);
+    it('returns state unchanged when already at the latest version', async () => {
+      const migrateFn = jest.fn((data) => data);
 
-      const migrations: KeyringMigration[] = [
-        { version: 1, migrate: migrateFn },
-      ] as const;
+      const migrations = createMigrations().add({ migrate: migrateFn });
 
-      const result = await applyMigrations(
-        { version: 1, data: { foo: 'bar' } },
-        migrations,
-      );
+      const result = await migrations.apply({
+        version: 1,
+        data: { foo: 'bar' },
+      });
 
       expect(migrateFn).not.toHaveBeenCalled();
       expect(result).toStrictEqual({
@@ -310,40 +202,35 @@ describe('applyMigrations', () => {
       });
     });
 
-    it('applies multiple pending migrations in order', async () => {
+    it('applies multiple pending steps in order', async () => {
       type StateV3 = { original: boolean; migrated: boolean };
 
       const order: number[] = [];
 
-      const migrations = [
-        defineMigration({
-          version: 1,
-          migrate: (state) => {
+      const migrations = createMigrations()
+        .add({
+          migrate: (data) => {
             order.push(1);
-            return state;
+            return data;
           },
-        }),
-        defineMigration({
-          version: 2,
-          migrate: (state) => {
+        })
+        .add({
+          migrate: (data) => {
             order.push(2);
-            return state;
+            return data;
           },
-        }),
-        defineMigration<StateV3>({
-          version: 3,
-          migrate: (state) => {
+        })
+        .add({
+          migrate: (data: { original: boolean }): StateV3 => {
             order.push(3);
-            const prev = state as { original: boolean };
-            return { ...prev, migrated: true };
+            return { ...data, migrated: true };
           },
-        }),
-      ] as const;
+        });
 
-      const result = await applyMigrations(
-        { version: 1, data: { original: true } },
-        migrations,
-      );
+      const result = await migrations.apply({
+        version: 1,
+        data: { original: true },
+      });
 
       expect(order).toStrictEqual([2, 3]);
       expect(result).toStrictEqual({
@@ -354,20 +241,24 @@ describe('applyMigrations', () => {
     });
 
     it('treats explicitly versioned state at version 0 as unversioned', async () => {
-      const migrations = [
-        defineMigration<HdStateV1>({
-          version: 1,
-          migrate: (state) => {
-            const prev = state as UnversionedHdState;
-            return { ...prev, newField: 'added' };
-          },
-        }),
-      ] as const;
+      type UnversionedHdState = { oldField: string; existing: boolean };
+      type HdStateV1 = {
+        oldField: string;
+        existing: boolean;
+        newField: string;
+      };
 
-      const result = await applyMigrations(
-        { version: 0, data: { oldField: 'value', existing: true } },
-        migrations,
-      );
+      const migrations = createMigrations().add({
+        migrate: (data: UnversionedHdState): HdStateV1 => ({
+          ...data,
+          newField: 'added',
+        }),
+      });
+
+      const result = await migrations.apply({
+        version: 0,
+        data: { oldField: 'value', existing: true },
+      });
 
       expect(result).toStrictEqual({
         version: 1,
@@ -379,24 +270,30 @@ describe('applyMigrations', () => {
         migrated: true,
       });
     });
+
+    it('throws when state version is newer than the chain', async () => {
+      const migrations = createMigrations().add({ migrate: (data) => data });
+
+      await expect(
+        migrations.apply({ version: 5, data: {} }),
+      ).rejects.toThrow(
+        'State version 5 is newer than the latest migration version 1',
+      );
+    });
   });
 
   describe('when migrate is async', () => {
-    it('applies the migration successfully', async () => {
+    it('applies the step successfully', async () => {
       type StateV1 = { foo: string; async: boolean };
 
-      const migrations = [
-        defineMigration<StateV1>({
-          version: 1,
-          migrate: async (state) => {
-            await new Promise((resolve) => setTimeout(resolve, 1));
-            const prev = state as { foo: string };
-            return { ...prev, async: true };
-          },
-        }),
-      ] as const;
+      const migrations = createMigrations().add({
+        migrate: async (data: { foo: string }): Promise<StateV1> => {
+          await new Promise((resolve) => setTimeout(resolve, 1));
+          return { ...data, async: true };
+        },
+      });
 
-      const result = await applyMigrations({ foo: 'bar' }, migrations);
+      const result = await migrations.apply({ foo: 'bar' });
 
       expect(result).toStrictEqual({
         version: 1,
@@ -406,180 +303,15 @@ describe('applyMigrations', () => {
     });
   });
 
-  describe('when inferring the result data type', () => {
-    it('infers the data type from the last migration when using as const', async () => {
-      type StateV1 = { count: number };
-      type StateV2 = { count: number; label: string };
-
-      const migrations = [
-        defineMigration<StateV1>({
-          version: 1,
-          migrate: () => ({ count: 1 }),
-        }),
-        defineMigration<StateV2, StateV1>({
-          version: 2,
-          migrate: (state) => ({ ...state, label: 'hello' }),
-        }),
-      ] as const;
-
-      const { data } = await applyMigrations({}, migrations);
-
-      expect(data.count).toBe(1);
-      expect(data.label).toBe('hello');
-    });
-
-    it('falls back to Json when array is typed as KeyringMigration[]', async () => {
-      type StateV1 = { count: number };
-
-      const migrations: KeyringMigration[] = [
-        defineMigration<StateV1>({
-          version: 1,
-          migrate: () => ({ count: 1 }),
-        }),
-      ];
-
-      const { data } = await applyMigrations({}, migrations);
-
-      expect((data as StateV1).count).toBe(1);
-    });
-  });
-
-  describe('when a schema is provided', () => {
-    it('completes the migration when output matches the schema', async () => {
-      const OutputSchema = object({
-        name: string(),
-        count: number(),
-      });
-
-      const migrations = [
-        defineMigration({
-          version: 1,
-          schema: OutputSchema,
-          migrate: () => ({ name: 'test', count: 42 }),
-        }),
-      ] as const;
-
-      const result = await applyMigrations({}, migrations);
-
-      expect(result).toStrictEqual({
-        version: 1,
-        data: { name: 'test', count: 42 },
-        migrated: true,
-      });
-    });
-
-    it('throws when the migration output does not match the schema', async () => {
-      const OutputSchema = object({
-        name: string(),
-        count: number(),
-      });
-      type OutputState = Infer<typeof OutputSchema>;
-
-      const migrations = [
-        defineMigration<OutputState>({
-          version: 1,
-          schema: OutputSchema,
-          // @ts-expect-error - intentionally invalid return for test
-          migrate: () => ({ name: 'test', count: 'not a number' }),
-        }),
-      ] as const;
-
-      await expect(applyMigrations({}, migrations)).rejects.toThrow(
-        'Expected a number',
-      );
-    });
-
-    it('validates each migration step independently', async () => {
-      const V1Schema = object({ items: array(string()) });
-      type StateV1 = Infer<typeof V1Schema>;
-
-      const V2Schema = object({ items: array(string()), total: number() });
-      type StateV2 = Infer<typeof V2Schema>;
-
-      const migrations = [
-        defineMigration({
-          version: 1,
-          schema: V1Schema,
-          migrate: () => ({ items: ['a', 'b'] }),
-        }),
-        defineMigration({
-          version: 2,
-          schema: V2Schema,
-          migrate: (state) => {
-            const prev = state as StateV1;
-            return { ...prev, total: prev.items.length };
-          },
-        }),
-      ] as const;
-
-      const result = await applyMigrations({}, migrations);
-
-      expect(result).toStrictEqual({
-        version: 2,
-        data: { items: ['a', 'b'], total: 2 } satisfies StateV2,
-        migrated: true,
-      });
-    });
-  });
-
-  describe('when given invalid input', () => {
-    it('throws when migration versions are not sequential', async () => {
-      const migrations: KeyringMigration[] = [
-        { version: 1, migrate: (state) => state },
-        { version: 3, migrate: (state) => state },
-      ] as const;
-
-      await expect(applyMigrations({}, migrations)).rejects.toThrow(
-        'Invalid migration: expected version 2 at index 1, got 3',
-      );
-    });
-
-    it('throws when migration versions contain duplicates', async () => {
-      const migrations: KeyringMigration[] = [
-        { version: 1, migrate: (state) => state },
-        { version: 1, migrate: (state) => state },
-      ] as const;
-
-      await expect(applyMigrations({}, migrations)).rejects.toThrow(
-        'Invalid migration: expected version 2 at index 1, got 1',
-      );
-    });
-
-    it('throws when migrations do not start at version 1', async () => {
-      const migrations: KeyringMigration[] = [
-        { version: 2, migrate: (state) => state },
-      ] as const;
-
-      await expect(applyMigrations({}, migrations)).rejects.toThrow(
-        'Invalid migration: expected version 1 at index 0, got 2',
-      );
-    });
-
-    it('throws when state version is newer than latest migration', async () => {
-      const migrations: KeyringMigration[] = [
-        { version: 1, migrate: (state) => state },
-      ] as const;
-
-      await expect(
-        applyMigrations({ version: 5, data: {} }, migrations),
-      ).rejects.toThrow(
-        'State version 5 is newer than the latest migration version 1',
-      );
-    });
-
-    it('propagates errors from migrate functions', async () => {
-      const migrations: KeyringMigration[] = [
-        {
-          version: 1,
-          migrate: (): never => {
-            throw new Error('Migration failed');
-          },
+  describe('when migrate throws', () => {
+    it('propagates the error', async () => {
+      const migrations = createMigrations().add({
+        migrate: (): never => {
+          throw new Error('Migration failed');
         },
-      ] as const;
+      });
 
-      await expect(applyMigrations({}, migrations)).rejects.toThrow(
-        'Migration failed',
-      );
+      await expect(migrations.apply({})).rejects.toThrow('Migration failed');
     });
   });
 });
