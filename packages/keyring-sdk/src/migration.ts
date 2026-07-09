@@ -105,8 +105,8 @@ type InternalStep = MigrationStep<Json, Json>;
  */
 export type MigrationChain<Data extends Json = Json> = {
   /**
-   * The number of steps added so far. Since steps are versioned by position starting at 1,
-   * this also doubles as "the latest version" (use it in `serialize()`).
+   * The number of steps added so far. Since steps are versioned by position starting at
+   * 1, this also doubles as "the latest version" (use it in `serialize()`).
    */
   readonly version: number;
   /**
