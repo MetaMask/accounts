@@ -371,10 +371,6 @@ export class SnapKeyring implements Keyring {
           for (const account of newAccounts) {
             this.setAccount(account);
           }
-
-          // NOTE: We assume this will never fail, thus, we don't need to rollback the
-          // keyring state if anything goes wrong here.
-          await this.#callbacks.saveState();
         }
 
         return accounts;
