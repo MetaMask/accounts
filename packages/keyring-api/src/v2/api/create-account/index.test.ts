@@ -63,6 +63,19 @@ describe('CreateAccountOptionsStruct', () => {
         assert(validPrivateKey, CreateAccountOptionsStruct),
       ).not.toThrow();
     });
+
+    it('validates PrivateKeyImport type with base32 encoding correctly', () => {
+      const validPrivateKey = {
+        type: AccountCreationType.PrivateKeyImport,
+        privateKey: 'JBSWY3DPEHPK3PXP',
+        encoding: 'base32',
+      };
+
+      expect(is(validPrivateKey, CreateAccountOptionsStruct)).toBe(true);
+      expect(() =>
+        assert(validPrivateKey, CreateAccountOptionsStruct),
+      ).not.toThrow();
+    });
   });
 
   describe('invalid account creation types', () => {

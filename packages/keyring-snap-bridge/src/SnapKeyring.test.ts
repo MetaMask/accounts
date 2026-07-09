@@ -2707,8 +2707,10 @@ describe('SnapKeyring', () => {
         });
       }
 
-      // Verify state was saved once after adding all accounts
-      expect(mockCallbacks.saveState).toHaveBeenCalled();
+      // IMPORTANT: Unlike createAccount, createAccounts does NOT call saveState callback
+      // because we expect this to be called within a `withKeyringV2` transaction (which
+      // handles the persistence of the keyring state).
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
 
       // IMPORTANT: Unlike createAccount, createAccounts does NOT call addAccount callback
       // because accounts are created in batch
@@ -2751,7 +2753,7 @@ describe('SnapKeyring', () => {
         }),
       });
 
-      expect(mockCallbacks.saveState).toHaveBeenCalled();
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
       expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
     });
 
@@ -2775,7 +2777,7 @@ describe('SnapKeyring', () => {
       );
 
       expect(result).toStrictEqual(accountsToCreate);
-      expect(mockCallbacks.saveState).toHaveBeenCalled();
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
       expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
     });
 
@@ -2795,7 +2797,7 @@ describe('SnapKeyring', () => {
       const result = await keyring.createAccounts(snapId, options);
 
       expect(result).toStrictEqual([]);
-      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(0);
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
       expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
     });
 
@@ -2820,9 +2822,8 @@ describe('SnapKeyring', () => {
         errorMessage,
       );
 
-      // State should not be saved if account creation fails
-      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
       expect(mockCallbacks.addAccount).not.toHaveBeenCalled();
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
 
     it('adds all accounts to the internal map with correct snapId', async () => {
@@ -2850,6 +2851,9 @@ describe('SnapKeyring', () => {
         expect(createdAccount).toBeDefined();
         expect(createdAccount?.metadata.snap?.id).toBe(snapId);
       }
+
+      // saveState is not called by createAccounts (persistence is handled by the caller)
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
 
     it('throws error and rolls back Snap state when encountering unsupported accounts', async () => {
@@ -2924,9 +2928,6 @@ describe('SnapKeyring', () => {
       expect(
         restrictedKeyring.getAccountByAddress(genericAccount.address),
       ).toBeUndefined();
-
-      // State should not be saved when operation fails
-      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
 
     it('handles idempotent account creation by skipping existing accounts', async () => {
@@ -2952,10 +2953,9 @@ describe('SnapKeyring', () => {
 
       // Verify accounts were created
       expect(firstResult).toHaveLength(2);
-      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(1);
 
       // Clear mocks for second call
-      mockCallbacks.saveState.mockClear();
+      mockCallbacks.addressExists.mockClear();
 
       // Second call: same accounts should be skipped (idempotent)
       mockMessengerHandleRequest({
@@ -2968,8 +2968,10 @@ describe('SnapKeyring', () => {
       expect(secondResult).toHaveLength(2);
       expect(secondResult).toStrictEqual(accountsToCreate);
 
-      // No new accounts should be added, so saveState should not be called again
-      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(0);
+      // addressExists is only called when validating *new* accounts; if it was
+      // never called the second time, the accounts were recognised as existing and
+      // the add path was skipped entirely.
+      expect(mockCallbacks.addressExists).not.toHaveBeenCalled();
 
       // Verify the original accounts still exist and weren't duplicated
       for (const account of accountsToCreate) {
@@ -2977,6 +2979,9 @@ describe('SnapKeyring', () => {
         expect(existingAccount).toBeDefined();
         expect(existingAccount?.id).toBe(account.id);
       }
+
+      // saveState is not called by createAccounts (persistence is handled by the caller)
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
 
     it('throws non-AccountError exceptions during account validation', async () => {
@@ -3004,9 +3009,6 @@ describe('SnapKeyring', () => {
       await expect(keyring.createAccounts(snapId, options)).rejects.toThrow(
         error,
       );
-
-      // State should not be saved when an unexpected error occurs
-      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
 
     it('throws error and rolls back when batch contains duplicate addresses', async () => {
@@ -3103,7 +3105,7 @@ describe('SnapKeyring', () => {
       expect(keyring.getAccountByAddress(account1.address)).toBeUndefined();
       expect(keyring.getAccountByAddress(account3.address)).toBeUndefined();
 
-      // Verify that saveState was NOT called (since operation failed before saving)
+      // saveState is not called by createAccounts (persistence is handled by the caller)
       expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
 
@@ -3231,8 +3233,8 @@ describe('SnapKeyring', () => {
         keyring.getAccountByAddress(batch3Accounts[0]?.address ?? ''),
       ).toBeDefined();
 
-      // Verify saveState was called for each batch (3 times)
-      expect(mockCallbacks.saveState).toHaveBeenCalledTimes(3);
+      // saveState is not called by createAccounts (persistence is handled by the caller)
+      expect(mockCallbacks.saveState).not.toHaveBeenCalled();
     });
 
     it('does not create duplicate keyrings for concurrent calls targeting a new snap', async () => {

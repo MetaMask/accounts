@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0]
+
+### Added
+
+- Add `PrivateKeyAccount<Account>` type helper ([#590](https://github.com/MetaMask/accounts/pull/590))
+
 ### Changed
 
 - Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
@@ -168,7 +174,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `AccountGroup` and `AccountWallet` ([#307](https://github.com/MetaMask/accounts/pull/307))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@1.0.4...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@1.1.0...HEAD
+[1.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@1.0.4...@metamask/account-api@1.1.0
 [1.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@1.0.3...@metamask/account-api@1.0.4
 [1.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@1.0.2...@metamask/account-api@1.0.3
 [1.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/account-api@1.0.1...@metamask/account-api@1.0.2
