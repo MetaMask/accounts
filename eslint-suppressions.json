@@ -19,11 +19,6 @@
       "count": 1
     }
   },
-  "packages/keyring-eth-hd/src/hd-keyring.test.ts": {
-    "n/no-unsupported-features/node-builtins": {
-      "count": 1
-    }
-  },
   "packages/keyring-eth-hd/src/hd-keyring.ts": {
     "no-restricted-globals": {
       "count": 18
