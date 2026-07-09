@@ -90,7 +90,7 @@
     "@ledgerhq/types-cryptoassets": "^7.15.1",
     "@ledgerhq/types-devices": "^6.25.3",
     "@ledgerhq/types-live": "^6.52.0",
-    "@metamask/account-api": "^1.0.4",
+    "@metamask/account-api": "^1.1.0",
     "@metamask/auto-changelog": "^6.1.0",
     "@metamask/keyring-utils": "^3.3.1",
     "@metamask/utils": "^11.11.0",
