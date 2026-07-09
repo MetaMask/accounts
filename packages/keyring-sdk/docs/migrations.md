@@ -78,7 +78,6 @@ const migrations = createMigrations()
 ### 3. Implement in your Keyring
 
 ```typescript
-import { createMigrations } from '@metamask/keyring-sdk';
 import type { VersionedState } from '@metamask/keyring-sdk';
 import type { Json } from '@metamask/utils';
 
