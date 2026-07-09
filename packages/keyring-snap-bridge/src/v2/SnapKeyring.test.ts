@@ -480,7 +480,7 @@ describe('SnapKeyring', () => {
         expect(result).toStrictEqual([account1, account2]);
         expect(registered).toStrictEqual([account1.id, account2.id]);
         expect(callbacks.assertAccountCanBeUsed).toHaveBeenCalledTimes(2);
-        expect(callbacks.saveState).toHaveBeenCalledTimes(1);
+        expect(callbacks.saveState).not.toHaveBeenCalled();
       });
 
       it('skips existing accounts (idempotent)', async () => {
@@ -496,7 +496,6 @@ describe('SnapKeyring', () => {
         expect(result).toStrictEqual([account1]);
         // assertAccountCanBeUsed should NOT be called for existing accounts
         expect(callbacks.assertAccountCanBeUsed).not.toHaveBeenCalled();
-        // saveState should NOT be called since no new accounts
         expect(callbacks.saveState).not.toHaveBeenCalled();
       });
 
