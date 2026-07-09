@@ -142,6 +142,44 @@ export type MigrationChain<Data extends Json = Json> = {
 };
 
 /**
+ * Apply the pending steps of a chain to `state`.
+ *
+ * Implements {@link MigrationChain.apply} for the chain built from `steps`.
+ *
+ * @param steps - All steps of the chain.
+ * @param state - The serialized keyring state.
+ * @returns The migrated state wrapped in a versioned envelope, plus a `migrated` flag.
+ */
+async function applySteps<Data extends Json>(
+  steps: readonly InternalStep[],
+  state: Json,
+): Promise<MigrationResult<Data>> {
+  const latestVersion = steps.length;
+  const { version, data: initialData } = getVersionAndData(state);
+
+  if (version > latestVersion) {
+    throw new Error(
+      `State version ${version} is newer than the latest migration version ${latestVersion}`,
+    );
+  }
+
+  const pendingSteps = steps.slice(version);
+  let data = initialData;
+
+  for (const step of pendingSteps) {
+    assert(data, step.inputSchema ?? JsonStruct);
+    data = await step.migrate(data);
+    assert(data, step.outputSchema ?? JsonStruct);
+  }
+
+  return {
+    version: latestVersion,
+    data,
+    migrated: pendingSteps.length > 0,
+  } as MigrationResult<Data>;
+}
+
+/**
  * Build a {@link MigrationChain} wrapping the given internal steps.
  *
  * @param steps - The steps accumulated so far.
@@ -152,39 +190,10 @@ function buildChain<Data extends Json>(
 ): MigrationChain<Data> {
   return {
     version: steps.length,
-    add<Output extends Json, Input extends Data>(
+    add: <Output extends Json, Input extends Data>(
       step: MigrationStep<Output, Input>,
-    ): MigrationChain<Output> {
-      return buildChain<Output>([...steps, step as unknown as InternalStep]);
-    },
-    async apply(state): Promise<MigrationResult<Data>> {
-      const latestVersion = steps.length;
-      const { version, data: initialData } = getVersionAndData(state);
-      let data = initialData;
-
-      if (version > latestVersion) {
-        throw new Error(
-          `State version ${version} is newer than the latest migration version ${latestVersion}`,
-        );
-      }
-
-      let migrated = false;
-      for (const step of steps.slice(version)) {
-        assert(data, step.inputSchema ?? JsonStruct);
-        data = await step.migrate(data);
-
-        if (step.outputSchema) {
-          assert(data, step.outputSchema);
-        }
-        migrated = true;
-      }
-
-      return {
-        version: latestVersion,
-        data,
-        migrated,
-      } as MigrationResult<Data>;
-    },
+    ) => buildChain<Output>([...steps, step as unknown as InternalStep]),
+    apply: async (state) => applySteps<Data>(steps, state),
   };
 }
 
