@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [23.0.1]
+
 ### Fixed
 
 - Fix deadlock in `SnapKeyring.createAccounts` (v2) ([#591](https://github.com/MetaMask/accounts/pull/591))
@@ -774,7 +776,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.1...HEAD
+[23.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.0...@metamask/eth-snap-keyring@23.0.1
 [23.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.4.0...@metamask/eth-snap-keyring@23.0.0
 [22.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.3.0...@metamask/eth-snap-keyring@22.4.0
 [22.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.2.0...@metamask/eth-snap-keyring@22.3.0
