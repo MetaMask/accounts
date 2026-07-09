@@ -1,3 +1,5 @@
+import { object, number, string, array } from '@metamask/superstruct';
+import type { Infer } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
 import { createMigrations, isVersionedState } from './migration';
@@ -124,9 +126,10 @@ describe('apply', () => {
         }),
       });
 
-      const result = await migrations.apply(
-        ['key1', 'key2'] as unknown as Json,
-      );
+      const result = await migrations.apply([
+        'key1',
+        'key2',
+      ] as unknown as Json);
 
       expect(result).toStrictEqual({
         version: 1,
@@ -146,9 +149,10 @@ describe('apply', () => {
     });
 
     it('wraps array state in envelope at version 0 when the chain has no steps', async () => {
-      const result = await createMigrations().apply(
-        ['a', 'b'] as unknown as Json,
-      );
+      const result = await createMigrations().apply([
+        'a',
+        'b',
+      ] as unknown as Json);
 
       expect(result).toStrictEqual({
         version: 0,
@@ -274,9 +278,7 @@ describe('apply', () => {
     it('throws when state version is newer than the chain', async () => {
       const migrations = createMigrations().add({ migrate: (data) => data });
 
-      await expect(
-        migrations.apply({ version: 5, data: {} }),
-      ).rejects.toThrow(
+      await expect(migrations.apply({ version: 5, data: {} })).rejects.toThrow(
         'State version 5 is newer than the latest migration version 1',
       );
     });
@@ -313,5 +315,111 @@ describe('apply', () => {
 
       await expect(migrations.apply({})).rejects.toThrow('Migration failed');
     });
+  });
+});
+
+describe('when a step declares an outputSchema', () => {
+  it('completes when the output matches the schema', async () => {
+    const OutputSchema = object({ name: string(), count: number() });
+
+    const migrations = createMigrations().add({
+      outputSchema: OutputSchema,
+      migrate: () => ({ name: 'test', count: 42 }),
+    });
+
+    const result = await migrations.apply({});
+
+    expect(result).toStrictEqual({
+      version: 1,
+      data: { name: 'test', count: 42 },
+      migrated: true,
+    });
+  });
+
+  it('throws when the output does not match the schema', async () => {
+    const OutputSchema = object({ name: string(), count: number() });
+    type OutputState = Infer<typeof OutputSchema>;
+
+    const migrations = createMigrations().add({
+      outputSchema: OutputSchema,
+      // @ts-expect-error - intentionally invalid return for test
+      migrate: (): OutputState => ({ name: 'test', count: 'not a number' }),
+    });
+
+    await expect(migrations.apply({})).rejects.toThrow('Expected a number');
+  });
+
+  it('validates each step independently', async () => {
+    const V1Schema = object({ items: array(string()) });
+    type StateV1 = Infer<typeof V1Schema>;
+    const V2Schema = object({ items: array(string()), total: number() });
+    type StateV2 = Infer<typeof V2Schema>;
+
+    const migrations = createMigrations()
+      .add({
+        outputSchema: V1Schema,
+        migrate: (): StateV1 => ({ items: ['a', 'b'] }),
+      })
+      .add({
+        outputSchema: V2Schema,
+        migrate: (data): StateV2 => ({ ...data, total: data.items.length }),
+      });
+
+    const result = await migrations.apply({});
+
+    expect(result).toStrictEqual({
+      version: 2,
+      data: { items: ['a', 'b'], total: 2 } satisfies StateV2,
+      migrated: true,
+    });
+  });
+});
+
+describe('when a step declares an inputSchema', () => {
+  it('applies the step when input matches the inputSchema', async () => {
+    const V0Schema = object({ oldCount: number() });
+
+    const migrations = createMigrations().add({
+      inputSchema: V0Schema,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      migrate: (data: any) => ({ count: data.oldCount }),
+    });
+
+    const result = await migrations.apply({ oldCount: 7 });
+
+    expect(result).toStrictEqual({
+      version: 1,
+      data: { count: 7 },
+      migrated: true,
+    });
+  });
+
+  it('throws before calling migrate when input does not match the inputSchema', async () => {
+    const V0Schema = object({ oldCount: number() });
+    const migrateFn = jest.fn();
+
+    const migrations = createMigrations().add({
+      inputSchema: V0Schema,
+      migrate: migrateFn,
+    });
+
+    await expect(migrations.apply({ wrongField: 'oops' })).rejects.toThrow(
+      'Expected a number',
+    );
+    expect(migrateFn).not.toHaveBeenCalled();
+  });
+
+  it('validates input as JSON even when inputSchema is omitted', async () => {
+    const migrateFn = jest.fn();
+
+    const migrations = createMigrations().add({ migrate: migrateFn });
+
+    // undefined is not valid JSON
+    await expect(
+      migrations.apply(undefined as unknown as Json),
+    ).rejects.toThrow(
+      'Expected a value of type `JSON`, but received: `undefined`',
+    );
+    expect(migrateFn).not.toHaveBeenCalled();
   });
 });

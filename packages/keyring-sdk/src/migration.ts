@@ -1,5 +1,5 @@
-import type { Infer } from '@metamask/superstruct';
-import { integer, is, object } from '@metamask/superstruct';
+import type { Infer, Struct } from '@metamask/superstruct';
+import { assert, integer, is, object } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 import type { Json } from '@metamask/utils';
 
@@ -80,6 +80,17 @@ export type MigrationStep<Output extends Json, Input extends Json = Json> = {
    * @returns The migrated data.
    */
   migrate(data: Input): Output | Promise<Output>;
+  /**
+   * Optional schema validating this step's output at runtime.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  outputSchema?: Struct<any>;
+  /**
+   * Optional schema validating this step's input before `migrate` is called. Defaults to a
+   * generic JSON-shape check when omitted.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  inputSchema?: Struct<any>;
 };
 
 /**
@@ -119,7 +130,8 @@ export type MigrationChain<Data extends Json = Json> = {
    *
    * @param state - The serialized keyring state (from vault or previous serialize).
    * @returns The migrated state wrapped in a versioned envelope, plus a `migrated` flag.
-   * @throws If `state`'s version is newer than this chain's latest version.
+   * @throws If `state`'s version is newer than this chain's latest version, or if a
+   * step's `inputSchema`/`outputSchema` validation fails.
    */
   apply(state: Json): Promise<MigrationResult<Data>>;
 };
@@ -138,7 +150,7 @@ function buildChain<Data extends Json>(
     add<Output extends Json>(
       step: MigrationStep<Output, Data>,
     ): MigrationChain<Output> {
-      return buildChain<Output>([...steps, step as InternalStep]);
+      return buildChain<Output>([...steps, step as unknown as InternalStep]);
     },
     async apply(state): Promise<MigrationResult<Data>> {
       const latestVersion = steps.length;
@@ -153,11 +165,22 @@ function buildChain<Data extends Json>(
 
       let migrated = false;
       for (const step of steps.slice(version)) {
+        // `assert` can't accept `Struct<Input> | Struct<Json>`; cast is safe because
+        // `Input extends Json`.
+        assert(data, (step.inputSchema ?? JsonStruct) as Struct<Json>);
         data = await step.migrate(data);
+
+        if (step.outputSchema) {
+          assert(data, step.outputSchema);
+        }
         migrated = true;
       }
 
-      return { version: latestVersion, data, migrated } as MigrationResult<Data>;
+      return {
+        version: latestVersion,
+        data,
+        migrated,
+      } as MigrationResult<Data>;
     },
   };
 }
