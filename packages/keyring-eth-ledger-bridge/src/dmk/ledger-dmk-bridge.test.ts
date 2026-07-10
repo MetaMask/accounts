@@ -10,6 +10,7 @@ import {
 } from '@ledgerhq/device-management-kit';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 import { EIP712Message } from '@ledgerhq/types-live';
+import { ErrorCode, HardwareWalletError } from '@metamask/hw-wallet-sdk';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 
 import { createMockDeviceExchangeError } from './__testhelpers__/mock-error';
@@ -833,6 +834,23 @@ describe('LedgerDmkBridge', () => {
 
       await expect(bridge.getAppConfiguration()).rejects.toThrow(
         'Ledger command failed.',
+      );
+    });
+
+    it('resolves DMK connection errors by _tag', async () => {
+      mockSDK.sendCommand.mockResolvedValue({
+        status: 'error',
+        error: {
+          _tag: 'DeviceSessionNotFound',
+          message: 'Session expired',
+        },
+      });
+
+      const promise = bridge.getAppConfiguration();
+      await expect(promise).rejects.toThrow(HardwareWalletError);
+      await expect(promise).rejects.toHaveProperty(
+        'code',
+        ErrorCode.DeviceDisconnected,
       );
     });
   });

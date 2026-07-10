@@ -1,26 +1,93 @@
-import { ErrorCode } from './hardware-errors-enums';
+import type { ErrorMapping } from './hardware-error-mappings';
+import { Category, ErrorCode, Severity } from './hardware-errors-enums';
 
 /**
- * DMK (Device Management Kit) `_tag`-based error name mappings.
+ * Full DMK (Device Management Kit) `_tag`-based error mappings.
  *
  * DMK is Ledger's newer SDK. Unlike legacy `@ledgerhq/errors`, which identify
  * errors via the standard `error.name` property, DMK errors carry a
  * non-standard `_tag` string (e.g. `'DeviceSessionNotFound'`,
  * `'DeviceLockedError'`). Tag values are looked up in this mapping to resolve
- * the corresponding `ErrorCode`.
+ * the full {@link ErrorMapping} (code, message, severity, category,
+ * userMessage).
+ *
+ * This is the single source of truth for DMK tag → error details. The
+ * code-only {@link DMK_ERROR_TAG_MAPPINGS} is derived from this object so
+ * consumers that only need the `ErrorCode` (e.g. MetaMask Mobile) can use the
+ * simpler mapping without duplicating data.
  *
  * These mappings are shared with legacy error names in consumers (e.g.
  * MetaMask Mobile) since both map to the same `ErrorCode` values.
  */
-export const DMK_ERROR_TAG_MAPPINGS: Record<string, ErrorCode> = {
-  DeviceSessionNotFound: ErrorCode.DeviceDisconnected,
-  ConnectionOpeningError: ErrorCode.BluetoothConnectionFailed,
-  DeviceDisconnectedWhileSendingError: ErrorCode.DeviceDisconnected,
-  DeviceDisconnectedBeforeSendingApdu: ErrorCode.DeviceDisconnected,
-  DeviceLockedError: ErrorCode.AuthenticationDeviceLocked,
-  DeviceNotConnectedError: ErrorCode.DeviceDisconnected,
-  SessionRefresherError: ErrorCode.DeviceDisconnected,
+export const DMK_ERROR_MAPPINGS: Record<string, ErrorMapping> = {
+  DeviceSessionNotFound: {
+    code: ErrorCode.DeviceDisconnected,
+    message: 'DMK device session not found',
+    severity: Severity.Err,
+    category: Category.Connection,
+    userMessage:
+      'Your Ledger device was disconnected. Please reconnect and try again.',
+  },
+  ConnectionOpeningError: {
+    code: ErrorCode.BluetoothConnectionFailed,
+    message: 'DMK connection failed to open',
+    severity: Severity.Err,
+    category: Category.Connection,
+    userMessage:
+      'Failed to connect to your Ledger device. Please make sure it is nearby and try again.',
+  },
+  DeviceDisconnectedWhileSendingError: {
+    code: ErrorCode.DeviceDisconnected,
+    message: 'DMK device disconnected while sending',
+    severity: Severity.Err,
+    category: Category.Connection,
+    userMessage:
+      'Your Ledger device was disconnected. Please reconnect and try again.',
+  },
+  DeviceDisconnectedBeforeSendingApdu: {
+    code: ErrorCode.DeviceDisconnected,
+    message: 'DMK device disconnected before sending',
+    severity: Severity.Err,
+    category: Category.Connection,
+    userMessage:
+      'Your Ledger device was disconnected. Please reconnect and try again.',
+  },
+  DeviceLockedError: {
+    code: ErrorCode.AuthenticationDeviceLocked,
+    message: 'DMK device locked',
+    severity: Severity.Err,
+    category: Category.Authentication,
+    userMessage: 'Please unlock your Ledger device to continue.',
+  },
+  DeviceNotConnectedError: {
+    code: ErrorCode.DeviceDisconnected,
+    message: 'DMK device not connected',
+    severity: Severity.Err,
+    category: Category.Connection,
+    userMessage:
+      'Your Ledger device is not connected. Please connect and try again.',
+  },
+  SessionRefresherError: {
+    code: ErrorCode.DeviceDisconnected,
+    message: 'DMK session refresh failed',
+    severity: Severity.Err,
+    category: Category.Connection,
+    userMessage:
+      'Your Ledger device session has expired. Please reconnect and try again.',
+  },
 };
+
+/**
+ * DMK `_tag`-to-`ErrorCode` mappings.
+ *
+ * Derived from {@link DMK_ERROR_MAPPINGS} so there is a single source of truth
+ * for tag → code resolution. Consumers that only need the numeric `ErrorCode`
+ * (e.g. MetaMask Mobile) can use this lightweight mapping directly.
+ */
+export const DMK_ERROR_TAG_MAPPINGS: Record<string, ErrorCode> =
+  Object.fromEntries(
+    Object.entries(DMK_ERROR_MAPPINGS).map(([tag, { code }]) => [tag, code]),
+  );
 
 /**
  * DMK-specific message patterns for error parsing.

@@ -1,9 +1,74 @@
 import {
+  DMK_ERROR_MAPPINGS,
   DMK_ERROR_TAG_MAPPINGS,
   DMK_MESSAGE_PATTERNS,
   getDMKErrorFromTag,
 } from './dmk-error-mappings';
-import { ErrorCode } from './hardware-errors-enums';
+import type { ErrorMapping } from './hardware-error-mappings';
+import { Category, ErrorCode, Severity } from './hardware-errors-enums';
+
+describe('DMK_ERROR_MAPPINGS', () => {
+  it('maps DeviceSessionNotFound to DeviceDisconnected with full details', () => {
+    expect(DMK_ERROR_MAPPINGS.DeviceSessionNotFound).toStrictEqual({
+      code: ErrorCode.DeviceDisconnected,
+      message: 'DMK device session not found',
+      severity: Severity.Err,
+      category: Category.Connection,
+      userMessage:
+        'Your Ledger device was disconnected. Please reconnect and try again.',
+    });
+  });
+
+  it('maps ConnectionOpeningError to BluetoothConnectionFailed', () => {
+    expect(DMK_ERROR_MAPPINGS.ConnectionOpeningError?.code).toBe(
+      ErrorCode.BluetoothConnectionFailed,
+    );
+  });
+
+  it('maps DeviceLockedError to AuthenticationDeviceLocked', () => {
+    expect(DMK_ERROR_MAPPINGS.DeviceLockedError?.code).toBe(
+      ErrorCode.AuthenticationDeviceLocked,
+    );
+    expect(DMK_ERROR_MAPPINGS.DeviceLockedError?.category).toBe(
+      Category.Authentication,
+    );
+  });
+
+  it('maps SessionRefresherError to DeviceDisconnected', () => {
+    expect(DMK_ERROR_MAPPINGS.SessionRefresherError?.code).toBe(
+      ErrorCode.DeviceDisconnected,
+    );
+  });
+
+  it('has exactly 7 DMK error mappings', () => {
+    expect(Object.keys(DMK_ERROR_MAPPINGS)).toHaveLength(7);
+  });
+
+  it('every mapping has all required ErrorMapping fields', () => {
+    Object.values(DMK_ERROR_MAPPINGS).forEach((mapping) => {
+      expect(mapping).toHaveProperty('code');
+      expect(mapping).toHaveProperty('message');
+      expect(mapping).toHaveProperty('severity');
+      expect(mapping).toHaveProperty('category');
+      expect(mapping).toHaveProperty('userMessage');
+    });
+  });
+
+  it('every mapping code matches the code in DMK_ERROR_TAG_MAPPINGS', () => {
+    Object.entries(DMK_ERROR_MAPPINGS).forEach(([tag, mapping]) => {
+      expect(DMK_ERROR_TAG_MAPPINGS[tag]).toBe(mapping.code);
+    });
+  });
+
+  it('every mapping maps to a valid ErrorCode', () => {
+    const validCodes = Object.values(ErrorCode).filter(
+      (value): value is number => typeof value === 'number',
+    );
+    Object.values(DMK_ERROR_MAPPINGS).forEach((mapping: ErrorMapping) => {
+      expect(validCodes).toContain(mapping.code);
+    });
+  });
+});
 
 describe('DMK_ERROR_TAG_MAPPINGS', () => {
   it('maps DeviceSessionNotFound to DeviceDisconnected', () => {
