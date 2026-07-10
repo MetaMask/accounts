@@ -1,7 +1,7 @@
 /**
  * Configuration options for the Speculos BLE bridge service.
  */
-export interface SpeculosBleConfig {
+export type SpeculosBleConfig = {
   /** Host where Speculos is running. */
   speculosHost: string;
   /** Speculos APDU TCP port. */

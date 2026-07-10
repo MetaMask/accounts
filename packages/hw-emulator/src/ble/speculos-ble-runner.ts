@@ -1,4 +1,5 @@
-import { execSync, spawn, type ChildProcess } from 'child_process';
+import { execSync, spawn  } from 'child_process';
+import type {ChildProcess} from 'child_process';
 import { existsSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import type {
@@ -111,7 +112,7 @@ export class SpeculosBleRunner {
 
   /** Whether the child process is still running. */
   get isRunning(): boolean {
-    return this.childProcess !== undefined && this.childProcess.exitCode === null;
+    return this.childProcess?.exitCode === null;
   }
 
   /**
@@ -158,7 +159,7 @@ export class SpeculosBleRunner {
     });
 
     const proc = this.childProcess;
-    const onLog = this.onLog;
+    const {onLog} = this;
     if (onLog) {
       proc.stdout?.on('data', (data: Buffer) => {
         const line = data.toString().trim();
