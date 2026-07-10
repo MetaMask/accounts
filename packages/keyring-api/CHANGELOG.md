@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add support for `base32` private key encoding in `exportAccount` ([#589](https://github.com/MetaMask/accounts/pull/589))
 
+### Changed
+
+- Bump `@metamask/keyring-utils` from `^3.3.1` to `^4.0.0` ([#9999](https://github.com/MetaMask/accounts/pull/9999))
+
 ## [23.5.0]
 
 ### Added

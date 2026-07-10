@@ -9,15 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [12.0.3]
 
-### Uncategorized
-
-- chore: fix changelogs PR grouping ([#563](https://github.com/MetaMask/accounts/pull/563))
-- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
-
 ### Changed
 
-- Bump `@metamask/keyring-sdk` from `^2.0.2` to `^2.2.0` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546), [#562](https://github.com/MetaMask/accounts/pull/562))
-- Bump `@metamask/keyring-api` from `^23.1.0` to `^23.5.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587))
+- Bump `@metamask/keyring-sdk` from `^2.0.2` to `^2.2.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546), [#562](https://github.com/MetaMask/accounts/pull/562), [#9999](https://github.com/MetaMask/accounts/pull/9999))
+- Bump `@metamask/keyring-api` from `^23.1.0` to `^23.6.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587), [#9999](https://github.com/MetaMask/accounts/pull/9999))
 
 ## [12.0.2]
 

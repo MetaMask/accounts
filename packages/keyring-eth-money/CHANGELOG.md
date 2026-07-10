@@ -9,15 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.1]
 
-### Uncategorized
-
-- feat: use `@metamask/superstruct` `exactOptional` support ([#580](https://github.com/MetaMask/accounts/pull/580))
-- chore: fix changelogs PR grouping ([#563](https://github.com/MetaMask/accounts/pull/563))
-
 ### Changed
 
-- Bump `@metamask/keyring-api` from `^23.1.0` to `^23.5.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587))
-- Bump `@metamask/keyring-sdk` from `^2.1.1` to `^2.2.0` ([#562](https://github.com/MetaMask/accounts/pull/562))
+- Bump `@metamask/keyring-api` from `^23.1.0` to `^23.6.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587), [#9999](https://github.com/MetaMask/accounts/pull/9999))
+- Bump `@metamask/keyring-sdk` from `^2.1.1` to `^2.2.1` ([#562](https://github.com/MetaMask/accounts/pull/562), [#9999](https://github.com/MetaMask/accounts/pull/9999))
+- Bump `@metamask/eth-hd-keyring` from `^14.1.1` to `^14.1.2` ([#9999](https://github.com/MetaMask/accounts/pull/9999))
+- Bump `@metamask/keyring-utils` from `^3.3.1` to `^4.0.0` ([#9999](https://github.com/MetaMask/accounts/pull/9999))
 
 ## [3.0.0]
 
