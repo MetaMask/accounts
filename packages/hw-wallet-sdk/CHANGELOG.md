@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `DMK_ERROR_TAG_MAPPINGS`, `DMK_MESSAGE_PATTERNS`, and `getDMKErrorFromTag` for parsing Ledger Device Management Kit (DMK) errors by their non-standard `_tag` property ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `DMK_ERROR_TAG_MAPPINGS`, `DMK_MESSAGE_PATTERNS`, and `getDMKErrorFromTag` for parsing Ledger Device Management Kit (DMK) errors by their non-standard `_tag` property ([#597](https://github.com/MetaMask/accounts/pull/597))
 
 ## [0.10.0]
 
