@@ -21,8 +21,10 @@ createMigrations()
 // A step's `migrate` must accept the previous step's output shape.
 createMigrations()
   .add({ migrate: (): { count: number } => ({ count: 1 }) })
-  // @ts-expect-error [test] `data` is `{ count: number }`, not `{ label: string }`.
-  .add({ migrate: (data: { label: string }) => data.label });
+  .add({ migrate: (data) => {
+    expectType<{ count: number }>(data);
+    return data;
+  }});
 
 // `inputSchema` narrows `migrate`'s input to the schema's inferred type, with no cast
 // needed.
