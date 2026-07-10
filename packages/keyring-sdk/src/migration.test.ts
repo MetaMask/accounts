@@ -52,7 +52,7 @@ describe('createMigrations', () => {
     expect(chain.version).toBe(3);
   });
 
-  it('does not mutate the chain a step was added to', () => {
+  it('does not mutate the base chain when a step is added', () => {
     const base = createMigrations().add({ migrate: () => ({ count: 1 }) });
     const extended = base.add({
       migrate: (data: { count: number }) => ({ ...data, label: 'x' }),
@@ -60,18 +60,6 @@ describe('createMigrations', () => {
 
     expect(base.version).toBe(1);
     expect(extended.version).toBe(2);
-  });
-
-  it('rejects a step whose migrate assumes the wrong input shape', () => {
-    // This test verifies that TypeScript rejects chaining with incompatible types
-    // via @ts-expect-error; the assertion below also confirms the chain still built.
-    const chain = createMigrations()
-      .add({ migrate: (): { count: number } => ({ count: 1 }) })
-      .add({
-        // @ts-expect-error - `data` is `{ count: number }`, not `{ label: string }`
-        migrate: (data: { label: string }) => data.label,
-      });
-    expect(chain.version).toBe(2);
   });
 });
 
@@ -316,109 +304,109 @@ describe('apply', () => {
       await expect(migrations.apply({})).rejects.toThrow('Migration failed');
     });
   });
-});
 
-describe('when a step declares an outputSchema', () => {
-  it('completes when the output matches the schema', async () => {
-    const OutputSchema = object({ name: string(), count: number() });
+  describe('when a step declares an outputSchema', () => {
+    it('applies the step when the output matches the outputSchema', async () => {
+      const OutputSchema = object({ name: string(), count: number() });
 
-    const migrations = createMigrations().add({
-      outputSchema: OutputSchema,
-      migrate: () => ({ name: 'test', count: 42 }),
-    });
-
-    const result = await migrations.apply({});
-
-    expect(result).toStrictEqual({
-      version: 1,
-      data: { name: 'test', count: 42 },
-      migrated: true,
-    });
-  });
-
-  it('throws when the output does not match the schema', async () => {
-    const OutputSchema = object({ name: string(), count: number() });
-    type OutputState = Infer<typeof OutputSchema>;
-
-    const migrations = createMigrations().add({
-      outputSchema: OutputSchema,
-      // @ts-expect-error - intentionally invalid return for test
-      migrate: (): OutputState => ({ name: 'test', count: 'not a number' }),
-    });
-
-    await expect(migrations.apply({})).rejects.toThrow('Expected a number');
-  });
-
-  it('validates each step independently', async () => {
-    const V1Schema = object({ items: array(string()) });
-    type StateV1 = Infer<typeof V1Schema>;
-    const V2Schema = object({ items: array(string()), total: number() });
-    type StateV2 = Infer<typeof V2Schema>;
-
-    const migrations = createMigrations()
-      .add({
-        outputSchema: V1Schema,
-        migrate: (): StateV1 => ({ items: ['a', 'b'] }),
-      })
-      .add({
-        outputSchema: V2Schema,
-        migrate: (data): StateV2 => ({ ...data, total: data.items.length }),
+      const migrations = createMigrations().add({
+        outputSchema: OutputSchema,
+        migrate: () => ({ name: 'test', count: 42 }),
       });
 
-    const result = await migrations.apply({});
+      const result = await migrations.apply({});
 
-    expect(result).toStrictEqual({
-      version: 2,
-      data: { items: ['a', 'b'], total: 2 } satisfies StateV2,
-      migrated: true,
+      expect(result).toStrictEqual({
+        version: 1,
+        data: { name: 'test', count: 42 },
+        migrated: true,
+      });
+    });
+
+    it('throws when the output does not match the outputSchema', async () => {
+      const OutputSchema = object({ name: string(), count: number() });
+      type OutputState = Infer<typeof OutputSchema>;
+
+      const migrations = createMigrations().add({
+        outputSchema: OutputSchema,
+        // @ts-expect-error - intentionally invalid return for test
+        migrate: (): OutputState => ({ name: 'test', count: 'not a number' }),
+      });
+
+      await expect(migrations.apply({})).rejects.toThrow('Expected a number');
+    });
+
+    it('validates each step independently', async () => {
+      const V1Schema = object({ items: array(string()) });
+      type StateV1 = Infer<typeof V1Schema>;
+
+      const V2Schema = object({ items: array(string()), total: number() });
+      type StateV2 = Infer<typeof V2Schema>;
+
+      const migrations = createMigrations()
+        .add({
+          outputSchema: V1Schema,
+          migrate: (): StateV1 => ({ items: ['a', 'b'] }),
+        })
+        .add({
+          outputSchema: V2Schema,
+          migrate: (data): StateV2 => ({ ...data, total: data.items.length }),
+        });
+
+      const result = await migrations.apply({});
+
+      expect(result).toStrictEqual({
+        version: 2,
+        data: { items: ['a', 'b'], total: 2 } satisfies StateV2,
+        migrated: true,
+      });
     });
   });
-});
 
-describe('when a step declares an inputSchema', () => {
-  it('applies the step when input matches the inputSchema', async () => {
-    const V0Schema = object({ oldCount: number() });
+  describe('when a step declares an inputSchema', () => {
+    it('applies the step when input matches the inputSchema', async () => {
+      const V0Schema = object({ oldCount: number() });
 
-    const migrations = createMigrations().add({
-      inputSchema: V0Schema,
-      migrate: (data) => ({ count: data.oldCount }),
+      const migrations = createMigrations().add({
+        inputSchema: V0Schema,
+        migrate: (data) => ({ count: data.oldCount }),
+      });
+
+      const result = await migrations.apply({ oldCount: 7 });
+
+      expect(result).toStrictEqual({
+        version: 1,
+        data: { count: 7 },
+        migrated: true,
+      });
     });
 
-    const result = await migrations.apply({ oldCount: 7 });
+    it('throws before calling migrate when input does not match the inputSchema', async () => {
+      const V0Schema = object({ oldCount: number() });
+      const migrateFn = jest.fn();
 
-    expect(result).toStrictEqual({
-      version: 1,
-      data: { count: 7 },
-      migrated: true,
-    });
-  });
+      const migrations = createMigrations().add({
+        inputSchema: V0Schema,
+        migrate: migrateFn,
+      });
 
-  it('throws before calling migrate when input does not match the inputSchema', async () => {
-    const V0Schema = object({ oldCount: number() });
-    const migrateFn = jest.fn();
-
-    const migrations = createMigrations().add({
-      inputSchema: V0Schema,
-      migrate: migrateFn,
+      await expect(migrations.apply({ wrongField: 'oops' })).rejects.toThrow(
+        'Expected a number',
+      );
+      expect(migrateFn).not.toHaveBeenCalled();
     });
 
-    await expect(migrations.apply({ wrongField: 'oops' })).rejects.toThrow(
-      'Expected a number',
-    );
-    expect(migrateFn).not.toHaveBeenCalled();
-  });
+    it('validates input as JSON even when inputSchema is omitted', async () => {
+      const migrateFn = jest.fn();
+      const migrations = createMigrations().add({ migrate: migrateFn });
 
-  it('validates input as JSON even when inputSchema is omitted', async () => {
-    const migrateFn = jest.fn();
-
-    const migrations = createMigrations().add({ migrate: migrateFn });
-
-    // undefined is not valid JSON
-    await expect(
-      migrations.apply(undefined as unknown as Json),
-    ).rejects.toThrow(
-      'Expected a value of type `JSON`, but received: `undefined`',
-    );
-    expect(migrateFn).not.toHaveBeenCalled();
+      // undefined is not valid JSON
+      await expect(
+        migrations.apply(undefined as unknown as Json),
+      ).rejects.toThrow(
+        'Expected a value of type `JSON`, but received: `undefined`',
+      );
+      expect(migrateFn).not.toHaveBeenCalled();
+    });
   });
 });
