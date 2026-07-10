@@ -71,7 +71,7 @@
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/keyring-internal-api": "^11.0.2",
     "@metamask/keyring-internal-snap-client": "^10.0.6",
-    "@metamask/keyring-sdk": "^2.2.1",
+    "@metamask/keyring-sdk": "^2.3.0",
     "@metamask/keyring-snap-sdk": "^9.2.1",
     "@metamask/keyring-utils": "^4.0.0",
     "@metamask/messenger": "^1.1.1",

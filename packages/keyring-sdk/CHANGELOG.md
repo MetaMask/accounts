@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.2.1]
+## [2.3.0]
 
 ### Added
 
@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/keyring-api` from `^23.2.0` to `^23.6.0` ([#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587), [#1023](https://github.com/MetaMask/accounts/pull/1023))
+- Bump `@metamask/keyring-api` from `^23.2.0` to `^23.6.0` ([#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587), [#598](https://github.com/MetaMask/accounts/pull/598))
 - Bump `@metamask/keyring-utils` from `^3.3.1` to `^4.0.0` ([#1023](https://github.com/MetaMask/accounts/pull/1023))
 
 ## [2.2.0]
@@ -100,8 +100,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release, extracted from `@metamask/keyring-api` ([#478](https://github.com/MetaMask/accounts/pull/478), [#482](https://github.com/MetaMask/accounts/pull/482))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.2.1...HEAD
-[2.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.2.0...@metamask/keyring-sdk@2.2.1
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.3.0...HEAD
+[2.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.2.0...@metamask/keyring-sdk@2.3.0
 [2.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.1.1...@metamask/keyring-sdk@2.2.0
 [2.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.1.0...@metamask/keyring-sdk@2.1.1
 [2.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@2.0.2...@metamask/keyring-sdk@2.1.0

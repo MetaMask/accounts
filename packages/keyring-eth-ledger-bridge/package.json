@@ -79,7 +79,7 @@
     "@metamask/eth-sig-util": "^8.2.0",
     "@metamask/hw-wallet-sdk": "^0.10.0",
     "@metamask/keyring-api": "^23.6.0",
-    "@metamask/keyring-sdk": "^2.2.1",
+    "@metamask/keyring-sdk": "^2.3.0",
     "hdkey": "^2.1.0",
     "rxjs": "^7.8.2"
   },
