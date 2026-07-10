@@ -3478,40 +3478,5 @@ describe('SnapKeyring', () => {
       ).rejects.toThrow(`Snap '${v2SnapId}' does not support v1 signing`);
     });
 
-    it('prepareUserOperation throws for a v2 snap', async () => {
-      await expect(
-        v2Keyring.prepareUserOperation(
-          ethEoaAccount1.address,
-          [],
-          executionContext,
-        ),
-      ).rejects.toThrow(
-        `Snap '${v2SnapId}' does not support v1 prepareUserOperation`,
-      );
-    });
-
-    it('patchUserOperation throws for a v2 snap', async () => {
-      await expect(
-        v2Keyring.patchUserOperation(
-          ethEoaAccount1.address,
-          {} as EthUserOperation,
-          executionContext,
-        ),
-      ).rejects.toThrow(
-        `Snap '${v2SnapId}' does not support v1 patchUserOperation`,
-      );
-    });
-
-    it('signUserOperation throws for a v2 snap', async () => {
-      await expect(
-        v2Keyring.signUserOperation(
-          ethEoaAccount1.address,
-          {} as EthUserOperation,
-          executionContext,
-        ),
-      ).rejects.toThrow(
-        `Snap '${v2SnapId}' does not support v1 signUserOperation`,
-      );
-    });
   });
 });

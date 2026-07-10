@@ -2,10 +2,7 @@ import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { EthAccountType, EthMethod, EthScope } from '@metamask/keyring-api';
-import type {
-  KeyringAccount,
-  KeyringRequest,
-} from '@metamask/keyring-api';
+import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import {
   AccountExportType,
   KeyringType,
@@ -556,5 +553,4 @@ describe('EthKeyringV1Adapter', () => {
       adapter.signMessage(ACCOUNT_ADDRESS as Hex, '0xdeadbeef'),
     ).rejects.toThrow('Expected a value of type');
   });
-
 });

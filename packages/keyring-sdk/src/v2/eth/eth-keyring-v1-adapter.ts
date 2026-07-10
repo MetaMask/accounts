@@ -7,10 +7,7 @@ import {
   EthBytesStruct,
   EthMethod,
 } from '@metamask/keyring-api';
-import type {
-  KeyringAccount,
-  KeyringRequest,
-} from '@metamask/keyring-api';
+import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
 import {
   AccountExportType,
