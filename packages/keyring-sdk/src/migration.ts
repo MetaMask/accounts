@@ -85,14 +85,14 @@ export type MigrationStep<
    */
   migrate(data: Input): Output | Promise<Output>;
   /**
-   * Optional schema validating this step's output at runtime.
-   */
-  outputSchema?: Struct<Output>;
-  /**
    * Optional schema validating this step's input before `migrate` is called. Defaults
    * to a generic JSON-shape check when omitted.
    */
   inputSchema?: Struct<Input>;
+  /**
+   * Optional schema validating this step's output at runtime.
+   */
+  outputSchema?: Struct<Output>;
 };
 
 /**
