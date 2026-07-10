@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.0.2]
+
 ### Uncategorized
 
 - feat: use `@metamask/superstruct` `exactOptional` support ([#580](https://github.com/MetaMask/accounts/pull/580))
@@ -215,7 +217,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@11.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@11.0.2...HEAD
+[11.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@11.0.1...@metamask/keyring-internal-api@11.0.2
 [11.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@11.0.0...@metamask/keyring-internal-api@11.0.1
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.1.1...@metamask/keyring-internal-api@11.0.0
 [10.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-api@10.1.0...@metamask/keyring-internal-api@10.1.1

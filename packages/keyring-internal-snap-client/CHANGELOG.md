@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.6]
+
 ## [10.0.5]
 
 ### Changed
@@ -243,7 +245,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.5...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.6...HEAD
+[10.0.6]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.5...@metamask/keyring-internal-snap-client@10.0.6
 [10.0.5]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.4...@metamask/keyring-internal-snap-client@10.0.5
 [10.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.3...@metamask/keyring-internal-snap-client@10.0.4
 [10.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.2...@metamask/keyring-internal-snap-client@10.0.3
