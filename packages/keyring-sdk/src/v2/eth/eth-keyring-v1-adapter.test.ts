@@ -4,7 +4,6 @@ import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { EthAccountType, EthMethod, EthScope } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
-  KeyringExecutionContext,
   KeyringRequest,
 } from '@metamask/keyring-api';
 import {
