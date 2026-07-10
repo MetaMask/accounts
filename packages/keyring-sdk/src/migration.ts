@@ -155,6 +155,12 @@ async function applySteps<Data extends Json>(
   const latestVersion = steps.length;
   const { version, data: initialData } = getVersionAndData(state);
 
+  if (version < 0) {
+    throw new Error(
+      `State version ${version} is invalid; it cannot be negative`,
+    );
+  }
+
   if (version > latestVersion) {
     throw new Error(
       `State version ${version} is newer than the latest migration version ${latestVersion}`,

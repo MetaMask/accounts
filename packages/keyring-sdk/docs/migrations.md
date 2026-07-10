@@ -6,8 +6,10 @@ Versioned state is stored as an envelope:
 
 ```json5
 {
-  "version": 1,
-  "data": { /* Keyring state */ }
+  version: 1,
+  data: {
+    // Keyring state
+  },
 }
 ```
 

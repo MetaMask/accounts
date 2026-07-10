@@ -270,6 +270,14 @@ describe('apply', () => {
         'State version 5 is newer than the latest migration version 1',
       );
     });
+
+    it('throws when state version is negative', async () => {
+      const migrations = createMigrations().add({ migrate: (data) => data });
+
+      await expect(migrations.apply({ version: -1, data: {} })).rejects.toThrow(
+        'State version -1 is invalid; it cannot be negative',
+      );
+    });
   });
 
   describe('when migrate is async', () => {
