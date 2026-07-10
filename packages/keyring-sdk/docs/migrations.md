@@ -16,10 +16,10 @@ Unversioned state (vaults created before migration support was added) has no env
 ## Key Concepts
 
 - **`createMigrations()`**: Starts an empty migration chain.
-- **`.add(step)`**: Appends a step to the chain and returns a new chain typed to that step's output. Each `.add()` call's `migrate` receives the previous step's output type directly, with no manual cast needed.
+- **`.add(step)`**: Appends a step to the chain and returns a new chain typed to that step's output.
 - **`outputSchema`**: (Optional) Validates the **output** of a step at runtime.
 - **`inputSchema`**: (Optional) Validates the **input** before the `migrate` function is called.
-- **Positional versions**: The first `.add()` call produces version 1, the second version 2, and so on. There's no version field to set or get wrong.
+- **Positional versions**: The first `.add()` call produces version 1, the second version 2, and so on.
 
 ## Example
 
@@ -36,14 +36,12 @@ const HdStateV0Schema = object({
   mnemonic: array(number()),
   hdPath: string(),
 });
-type HdStateV0 = Infer<typeof HdStateV0Schema>;
 
 const HdStateV1Schema = object({
   accountCount: number(), // renamed from numberOfAccounts
   mnemonic: array(number()),
   hdPath: string(),
 });
-type HdStateV1 = Infer<typeof HdStateV1Schema>;
 
 const HdStateV2Schema = object({
   accountCount: number(),
@@ -51,6 +49,9 @@ const HdStateV2Schema = object({
   hdPath: string(),
   createdAt: number(), // new field
 });
+
+type HdStateV0 = Infer<typeof HdStateV0Schema>;
+type HdStateV1 = Infer<typeof HdStateV1Schema>;
 type HdStateV2 = Infer<typeof HdStateV2Schema>;
 ```
 
@@ -71,7 +72,7 @@ const migrations = createMigrations()
   })
   .add({
     outputSchema: HdStateV2Schema,
-    migrate: (data) => ({ ...data, createdAt: Date.now() }), // data is typed as HdStateV1, no cast
+    migrate: (data) => ({ ...data, createdAt: Date.now() }), // data is typed as HdStateV1, no cast needed
   });
 ```
 
