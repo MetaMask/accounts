@@ -4,10 +4,10 @@ A framework for evolving keyring serialized state across versions. Migrations ru
 
 Versioned state is stored as an envelope:
 
-```json
+```json5
 {
-  "version": 2,
-  "data": { "accountCount": 3, "mnemonic": [...], "hdPath": "m/44'/60'/0'/0" }
+  "version": 1,
+  "data": { /* Keyring state */ }
 }
 ```
 
