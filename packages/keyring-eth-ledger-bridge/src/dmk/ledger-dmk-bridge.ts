@@ -13,7 +13,7 @@ import type {
 } from '@ledgerhq/device-management-kit';
 import type { Signature } from '@ledgerhq/device-signer-kit-ethereum';
 import type Transport from '@ledgerhq/hw-transport';
-import { getDMKErrorFromTag } from '@metamask/hw-wallet-sdk';
+import { getDmkErrorFromTag } from '@metamask/hw-wallet-sdk';
 import type { Observable } from 'rxjs';
 import {
   concat,
@@ -33,7 +33,7 @@ import {
   switchMap,
 } from 'rxjs/operators';
 
-import { createDMKError } from '../errors';
+import { createDmkError } from '../errors';
 import {
   AppConfigurationResponse,
   GetAppNameAndVersionResponse,
@@ -482,9 +482,9 @@ export class LedgerDmkBridge implements LedgerBridge<LedgerDmkBridgeOptions> {
     // DMK connection/session errors identified by _tag (e.g.
     // DeviceSessionNotFound, DeviceLockedError) carry no hex APDU code.
     // Resolve them to a HardwareWalletError before falling through.
-    const tagResolution = getDMKErrorFromTag(error);
+    const tagResolution = getDmkErrorFromTag(error);
     if (tagResolution) {
-      return createDMKError(tagResolution.tag);
+      return createDmkError(tagResolution.tag);
     }
 
     if (isDeviceExchangeError(error)) {

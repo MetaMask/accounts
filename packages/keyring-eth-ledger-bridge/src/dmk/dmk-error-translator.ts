@@ -1,11 +1,11 @@
 import { DeviceExchangeError } from '@ledgerhq/device-management-kit';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 import {
-  getDMKErrorFromTag,
+  getDmkErrorFromTag,
   HardwareWalletError,
 } from '@metamask/hw-wallet-sdk';
 
-import { createDMKError } from '../errors';
+import { createDmkError } from '../errors';
 
 const GENERIC_ERROR_STATUS_CODE = 0x6f00;
 
@@ -33,9 +33,9 @@ export function translateDmkError(
   error: unknown,
 ): TransportStatusError | HardwareWalletError {
   // 1. DMK connection/session errors identified by _tag
-  const tagResolution = getDMKErrorFromTag(error);
+  const tagResolution = getDmkErrorFromTag(error);
   if (tagResolution) {
-    return createDMKError(tagResolution.tag);
+    return createDmkError(tagResolution.tag);
   }
 
   // 2. DeviceExchangeError with hex APDU status code

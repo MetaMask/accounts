@@ -113,7 +113,7 @@ export function createKeyringStateError(code: ErrorCode): HardwareWalletError {
  * @returns A HardwareWalletError instance with mapped error details, or a
  * fallback error if the tag is not recognised.
  */
-export function createDMKError(
+export function createDmkError(
   tag: string,
   context?: string,
 ): HardwareWalletError {

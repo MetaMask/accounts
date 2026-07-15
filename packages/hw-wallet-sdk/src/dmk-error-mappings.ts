@@ -137,7 +137,7 @@ export type DMKTagResolution = {
  * @returns The resolved `ErrorCode` and the original tag string, or `null`
  * if no `_tag` is present or the tag is not recognised.
  */
-export function getDMKErrorFromTag(error: unknown): DMKTagResolution | null {
+export function getDmkErrorFromTag(error: unknown): DMKTagResolution | null {
   if (error === null || typeof error !== 'object') {
     return null;
   }
