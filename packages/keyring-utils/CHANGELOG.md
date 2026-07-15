@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `@metamask/superstruct` from `^3.3.0` to `^3.4.0` ([#577](https://github.com/MetaMask/accounts/pull/577))
+
 ### Removed
 
 - **BREAKING:** Removed `object`, `type` and `exactOptional` superstruct support ([#580](https://github.com/MetaMask/accounts/pull/580))
   - Use `@metamask/superstruct` instead.
-
-### Changed
-
-- Bump `@metamask/superstruct` from `^3.3.0` to `^3.4.0` ([#577](https://github.com/MetaMask/accounts/pull/577))
 
 ## [3.3.1]
 
