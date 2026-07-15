@@ -4,7 +4,7 @@ import {
 } from '@metamask/hw-wallet-sdk';
 
 import {
-  createDMKError,
+  createDmkError,
   createLedgerError,
   createKeyringStateError,
   isKnownLedgerError,
@@ -123,10 +123,10 @@ describe('createKeyringStateError', () => {
   });
 });
 
-describe('createDMKError', () => {
+describe('createDmkError', () => {
   describe('known DMK tags', () => {
     it('creates HardwareWalletError for DeviceSessionNotFound', () => {
-      const error = createDMKError('DeviceSessionNotFound');
+      const error = createDmkError('DeviceSessionNotFound');
 
       expect(error).toBeInstanceOf(HardwareWalletError);
       expect(error.code).toBe(ErrorCodeEnum.DeviceDisconnected);
@@ -134,21 +134,21 @@ describe('createDMKError', () => {
     });
 
     it('creates HardwareWalletError for DeviceLockedError', () => {
-      const error = createDMKError('DeviceLockedError');
+      const error = createDmkError('DeviceLockedError');
 
       expect(error).toBeInstanceOf(HardwareWalletError);
       expect(error.code).toBe(ErrorCodeEnum.AuthenticationDeviceLocked);
     });
 
     it('creates HardwareWalletError for ConnectionOpeningError', () => {
-      const error = createDMKError('ConnectionOpeningError');
+      const error = createDmkError('ConnectionOpeningError');
 
       expect(error).toBeInstanceOf(HardwareWalletError);
       expect(error.code).toBe(ErrorCodeEnum.BluetoothConnectionFailed);
     });
 
     it('includes context in message when provided', () => {
-      const error = createDMKError(
+      const error = createDmkError(
         'DeviceSessionNotFound',
         'during signTransaction',
       );
@@ -159,7 +159,7 @@ describe('createDMKError', () => {
     });
 
     it('uses the mapping userMessage', () => {
-      const error = createDMKError('DeviceLockedError');
+      const error = createDmkError('DeviceLockedError');
 
       expect(error.userMessage).toBe(
         'Please unlock your Ledger device to continue.',
@@ -169,7 +169,7 @@ describe('createDMKError', () => {
 
   describe('unknown DMK tags', () => {
     it('creates fallback error for unknown tag without context', () => {
-      const error = createDMKError('SomeUnknownTag');
+      const error = createDmkError('SomeUnknownTag');
 
       expect(error).toBeInstanceOf(HardwareWalletError);
       expect(error.code).toBe(ErrorCodeEnum.Unknown);
@@ -177,7 +177,7 @@ describe('createDMKError', () => {
     });
 
     it('creates fallback error for unknown tag with context', () => {
-      const error = createDMKError('SomeUnknownTag', 'while connecting');
+      const error = createDmkError('SomeUnknownTag', 'while connecting');
 
       expect(error.message).toBe(
         'Unknown DMK error: SomeUnknownTag (while connecting)',

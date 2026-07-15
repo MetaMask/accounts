@@ -2,7 +2,7 @@ import {
   DMK_ERROR_MAPPINGS,
   DMK_ERROR_TAG_MAPPINGS,
   DMK_MESSAGE_PATTERNS,
-  getDMKErrorFromTag,
+  getDmkErrorFromTag,
 } from './dmk-error-mappings';
 import type { ErrorMapping } from './hardware-error-mappings';
 import { Category, ErrorCode, Severity } from './hardware-errors-enums';
@@ -164,13 +164,13 @@ describe('DMK_MESSAGE_PATTERNS', () => {
   });
 });
 
-describe('getDMKErrorFromTag', () => {
+describe('getDmkErrorFromTag', () => {
   it('returns DeviceDisconnected for DeviceSessionNotFound tag', () => {
     const error = {
       _tag: 'DeviceSessionNotFound',
       message: 'Session not found',
     };
-    expect(getDMKErrorFromTag(error)).toStrictEqual({
+    expect(getDmkErrorFromTag(error)).toStrictEqual({
       code: ErrorCode.DeviceDisconnected,
       tag: 'DeviceSessionNotFound',
     });
@@ -181,7 +181,7 @@ describe('getDMKErrorFromTag', () => {
       _tag: 'ConnectionOpeningError',
       message: 'Failed to open connection',
     };
-    expect(getDMKErrorFromTag(error)).toStrictEqual({
+    expect(getDmkErrorFromTag(error)).toStrictEqual({
       code: ErrorCode.BluetoothConnectionFailed,
       tag: 'ConnectionOpeningError',
     });
@@ -192,7 +192,7 @@ describe('getDMKErrorFromTag', () => {
       _tag: 'DeviceDisconnectedWhileSendingError',
       message: 'Disconnected',
     };
-    expect(getDMKErrorFromTag(error)).toStrictEqual({
+    expect(getDmkErrorFromTag(error)).toStrictEqual({
       code: ErrorCode.DeviceDisconnected,
       tag: 'DeviceDisconnectedWhileSendingError',
     });
@@ -203,7 +203,7 @@ describe('getDMKErrorFromTag', () => {
       _tag: 'DeviceLockedError',
       message: 'Device is locked',
     };
-    expect(getDMKErrorFromTag(error)).toStrictEqual({
+    expect(getDmkErrorFromTag(error)).toStrictEqual({
       code: ErrorCode.AuthenticationDeviceLocked,
       tag: 'DeviceLockedError',
     });
@@ -214,7 +214,7 @@ describe('getDMKErrorFromTag', () => {
       _tag: 'SessionRefresherError',
       message: 'Session refresh failed',
     };
-    expect(getDMKErrorFromTag(error)).toStrictEqual({
+    expect(getDmkErrorFromTag(error)).toStrictEqual({
       code: ErrorCode.DeviceDisconnected,
       tag: 'SessionRefresherError',
     });
@@ -222,35 +222,35 @@ describe('getDMKErrorFromTag', () => {
 
   it('returns null when _tag is not a recognised DMK tag', () => {
     const error = { _tag: 'SomeUnknownTag', message: 'Unknown' };
-    expect(getDMKErrorFromTag(error)).toBeNull();
+    expect(getDmkErrorFromTag(error)).toBeNull();
   });
 
   it('returns null when _tag is missing', () => {
     const error = { message: 'No tag here' };
-    expect(getDMKErrorFromTag(error)).toBeNull();
+    expect(getDmkErrorFromTag(error)).toBeNull();
   });
 
   it('returns null when _tag is not a string', () => {
     const error = { _tag: 42, message: 'Numeric tag' };
-    expect(getDMKErrorFromTag(error)).toBeNull();
+    expect(getDmkErrorFromTag(error)).toBeNull();
   });
 
   it('returns null for null input', () => {
-    expect(getDMKErrorFromTag(null)).toBeNull();
+    expect(getDmkErrorFromTag(null)).toBeNull();
   });
 
   it('returns null for undefined input', () => {
-    expect(getDMKErrorFromTag(undefined)).toBeNull();
+    expect(getDmkErrorFromTag(undefined)).toBeNull();
   });
 
   it('returns null for primitive input', () => {
-    expect(getDMKErrorFromTag('string error')).toBeNull();
-    expect(getDMKErrorFromTag(42)).toBeNull();
+    expect(getDmkErrorFromTag('string error')).toBeNull();
+    expect(getDmkErrorFromTag(42)).toBeNull();
   });
 
   it('returns null for empty string _tag', () => {
     const error = { _tag: '', message: 'Empty tag' };
-    expect(getDMKErrorFromTag(error)).toBeNull();
+    expect(getDmkErrorFromTag(error)).toBeNull();
   });
 
   it('handles errors with additional properties beyond _tag', () => {
@@ -260,7 +260,7 @@ describe('getDMKErrorFromTag', () => {
       name: 'SomeError',
       stack: 'trace...',
     };
-    expect(getDMKErrorFromTag(error)).toStrictEqual({
+    expect(getDmkErrorFromTag(error)).toStrictEqual({
       code: ErrorCode.AuthenticationDeviceLocked,
       tag: 'DeviceLockedError',
     });

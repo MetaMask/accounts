@@ -148,8 +148,12 @@ describe('LedgerDmkBridge', () => {
     bridge = new LedgerDmkBridge({ transportFactory: mockTransportFactory });
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  afterEach(async () => {
+    // Cancel any pending session-monitoring retry timers before mocks are
+    // reset. With `resetMocks: true`, an orphaned retry would call
+    // `getDeviceSessionState()` after it returns `undefined`, crashing on `.pipe`.
+    await bridge.destroy();
+    jest.useRealTimers();
   });
 
   describe('constructor', () => {
