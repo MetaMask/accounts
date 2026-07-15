@@ -1,8 +1,9 @@
-import { SENSITIVE_REDACTED } from '@metamask/keyring-utils';
 import type { StructError } from '@metamask/superstruct';
 import { assert } from '@metamask/superstruct';
 
 import { PrivateKeyExportedAccountStruct } from './private-key';
+
+const SENSITIVE_REDACTED = '***';
 
 const RAW_PRIVATE_KEY =
   '0xdeadbeef1234567890abcdef1234567890abcdef1234567890abcdef12345678';
