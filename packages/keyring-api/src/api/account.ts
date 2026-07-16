@@ -10,7 +10,6 @@ import { CaipChainIdStruct } from './caip';
  */
 export enum EthAccountType {
   Eoa = 'eip155:eoa',
-  Erc4337 = 'eip155:erc4337',
 }
 
 /**
@@ -62,7 +61,6 @@ export enum AnyAccountType {
  */
 export type KeyringAccountType =
   | `${EthAccountType.Eoa}`
-  | `${EthAccountType.Erc4337}`
   | `${BtcAccountType.P2pkh}`
   | `${BtcAccountType.P2sh}`
   | `${BtcAccountType.P2wpkh}`
@@ -77,7 +75,6 @@ export type KeyringAccountType =
  */
 export const KeyringAccountTypeStruct = enums([
   `${EthAccountType.Eoa}`,
-  `${EthAccountType.Erc4337}`,
   `${BtcAccountType.P2pkh}`,
   `${BtcAccountType.P2sh}`,
   `${BtcAccountType.P2wpkh}`,
@@ -106,7 +103,6 @@ export const KeyringAccountStruct = object({
    */
   type: enums([
     `${EthAccountType.Eoa}`,
-    `${EthAccountType.Erc4337}`,
     `${BtcAccountType.P2pkh}`,
     `${BtcAccountType.P2sh}`,
     `${BtcAccountType.P2wpkh}`,

@@ -2,15 +2,7 @@ import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
 import { TransactionFactory } from '@ethereumjs/tx';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import { EthAccountType, EthMethod, EthScope } from '@metamask/keyring-api';
-import type {
-  EthBaseTransaction,
-  EthBaseUserOperation,
-  EthUserOperation,
-  EthUserOperationPatch,
-  KeyringAccount,
-  KeyringExecutionContext,
-  KeyringRequest,
-} from '@metamask/keyring-api';
+import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import {
   AccountExportType,
   KeyringType,
@@ -43,9 +35,6 @@ const ALL_SUPPORTED_METHODS = [
   EthMethod.SignTypedDataV1,
   EthMethod.SignTypedDataV3,
   EthMethod.SignTypedDataV4,
-  EthMethod.PrepareUserOperation,
-  EthMethod.PatchUserOperation,
-  EthMethod.SignUserOperation,
 ];
 
 type ExportAccount = NonNullable<KeyringV2['exportAccount']>;
@@ -144,38 +133,6 @@ function createTransaction(transactionData: TypedTxData): TypedTransaction {
   return TransactionFactory.fromTxData(transactionData);
 }
 
-function createUserOperation(): EthUserOperation {
-  return {
-    sender: ACCOUNT_ADDRESS,
-    nonce: '0x1',
-    initCode: '0x',
-    callData: '0x1234',
-    callGasLimit: '0x1',
-    verificationGasLimit: '0x2',
-    preVerificationGas: '0x3',
-    maxFeePerGas: '0x4',
-    maxPriorityFeePerGas: '0x5',
-    paymasterAndData: '0x',
-    signature: '0x',
-  };
-}
-
-function createBaseUserOperation(): EthBaseUserOperation {
-  return {
-    nonce: '0x1',
-    initCode: '0x',
-    callData: '0x1234',
-    gasLimits: {
-      callGasLimit: '0x1',
-      verificationGasLimit: '0x2',
-      preVerificationGas: '0x3',
-    },
-    dummyPaymasterAndData: '0x',
-    dummySignature: '0x',
-    bundlerUrl: 'https://bundler.example.com/rpc',
-  };
-}
-
 async function getThrownError(
   action: () => Promise<unknown>,
 ): Promise<unknown> {
@@ -238,9 +195,6 @@ describe('EthKeyringV1Adapter', () => {
     );
     expect(adapter.signPersonalMessage).toStrictEqual(expect.any(Function));
     expect(adapter.signTypedData).toStrictEqual(expect.any(Function));
-    expect(adapter.prepareUserOperation).toStrictEqual(expect.any(Function));
-    expect(adapter.patchUserOperation).toStrictEqual(expect.any(Function));
-    expect(adapter.signUserOperation).toStrictEqual(expect.any(Function));
     expect(
       (adapter as unknown as { getEncryptionPublicKey?: unknown })
         .getEncryptionPublicKey,
@@ -597,144 +551,6 @@ describe('EthKeyringV1Adapter', () => {
 
     await expect(
       adapter.signMessage(ACCOUNT_ADDRESS as Hex, '0xdeadbeef'),
-    ).rejects.toThrow('Expected a value of type');
-  });
-
-  it('submits a user operation preparation request', async () => {
-    const { accounts, adapter, mocks } = setup();
-    const transactions: EthBaseTransaction[] = [
-      {
-        to: OTHER_ACCOUNT_ADDRESS,
-        value: '0x0',
-        data: '0x',
-      },
-      {
-        to: ACCOUNT_ADDRESS,
-        value: '0x1',
-        data: '0x1234',
-      },
-    ];
-    const executionContext: KeyringExecutionContext = { chainId: '0x1' };
-    const baseUserOperation = createBaseUserOperation();
-
-    mocks.submitRequest.mockResolvedValueOnce(
-      baseUserOperation as unknown as Json,
-    );
-    expect(
-      await adapter.prepareUserOperation(
-        ACCOUNT_ADDRESS,
-        transactions,
-        executionContext,
-      ),
-    ).toBe(baseUserOperation);
-    expectLastSubmitRequest(mocks, {
-      account: accounts[0] as KeyringAccount,
-      method: EthMethod.PrepareUserOperation,
-      params: transactions,
-      scope: EthScope.Mainnet,
-    });
-  });
-
-  it('submits a user operation patch request', async () => {
-    const { accounts, adapter, mocks } = setup();
-    const userOperation = {
-      ...createUserOperation(),
-      ignored: undefined,
-    };
-    const executionContext: KeyringExecutionContext = { chainId: '0x1' };
-    const patch: EthUserOperationPatch = {
-      paymasterAndData: '0x1234',
-      callGasLimit: '0x1',
-    };
-
-    mocks.submitRequest.mockResolvedValueOnce(patch as unknown as Json);
-    expect(
-      await adapter.patchUserOperation(
-        ACCOUNT_ADDRESS,
-        userOperation,
-        executionContext,
-      ),
-    ).toBe(patch);
-    expectLastSubmitRequest(mocks, {
-      account: accounts[0] as KeyringAccount,
-      method: EthMethod.PatchUserOperation,
-      params: [createUserOperation()],
-      scope: EthScope.Mainnet,
-    });
-  });
-
-  it('submits a user operation signing request', async () => {
-    const { accounts, adapter, mocks } = setup();
-    const userOperation = createUserOperation();
-    const executionContext: KeyringExecutionContext = { chainId: '0x1' };
-
-    mocks.submitRequest.mockResolvedValueOnce('0x1234');
-    expect(
-      await adapter.signUserOperation(
-        ACCOUNT_ADDRESS,
-        userOperation,
-        executionContext,
-      ),
-    ).toBe('0x1234');
-    expectLastSubmitRequest(mocks, {
-      account: accounts[0] as KeyringAccount,
-      method: EthMethod.SignUserOperation,
-      params: [userOperation],
-      scope: EthScope.Mainnet,
-    });
-  });
-
-  it('throws if a user operation preparation response is invalid', async () => {
-    const { adapter, mocks } = setup();
-    const transactions: EthBaseTransaction[] = [];
-    const executionContext: KeyringExecutionContext = { chainId: '0x1' };
-
-    mocks.submitRequest.mockResolvedValueOnce({
-      ...createBaseUserOperation(),
-      extra: '0x',
-    } as unknown as Json);
-
-    await expect(
-      adapter.prepareUserOperation(
-        ACCOUNT_ADDRESS,
-        transactions,
-        executionContext,
-      ),
-    ).rejects.toThrow('Expected a value of type');
-  });
-
-  it('throws if a user operation patch response is invalid', async () => {
-    const { adapter, mocks } = setup();
-    const userOperation = createUserOperation();
-    const executionContext: KeyringExecutionContext = { chainId: '0x1' };
-
-    mocks.submitRequest.mockResolvedValueOnce({
-      paymasterAndData: '0x1234',
-      extra: '0x',
-    } as unknown as Json);
-
-    await expect(
-      adapter.patchUserOperation(
-        ACCOUNT_ADDRESS,
-        userOperation,
-        executionContext,
-      ),
-    ).rejects.toThrow('Expected a value of type');
-  });
-
-  it('throws if a user operation signing response is invalid', async () => {
-    const { adapter, mocks } = setup();
-    const userOperation = createUserOperation();
-    const executionContext: KeyringExecutionContext = { chainId: '0x1' };
-
-    mocks.submitRequest.mockResolvedValueOnce('not-hex');
-
-    await expect(
-      adapter.signUserOperation(
-        ACCOUNT_ADDRESS,
-        userOperation,
-        executionContext,
-      ),
     ).rejects.toThrow('Expected a value of type');
   });
 });

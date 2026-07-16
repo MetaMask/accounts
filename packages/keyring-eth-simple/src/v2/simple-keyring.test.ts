@@ -1,5 +1,10 @@
 import type { TypedTxData } from '@ethereumjs/tx';
-import { EthAccountType, EthMethod, EthScope } from '@metamask/keyring-api';
+import {
+  BtcAccountType,
+  EthAccountType,
+  EthMethod,
+  EthScope,
+} from '@metamask/keyring-api';
 import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type { AccountId } from '@metamask/keyring-utils';
@@ -235,12 +240,12 @@ describe('SimpleKeyring (v2 wrapper)', () => {
       await expect(
         wrapper.createAccounts({
           type: 'private-key:import',
-          accountType: EthAccountType.Erc4337,
+          accountType: BtcAccountType.P2wpkh,
           encoding: PrivateKeyEncoding.Hexadecimal,
           privateKey: TEST_PRIVATE_KEY_1,
         }),
       ).rejects.toThrow(
-        `Unsupported account type for SimpleKeyring: ${EthAccountType.Erc4337}. Only '${EthAccountType.Eoa}' is supported.`,
+        `Unsupported account type for SimpleKeyring: ${BtcAccountType.P2wpkh}. Only '${EthAccountType.Eoa}' is supported.`,
       );
     });
 

@@ -454,7 +454,6 @@ enum EthMethod {
 
 enum AccountType {
   Eoa = 'eoa',
-  Erc4337 = 'erc4337',
 }
 
 // ❌ WRONG: Plural enum names

@@ -7,19 +7,12 @@ import type {
   BtcMethod,
   CaipChainId,
   ResolvedAccountAddress,
-  KeyringExecutionContext,
-  EthBaseTransaction,
-  EthBaseUserOperation,
-  EthUserOperation,
-  EthUserOperationPatch,
 } from '@metamask/keyring-api';
 import {
   AnyAccountType,
   EthMethod,
   KeyringEvent,
   EthBytesStruct,
-  EthBaseUserOperationStruct,
-  EthUserOperationPatchStruct,
   AccountBalancesUpdatedEventStruct,
   AccountAssetListUpdatedEventStruct,
   AccountTransactionsUpdatedEventStruct,
@@ -663,85 +656,6 @@ export class SnapKeyringV1 {
         params: toJson<Json[]>([data, address]),
         scope: '',
         noPending: false,
-      }),
-      EthBytesStruct,
-    );
-  }
-
-  /**
-   * Convert a base transaction to a base UserOperation.
-   *
-   * @param account - The account to prepare the user operation for.
-   * @param transactions - Base transactions to include in the UserOperation.
-   * @param context - Keyring execution context.
-   * @returns A pseudo-UserOperation that can be used to construct a real one.
-   */
-  async prepareUserOperation(
-    account: KeyringAccount,
-    transactions: EthBaseTransaction[],
-    context: KeyringExecutionContext,
-  ): Promise<EthBaseUserOperation> {
-    return strictMask(
-      await this.submitSnapRequest({
-        origin: 'metamask',
-        account,
-        method: EthMethod.PrepareUserOperation,
-        params: toJson<Json[]>(transactions),
-        noPending: true,
-        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
-      }),
-      EthBaseUserOperationStruct,
-    );
-  }
-
-  /**
-   * Patches properties of a UserOperation. Currently, only the
-   * `paymasterAndData` can be patched.
-   *
-   * @param account - The account to patch the user operation for.
-   * @param userOp - UserOperation to patch.
-   * @param context - Keyring execution context.
-   * @returns A patch to apply to the UserOperation.
-   */
-  async patchUserOperation(
-    account: KeyringAccount,
-    userOp: EthUserOperation,
-    context: KeyringExecutionContext,
-  ): Promise<EthUserOperationPatch> {
-    return strictMask(
-      await this.submitSnapRequest({
-        origin: 'metamask',
-        account,
-        method: EthMethod.PatchUserOperation,
-        params: toJson<Json[]>([userOp]),
-        noPending: true,
-        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
-      }),
-      EthUserOperationPatchStruct,
-    );
-  }
-
-  /**
-   * Signs a UserOperation.
-   *
-   * @param account - The account to sign the user operation for.
-   * @param userOp - UserOperation to sign.
-   * @param context - Keyring execution context.
-   * @returns A promise that resolves to the signature.
-   */
-  async signUserOperation(
-    account: KeyringAccount,
-    userOp: EthUserOperation,
-    context: KeyringExecutionContext,
-  ): Promise<string> {
-    return strictMask(
-      await this.submitSnapRequest({
-        origin: 'metamask',
-        account,
-        method: EthMethod.SignUserOperation,
-        params: toJson<Json[]>([userOp]),
-        noPending: false,
-        scope: toCaipChainId(KnownCaipNamespace.Eip155, context.chainId),
       }),
       EthBytesStruct,
     );

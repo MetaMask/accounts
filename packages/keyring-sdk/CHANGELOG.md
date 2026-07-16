@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/keyring-api` from `^23.2.0` to `^23.5.0` ([#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587))
 
+### Removed
+
+- **BREAKING:** Removed ERC-4337 (account abstraction) support ([#588](https://github.com/MetaMask/accounts/pull/588))
+  - Removed `Eth4337Keyring` type from exports.
+  - Removed `prepareUserOperation`, `patchUserOperation`, and `signUserOperation` methods from `EthKeyringV1Adapter` and the `BaseEthKeyring` type.
+
 ## [2.2.0]
 
 ### Added

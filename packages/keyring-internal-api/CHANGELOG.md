@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **BREAKING:** Removed ERC-4337 (account abstraction) support ([#588](https://github.com/MetaMask/accounts/pull/588))
+  - Removed exported `EthKeyring` type (which held the three ERC-4337 userOperation methods).
+  - Removed `InternalEthErc4337AccountStruct` and `InternalEthErc4337Account` types.
+  - Removed `EthAccountType.Erc4337` entry from `InternalAccountStructs` and `InternalAccountTypes`.
+
 ### Changed
 
 - Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))

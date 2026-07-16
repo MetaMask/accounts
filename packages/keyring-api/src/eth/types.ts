@@ -3,12 +3,8 @@ import { nonempty, array, enums, literal, object } from '@metamask/superstruct';
 import { definePattern } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
-import {
-  CaipChainIdStruct,
-  EthAccountType,
-  KeyringAccountStruct,
-} from '../api';
-import { EthScope } from './constants';
+import { EthScope } from '.';
+import { EthAccountType, KeyringAccountStruct } from '../api';
 
 const ETH_BYTES_REGEX = /^0x[0-9a-f]*$/iu;
 export const EthBytesStruct = definePattern('EthBytes', ETH_BYTES_REGEX);
@@ -42,10 +38,6 @@ export enum EthMethod {
   SignTypedDataV1 = 'eth_signTypedData_v1',
   SignTypedDataV3 = 'eth_signTypedData_v3',
   SignTypedDataV4 = 'eth_signTypedData_v4',
-  // ERC-4337 methods
-  PrepareUserOperation = 'eth_prepareUserOperation',
-  PatchUserOperation = 'eth_patchUserOperation',
-  SignUserOperation = 'eth_signUserOperation',
 }
 
 export const EthEoaAccountStruct = object({
@@ -82,40 +74,3 @@ export const EthEoaAccountStruct = object({
 });
 
 export type EthEoaAccount = Infer<typeof EthEoaAccountStruct>;
-
-export const EthErc4337AccountStruct = object({
-  ...KeyringAccountStruct.schema,
-
-  /**
-   * Account address.
-   */
-  address: EthAddressStruct,
-
-  /**
-   * Account type.
-   */
-  type: literal(`${EthAccountType.Erc4337}`),
-
-  /**
-   * Account supported scopes (CAIP-2 chain IDs).
-   */
-  scopes: nonempty(array(CaipChainIdStruct)),
-
-  /**
-   * Account supported methods.
-   */
-  methods: array(
-    enums([
-      `${EthMethod.PersonalSign}`,
-      `${EthMethod.Sign}`,
-      `${EthMethod.SignTypedDataV1}`,
-      `${EthMethod.SignTypedDataV3}`,
-      `${EthMethod.SignTypedDataV4}`,
-      `${EthMethod.PrepareUserOperation}`,
-      `${EthMethod.PatchUserOperation}`,
-      `${EthMethod.SignUserOperation}`,
-    ]),
-  ),
-});
-
-export type EthErc4337Account = Infer<typeof EthErc4337AccountStruct>;
