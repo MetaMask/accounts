@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [12.4.0]
+
 ### Added
 
 - Add `createDmkError` factory function and wire DMK `_tag` resolution into the Ledger DMK bridge ([#597](https://github.com/MetaMask/accounts/pull/597))
@@ -16,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/hw-wallet-sdk` from `^0.10.0` to `^0.11.0` ([#597](https://github.com/MetaMask/accounts/pull/597))
+- Bump `@metamask/hw-wallet-sdk` from `^0.10.0` to `^0.11.0` ([#597](https://github.com/MetaMask/accounts/pull/597), [#599](https://github.com/MetaMask/accounts/pull/599))
 
 ## [12.3.0]
 
@@ -478,7 +480,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.3.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.4.0...HEAD
+[12.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.3.0...@metamask/eth-ledger-bridge-keyring@12.4.0
 [12.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.2.0...@metamask/eth-ledger-bridge-keyring@12.3.0
 [12.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.1.0...@metamask/eth-ledger-bridge-keyring@12.2.0
 [12.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.0.3...@metamask/eth-ledger-bridge-keyring@12.1.0
