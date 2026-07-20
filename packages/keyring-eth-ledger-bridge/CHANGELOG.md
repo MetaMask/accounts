@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- release: 118.0.0 ([#592](https://github.com/MetaMask/accounts/pull/592))
+
 ### Added
 
 - Add `createDmkError` factory function and wire DMK `_tag` resolution into the Ledger DMK bridge ([#597](https://github.com/MetaMask/accounts/pull/597))
@@ -147,7 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Increase ledger iframe timeout interval ([#314](https://github.com/MetaMask/accounts.git/pull/314))
+- Increase ledger iframe timeout interval ([#314](https://github.com/MetaMask/accounts/pull/314))
 
 ## [11.1.1]
 
@@ -365,7 +369,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **BREAKING**: `IFrameMessageResponse` now has more restrictive typings (#207) ([#207](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/207))
+- **BREAKING**: `IFrameMessageResponse` now has more restrictive typings([#207](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/207)) ([#207](https://github.com/MetaMask/accounts/pull/207))
 
 ## [2.0.1]
 
