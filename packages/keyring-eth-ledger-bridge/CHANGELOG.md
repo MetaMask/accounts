@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `@metamask/hw-wallet-sdk` from `^0.10.0` to `^0.11.0` ([#597](https://github.com/MetaMask/accounts/pull/597))
+- Bump `@metamask/hw-wallet-sdk` from `^0.10.0` to `^0.11.0` ([#597](https://github.com/MetaMask/accounts/pull/597), [#599](https://github.com/MetaMask/accounts/pull/599))
 
 ## [12.3.0]
 
