@@ -16,14 +16,20 @@ const VALID_OPTIONS = {
 
 describe('CreateAccountPrivateKeyOptionsStruct', () => {
   it('accepts a valid options object', () => {
-    expect(() => assert(VALID_OPTIONS, CreateAccountPrivateKeyOptionsStruct)).not.toThrow();
+    expect(() =>
+      assert(VALID_OPTIONS, CreateAccountPrivateKeyOptionsStruct),
+    ).not.toThrow();
   });
 
   it('redacts the private key value from the error when `privateKey` is invalid', () => {
     let error: StructError | undefined;
     try {
       assert(
-        { type: 'private-key:import', privateKey: 123, encoding: 'hexadecimal' },
+        {
+          type: 'private-key:import',
+          privateKey: 123,
+          encoding: 'hexadecimal',
+        },
         CreateAccountPrivateKeyOptionsStruct,
       );
     } catch (caughtError) {
