@@ -11,7 +11,7 @@ jobs:
       matrix:
         node-version: [22.x]
         script:
-          - lint
+          - lint:ci
           - constraints
     steps:
       - name: Checkout and setup environment
