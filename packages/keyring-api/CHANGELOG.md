@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
+- Use `sensitive` struct for `privateKey` in `PrivateKeyExportedAccountStruct` ([#577](https://github.com/MetaMask/accounts/pull/577))
+  - This ensures the private key value is always redacted in case of validation errors.
+- Bump `@metamask/superstruct` from `^3.3.0` to `^3.4.0` ([#577](https://github.com/MetaMask/accounts/pull/577))
 
 ## [23.5.0]
 

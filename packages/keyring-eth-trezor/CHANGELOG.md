@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
+- Bump `@metamask/hw-wallet-sdk` from `^0.10.0` to `^0.11.0` ([#599](https://github.com/MetaMask/accounts/pull/599))
 
 ## [10.1.1]
 

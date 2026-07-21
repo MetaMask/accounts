@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
 
+## [0.11.0]
+
+### Added
+
+- Add `DMK_ERROR_TAG_MAPPINGS`, `DMK_MESSAGE_PATTERNS`, and `getDmkErrorFromTag` for parsing Ledger Device Management Kit (DMK) errors by their non-standard `_tag` property ([#597](https://github.com/MetaMask/accounts/pull/597))
+  - Add `DMK_ERROR_MAPPINGS` providing full `ErrorMapping` details (severity, category, userMessage) for each DMK `_tag`
+
 ## [0.10.0]
 
 ### Added
@@ -80,7 +87,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add hardware related error mappings and custom hardware error ([#421](https://github.com/MetaMask/accounts/pull/421))
 - Add BLE and mobile error mappings with new error codes for Bluetooth permissions, connection states, and mobile support ([#433](https://github.com/MetaMask/accounts/pull/433))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.10.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.11.0...HEAD
+[0.11.0]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.10.0...@metamask/hw-wallet-sdk@0.11.0
 [0.10.0]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.8.0...@metamask/hw-wallet-sdk@0.10.0
 [0.8.0]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.7.0...@metamask/hw-wallet-sdk@0.8.0
 [0.7.0]: https://github.com/MetaMask/accounts/compare/@metamask/hw-wallet-sdk@0.6.0...@metamask/hw-wallet-sdk@0.7.0

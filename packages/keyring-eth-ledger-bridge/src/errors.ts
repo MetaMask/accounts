@@ -4,6 +4,7 @@ import {
   Severity,
   Category,
   HardwareWalletError,
+  DMK_ERROR_MAPPINGS,
   LEDGER_ERROR_MAPPINGS,
   KEYRING_ERROR_MAPPINGS,
 } from '@metamask/hw-wallet-sdk';
@@ -90,6 +91,51 @@ export function createKeyringStateError(code: ErrorCode): HardwareWalletError {
   }
 
   const fallbackMessage = `Unknown Ledger keyring error: ${code}`;
+
+  return new HardwareWalletError(fallbackMessage, {
+    code: ErrorCode.Unknown,
+    severity: Severity.Err,
+    category: Category.Unknown,
+    userMessage: fallbackMessage,
+  });
+}
+
+/**
+ * Factory function to create a HardwareWalletError from a DMK (Device
+ * Management Kit) error `_tag`.
+ *
+ * Looks up the tag in {@link DMK_ERROR_MAPPINGS} to resolve the full error
+ * details (code, message, severity, category, userMessage).
+ *
+ * @param tag - The DMK `_tag` string (e.g. `'DeviceSessionNotFound'`,
+ * `'DeviceLockedError'`).
+ * @param context - Optional additional context to append to the error message.
+ * @returns A HardwareWalletError instance with mapped error details, or a
+ * fallback error if the tag is not recognised.
+ */
+export function createDmkError(
+  tag: string,
+  context?: string,
+): HardwareWalletError {
+  const errorMapping = DMK_ERROR_MAPPINGS[tag];
+
+  if (errorMapping) {
+    const message = context
+      ? `${errorMapping.message} (${context})`
+      : errorMapping.message;
+
+    return new HardwareWalletError(message, {
+      code: errorMapping.code,
+      severity: errorMapping.severity,
+      category: errorMapping.category,
+      userMessage: errorMapping.userMessage ?? message,
+    });
+  }
+
+  // Fallback for unknown DMK tags
+  const fallbackMessage = context
+    ? `Unknown DMK error: ${tag} (${context})`
+    : `Unknown DMK error: ${tag}`;
 
   return new HardwareWalletError(fallbackMessage, {
     code: ErrorCode.Unknown,
