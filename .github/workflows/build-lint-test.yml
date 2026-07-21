@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [24.x]
         script:
           - lint:ci
           - constraints
@@ -18,6 +18,7 @@ jobs:
         uses: MetaMask/action-checkout-and-setup@v1
         with:
           is-high-risk-environment: true
+          node-version: ${{ matrix.node-version }}
       - name: Run yarn ${{ matrix.script }}
         run: yarn "$SCRIPT"
         env:
@@ -38,6 +39,7 @@ jobs:
         uses: MetaMask/action-checkout-and-setup@v1
         with:
           is-high-risk-environment: true
+          node-version: 24.x
       - run: yarn workspaces foreach --all --no-private --parallel run changelog:validate
       - name: Require clean working directory
         shell: bash
@@ -52,12 +54,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [24.x]
     steps:
       - name: Checkout and setup environment
         uses: MetaMask/action-checkout-and-setup@v1
         with:
           is-high-risk-environment: true
+          node-version: ${{ matrix.node-version }}
       - run: yarn build
       - name: Require clean working directory
         shell: bash
@@ -78,6 +81,7 @@ jobs:
         uses: MetaMask/action-checkout-and-setup@v1
         with:
           is-high-risk-environment: true
+          node-version: ${{ matrix.node-version }}
       - run: yarn build
       - run: yarn test
       - name: Require clean working directory
