@@ -19,10 +19,26 @@ expectNotAssignable<Balance>({ amount: '1.0', unit: undefined });
 expectNotAssignable<Balance>({ amount: '1.0', unit: null });
 
 // metadata is optional and accepts arbitrary JSON-compatible key/value pairs
-expectAssignable<Balance>({ amount: '1.0', unit: 'ETH', metadata: { foo: 'bar' } });
-expectAssignable<Balance>({ amount: '1.0', unit: 'ETH', metadata: { count: 42, flag: true } });
-expectAssignable<Balance>({ amount: '1.0', unit: 'ETH', metadata: { nested: { x: 1 } } });
+expectAssignable<Balance>({
+  amount: '1.0',
+  unit: 'ETH',
+  metadata: { foo: 'bar' },
+});
+expectAssignable<Balance>({
+  amount: '1.0',
+  unit: 'ETH',
+  metadata: { count: 42, flag: true },
+});
+expectAssignable<Balance>({
+  amount: '1.0',
+  unit: 'ETH',
+  metadata: { nested: { x: 1 } },
+});
 expectAssignable<Balance>({ amount: '1.0', unit: 'ETH' });
 
-expectNotAssignable<Balance>({ amount: '1.0', unit: 'ETH', metadata: 'string' });
+expectNotAssignable<Balance>({
+  amount: '1.0',
+  unit: 'ETH',
+  metadata: 'string',
+});
 expectNotAssignable<Balance>({ amount: '1.0', unit: 'ETH', metadata: 42 });
