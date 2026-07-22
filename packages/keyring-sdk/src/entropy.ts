@@ -56,6 +56,18 @@ export type Entropy = {
 };
 
 /**
+ * Narrows a string type to a valid {@link EntropyId}.
+ *
+ * Resolves to `T & EntropyId` when `T` is structurally compatible with
+ * {@link EntropyId}, and collapses to `never` otherwise — surfacing
+ * incompatibilities at compile time.
+ *
+ * @example
+ * type Bip44MnemonicEntropyId = AsEntropyId<`entropy:bip44:mnemonic:${string}`>;
+ */
+export type AsEntropyId<T extends string> = T & EntropyId;
+
+/**
  * Computes a deterministic, non-reversible fingerprint for a piece of entropy.
  *
  * The fingerprint is a UUID v4 seeded from the first 16 bytes of
