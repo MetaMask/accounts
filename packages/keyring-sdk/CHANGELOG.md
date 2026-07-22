@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add new entropy support ([#603](https://github.com/MetaMask/accounts/pull/603))
+- Add `AsEntropyId` type helper ([#602](https://github.com/MetaMask/accounts/pull/602))
 
 ## [2.3.0]
 
