@@ -19,6 +19,25 @@ describe('BalanceStruct', () => {
     { balance: { amount: '1.0', unit: 1 }, expected: false },
     { balance: { amount: '1.0', unit: true }, expected: false },
     { balance: { amount: '1.0', unit: null }, expected: false },
+    // With metadata
+    {
+      balance: { amount: '1.0', unit: 'ETH', metadata: { foo: 'bar' } },
+      expected: true,
+    },
+    {
+      balance: {
+        amount: '1.0',
+        unit: 'ETH',
+        metadata: { count: 42, flag: true, nested: { x: 1 } },
+      },
+      expected: true,
+    },
+    // Without metadata (optional — key must be absent, not explicitly undefined)
+    { balance: { amount: '1.0', unit: 'ETH', metadata: undefined }, expected: false },
+    // Invalid metadata values
+    { balance: { amount: '1.0', unit: 'ETH', metadata: 'string' }, expected: false },
+    { balance: { amount: '1.0', unit: 'ETH', metadata: 42 }, expected: false },
+    { balance: { amount: '1.0', unit: 'ETH', metadata: { key: undefined } }, expected: false },
   ])(
     'returns $expected for is($balance, BalanceStruct)',
     ({ balance, expected }) => {
