@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0]
+
 ### Changed
 
 - Bump `@metamask/superstruct` from `^3.3.0` to `^3.4.0` ([#577](https://github.com/MetaMask/accounts/pull/577))
@@ -143,7 +145,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.3.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@4.0.0...HEAD
+[4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.3.1...@metamask/keyring-utils@4.0.0
 [3.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.3.0...@metamask/keyring-utils@3.3.1
 [3.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.2.0...@metamask/keyring-utils@3.3.0
 [3.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-utils@3.1.0...@metamask/keyring-utils@3.2.0

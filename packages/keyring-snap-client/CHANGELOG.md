@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.2.1]
+
 ### Changed
 
 - Bump `@metamask/superstruct` from `^3.3.0` to `^3.4.0` ([#577](https://github.com/MetaMask/accounts/pull/577))
@@ -210,7 +212,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@9.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@9.2.1...HEAD
+[9.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@9.2.0...@metamask/keyring-snap-client@9.2.1
 [9.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@9.1.0...@metamask/keyring-snap-client@9.2.0
 [9.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@9.0.2...@metamask/keyring-snap-client@9.1.0
 [9.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-client@9.0.1...@metamask/keyring-snap-client@9.0.2

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [23.6.0]
+
 ### Added
 
 - Add support for `base32` private key encoding in `exportAccount` ([#589](https://github.com/MetaMask/accounts/pull/589))
@@ -802,7 +804,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.5.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.6.0...HEAD
+[23.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.5.0...@metamask/keyring-api@23.6.0
 [23.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.4.0...@metamask/keyring-api@23.5.0
 [23.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.3.0...@metamask/keyring-api@23.4.0
 [23.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.2.0...@metamask/keyring-api@23.3.0

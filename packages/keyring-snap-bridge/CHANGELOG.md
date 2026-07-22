@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [23.0.2]
+
 ### Changed
 
 - Bump `@metamask/superstruct` from `^3.3.0` to `^3.4.0` ([#577](https://github.com/MetaMask/accounts/pull/577))
@@ -780,7 +782,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.2...HEAD
+[23.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.1...@metamask/eth-snap-keyring@23.0.2
 [23.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.0...@metamask/eth-snap-keyring@23.0.1
 [23.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.4.0...@metamask/eth-snap-keyring@23.0.0
 [22.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.3.0...@metamask/eth-snap-keyring@22.4.0

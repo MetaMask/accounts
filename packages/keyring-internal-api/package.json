@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-internal-api",
-  "version": "11.0.1",
+  "version": "11.0.2",
   "description": "MetaMask Keyring Internal API",
   "keywords": [
     "keyring",
@@ -55,8 +55,8 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-api": "^23.5.0",
-    "@metamask/keyring-utils": "^3.3.1",
+    "@metamask/keyring-api": "^23.6.0",
+    "@metamask/keyring-utils": "^4.0.0",
     "@metamask/superstruct": "^3.4.1"
   },
   "devDependencies": {
