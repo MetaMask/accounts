@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** Rename (v2) `HdKeyring.entropySource` to `HdKeyring.legacyEntropySource` ([#602](https://github.com/MetaMask/accounts/pull/602))
+  - The (v2) `HdKeyring.entropySource` readonly property is now using the new `EntropyId` type.
+- Make (v2) `HdKeyring.legacyEntropySource` public ([#602](https://github.com/MetaMask/accounts/pull/602))
+  - The old (v2) `HdKeyring.entropySource` has now been moved into `HdKeyring.legacyEntropySource`.
+
 ## [14.1.2]
 
 ### Changed
