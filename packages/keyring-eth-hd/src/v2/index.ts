@@ -1,4 +1,1 @@
-export {
-  HdKeyring,
-  type HdKeyringOptions,
-} from './hd-keyring';
+export { HdKeyring, type HdKeyringOptions } from './hd-keyring';

@@ -65,7 +65,7 @@ export type Entropy = {
  * @example
  * type Bip44MnemonicEntropyId = AsEntropyId<`entropy:bip44:mnemonic:${string}`>;
  */
-export type AsEntropyId<T extends string> = T & EntropyId;
+export type AsEntropyId<TEntropyId extends string> = TEntropyId & EntropyId;
 
 /**
  * Computes a deterministic, non-reversible fingerprint for a piece of entropy.
