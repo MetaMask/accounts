@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [23.6.0]
+
 ### Added
 
 - Add support for `base32` private key encoding in `exportAccount` ([#589](https://github.com/MetaMask/accounts/pull/589))
@@ -15,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use `sensitive` struct for `privateKey` in `PrivateKeyExportedAccountStruct` ([#577](https://github.com/MetaMask/accounts/pull/577))
   - This ensures the private key value is always redacted in case of validation errors.
-- Bump `@metamask/superstruct` from `^3.3.0` to `^3.4.0` ([#577](https://github.com/MetaMask/accounts/pull/577))
+- Bump `@metamask/superstruct` from `^3.1.0` to `^3.4.1` ([#580](https://github.com/MetaMask/accounts/pull/580)), ([#577](https://github.com/MetaMask/accounts/pull/577))
+- Bump `@metamask/keyring-utils` from `^3.3.1` to `^4.0.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
 
 ## [23.5.0]
 
@@ -802,7 +805,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.5.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.6.0...HEAD
+[23.6.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.5.0...@metamask/keyring-api@23.6.0
 [23.5.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.4.0...@metamask/keyring-api@23.5.0
 [23.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.3.0...@metamask/keyring-api@23.4.0
 [23.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.2.0...@metamask/keyring-api@23.3.0
