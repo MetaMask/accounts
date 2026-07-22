@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [10.0.6]
 
+### Changed
+
+- Bump `@metamask/keyring-api` from `^23.5.0` to `^23.6.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-internal-api` from `^11.0.1` to `^11.0.2` ([#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-snap-client` from `^9.2.0` to `^9.2.1` ([#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-utils` from `^3.3.1` to `^4.0.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
+
 ## [10.0.5]
 
 ### Changed
