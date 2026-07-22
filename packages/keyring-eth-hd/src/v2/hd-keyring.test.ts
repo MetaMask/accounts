@@ -10,7 +10,8 @@ import { HdKeyring } from './hd-keyring';
 
 const TEST_MNEMONIC =
   'test test test test test test test test test test test junk';
-const TEST_ENTROPY_SOURCE_ID = 'test-entropy-source-id';
+const TEST_ENTROPY_SOURCE_ID =
+  'entropy:bip44:mnemonic:25bbc7e9-95f1-4198-95da-c6d1143da596';
 
 /**
  * Helper function to create a minimal KeyringRequest for testing.
@@ -90,6 +91,19 @@ describe('HdKeyring (v2 wrapper)', () => {
     it('exposes hdPath from the inner keyring', () => {
       expect(wrapper.hdPath).toBe(inner.hdPath);
       expect(wrapper.hdPath).toBe("m/44'/60'/0'/0");
+    });
+
+    it('returns undefined for legacyEntropySource when not provided', () => {
+      expect(wrapper.legacyEntropySource).toBeUndefined();
+    });
+
+    it('exposes legacyEntropySource when provided', () => {
+      const legacy = new HdKeyring({
+        legacyKeyring: inner,
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        legacyEntropySource: 'old-keyring-id',
+      });
+      expect(legacy.legacyEntropySource).toBe('old-keyring-id');
     });
 
     it('returns null for mnemonic/seed/root before deserialization', () => {

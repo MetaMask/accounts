@@ -5,7 +5,8 @@ import {
   EthScope,
   KeyringAccountEntropyTypeOption,
 } from '@metamask/keyring-api';
-import type { KeyringAccount, EntropySourceId } from '@metamask/keyring-api';
+import type { EntropyId } from '@metamask/keyring-sdk';
+import type { KeyringAccount } from '@metamask/keyring-api';
 import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type {
   CreateAccountOptions,
@@ -49,6 +50,18 @@ const hdKeyringCapabilities: KeyringCapabilities = {
 };
 
 /**
+ * Entropy source ID for an HD (BIP-44 mnemonic) keyring, in the canonical
+ * `entropy:bip44:mnemonic:<uuid>` format defined by the entropy fingerprint ADR.
+ */
+export type HdEntropySourceId = `entropy:bip44:mnemonic:${string}`;
+
+/**
+ * Entropy source ID used before fingerprint-based IDs were introduced.
+ * Corresponds to the legacy keyring ID stored by `KeyringController`.
+ */
+export type LegacyEntropySourceId = string;
+
+/**
  * Concrete {@link Keyring} adapter for {@link HdKeyring}.
  *
  * This wrapper exposes the accounts and signing capabilities of the legacy
@@ -56,14 +69,21 @@ const hdKeyringCapabilities: KeyringCapabilities = {
  */
 export type HdKeyringOptions = {
   legacyKeyring: LegacyHdKeyring;
-  entropySource: EntropySourceId;
+  entropySource: EntropyId;
+  /**
+   * The keyring ID used before fingerprint-based entropy IDs were introduced.
+   * Present only during the migration period; omit for newly created keyrings.
+   */
+  legacyEntropySource?: LegacyEntropySourceId;
 };
 
 export class HdKeyring
   extends EthKeyringWrapper<LegacyHdKeyring, Bip44Account<KeyringAccount>>
   implements Keyring
 {
-  protected readonly entropySource: EntropySourceId;
+  readonly entropySource: HdEntropySourceId;
+
+  readonly legacyEntropySource: LegacyEntropySourceId | undefined;
 
   constructor(options: HdKeyringOptions) {
     super({
@@ -72,6 +92,7 @@ export class HdKeyring
       capabilities: hdKeyringCapabilities,
     });
     this.entropySource = options.entropySource;
+    this.legacyEntropySource = options.legacyEntropySource;
   }
 
   /**

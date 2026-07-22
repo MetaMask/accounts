@@ -1,1 +1,6 @@
-export { HdKeyring, type HdKeyringOptions } from './hd-keyring';
+export {
+  HdKeyring,
+  type HdKeyringOptions,
+  type HdEntropySourceId,
+  type LegacyEntropySourceId,
+} from './hd-keyring';
