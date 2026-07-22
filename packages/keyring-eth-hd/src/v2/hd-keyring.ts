@@ -5,7 +5,6 @@ import {
   EthScope,
   KeyringAccountEntropyTypeOption,
 } from '@metamask/keyring-api';
-import type { AsEntropyId } from '@metamask/keyring-sdk';
 import type { KeyringAccount } from '@metamask/keyring-api';
 import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type {
@@ -15,6 +14,7 @@ import type {
   KeyringCapabilities,
   Keyring,
 } from '@metamask/keyring-api/v2';
+import type { AsEntropyId } from '@metamask/keyring-sdk';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import { add0x } from '@metamask/utils';
@@ -53,7 +53,8 @@ const hdKeyringCapabilities: KeyringCapabilities = {
  * Entropy source ID for an HD (BIP-44 mnemonic) keyring, in the canonical
  * `entropy:bip44:mnemonic:<uuid>` format defined by the entropy fingerprint ADR.
  */
-export type Bip44MnemonicEntropyId = AsEntropyId<`entropy:bip44:mnemonic:${string}`>;
+export type Bip44MnemonicEntropyId =
+  AsEntropyId<`entropy:bip44:mnemonic:${string}`>;
 
 /**
  * Entropy source ID used before fingerprint-based IDs were introduced.
