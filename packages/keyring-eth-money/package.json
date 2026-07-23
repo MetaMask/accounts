@@ -67,7 +67,7 @@
   },
   "dependencies": {
     "@metamask/eth-hd-keyring": "^14.1.2",
-    "@metamask/keyring-api": "^23.6.0",
+    "@metamask/keyring-api": "^23.7.0",
     "@metamask/keyring-sdk": "^2.3.0",
     "@metamask/keyring-utils": "^4.0.0",
     "@metamask/superstruct": "^3.4.1",
