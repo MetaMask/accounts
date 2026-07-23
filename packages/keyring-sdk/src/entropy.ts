@@ -1,22 +1,11 @@
 import { hmac } from '@noble/hashes/hmac';
-import { sha256 } from '@noble/hashes/sha256';
-import { bytesToHex } from '@noble/hashes/utils';
+import { sha256 } from '@noble/hashes/sha2';
 import { v4 as uuid } from 'uuid';
 
 /**
- * The category of an entropy source.
- *
- * - `'bip44'` — Entropy that uses BIP-44 to derive signers (e.g. SRP, hardware
- *   wallets).
- * - `'raw'` — Entropy that exposes a single key directly, without derivation
- *   (e.g. imported private keys, MPC).
+ * The type of an entropy source.
  */
-export type EntropyCategory = 'bip44' | 'raw';
-
-/**
- * The implementation of an entropy source within its category.
- */
-export type EntropyImplementation =
+export type EntropySourceType =
   | 'mnemonic'
   | 'ledger'
   | 'trezor'
@@ -24,36 +13,14 @@ export type EntropyImplementation =
   | 'mpc';
 
 /**
- * The type of an entropy source, expressed as `category:implementation`.
- *
- * @example `'bip44:mnemonic'`, `'bip44:ledger'`, `'raw:private-key'`, `'raw:mpc'`
- */
-export type EntropyType = `${EntropyCategory}:${EntropyImplementation}`;
-
-/**
  * Unique identifier for an entropy source.
  *
- * Format: `entropy:{category}:{implementation}:{uuid}` where the UUID is a
- * deterministic fingerprint of the underlying secret, or `'_'` for hardware
- * wallets whose secret never leaves the device.
+ * Format: `entropy:{type}:{uuid}` where the UUID is a
+ * deterministic fingerprint of the underlying secret, or `'_'` for entropies
+ * that cannot be uniquely identified.
  */
-export type EntropyId =
-  `entropy:${EntropyCategory}:${EntropyImplementation}:${string}`;
-
-/**
- * Represents a source of entropy.
- */
-export type Entropy = {
-  /**
-   * The unique identifier for this entropy source.
-   */
-  id: EntropyId;
-
-  /**
-   * The type of this entropy source.
-   */
-  type: EntropyType;
-};
+export type EntropySourceId =
+  `entropy:${EntropySourceType}:${string}`;
 
 /**
  * Computes a deterministic, non-reversible fingerprint for a piece of entropy.
@@ -76,40 +43,23 @@ export async function fingerprint(material: Uint8Array): Promise<string> {
 }
 
 /**
- * Computes a deterministic, non-reversible hex fingerprint for a piece of
- * entropy. Suitable for comparison and auditing.
+ * Computes a stable {@link EntropySourceId} for an entropy source.
  *
- * @param material - The raw entropy bytes.
- * @returns The lowercase hex-encoded 32-byte HMAC-SHA256 digest.
- */
-export async function toEntropyFingerprint(
-  material: Uint8Array,
-): Promise<string> {
-  const message = new TextEncoder().encode('metamask:fingerprint');
-  const digest = hmac(sha256, material, message);
-  return bytesToHex(digest);
-}
-
-/**
- * Computes a stable {@link EntropyId} for an entropy source.
- *
- * The ID is formatted as `entropy:{category}:{implementation}:{uuid}`, where
+ * The ID is formatted as `entropy:{type}:{uuid}`, where
  * the UUID segment is the {@link fingerprint} of `material` when provided, or
  * `'_'` for entropy sources whose secret never leaves the device (e.g. hardware
  * wallets).
  *
- * @param category - The entropy category (e.g. `'bip44'`, `'raw'`).
- * @param implementation - The entropy implementation (e.g. `'mnemonic'`,
+ * @param type - The entropy source type (e.g. `'mnemonic'`,
  * `'ledger'`, `'private-key'`).
  * @param material - The raw entropy bytes. Omit for hardware wallets or any
  * entropy source where the secret is not directly accessible.
- * @returns A stable {@link EntropyId} string.
+ * @returns A stable {@link EntropySourceId} string.
  */
-export async function toEntropyId(
-  category: EntropyCategory,
-  implementation: EntropyImplementation,
+export async function toEntropySourceId(
+  type: EntropySourceType,
   material?: Uint8Array,
-): Promise<EntropyId> {
-  const uuidSegment = material ? await fingerprint(material) : '_';
-  return `entropy:${category}:${implementation}:${uuidSegment}`;
+): Promise<EntropySourceId> {
+  const entropyFingerprint = material ? await fingerprint(material) : '_';
+  return `entropy:${type}:${entropyFingerprint}`;
 }
