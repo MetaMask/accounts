@@ -27,16 +27,15 @@ export type EntropySourceId = `entropy:${EntropySourceType}:${string}`;
  * The fingerprint is a UUID v4 seeded from the first 16 bytes of
  * `HMAC-SHA256(key=material, msg='metamask:fingerprint')`.
  *
- * `@noble/hashes` is synchronous today, but the async signature is kept as a
- * forward-compatible seam: a future migration to the Web Crypto API (or any
- * other async primitive) won't require changes at every call site.
- *
  * @param material - The raw entropy bytes (e.g. BIP-39 mnemonic bytes).
  * @returns A deterministic UUID v4 string that uniquely identifies the entropy
  * without exposing it.
  */
 export async function fingerprint(material: Uint8Array): Promise<string> {
   const message = new TextEncoder().encode('metamask:fingerprint');
+ // `@noble/hashes` is synchronous today, but the async signature is kept as a
+ // forward-compatible seam: a future migration to the Web Crypto API (or any
+ // other async primitive) won't require changes at every call site.
   const digest = hmac(sha256, material, message);
   return uuid({ random: digest.slice(0, 16) });
 }
