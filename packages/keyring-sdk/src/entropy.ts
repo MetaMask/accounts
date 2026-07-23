@@ -19,8 +19,7 @@ export type EntropySourceType =
  * deterministic fingerprint of the underlying secret, or `'_'` for entropies
  * that cannot be uniquely identified.
  */
-export type EntropySourceId =
-  `entropy:${EntropySourceType}:${string}`;
+export type EntropySourceId = `entropy:${EntropySourceType}:${string}`;
 
 /**
  * Computes a deterministic, non-reversible fingerprint for a piece of entropy.

@@ -64,8 +64,6 @@ describe('toEntropySourceId', () => {
 
   it('matches a known value to guard against accidental algorithm changes', async () => {
     const id = await toEntropySourceId('mnemonic', SECRET);
-    expect(id).toBe(
-      'entropy:mnemonic:29b22736-01c7-4096-9ae5-9f735d55b5a2',
-    );
+    expect(id).toBe('entropy:mnemonic:29b22736-01c7-4096-9ae5-9f735d55b5a2');
   });
 });
