@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `{Balance,FungibleAssetAmountStruct}.metadata` ([#601](https://github.com/MetaMask/accounts/pull/601))
+  - This can be used to pass extra-metadata alongside assets balances.
+  - `FungibleAssetAmountStruct` now composes `BalanceStruct`
+  - `notify:accountBalancesUpdated` also accepts `metadata` now.
+
 ## [23.6.0]
 
 ### Added
