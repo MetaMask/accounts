@@ -33,9 +33,9 @@ export type EntropySourceId = `entropy:${EntropySourceType}:${string}`;
  */
 export async function fingerprint(material: Uint8Array): Promise<string> {
   const message = new TextEncoder().encode('metamask:fingerprint');
- // `@noble/hashes` is synchronous today, but the async signature is kept as a
- // forward-compatible seam: a future migration to the Web Crypto API (or any
- // other async primitive) won't require changes at every call site.
+  // `@noble/hashes` is synchronous today, but the async signature is kept as a
+  // forward-compatible seam: a future migration to the Web Crypto API (or any
+  // other async primitive) won't require changes at every call site.
   const digest = hmac(sha256, material, message);
   return uuid({ random: digest.slice(0, 16) });
 }

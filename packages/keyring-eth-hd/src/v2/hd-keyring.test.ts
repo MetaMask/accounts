@@ -2,10 +2,9 @@ import type { TypedTxData } from '@ethereumjs/tx';
 import { EthAccountType, EthMethod, EthScope } from '@metamask/keyring-api';
 import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
+import { toEntropySourceId } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
-
-import { toEntropySourceId } from '@metamask/keyring-sdk';
 
 import { HdKeyring as LegacyHdKeyring } from '../hd-keyring';
 import { HdKeyring } from './hd-keyring';
