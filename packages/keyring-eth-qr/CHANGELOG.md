@@ -10,9 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
+- Bump `@metamask/keyring-api` from `^23.6.0` to `^23.7.0` ([#604](https://github.com/MetaMask/accounts/pull/604))
 
-- Bump `@metamask/keyring-api` from `^23.1.0` to `^23.5.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587))
-- Bump `@metamask/keyring-sdk` from `^2.1.1` to `^2.2.0` ([#562](https://github.com/MetaMask/accounts/pull/562))
+## [2.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^23.1.0` to `^23.6.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587), [#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-sdk` from `^2.1.1` to `^2.3.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-utils` from `^3.3.1` to `^4.0.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
 
 ## [2.1.0]
 
@@ -83,7 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release ([#60](https://github.com/MetaMask/accounts/pull/60))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.1.1...HEAD
+[2.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.1.0...@metamask/eth-qr-keyring@2.1.1
 [2.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.0.2...@metamask/eth-qr-keyring@2.1.0
 [2.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.0.1...@metamask/eth-qr-keyring@2.0.2
 [2.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.0.0...@metamask/eth-qr-keyring@2.0.1

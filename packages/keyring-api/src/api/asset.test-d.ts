@@ -10,6 +10,30 @@ expectAssignable<Asset>({
 });
 
 expectAssignable<Asset>({
+  fungible: true,
+  type: 'eip155:1/slip44:60',
+  unit: 'ETH',
+  amount: '0.01',
+  metadata: { foo: 'bar', count: 42, flag: true },
+});
+
+expectNotAssignable<Asset>({
+  fungible: true,
+  type: 'eip155:1/slip44:60',
+  unit: 'ETH',
+  amount: '0.01',
+  metadata: 'string',
+});
+
+expectNotAssignable<Asset>({
+  fungible: true,
+  type: 'eip155:1/slip44:60',
+  unit: 'ETH',
+  amount: '0.01',
+  metadata: 42,
+});
+
+expectAssignable<Asset>({
   fungible: false,
   id: 'hedera:mainnet/nft:0.0.55492/12',
 });
