@@ -15,8 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **BREAKING** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
 - Bump `@ledgerhq/device-management-kit` from `1.5.1` to `^1.7.1` ([#607](https://github.com/MetaMask/accounts/pull/607))
-- Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
 - Bump `@metamask/keyring-api` from `^23.5.0` to `^23.7.0` ([#600](https://github.com/MetaMask/accounts/pull/600), [#604](https://github.com/MetaMask/accounts/pull/604))
 - Bump `@metamask/keyring-sdk` from `^2.2.0` to `^2.3.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
 
@@ -162,7 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Increase ledger iframe timeout interval ([#314](https://github.com/MetaMask/accounts/pull/314))
+- Increase ledger iframe timeout interval ([#314](https://github.com/MetaMask/accounts.git/pull/314))
 
 ## [11.1.1]
 
@@ -380,7 +380,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **BREAKING**: `IFrameMessageResponse` now has more restrictive typings([#207](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/207)) ([#207](https://github.com/MetaMask/accounts/pull/207))
+- **BREAKING**: `IFrameMessageResponse` now has more restrictive typings (#207) ([#207](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/207))
 
 ## [2.0.1]
 
