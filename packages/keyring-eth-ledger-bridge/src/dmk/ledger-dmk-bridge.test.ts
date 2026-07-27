@@ -116,11 +116,11 @@ describe('LedgerDmkBridge', () => {
 
     addTransportSpy = jest
       .spyOn(DeviceManagementKitBuilder.prototype, 'addTransport')
-      .mockImplementation(
-        function mockAddTransport(this: DeviceManagementKitBuilder) {
-          return this;
-        },
-      );
+      .mockImplementation(function mockAddTransport(
+        this: DeviceManagementKitBuilder,
+      ) {
+        return this;
+      });
 
     buildSpy = jest
       .spyOn(DeviceManagementKitBuilder.prototype, 'build')
@@ -184,12 +184,14 @@ describe('LedgerDmkBridge', () => {
     });
 
     it('is a read-only getter', () => {
-      const descriptor = Object.getOwnPropertyDescriptor(
-        Object.getPrototypeOf(bridge),
-        'dmk',
+      expect(
+        Object.getOwnPropertyDescriptor(Object.getPrototypeOf(bridge), 'dmk'),
+      ).toStrictEqual(
+        expect.objectContaining({
+          get: expect.any(Function),
+          set: undefined,
+        }),
       );
-      expect(descriptor?.get).toBeDefined();
-      expect(descriptor?.set).toBeUndefined();
     });
   });
 
@@ -218,14 +220,17 @@ describe('LedgerDmkBridge', () => {
     });
 
     it('is a read-only getter', () => {
-      const descriptor = Object.getOwnPropertyDescriptor(
-        Object.getPrototypeOf(bridge),
-        'isDeviceConnected',
+      expect(
+        Object.getOwnPropertyDescriptor(
+          Object.getPrototypeOf(bridge),
+          'isDeviceConnected',
+        ),
+      ).toStrictEqual(
+        expect.objectContaining({
+          get: expect.any(Function),
+          set: undefined,
+        }),
       );
-      // eslint-disable-next-line jest/unbound-method
-      expect(descriptor?.get).toBeInstanceOf(Function);
-      // eslint-disable-next-line jest/unbound-method
-      expect(descriptor?.set).toBeUndefined();
     });
   });
 
