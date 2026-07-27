@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `HdKeyring.toEntropySourceId` (v2) ([#604](https://github.com/MetaMask/accounts/pull/603))
+- Add `HdKeyring.toEntropySourceId` (v2) ([#603](https://github.com/MetaMask/accounts/pull/603))
   - This can be used to compute a stable/deterministic ID for the keyring's seed.
 
 ### Changed
