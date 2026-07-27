@@ -76,6 +76,9 @@ type PublicKeyOutput = Pick<
  * LedgerDmkTransportMiddleware.
  * It initializes and manages the DeviceManagementKit internally.
  * The transport factory is injected via constructor, making it platform-agnostic.
+ *
+ * Clients that need lower-level DMK APIs (beyond the bridge's typed methods)
+ * can access the shared instance via {@link LedgerDmkBridge.dmk}.
  */
 export class LedgerDmkBridge implements LedgerBridge<LedgerDmkBridgeOptions> {
   readonly #transportMiddleware: LedgerDmkTransportMiddleware;
@@ -96,6 +99,19 @@ export class LedgerDmkBridge implements LedgerBridge<LedgerDmkBridgeOptions> {
 
   get isDeviceConnected(): boolean {
     return this.#isConnected;
+  }
+
+  /**
+   * The underlying Ledger Device Management Kit instance owned by this bridge.
+   *
+   * Use this when a client needs DMK APIs that are not wrapped by the bridge
+   * (for example custom commands or session inspection). Prefer bridge methods
+   * for signing and app configuration so error translation stays consistent.
+   *
+   * @returns The shared {@link DeviceManagementKit} instance.
+   */
+  get dmk(): DeviceManagementKit {
+    return this.#sdk;
   }
 
   constructor(opts: LedgerDmkBridgeOptions) {

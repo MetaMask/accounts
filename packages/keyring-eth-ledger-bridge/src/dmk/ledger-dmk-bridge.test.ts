@@ -178,6 +178,23 @@ describe('LedgerDmkBridge', () => {
     });
   });
 
+  describe('dmk', () => {
+    it('returns the DeviceManagementKit built at construction', () => {
+      expect(bridge.dmk).toBe(mockSDK);
+    });
+
+    it('is a read-only getter', () => {
+      expect(
+        Object.getOwnPropertyDescriptor(Object.getPrototypeOf(bridge), 'dmk'),
+      ).toStrictEqual(
+        expect.objectContaining({
+          get: expect.any(Function),
+          set: undefined,
+        }),
+      );
+    });
+  });
+
   describe('isDeviceConnected', () => {
     it('returns false when bridge is not connected', () => {
       expect(bridge.isDeviceConnected).toBe(false);
@@ -203,14 +220,17 @@ describe('LedgerDmkBridge', () => {
     });
 
     it('is a read-only getter', () => {
-      const descriptor = Object.getOwnPropertyDescriptor(
-        Object.getPrototypeOf(bridge),
-        'isDeviceConnected',
+      expect(
+        Object.getOwnPropertyDescriptor(
+          Object.getPrototypeOf(bridge),
+          'isDeviceConnected',
+        ),
+      ).toStrictEqual(
+        expect.objectContaining({
+          get: expect.any(Function),
+          set: undefined,
+        }),
       );
-      // eslint-disable-next-line jest/unbound-method
-      expect(descriptor?.get).toBeInstanceOf(Function);
-      // eslint-disable-next-line jest/unbound-method
-      expect(descriptor?.set).toBeUndefined();
     });
   });
 
