@@ -178,6 +178,21 @@ describe('LedgerDmkBridge', () => {
     });
   });
 
+  describe('dmk', () => {
+    it('returns the DeviceManagementKit built at construction', () => {
+      expect(bridge.dmk).toBe(mockSDK);
+    });
+
+    it('is a read-only getter', () => {
+      const descriptor = Object.getOwnPropertyDescriptor(
+        Object.getPrototypeOf(bridge),
+        'dmk',
+      );
+      expect(descriptor?.get).toBeDefined();
+      expect(descriptor?.set).toBeUndefined();
+    });
+  });
+
   describe('isDeviceConnected', () => {
     it('returns false when bridge is not connected', () => {
       expect(bridge.isDeviceConnected).toBe(false);
