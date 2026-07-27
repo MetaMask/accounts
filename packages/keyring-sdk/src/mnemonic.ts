@@ -23,5 +23,7 @@ export function encodeMnemonicWords(mnemonicIndicesBytes: Uint8Array): string {
  * @returns An array of bytes (UTF-8) representing the mnemonic.
  */
 export function encodeMnemonic(mnemonicIndicesBytes: Uint8Array): number[] {
-  return Array.from(new TextEncoder().encode(encodeMnemonicWords(mnemonicIndicesBytes)));
+  return Array.from(
+    new TextEncoder().encode(encodeMnemonicWords(mnemonicIndicesBytes)),
+  );
 }
