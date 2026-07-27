@@ -116,11 +116,11 @@ describe('LedgerDmkBridge', () => {
 
     addTransportSpy = jest
       .spyOn(DeviceManagementKitBuilder.prototype, 'addTransport')
-      .mockImplementation(function mockAddTransport(
-        this: DeviceManagementKitBuilder,
-      ) {
-        return this;
-      });
+      .mockImplementation(
+        function mockAddTransport(this: DeviceManagementKitBuilder) {
+          return this;
+        },
+      );
 
     buildSpy = jest
       .spyOn(DeviceManagementKitBuilder.prototype, 'build')
