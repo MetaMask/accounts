@@ -2409,7 +2409,7 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
-    "@metamask/keyring-api": "npm:^23.0.1"
+    "@metamask/keyring-api": "npm:^23.7.0"
     "@metamask/keyring-utils": "npm:^4.0.0"
     "@metamask/providers": "npm:^19.0.0"
     "@metamask/snaps-sdk": "npm:^11.0.0"
@@ -2430,7 +2430,7 @@ __metadata:
     typescript: "npm:~5.3.3"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
-    "@metamask/keyring-api": ^23.0.0
+    "@metamask/keyring-api": ^23.7.0
     "@metamask/providers": ^19.0.0
   languageName: unknown
   linkType: soft
