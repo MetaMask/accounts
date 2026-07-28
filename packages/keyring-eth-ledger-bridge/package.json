@@ -19,7 +19,8 @@
   },
   "files": [
     "dist/",
-    "v2.js"
+    "v2.js",
+    "!dist/**/__testhelpers__"
   ],
   "sideEffects": false,
   "main": "./dist/index.cjs",
