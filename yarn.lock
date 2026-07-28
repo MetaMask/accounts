@@ -1411,9 +1411,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/device-management-kit@npm:1.5.1":
-  version: 1.5.1
-  resolution: "@ledgerhq/device-management-kit@npm:1.5.1"
+"@ledgerhq/device-management-kit@npm:^1.7.1":
+  version: 1.7.1
+  resolution: "@ledgerhq/device-management-kit@npm:1.7.1"
   dependencies:
     "@noble/hashes": "npm:^1.8.0"
     "@sentry/minimal": "npm:6.19.7"
@@ -1422,17 +1422,16 @@ __metadata:
     purify-ts: "npm:2.1.0"
     reflect-metadata: "npm:0.2.2"
     semver: "npm:7.7.2"
-    url: "npm:^0.11.4"
     uuid: "npm:11.0.3"
     ws: "npm:^8.18.0"
     xstate: "npm:5.19.2"
   peerDependencies:
     rxjs: 7.8.2
-  checksum: 10/b73a620b6955b70608672e8798e12611faa973bade7521694e1aeea8dc1e8b316475600108259fbad4aeb007b992bb812dd665d5a89c990ea3a6c31ec3c99c86
+  checksum: 10/bb46a39b98c87b094cc67f8caceb9445f9c17156478c763a67e99fca2ae75b09bb5e3d75a77f842bb86d45323cf8c9a071cd27dbe8b2cc167e1f0ac247554083
   languageName: node
   linkType: hard
 
-"@ledgerhq/device-signer-kit-ethereum@npm:1.16.0":
+"@ledgerhq/device-signer-kit-ethereum@npm:^1.16.0":
   version: 1.16.0
   resolution: "@ledgerhq/device-signer-kit-ethereum@npm:1.16.0"
   dependencies:
@@ -1927,8 +1926,8 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@ledgerhq/context-module": "npm:2.1.0"
-    "@ledgerhq/device-management-kit": "npm:1.5.1"
-    "@ledgerhq/device-signer-kit-ethereum": "npm:1.16.0"
+    "@ledgerhq/device-management-kit": "npm:^1.7.1"
+    "@ledgerhq/device-signer-kit-ethereum": "npm:^1.16.0"
     "@ledgerhq/hw-app-eth": "npm:^6.42.0"
     "@ledgerhq/hw-transport": "npm:^6.31.3"
     "@ledgerhq/types-cryptoassets": "npm:^7.15.1"
@@ -11372,13 +11371,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"punycode@npm:^1.4.1":
-  version: 1.4.1
-  resolution: "punycode@npm:1.4.1"
-  checksum: 10/af2700dde1a116791ff8301348ff344c47d6c224e875057237d1b5112035655fb07a6175cfdb8bf0e3a8cdfd2dc82b3a622e0aefd605566c0e949a6d0d1256a4
-  languageName: node
-  linkType: hard
-
 "punycode@npm:^2.1.0, punycode@npm:^2.1.1":
   version: 2.3.1
   resolution: "punycode@npm:2.3.1"
@@ -11408,15 +11400,6 @@ __metadata:
   dependencies:
     bitcoin-ops: "npm:^1.3.0"
   checksum: 10/963fb0b61258e7654d6e3e34e68c8672bc3fdbd154da0a9af0482d2b7b9e9227b11bc17a39f42003f92e996cb552395e903d369347c840381a356964cf553967
-  languageName: node
-  linkType: hard
-
-"qs@npm:^6.12.3":
-  version: 6.15.0
-  resolution: "qs@npm:6.15.0"
-  dependencies:
-    side-channel: "npm:^1.1.0"
-  checksum: 10/a3458f2f389285c3512e0ebc55522ee370ac7cb720ba9f0eff3e30fb2bb07631caf556c08e2a3d4481a371ac14faa9ceb7442a0610c5a7e55b23a5bdee7b701c
   languageName: node
   linkType: hard
 
@@ -13119,16 +13102,6 @@ __metadata:
     querystringify: "npm:^2.1.1"
     requires-port: "npm:^1.0.0"
   checksum: 10/c9e96bc8c5b34e9f05ddfeffc12f6aadecbb0d971b3cc26015b58d5b44676a99f50d5aeb1e5c9e61fa4d49961ae3ab1ae997369ed44da51b2f5ac010d188e6ad
-  languageName: node
-  linkType: hard
-
-"url@npm:^0.11.4":
-  version: 0.11.4
-  resolution: "url@npm:0.11.4"
-  dependencies:
-    punycode: "npm:^1.4.1"
-    qs: "npm:^6.12.3"
-  checksum: 10/e787d070f0756518b982a4653ef6cdf4d9030d8691eee2d483344faf2b530b71d302287fa63b292299455fea5075c502a5ad5f920cb790e95605847f957a65e4
   languageName: node
   linkType: hard
 

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
 - Bump `@metamask/keyring-sdk` from `^2.0.2` to `^2.3.0` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546), [#562](https://github.com/MetaMask/accounts/pull/562), [#600](https://github.com/MetaMask/accounts/pull/600))
 - Bump `@metamask/keyring-api` from `^23.1.0` to `^23.7.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587), [#600](https://github.com/MetaMask/accounts/pull/600), [#604](https://github.com/MetaMask/accounts/pull/604))
 

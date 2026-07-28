@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.0.0]
+
+### Added
+
+- Expose `LedgerDmkBridge.dmk` so clients can use the underlying Device Management Kit directly ([#607](https://github.com/MetaMask/accounts/pull/607))
+
 ### Changed
 
+- **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
+- Bump `@ledgerhq/device-management-kit` from `1.5.1` to `^1.7.1` ([#607](https://github.com/MetaMask/accounts/pull/607))
 - Bump `@metamask/keyring-api` from `^23.5.0` to `^23.7.0` ([#600](https://github.com/MetaMask/accounts/pull/600), [#604](https://github.com/MetaMask/accounts/pull/604))
 - Bump `@metamask/keyring-sdk` from `^2.2.0` to `^2.3.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
 
@@ -485,7 +493,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.4.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.0.0...HEAD
+[13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.4.0...@metamask/eth-ledger-bridge-keyring@13.0.0
 [12.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.3.0...@metamask/eth-ledger-bridge-keyring@12.4.0
 [12.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.2.0...@metamask/eth-ledger-bridge-keyring@12.3.0
 [12.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.1.0...@metamask/eth-ledger-bridge-keyring@12.2.0
