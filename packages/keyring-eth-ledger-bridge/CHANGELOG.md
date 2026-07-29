@@ -9,11 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [13.0.1]
 
-### Uncategorized
-
-- fix: mark drop node support as breaking ([#610](https://github.com/MetaMask/accounts/pull/610))
-- build(keyring-eth-ledger-bridge): exclude `__testhelpers__` ([#609](https://github.com/MetaMask/accounts/pull/609))
-
 ## [13.0.0]
 
 ### Added

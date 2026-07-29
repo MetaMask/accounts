@@ -9,12 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [13.0.0]
 
-### Uncategorized
-
-- fix: mark drop node support as breaking ([#610](https://github.com/MetaMask/accounts/pull/610))
-- chore: fix changelogs PR grouping ([#563](https://github.com/MetaMask/accounts/pull/563))
-- build: fix `yarn` warnings + align `typescript` version with `core`/`snaps` ([#536](https://github.com/MetaMask/accounts/pull/536))
-
 ### Changed
 
 - **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
