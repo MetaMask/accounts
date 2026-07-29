@@ -9,6 +9,7 @@ export type EntropySourceType =
   | 'mnemonic'
   | 'ledger'
   | 'trezor'
+  | 'qr'
   | 'private-key'
   | 'mpc';
 
