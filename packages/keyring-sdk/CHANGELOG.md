@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `decodeMnemonic` and `decodeMnemonicWords` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [3.0.0]
 
 ### Added
