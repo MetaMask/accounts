@@ -7,10 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.0.0]
+
 ### Changed
 
 - **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
-- Bump `@metamask/keyring-api` from `^23.6.0` to `^23.7.0` ([#604](https://github.com/MetaMask/accounts/pull/604))
+- Bump `@metamask/keyring-api` from `^23.6.0` to `^24.0.0` ([#604](https://github.com/MetaMask/accounts/pull/604), [#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/hw-wallet-sdk` from `^0.11.0` to `^1.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-sdk` from `^2.3.0` to `^3.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-utils` from `^4.0.0` to `^5.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
 
 ## [10.1.2]
 
@@ -312,7 +317,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.1.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@11.0.0...HEAD
+[11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.1.2...@metamask/eth-trezor-keyring@11.0.0
 [10.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.1.1...@metamask/eth-trezor-keyring@10.1.2
 [10.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.1.0...@metamask/eth-trezor-keyring@10.1.1
 [10.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.0.2...@metamask/eth-trezor-keyring@10.1.0

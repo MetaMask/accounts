@@ -7,10 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.0.0]
+
 ### Changed
 
 - **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
-- Bump `@metamask/keyring-api` from `^23.6.0` to `^23.7.0` ([#604](https://github.com/MetaMask/accounts/pull/604))
+- Bump `@metamask/keyring-api` from `^23.6.0` to `^24.0.0` ([#604](https://github.com/MetaMask/accounts/pull/604), [#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-internal-api` from `^11.0.2` to `^12.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-snap-client` from `^9.2.1` to `^10.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-utils` from `^4.0.0` to `^5.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
 
 ## [10.0.6]
 
@@ -257,7 +262,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.6...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@11.0.0...HEAD
+[11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.6...@metamask/keyring-internal-snap-client@11.0.0
 [10.0.6]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.5...@metamask/keyring-internal-snap-client@10.0.6
 [10.0.5]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.4...@metamask/keyring-internal-snap-client@10.0.5
 [10.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.3...@metamask/keyring-internal-snap-client@10.0.4

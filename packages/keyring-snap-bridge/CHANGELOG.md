@@ -7,15 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [24.0.0]
+
 ### Changed
 
 - **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
+- **BREAKING:** Bump `@metamask/keyring-api` from `^23.0.0` to `^24.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-internal-api` from `^11.0.2` to `^12.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.6` to `^11.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-sdk` from `^2.3.0` to `^3.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-snap-sdk` from `^9.2.1` to `^10.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-utils` from `^4.0.0` to `^5.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
 
 ## [23.0.2]
 
 ### Changed
 
-- Bump `@metamask/superstruct` from `^3.1.0` to `^3.4.1` ([#580](https://github.com/MetaMask/accounts/pull/580)), ([#577](https://github.com/MetaMask/accounts/pull/577))
+- Bump `@metamask/superstruct` from `^3.1.0` to `^3.4.1` ([#580](https://github.com/MetaMask/accounts/pull/580), [#577](https://github.com/MetaMask/accounts/pull/577))
 - Bump `@metamask/keyring-internal-api` from `^11.0.1` to `^11.0.2` ([#600](https://github.com/MetaMask/accounts/pull/600))
 - Bump `@metamask/keyring-internal-snap-client` from `^10.0.5` to `^10.0.6` ([#600](https://github.com/MetaMask/accounts/pull/600))
 - Bump `@metamask/keyring-sdk` from `^2.2.0` to `^2.3.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
@@ -791,7 +799,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.0.0...HEAD
+[24.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.2...@metamask/eth-snap-keyring@24.0.0
 [23.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.1...@metamask/eth-snap-keyring@23.0.2
 [23.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.0...@metamask/eth-snap-keyring@23.0.1
 [23.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.4.0...@metamask/eth-snap-keyring@23.0.0

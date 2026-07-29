@@ -7,10 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0]
+
 ### Changed
 
 - **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
-- Bump `@metamask/keyring-api` from `^23.6.0` to `^23.7.0` ([#604](https://github.com/MetaMask/accounts/pull/604))
+- Bump `@metamask/keyring-api` from `^23.6.0` to `^24.0.0` ([#604](https://github.com/MetaMask/accounts/pull/604), [#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/eth-hd-keyring` from `^14.1.2` to `^15.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-sdk` from `^2.3.0` to `^3.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-utils` from `^4.0.0` to `^5.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
 
 ## [3.0.1]
 
@@ -18,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/keyring-api` from `^23.1.0` to `^23.6.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587), [#600](https://github.com/MetaMask/accounts/pull/600))
 - Bump `@metamask/keyring-sdk` from `^2.1.1` to `^2.3.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#600](https://github.com/MetaMask/accounts/pull/600))
-- Bump `@metamask/superstruct` from `^3.1.0` to `^3.4.1` ([#580](https://github.com/MetaMask/accounts/pull/580)), ([#577](https://github.com/MetaMask/accounts/pull/577))
+- Bump `@metamask/superstruct` from `^3.1.0` to `^3.4.1` ([#580](https://github.com/MetaMask/accounts/pull/580), [#577](https://github.com/MetaMask/accounts/pull/577))
 - Bump `@metamask/eth-hd-keyring` from `^14.1.1` to `^14.1.2` ([#600](https://github.com/MetaMask/accounts/pull/600))
 - Bump `@metamask/keyring-utils` from `^3.3.1` to `^4.0.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
 
@@ -95,7 +100,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Uses derivation path `"m/44'/4392018'/0'/0"`.
   - Enforces that at most one Money account can exist.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@3.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.0...HEAD
+[4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@3.0.1...@metamask/eth-money-keyring@4.0.0
 [3.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@3.0.0...@metamask/eth-money-keyring@3.0.1
 [3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.4...@metamask/eth-money-keyring@3.0.0
 [2.0.4]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@2.0.3...@metamask/eth-money-keyring@2.0.4
