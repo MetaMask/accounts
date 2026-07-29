@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `HdKeyring.toEntropySourceId` (v2) ([#603](https://github.com/MetaMask/accounts/pull/603))
+  - This can be used to compute a stable/deterministic ID for the keyring's seed.
+
 ### Changed
 
 - **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
