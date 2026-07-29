@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix: mark drop node support as breaking ([#610](https://github.com/MetaMask/accounts/pull/610))
+
 ### Changed
 
 - **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
@@ -18,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/keyring-utils` from `^3.2.0` to `^4.0.0` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546), [#600](https://github.com/MetaMask/accounts/pull/600))
 - Bump `@metamask/keyring-api` from `^23.1.0` to `^23.6.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587), [#600](https://github.com/MetaMask/accounts/pull/600))
-- Bump `@metamask/superstruct` from `^3.1.0` to `^3.4.1` ([#580](https://github.com/MetaMask/accounts/pull/580)), ([#577](https://github.com/MetaMask/accounts/pull/577))
+- Bump `@metamask/superstruct` from `^3.1.0` to `^3.4.1` ([#580](https://github.com/MetaMask/accounts/pull/580), [#577](https://github.com/MetaMask/accounts/pull/577))
 
 ## [11.0.1]
 

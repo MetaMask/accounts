@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix: mark drop node support as breaking ([#610](https://github.com/MetaMask/accounts/pull/610))
+
 ### Added
 
 - Add `HdKeyring.toEntropySourceId` (v2) ([#603](https://github.com/MetaMask/accounts/pull/603))
