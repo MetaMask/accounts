@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Reuse paging-derived accounts to avoid redundant device I/O at unlock ([#613](https://github.com/MetaMask/accounts/pull/613))
+
 ## [13.0.1]
 
 ### Changed

@@ -8,6 +8,8 @@ import {
 import type { KeyringAccount } from '@metamask/keyring-api';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import { EthKeyringMethod } from '@metamask/keyring-sdk/v2';
+import { add0x, getChecksumAddress } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
 import HDKey from 'hdkey';
 
 import type { LedgerBridge, LedgerBridgeOptions } from '../ledger-bridge';
@@ -711,6 +713,71 @@ describe('LedgerKeyring', () => {
       // Verify both accounts exist with correct paths
       const accounts = await wrapper.getAccounts();
       expect(accounts).toHaveLength(2);
+    });
+
+    it('returns the cached address for a paged Ledger Live index with no device I/O', async () => {
+      const bridge = getMockBridge();
+      bridge.isDeviceConnected = true;
+      const inner = new LegacyLedgerKeyring({ bridge });
+      inner.setHdPath(`m/44'/60'/0'/0/0`);
+      // Pre-seed the root HDKey so the root `unlock()` is a no-op.
+      inner.hdk = fakeHdKey;
+
+      // Populate the paging cache by paging the first page in Ledger Live mode.
+      const populateSpy = jest
+        .spyOn(bridge, 'getPublicKey')
+        .mockImplementation(async ({ hdPath }) => {
+          // `#toLedgerPath` strips the leading `m/` before calling the bridge,
+          // so the path arrives as `44'/60'/{index}'/0/0`.
+          const match = hdPath?.match(/^44'\/60'\/(\d+)'\/0\/0$/u);
+          const idx = match?.[1] ? parseInt(match[1], 10) : 0;
+          return {
+            publicKey:
+              '04197ced33b63059074b90ddecb9400c45cbc86210a20317b539b8cae84e573342149c3384ae45f27db68e75823323e97e03504b73ecbc47f5922b9b8144345e5a',
+            chainCode:
+              'ba0fb16e01c463d1635ec36f5adeb93a838adcd1526656c55f828f1e34002a8b',
+            address: (EXPECTED_ACCOUNTS[idx] ?? EXPECTED_ACCOUNTS[0]) as string,
+          };
+        });
+      await inner.getFirstPage();
+      populateSpy.mockRestore();
+
+      // Fresh spy: createAccounts for an already-paged path must NOT hit the device.
+      const deviceSpy = jest.spyOn(bridge, 'getPublicKey');
+
+      const wrapper = new LedgerKeyring({
+        legacyKeyring: inner,
+        entropySource,
+      });
+      const newAccounts = await wrapper.createAccounts(
+        derivePathOptions(`m/44'/60'/2'/0/0`),
+      );
+      const account = getFirstAccount(newAccounts);
+
+      expect(account.address).toBe(EXPECTED_ACCOUNTS[2]);
+      expect(account.options.entropy.derivationPath).toBe(`m/44'/60'/2'/0/0`);
+      expect(deviceSpy).not.toHaveBeenCalled();
+      deviceSpy.mockRestore();
+    });
+
+    it('throws Account derivation mismatch when the returned address is registered under a different path', async () => {
+      const { wrapper, inner } = createEmptyWrapper();
+
+      // Pre-register an address under a different path than the one we will request.
+      const staleAddress = EXPECTED_ACCOUNTS[0] as Hex;
+      const checksummed = getChecksumAddress(add0x(staleAddress));
+      inner.accountDetails[checksummed] = {
+        bip44: false,
+        hdPath: `m/44'/60'/0'/9`,
+      };
+
+      // Mock addAccounts to return the stale address without updating accountDetails,
+      // simulating a stale cache returning an address bound to the wrong path.
+      jest.spyOn(inner, 'addAccounts').mockResolvedValue([staleAddress]);
+
+      await expect(
+        wrapper.createAccounts(derivePathOptions(`m/44'/60'/0'/0/5`)),
+      ).rejects.toThrow('Account derivation mismatch');
     });
   });
 

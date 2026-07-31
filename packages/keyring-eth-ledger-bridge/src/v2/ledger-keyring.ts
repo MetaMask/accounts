@@ -336,6 +336,14 @@ export class LedgerKeyring
         throw new Error('Failed to create new account');
       }
 
+      // Verify the returned address was registered under the requested derivation path.
+      // A stale paging cache could otherwise silently register the wrong address for the requested path.
+      const checksummedNewAddress = this.#getChecksumHexAddress(newAddress);
+      const details = this.inner.accountDetails[checksummedNewAddress];
+      if (details && details.hdPath !== derivationPath) {
+        throw new Error('Account derivation mismatch');
+      }
+
       const newAccount = this.#createKeyringAccount(newAddress, targetIndex);
 
       return [newAccount];
