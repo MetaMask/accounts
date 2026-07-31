@@ -288,7 +288,6 @@ export class LedgerKeyring implements Keyring {
           const from = this.unlockedAccount;
           const to = from + amount;
           const newAccounts: Hex[] = [];
-          // eslint-disable-next-line promise/always-return
           for (let i = from; i < to; i++) {
             const path = this.#getPathForIndex(i);
             let address: Hex;
