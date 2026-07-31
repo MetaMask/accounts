@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add a paging cache to the Ledger keyring that stores BIP-44 derived entries (`hdPath`, `address`, `publicKey`, `chainCode`) keyed by derivation path. In Ledger Live mode, `addAccounts` now reuses a cached address for an already-paged path and skips the device round-trip (`unlock(path)` → `bridge.getPublicKey`). The cache is invalidated on `forgetDevice`, `setHdPath` (when the path changes), `destroy`, and on device disconnect, and is also exposed via `invalidatePagingCache()` for external disconnect handlers ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add a paging cache to the Ledger keyring that stores BIP-44 derived entries (`hdPath`, `address`, `publicKey`, `chainCode`) keyed by derivation path ([#613](https://github.com/MetaMask/accounts/pull/613)).
 
 ## [13.0.1]
 
