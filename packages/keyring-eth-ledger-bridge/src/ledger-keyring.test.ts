@@ -489,6 +489,13 @@ describe('LedgerKeyring', function () {
       it('returns the list of accounts when isLedgerLiveHdPath is true', async function () {
         keyring.setHdPath(`m/44'/60'/0'/0/0`);
         jest.spyOn(keyring, 'unlock').mockResolvedValue(fakeAccounts[0]);
+        jest.spyOn(bridge, 'getPublicKey').mockResolvedValue({
+          publicKey:
+            '04197ced33b63059074b90ddecb9400c45cbc86210a20317b539b8cae84e573342149c3384ae45f27db68e75823323e97e03504b73ecbc47f5922b9b8144345e5a',
+          chainCode:
+            'ba0fb16e01c463d1635ec36f5adeb93a838adcd1526656c55f828f1e34002a8b',
+          address: fakeAccounts[0],
+        });
         const accounts = await keyring.getFirstPage();
 
         expect(accounts).toHaveLength(keyring.perPage);
@@ -582,6 +589,229 @@ describe('LedgerKeyring', function () {
         // Wipe the keyring
         keyring.forgetDevice();
         expect(keyring.getDeviceId()).toBe('');
+      });
+    });
+
+    describe('pagingCache', function () {
+      /**
+       * Extracts the account index from a Ledger Live BIP-44 path of the form
+       * `m/44'/60'/{index}'/0/0`.
+       *
+       * @param hdPath - The HD path, or undefined for the root unlock.
+       * @returns The account index, defaulting to 0 for the root path.
+       */
+      function accountIndexFromPath(hdPath?: string): number {
+        return Number(hdPath?.split('/')[3]?.replace(/'/gu, '') ?? '0');
+      }
+
+      /**
+       * Builds a `getPublicKey` payload for the given Ledger Live path, deriving
+       * the address from the matching fake account.
+       *
+       * @param hdPath - The Ledger (m/-stripped) HD path.
+       * @returns A fake `getPublicKey` response payload.
+       */
+      function fakePublicKeyPayload(hdPath: string): {
+        publicKey: string;
+        chainCode: string;
+        address: string;
+      } {
+        const idx = accountIndexFromPath(hdPath);
+        return {
+          publicKey:
+            '04197ced33b63059074b90ddecb9400c45cbc86210a20317b539b8cae84e573342149c3384ae45f27db68e75823323e97e03504b73ecbc47f5922b9b8144345e5a',
+          chainCode:
+            'ba0fb16e01c463d1635ec36f5adeb93a838adcd1526656c55f828f1e34002a8b',
+          address: (fakeAccounts[idx] ?? fakeAccounts[0]) as string,
+        };
+      }
+
+      /**
+       * Populates the paging cache by paging through the first page of
+       * accounts in Ledger Live mode, with the device marked as connected.
+       *
+       * Both the root `unlock` and the per-path `bridge.getPublicKey` calls are
+       * mocked and restored before returning, leaving the keyring with a
+       * populated cache and no active spies.
+       *
+       * @param options - Configuration.
+       * @param options.connected - Whether the device is connected (default true).
+       * @returns The keyring with its paging cache populated for paths 0..perPage-1.
+       */
+      async function populateCache({
+        connected = true,
+      }: { connected?: boolean } = {}): Promise<void> {
+        keyring.setHdPath(`m/44'/60'/0'/0/0`);
+        bridge.isDeviceConnected = connected;
+        const unlockSpy = jest
+          .spyOn(keyring, 'unlock')
+          .mockResolvedValue(fakeAccounts[0] as Hex);
+        const getPublicKeySpy = jest
+          .spyOn(bridge, 'getPublicKey')
+          .mockImplementation(async ({ hdPath }) =>
+            fakePublicKeyPayload(hdPath),
+          );
+        await keyring.getFirstPage();
+        getPublicKeySpy.mockRestore();
+        unlockSpy.mockRestore();
+      }
+
+      it('paging then addAccounts for the same path skips the second getPublicKey bridge call', async function () {
+        await populateCache();
+
+        keyring.setAccountToUnlock(0);
+        // Fresh spies so we can assert call counts for addAccounts only.
+        const unlockSpy = jest
+          .spyOn(keyring, 'unlock')
+          .mockResolvedValue(fakeAccounts[0] as Hex);
+        const getPublicKeySpy = jest
+          .spyOn(bridge, 'getPublicKey')
+          .mockResolvedValue({
+            publicKey: '04',
+            chainCode: '00',
+            address: fakeAccounts[0],
+          });
+
+        const accounts = await keyring.addAccounts(1);
+
+        expect(accounts).toStrictEqual([fakeAccounts[0]]);
+        // The cached path must not trigger a per-index unlock or bridge call.
+        expect(unlockSpy).not.toHaveBeenCalledWith(`m/44'/60'/0'/0/0`);
+        expect(getPublicKeySpy).not.toHaveBeenCalled();
+      });
+
+      it('stores publicKey and chainCode from the bridge payload in the cache', async function () {
+        await populateCache();
+
+        // The cache holds the payload values verbatim for the paged path, so
+        // addAccounts reuses the cached address instead of re-deriving it.
+        keyring.setAccountToUnlock(0);
+        jest.spyOn(keyring, 'unlock').mockResolvedValue(fakeAccounts[0] as Hex);
+        jest.spyOn(bridge, 'getPublicKey').mockResolvedValue({
+          publicKey: '04',
+          chainCode: '00',
+          address: fakeAccounts[0],
+        });
+
+        const accounts = await keyring.addAccounts(1);
+
+        expect(accounts).toStrictEqual([fakeAccounts[0]]);
+      });
+
+      it('falls back to unlock(path) when the path is not in the cache', async function () {
+        keyring.setHdPath(`m/44'/60'/0'/0/0`);
+        bridge.isDeviceConnected = true;
+        jest
+          .spyOn(keyring, 'unlock')
+          .mockImplementation(async (hdPath?: string) => {
+            if (!hdPath) {
+              return fakeAccounts[0] as Hex;
+            }
+            return fakeAccounts[accountIndexFromPath(hdPath)] as Hex;
+          });
+
+        keyring.setAccountToUnlock(7);
+        const accounts = await keyring.addAccounts(1);
+
+        expect(accounts).toStrictEqual([fakeAccounts[7]]);
+      });
+
+      it('forgetDevice clears the cache so the next addAccounts re-derives', async function () {
+        await populateCache();
+        keyring.forgetDevice();
+
+        keyring.setHdPath(`m/44'/60'/0'/0/0`);
+        keyring.setAccountToUnlock(0);
+        const unlockSpy = jest
+          .spyOn(keyring, 'unlock')
+          .mockResolvedValue(fakeAccounts[0] as Hex);
+
+        await keyring.addAccounts(1);
+
+        expect(unlockSpy).toHaveBeenCalledWith(`m/44'/60'/0'/0/0`);
+      });
+
+      it('setHdPath to a different path clears the cache', async function () {
+        await populateCache();
+
+        // Changing to a different path clears the cache and resets the HDKey.
+        keyring.setHdPath(`m/44'/60'/0'/1/0`);
+        // Switch back to Ledger Live mode to exercise the cache-miss branch.
+        keyring.setHdPath(`m/44'/60'/0'/0/0`);
+        keyring.setAccountToUnlock(0);
+        const unlockSpy = jest
+          .spyOn(keyring, 'unlock')
+          .mockResolvedValue(fakeAccounts[0] as Hex);
+
+        await keyring.addAccounts(1);
+
+        expect(unlockSpy).toHaveBeenCalledWith(`m/44'/60'/0'/0/0`);
+      });
+
+      it('setHdPath to the same path does not clear the cache', async function () {
+        await populateCache();
+
+        keyring.setHdPath(`m/44'/60'/0'/0/0`);
+        keyring.setAccountToUnlock(0);
+        const getPublicKeySpy = jest
+          .spyOn(bridge, 'getPublicKey')
+          .mockResolvedValue({
+            publicKey: '04',
+            chainCode: '00',
+            address: fakeAccounts[0],
+          });
+        jest.spyOn(keyring, 'unlock').mockResolvedValue(fakeAccounts[0] as Hex);
+
+        await keyring.addAccounts(1);
+
+        expect(getPublicKeySpy).not.toHaveBeenCalled();
+      });
+
+      it('destroy clears the cache so the next addAccounts re-derives', async function () {
+        await populateCache();
+
+        jest.spyOn(bridge, 'destroy').mockResolvedValue(undefined);
+        await keyring.destroy();
+
+        keyring.setAccountToUnlock(0);
+        const unlockSpy = jest
+          .spyOn(keyring, 'unlock')
+          .mockResolvedValue(fakeAccounts[0] as Hex);
+
+        await keyring.addAccounts(1);
+
+        expect(unlockSpy).toHaveBeenCalledWith(`m/44'/60'/0'/0/0`);
+      });
+
+      it('invalidates the cache when the device is disconnected during addAccounts', async function () {
+        await populateCache();
+
+        // Simulate a disconnected device.
+        bridge.isDeviceConnected = false;
+        keyring.setAccountToUnlock(0);
+        const unlockSpy = jest
+          .spyOn(keyring, 'unlock')
+          .mockResolvedValue(fakeAccounts[0] as Hex);
+
+        await keyring.addAccounts(1);
+
+        // Cache is invalidated due to disconnect, so the per-index path is
+        // unlocked again (mocked, so no device round-trip is required).
+        expect(unlockSpy).toHaveBeenCalledWith(`m/44'/60'/0'/0/0`);
+      });
+
+      it('exposes invalidatePagingCache() for external disconnect handlers', async function () {
+        await populateCache();
+
+        keyring.invalidatePagingCache();
+        keyring.setAccountToUnlock(0);
+        const unlockSpy = jest
+          .spyOn(keyring, 'unlock')
+          .mockResolvedValue(fakeAccounts[0] as Hex);
+
+        await keyring.addAccounts(1);
+
+        expect(unlockSpy).toHaveBeenCalledWith(`m/44'/60'/0'/0/0`);
       });
     });
 

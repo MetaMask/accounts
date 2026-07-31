@@ -56,6 +56,20 @@ export type AccountPageEntry = {
   index: number;
 };
 
+/**
+ * A cached BIP-44 derived account entry, keyed by derivation path.
+ *
+ * Populated by `#getAccountsBIP44` so that subsequent `addAccounts` calls in
+ * Ledger Live mode can skip the device round-trip (`unlock` →
+ * `bridge.getPublicKey`) for paths that have already been paged.
+ */
+type PagingCacheEntry = {
+  hdPath: string;
+  address: Hex;
+  publicKey: string;
+  chainCode?: string;
+};
+
 export type AccountPage = AccountPageEntry[];
 
 export type AccountDetails = {
@@ -101,6 +115,8 @@ export class LedgerKeyring implements Keyring {
 
   readonly type: string = keyringType;
 
+  readonly #pagingCache: Map<string, PagingCacheEntry> = new Map();
+
   page = 0;
 
   perPage = 5;
@@ -136,6 +152,7 @@ export class LedgerKeyring implements Keyring {
   }
 
   async destroy(): Promise<void> {
+    this.#invalidatePagingCache();
     return this.bridge.destroy();
   }
 
@@ -221,6 +238,7 @@ export class LedgerKeyring implements Keyring {
     // Reset HDKey if the path changes
     if (this.hdPath !== hdPath) {
       this.hdk = new HDKey();
+      this.#invalidatePagingCache();
     }
     this.hdPath = hdPath;
   }
@@ -259,15 +277,28 @@ export class LedgerKeyring implements Keyring {
   async addAccounts(amount: number): Promise<Hex[]> {
     return new Promise((resolve, reject) => {
       this.unlock()
-        .then(async (_) => {
+        .then(async () => {
+          // If the device disconnected since the paging cache was populated,
+          // the cached entries may no longer be trustworthy; drop them.
+          if (!this.isConnected()) {
+            this.#invalidatePagingCache();
+          }
           const from = this.unlockedAccount;
           const to = from + amount;
           const newAccounts: Hex[] = [];
+          // eslint-disable-next-line promise/always-return
           for (let i = from; i < to; i++) {
             const path = this.#getPathForIndex(i);
             let address: Hex;
             if (this.#isLedgerLiveHdPath()) {
-              address = await this.unlock(path);
+              const cached = this.#pagingCache.get(path);
+              if (cached) {
+                // Reuse the previously paged address and skip the device
+                // round-trip (unlock → bridge.getPublicKey).
+                address = cached.address;
+              } else {
+                address = await this.unlock(path);
+              }
             } else {
               address = this.#addressFromIndex(pathBase, i);
             }
@@ -654,6 +685,7 @@ export class LedgerKeyring implements Keyring {
     this.paths = {};
     this.accountDetails = {};
     this.hdk = new HDKey();
+    this.#invalidatePagingCache();
   }
 
   /* PRIVATE METHODS */
@@ -681,7 +713,34 @@ export class LedgerKeyring implements Keyring {
 
     for (let i = from; i < to; i++) {
       const path = this.#getPathForIndex(i);
-      const address = await this.unlock(path);
+      // Call the bridge directly (rather than via `unlock`) so we can capture
+      // the full payload (publicKey/chainCode) for the paging cache.
+      let payload;
+      try {
+        payload = await this.bridge.getPublicKey({
+          hdPath: this.#toLedgerPath(path),
+        });
+      } catch (error: unknown) {
+        handleLedgerTransportError(
+          error,
+          'Ledger: Unknown error while unlocking account',
+        );
+      }
+
+      const address = add0x(payload.address);
+      if (payload.chainCode) {
+        this.hdk.publicKey = Buffer.from(payload.publicKey, 'hex');
+        this.hdk.chainCode = Buffer.from(payload.chainCode, 'hex');
+      }
+
+      // Stash the derived entry so subsequent addAccounts calls for this
+      // path can skip the device round-trip.
+      this.#pagingCache.set(path, {
+        hdPath: path,
+        address,
+        publicKey: payload.publicKey,
+        chainCode: payload.chainCode,
+      });
       const valid = this.implementFullBIP44
         ? await this.#hasPreviousTransactions(address)
         : true;
@@ -700,6 +759,22 @@ export class LedgerKeyring implements Keyring {
       }
     }
     return accounts;
+  }
+
+  /**
+   * Clears the BIP-44 paging cache.
+   *
+   * This is called internally when the HD path changes, the device is
+   * forgotten, the keyring is destroyed, or the device disconnects. It is
+   * also exposed publicly so that consumers can invalidate the cache in
+   * response to a device disconnect event.
+   */
+  invalidatePagingCache(): void {
+    this.#invalidatePagingCache();
+  }
+
+  #invalidatePagingCache(): void {
+    this.#pagingCache.clear();
   }
 
   #getAccountsLegacy(from: number, to: number): AccountPage {
