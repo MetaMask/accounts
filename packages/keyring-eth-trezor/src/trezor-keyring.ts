@@ -24,6 +24,7 @@ import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
 import { TrezorBridge } from './trezor-bridge';
+import { createErrorFromTrezorResponse } from './trezor-bridge-error';
 import { handleTrezorTransportError } from './trezor-error-handler';
 
 const hdPathString = `m/44'/60'/0'/0`;
@@ -187,7 +188,7 @@ export class TrezorKeyring implements Keyring {
         coin: 'ETH',
       });
       if (!response.success) {
-        throw new Error(response.payload?.error ?? 'Unknown error');
+        throw createErrorFromTrezorResponse(response.payload);
       }
 
       this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex');
@@ -411,7 +412,7 @@ export class TrezorKeyring implements Keyring {
 
         return newOrMutatedTx;
       }
-      throw new Error(response.payload?.error ?? 'Unknown error');
+      throw createErrorFromTrezorResponse(response.payload);
     } catch (error) {
       // Re-throw address validation errors as plain Errors, not hardware errors
       if (isAddressValidationError(error)) {
@@ -445,7 +446,7 @@ export class TrezorKeyring implements Keyring {
       });
 
       if (!response.success) {
-        throw new Error(response.payload?.error ?? 'Unknown error');
+        throw createErrorFromTrezorResponse(response.payload);
       }
 
       if (response.payload.address !== getChecksumAddress(withAccount)) {
@@ -515,7 +516,7 @@ export class TrezorKeyring implements Keyring {
       });
 
       if (!response.success) {
-        throw new Error(response.payload?.error ?? 'Unknown error');
+        throw createErrorFromTrezorResponse(response.payload);
       }
 
       if (getChecksumAddress(address) !== response.payload.address) {

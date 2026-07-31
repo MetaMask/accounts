@@ -19,11 +19,6 @@
       "count": 1
     }
   },
-  "packages/keyring-eth-hd/src/hd-keyring.test.ts": {
-    "n/no-unsupported-features/node-builtins": {
-      "count": 1
-    }
-  },
   "packages/keyring-eth-hd/src/hd-keyring.ts": {
     "no-restricted-globals": {
       "count": 18
@@ -122,11 +117,6 @@
       "count": 11
     }
   },
-  "packages/keyring-eth-trezor/src/onekey-keyring.test.ts": {
-    "import-x/namespace": {
-      "count": 1
-    }
-  },
   "packages/keyring-eth-trezor/src/trezor-bridge.ts": {
     "@typescript-eslint/naming-convention": {
       "count": 1
@@ -157,9 +147,6 @@
     },
     "id-length": {
       "count": 1
-    },
-    "import-x/namespace": {
-      "count": 42
     }
   },
   "packages/keyring-eth-trezor/src/trezor-keyring.ts": {
@@ -218,7 +205,7 @@
   },
   "packages/keyring-snap-bridge/src/v2/SnapKeyring.test.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 4
+      "count": 1
     }
   },
   "packages/keyring-snap-sdk/src/rpc-handler.test.ts": {
@@ -233,7 +220,7 @@
   },
   "packages/keyring-utils/src/superstruct.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 7
+      "count": 5
     }
   },
   "packages/keyring-utils/src/types.test.ts": {

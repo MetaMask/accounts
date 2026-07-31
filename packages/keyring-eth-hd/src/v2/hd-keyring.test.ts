@@ -2,6 +2,7 @@ import type { TypedTxData } from '@ethereumjs/tx';
 import { EthAccountType, EthMethod, EthScope } from '@metamask/keyring-api';
 import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
+import { toEntropySourceId } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
@@ -1082,6 +1083,67 @@ describe('HdKeyring (v2 wrapper)', () => {
           `Account ${accountId} cannot handle method: eth_sendTransaction`,
         );
       });
+    });
+  });
+
+  describe('toEntropySourceId', () => {
+    it('returns a valid EntropySourceId', async () => {
+      const id = await wrapper.toEntropySourceId();
+      expect(id).toMatch(/^entropy:mnemonic:[0-9a-f-]{36}$/u);
+    });
+
+    it('is deterministic for the same mnemonic', async () => {
+      const inner2 = new LegacyHdKeyring();
+      await inner2.deserialize({
+        mnemonic: Array.from(Buffer.from(TEST_MNEMONIC, 'utf8')),
+        numberOfAccounts: 0,
+        hdPath: "m/44'/60'/0'/0",
+      });
+      const wrapper2 = new HdKeyring({
+        legacyKeyring: inner2,
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+      });
+
+      expect(await wrapper.toEntropySourceId()).toBe(
+        await wrapper2.toEntropySourceId(),
+      );
+    });
+
+    it('produces different IDs for different mnemonics', async () => {
+      const otherMnemonic =
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+      const otherInner = new LegacyHdKeyring();
+      await otherInner.deserialize({
+        mnemonic: Array.from(Buffer.from(otherMnemonic, 'utf8')),
+        numberOfAccounts: 0,
+        hdPath: "m/44'/60'/0'/0",
+      });
+      const otherWrapper = new HdKeyring({
+        legacyKeyring: otherInner,
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+      });
+
+      expect(await wrapper.toEntropySourceId()).not.toBe(
+        await otherWrapper.toEntropySourceId(),
+      );
+    });
+
+    it('matches the result of the keyring-sdk toEntropySourceId helper', async () => {
+      const seed = wrapper.seed as Uint8Array;
+      const expected = await toEntropySourceId('mnemonic', seed);
+      expect(await wrapper.toEntropySourceId()).toBe(expected);
+    });
+
+    it('throws if the keyring is not initialized', async () => {
+      const uninitializedInner = new LegacyHdKeyring();
+      const uninitializedWrapper = new HdKeyring({
+        legacyKeyring: uninitializedInner,
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+      });
+
+      await expect(uninitializedWrapper.toEntropySourceId()).rejects.toThrow(
+        'Cannot compute entropy source ID: keyring is not initialized (seed unavailable).',
+      );
     });
   });
 });

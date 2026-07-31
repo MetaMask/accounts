@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-sdk",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "MetaMask Keyring SDK",
   "keywords": [
     "keyring",
@@ -68,11 +68,12 @@
   "dependencies": {
     "@ethereumjs/tx": "^5.4.0",
     "@metamask/eth-sig-util": "^8.2.0",
-    "@metamask/keyring-api": "^23.3.0",
-    "@metamask/keyring-utils": "^3.3.1",
+    "@metamask/keyring-api": "^24.0.0",
+    "@metamask/keyring-utils": "^5.0.0",
     "@metamask/scure-bip39": "^2.1.1",
-    "@metamask/superstruct": "^3.1.0",
+    "@metamask/superstruct": "^3.4.1",
     "@metamask/utils": "^11.11.0",
+    "@noble/hashes": "^1.8.0",
     "async-mutex": "^0.5.0",
     "ethereum-cryptography": "^2.2.1",
     "uuid": "^9.0.1"
@@ -103,7 +104,7 @@
     "directory": "src"
   },
   "engines": {
-    "node": "^18.18 || >=20"
+    "node": ">=22"
   },
   "lavamoat": {
     "allowScripts": {

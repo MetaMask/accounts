@@ -14,6 +14,7 @@ import type {
   KeyringCapabilities,
   Keyring,
 } from '@metamask/keyring-api/v2';
+import { toEntropySourceId as computeEntropySourceId } from '@metamask/keyring-sdk';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import { add0x } from '@metamask/utils';
@@ -107,6 +108,22 @@ export class HdKeyring
    */
   get hdPath(): LegacyHdKeyring['hdPath'] {
     return this.inner.hdPath;
+  }
+
+  /**
+   * Computes a stable {@link EntropySourceId} from this keyring's seed.
+   *
+   * @throws If the keyring has not been initialized (seed unavailable).
+   * @returns A deterministic `EntropySourceId` of the form `entropy:mnemonic:{uuid}`.
+   */
+  async toEntropySourceId(): Promise<EntropySourceId> {
+    const { seed } = this;
+    if (!seed) {
+      throw new Error(
+        'Cannot compute entropy source ID: keyring is not initialized (seed unavailable).',
+      );
+    }
+    return computeEntropySourceId('mnemonic', seed);
   }
 
   /**

@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [24.0.0]
+
+### Changed
+
+- **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
+- **BREAKING:** Bump `@metamask/keyring-api` from `^23.0.0` to `^24.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-internal-api` from `^11.0.2` to `^12.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.6` to `^11.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-sdk` from `^2.3.0` to `^3.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-snap-sdk` from `^9.2.1` to `^10.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-utils` from `^4.0.0` to `^5.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+
+## [23.0.2]
+
+### Changed
+
+- Bump `@metamask/superstruct` from `^3.1.0` to `^3.4.1` ([#580](https://github.com/MetaMask/accounts/pull/580), [#577](https://github.com/MetaMask/accounts/pull/577))
+- Bump `@metamask/keyring-internal-api` from `^11.0.1` to `^11.0.2` ([#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.5` to `^10.0.6` ([#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-sdk` from `^2.2.0` to `^2.3.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-snap-sdk` from `^9.2.0` to `^9.2.1` ([#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-utils` from `^3.3.1` to `^4.0.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
+
+## [23.0.1]
+
+### Fixed
+
+- Fix deadlock in `SnapKeyring.createAccounts` (v2) ([#591](https://github.com/MetaMask/accounts/pull/591))
+  - We do not need to call `saveState` here, we expect this call to be wrapped in a `:withKeyringV2` transaction call.
+
+## [23.0.0]
+
+### Changed
+
+- **BREAKING:** `SnapKeyring` (v2) no longer inherits `SnapKeyringV1` ([#584](https://github.com/MetaMask/accounts/pull/584))
+  - Use `.v1` getter to access a v1 instance instead.
+  - `.v1` will yield `undefined` if the Snap declares v2 `capabilities` in its `endowment:keyring`.
+- Bump `@metamask/superstruct` from `^3.1.0` to `^3.3.0` ([#580](https://github.com/MetaMask/accounts/pull/580))
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.4` to `^10.0.5` ([#587](https://github.com/MetaMask/accounts/pull/587))
+- Bump `@metamask/keyring-snap-sdk` from `^9.1.0` to `^9.2.0` ([#587](https://github.com/MetaMask/accounts/pull/587))
+
+## [22.4.0]
+
+### Added
+
+- Populate v2 `SnapKeyring` `capabilities` from the Snap manifest (`endowment:keyring`) on `deserialize` ([#581](https://github.com/MetaMask/accounts/pull/581))
+- Guard v2 `SnapKeyring` operations until `deserialize` has run (throws "SnapKeyring has not been initialized") ([#581](https://github.com/MetaMask/accounts/pull/581))
+
+### Changed
+
+- Bump `@metamask/snaps-utils` from `^12.1.3` to `^12.2.1` ([#581](https://github.com/MetaMask/accounts/pull/581))
+- Bump `@metamask/keyring-internal-snap-client` from `^10.0.3` to `^10.0.4` ([#583](https://github.com/MetaMask/accounts/pull/583))
+- Bump `@metamask/keyring-snap-sdk` from `^9.0.2` to `^9.1.0` ([#583](https://github.com/MetaMask/accounts/pull/583))
+
 ## [22.3.0]
 
 ### Added
@@ -745,7 +799,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.3.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.0.0...HEAD
+[24.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.2...@metamask/eth-snap-keyring@24.0.0
+[23.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.1...@metamask/eth-snap-keyring@23.0.2
+[23.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.0...@metamask/eth-snap-keyring@23.0.1
+[23.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.4.0...@metamask/eth-snap-keyring@23.0.0
+[22.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.3.0...@metamask/eth-snap-keyring@22.4.0
 [22.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.2.0...@metamask/eth-snap-keyring@22.3.0
 [22.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.1.0...@metamask/eth-snap-keyring@22.2.0
 [22.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@22.0.1...@metamask/eth-snap-keyring@22.1.0

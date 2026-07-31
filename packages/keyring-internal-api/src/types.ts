@@ -18,9 +18,8 @@ import {
   XlmAccountType,
   XlmAccountStruct,
 } from '@metamask/keyring-api';
-import { exactOptional, object } from '@metamask/keyring-utils';
 import type { Infer, Struct } from '@metamask/superstruct';
-import { string, number } from '@metamask/superstruct';
+import { exactOptional, object, string, number } from '@metamask/superstruct';
 
 export type InternalAccountType =
   | EthAccountType

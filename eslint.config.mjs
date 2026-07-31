@@ -28,6 +28,28 @@ const config = createConfig([
   },
 
   {
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'superstruct',
+              message: "Use '@metamask/superstruct' instead of 'superstruct'.",
+            },
+            {
+              name: '@metamask/keyring-utils',
+              importNames: ['object', 'exactOptional', 'type'],
+              message:
+                "Import 'object', 'exactOptional', and 'type' from '@metamask/superstruct' instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+
+  {
     settings: {
       'import-x/resolver': {
         node: {

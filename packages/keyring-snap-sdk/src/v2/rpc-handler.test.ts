@@ -1,4 +1,13 @@
-import { KeyringRpcMethod, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
+import {
+  KeyringRpcMethod as KeyringRpcMethodV1,
+  ListAccountTransactionsRequest as ListAccountTransactionsRequestV1,
+  ListAccountAssetsRequest as ListAccountAssetsRequestV1,
+} from '@metamask/keyring-api';
+import {
+  KeyringRpcMethod,
+  PrivateKeyEncoding,
+  KeyringSnapRpcMethod,
+} from '@metamask/keyring-api/v2';
 import type {
   CreateAccountsRequest,
   GetAccountRequest,
@@ -6,7 +15,13 @@ import type {
   DeleteAccountRequest,
   ExportAccountRequest,
   SubmitRequestRequest,
+  SetSelectedAccountsRequest,
+  GetAccountTransactionsRequest,
+  GetAccountAssetsRequest,
+  GetAccountBalancesRequest,
+  ResolveAccountAddressRequest,
   KeyringRpc,
+  KeyringSnapRpc,
 } from '@metamask/keyring-api/v2';
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 
@@ -20,6 +35,11 @@ describe('handleKeyringRequest', () => {
     deleteAccount: jest.fn(),
     exportAccount: jest.fn(),
     submitRequest: jest.fn(),
+    setSelectedAccounts: jest.fn(),
+    getAccountTransactions: jest.fn(),
+    getAccountAssets: jest.fn(),
+    getAccountBalances: jest.fn(),
+    resolveAccountAddress: jest.fn(),
   };
 
   afterEach(() => {
@@ -223,6 +243,289 @@ describe('handleKeyringRequest', () => {
 
     expect(keyring.submitRequest).toHaveBeenCalledWith(dappRequest);
     expect(result).toBe(mockedResult);
+  });
+
+  it('calls `keyring_setSelectedAccounts`', async () => {
+    const request: SetSelectedAccountsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.SetSelectedAccounts}`,
+      params: { accounts: ['4f983fa2-4f53-4c63-a7c2-f9a5ed750041'] },
+    };
+
+    keyring.setSelectedAccounts.mockResolvedValue(null);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.setSelectedAccounts).toHaveBeenCalledWith(
+      request.params.accounts,
+    );
+    expect(result).toBeNull();
+  });
+
+  it('throws an error if `keyring_setSelectedAccounts` is not implemented', async () => {
+    const request: SetSelectedAccountsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.SetSelectedAccounts}`,
+      params: { accounts: ['4f983fa2-4f53-4c63-a7c2-f9a5ed750041'] },
+    };
+
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
+    delete partialKeyring.setSelectedAccounts;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      `Method not supported: ${KeyringSnapRpcMethod.SetSelectedAccounts}`,
+    );
+  });
+
+  it('calls `keyring_getAccountTransactions`', async () => {
+    const request: GetAccountTransactionsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.GetAccountTransactions}`,
+      params: {
+        id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+        pagination: { limit: 10 },
+      },
+    };
+
+    const mockedResult = { data: [], next: null };
+    keyring.getAccountTransactions.mockResolvedValue(mockedResult);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.getAccountTransactions).toHaveBeenCalledWith(
+      request.params.id,
+      request.params.pagination,
+    );
+    expect(result).toStrictEqual(mockedResult);
+  });
+
+  it('throws an error if `keyring_getAccountTransactions` is not implemented', async () => {
+    const request: GetAccountTransactionsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.GetAccountTransactions}`,
+      params: {
+        id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+        pagination: { limit: 10 },
+      },
+    };
+
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
+    delete partialKeyring.getAccountTransactions;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      `Method not supported: ${KeyringSnapRpcMethod.GetAccountTransactions}`,
+    );
+  });
+
+  it('calls `keyring_listAccountTransactions` (v1 fallback)', async () => {
+    const request: ListAccountTransactionsRequestV1 = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringRpcMethodV1.ListAccountTransactions}`,
+      params: {
+        id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+        pagination: { limit: 10 },
+      },
+    };
+
+    const mockedResult = { data: [], next: null };
+    keyring.getAccountTransactions.mockResolvedValue(mockedResult);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.getAccountTransactions).toHaveBeenCalledWith(
+      request.params.id,
+      request.params.pagination,
+    );
+    expect(result).toStrictEqual(mockedResult);
+  });
+
+  it('throws an error if `keyring_listAccountTransactions` (v1 fallback) is not implemented', async () => {
+    const request: ListAccountTransactionsRequestV1 = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringRpcMethodV1.ListAccountTransactions}`,
+      params: {
+        id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+        pagination: { limit: 10 },
+      },
+    };
+
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
+    delete partialKeyring.getAccountTransactions;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      `Method not supported: ${KeyringRpcMethodV1.ListAccountTransactions}`,
+    );
+  });
+
+  it('calls `keyring_getAccountAssets`', async () => {
+    const request: GetAccountAssetsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.GetAccountAssets}`,
+      params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
+    };
+
+    const mockedResult = [
+      'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
+    ];
+    keyring.getAccountAssets.mockResolvedValue(mockedResult);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.getAccountAssets).toHaveBeenCalledWith(request.params.id);
+    expect(result).toStrictEqual(mockedResult);
+  });
+
+  it('throws an error if `keyring_getAccountAssets` is not implemented', async () => {
+    const request: GetAccountAssetsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.GetAccountAssets}`,
+      params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
+    };
+
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
+    delete partialKeyring.getAccountAssets;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      `Method not supported: ${KeyringSnapRpcMethod.GetAccountAssets}`,
+    );
+  });
+
+  it('calls `keyring_listAccountAssets` (v1 fallback)', async () => {
+    const request: ListAccountAssetsRequestV1 = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringRpcMethodV1.ListAccountAssets}`,
+      params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
+    };
+
+    const mockedResult = [
+      'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
+    ];
+    keyring.getAccountAssets.mockResolvedValue(mockedResult);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.getAccountAssets).toHaveBeenCalledWith(request.params.id);
+    expect(result).toStrictEqual(mockedResult);
+  });
+
+  it('throws an error if `keyring_listAccountAssets` (v1 fallback) is not implemented', async () => {
+    const request: ListAccountAssetsRequestV1 = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringRpcMethodV1.ListAccountAssets}`,
+      params: { id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041' },
+    };
+
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
+    delete partialKeyring.getAccountAssets;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      `Method not supported: ${KeyringRpcMethodV1.ListAccountAssets}`,
+    );
+  });
+
+  it('calls `keyring_getAccountBalances`', async () => {
+    const request: GetAccountBalancesRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.GetAccountBalances}`,
+      params: {
+        id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+        assets: ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'],
+      },
+    };
+
+    const mockedResult = {
+      'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f': {
+        amount: '1000000000000000000',
+        unit: 'DAI',
+      },
+    };
+    keyring.getAccountBalances.mockResolvedValue(mockedResult);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.getAccountBalances).toHaveBeenCalledWith(
+      request.params.id,
+      request.params.assets,
+    );
+    expect(result).toStrictEqual(mockedResult);
+  });
+
+  it('throws an error if `keyring_getAccountBalances` is not implemented', async () => {
+    const request: GetAccountBalancesRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.GetAccountBalances}`,
+      params: {
+        id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+        assets: ['eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f'],
+      },
+    };
+
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
+    delete partialKeyring.getAccountBalances;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      `Method not supported: ${KeyringSnapRpcMethod.GetAccountBalances}`,
+    );
+  });
+
+  it('calls `keyring_resolveAccountAddress`', async () => {
+    const request: ResolveAccountAddressRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.ResolveAccountAddress}`,
+      params: {
+        scope: 'bip122:000000000019d6689c085ae165831e93',
+        request: {
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'signPsbt',
+          params: {},
+        },
+      },
+    };
+
+    const mockedResult = {
+      address:
+        'bip122:000000000019d6689c085ae165831e93:1A1zP1eP5QGefi2DMPTfTL5SLmv7Divf',
+    };
+    keyring.resolveAccountAddress.mockResolvedValue(mockedResult);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.resolveAccountAddress).toHaveBeenCalledWith(
+      request.params.scope,
+      request.params.request,
+    );
+    expect(result).toStrictEqual(mockedResult);
+  });
+
+  it('throws an error if `keyring_resolveAccountAddress` is not implemented', async () => {
+    const request: ResolveAccountAddressRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.ResolveAccountAddress}`,
+      params: {
+        scope: 'bip122:000000000019d6689c085ae165831e93',
+        request: {
+          jsonrpc: '2.0',
+          id: '1',
+          method: 'signPsbt',
+          params: {},
+        },
+      },
+    };
+
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
+    delete partialKeyring.resolveAccountAddress;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      `Method not supported: ${KeyringSnapRpcMethod.ResolveAccountAddress}`,
+    );
   });
 
   it('throws an error if an unknown method is called', async () => {

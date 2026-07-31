@@ -50,6 +50,15 @@ expectAssignable<ImportPrivateKeyFormat>({
   type: 'eip155:eoa',
 });
 
+expectAssignable<ImportPrivateKeyFormat>({
+  encoding: 'base32',
+});
+
+expectAssignable<ImportPrivateKeyFormat>({
+  encoding: 'base32',
+  type: 'eip155:eoa',
+});
+
 expectNotAssignable<ImportPrivateKeyFormat>({
   encoding: 'invalid',
 });
@@ -133,6 +142,12 @@ expectAssignable<CreateAccountPrivateKeyOptions>({
   accountType: 'bip122:p2wpkh',
 });
 
+expectAssignable<CreateAccountPrivateKeyOptions>({
+  type: AccountCreationType.PrivateKeyImport,
+  privateKey: 'JBSWY3DPEHPK3PXP',
+  encoding: 'base32',
+});
+
 // Test CreateAccountCustomOptions
 expectAssignable<CreateAccountCustomOptions>({
   type: AccountCreationType.Custom,
@@ -172,6 +187,11 @@ expectAssignable<ExportAccountOptions>({
   encoding: 'base58',
 });
 
+expectAssignable<ExportAccountOptions>({
+  type: AccountExportType.PrivateKey,
+  encoding: 'base32',
+});
+
 // Test PrivateKeyExportedAccount
 expectAssignable<PrivateKeyExportedAccount>({
   type: AccountExportType.PrivateKey,
@@ -184,6 +204,12 @@ expectAssignable<ExportedAccount>({
   type: AccountExportType.PrivateKey,
   privateKey: 'L1aW4aubDFB7yfras2S1mN3bqg9nwySY8nkoLmJebSLD5BWv3ENZ',
   encoding: 'base58',
+});
+
+expectAssignable<ExportedAccount>({
+  type: AccountExportType.PrivateKey,
+  privateKey: 'JBSWY3DPEHPK3PXP',
+  encoding: 'base32',
 });
 
 // Test Keyring interface

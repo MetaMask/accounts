@@ -7,11 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [15.0.0]
+
+### Added
+
+- Add `HdKeyring.toEntropySourceId` (v2) ([#603](https://github.com/MetaMask/accounts/pull/603))
+  - This can be used to compute a stable/deterministic ID for the keyring's seed.
+
 ### Changed
 
-- Bump `@metamask/keyring-sdk` from `^2.0.2` to `^2.2.0` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546), [#562](https://github.com/MetaMask/accounts/pull/562))
-- Bump `@metamask/keyring-utils` from `^3.2.0` to `^3.3.1` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546))
-- Bump `@metamask/keyring-api` from `^23.1.0` to `^23.3.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569))
+- **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
+- Bump `@metamask/keyring-api` from `^23.6.0` to `^24.0.0` ([#604](https://github.com/MetaMask/accounts/pull/604), [#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-sdk` from `^2.3.0` to `^3.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-utils` from `^4.0.0` to `^5.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+
+## [14.1.2]
+
+### Changed
+
+- Bump `@metamask/keyring-sdk` from `^2.0.2` to `^2.3.0` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546), [#562](https://github.com/MetaMask/accounts/pull/562), [#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-utils` from `^3.2.0` to `^4.0.0` ([#544](https://github.com/MetaMask/accounts/pull/544), [#546](https://github.com/MetaMask/accounts/pull/546), [#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/keyring-api` from `^23.1.0` to `^23.6.0` ([#562](https://github.com/MetaMask/accounts/pull/562), [#569](https://github.com/MetaMask/accounts/pull/569), [#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587), [#600](https://github.com/MetaMask/accounts/pull/600))
+- Bump `@metamask/superstruct` from `^3.3.0` to `^3.4.1` ([#577](https://github.com/MetaMask/accounts/pull/577))
 
 ## [14.1.1]
 
@@ -295,7 +312,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deserialize method (and `HdKeyring` constructor by extension) can no longer be passed an options object containing a value for `numberOfAccounts` if it is not also containing a value for `mnemonic`.
 - Package name changed from `eth-hd-keyring` to `@metamask/eth-hd-keyring`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@15.0.0...HEAD
+[15.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.1.2...@metamask/eth-hd-keyring@15.0.0
+[14.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.1.1...@metamask/eth-hd-keyring@14.1.2
 [14.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.1.0...@metamask/eth-hd-keyring@14.1.1
 [14.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.0.1...@metamask/eth-hd-keyring@14.1.0
 [14.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-hd-keyring@14.0.0...@metamask/eth-hd-keyring@14.0.1

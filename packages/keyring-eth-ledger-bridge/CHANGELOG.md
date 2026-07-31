@@ -11,6 +11,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add a paging cache to the Ledger keyring that stores BIP-44 derived entries (`hdPath`, `address`, `publicKey`, `chainCode`) keyed by derivation path. In Ledger Live mode, `addAccounts` now reuses a cached address for an already-paged path and skips the device round-trip (`unlock(path)` → `bridge.getPublicKey`). The cache is invalidated on `forgetDevice`, `setHdPath` (when the path changes), `destroy`, and on device disconnect, and is also exposed via `invalidatePagingCache()` for external disconnect handlers ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 
+## [13.0.1]
+
+### Changed
+
+- Bump `@metamask/hw-wallet-sdk` from `^0.11.0` to `^1.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-api` from `^23.7.0` to `^24.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-sdk` from `^2.3.0` to `^3.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+
+## [13.0.0]
+
+### Added
+
+- Expose `LedgerDmkBridge.dmk` so clients can use the underlying Device Management Kit directly ([#607](https://github.com/MetaMask/accounts/pull/607))
+
+### Changed
+
+- **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
+- Bump `@ledgerhq/device-management-kit` from `1.5.1` to `^1.7.1` ([#607](https://github.com/MetaMask/accounts/pull/607))
+- Bump `@metamask/keyring-api` from `^23.5.0` to `^23.7.0` ([#600](https://github.com/MetaMask/accounts/pull/600), [#604](https://github.com/MetaMask/accounts/pull/604))
+- Bump `@metamask/keyring-sdk` from `^2.2.0` to `^2.3.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
+
+## [12.4.0]
+
+### Added
+
+- Add `createDmkError` factory function and wire DMK `_tag` resolution into the Ledger DMK bridge ([#597](https://github.com/MetaMask/accounts/pull/597))
+  - `createDmkError` constructs `HardwareWalletError` instances from DMK `_tag` strings.
+  - `translateDmkError` now resolves DMK connection/session errors (e.g. `DeviceSessionNotFound`, `DeviceLockedError`) by their `_tag` before falling back to hex APDU status codes.
+  - `LedgerDmkBridge.#toError` also resolves DMK `_tag` errors so `sendCommand` failures are correctly classified.
+
+### Changed
+
+- Bump `@metamask/hw-wallet-sdk` from `^0.10.0` to `^0.11.0` ([#597](https://github.com/MetaMask/accounts/pull/597), [#599](https://github.com/MetaMask/accounts/pull/599))
+
+## [12.3.0]
+
+### Changed
+
+- Throw `HardwareWalletError` with `DeviceStateOnlyV4Supported` when `signTypedData` is called with a non-V4 version ([#575](https://github.com/MetaMask/accounts/pull/575))
+- Bump `@metamask/hw-wallet-sdk` from `^0.8.0` to `^0.10.0` ([#576](https://github.com/MetaMask/accounts/pull/576), [#587](https://github.com/MetaMask/accounts/pull/587))
+- Bump `@metamask/keyring-api` from `^23.3.0` to `^23.5.0` ([#583](https://github.com/MetaMask/accounts/pull/583), [#587](https://github.com/MetaMask/accounts/pull/587))
+
 ## [12.2.0]
 
 ### Added
@@ -132,7 +174,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Increase ledger iframe timeout interval ([#314](https://github.com/MetaMask/accounts.git/pull/314))
+- Increase ledger iframe timeout interval ([#314](https://github.com/MetaMask/accounts/pull/314))
 
 ## [11.1.1]
 
@@ -350,7 +392,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **BREAKING**: `IFrameMessageResponse` now has more restrictive typings (#207) ([#207](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/207))
+- **BREAKING**: `IFrameMessageResponse` now has more restrictive typings([#207](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/207)) ([#207](https://github.com/MetaMask/accounts/pull/207))
 
 ## [2.0.1]
 
@@ -463,7 +505,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.0.1...HEAD
+[13.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.0.0...@metamask/eth-ledger-bridge-keyring@13.0.1
+[13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.4.0...@metamask/eth-ledger-bridge-keyring@13.0.0
+[12.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.3.0...@metamask/eth-ledger-bridge-keyring@12.4.0
+[12.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.2.0...@metamask/eth-ledger-bridge-keyring@12.3.0
 [12.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.1.0...@metamask/eth-ledger-bridge-keyring@12.2.0
 [12.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.0.3...@metamask/eth-ledger-bridge-keyring@12.1.0
 [12.0.3]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.0.2...@metamask/eth-ledger-bridge-keyring@12.0.3

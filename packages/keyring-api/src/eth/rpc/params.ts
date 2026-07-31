@@ -6,7 +6,6 @@
  * incoming requests before processing.
  */
 
-import { object } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   any,
@@ -14,6 +13,7 @@ import {
   literal,
   nullable,
   number,
+  object,
   optional,
   record,
   string,

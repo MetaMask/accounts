@@ -1,4 +1,10 @@
-import { exactOptional, literal, object, string } from '@metamask/superstruct';
+import {
+  exactOptional,
+  literal,
+  object,
+  sensitive,
+  string,
+} from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 
 import { KeyringAccountTypeStruct } from '../../../api/account';
@@ -15,7 +21,7 @@ export const CreateAccountPrivateKeyOptionsStruct = object({
   /**
    * The encoded private key to be imported.
    */
-  privateKey: string(),
+  privateKey: sensitive(string()),
   /**
    * The encoding of the private key.
    */
