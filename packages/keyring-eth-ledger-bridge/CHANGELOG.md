@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Changed
 
-- Add a paging cache to the Ledger keyring that stores BIP-44 derived entries (`hdPath`, `address`, `publicKey`, `chainCode`) keyed by derivation path ([#613](https://github.com/MetaMask/accounts/pull/613)).
+- Reuse paging-derived accounts to avoid redundant device I/O at unlock ([#613](https://github.com/MetaMask/accounts/pull/613))
 
 ## [13.0.1]
 
