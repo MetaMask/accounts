@@ -27,3 +27,40 @@ export function encodeMnemonic(mnemonicIndicesBytes: Uint8Array): number[] {
     new TextEncoder().encode(encodeMnemonicWords(mnemonicIndicesBytes)),
   );
 }
+
+/**
+ * Decodes a string of mnemonic words as an array of bytes (16-bit unsigned
+ * integers) representing the indices of the words in the mnemonic.
+ *
+ * @param mnemonic - A string representing the mnemonic.
+ * @returns An array of bytes representing the indices of the words in the mnemonic.
+ * @throws If the mnemonic contains a word that is not in the English BIP-39 wordlist.
+ */
+export function decodeMnemonicWords(mnemonic: string): Uint8Array {
+  if (mnemonic === '') {
+    return new Uint8Array();
+  }
+
+  const mnemonicIndices = mnemonic.split(' ').map((word) => {
+    const index = wordlist.indexOf(word);
+    if (index === -1) {
+      throw new Error(`Invalid mnemonic word: "${word}"`);
+    }
+    return index;
+  });
+
+  return new Uint8Array(new Uint16Array(mnemonicIndices).buffer);
+}
+
+/**
+ * Decodes an array of bytes (UTF-8) representing a mnemonic as an array of
+ * bytes (16-bit unsigned integers) representing the indices of the words in
+ * the mnemonic.
+ *
+ * @param mnemonicBytes - An array of bytes (UTF-8) representing the mnemonic.
+ * @returns An array of bytes representing the indices of the words in the mnemonic.
+ * @throws If the mnemonic contains a word that is not in the English BIP-39 wordlist.
+ */
+export function decodeMnemonic(mnemonicBytes: Uint8Array): Uint8Array {
+  return decodeMnemonicWords(new TextDecoder().decode(mnemonicBytes));
+}
