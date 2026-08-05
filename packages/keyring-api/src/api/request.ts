@@ -3,6 +3,7 @@ import type { Infer } from '@metamask/superstruct';
 import {
   array,
   exactOptional,
+  nullable,
   object,
   optional,
   record,
@@ -36,7 +37,7 @@ export const KeyringRequestStruct = object({
   /**
    * Origin metadata of the sender.
    */
-  originMetadata: optional(OriginMetadataStruct),
+  originMetadata: optional(nullable(OriginMetadataStruct)),
 
   /**
    * Inner request sent by the client application.
