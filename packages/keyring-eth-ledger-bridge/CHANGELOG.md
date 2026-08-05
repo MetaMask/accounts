@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Use `@ledgerhq/context-module@^2.1.0` instead of pinned version ([#616](https://github.com/MetaMask/accounts/pull/616))
 - Bump `@metamask/keyring-sdk` from `^3.0.0` to `^3.1.0` ([#614](https://github.com/MetaMask/accounts/pull/614))
 
 ## [13.0.1]
