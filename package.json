@@ -82,6 +82,7 @@
     "typescript-eslint": "^8.48.0"
   },
   "resolutions": {
+    "@metamask/snaps-sdk": "patch:@metamask/snaps-sdk@npm%3A11.1.1#~/.yarn/patches/@metamask-snaps-sdk-npm-11.1.1-f251977e79.patch",
     "@types/node": "^20.12.12",
     "@types/web": "^0.0.69",
     "@typescript/lib-dom": "npm:@types/web@^0.0.69",
@@ -89,8 +90,7 @@
     "eslint-import-resolver-typescript": "<=3.7.0",
     "eslint-plugin-import-x": "<=4.6.1",
     "napi-postinstall": "npm:npm-empty-package@^1.0.0",
-    "ws@7.4.6": "^7.5.10",
-    "@metamask/snaps-sdk": "patch:@metamask/snaps-sdk@npm%3A11.1.1#~/.yarn/patches/@metamask-snaps-sdk-npm-11.1.1-f251977e79.patch"
+    "ws@7.4.6": "^7.5.10"
   },
   "engines": {
     "node": ">=22"

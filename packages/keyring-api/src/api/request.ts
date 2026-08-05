@@ -1,4 +1,5 @@
 import { UuidStruct } from '@metamask/keyring-utils';
+import { OriginMetadataStruct } from '@metamask/snaps-sdk';
 import type { Infer } from '@metamask/superstruct';
 import {
   array,
@@ -11,7 +12,6 @@ import {
   union,
 } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
-import { OriginMetadataStruct } from '@metamask/snaps-sdk';
 
 export const KeyringRequestStruct = object({
   /**
@@ -37,7 +37,7 @@ export const KeyringRequestStruct = object({
   /**
    * Origin metadata of the sender.
    */
-  originMetadata: optional(nullable(OriginMetadataStruct)),
+  originMetadata: nullable(OriginMetadataStruct),
 
   /**
    * Inner request sent by the client application.

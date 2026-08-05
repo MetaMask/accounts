@@ -25,7 +25,10 @@ import {
   AccountTransactionsUpdatedEventStruct,
 } from '@metamask/keyring-api';
 import type { CreateAccountOptions } from '@metamask/keyring-api/v2';
-import { toKeyringRequestWithoutOrigin } from '@metamask/keyring-internal-api';
+import {
+  toKeyringRequestWithoutOrigin,
+  toKeyringRequestWithoutOriginMetadata,
+} from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import {
@@ -60,7 +63,10 @@ import {
 import { projectLogger as log } from './logger';
 import { getInternalOptionsOf } from './options';
 import type { SnapKeyringInternalOptions } from './options';
-import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions';
+import {
+  PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN,
+  PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA,
+} from './platform-versions';
 import type {
   SnapKeyringEvents,
   SnapKeyringMessenger,
@@ -448,10 +454,16 @@ export class SnapKeyringV1 {
         PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN,
       );
 
+      const useOriginMetadata = this.messenger.call(
+        'SnapController:isMinimumPlatformVersion',
+        this.snapId,
+        PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA,
+      );
+
       const request = {
         id: requestId,
         origin,
-        originMetadata,
+        originMetadata: originMetadata ?? null,
         scope,
         account: account.id,
         request: {
@@ -463,8 +475,12 @@ export class SnapKeyringV1 {
       log('Submit Snap request: ', request);
 
       let response;
-      if (useOrigin) {
+      if (useOriginMetadata) {
         response = await this.client.submitRequest(request);
+      } else if (useOrigin) {
+        response = await this.client.submitRequestWithoutOriginMetadata(
+          toKeyringRequestWithoutOriginMetadata(request),
+        );
       } else {
         response = await this.client.submitRequestWithoutOrigin(
           toKeyringRequestWithoutOrigin(request),

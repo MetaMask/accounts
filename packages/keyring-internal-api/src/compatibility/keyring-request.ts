@@ -19,6 +19,18 @@ export type KeyringRequestWithoutOrigin = Infer<
 >;
 
 /**
+ * Keyring request without `originMetadata` support.
+ */
+export const KeyringRequestWithoutOriginMetadataStruct = omit(
+  KeyringRequestStruct,
+  ['originMetadata'],
+);
+
+export type KeyringRequestWithoutOriginMetadata = Infer<
+  typeof KeyringRequestWithoutOriginMetadataStruct
+>;
+
+/**
  * Response to a call to `submitRequest` (v1).
  */
 export const KeyringResponseWithoutOriginStruct = KeyringResponseStruct;
@@ -39,6 +51,20 @@ export function toKeyringRequestWithoutOrigin(
   request: KeyringRequest,
 ): KeyringRequestWithoutOrigin {
   const { origin, originMetadata, ...requestV1 } = request;
+
+  return requestV1;
+}
+
+/**
+ * Converts a keyring request to a keyring request v2.
+ *
+ * @param request - A keyring request.
+ * @returns A keyring request v2.
+ */
+export function toKeyringRequestWithoutOriginMetadata(
+  request: KeyringRequest,
+): KeyringRequestWithoutOriginMetadata {
+  const { originMetadata, ...requestV1 } = request;
 
   return requestV1;
 }
