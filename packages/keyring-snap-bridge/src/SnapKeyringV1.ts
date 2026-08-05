@@ -399,6 +399,7 @@ export class SnapKeyringV1 {
    *
    * @param options - The request options.
    * @param options.origin - The sender origin.
+   * @param options.originMetadata - Optional metadata about the origin.
    * @param options.account - The account to submit the request for.
    * @param options.method - The method to call.
    * @param options.params - The method parameters.
