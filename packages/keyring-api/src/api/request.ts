@@ -4,11 +4,13 @@ import {
   array,
   exactOptional,
   object,
+  optional,
   record,
   string,
   union,
 } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
+import { OriginMetadataStruct } from '@metamask/snaps-sdk';
 
 export const KeyringRequestStruct = object({
   /**
@@ -30,6 +32,11 @@ export const KeyringRequestStruct = object({
    * Origin of the sender.
    */
   origin: string(),
+
+  /**
+   * Origin metadata of the sender.
+   */
+  originMetadata: optional(OriginMetadataStruct),
 
   /**
    * Inner request sent by the client application.

@@ -36,7 +36,7 @@ import type { GetSelectedAccountsResponse } from '@metamask/keyring-snap-sdk';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { ExtractEventPayload } from '@metamask/messenger';
-import type { SnapId } from '@metamask/snaps-sdk';
+import type { SnapId, OriginMetadata } from '@metamask/snaps-sdk';
 import { assert, mask, object, string } from '@metamask/superstruct';
 import type { Hex, Json, DeferredPromise } from '@metamask/utils';
 import {
@@ -408,6 +408,7 @@ export class SnapKeyringV1 {
    */
   async submitSnapRequest<Response extends Json>({
     origin,
+    originMetadata,
     account,
     method,
     params,
@@ -415,6 +416,7 @@ export class SnapKeyringV1 {
     noPending,
   }: {
     origin: string;
+    originMetadata?: OriginMetadata;
     account: KeyringAccount;
     method: AccountMethod;
     params?: Json[] | Record<string, Json> | undefined;
@@ -448,6 +450,7 @@ export class SnapKeyringV1 {
       const request = {
         id: requestId,
         origin,
+        originMetadata,
         scope,
         account: account.id,
         request: {

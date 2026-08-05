@@ -11,6 +11,7 @@ import type { Infer } from '@metamask/superstruct';
  */
 export const KeyringRequestWithoutOriginStruct = omit(KeyringRequestStruct, [
   'origin',
+  'originMetadata',
 ]);
 
 export type KeyringRequestWithoutOrigin = Infer<
@@ -37,7 +38,7 @@ export const SubmitRequestResponseV1Struct = KeyringResponseWithoutOriginStruct;
 export function toKeyringRequestWithoutOrigin(
   request: KeyringRequest,
 ): KeyringRequestWithoutOrigin {
-  const { origin, ...requestV1 } = request;
+  const { origin, originMetadata, ...requestV1 } = request;
 
   return requestV1;
 }

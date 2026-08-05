@@ -15,7 +15,7 @@ import type {
 import { AnyAccountType, KeyringEvent } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
-import type { SnapId } from '@metamask/snaps-sdk';
+import type { SnapId, OriginMetadata } from '@metamask/snaps-sdk';
 import type { Snap } from '@metamask/snaps-utils';
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
@@ -581,12 +581,14 @@ export class SnapKeyring {
    */
   async submitRequest({
     origin,
+    originMetadata,
     account: accountId,
     method,
     params,
     scope,
   }: {
     origin: string;
+    originMetadata?: OriginMetadata;
     // NOTE: We use `account` here rather than `id` to avoid ambiguity with a "request ID".
     // We already use this same field name for `KeyringAccount`s.
     account: string;
@@ -602,6 +604,7 @@ export class SnapKeyring {
 
     return await getKeyringV1For(keyring, 'requests').submitSnapRequest({
       origin,
+      originMetadata,
       account,
       method: method as AccountMethod,
       params,
