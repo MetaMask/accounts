@@ -173,6 +173,12 @@ describe('isSnapKeyringV1Adapter', () => {
       isSnapKeyringV1Adapter({ type: KeyringType.Snap, unwrap: () => ({}) }),
     ).toBe(true);
   });
+
+  it('returns false for a raw SnapKeyring (v2) that lacks unwrap', async () => {
+    const { inner } = await setup();
+
+    expect(isSnapKeyringV1Adapter(inner)).toBe(false);
+  });
 });
 
 describe('SnapKeyringV1Adapter', () => {
