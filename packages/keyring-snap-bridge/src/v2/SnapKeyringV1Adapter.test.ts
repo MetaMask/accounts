@@ -8,7 +8,10 @@ import type { SnapId } from '@metamask/snaps-sdk';
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
 import { SnapKeyring } from './SnapKeyring';
 import type { SnapKeyringCallbacks, SnapKeyringState } from './SnapKeyring';
-import { SnapKeyringV1Adapter } from './SnapKeyringV1Adapter';
+import {
+  isSnapKeyringV1Adapter,
+  SnapKeyringV1Adapter,
+} from './SnapKeyringV1Adapter';
 
 const ACCOUNT_ID = 'f2b88e0e-82a4-4e93-8c60-4fe59c6892d7';
 const ACCOUNT_ADDRESS = '0xdeadbeef00000000000000000000000000000000';
@@ -130,6 +133,47 @@ function buildMessenger(): SnapKeyringMessenger {
     publish: jest.fn(),
   } as unknown as SnapKeyringMessenger;
 }
+
+describe('isSnapKeyringV1Adapter', () => {
+  it('returns true for a real SnapKeyringV1Adapter instance', async () => {
+    const { adapter } = await setup();
+
+    expect(isSnapKeyringV1Adapter(adapter)).toBe(true);
+  });
+
+  it('returns false for null', () => {
+    expect(isSnapKeyringV1Adapter(null)).toBe(false);
+  });
+
+  it('returns false for undefined', () => {
+    expect(isSnapKeyringV1Adapter(undefined)).toBe(false);
+  });
+
+  it('returns false when type does not match', () => {
+    expect(
+      isSnapKeyringV1Adapter({ type: 'HD Key Tree', unwrap: () => ({}) }),
+    ).toBe(false);
+  });
+
+  it('returns false when unwrap is missing', () => {
+    expect(isSnapKeyringV1Adapter({ type: KeyringType.Snap })).toBe(false);
+  });
+
+  it('returns false when unwrap returns undefined', () => {
+    expect(
+      isSnapKeyringV1Adapter({
+        type: KeyringType.Snap,
+        unwrap: () => undefined,
+      }),
+    ).toBe(false);
+  });
+
+  it('returns true for a duck-typed object with matching type and non-undefined unwrap', () => {
+    expect(
+      isSnapKeyringV1Adapter({ type: KeyringType.Snap, unwrap: () => ({}) }),
+    ).toBe(true);
+  });
+});
 
 describe('SnapKeyringV1Adapter', () => {
   it('inherits generic v1 adapter behavior', async () => {
