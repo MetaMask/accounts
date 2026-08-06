@@ -19,7 +19,6 @@ export const OriginMetadataStruct = object({
   selfReportedOrigin: string(),
 });
 
-
 export const KeyringRequestStruct = object({
   /**
    * Keyring request ID (UUIDv4).

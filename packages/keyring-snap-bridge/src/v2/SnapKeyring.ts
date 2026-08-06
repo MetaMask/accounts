@@ -434,6 +434,7 @@ export class SnapKeyring implements Keyring {
    * @param request - The keyring request to submit.
    * @param request.id - The request ID.
    * @param request.origin - The sender origin.
+   * @param request.originMetadata - Optional origin metadata.
    * @param request.scope - The CAIP-2 chain ID.
    * @param request.account - The account ID.
    * @param request.request - The inner JSON-RPC request.
@@ -463,7 +464,9 @@ export class SnapKeyring implements Keyring {
       // v1 snap: use event-driven flow with { pending, result } envelope handling.
       return this.#v1.submitSnapRequest({
         origin: request.origin,
-        originMetadata: request.originMetadata ?? null,
+        ...(request.originMetadata !== undefined && {
+          originMetadata: request.originMetadata,
+        }),
         account,
         method: request.request.method as AccountMethod,
         params: request.request.params,
@@ -475,7 +478,9 @@ export class SnapKeyring implements Keyring {
     return this.#client.submitRequest({
       id: request.id,
       origin: request.origin,
-      originMetadata: request.originMetadata ?? null,
+      ...(request.originMetadata !== undefined && {
+        originMetadata: request.originMetadata,
+      }),
       scope: request.scope,
       account: request.account,
       request: request.request,

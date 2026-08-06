@@ -464,7 +464,7 @@ export class SnapKeyringV1 {
       const request = {
         id: requestId,
         origin,
-        originMetadata: originMetadata ?? null,
+        ...(originMetadata !== undefined && { originMetadata }),
         scope,
         account: account.id,
         request: {

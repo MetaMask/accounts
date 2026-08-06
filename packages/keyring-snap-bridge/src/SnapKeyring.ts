@@ -606,7 +606,7 @@ export class SnapKeyring {
 
     return await getKeyringV1For(keyring, 'requests').submitSnapRequest({
       origin,
-      originMetadata: originMetadata ?? null,
+      ...(originMetadata !== undefined && { originMetadata }),
       account,
       method: method as AccountMethod,
       params,
