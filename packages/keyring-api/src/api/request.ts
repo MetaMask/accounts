@@ -6,7 +6,6 @@ import {
   exactOptional,
   nullable,
   object,
-  optional,
   record,
   string,
   union,
@@ -37,7 +36,7 @@ export const KeyringRequestStruct = object({
   /**
    * Origin metadata of the sender.
    */
-  originMetadata: nullable(OriginMetadataStruct),
+  originMetadata: exactOptional(nullable(OriginMetadataStruct)),
 
   /**
    * Inner request sent by the client application.

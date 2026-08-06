@@ -589,7 +589,7 @@ export class SnapKeyring {
     scope,
   }: {
     origin: string;
-    originMetadata?: OriginMetadata;
+    originMetadata?: OriginMetadata | null;
     // NOTE: We use `account` here rather than `id` to avoid ambiguity with a "request ID".
     // We already use this same field name for `KeyringAccount`s.
     account: string;
@@ -605,7 +605,7 @@ export class SnapKeyring {
 
     return await getKeyringV1For(keyring, 'requests').submitSnapRequest({
       origin,
-      originMetadata,
+      originMetadata: originMetadata ?? null,
       account,
       method: method as AccountMethod,
       params,

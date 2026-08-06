@@ -9,7 +9,7 @@ import { KeyringType } from '@metamask/keyring-api/v2';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
-import type { SnapId } from '@metamask/snaps-sdk';
+import type { OriginMetadata, SnapId } from '@metamask/snaps-sdk';
 import type { Infer } from '@metamask/superstruct';
 import { assert, object, record, string, union } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
@@ -444,6 +444,7 @@ export class SnapKeyring implements Keyring {
   async submitRequest(request: {
     id: string;
     origin: string;
+    originMetadata?: OriginMetadata | null;
     scope: string;
     account: AccountId;
     request: {
@@ -462,6 +463,7 @@ export class SnapKeyring implements Keyring {
       // v1 snap: use event-driven flow with { pending, result } envelope handling.
       return this.#v1.submitSnapRequest({
         origin: request.origin,
+        originMetadata: request.originMetadata ?? null,
         account,
         method: request.request.method as AccountMethod,
         params: request.request.params,
@@ -473,6 +475,7 @@ export class SnapKeyring implements Keyring {
     return this.#client.submitRequest({
       id: request.id,
       origin: request.origin,
+      originMetadata: request.originMetadata ?? null,
       scope: request.scope,
       account: request.account,
       request: request.request,

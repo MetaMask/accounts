@@ -423,7 +423,7 @@ export class SnapKeyringV1 {
     noPending,
   }: {
     origin: string;
-    originMetadata?: OriginMetadata;
+    originMetadata?: OriginMetadata | null;
     account: KeyringAccount;
     method: AccountMethod;
     params?: Json[] | Record<string, Json> | undefined;

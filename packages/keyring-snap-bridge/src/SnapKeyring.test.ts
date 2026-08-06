@@ -60,6 +60,7 @@ import { getDefaultInternalOptions, SnapKeyring } from '.';
 import type { KeyringAccountV1 } from './account';
 import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
 import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
+import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions';
 
 type SnapRpcRequest = Parameters<
   SnapControllerHandleRequestAction['handler']
@@ -3427,6 +3428,47 @@ describe('SnapKeyring', () => {
             id: expect.any(String),
             scope,
             // No origin.
+            account: account.id,
+            request: {
+              method,
+              params,
+            },
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('submits a request (v2)', async () => {
+      const origin = 'test';
+
+      // <12.0.0, when `KeyringRequest.originMetadata` got introduced.
+      mockMessenger.isMinimumPlatformVersion.mockImplementation((_, version) => version === PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN);
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: false,
+        result: null,
+      });
+
+      await keyring.submitRequest({
+        origin,
+        account: account.id,
+        method,
+        params,
+        scope,
+      });
+
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_submitRequest',
+          // No originMetadata.
+          origin,
+          params: {
+            id: expect.any(String),
+            scope,
             account: account.id,
             request: {
               method,
