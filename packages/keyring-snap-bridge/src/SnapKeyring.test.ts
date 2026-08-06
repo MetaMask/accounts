@@ -12,6 +12,7 @@ import type {
   AccountAssetListUpdatedEventPayload,
   MetaMaskOptions,
   CreateAccountOptions,
+  OriginMetadata,
 } from '@metamask/keyring-api';
 import {
   EthScope,
@@ -3477,6 +3478,136 @@ describe('SnapKeyring', () => {
               method,
               params,
             },
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('includes originMetadata in the request when provided and platform supports it', async () => {
+      const origin = uuid();
+      const originMetadata: OriginMetadata = {
+        transport: 'WalletConnect',
+        selfReportedOrigin: 'test',
+      };
+
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: false,
+        result: null,
+      });
+
+      await keyring.submitRequest({
+        origin,
+        originMetadata,
+        account: account.id,
+        method,
+        params,
+        scope,
+      });
+
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_submitRequest',
+          params: {
+            id: expect.any(String),
+            scope,
+            origin,
+            originMetadata,
+            account: account.id,
+            request: { method, params },
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('strips originMetadata from the request for platforms that do not support it (v2)', async () => {
+      const origin = uuid();
+      const originMetadata: OriginMetadata = {
+        transport: 'WalletConnect',
+        selfReportedOrigin: 'test',
+      };
+
+      // <12.0.0, when `KeyringRequest.originMetadata` got introduced.
+      mockMessenger.isMinimumPlatformVersion.mockImplementation(
+        (_, version) =>
+          version === PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN,
+      );
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: false,
+        result: null,
+      });
+
+      await keyring.submitRequest({
+        origin,
+        originMetadata,
+        account: account.id,
+        method,
+        params,
+        scope,
+      });
+
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_submitRequest',
+          params: {
+            id: expect.any(String),
+            scope,
+            account: account.id,
+            // No originMetadata.
+            origin,
+            request: { method, params },
+          },
+        },
+        snapId,
+      });
+    });
+
+    it('strips originMetadata from the request for oldest platforms (v1)', async () => {
+      const origin = uuid();
+      const originMetadata: OriginMetadata = {
+        transport: 'WalletConnect',
+        selfReportedOrigin: 'test',
+      };
+
+      // <7.0.0, when `KeyringRequest.origin` got introduced.
+      mockMessenger.isMinimumPlatformVersion.mockReturnValue(false);
+      mockMessenger.handleRequest.mockResolvedValue({
+        pending: false,
+        result: null,
+      });
+
+      await keyring.submitRequest({
+        origin,
+        originMetadata,
+        account: account.id,
+        method,
+        params,
+        scope,
+      });
+
+      expect(mockMessenger.handleRequest).toHaveBeenCalledWith({
+        handler: 'onKeyringRequest',
+        origin: 'metamask',
+        request: {
+          id: expect.any(String),
+          jsonrpc: '2.0',
+          method: 'keyring_submitRequest',
+          params: {
+            id: expect.any(String),
+            scope,
+            // No origin.
+            // No originMetadata.
+            account: account.id,
+            request: { method, params },
           },
         },
         snapId,
