@@ -159,13 +159,13 @@ describe('isSnapKeyringV1Adapter', () => {
     expect(isSnapKeyringV1Adapter({ type: KeyringType.Snap })).toBe(false);
   });
 
-  it('returns false when unwrap returns undefined', () => {
+  it('returns true even when unwrap returns undefined (only presence of the method is checked)', () => {
     expect(
       isSnapKeyringV1Adapter({
         type: KeyringType.Snap,
         unwrap: () => undefined,
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('returns true for a duck-typed object with matching type and non-undefined unwrap', () => {

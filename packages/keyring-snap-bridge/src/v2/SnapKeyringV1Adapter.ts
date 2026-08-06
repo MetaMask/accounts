@@ -22,7 +22,7 @@ export function isSnapKeyringV1Adapter(
 
   const adapter = keyring as { type?: KeyringType; unwrap?: () => Keyring };
 
-  return adapter.type === KeyringType.Snap && adapter.unwrap?.() !== undefined;
+  return adapter.type === KeyringType.Snap && typeof adapter.unwrap === 'function';
 }
 
 /**
