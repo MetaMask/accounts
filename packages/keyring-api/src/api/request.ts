@@ -1,5 +1,4 @@
 import { UuidStruct } from '@metamask/keyring-utils';
-import { OriginMetadataStruct } from '@metamask/snaps-sdk';
 import type { Infer } from '@metamask/superstruct';
 import {
   array,
@@ -11,6 +10,15 @@ import {
   union,
 } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
+
+// These should mirror the types in the Snaps SDK.
+export type OriginMetadata = Infer<typeof OriginMetadataStruct>;
+
+export const OriginMetadataStruct = object({
+  transport: string(),
+  selfReportedOrigin: string(),
+});
+
 
 export const KeyringRequestStruct = object({
   /**

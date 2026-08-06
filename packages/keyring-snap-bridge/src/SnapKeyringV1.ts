@@ -12,6 +12,7 @@ import type {
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
+  OriginMetadata,
 } from '@metamask/keyring-api';
 import {
   AnyAccountType,
@@ -39,7 +40,7 @@ import type { GetSelectedAccountsResponse } from '@metamask/keyring-snap-sdk';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import { strictMask } from '@metamask/keyring-utils';
 import type { ExtractEventPayload } from '@metamask/messenger';
-import type { SnapId, OriginMetadata } from '@metamask/snaps-sdk';
+import type { SnapId } from '@metamask/snaps-sdk';
 import { assert, mask, object, string } from '@metamask/superstruct';
 import type { Hex, Json, DeferredPromise } from '@metamask/utils';
 import {

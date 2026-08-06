@@ -2257,7 +2257,6 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
-    "@metamask/snaps-sdk": "npm:^11.0.0"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
     "@ts-bridge/cli": "npm:^0.6.3"
@@ -2716,7 +2715,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/snaps-sdk@npm:11.1.1":
+"@metamask/snaps-sdk@npm:^11.0.0, @metamask/snaps-sdk@npm:^11.1.1":
   version: 11.1.1
   resolution: "@metamask/snaps-sdk@npm:11.1.1"
   dependencies:
@@ -2727,20 +2726,6 @@ __metadata:
     "@metamask/utils": "npm:^11.11.0"
     luxon: "npm:^3.5.0"
   checksum: 10/8419625775b83045d98c4ed920002ad884471e2303f6650104c97457c238f095ff35030663ddf111ebb6ce8f4cd915f57b7b9a5597d00288093701dbb79e787c
-  languageName: node
-  linkType: hard
-
-"@metamask/snaps-sdk@patch:@metamask/snaps-sdk@npm%3A11.1.1#~/.yarn/patches/@metamask-snaps-sdk-npm-11.1.1-f251977e79.patch":
-  version: 11.1.1
-  resolution: "@metamask/snaps-sdk@patch:@metamask/snaps-sdk@npm%3A11.1.1#~/.yarn/patches/@metamask-snaps-sdk-npm-11.1.1-f251977e79.patch::version=11.1.1&hash=0b0be5"
-  dependencies:
-    "@metamask/key-tree": "npm:^10.1.1"
-    "@metamask/providers": "npm:^22.1.1"
-    "@metamask/rpc-errors": "npm:^7.0.3"
-    "@metamask/superstruct": "npm:^3.2.1"
-    "@metamask/utils": "npm:^11.11.0"
-    luxon: "npm:^3.5.0"
-  checksum: 10/a10214f875b89bbb7384c9c676b8c86b4dac1619c9c6a2eabdbe7ae25de3ef53bd68b5edb10be6a67e45af26e7a815303e3016222b065e6b0415b43cef97aef3
   languageName: node
   linkType: hard
 

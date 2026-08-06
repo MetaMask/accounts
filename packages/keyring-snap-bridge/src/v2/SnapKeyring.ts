@@ -1,4 +1,4 @@
-import type { KeyringAccount } from '@metamask/keyring-api';
+import type { KeyringAccount, OriginMetadata } from '@metamask/keyring-api';
 import { KeyringAccountStruct } from '@metamask/keyring-api';
 import type {
   CreateAccountOptions,
@@ -9,7 +9,7 @@ import { KeyringType } from '@metamask/keyring-api/v2';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
-import type { OriginMetadata, SnapId } from '@metamask/snaps-sdk';
+import type { SnapId } from '@metamask/snaps-sdk';
 import type { Infer } from '@metamask/superstruct';
 import { assert, object, record, string, union } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';

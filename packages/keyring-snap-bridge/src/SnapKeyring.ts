@@ -11,11 +11,12 @@ import type {
   ResolvedAccountAddress,
   CaipChainId,
   CreateAccountOptions,
+  OriginMetadata,
 } from '@metamask/keyring-api';
 import { AnyAccountType, KeyringEvent } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
-import type { SnapId, OriginMetadata } from '@metamask/snaps-sdk';
+import type { SnapId } from '@metamask/snaps-sdk';
 import type { Snap } from '@metamask/snaps-utils';
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
