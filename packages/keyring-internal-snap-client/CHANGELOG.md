@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `submitRequestWithoutOriginMetadata` method ([#615](https://github.com/MetaMask/accounts/pull/615))
+  - Used to submit requests to Snaps that support `origin` but not `originMetadata` (platform version `>=7.0.0, <12.0.0`).
+
 ## [11.0.0]
 
 ### Changed
