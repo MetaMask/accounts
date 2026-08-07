@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Changed
 
 - **BREAKING:** Remove envelope from migration framework ([#619](https://github.com/MetaMask/accounts/pull/619))
   - The envelope made it harder to integrate with existing state.
