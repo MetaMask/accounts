@@ -1,5 +1,13 @@
 import type { Infer, Struct } from '@metamask/superstruct';
-import { assert, integer, is, record, refine, string, type } from '@metamask/superstruct';
+import {
+  assert,
+  integer,
+  is,
+  record,
+  refine,
+  string,
+  type,
+} from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 import type { Json } from '@metamask/utils';
 
@@ -21,7 +29,8 @@ export type JsonObject = Record<string, Json>;
 export const JsonObjectStruct: Struct<JsonObject> = refine(
   record(string(), JsonStruct),
   'JsonObject',
-  (value) => typeof value === 'object' && value !== null && !Array.isArray(value),
+  (value) =>
+    typeof value === 'object' && value !== null && !Array.isArray(value),
 );
 
 /**
