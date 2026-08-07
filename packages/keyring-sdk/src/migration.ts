@@ -1,5 +1,5 @@
 import type { Struct } from '@metamask/superstruct';
-import { assert, integer, object } from '@metamask/superstruct';
+import { assert, integer, type } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 import type { Json } from '@metamask/utils';
 
@@ -17,7 +17,7 @@ export type JsonObject = Record<string, Json>;
  * whether arbitrary flat state carries a version field, use
  * {@link isVersionedState} instead.
  */
-export const VersionedStateStruct = object({
+export const VersionedStateStruct = type({
   version: integer(),
 });
 
