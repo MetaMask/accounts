@@ -1,5 +1,5 @@
 import type { Infer, Struct } from '@metamask/superstruct';
-import { assert, integer, record, string, type } from '@metamask/superstruct';
+import { assert, integer, is, record, refine, string, type } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 import type { Json } from '@metamask/utils';
 
@@ -15,9 +15,13 @@ export type JsonObject = Record<string, Json>;
  * Used as the default fallback schema for step input/output validation when no
  * explicit schema is provided.
  */
-export const JsonObjectStruct: Struct<JsonObject> = record(
-  string(),
-  JsonStruct,
+// `record(string(), JsonStruct)` alone would accept arrays: `typeof [] === 'object'`
+// satisfies superstruct's `isObject` check, and `Object.entries(['a', 'b'])` yields
+// valid string keys with JSON values. The refinement makes the array rejection explicit.
+export const JsonObjectStruct: Struct<JsonObject> = refine(
+  record(string(), JsonStruct),
+  'JsonObject',
+  (value) => typeof value === 'object' && value !== null && !Array.isArray(value),
 );
 
 /**
@@ -76,7 +80,7 @@ export type MigrationResult<Data extends JsonObject = JsonObject> = {
  * @returns `true` if the value is a non-null, non-array object.
  */
 function isJsonObject(value: Json): value is JsonObject {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+  return is(value, JsonObjectStruct);
 }
 
 /**
@@ -89,7 +93,7 @@ function isJsonObject(value: Json): value is JsonObject {
  * @returns `true` if the value has a `version: integer` field.
  */
 export function isVersionedState(state: Json): state is VersionedState {
-  return isJsonObject(state) && Number.isInteger(state.version);
+  return is(state, VersionedStateStruct);
 }
 
 /**
