@@ -522,6 +522,7 @@ export class EthKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>
     return (await this.inner.submitRequest({
       id: uuid(),
       origin: METAMASK_ORIGIN,
+      originMetadata: null,
       scope,
       account: account.id,
       request: {

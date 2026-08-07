@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `OriginMetadata` type and `originMetadata` field to `KeyringRequest` ([#615](https://github.com/MetaMask/accounts/pull/615))
+  - `KeyringRequest.originMetadata` is an optional nullable field that carries metadata about the request origin.
+
 ## [24.0.0]
 
 ### Changed

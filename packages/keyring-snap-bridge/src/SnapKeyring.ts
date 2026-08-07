@@ -11,6 +11,7 @@ import type {
   ResolvedAccountAddress,
   CaipChainId,
   CreateAccountOptions,
+  OriginMetadata,
 } from '@metamask/keyring-api';
 import { AnyAccountType, KeyringEvent } from '@metamask/keyring-api';
 import type { InternalAccount } from '@metamask/keyring-internal-api';
@@ -573,6 +574,7 @@ export class SnapKeyring {
    *
    * @param opts - Request options.
    * @param opts.origin - Send origin.
+   * @param opts.originMetadata - Optional metadata about the origin.
    * @param opts.account - Account ID.
    * @param opts.method - Method to call.
    * @param opts.params - Method parameters.
@@ -581,12 +583,14 @@ export class SnapKeyring {
    */
   async submitRequest({
     origin,
+    originMetadata,
     account: accountId,
     method,
     params,
     scope,
   }: {
     origin: string;
+    originMetadata?: OriginMetadata | null;
     // NOTE: We use `account` here rather than `id` to avoid ambiguity with a "request ID".
     // We already use this same field name for `KeyringAccount`s.
     account: string;
@@ -602,6 +606,7 @@ export class SnapKeyring {
 
     return await getKeyringV1For(keyring, 'requests').submitSnapRequest({
       origin,
+      ...(originMetadata !== undefined && { originMetadata }),
       account,
       method: method as AccountMethod,
       params,

@@ -12,6 +12,7 @@ import type {
   EthBaseUserOperation,
   EthUserOperation,
   EthUserOperationPatch,
+  OriginMetadata,
 } from '@metamask/keyring-api';
 import {
   AnyAccountType,
@@ -25,7 +26,10 @@ import {
   AccountTransactionsUpdatedEventStruct,
 } from '@metamask/keyring-api';
 import type { CreateAccountOptions } from '@metamask/keyring-api/v2';
-import { toKeyringRequestWithoutOrigin } from '@metamask/keyring-internal-api';
+import {
+  toKeyringRequestWithoutOrigin,
+  toKeyringRequestWithoutOriginMetadata,
+} from '@metamask/keyring-internal-api';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client';
 import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
 import {
@@ -60,7 +64,10 @@ import {
 import { projectLogger as log } from './logger';
 import { getInternalOptionsOf } from './options';
 import type { SnapKeyringInternalOptions } from './options';
-import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions';
+import {
+  PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN,
+  PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA,
+} from './platform-versions';
 import type {
   SnapKeyringEvents,
   SnapKeyringMessenger,
@@ -399,6 +406,7 @@ export class SnapKeyringV1 {
    *
    * @param options - The request options.
    * @param options.origin - The sender origin.
+   * @param options.originMetadata - Optional metadata about the origin.
    * @param options.account - The account to submit the request for.
    * @param options.method - The method to call.
    * @param options.params - The method parameters.
@@ -408,6 +416,7 @@ export class SnapKeyringV1 {
    */
   async submitSnapRequest<Response extends Json>({
     origin,
+    originMetadata,
     account,
     method,
     params,
@@ -415,6 +424,7 @@ export class SnapKeyringV1 {
     noPending,
   }: {
     origin: string;
+    originMetadata?: OriginMetadata | null;
     account: KeyringAccount;
     method: AccountMethod;
     params?: Json[] | Record<string, Json> | undefined;
@@ -445,9 +455,16 @@ export class SnapKeyringV1 {
         PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN,
       );
 
+      const useOriginMetadata = this.messenger.call(
+        'SnapController:isMinimumPlatformVersion',
+        this.snapId,
+        PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA,
+      );
+
       const request = {
         id: requestId,
         origin,
+        ...(originMetadata !== undefined && { originMetadata }),
         scope,
         account: account.id,
         request: {
@@ -459,8 +476,12 @@ export class SnapKeyringV1 {
       log('Submit Snap request: ', request);
 
       let response;
-      if (useOrigin) {
+      if (useOriginMetadata) {
         response = await this.client.submitRequest(request);
+      } else if (useOrigin) {
+        response = await this.client.submitRequestWithoutOriginMetadata(
+          toKeyringRequestWithoutOriginMetadata(request),
+        );
       } else {
         response = await this.client.submitRequestWithoutOrigin(
           toKeyringRequestWithoutOrigin(request),

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `EthKeyringV1Adapter` now passes `originMetadata: null` when submitting requests ([#615](https://github.com/MetaMask/accounts/pull/615))
+
 ## [3.1.0]
 
 ### Added

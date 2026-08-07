@@ -2,11 +2,13 @@ import { EthAccountType, EthScope, KeyringEvent } from '@metamask/keyring-api';
 import type {
   KeyringAccount,
   CreateAccountOptions,
+  OriginMetadata,
 } from '@metamask/keyring-api';
 import type { Keyring } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
 import type { SnapId } from '@metamask/snaps-sdk';
+import { v4 as uuid } from 'uuid';
 
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
 import { SnapKeyringV1 } from '../SnapKeyringV1';
@@ -727,6 +729,100 @@ describe('SnapKeyring', () => {
         await expect(keyring.submitRequest(request)).rejects.toThrow(
           "Account 'unknown-id' not found",
         );
+      });
+
+      it('forwards originMetadata to v1.submitSnapRequest for a v1 snap', async () => {
+        const mockResult = { success: true };
+        const { keyring } = await makeKeyring();
+        keyring.setAccount(account1);
+        const v1 = keyring.v1 as SnapKeyringV1;
+        const submitSpy = jest
+          .spyOn(v1, 'submitSnapRequest')
+          .mockResolvedValue(mockResult);
+
+        const originMetadata: OriginMetadata = {
+          transport: 'WalletConnect',
+          selfReportedOrigin: 'test',
+        };
+        const request = {
+          id: '1',
+          origin: uuid(),
+          originMetadata,
+          scope: 'eip155:1',
+          account: account1.id,
+          request: { method: 'eth_sign' },
+        };
+
+        await keyring.submitRequest(request);
+
+        expect(submitSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ originMetadata }),
+        );
+      });
+
+      it('forwards originMetadata to the v2 client for a v2 snap', async () => {
+        const mockResult = { success: true };
+        const messenger = {
+          call: jest.fn((action: string) => {
+            switch (action) {
+              case 'SnapController:getSnap':
+                return {
+                  manifest: {
+                    initialPermissions: {
+                      'endowment:keyring': {
+                        capabilities: {
+                          scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+                        },
+                      },
+                    },
+                  },
+                };
+              case 'SnapController:isMinimumPlatformVersion':
+                return true;
+              default:
+                return undefined;
+            }
+          }),
+          publish: jest.fn(),
+        } as unknown as SnapKeyringMessenger;
+        const keyring = new SnapKeyring({
+          messenger,
+          callbacks: makeMockCallbacks(),
+        });
+        await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+        keyring.setAccount(account1);
+        expect(keyring.v1).toBeUndefined();
+
+        const submitSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'submitRequest')
+          .mockResolvedValue(mockResult);
+
+        const originMetadata: OriginMetadata = {
+          transport: 'WalletConnect',
+          selfReportedOrigin: 'test',
+        };
+        const request = {
+          id: '1',
+          origin: uuid(),
+          originMetadata,
+          scope: 'eip155:1',
+          account: account1.id,
+          request: { method: 'eth_sign' },
+        };
+
+        const result = await keyring.submitRequest(request);
+
+        expect(result).toStrictEqual(mockResult);
+        expect(submitSpy).toHaveBeenCalledWith({
+          id: '1',
+          origin: request.origin,
+          originMetadata,
+          scope: 'eip155:1',
+          account: account1.id,
+          request: { method: 'eth_sign' },
+        });
+
+        submitSpy.mockRestore();
       });
     });
 

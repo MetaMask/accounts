@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `isSnapKeyringV1Adapter` ([#618](https://github.com/MetaMask/accounts/pull/618))
   - This helper ensure we can safely identify the adapter if multiple versions/variants of that same class exists.
+- Forward `originMetadata` from `submitRequest` to the Snap handler when the platform supports it ([#615](https://github.com/MetaMask/accounts/pull/615))
+  - Snaps running on platform `>=12.0.0` will receive `originMetadata` in `onKeyringRequest` requests.
+  - Older platform versions continue to receive requests without this field.
 
 ### Changed
 

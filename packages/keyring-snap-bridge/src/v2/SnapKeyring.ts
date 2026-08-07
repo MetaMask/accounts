@@ -1,4 +1,4 @@
-import type { KeyringAccount } from '@metamask/keyring-api';
+import type { KeyringAccount, OriginMetadata } from '@metamask/keyring-api';
 import { KeyringAccountStruct } from '@metamask/keyring-api';
 import type {
   CreateAccountOptions,
@@ -22,6 +22,7 @@ import {
   transformAccount,
 } from '../account';
 import { isAccountV1, migrateAccountV1 } from '../migrations';
+import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA } from '../platform-versions';
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
 import { SnapKeyringV1 } from '../SnapKeyringV1';
 import type { AccountMethod, SnapKeyringV1Callbacks } from '../SnapKeyringV1';
@@ -434,6 +435,7 @@ export class SnapKeyring implements Keyring {
    * @param request - The keyring request to submit.
    * @param request.id - The request ID.
    * @param request.origin - The sender origin.
+   * @param request.originMetadata - Optional origin metadata.
    * @param request.scope - The CAIP-2 chain ID.
    * @param request.account - The account ID.
    * @param request.request - The inner JSON-RPC request.
@@ -444,6 +446,7 @@ export class SnapKeyring implements Keyring {
   async submitRequest(request: {
     id: string;
     origin: string;
+    originMetadata?: OriginMetadata | null;
     scope: string;
     account: AccountId;
     request: {
@@ -462,6 +465,9 @@ export class SnapKeyring implements Keyring {
       // v1 snap: use event-driven flow with { pending, result } envelope handling.
       return this.#v1.submitSnapRequest({
         origin: request.origin,
+        ...(request.originMetadata !== undefined && {
+          originMetadata: request.originMetadata,
+        }),
         account,
         method: request.request.method as AccountMethod,
         params: request.request.params,
@@ -469,10 +475,21 @@ export class SnapKeyring implements Keyring {
         noPending: false,
       });
     }
+
+    const useOriginMetadata = this.#messenger.call(
+      'SnapController:isMinimumPlatformVersion',
+      this.snapId,
+      PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA,
+    );
+
     // v2 snap: call snap directly, returns Json (no envelope).
     return this.#client.submitRequest({
       id: request.id,
       origin: request.origin,
+      ...(useOriginMetadata &&
+        request.originMetadata !== undefined && {
+          originMetadata: request.originMetadata,
+        }),
       scope: request.scope,
       account: request.account,
       request: request.request,

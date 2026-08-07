@@ -11,10 +11,23 @@ import type { Infer } from '@metamask/superstruct';
  */
 export const KeyringRequestWithoutOriginStruct = omit(KeyringRequestStruct, [
   'origin',
+  'originMetadata',
 ]);
 
 export type KeyringRequestWithoutOrigin = Infer<
   typeof KeyringRequestWithoutOriginStruct
+>;
+
+/**
+ * Keyring request without `originMetadata` support.
+ */
+export const KeyringRequestWithoutOriginMetadataStruct = omit(
+  KeyringRequestStruct,
+  ['originMetadata'],
+);
+
+export type KeyringRequestWithoutOriginMetadata = Infer<
+  typeof KeyringRequestWithoutOriginMetadataStruct
 >;
 
 /**
@@ -37,7 +50,21 @@ export const SubmitRequestResponseV1Struct = KeyringResponseWithoutOriginStruct;
 export function toKeyringRequestWithoutOrigin(
   request: KeyringRequest,
 ): KeyringRequestWithoutOrigin {
-  const { origin, ...requestV1 } = request;
+  const { origin, originMetadata, ...requestV1 } = request;
+
+  return requestV1;
+}
+
+/**
+ * Converts a keyring request to a keyring request v2.
+ *
+ * @param request - A keyring request.
+ * @returns A keyring request v2.
+ */
+export function toKeyringRequestWithoutOriginMetadata(
+  request: KeyringRequest,
+): KeyringRequestWithoutOriginMetadata {
+  const { originMetadata, ...requestV1 } = request;
 
   return requestV1;
 }
