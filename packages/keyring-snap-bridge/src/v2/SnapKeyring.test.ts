@@ -123,12 +123,12 @@ describe('SnapKeyring', () => {
         call: jest.fn((action: string) =>
           action === 'SnapController:getSnap' && keyringPermission !== undefined
             ? {
-              manifest: {
-                initialPermissions: {
-                  'endowment:keyring': keyringPermission,
+                manifest: {
+                  initialPermissions: {
+                    'endowment:keyring': keyringPermission,
+                  },
                 },
-              },
-            }
+              }
             : undefined,
         ),
         publish: jest.fn(),
@@ -557,16 +557,16 @@ describe('SnapKeyring', () => {
           call: jest.fn((action: string) =>
             action === 'SnapController:getSnap'
               ? {
-                manifest: {
-                  initialPermissions: {
-                    'endowment:keyring': {
-                      capabilities: {
-                        scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+                  manifest: {
+                    initialPermissions: {
+                      'endowment:keyring': {
+                        capabilities: {
+                          scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+                        },
                       },
                     },
                   },
-                },
-              }
+                }
               : undefined,
           ),
           publish: jest.fn(),
@@ -666,16 +666,16 @@ describe('SnapKeyring', () => {
           call: jest.fn((action: string) =>
             action === 'SnapController:getSnap'
               ? {
-                manifest: {
-                  initialPermissions: {
-                    'endowment:keyring': {
-                      capabilities: {
-                        scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+                  manifest: {
+                    initialPermissions: {
+                      'endowment:keyring': {
+                        capabilities: {
+                          scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+                        },
                       },
                     },
                   },
-                },
-              }
+                }
               : undefined,
           ),
           publish: jest.fn(),
