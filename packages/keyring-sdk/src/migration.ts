@@ -220,7 +220,10 @@ async function applySteps<Data extends JsonObject>(
     }
   }
 
-  const migratedState = { ...data, version: latestVersion } as VersionedState<Data>;
+  const migratedState = {
+    ...data,
+    version: latestVersion,
+  } as VersionedState<Data>;
   return {
     version: latestVersion,
     state: migratedState,

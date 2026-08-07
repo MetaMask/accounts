@@ -48,7 +48,9 @@ createMigrations()
   .add({
     // @ts-expect-error [test] `inputSchema`'s inferred type doesn't extend `{ count: number }`.
     inputSchema: object({ label: string() }),
-    migrate: (data) => ({ label: (data as unknown as { label: string }).label }),
+    migrate: (data) => ({
+      label: (data as unknown as { label: string }).label,
+    }),
   });
 
 // `apply()` resolves to the final step's output type.

@@ -122,9 +122,9 @@ describe('apply', () => {
     });
 
     it('throws when given null as unversioned state', async () => {
-      await expect(
-        createMigrations().apply(null),
-      ).rejects.toThrow('Unversioned state must be a plain object');
+      await expect(createMigrations().apply(null)).rejects.toThrow(
+        'Unversioned state must be a plain object',
+      );
     });
   });
 
