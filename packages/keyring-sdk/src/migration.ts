@@ -240,8 +240,8 @@ async function applySteps<Data extends JsonObject>(
   return {
     version: latestVersion,
     state: {
-      version: latestVersion,
       ...data,
+      version: latestVersion,
     },
     migrated: pendingSteps.length > 0,
   } as MigrationResult<Data>;

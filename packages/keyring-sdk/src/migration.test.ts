@@ -126,6 +126,17 @@ describe('apply', () => {
         'Unversioned state must be a plain object',
       );
     });
+
+    it('overrides a version field returned by a step with the framework version', async () => {
+      const migrations = createMigrations().add({
+        migrate: () => ({ version: 99, foo: 'bar' }),
+      });
+
+      const result = await migrations.apply({});
+
+      expect(result.state.version).toBe(1);
+      expect(result.version).toBe(1);
+    });
   });
 
   describe('when given versioned state', () => {
