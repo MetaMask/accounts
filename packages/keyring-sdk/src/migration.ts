@@ -73,7 +73,7 @@ export function isVersionedState(state: Json): state is VersionedState {
     typeof state === 'object' &&
     state !== null &&
     !Array.isArray(state) &&
-    Number.isInteger((state as Record<string, Json>).version)
+    Number.isInteger(state.version)
   );
 }
 
@@ -91,15 +91,15 @@ function getVersionAndData(
   state: Json,
 ): { version: number; data: JsonObject } {
   if (isVersionedState(state)) {
-    const { version, ...rest } = state as VersionedState;
-    return { version, data: rest as JsonObject };
+    const { version, ...rest } = state;
+    return { version, data: rest };
   }
 
   if (typeof state !== 'object' || state === null || Array.isArray(state)) {
     throw new Error('Unversioned state must be a plain object');
   }
 
-  return { version: 0, data: state as JsonObject };
+  return { version: 0, data: state };
 }
 
 /**
@@ -213,7 +213,7 @@ async function applySteps<Data extends JsonObject>(
     if (step.outputSchema) {
       assert(data, step.outputSchema);
     } else {
-      assert(data as Json, JsonStruct);
+      assert(data, JsonStruct);
     }
   }
 
