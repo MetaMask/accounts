@@ -60,6 +60,16 @@ export type MigrationResult<Data extends JsonObject = JsonObject> = {
 };
 
 /**
+ * Type guard to check if a value is a plain JSON object.
+ *
+ * @param value - The value to check.
+ * @returns `true` if the value is a non-null, non-array object.
+ */
+function isJsonObject(value: Json): value is JsonObject {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
  * Type guard to check if a value is a {@link VersionedState}.
  *
  * Returns `true` for any plain object that carries a `version: integer` field,
@@ -69,12 +79,7 @@ export type MigrationResult<Data extends JsonObject = JsonObject> = {
  * @returns `true` if the value has a `version: integer` field.
  */
 export function isVersionedState(state: Json): state is VersionedState {
-  return (
-    typeof state === 'object' &&
-    state !== null &&
-    !Array.isArray(state) &&
-    Number.isInteger(state.version)
-  );
+  return isJsonObject(state) && Number.isInteger(state.version);
 }
 
 /**
@@ -87,15 +92,13 @@ export function isVersionedState(state: Json): state is VersionedState {
  * @param state - The state to decompose.
  * @returns The version number and the inner data object.
  */
-function getVersionAndData(
-  state: Json,
-): { version: number; data: JsonObject } {
+function getVersionAndData(state: Json): { version: number; data: JsonObject } {
   if (isVersionedState(state)) {
     const { version, ...rest } = state;
     return { version, data: rest };
   }
 
-  if (typeof state !== 'object' || state === null || Array.isArray(state)) {
+  if (!isJsonObject(state)) {
     throw new Error('Unversioned state must be a plain object');
   }
 
