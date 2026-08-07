@@ -1,6 +1,7 @@
 import { KeyringRpcMethod } from '@metamask/keyring-api';
 import type {
   KeyringRequestWithoutOrigin,
+  KeyringRequestWithoutOriginMetadata,
   KeyringResponseWithoutOrigin,
 } from '@metamask/keyring-internal-api';
 import { SubmitRequestResponseV1Struct } from '@metamask/keyring-internal-api';
@@ -134,6 +135,24 @@ export class KeyringInternalSnapClient extends KeyringClient {
    */
   async submitRequestWithoutOrigin(
     request: KeyringRequestWithoutOrigin,
+  ): Promise<KeyringResponseWithoutOrigin> {
+    return strictMask(
+      await this.send({
+        method: KeyringRpcMethod.SubmitRequest,
+        params: request,
+      }),
+      SubmitRequestResponseV1Struct,
+    );
+  }
+
+  /**
+   * Submit a keyring request v2 (with no `originMetadata`).
+   *
+   * @param request - Keyring request.
+   * @returns Keyring request's response.
+   */
+  async submitRequestWithoutOriginMetadata(
+    request: KeyringRequestWithoutOriginMetadata,
   ): Promise<KeyringResponseWithoutOrigin> {
     return strictMask(
       await this.send({

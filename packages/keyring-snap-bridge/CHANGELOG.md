@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [24.1.0]
+
+### Added
+
+- Add `isSnapKeyringV1Adapter` ([#618](https://github.com/MetaMask/accounts/pull/618))
+  - This helper ensure we can safely identify the adapter if multiple versions/variants of that same class exists.
+- Forward `originMetadata` from `submitRequest` to the Snap handler when the platform supports it ([#615](https://github.com/MetaMask/accounts/pull/615))
+  - Snaps running on platform `>=12.0.0` will receive `originMetadata` in `onKeyringRequest` requests.
+  - Older platform versions continue to receive requests without this field.
+
 ### Changed
 
 - Bump `@metamask/keyring-sdk` from `^3.0.0` to `^3.1.0` ([#614](https://github.com/MetaMask/accounts/pull/614))
+- Bump `@metamask/keyring-internal-api` from `^12.0.0` to `^12.1.0` ([#620](https://github.com/MetaMask/accounts/pull/620))
+- Bump `@metamask/keyring-internal-snap-client` from `^11.0.0` to `^11.1.0` ([#620](https://github.com/MetaMask/accounts/pull/620))
 
 ## [24.0.0]
 
@@ -803,7 +815,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.1.0...HEAD
+[24.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.0.0...@metamask/eth-snap-keyring@24.1.0
 [24.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.2...@metamask/eth-snap-keyring@24.0.0
 [23.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.1...@metamask/eth-snap-keyring@23.0.2
 [23.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.0...@metamask/eth-snap-keyring@23.0.1

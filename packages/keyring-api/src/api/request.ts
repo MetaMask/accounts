@@ -3,12 +3,21 @@ import type { Infer } from '@metamask/superstruct';
 import {
   array,
   exactOptional,
+  nullable,
   object,
   record,
   string,
   union,
 } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
+
+// These should mirror the types in the Snaps SDK.
+export type OriginMetadata = Infer<typeof OriginMetadataStruct>;
+
+export const OriginMetadataStruct = object({
+  transport: string(),
+  selfReportedOrigin: string(),
+});
 
 export const KeyringRequestStruct = object({
   /**
@@ -30,6 +39,11 @@ export const KeyringRequestStruct = object({
    * Origin of the sender.
    */
   origin: string(),
+
+  /**
+   * Origin metadata of the sender.
+   */
+  originMetadata: exactOptional(nullable(OriginMetadataStruct)),
 
   /**
    * Inner request sent by the client application.
