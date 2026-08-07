@@ -261,7 +261,7 @@ function buildChain<Data extends JsonObject>(
  * ```typescript
  * const migrations = createMigrations()
  *   .add({ migrate: (data) => ({ count: data.numberOfItems }) })
- *   .add({ migrate: (data) => ({ ...data, createdAt: Date.now() }) });
+ *   .add({ migrate: (data) => ({ ...data, createdAt: Date.now() }) }); // data typed as the first step's output, no cast
  *
  * const { state, migrated } = await migrations.apply(serializedState);
  * // Persist `state`; re-save if `migrated` is true.
