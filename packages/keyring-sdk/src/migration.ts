@@ -1,4 +1,4 @@
-import type { Struct } from '@metamask/superstruct';
+import type { Infer, Struct } from '@metamask/superstruct';
 import { assert, integer, record, string, type } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 import type { Json } from '@metamask/utils';
@@ -50,9 +50,8 @@ export const VersionedStateStruct = type({
  *   accounts: [],
  * };
  */
-export type VersionedState<Data extends JsonObject = JsonObject> = Data & {
-  version: number;
-};
+export type VersionedState<Data extends JsonObject = JsonObject> = Data &
+  Infer<typeof VersionedStateStruct>;
 
 /**
  * Return value of {@link MigrationChain.apply}.
