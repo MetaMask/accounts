@@ -94,8 +94,8 @@ export function isVersionedState(state: Json): state is VersionedState {
  */
 function getVersionAndData(state: Json): { version: number; data: JsonObject } {
   if (isVersionedState(state)) {
-    const { version, ...rest } = state;
-    return { version, data: rest };
+    const { version, ...data } = state;
+    return { version, data };
   }
 
   if (!isJsonObject(state)) {
