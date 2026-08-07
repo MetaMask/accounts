@@ -225,15 +225,14 @@ async function applySteps<Data extends JsonObject>(
     assert(data, step.outputSchema ?? JsonObjectStruct);
   }
 
-  const migratedState = {
-    ...data,
-    version: latestVersion,
-  } as VersionedState<Data>;
   return {
     version: latestVersion,
-    state: migratedState,
+    state: {
+      version: latestVersion,
+      ...data,
+    },
     migrated: pendingSteps.length > 0,
-  };
+  } as MigrationResult<Data>;
 }
 
 /**
