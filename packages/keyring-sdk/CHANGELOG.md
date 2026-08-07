@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **BREAKING:** Remove envelope from migration framework ([#619](https://github.com/MetaMask/accounts/pull/619))
+  - The envelope made it harder to integrate with existing state.
+  - We still keep the requirement of having a `version` field to be declared, but the state can be "flatten" instead of living inside the `data` (envelope) field.
+
 ## [3.1.0]
 
 ### Added
