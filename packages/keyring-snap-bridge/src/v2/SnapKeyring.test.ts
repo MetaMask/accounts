@@ -123,12 +123,12 @@ describe('SnapKeyring', () => {
         call: jest.fn((action: string) =>
           action === 'SnapController:getSnap' && keyringPermission !== undefined
             ? {
-                manifest: {
-                  initialPermissions: {
-                    'endowment:keyring': keyringPermission,
-                  },
+              manifest: {
+                initialPermissions: {
+                  'endowment:keyring': keyringPermission,
                 },
-              }
+              },
+            }
             : undefined,
         ),
         publish: jest.fn(),
@@ -557,16 +557,16 @@ describe('SnapKeyring', () => {
           call: jest.fn((action: string) =>
             action === 'SnapController:getSnap'
               ? {
-                  manifest: {
-                    initialPermissions: {
-                      'endowment:keyring': {
-                        capabilities: {
-                          scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
-                        },
+                manifest: {
+                  initialPermissions: {
+                    'endowment:keyring': {
+                      capabilities: {
+                        scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
                       },
                     },
                   },
-                }
+                },
+              }
               : undefined,
           ),
           publish: jest.fn(),
@@ -666,16 +666,16 @@ describe('SnapKeyring', () => {
           call: jest.fn((action: string) =>
             action === 'SnapController:getSnap'
               ? {
-                  manifest: {
-                    initialPermissions: {
-                      'endowment:keyring': {
-                        capabilities: {
-                          scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
-                        },
+                manifest: {
+                  initialPermissions: {
+                    'endowment:keyring': {
+                      capabilities: {
+                        scopes: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
                       },
                     },
                   },
-                }
+                },
+              }
               : undefined,
           ),
           publish: jest.fn(),
@@ -763,9 +763,10 @@ describe('SnapKeyring', () => {
       it('forwards originMetadata to the v2 client for a v2 snap', async () => {
         const mockResult = { success: true };
         const messenger = {
-          call: jest.fn((action: string) =>
-            action === 'SnapController:getSnap'
-              ? {
+          call: jest.fn((action: string) => {
+            switch (action) {
+              case 'SnapController:getSnap':
+                return {
                   manifest: {
                     initialPermissions: {
                       'endowment:keyring': {
@@ -775,9 +776,13 @@ describe('SnapKeyring', () => {
                       },
                     },
                   },
-                }
-              : undefined,
-          ),
+                };
+              case 'SnapController:isMinimumPlatformVersion':
+                return true;
+              default:
+                return undefined;
+            }
+          }),
           publish: jest.fn(),
         } as unknown as SnapKeyringMessenger;
         const keyring = new SnapKeyring({

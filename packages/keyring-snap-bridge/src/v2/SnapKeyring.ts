@@ -22,6 +22,7 @@ import {
   transformAccount,
 } from '../account';
 import { isAccountV1, migrateAccountV1 } from '../migrations';
+import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA } from '../platform-versions';
 import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
 import { SnapKeyringV1 } from '../SnapKeyringV1';
 import type { AccountMethod, SnapKeyringV1Callbacks } from '../SnapKeyringV1';
@@ -474,13 +475,21 @@ export class SnapKeyring implements Keyring {
         noPending: false,
       });
     }
+
+    const useOriginMetadata = this.#messenger.call(
+      'SnapController:isMinimumPlatformVersion',
+      this.snapId,
+      PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA,
+    );
+
     // v2 snap: call snap directly, returns Json (no envelope).
     return this.#client.submitRequest({
       id: request.id,
       origin: request.origin,
-      ...(request.originMetadata !== undefined && {
-        originMetadata: request.originMetadata,
-      }),
+      ...(useOriginMetadata &&
+        request.originMetadata !== undefined && {
+          originMetadata: request.originMetadata,
+        }),
       scope: request.scope,
       account: request.account,
       request: request.request,
