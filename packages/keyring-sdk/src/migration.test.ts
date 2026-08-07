@@ -403,7 +403,7 @@ describe('apply', () => {
       });
 
       await expect(migrations.apply({})).rejects.toThrow(
-        'Expected a value of type `JSON`, but received: `undefined`',
+        'Expected an object, but received: undefined',
       );
     });
   });

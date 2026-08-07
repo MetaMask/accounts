@@ -1,5 +1,5 @@
 import type { Struct } from '@metamask/superstruct';
-import { assert, integer, type } from '@metamask/superstruct';
+import { assert, integer, record, string, type } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 import type { Json } from '@metamask/utils';
 
@@ -8,6 +8,17 @@ import type { Json } from '@metamask/utils';
  * `version` field can be inlined alongside its other fields.
  */
 export type JsonObject = Record<string, Json>;
+
+/**
+ * Superstruct schema for a plain JSON object (`Record<string, Json>`).
+ *
+ * Used as the default fallback schema for step input/output validation when no
+ * explicit schema is provided.
+ */
+export const JsonObjectStruct: Struct<JsonObject> = record(
+  string(),
+  JsonStruct,
+);
 
 /**
  * Superstruct schema for an exact `{ version: integer }` object with no other
@@ -209,15 +220,9 @@ async function applySteps<Data extends JsonObject>(
   let data: JsonObject = initialData;
 
   for (const step of pendingSteps) {
-    if (step.inputSchema) {
-      assert(data, step.inputSchema);
-    }
+    assert(data, step.inputSchema ?? JsonObjectStruct);
     data = await step.migrate(data);
-    if (step.outputSchema) {
-      assert(data, step.outputSchema);
-    } else {
-      assert(data, JsonStruct);
-    }
+    assert(data, step.outputSchema ?? JsonObjectStruct);
   }
 
   const migratedState = {
