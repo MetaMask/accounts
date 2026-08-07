@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.1.0]
+
 ### Added
 
 - Add `submitRequestWithoutOriginMetadata` method ([#615](https://github.com/MetaMask/accounts/pull/615))
   - Used to submit requests to Snaps that support `origin` but not `originMetadata` (platform version `>=7.0.0, <12.0.0`).
+
+### Changed
+
+- Bump `@metamask/keyring-api` from `^24.0.0` to `^24.1.0` ([#620](https://github.com/MetaMask/accounts/pull/620))
+- Bump `@metamask/keyring-internal-api` from `^12.0.0` to `^12.1.0` ([#620](https://github.com/MetaMask/accounts/pull/620))
 
 ## [11.0.0]
 
@@ -267,7 +274,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@11.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@11.1.0...HEAD
+[11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@11.0.0...@metamask/keyring-internal-snap-client@11.1.0
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.6...@metamask/keyring-internal-snap-client@11.0.0
 [10.0.6]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.5...@metamask/keyring-internal-snap-client@10.0.6
 [10.0.5]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.4...@metamask/keyring-internal-snap-client@10.0.5
