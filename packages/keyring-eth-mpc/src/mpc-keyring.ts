@@ -828,22 +828,25 @@ export class MPCKeyring implements Keyring {
       sessionId,
     );
 
+    const dkls19SetupSession = rootSession.createSubsession('dkls19-setup');
     const createKeySession = rootSession.createSubsession('create-key');
+    const shareIndexes = opts.custodians.map((_, index) => index + 1);
 
-    const key = await this.#dkm.createKey({
+    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
+    const keyPromise = this.#dkm.createKey({
       custodians: opts.custodians,
       threshold: opts.threshold,
       networkSession: createKeySession,
     });
-
-    const dkls19SetupSession = rootSession.createSubsession('dkls19-setup');
-
-    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
-    const dkls19Setup = await dkls19.setup({
+    const dkls19SetupPromise = dkls19.setup({
       custodians: opts.custodians,
-      shareIndexes: key.shareIndexes,
+      shareIndexes,
       networkSession: dkls19SetupSession,
     });
+    const [key, dkls19Setup] = await Promise.all([
+      keyPromise,
+      dkls19SetupPromise,
+    ]);
 
     const keyId = rootSession.sessionId;
     await rootSession.disconnect();
@@ -866,21 +869,26 @@ export class MPCKeyring implements Keyring {
       sessionId,
     );
 
+    const dkls19SetupSession = rootSession.createSubsession('dkls19-setup');
     const updateKeySession = rootSession.createSubsession('update-key');
-    const newKey = await this.#dkm.updateKey({
+    const shareIndexes = opts.newCustodians.map((_, index) => index + 1);
+
+    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
+    const newKeyPromise = this.#dkm.updateKey({
       key: opts.key,
       onlineCustodians: opts.onlineCustodians,
       newCustodians: opts.newCustodians,
       networkSession: updateKeySession,
     });
-
-    const dkls19SetupSession = rootSession.createSubsession('dkls19-setup');
-    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
-    const dkls19Setup = await dkls19.setup({
+    const dkls19SetupPromise = dkls19.setup({
       custodians: opts.newCustodians,
-      shareIndexes: newKey.shareIndexes,
+      shareIndexes,
       networkSession: dkls19SetupSession,
     });
+    const [newKey, dkls19Setup] = await Promise.all([
+      newKeyPromise,
+      dkls19SetupPromise,
+    ]);
 
     await rootSession.disconnect();
     return { newKey, dkls19Setup };
