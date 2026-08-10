@@ -101,7 +101,9 @@ function isJsonObject(value: Json): value is JsonObject {
  * @param state - The value to check.
  * @returns `true` if the value has a `version: integer` field.
  */
-export function isVersionedState(state: Json): state is VersionedState {
+export function isVersionedState<State extends JsonObject = JsonObject>(
+  state: State | VersionedState<State>,
+): state is VersionedState<State> {
   return is(state, VersionedStateStruct);
 }
 
@@ -116,13 +118,13 @@ export function isVersionedState(state: Json): state is VersionedState {
  * @returns The version number and the inner data object.
  */
 function getVersionAndData(state: Json): { version: number; data: JsonObject } {
+  if (!isJsonObject(state)) {
+    throw new Error('Unversioned state must be a plain object');
+  }
+
   if (isVersionedState(state)) {
     const { version, ...data } = state;
     return { version, data };
-  }
-
-  if (!isJsonObject(state)) {
-    throw new Error('Unversioned state must be a plain object');
   }
 
   return { version: 0, data: state };

@@ -3,6 +3,7 @@ import type { Infer } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
 import { createMigrations, isVersionedState } from './migration';
+import type { JsonObject } from './migration';
 
 describe('isVersionedState', () => {
   it('returns true for a flat state with only a version field', () => {
@@ -22,11 +23,11 @@ describe('isVersionedState', () => {
   });
 
   it('returns false for an array', () => {
-    expect(isVersionedState(['a', 'b'] as unknown as Json)).toBe(false);
+    expect(isVersionedState(['a', 'b'] as unknown as JsonObject)).toBe(false);
   });
 
   it('returns false for null', () => {
-    expect(isVersionedState(null)).toBe(false);
+    expect(isVersionedState(null as unknown as JsonObject)).toBe(false);
   });
 
   it('returns false when version is not an integer', () => {
