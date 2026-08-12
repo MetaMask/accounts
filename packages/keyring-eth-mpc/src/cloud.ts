@@ -8,14 +8,14 @@ import { bytesToBase64 } from '@metamask/utils';
  * @param opts.localId - The local ID of the device
  * @param opts.sessionNonce - The nonce of the session
  * @param opts.baseURL - The base URL of the cloud service
- * @param opts.verifierIds - The IDs of the verifiers
+ * @param opts.profileId - The profile ID
  * @returns The cloud ID of the device
  */
 export async function initCloudKeyGen(opts: {
   baseURL: string;
   localId: PartyId;
   sessionNonce: string;
-  verifierIds: string[];
+  profileId: string;
 }): Promise<{ cloudId: string }> {
   const response = await fetch(`${opts.baseURL}/create-key`, {
     method: 'POST',
@@ -27,7 +27,7 @@ export async function initCloudKeyGen(opts: {
       nonce: opts.sessionNonce,
       protocol: 'cl24-secp256k1',
       withDKLS19Setup: true,
-      verifierIds: opts.verifierIds,
+      profileId: opts.profileId,
     }),
   });
 

@@ -19,10 +19,9 @@ import {
   parseCustodians,
   parseDkls19Setup,
   parseEthSig,
-  parseSelectedVerifierIndex,
+  parseProfileId,
   parseSignedTypedDataVersion,
   parseThresholdKeyId,
-  parseVerifierIds,
   publicKeyToAddressHex,
   publicToAddressHex,
   toEthSig,
@@ -220,23 +219,12 @@ describe('util', () => {
     expect(parseThresholdKeyId('key-1')).toBe('key-1');
     expect(() => parseThresholdKeyId(1 as never)).toThrow('Invalid key ID');
 
-    expect(parseVerifierIds(['v1', 'v2'])).toStrictEqual(['v1', 'v2']);
-    expect(() => parseVerifierIds('v1' as never)).toThrow(
-      'Invalid verifier IDs: expected an array',
+    expect(parseProfileId('profile-1')).toBe('profile-1');
+    expect(() => parseProfileId(1 as never)).toThrow(
+      'Invalid profile ID: expected a string',
     );
-    expect(() => parseVerifierIds(['v1', 2] as never)).toThrow(
-      'Invalid verifier ID: expected a string',
-    );
-
-    expect(parseSelectedVerifierIndex(0)).toBe(0);
-    expect(() => parseSelectedVerifierIndex('0' as never)).toThrow(
-      'Invalid selected verifier index: expected a number',
-    );
-    expect(() => parseSelectedVerifierIndex(-1)).toThrow(
-      'Invalid selected verifier index: expected a non-negative integer',
-    );
-    expect(() => parseSelectedVerifierIndex(1.2)).toThrow(
-      'Invalid selected verifier index: expected a non-negative integer',
+    expect(() => parseProfileId('')).toThrow(
+      'Invalid profile ID: expected a non-empty string',
     );
   });
 

@@ -44,10 +44,9 @@ import {
   parseCustodians,
   parseDkls19Setup,
   parseEthSig,
-  parseSelectedVerifierIndex,
+  parseProfileId,
   parseSignedTypedDataVersion,
   parseThresholdKeyId,
-  parseVerifierIds,
   publicKeyToAddressHex,
   generateSessionNonce,
   toEthSig,
@@ -72,7 +71,7 @@ export class MPCKeyring implements Keyring {
 
   readonly #serializer: MPCKeyringSerializer;
 
-  readonly #getVerifierToken: (verifierId: string) => Promise<string>;
+  readonly #getVerifierToken: (profileId: string) => Promise<string>;
 
   constructor(opts: MPCKeyringOpts) {
     this.#rng = {
@@ -124,8 +123,7 @@ export class MPCKeyring implements Keyring {
       keyShare: this.#serializer.thresholdKey.toJson(state.keyShare),
       keyId: state.keyId,
       custodians: state.custodians,
-      verifierIds: state.verifierIds,
-      selectedVerifierIndex: state.selectedVerifierIndex,
+      profileId: state.profileId,
       dkls19Setup: bytesToHex(state.dkls19Setup),
     };
   }
@@ -147,8 +145,7 @@ export class MPCKeyring implements Keyring {
       'keyId' in stateObj &&
       'dkls19Setup' in stateObj &&
       'custodians' in stateObj &&
-      'verifierIds' in stateObj &&
-      'selectedVerifierIndex' in stateObj
+      'profileId' in stateObj
     ) {
       this.#state = {
         status: 'initialized',
@@ -159,10 +156,7 @@ export class MPCKeyring implements Keyring {
         keyId: parseThresholdKeyId(stateObj.keyId),
         dkls19Setup: parseDkls19Setup(stateObj.dkls19Setup),
         custodians: parseCustodians(stateObj.custodians),
-        verifierIds: parseVerifierIds(stateObj.verifierIds),
-        selectedVerifierIndex: parseSelectedVerifierIndex(
-          stateObj.selectedVerifierIndex,
-        ),
+        profileId: parseProfileId(stateObj.profileId),
       };
       return;
     }
@@ -186,15 +180,11 @@ export class MPCKeyring implements Keyring {
     }
 
     const { setup } = this.#state;
-    const { verifierIds } = setup;
-    if (verifierIds.length < 1) {
-      throw new Error('At least one verifier ID is required');
-    }
 
     if (setup.mode === 'join') {
       await this.#setupJoin(setup);
     } else {
-      await this.#setupCreate(verifierIds);
+      await this.#setupCreate(setup.profileId);
     }
   }
 
@@ -304,8 +294,7 @@ export class MPCKeyring implements Keyring {
     const onlineCustodians = [localId, cloudCustodian.partyId];
     const newCustodians = [...onlineCustodians, custodianId];
 
-    const verifierId = this.getSelectedVerifierId();
-    const token = await this.#getVerifierToken(verifierId);
+    const token = await this.#getVerifierToken(state.profileId);
 
     await initCloudKeyUpdate({
       keyId: state.keyId,
@@ -391,8 +380,7 @@ export class MPCKeyring implements Keyring {
     const onlineCustodians = [localId, cloudCustodian.partyId];
 
     const sessionNonce = generateSessionNonce(this.#rng);
-    const verifierId = this.getSelectedVerifierId();
-    const token = await this.#getVerifierToken(verifierId);
+    const token = await this.#getVerifierToken(state.profileId);
 
     const totalStartTime = performance.now();
     const initCloudStartTime = performance.now();
@@ -435,28 +423,8 @@ export class MPCKeyring implements Keyring {
     });
   }
 
-  getVerifierIds(): string[] {
-    return this.#assertState().verifierIds;
-  }
-
-  selectVerifier(verifierIndex: number): string {
-    const state = this.#assertState();
-    if (verifierIndex < 0 || verifierIndex >= state.verifierIds.length) {
-      throw new Error('Invalid verifier index');
-    }
-    state.selectedVerifierIndex = verifierIndex;
-    return state.verifierIds[verifierIndex] as string;
-  }
-
-  getSelectedVerifierId(): string {
-    const state = this.#assertState();
-    if (
-      state.selectedVerifierIndex < 0 ||
-      state.selectedVerifierIndex >= state.verifierIds.length
-    ) {
-      throw new Error('Invalid selected verifier index');
-    }
-    return state.verifierIds[state.selectedVerifierIndex] as string;
+  getProfileId(): string {
+    return this.#assertState().profileId;
   }
 
   /**
@@ -480,7 +448,7 @@ export class MPCKeyring implements Keyring {
     });
   }
 
-  async #setupCreate(verifierIds: string[]): Promise<void> {
+  async #setupCreate(profileId: string): Promise<void> {
     const networkIdentity = await this.#networkManager.createIdentity();
     const localId = networkIdentity.partyId;
 
@@ -492,7 +460,7 @@ export class MPCKeyring implements Keyring {
       localId,
       sessionNonce,
       baseURL: this.#cloudURL,
-      verifierIds,
+      profileId,
     });
 
     const initCloudTime = performance.now() - initCloudStartTime;
@@ -522,16 +490,15 @@ export class MPCKeyring implements Keyring {
         { partyId: localId, type: 'user' },
         { partyId: cloudId, type: 'cloud' },
       ],
-      verifierIds,
-      selectedVerifierIndex: 0,
+      profileId,
     });
   }
 
   async #setupJoin(opts: {
-    verifierIds: string[];
+    profileId: string;
     joinData: string;
   }): Promise<void> {
-    const { verifierIds, joinData } = opts;
+    const { profileId, joinData } = opts;
 
     // Deserialize join data to get initiator id, ephemeral joiner identity, nonce
     const {
@@ -630,8 +597,7 @@ export class MPCKeyring implements Keyring {
         { partyId: cloudCustodian, type: 'cloud' },
         { partyId: myId, type: 'user' },
       ],
-      verifierIds,
-      selectedVerifierIndex: 0,
+      profileId,
     });
   }
 
@@ -745,11 +711,6 @@ export class MPCKeyring implements Keyring {
     const state = this.#assertState();
     const { networkIdentity } = state;
 
-    const verifierId = state.verifierIds[state.selectedVerifierIndex];
-    if (!verifierId) {
-      throw new Error('Selected verifier index out of bounds');
-    }
-
     const { publicKey } = state.keyShare;
 
     const addr = this.#address();
@@ -769,7 +730,7 @@ export class MPCKeyring implements Keyring {
     const sessionNonce = generateSessionNonce(this.#rng);
     const sessionId = createScopedSessionId(signers, sessionNonce);
     const message = hash;
-    const token = await this.#getVerifierToken(verifierId);
+    const token = await this.#getVerifierToken(state.profileId);
 
     const totalStartTime = performance.now();
     const initCloudStartTime = performance.now();
@@ -897,21 +858,21 @@ export class MPCKeyring implements Keyring {
   #parseSetupParams(
     state: Record<string, Json>,
   ):
-    | { verifierIds: string[]; mode?: 'create' }
-    | { verifierIds: string[]; mode: 'join'; joinData: string }
+    | { profileId: string; mode?: 'create' }
+    | { profileId: string; mode: 'join'; joinData: string }
     | undefined {
-    if (!('verifierIds' in state)) {
+    if (!('profileId' in state)) {
       return undefined;
     }
 
-    const verifierIds = parseVerifierIds(state.verifierIds);
+    const profileId = parseProfileId(state.profileId);
     const { mode } = state;
 
     if (mode === undefined) {
-      return { verifierIds };
+      return { profileId };
     }
     if (mode === 'create') {
-      return { mode: 'create', verifierIds };
+      return { mode: 'create', profileId };
     }
     if (mode === 'join') {
       const { joinData } = state;
@@ -920,7 +881,7 @@ export class MPCKeyring implements Keyring {
       }
       return {
         mode: 'join',
-        verifierIds,
+        profileId,
         joinData,
       };
     }

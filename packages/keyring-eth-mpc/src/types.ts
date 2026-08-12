@@ -12,7 +12,7 @@ export type MPCKeyringOpts = {
   cloudURL: string;
   relayerURL: string;
   getTransportToken?: () => Promise<string>;
-  getVerifierToken: (verifierId: string) => Promise<string>;
+  getVerifierToken: (profileId: string) => Promise<string>;
   webSocket?: unknown;
 };
 
@@ -36,17 +36,16 @@ export type MPCKeyringState = {
   keyId: ThresholdKeyId;
   dkls19Setup: Uint8Array;
   custodians: Custodian[];
-  verifierIds: string[];
-  selectedVerifierIndex: number;
+  profileId: string;
 };
 
 export type MPCKeyringSetupParams =
   | {
-      verifierIds: string[];
+      profileId: string;
       mode?: 'create';
     }
   | {
-      verifierIds: string[];
+      profileId: string;
       mode: 'join';
       joinData: string;
     };

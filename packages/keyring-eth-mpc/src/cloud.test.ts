@@ -23,7 +23,7 @@ describe('cloud helpers', () => {
         baseURL: 'https://cloud.example',
         localId: 'local-1',
         sessionNonce: '0xnonce',
-        verifierIds: ['verifier-1'],
+        profileId: 'profile-1',
       }),
     ).toStrictEqual({ cloudId: 'cloud-1' });
 
@@ -48,7 +48,7 @@ describe('cloud helpers', () => {
         baseURL: 'https://cloud.example',
         localId: 'local-1',
         sessionNonce: '0xnonce',
-        verifierIds: ['verifier-1'],
+        profileId: 'profile-1',
       }),
     ).rejects.toThrow(
       'Failed to initialize cloud keygen session: Unauthorized',

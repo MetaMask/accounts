@@ -219,41 +219,19 @@ export function parseThresholdKeyId(keyId: Json): ThresholdKeyId {
 }
 
 /**
- * Parse verifier IDs from a JSON object.
+ * Parse a profile ID from a JSON value.
  *
- * @param verifierIds - The verifier IDs to parse.
- * @returns The parsed verifier IDs.
+ * @param profileId - The profile ID to parse.
+ * @returns The parsed profile ID.
  */
-export function parseVerifierIds(verifierIds: Json): string[] {
-  if (!Array.isArray(verifierIds)) {
-    throw new Error('Invalid verifier IDs: expected an array');
+export function parseProfileId(profileId: Json): string {
+  if (typeof profileId !== 'string') {
+    throw new Error('Invalid profile ID: expected a string');
   }
-  for (const id of verifierIds) {
-    if (typeof id !== 'string') {
-      throw new Error('Invalid verifier ID: expected a string');
-    }
+  if (profileId.length < 1) {
+    throw new Error('Invalid profile ID: expected a non-empty string');
   }
-  return verifierIds as string[];
-}
-
-/**
- * Parse the selected verifier index from a JSON object.
- *
- * @param selectedVerifierIndex - The selected verifier index to parse.
- * @returns The parsed selected verifier index.
- */
-export function parseSelectedVerifierIndex(
-  selectedVerifierIndex: Json,
-): number {
-  if (typeof selectedVerifierIndex !== 'number') {
-    throw new Error('Invalid selected verifier index: expected a number');
-  }
-  if (!Number.isInteger(selectedVerifierIndex) || selectedVerifierIndex < 0) {
-    throw new Error(
-      'Invalid selected verifier index: expected a non-negative integer',
-    );
-  }
-  return selectedVerifierIndex;
+  return profileId;
 }
 
 /**
