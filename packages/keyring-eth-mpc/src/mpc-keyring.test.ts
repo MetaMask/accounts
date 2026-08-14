@@ -5,7 +5,7 @@ import { type Hex, type Json, bytesToHex } from '@metamask/utils';
 import { MPCKeyring } from './mpc-keyring';
 
 const mockCreateKey = jest.fn();
-const mockUpdateKey = jest.fn();
+const mockRotateKeyShares = jest.fn();
 const mockDklsSetup = jest.fn();
 const mockDklsSign = jest.fn();
 const mockCreateIdentity = jest.fn();
@@ -13,8 +13,8 @@ const mockCreateSession = jest.fn();
 const mockCreateScopedSessionId = jest.fn();
 const mockThresholdKeyToJson = jest.fn();
 const mockThresholdKeyFromJson = jest.fn();
-const mockPartialThresholdKeyToJson = jest.fn();
-const mockPartialThresholdKeyFromJson = jest.fn();
+const mockAccessStructureToJson = jest.fn();
+const mockAccessStructureFromJson = jest.fn();
 const mockNetworkIdentityToJson = jest.fn();
 const mockNetworkIdentityFromJson = jest.fn();
 const mockInitCloudKeyGen = jest.fn();
@@ -35,8 +35,8 @@ jest.mock('@metamask/mfa-wallet-cl24-lib', () => {
       return mockCreateKey(...args);
     }
 
-    updateKey(...args: unknown[]) {
-      return mockUpdateKey(...args);
+    rotateKeyShares(...args: unknown[]) {
+      return mockRotateKeyShares(...args);
     }
   }
 
@@ -50,13 +50,13 @@ jest.mock('@metamask/mfa-wallet-cl24-lib', () => {
     }
   }
 
-  class MockCL24PartialThresholdKeySerializer {
+  class MockCL24AccessStructureSerializer {
     toJson(value: unknown) {
-      return mockPartialThresholdKeyToJson(value);
+      return mockAccessStructureToJson(value);
     }
 
     fromJson(value: unknown) {
-      return mockPartialThresholdKeyFromJson(value);
+      return mockAccessStructureFromJson(value);
     }
   }
 
@@ -64,7 +64,16 @@ jest.mock('@metamask/mfa-wallet-cl24-lib', () => {
     secp256k1: {},
     CL24DKM: MockCL24DKM,
     CL24ThresholdKeySerializer: MockCL24ThresholdKeySerializer,
-    CL24PartialThresholdKeySerializer: MockCL24PartialThresholdKeySerializer,
+    CL24AccessStructureSerializer: MockCL24AccessStructureSerializer,
+    dealersFromCL24Key: (
+      key: { shareIndexes: number[] },
+      custodians: string[],
+    ) => {
+      if (custodians.length !== key.shareIndexes.length) {
+        throw new Error('Custodians do not match share indexes');
+      }
+      return custodians.map((netId, shareIndex) => ({ netId, shareIndex }));
+    },
   };
 });
 
@@ -133,18 +142,13 @@ jest.mock('./util', () => {
 });
 
 const makeThresholdKey = (custodianIds = ['local-user', 'cloud-user']) => {
-  const shareIndexes = custodianIds.reduce<Record<string, number>>(
-    (accumulator, custodianId, index) => {
-      accumulator[custodianId] = index + 1;
-      return accumulator;
-    },
-    {},
-  );
   return {
     threshold: 2,
-    custodians: custodianIds,
-    shareIndexes,
+    shareIndex: 0,
+    shareIndexes: custodianIds.map((_, index) => index + 1),
     publicKey: new Uint8Array([4, 1, 2, 3]),
+    privateKeyShare: new Uint8Array([5, 6, 7]),
+    secretPolynomialCommitment: [new Uint8Array([8])],
   };
 };
 
@@ -201,8 +205,8 @@ describe('MPCKeyring', () => {
     );
     mockThresholdKeyToJson.mockImplementation((value) => value);
     mockThresholdKeyFromJson.mockImplementation((value) => value);
-    mockPartialThresholdKeyToJson.mockImplementation((value) => value);
-    mockPartialThresholdKeyFromJson.mockImplementation((value) => value);
+    mockAccessStructureToJson.mockImplementation((value) => value);
+    mockAccessStructureFromJson.mockImplementation((value) => value);
     mockNetworkIdentityToJson.mockImplementation((value) => value);
     mockNetworkIdentityFromJson.mockImplementation((value) => value);
     mockInitCloudKeyGen.mockResolvedValue({ cloudId: 'cloud-user' });
@@ -360,7 +364,11 @@ describe('MPCKeyring', () => {
     const joinPayload = {
       cloudCustodian: 'cloud-user',
       nonce: '0xjoin-session',
-      partialKey: makeThresholdKey(['initiator-user', 'cloud-user']),
+      dealers: [
+        { netId: 'initiator-user', shareIndex: 0 },
+        { netId: 'cloud-user', shareIndex: 1 },
+      ],
+      accessStructure: { threshold: 2 },
       keyId: 'joined-key-id',
     };
     const joinSession2 = {
@@ -378,7 +386,7 @@ describe('MPCKeyring', () => {
       .mockResolvedValueOnce(joinSession1)
       .mockResolvedValueOnce(joinSession2)
       .mockResolvedValueOnce(updateRootSession);
-    mockUpdateKey.mockResolvedValueOnce(
+    mockRotateKeyShares.mockResolvedValueOnce(
       makeThresholdKey(['initiator-user', 'cloud-user', 'joined-user']),
     );
 
@@ -418,7 +426,7 @@ describe('MPCKeyring', () => {
 
     expect(await keyring.init()).toBeUndefined();
     expect(mockInitCloudKeyGen).not.toHaveBeenCalled();
-    expect(mockUpdateKey).not.toHaveBeenCalled();
+    expect(mockRotateKeyShares).not.toHaveBeenCalled();
   });
 
   it('rejects deserialize for empty profile ID in setup params', async () => {
@@ -487,7 +495,7 @@ describe('MPCKeyring', () => {
       .mockResolvedValueOnce(joinSession1)
       .mockResolvedValueOnce(joinSession2)
       .mockResolvedValueOnce(updateRootSession);
-    mockUpdateKey.mockResolvedValueOnce(
+    mockRotateKeyShares.mockResolvedValueOnce(
       makeThresholdKey(['local-user', 'cloud-user', 'new-user']),
     );
 
@@ -544,7 +552,7 @@ describe('MPCKeyring', () => {
 
     const updateRootSession = makeRootSession('post-remove-root');
     mockCreateSession.mockResolvedValueOnce(updateRootSession);
-    mockUpdateKey.mockResolvedValueOnce(makeThresholdKey());
+    mockRotateKeyShares.mockResolvedValueOnce(makeThresholdKey());
 
     await keyring.removeCustodian('user-2');
 

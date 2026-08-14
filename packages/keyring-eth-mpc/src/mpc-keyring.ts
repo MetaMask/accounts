@@ -8,17 +8,19 @@ import type {
 } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
+  CL24AccessStructureSerializer,
   CL24DKM,
-  CL24PartialThresholdKeySerializer,
   CL24ThresholdKeySerializer,
+  dealersFromCL24Key,
   secp256k1 as secp256k1Curve,
+  type CL24ThresholdKey,
 } from '@metamask/mfa-wallet-cl24-lib';
 import { Dkls19TssLib } from '@metamask/mfa-wallet-dkls19-lib';
 import type {
+  AccessStructure,
   PartyId,
-  PartialThresholdKey,
   RandomNumberGenerator,
-  ThresholdKey,
+  ShareBinding,
 } from '@metamask/mfa-wallet-interface';
 import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
 import {
@@ -54,6 +56,16 @@ import {
 
 const mpcKeyringType = 'MPC Keyring';
 
+/**
+ * Builds 0-based share bindings for parties in list order.
+ *
+ * @param partyIds - Party IDs in share-slot order.
+ * @returns Share bindings with slots `0 … n-1`.
+ */
+function shareBindingsFor(partyIds: PartyId[]): ShareBinding[] {
+  return partyIds.map((netId, shareIndex) => ({ netId, shareIndex }));
+}
+
 export class MPCKeyring implements Keyring {
   readonly type: string = mpcKeyringType;
 
@@ -82,7 +94,7 @@ export class MPCKeyring implements Keyring {
     this.#cloudURL = opts.cloudURL;
     this.#serializer = {
       thresholdKey: new CL24ThresholdKeySerializer(),
-      partialThresholdKey: new CL24PartialThresholdKeySerializer(),
+      accessStructure: new CL24AccessStructureSerializer(),
       networkIdentity: new MfaNetworkIdentitySerializer(),
     };
     this.#networkManager = new MfaNetworkManager({
@@ -267,17 +279,23 @@ export class MPCKeyring implements Keyring {
       joinSession2Id,
     );
 
-    const partialKey: PartialThresholdKey = {
-      custodians: state.keyShare.custodians,
-      shareIndexes: state.keyShare.shareIndexes,
+    const accessStructure: AccessStructure = {
       threshold: state.keyShare.threshold,
     };
-    const partialKeyJson =
-      this.#serializer.partialThresholdKey.toJson(partialKey);
+    const accessStructureJson =
+      this.#serializer.accessStructure.toJson(accessStructure);
+    const partyIds = state.custodians.map((custodian) => custodian.partyId);
+    const onlineCustodians = [localId, cloudCustodian.partyId];
+    const dealers = dealersFromCL24Key(state.keyShare, partyIds).filter(
+      (dealer) => onlineCustodians.includes(dealer.netId),
+    );
+    const newCustodians = [...onlineCustodians, custodianId];
+
     const joinPayload = JSON.stringify({
       cloudCustodian: cloudCustodian.partyId,
       nonce: sessionNonce,
-      partialKey: partialKeyJson,
+      dealers,
+      accessStructure: accessStructureJson,
       keyId: state.keyId,
     });
     joinSession2.sendMessage(
@@ -289,10 +307,6 @@ export class MPCKeyring implements Keyring {
     const session2Time = performance.now() - session2StartTime;
     console.log('addCustodian session2 time', session2Time);
     const initCloudStartTime = performance.now();
-
-    // Notify the cloud custodian
-    const onlineCustodians = [localId, cloudCustodian.partyId];
-    const newCustodians = [...onlineCustodians, custodianId];
 
     const token = await this.#getVerifierToken(state.profileId);
 
@@ -312,13 +326,13 @@ export class MPCKeyring implements Keyring {
     const { newKey, dkls19Setup } = await this.#runKeyUpdate({
       identity: networkIdentity,
       key: state.keyShare,
-      onlineCustodians,
-      newCustodians,
+      dealers,
+      custodians: newCustodians,
       sessionNonce,
     });
 
     const updateKeyTime = performance.now() - updateKeyStartTime;
-    console.log('dkm.updateKey time', updateKeyTime);
+    console.log('dkm.rotateKeyShares time', updateKeyTime);
 
     const totalTime = performance.now() - totalStartTime;
     console.log('addCustodian total time', totalTime);
@@ -373,11 +387,15 @@ export class MPCKeyring implements Keyring {
     if (toRemove.type !== 'user') {
       throw new Error('Only user custodians can be removed');
     }
-    if (!keyShare.custodians.includes(custodianId)) {
+    const partyIds = state.custodians.map((custodian) => custodian.partyId);
+    if (partyIds.length !== keyShare.shareIndexes.length) {
       throw new Error('Custodian not part of threshold key');
     }
 
     const onlineCustodians = [localId, cloudCustodian.partyId];
+    const dealers = dealersFromCL24Key(keyShare, partyIds).filter((dealer) =>
+      onlineCustodians.includes(dealer.netId),
+    );
 
     const sessionNonce = generateSessionNonce(this.#rng);
     const token = await this.#getVerifierToken(state.profileId);
@@ -402,13 +420,13 @@ export class MPCKeyring implements Keyring {
     const { newKey, dkls19Setup } = await this.#runKeyUpdate({
       identity: networkIdentity,
       key: keyShare,
-      onlineCustodians,
-      newCustodians,
+      dealers,
+      custodians: newCustodians,
       sessionNonce,
     });
 
     const updateKeyTime = performance.now() - updateKeyStartTime;
-    console.log('dkm.updateKey (removeCustodian) time', updateKeyTime);
+    console.log('dkm.rotateKeyShares (removeCustodian) time', updateKeyTime);
 
     const totalTime = performance.now() - totalStartTime;
     console.log('removeCustodian total time', totalTime);
@@ -561,12 +579,13 @@ export class MPCKeyring implements Keyring {
     const {
       cloudCustodian,
       nonce: sessionNonce,
-      partialKey: partialKeyJson,
+      dealers,
+      accessStructure: accessStructureJson,
       keyId,
     } = joinPayload;
 
-    const partialKey =
-      this.#serializer.partialThresholdKey.fromJson(partialKeyJson);
+    const accessStructure =
+      this.#serializer.accessStructure.fromJson(accessStructureJson);
 
     const onlineCustodians = [initiator, cloudCustodian];
     const newCustodians = [...onlineCustodians, myId];
@@ -575,14 +594,14 @@ export class MPCKeyring implements Keyring {
 
     const { newKey, dkls19Setup } = await this.#runKeyUpdate({
       identity: networkIdentity,
-      key: partialKey,
-      onlineCustodians,
-      newCustodians,
+      key: accessStructure,
+      dealers,
+      custodians: newCustodians,
       sessionNonce,
     });
 
     const updateKeyTime = performance.now() - updateKeyStartTime;
-    console.log('dkm.updateKey time', updateKeyTime);
+    console.log('dkm.rotateKeyShares time', updateKeyTime);
 
     const totalTime = performance.now() - totalStartTime;
     console.log('setupJoin total time', totalTime);
@@ -726,9 +745,12 @@ export class MPCKeyring implements Keyring {
       throw new Error('Cloud custodian not found');
     }
 
-    const signers = [localId, cloudCustodian.partyId];
+    const signers = shareBindingsFor([localId, cloudCustodian.partyId]);
     const sessionNonce = generateSessionNonce(this.#rng);
-    const sessionId = createScopedSessionId(signers, sessionNonce);
+    const sessionId = createScopedSessionId(
+      signers.map((signer) => signer.netId),
+      sessionNonce,
+    );
     const message = hash;
     const token = await this.#getVerifierToken(state.profileId);
 
@@ -779,7 +801,7 @@ export class MPCKeyring implements Keyring {
     threshold: number;
     sessionNonce: string;
   }): Promise<{
-    key: ThresholdKey;
+    key: CL24ThresholdKey;
     keyId: ThresholdKeyId;
     dkls19Setup: Uint8Array;
   }> {
@@ -791,7 +813,7 @@ export class MPCKeyring implements Keyring {
 
     const dkls19SetupSession = rootSession.createSubsession('dkls19-setup');
     const createKeySession = rootSession.createSubsession('create-key');
-    const shareIndexes = opts.custodians.map((_, index) => index + 1);
+    const signers = shareBindingsFor(opts.custodians);
 
     const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
     const keyPromise = this.#dkm.createKey({
@@ -800,8 +822,7 @@ export class MPCKeyring implements Keyring {
       networkSession: createKeySession,
     });
     const dkls19SetupPromise = dkls19.setup({
-      custodians: opts.custodians,
-      shareIndexes,
+      signers,
       networkSession: dkls19SetupSession,
     });
     const [key, dkls19Setup] = await Promise.all([
@@ -816,15 +837,12 @@ export class MPCKeyring implements Keyring {
 
   async #runKeyUpdate(opts: {
     identity: MfaNetworkIdentity;
-    key: ThresholdKey | PartialThresholdKey;
-    onlineCustodians: PartyId[];
-    newCustodians: PartyId[];
+    key: CL24ThresholdKey | AccessStructure;
+    dealers: ShareBinding[];
+    custodians: PartyId[];
     sessionNonce: string;
-  }): Promise<{ newKey: ThresholdKey; dkls19Setup: Uint8Array }> {
-    const sessionId = createScopedSessionId(
-      opts.newCustodians,
-      opts.sessionNonce,
-    );
+  }): Promise<{ newKey: CL24ThresholdKey; dkls19Setup: Uint8Array }> {
+    const sessionId = createScopedSessionId(opts.custodians, opts.sessionNonce);
     const rootSession = await this.#networkManager.createSession(
       opts.identity,
       sessionId,
@@ -832,18 +850,17 @@ export class MPCKeyring implements Keyring {
 
     const dkls19SetupSession = rootSession.createSubsession('dkls19-setup');
     const updateKeySession = rootSession.createSubsession('update-key');
-    const shareIndexes = opts.newCustodians.map((_, index) => index + 1);
+    const signers = shareBindingsFor(opts.custodians);
 
     const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
-    const newKeyPromise = this.#dkm.updateKey({
+    const newKeyPromise = this.#dkm.rotateKeyShares({
       key: opts.key,
-      onlineCustodians: opts.onlineCustodians,
-      newCustodians: opts.newCustodians,
+      dealers: opts.dealers,
+      custodians: opts.custodians,
       networkSession: updateKeySession,
     });
     const dkls19SetupPromise = dkls19.setup({
-      custodians: opts.newCustodians,
-      shareIndexes,
+      signers,
       networkSession: dkls19SetupSession,
     });
     const [newKey, dkls19Setup] = await Promise.all([

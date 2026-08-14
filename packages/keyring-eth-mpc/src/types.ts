@@ -1,7 +1,5 @@
-import type {
-  PartialThresholdKey,
-  ThresholdKey,
-} from '@metamask/mfa-wallet-interface';
+import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24-lib';
+import type { AccessStructure } from '@metamask/mfa-wallet-interface';
 import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
 import type { Dkls19Lib } from '@metamask/mpc-libs-interface';
 import type { Json } from '@metamask/utils';
@@ -32,7 +30,7 @@ type JsonSerializer<Value> = {
 
 export type MPCKeyringState = {
   networkIdentity: MfaNetworkIdentity;
-  keyShare: ThresholdKey;
+  keyShare: CL24ThresholdKey;
   keyId: ThresholdKeyId;
   dkls19Setup: Uint8Array;
   custodians: Custodian[];
@@ -64,7 +62,7 @@ export type MPCKeyringStorageState =
   | MPCKeyringUninitializedState;
 
 export type MPCKeyringSerializer = {
-  thresholdKey: JsonSerializer<ThresholdKey>;
-  partialThresholdKey: JsonSerializer<PartialThresholdKey>;
+  thresholdKey: JsonSerializer<CL24ThresholdKey>;
+  accessStructure: JsonSerializer<AccessStructure>;
   networkIdentity: JsonSerializer<MfaNetworkIdentity>;
 };
