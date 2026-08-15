@@ -14,7 +14,7 @@ import {
   secp256k1 as secp256k1Curve,
   type CL24ThresholdKey,
 } from '@metamask/mfa-wallet-cl24-lib';
-import { Dkls19TssLib } from '@metamask/mfa-wallet-dkls19-lib';
+import { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23-lib';
 import type {
   PartyId,
   RandomNumberGenerator,
@@ -27,7 +27,6 @@ import {
   MfaNetworkManager,
   createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
-import type { Dkls19Lib } from '@metamask/mpc-libs-interface';
 import { bytesToHex, hexToBytes, type Hex, type Json } from '@metamask/utils';
 
 import {
@@ -108,7 +107,7 @@ export class MPCKeyring implements Keyring {
 
   readonly #networkManager: MfaNetworkManager;
 
-  readonly #dkls19Lib: Dkls19Lib;
+  readonly #tss: Dkls23TssLib;
 
   readonly #dkm: CL24DKM;
 
@@ -129,7 +128,7 @@ export class MPCKeyring implements Keyring {
       generateRandomBytes: opts.getRandomBytes,
     };
     this.#dkm = new CL24DKM(secp256k1Curve, this.#rng);
-    this.#dkls19Lib = opts.dkls19Lib;
+    this.#tss = new Dkls23TssLib(opts.dkls23Lib);
     this.#cloudURL = opts.cloudURL;
     this.#serializer = {
       thresholdKey: new CL24ThresholdKeySerializer(),
@@ -460,8 +459,7 @@ export class MPCKeyring implements Keyring {
         threshold: 2,
         networkSession: netSession,
       });
-      const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
-      tssSetup = await dkls19.setup({
+      tssSetup = await this.#tss.setup({
         signers: bindings,
         networkSession: netSession,
       });
@@ -556,8 +554,7 @@ export class MPCKeyring implements Keyring {
         this.#applyKeyState({ ...state, tssSetup });
 
         try {
-          const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
-          const { signature } = await dkls19.sign({
+          const { signature } = await this.#tss.sign({
             key: keyShare,
             signers: bindings,
             message: hash,
@@ -599,8 +596,7 @@ export class MPCKeyring implements Keyring {
       return storedSetup;
     }
 
-    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
-    return dkls19.setup({
+    return this.#tss.setup({
       signers: bindings,
       networkSession: netSession,
     });

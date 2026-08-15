@@ -105,8 +105,8 @@ jest.mock('@metamask/mfa-wallet-network', () => {
   };
 });
 
-jest.mock('@metamask/mfa-wallet-dkls19-lib', () => {
-  class MockDkls19TssLib {
+jest.mock('@metamask/mfa-wallet-dkls23-lib', () => {
+  class MockDkls23TssLib {
     setup(...args: unknown[]) {
       return mockDklsSetup(...args);
     }
@@ -116,7 +116,7 @@ jest.mock('@metamask/mfa-wallet-dkls19-lib', () => {
     }
   }
 
-  return { Dkls19TssLib: MockDkls19TssLib };
+  return { Dkls23TssLib: MockDkls23TssLib };
 });
 
 jest.mock('./cloud', () => ({
@@ -188,7 +188,7 @@ const makeKeyring = (
 ) =>
   new MPCKeyring({
     getRandomBytes: (size) => new Uint8Array(size).fill(3),
-    dkls19Lib: {} as never,
+    dkls23Lib: {} as never,
     cloudURL: 'https://cloud.example',
     relayerURL: 'https://relayer.example',
     getProfileToken,
@@ -257,7 +257,7 @@ describe('MPCKeyring', () => {
 
     const keyring = new MPCKeyring({
       getRandomBytes: randomBytes,
-      dkls19Lib: {} as never,
+      dkls23Lib: {} as never,
       cloudURL: 'https://cloud.example',
       relayerURL: 'https://relayer.example',
       getProfileToken: jest.fn().mockResolvedValue('verifier-token'),

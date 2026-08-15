@@ -1,6 +1,6 @@
 import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24-lib';
+import type { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23-lib';
 import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
-import type { Dkls19Lib } from '@metamask/mpc-libs-interface';
 import type { Json } from '@metamask/utils';
 
 export type ProfileTokenOpts = {
@@ -8,9 +8,11 @@ export type ProfileTokenOpts = {
   challenge?: Uint8Array;
 };
 
+export type Dkls23Lib = ConstructorParameters<typeof Dkls23TssLib>[0];
+
 export type MPCKeyringOpts = {
   getRandomBytes: (size: number) => Uint8Array;
-  dkls19Lib: Dkls19Lib;
+  dkls23Lib: Dkls23Lib;
   cloudURL: string;
   relayerURL: string;
   getTransportToken?: () => Promise<string>;
