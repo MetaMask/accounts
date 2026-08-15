@@ -1,8 +1,12 @@
 import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24-lib';
-import type { AccessStructure } from '@metamask/mfa-wallet-interface';
 import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
 import type { Dkls19Lib } from '@metamask/mpc-libs-interface';
 import type { Json } from '@metamask/utils';
+
+export type ProfileTokenOpts = {
+  '2fa'?: boolean;
+  challenge?: Uint8Array;
+};
 
 export type MPCKeyringOpts = {
   getRandomBytes: (size: number) => Uint8Array;
@@ -10,43 +14,27 @@ export type MPCKeyringOpts = {
   cloudURL: string;
   relayerURL: string;
   getTransportToken?: () => Promise<string>;
-  getVerifierToken: (profileId: string) => Promise<string>;
+  getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
+  getBackupEncryptionKey: () => Promise<Uint8Array>;
   webSocket?: unknown;
 };
 
-export type ThresholdKeyId = string;
+export type MPCKeyringState = {
+  keyShare: CL24ThresholdKey;
+  netCreds: MfaNetworkIdentity;
+  serverNetId: string;
+  backupId: string;
+  tssSetup: Uint8Array | null;
+};
 
-export type CustodianType = 'user' | 'cloud';
-
-export type Custodian = {
-  partyId: string;
-  type: CustodianType;
+export type MPCKeyringSetupParams = {
+  mode: 'create' | 'import';
 };
 
 type JsonSerializer<Value> = {
   toJson: (value: Value) => Json;
   fromJson: (value: Json) => Value;
 };
-
-export type MPCKeyringState = {
-  networkIdentity: MfaNetworkIdentity;
-  keyShare: CL24ThresholdKey;
-  keyId: ThresholdKeyId;
-  dkls19Setup: Uint8Array;
-  custodians: Custodian[];
-  profileId: string;
-};
-
-export type MPCKeyringSetupParams =
-  | {
-      profileId: string;
-      mode?: 'create';
-    }
-  | {
-      profileId: string;
-      mode: 'join';
-      joinData: string;
-    };
 
 export type MPCKeyringInitializedState = {
   status: 'initialized';
@@ -63,6 +51,5 @@ export type MPCKeyringStorageState =
 
 export type MPCKeyringSerializer = {
   thresholdKey: JsonSerializer<CL24ThresholdKey>;
-  accessStructure: JsonSerializer<AccessStructure>;
   networkIdentity: JsonSerializer<MfaNetworkIdentity>;
 };

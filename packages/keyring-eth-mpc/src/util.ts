@@ -20,9 +20,9 @@ import type { RandomNumberGenerator } from '@metamask/mfa-wallet-interface';
 import type { Hex, Json } from '@metamask/utils';
 import { add0x, assert, bytesToHex, hexToBytes } from '@metamask/utils';
 
-import type { Custodian, ThresholdKeyId } from './types';
-
 const SESSION_NONCE_BYTE_LENGTH = 32;
+const BACKUP_ID_BYTE_LENGTH = 32;
+export const AES_GCM_IV_LENGTH = 12;
 
 /**
  * Generate a session nonce: random bytes from the RNG, hex-encoded.
@@ -32,6 +32,86 @@ const SESSION_NONCE_BYTE_LENGTH = 32;
  */
 export function generateSessionNonce(rng: RandomNumberGenerator): Hex {
   return bytesToHex(rng.generateRandomBytes(SESSION_NONCE_BYTE_LENGTH));
+}
+
+/**
+ * Mint an opaque backup id. Not a counter.
+ *
+ * @param rng - The random number generator.
+ * @returns Hex-encoded 32-byte random id.
+ */
+export function createBackupId(rng: RandomNumberGenerator): string {
+  return bytesToHex(rng.generateRandomBytes(BACKUP_ID_BYTE_LENGTH));
+}
+
+/**
+ * Encrypt plaintext with AES-GCM. The IV is prepended to the ciphertext.
+ *
+ * @param key - 16- or 32-byte AES key.
+ * @param plaintext - Bytes to encrypt.
+ * @param iv - 12-byte IV.
+ * @returns `iv || ciphertext || tag`.
+ */
+export async function encryptBytes(
+  key: Uint8Array,
+  plaintext: Uint8Array,
+  iv: Uint8Array,
+): Promise<Uint8Array> {
+  if (iv.length !== AES_GCM_IV_LENGTH) {
+    throw new Error('Invalid IV length');
+  }
+  if (key.length !== 16 && key.length !== 32) {
+    throw new Error('Invalid backup encryption key length');
+  }
+
+  const cryptoKey = await globalThis.crypto.subtle.importKey(
+    'raw',
+    key,
+    'AES-GCM',
+    false,
+    ['encrypt'],
+  );
+  const ciphertext = await globalThis.crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    cryptoKey,
+    plaintext,
+  );
+  return concatBytes(iv, new Uint8Array(ciphertext));
+}
+
+/**
+ * Decrypt a payload produced by {@link encryptBytes}.
+ *
+ * @param key - 16- or 32-byte AES key.
+ * @param payload - `iv || ciphertext || tag`.
+ * @returns The plaintext bytes.
+ */
+export async function decryptBytes(
+  key: Uint8Array,
+  payload: Uint8Array,
+): Promise<Uint8Array> {
+  if (payload.length <= AES_GCM_IV_LENGTH) {
+    throw new Error('Invalid ciphertext');
+  }
+  if (key.length !== 16 && key.length !== 32) {
+    throw new Error('Invalid backup encryption key length');
+  }
+
+  const iv = payload.slice(0, AES_GCM_IV_LENGTH);
+  const ciphertext = payload.slice(AES_GCM_IV_LENGTH);
+  const cryptoKey = await globalThis.crypto.subtle.importKey(
+    'raw',
+    key,
+    'AES-GCM',
+    false,
+    ['decrypt'],
+  );
+  const plaintext = await globalThis.crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    cryptoKey,
+    ciphertext,
+  );
+  return new Uint8Array(plaintext);
 }
 
 const SECP256K1_N = BigInt(
@@ -206,73 +286,56 @@ export function getSignedTypedDataHash<
 }
 
 /**
- * Parse the key ID from a JSON object.
+ * Parse a non-empty string field from JSON.
  *
- * @param keyId - The key ID to parse.
- * @returns The parsed key ID.
+ * @param value - The value to parse.
+ * @param fieldName - Field name for error messages.
+ * @returns The parsed string.
  */
-export function parseThresholdKeyId(keyId: Json): ThresholdKeyId {
-  if (typeof keyId !== 'string') {
-    throw new Error('Invalid key ID');
+function parseNonEmptyString(value: Json, fieldName: string): string {
+  if (typeof value !== 'string') {
+    throw new Error(`Invalid ${fieldName}: expected a string`);
   }
-  return keyId;
+  if (value.length < 1) {
+    throw new Error(`Invalid ${fieldName}: expected a non-empty string`);
+  }
+  return value;
 }
 
 /**
- * Parse a profile ID from a JSON value.
+ * Parse a server network id from a JSON value.
  *
- * @param profileId - The profile ID to parse.
- * @returns The parsed profile ID.
+ * @param serverNetId - The server network id to parse.
+ * @returns The parsed server network id.
  */
-export function parseProfileId(profileId: Json): string {
-  if (typeof profileId !== 'string') {
-    throw new Error('Invalid profile ID: expected a string');
-  }
-  if (profileId.length < 1) {
-    throw new Error('Invalid profile ID: expected a non-empty string');
-  }
-  return profileId;
+export function parseServerNetId(serverNetId: Json): string {
+  return parseNonEmptyString(serverNetId, 'server network id');
 }
 
 /**
- * Parse custodians from a JSON object.
+ * Parse a backup id from a JSON value.
  *
- * @param custodians - The custodians to parse.
- * @returns The parsed custodians.
+ * @param backupId - The backup id to parse.
+ * @returns The parsed backup id.
  */
-export function parseCustodians(custodians: Json): Custodian[] {
-  if (!Array.isArray(custodians)) {
-    throw new Error('Invalid custodians: expected an array');
-  }
-  for (const custodian of custodians) {
-    if (
-      !custodian ||
-      typeof custodian !== 'object' ||
-      Array.isArray(custodian)
-    ) {
-      throw new Error('Invalid custodian: expected an object');
-    }
-    if (typeof custodian.partyId !== 'string') {
-      throw new Error('Invalid custodian partyId: expected a string');
-    }
-    if (custodian.type !== 'user' && custodian.type !== 'cloud') {
-      throw new Error("Invalid custodian type: expected 'user' or 'cloud'");
-    }
-  }
-  return custodians as Custodian[];
+export function parseBackupId(backupId: Json): string {
+  return parseNonEmptyString(backupId, 'backup id');
 }
 
 /**
- * Parse dkls19 setup from a JSON object.
+ * Parse TSS setup from a JSON value.
  *
- * @param dkls19Setup - The dkls19 setup to parse.
- * @returns The parsed dkls19 setup.
+ * @param tssSetup - Hex-encoded setup, or `null` when unset.
+ * @returns The parsed setup bytes, or `null`.
  */
-export function parseDkls19Setup(dkls19Setup: Json): Uint8Array {
-  if (typeof dkls19Setup !== 'string') {
-    throw new Error('Invalid dkls19 setup: expected a string');
+export function parseTssSetup(tssSetup: Json): Uint8Array | null {
+  if (tssSetup === null) {
+    return null;
   }
-  return hexToBytes(dkls19Setup);
+  if (typeof tssSetup !== 'string') {
+    throw new Error('Invalid tss setup: expected a hex string or null');
+  }
+  return hexToBytes(tssSetup);
 }
 
 /**

@@ -12,16 +12,19 @@ import {
 import { bytesToHex, hexToBytes } from '@metamask/utils';
 
 import {
+  AES_GCM_IV_LENGTH,
+  createBackupId,
+  decryptBytes,
+  encryptBytes,
   equalAddresses,
   generateSessionNonce,
   getSignedTypedDataHash,
   normalizeAddress,
-  parseCustodians,
-  parseDkls19Setup,
+  parseBackupId,
   parseEthSig,
-  parseProfileId,
+  parseServerNetId,
   parseSignedTypedDataVersion,
-  parseThresholdKeyId,
+  parseTssSetup,
   publicKeyToAddressHex,
   publicToAddressHex,
   toEthSig,
@@ -210,53 +213,85 @@ describe('util', () => {
     );
     expect(v4Hash).toStrictEqual(
       new Uint8Array(
-        TypedDataUtils.eip712Hash(typedDataV4 as never, SignTypedDataVersion.V4),
+        TypedDataUtils.eip712Hash(
+          typedDataV4 as never,
+          SignTypedDataVersion.V4,
+        ),
       ),
     );
   });
 
-  it('parses and validates serialized keyring fields', () => {
-    expect(parseThresholdKeyId('key-1')).toBe('key-1');
-    expect(() => parseThresholdKeyId(1 as never)).toThrow('Invalid key ID');
+  it('creates an opaque backup id from RNG bytes', () => {
+    const bytes = new Uint8Array(32).fill(2);
+    const rng = { generateRandomBytes: jest.fn().mockReturnValue(bytes) };
 
-    expect(parseProfileId('profile-1')).toBe('profile-1');
-    expect(() => parseProfileId(1 as never)).toThrow(
-      'Invalid profile ID: expected a string',
-    );
-    expect(() => parseProfileId('')).toThrow(
-      'Invalid profile ID: expected a non-empty string',
-    );
+    expect(createBackupId(rng)).toBe(bytesToHex(bytes));
+    expect(rng.generateRandomBytes).toHaveBeenCalledWith(32);
   });
 
-  it('parses custodians and dkls19 setup fields', () => {
-    expect(
-      parseCustodians([
-        { partyId: 'user-1', type: 'user' },
-        { partyId: 'cloud-1', type: 'cloud' },
-      ]),
-    ).toStrictEqual([
-      { partyId: 'user-1', type: 'user' },
-      { partyId: 'cloud-1', type: 'cloud' },
-    ]);
+  it('encrypts and decrypts bytes with AES-GCM', async () => {
+    const key = new Uint8Array(32).fill(9);
+    const iv = new Uint8Array(AES_GCM_IV_LENGTH).fill(1);
+    const plaintext = new TextEncoder().encode('key-share');
 
-    expect(() => parseCustodians('nope' as never)).toThrow(
-      'Invalid custodians: expected an array',
-    );
-    expect(() => parseCustodians([null] as never)).toThrow(
-      'Invalid custodian: expected an object',
-    );
-    expect(() => parseCustodians([{ type: 'user' }] as never)).toThrow(
-      'Invalid custodian partyId: expected a string',
-    );
-    expect(() =>
-      parseCustodians([{ partyId: 'user-1', type: 'something-else' }] as never),
-    ).toThrow("Invalid custodian type: expected 'user' or 'cloud'");
+    const payload = await encryptBytes(key, plaintext, iv);
+    expect(payload.slice(0, AES_GCM_IV_LENGTH)).toStrictEqual(iv);
 
-    expect(parseDkls19Setup('0x1234')).toStrictEqual(
-      new Uint8Array([0x12, 0x34]),
+    const decrypted = await decryptBytes(key, payload);
+    expect(decrypted).toStrictEqual(plaintext);
+  });
+
+  it('encrypts with a 16-byte AES key', async () => {
+    const key = new Uint8Array(16).fill(3);
+    const iv = new Uint8Array(AES_GCM_IV_LENGTH).fill(2);
+    const plaintext = new Uint8Array([4, 5, 6]);
+
+    const decrypted = await decryptBytes(
+      key,
+      await encryptBytes(key, plaintext, iv),
     );
-    expect(() => parseDkls19Setup(123 as never)).toThrow(
-      'Invalid dkls19 setup: expected a string',
+    expect(decrypted).toStrictEqual(plaintext);
+  });
+
+  it('throws for invalid AES-GCM parameters', async () => {
+    const key = new Uint8Array(32).fill(1);
+    const plaintext = new Uint8Array([1]);
+
+    await expect(
+      encryptBytes(key, plaintext, new Uint8Array(11)),
+    ).rejects.toThrow('Invalid IV length');
+    await expect(
+      encryptBytes(new Uint8Array(15), plaintext, new Uint8Array(12)),
+    ).rejects.toThrow('Invalid backup encryption key length');
+    await expect(decryptBytes(key, new Uint8Array(12))).rejects.toThrow(
+      'Invalid ciphertext',
+    );
+    await expect(
+      decryptBytes(new Uint8Array(15), new Uint8Array(20)),
+    ).rejects.toThrow('Invalid backup encryption key length');
+  });
+
+  it('parses and validates serialized keyring fields', () => {
+    expect(parseServerNetId('server-1')).toBe('server-1');
+    expect(() => parseServerNetId(1 as never)).toThrow(
+      'Invalid server network id: expected a string',
+    );
+    expect(() => parseServerNetId('')).toThrow(
+      'Invalid server network id: expected a non-empty string',
+    );
+
+    expect(parseBackupId('backup-1')).toBe('backup-1');
+    expect(() => parseBackupId(1 as never)).toThrow(
+      'Invalid backup id: expected a string',
+    );
+    expect(() => parseBackupId('')).toThrow(
+      'Invalid backup id: expected a non-empty string',
+    );
+
+    expect(parseTssSetup('0x1234')).toStrictEqual(new Uint8Array([0x12, 0x34]));
+    expect(parseTssSetup(null)).toBeNull();
+    expect(() => parseTssSetup(123 as never)).toThrow(
+      'Invalid tss setup: expected a hex string or null',
     );
   });
 });

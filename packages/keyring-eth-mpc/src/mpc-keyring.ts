@@ -8,7 +8,6 @@ import type {
 } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
-  CL24AccessStructureSerializer,
   CL24DKM,
   CL24ThresholdKeySerializer,
   dealersFromCL24Key,
@@ -17,9 +16,9 @@ import {
 } from '@metamask/mfa-wallet-cl24-lib';
 import { Dkls19TssLib } from '@metamask/mfa-wallet-dkls19-lib';
 import type {
-  AccessStructure,
   PartyId,
   RandomNumberGenerator,
+  RootNetworkSession,
   ShareBinding,
 } from '@metamask/mfa-wallet-interface';
 import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
@@ -31,39 +30,75 @@ import {
 import type { Dkls19Lib } from '@metamask/mpc-libs-interface';
 import { bytesToHex, hexToBytes, type Hex, type Json } from '@metamask/utils';
 
-import { initCloudKeyGen, initCloudKeyUpdate, initCloudSign } from './cloud';
-import type {
-  Custodian,
-  MPCKeyringOpts,
-  MPCKeyringSerializer,
-  MPCKeyringStorageState,
-  MPCKeyringState,
-  ThresholdKeyId,
+import {
+  checkKeyShareBackupId,
+  createKey as startCreateKey,
+  getNetId,
+  loadKeyShareBackup,
+  registerClient,
+  rotateKeyShares as startRotateKeyShares,
+  sign as startSign,
+  storeKeyShareBackup,
+} from './cloud';
+import {
+  type MPCKeyringOpts,
+  type MPCKeyringSerializer,
+  type MPCKeyringSetupParams,
+  type MPCKeyringState,
+  type MPCKeyringStorageState,
+  type ProfileTokenOpts,
 } from './types';
 import {
+  AES_GCM_IV_LENGTH,
+  createBackupId,
+  decryptBytes,
+  encryptBytes,
   equalAddresses,
-  getSignedTypedDataHash,
-  parseCustodians,
-  parseDkls19Setup,
-  parseEthSig,
-  parseProfileId,
-  parseSignedTypedDataVersion,
-  parseThresholdKeyId,
-  publicKeyToAddressHex,
   generateSessionNonce,
+  getSignedTypedDataHash,
+  parseBackupId,
+  parseEthSig,
+  parseServerNetId,
+  parseSignedTypedDataVersion,
+  parseTssSetup,
+  publicKeyToAddressHex,
   toEthSig,
 } from './util';
 
 const mpcKeyringType = 'MPC Keyring';
+const TSS_HAVE_SETUP_MESSAGE_TYPE = 'tss-have-setup';
+const CLIENT_SHARE_INDEX = 0;
+const SERVER_SHARE_INDEX = 1;
 
 /**
- * Builds 0-based share bindings for parties in list order.
+ * Party net ids indexed by 0-based share slot.
  *
- * @param partyIds - Party IDs in share-slot order.
- * @returns Share bindings with slots `0 … n-1`.
+ * @param clientNetId - Client (share 0) network id.
+ * @param serverNetId - Server (share 1) network id.
+ * @returns Net ids in share-slot order.
  */
-function shareBindingsFor(partyIds: PartyId[]): ShareBinding[] {
-  return partyIds.map((netId, shareIndex) => ({ netId, shareIndex }));
+function partyNetIds(clientNetId: PartyId, serverNetId: PartyId): PartyId[] {
+  const netIds: PartyId[] = [];
+  netIds[CLIENT_SHARE_INDEX] = clientNetId;
+  netIds[SERVER_SHARE_INDEX] = serverNetId;
+  return netIds;
+}
+
+/**
+ * Share bindings for the client/server pair.
+ *
+ * @param clientNetId - Client (share 0) network id.
+ * @param serverNetId - Server (share 1) network id.
+ * @returns Bindings with fixed share indexes.
+ */
+function shareBindings(
+  clientNetId: PartyId,
+  serverNetId: PartyId,
+): ShareBinding[] {
+  return [
+    { netId: clientNetId, shareIndex: CLIENT_SHARE_INDEX },
+    { netId: serverNetId, shareIndex: SERVER_SHARE_INDEX },
+  ];
 }
 
 export class MPCKeyring implements Keyring {
@@ -83,7 +118,11 @@ export class MPCKeyring implements Keyring {
 
   readonly #serializer: MPCKeyringSerializer;
 
-  readonly #getVerifierToken: (profileId: string) => Promise<string>;
+  readonly #getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
+
+  readonly #getBackupEncryptionKey: () => Promise<Uint8Array>;
+
+  #signQueue: Promise<void> = Promise.resolve();
 
   constructor(opts: MPCKeyringOpts) {
     this.#rng = {
@@ -94,7 +133,6 @@ export class MPCKeyring implements Keyring {
     this.#cloudURL = opts.cloudURL;
     this.#serializer = {
       thresholdKey: new CL24ThresholdKeySerializer(),
-      accessStructure: new CL24AccessStructureSerializer(),
       networkIdentity: new MfaNetworkIdentitySerializer(),
     };
     this.#networkManager = new MfaNetworkManager({
@@ -111,7 +149,8 @@ export class MPCKeyring implements Keyring {
       }),
       ...(opts.webSocket === undefined ? {} : { websocket: opts.webSocket }),
     });
-    this.#getVerifierToken = opts.getVerifierToken;
+    this.#getProfileToken = opts.getProfileToken;
+    this.#getBackupEncryptionKey = opts.getBackupEncryptionKey;
   }
 
   /**
@@ -127,16 +166,13 @@ export class MPCKeyring implements Keyring {
       return this.#state.setup;
     }
 
-    const state = this.#state;
+    const { netCreds, keyShare, serverNetId, backupId, tssSetup } = this.#state;
     return {
-      networkIdentity: this.#serializer.networkIdentity.toJson(
-        state.networkIdentity,
-      ),
-      keyShare: this.#serializer.thresholdKey.toJson(state.keyShare),
-      keyId: state.keyId,
-      custodians: state.custodians,
-      profileId: state.profileId,
-      dkls19Setup: bytesToHex(state.dkls19Setup),
+      netCreds: this.#serializer.networkIdentity.toJson(netCreds),
+      keyShare: this.#serializer.thresholdKey.toJson(keyShare),
+      serverNetId,
+      backupId,
+      tssSetup: tssSetup === null ? null : bytesToHex(tssSetup),
     };
   }
 
@@ -152,23 +188,19 @@ export class MPCKeyring implements Keyring {
     const stateObj = state as Record<string, Json>;
 
     if (
-      'networkIdentity' in stateObj &&
+      'netCreds' in stateObj &&
       'keyShare' in stateObj &&
-      'keyId' in stateObj &&
-      'dkls19Setup' in stateObj &&
-      'custodians' in stateObj &&
-      'profileId' in stateObj
+      'serverNetId' in stateObj &&
+      'backupId' in stateObj &&
+      'tssSetup' in stateObj
     ) {
       this.#state = {
         status: 'initialized',
-        networkIdentity: this.#serializer.networkIdentity.fromJson(
-          stateObj.networkIdentity,
-        ),
+        netCreds: this.#serializer.networkIdentity.fromJson(stateObj.netCreds),
         keyShare: this.#serializer.thresholdKey.fromJson(stateObj.keyShare),
-        keyId: parseThresholdKeyId(stateObj.keyId),
-        dkls19Setup: parseDkls19Setup(stateObj.dkls19Setup),
-        custodians: parseCustodians(stateObj.custodians),
-        profileId: parseProfileId(stateObj.profileId),
+        serverNetId: parseServerNetId(stateObj.serverNetId),
+        backupId: parseBackupId(stateObj.backupId),
+        tssSetup: parseTssSetup(stateObj.tssSetup),
       };
       return;
     }
@@ -183,440 +215,112 @@ export class MPCKeyring implements Keyring {
   }
 
   /**
-   * Runs key generation/joining for keyrings that were deserialized with setup
-   * parameters (e.g. when created via `addNewKeyring`).
+   * Run key generation or import. `mode` may be passed directly, or taken
+   * from setup params previously stored via {@link deserialize}.
+   *
+   * @param mode - Create a new key or import from the backend backup.
    */
-  async init(): Promise<void> {
-    if (!this.#state || this.#state.status === 'initialized') {
+  async init(mode?: MPCKeyringSetupParams['mode']): Promise<void> {
+    if (this.#state?.status === 'initialized') {
       return;
     }
 
-    const { setup } = this.#state;
+    const resolvedMode =
+      mode ??
+      (this.#state?.status === 'uninitialized'
+        ? this.#state.setup.mode
+        : undefined);
+    if (resolvedMode === undefined) {
+      return;
+    }
 
-    if (setup.mode === 'join') {
-      await this.#setupJoin(setup);
+    if (resolvedMode === 'create') {
+      await this.#setupCreate();
     } else {
-      await this.#setupCreate(setup.profileId);
+      await this.#setupImport();
     }
   }
 
   /**
-   * Get the custodian identifier from the network identity.
-   *
-   * @returns The network identity party ID.
+   * Rotate client and server shares. Existing TSS setup remains valid.
    */
-  getCustodianId(): string {
-    return this.#assertState().networkIdentity.partyId;
-  }
-
-  /**
-   * Get the custodians associated with the current threshold key.
-   *
-   * @returns The custodians with their party IDs and types.
-   */
-  getCustodians(): Custodian[] {
-    return this.#assertState().custodians;
-  }
-
-  /**
-   * Add a new custodian to the keyring using serialized join data.
-   *
-   * @param joinData - The serialized join data from {@link createJoinData}.
-   */
-  async addCustodian(joinData: string): Promise<void> {
+  async rotateKeyShares(): Promise<void> {
     const state = this.#assertState();
-    const { networkIdentity } = state;
-    if (state.keyShare.threshold !== 2) {
-      throw new Error('Key threshold must be 2');
-    }
+    const { netCreds, serverNetId } = state;
+    let { keyShare } = state;
 
-    const localId = networkIdentity.partyId;
-    const cloudCustodian = state.custodians.find(
-      (custodian) => custodian.type === 'cloud',
-    );
-    if (!cloudCustodian) {
-      throw new Error('Cloud custodian not found');
-    }
-
-    // Deserialize join data to get ephemeral joiner identity and nonce
-    const { joinerIdentity: joinerIdentityJson, nonce } = JSON.parse(joinData);
-    const ephemeralJoinerIdentity =
-      this.#serializer.networkIdentity.fromJson(joinerIdentityJson);
-    const ephemeralJoinerId = ephemeralJoinerIdentity.partyId;
-
-    const totalStartTime = performance.now();
-    const session1StartTime = performance.now();
-
-    // Session 1: establish with ephemeral joiner identity and nonce,
-    // receive the actual static joiner identity
-    const joinSession1Id = createScopedSessionId(
-      [ephemeralJoinerId, localId],
-      nonce,
-    );
-    const joinSession1 = await this.#networkManager.createSession(
-      networkIdentity,
-      joinSession1Id,
-    );
-
-    const staticJoinerIdBytes = await joinSession1.receiveMessage(
-      ephemeralJoinerId,
-      'static-id',
-    );
-    const custodianId = new TextDecoder().decode(staticJoinerIdBytes);
-    await joinSession1.disconnect();
-
-    const session1Time = performance.now() - session1StartTime;
-    console.log('addCustodian session1 time', session1Time);
-    const session2StartTime = performance.now();
-
-    // Session 2: establish with static joiner identity,
-    // send partial key, key id, and fresh nonce
-    const sessionNonce = generateSessionNonce(this.#rng);
-
-    const joinSession2Id = createScopedSessionId([custodianId, localId], nonce);
-    const joinSession2 = await this.#networkManager.createSession(
-      networkIdentity,
-      joinSession2Id,
-    );
-
-    const accessStructure: AccessStructure = {
-      threshold: state.keyShare.threshold,
-    };
-    const accessStructureJson =
-      this.#serializer.accessStructure.toJson(accessStructure);
-    const partyIds = state.custodians.map((custodian) => custodian.partyId);
-    const onlineCustodians = [localId, cloudCustodian.partyId];
-    const dealers = dealersFromCL24Key(state.keyShare, partyIds).filter(
-      (dealer) => onlineCustodians.includes(dealer.netId),
-    );
-    const newCustodians = [...onlineCustodians, custodianId];
-
-    const joinPayload = JSON.stringify({
-      cloudCustodian: cloudCustodian.partyId,
-      nonce: sessionNonce,
-      dealers,
-      accessStructure: accessStructureJson,
-      keyId: state.keyId,
-    });
-    joinSession2.sendMessage(
-      custodianId,
-      'join-data',
-      new TextEncoder().encode(joinPayload),
-    );
-
-    const session2Time = performance.now() - session2StartTime;
-    console.log('addCustodian session2 time', session2Time);
-    const initCloudStartTime = performance.now();
-
-    const token = await this.#getVerifierToken(state.profileId);
-
-    await initCloudKeyUpdate({
-      keyId: state.keyId,
-      onlineCustodians,
-      newCustodians,
-      sessionNonce,
-      baseURL: this.#cloudURL,
-      token,
-    });
-
-    const initCloudTime = performance.now() - initCloudStartTime;
-    console.log('initCloudKeyUpdate time', initCloudTime);
-    const updateKeyStartTime = performance.now();
-
-    const { newKey, dkls19Setup } = await this.#runKeyUpdate({
-      identity: networkIdentity,
-      key: state.keyShare,
-      dealers,
-      custodians: newCustodians,
-      sessionNonce,
-    });
-
-    const updateKeyTime = performance.now() - updateKeyStartTime;
-    console.log('dkm.rotateKeyShares time', updateKeyTime);
-
-    const totalTime = performance.now() - totalStartTime;
-    console.log('addCustodian total time', totalTime);
-
-    // We disconnect session 2 after the key update to avoid
-    // a bug where messages are not sent when disconnecting immediately.
-    await joinSession2.disconnect();
-
-    this.#applyKeyState({
-      ...state,
-      keyShare: newKey,
-      dkls19Setup,
-      custodians: [...state.custodians, { partyId: custodianId, type: 'user' }],
-    });
-  }
-
-  /**
-   * Remove a user custodian from the threshold key via resharing.
-   * The local device and cloud custodian must remain; only additional
-   * user custodians (added with {@link addCustodian}) can be removed.
-   *
-   * @param custodianId - Party ID of the custodian to remove.
-   */
-  async removeCustodian(custodianId: string): Promise<void> {
-    const state = this.#assertState();
-    const { networkIdentity, keyShare } = state;
-    if (keyShare.threshold !== 2) {
-      throw new Error('Key threshold must be 2');
-    }
-
-    const localId = networkIdentity.partyId;
-    if (custodianId === localId) {
-      throw new Error('Cannot remove local custodian');
-    }
-
-    const cloudCustodian = state.custodians.find(
-      (custodian) => custodian.type === 'cloud',
-    );
-    if (!cloudCustodian) {
-      throw new Error('Cloud custodian not found');
-    }
-    if (custodianId === cloudCustodian.partyId) {
-      throw new Error('Cannot remove cloud custodian');
-    }
-
-    const toRemove = state.custodians.find(
-      (custodian) => custodian.partyId === custodianId,
-    );
-    if (!toRemove) {
-      throw new Error('Custodian not found');
-    }
-    if (toRemove.type !== 'user') {
-      throw new Error('Only user custodians can be removed');
-    }
-    const partyIds = state.custodians.map((custodian) => custodian.partyId);
-    if (partyIds.length !== keyShare.shareIndexes.length) {
-      throw new Error('Custodian not part of threshold key');
-    }
-
-    const onlineCustodians = [localId, cloudCustodian.partyId];
-    const dealers = dealersFromCL24Key(keyShare, partyIds).filter((dealer) =>
-      onlineCustodians.includes(dealer.netId),
-    );
-
-    const sessionNonce = generateSessionNonce(this.#rng);
-    const token = await this.#getVerifierToken(state.profileId);
-
-    const totalStartTime = performance.now();
-    const initCloudStartTime = performance.now();
-
-    const newCustodians = onlineCustodians;
-    await initCloudKeyUpdate({
-      keyId: state.keyId,
-      onlineCustodians,
-      newCustodians,
-      sessionNonce,
-      baseURL: this.#cloudURL,
-      token,
-    });
-
-    const initCloudTime = performance.now() - initCloudStartTime;
-    console.log('initCloudKeyUpdate time', initCloudTime);
-    const updateKeyStartTime = performance.now();
-
-    const { newKey, dkls19Setup } = await this.#runKeyUpdate({
-      identity: networkIdentity,
-      key: keyShare,
-      dealers,
-      custodians: newCustodians,
-      sessionNonce,
-    });
-
-    const updateKeyTime = performance.now() - updateKeyStartTime;
-    console.log('dkm.rotateKeyShares (removeCustodian) time', updateKeyTime);
-
-    const totalTime = performance.now() - totalStartTime;
-    console.log('removeCustodian total time', totalTime);
-
-    this.#applyKeyState({
-      ...state,
-      keyShare: newKey,
-      dkls19Setup,
-      custodians: state.custodians.filter(
-        (custodian) => custodian.partyId !== custodianId,
-      ),
-    });
-  }
-
-  getProfileId(): string {
-    return this.#assertState().profileId;
-  }
-
-  /**
-   * Generate join data for a new custodian.
-   * Creates a fresh ephemeral joiner identity and session nonce,
-   * and serializes them along with the initiator's public ID.
-   *
-   * @returns Serialized join data string.
-   */
-  async createJoinData(): Promise<string> {
-    const initiatorId = this.#assertState().networkIdentity.partyId;
-    const ephemeralJoinerIdentity = await this.#networkManager.createIdentity();
+    const token = await this.#getProfileToken({ '2fa': true });
     const nonce = generateSessionNonce(this.#rng);
-
-    return JSON.stringify({
-      initiatorId,
-      joinerIdentity: this.#serializer.networkIdentity.toJson(
-        ephemeralJoinerIdentity,
-      ),
-      nonce,
-    });
-  }
-
-  async #setupCreate(profileId: string): Promise<void> {
-    const networkIdentity = await this.#networkManager.createIdentity();
-    const localId = networkIdentity.partyId;
-
-    const totalStartTime = performance.now();
-    const initCloudStartTime = performance.now();
-
-    const sessionNonce = generateSessionNonce(this.#rng);
-    const { cloudId } = await initCloudKeyGen({
-      localId,
-      sessionNonce,
+    await startRotateKeyShares({
       baseURL: this.#cloudURL,
-      profileId,
+      token,
+      clientNetId: netCreds.partyId,
+      nonce,
     });
 
-    const initCloudTime = performance.now() - initCloudStartTime;
-    console.log('initCloudKeyGen time', initCloudTime);
-    const createKeyStartTime = performance.now();
+    const netSession = await this.#createNetworkSession(
+      netCreds,
+      serverNetId,
+      nonce,
+    );
+    try {
+      const custodians = partyNetIds(netCreds.partyId, serverNetId);
+      keyShare = await this.#dkm.rotateKeyShares({
+        key: keyShare,
+        dealers: dealersFromCL24Key(keyShare, custodians),
+        custodians,
+        networkSession: netSession,
+      });
+    } finally {
+      await netSession.disconnect();
+    }
 
-    const custodians = [localId, cloudId];
-    const { key, keyId, dkls19Setup } = await this.#runKeyGeneration({
-      identity: networkIdentity,
-      custodians,
-      threshold: 2,
-      sessionNonce,
+    const backupId = createBackupId(this.#rng);
+    await storeKeyShareBackup({
+      baseURL: this.#cloudURL,
+      token,
+      backupId,
+      encryptedKeyShare: await this.#encryptKeyShare(keyShare),
     });
-
-    const createKeyTime = performance.now() - createKeyStartTime;
-    console.log('dkm.createKey time', createKeyTime);
-
-    const totalTime = performance.now() - totalStartTime;
-    console.log('setupCreate total time', totalTime);
 
     this.#applyKeyState({
-      networkIdentity,
-      keyShare: key,
-      keyId,
-      dkls19Setup,
-      custodians: [
-        { partyId: localId, type: 'user' },
-        { partyId: cloudId, type: 'cloud' },
-      ],
-      profileId,
+      ...state,
+      keyShare,
+      backupId,
     });
   }
 
-  async #setupJoin(opts: {
-    profileId: string;
-    joinData: string;
-  }): Promise<void> {
-    const { profileId, joinData } = opts;
-
-    // Deserialize join data to get initiator id, ephemeral joiner identity, nonce
-    const {
-      initiatorId: initiator,
-      joinerIdentity: joinerIdentityJson,
-      nonce,
-    } = JSON.parse(joinData);
-    const ephemeralJoinerIdentity =
-      this.#serializer.networkIdentity.fromJson(joinerIdentityJson);
-
-    // Setup own static identity
-    const networkIdentity = await this.#networkManager.createIdentity();
-    const myId = networkIdentity.partyId;
-
-    const totalStartTime = performance.now();
-    const session1StartTime = performance.now();
-
-    // Session 1: establish with initiator using ephemeral joiner identity,
-    // send own static identity (public id)
-    const joinSession1Id = createScopedSessionId(
-      [ephemeralJoinerIdentity.partyId, initiator],
-      nonce,
-    );
-    const joinSession1 = await this.#networkManager.createSession(
-      ephemeralJoinerIdentity,
-      joinSession1Id,
-    );
-
-    joinSession1.sendMessage(
-      initiator,
-      'static-id',
-      new TextEncoder().encode(myId),
-    );
-
-    const session1Time = performance.now() - session1StartTime;
-    console.log('setupJoin session1 time', session1Time);
-    const session2StartTime = performance.now();
-
-    // Session 2: establish with initiator using static identity,
-    // receive partial key, key id, and nonce
-    const joinSession2Id = createScopedSessionId([myId, initiator], nonce);
-    const joinSession2 = await this.#networkManager.createSession(
-      networkIdentity,
-      joinSession2Id,
-    );
-
-    const joinPayloadBytes = await joinSession2.receiveMessage(
-      initiator,
-      'join-data',
-    );
-    await joinSession2.disconnect();
-    // We disconnect session 1 after receiving message from initiator to avoid
-    // a bug where messages are not sent when disconnecting immediately.
-    await joinSession1.disconnect();
-
-    const session2Time = performance.now() - session2StartTime;
-    console.log('setupJoin session2 time', session2Time);
-
-    const joinPayload = JSON.parse(new TextDecoder().decode(joinPayloadBytes));
-    const {
-      cloudCustodian,
-      nonce: sessionNonce,
-      dealers,
-      accessStructure: accessStructureJson,
-      keyId,
-    } = joinPayload;
-
-    const accessStructure =
-      this.#serializer.accessStructure.fromJson(accessStructureJson);
-
-    const onlineCustodians = [initiator, cloudCustodian];
-    const newCustodians = [...onlineCustodians, myId];
-
-    const updateKeyStartTime = performance.now();
-
-    const { newKey, dkls19Setup } = await this.#runKeyUpdate({
-      identity: networkIdentity,
-      key: accessStructure,
-      dealers,
-      custodians: newCustodians,
-      sessionNonce,
+  /**
+   * Compare the local backup id with the id stored on the backend.
+   *
+   * @returns Whether the backup ids match.
+   */
+  async checkKeyShare(): Promise<boolean> {
+    const { backupId } = this.#assertState();
+    const token = await this.#getProfileToken();
+    const serverBackupId = await checkKeyShareBackupId({
+      baseURL: this.#cloudURL,
+      token,
     });
+    return backupId === serverBackupId;
+  }
 
-    const updateKeyTime = performance.now() - updateKeyStartTime;
-    console.log('dkm.rotateKeyShares time', updateKeyTime);
-
-    const totalTime = performance.now() - totalStartTime;
-    console.log('setupJoin total time', totalTime);
-
+  /**
+   * Refresh `keyShare` and `backupId` from the backend backup.
+   * `netCreds`, `serverNetId`, and `tssSetup` are unchanged.
+   */
+  async syncKeyShare(): Promise<void> {
+    const state = this.#assertState();
+    const token = await this.#getProfileToken({ '2fa': true });
+    const { encryptedKeyShare, backupId } = await loadKeyShareBackup({
+      baseURL: this.#cloudURL,
+      token,
+    });
+    const keyShare = await this.#decryptKeyShare(encryptedKeyShare);
     this.#applyKeyState({
-      networkIdentity,
-      keyShare: newKey,
-      dkls19Setup,
-      keyId,
-      custodians: [
-        { partyId: initiator, type: 'user' },
-        { partyId: cloudCustodian, type: 'cloud' },
-        { partyId: myId, type: 'user' },
-      ],
-      profileId,
+      ...state,
+      keyShare,
+      backupId,
     });
   }
 
@@ -641,8 +345,7 @@ export class MPCKeyring implements Keyring {
       return [];
     }
 
-    const addr = this.#address();
-    return [addr];
+    return [this.#address()];
   }
 
   /**
@@ -726,184 +429,241 @@ export class MPCKeyring implements Keyring {
     return bytesToHex(signature);
   }
 
-  async #signHash(address: Hex, hash: Uint8Array): Promise<Uint8Array> {
-    const state = this.#assertState();
-    const { networkIdentity } = state;
-
-    const { publicKey } = state.keyShare;
-
-    const addr = this.#address();
-    if (!equalAddresses(address, addr)) {
-      throw new Error(`account ${address} not found`);
-    }
-
-    const localId = networkIdentity.partyId;
-    const cloudCustodian = state.custodians.find(
-      (custodian) => custodian.type === 'cloud',
-    );
-    if (!cloudCustodian) {
-      throw new Error('Cloud custodian not found');
-    }
-
-    const signers = shareBindingsFor([localId, cloudCustodian.partyId]);
-    const sessionNonce = generateSessionNonce(this.#rng);
-    const sessionId = createScopedSessionId(
-      signers.map((signer) => signer.netId),
-      sessionNonce,
-    );
-    const message = hash;
-    const token = await this.#getVerifierToken(state.profileId);
-
-    const totalStartTime = performance.now();
-    const initCloudStartTime = performance.now();
-
-    await initCloudSign({
-      keyId: state.keyId,
-      localId,
-      sessionNonce,
-      message,
+  async #setupCreate(): Promise<void> {
+    const token = await this.#getProfileToken({ '2fa': true });
+    const netCreds = await this.#networkManager.createIdentity();
+    const serverNetId = await getNetId({
       baseURL: this.#cloudURL,
       token,
     });
 
-    const initCloudTime = performance.now() - initCloudStartTime;
-    console.log('initCloudSign time', initCloudTime);
-    const dkls19StartTime = performance.now();
-
-    const networkSession = await this.#networkManager.createSession(
-      networkIdentity,
-      sessionId,
-    );
-
-    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
-    const { signature } = await dkls19.sign({
-      key: state.keyShare,
-      signers,
-      message,
-      networkSession,
-      setup: state.dkls19Setup,
+    const nonce = generateSessionNonce(this.#rng);
+    await startCreateKey({
+      baseURL: this.#cloudURL,
+      token,
+      clientNetId: netCreds.partyId,
+      nonce,
     });
 
-    const dkls19SignTime = performance.now() - dkls19StartTime;
-    console.log('dkls19.sign time', dkls19SignTime);
+    const netSession = await this.#createNetworkSession(
+      netCreds,
+      serverNetId,
+      nonce,
+    );
+    let keyShare: CL24ThresholdKey;
+    let tssSetup: Uint8Array;
+    try {
+      const custodians = partyNetIds(netCreds.partyId, serverNetId);
+      const bindings = shareBindings(netCreds.partyId, serverNetId);
+      keyShare = await this.#dkm.createKey({
+        custodians,
+        threshold: 2,
+        networkSession: netSession,
+      });
+      const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
+      tssSetup = await dkls19.setup({
+        signers: bindings,
+        networkSession: netSession,
+      });
+    } finally {
+      await netSession.disconnect();
+    }
 
-    const totalTime = performance.now() - totalStartTime;
-    console.log('total time', totalTime);
+    const backupId = createBackupId(this.#rng);
+    await storeKeyShareBackup({
+      baseURL: this.#cloudURL,
+      token,
+      backupId,
+      encryptedKeyShare: await this.#encryptKeyShare(keyShare),
+    });
 
-    await networkSession.disconnect();
-
-    return toEthSig(signature, hash, publicKey);
+    this.#applyKeyState({
+      keyShare,
+      netCreds,
+      serverNetId,
+      backupId,
+      tssSetup,
+    });
   }
 
-  async #runKeyGeneration(opts: {
-    identity: MfaNetworkIdentity;
-    custodians: PartyId[];
-    threshold: number;
-    sessionNonce: string;
-  }): Promise<{
-    key: CL24ThresholdKey;
-    keyId: ThresholdKeyId;
-    dkls19Setup: Uint8Array;
-  }> {
-    const sessionId = createScopedSessionId(opts.custodians, opts.sessionNonce);
-    const rootSession = await this.#networkManager.createSession(
-      opts.identity,
-      sessionId,
-    );
-
-    const dkls19SetupSession = rootSession.createSubsession('dkls19-setup');
-    const createKeySession = rootSession.createSubsession('create-key');
-    const signers = shareBindingsFor(opts.custodians);
-
-    const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
-    const keyPromise = this.#dkm.createKey({
-      custodians: opts.custodians,
-      threshold: opts.threshold,
-      networkSession: createKeySession,
+  async #setupImport(): Promise<void> {
+    const token = await this.#getProfileToken({ '2fa': true });
+    const netCreds = await this.#networkManager.createIdentity();
+    const serverNetId = await getNetId({
+      baseURL: this.#cloudURL,
+      token,
     });
-    const dkls19SetupPromise = dkls19.setup({
-      signers,
-      networkSession: dkls19SetupSession,
-    });
-    const [key, dkls19Setup] = await Promise.all([
-      keyPromise,
-      dkls19SetupPromise,
-    ]);
 
-    const keyId = rootSession.sessionId;
-    await rootSession.disconnect();
-    return { key, keyId, dkls19Setup };
+    const loaded = await loadKeyShareBackup({
+      baseURL: this.#cloudURL,
+      token,
+    });
+    const keyShare = await this.#decryptKeyShare(loaded.encryptedKeyShare);
+
+    await registerClient({
+      baseURL: this.#cloudURL,
+      token,
+      clientNetId: netCreds.partyId,
+    });
+
+    this.#applyKeyState({
+      keyShare,
+      netCreds,
+      serverNetId,
+      backupId: loaded.backupId,
+      tssSetup: null,
+    });
   }
 
-  async #runKeyUpdate(opts: {
-    identity: MfaNetworkIdentity;
-    key: CL24ThresholdKey | AccessStructure;
-    dealers: ShareBinding[];
-    custodians: PartyId[];
-    sessionNonce: string;
-  }): Promise<{ newKey: CL24ThresholdKey; dkls19Setup: Uint8Array }> {
-    const sessionId = createScopedSessionId(opts.custodians, opts.sessionNonce);
-    const rootSession = await this.#networkManager.createSession(
-      opts.identity,
-      sessionId,
-    );
+  async #signHash(address: Hex, hash: Uint8Array): Promise<Uint8Array> {
+    return this.#serializeSign(async () => {
+      const state = this.#assertState();
+      const { keyShare, netCreds, serverNetId } = state;
+      let { tssSetup } = state;
 
-    const dkls19SetupSession = rootSession.createSubsession('dkls19-setup');
-    const updateKeySession = rootSession.createSubsession('update-key');
-    const signers = shareBindingsFor(opts.custodians);
+      const addr = this.#address();
+      if (!equalAddresses(address, addr)) {
+        throw new Error(`account ${address} not found`);
+      }
+
+      const token = await this.#getProfileToken({
+        '2fa': true,
+        challenge: hash,
+      });
+      const nonce = generateSessionNonce(this.#rng);
+      await startSign({
+        baseURL: this.#cloudURL,
+        token,
+        data: hash,
+        clientNetId: netCreds.partyId,
+        nonce,
+      });
+
+      const netSession = await this.#createNetworkSession(
+        netCreds,
+        serverNetId,
+        nonce,
+      );
+      const bindings = shareBindings(netCreds.partyId, serverNetId);
+
+      try {
+        tssSetup = await this.#ensureTssSetup(
+          netSession,
+          serverNetId,
+          bindings,
+          tssSetup,
+        );
+        this.#applyKeyState({ ...state, tssSetup });
+
+        try {
+          const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
+          const { signature } = await dkls19.sign({
+            key: keyShare,
+            signers: bindings,
+            message: hash,
+            networkSession: netSession,
+            setup: tssSetup,
+          });
+          return toEthSig(signature, hash, keyShare.publicKey);
+        } catch (error) {
+          this.#applyKeyState({ ...state, tssSetup: null });
+          throw error;
+        }
+      } finally {
+        await netSession.disconnect();
+      }
+    });
+  }
+
+  async #ensureTssSetup(
+    netSession: RootNetworkSession,
+    peerNetId: PartyId,
+    bindings: ShareBinding[],
+    storedSetup: Uint8Array | null,
+  ): Promise<Uint8Array> {
+    const haveSetup = storedSetup !== null;
+    netSession.sendMessage(
+      peerNetId,
+      TSS_HAVE_SETUP_MESSAGE_TYPE,
+      new TextEncoder().encode(JSON.stringify({ haveSetup })),
+    );
+    const peerBytes = await netSession.receiveMessage(
+      peerNetId,
+      TSS_HAVE_SETUP_MESSAGE_TYPE,
+    );
+    const peerPayload = JSON.parse(new TextDecoder().decode(peerBytes)) as {
+      haveSetup?: unknown;
+    };
+    const peerHaveSetup = peerPayload.haveSetup === true;
+    if (haveSetup && peerHaveSetup) {
+      return storedSetup;
+    }
 
     const dkls19 = new Dkls19TssLib(this.#dkls19Lib, this.#rng, true);
-    const newKeyPromise = this.#dkm.rotateKeyShares({
-      key: opts.key,
-      dealers: opts.dealers,
-      custodians: opts.custodians,
-      networkSession: updateKeySession,
+    return dkls19.setup({
+      signers: bindings,
+      networkSession: netSession,
     });
-    const dkls19SetupPromise = dkls19.setup({
-      signers,
-      networkSession: dkls19SetupSession,
-    });
-    const [newKey, dkls19Setup] = await Promise.all([
-      newKeyPromise,
-      dkls19SetupPromise,
-    ]);
+  }
 
-    await rootSession.disconnect();
-    return { newKey, dkls19Setup };
+  async #createNetworkSession(
+    netCreds: MfaNetworkIdentity,
+    serverNetId: PartyId,
+    nonce: string,
+  ): Promise<RootNetworkSession> {
+    const sessionId = createScopedSessionId(
+      [serverNetId, netCreds.partyId],
+      nonce,
+    );
+    return this.#networkManager.createSession(netCreds, sessionId);
+  }
+
+  async #encryptKeyShare(keyShare: CL24ThresholdKey): Promise<Uint8Array> {
+    const key = await this.#getBackupEncryptionKey();
+    const plaintext = new TextEncoder().encode(
+      JSON.stringify(this.#serializer.thresholdKey.toJson(keyShare)),
+    );
+    const iv = this.#rng.generateRandomBytes(AES_GCM_IV_LENGTH);
+    return encryptBytes(key, plaintext, iv);
+  }
+
+  async #decryptKeyShare(
+    encryptedKeyShare: Uint8Array,
+  ): Promise<CL24ThresholdKey> {
+    const key = await this.#getBackupEncryptionKey();
+    const plaintext = await decryptBytes(key, encryptedKeyShare);
+    return this.#serializer.thresholdKey.fromJson(
+      JSON.parse(new TextDecoder().decode(plaintext)) as Json,
+    );
+  }
+
+  async #serializeSign<Result>(
+    operation: () => Promise<Result>,
+  ): Promise<Result> {
+    const previous = this.#signQueue;
+    let release!: () => void;
+    this.#signQueue = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await previous;
+    try {
+      return await operation();
+    } finally {
+      release();
+    }
   }
 
   #parseSetupParams(
     state: Record<string, Json>,
-  ):
-    | { profileId: string; mode?: 'create' }
-    | { profileId: string; mode: 'join'; joinData: string }
-    | undefined {
-    if (!('profileId' in state)) {
+  ): MPCKeyringSetupParams | undefined {
+    if (!('mode' in state)) {
       return undefined;
     }
-
-    const profileId = parseProfileId(state.profileId);
     const { mode } = state;
-
-    if (mode === undefined) {
-      return { profileId };
+    if (mode === 'create' || mode === 'import') {
+      return { mode };
     }
-    if (mode === 'create') {
-      return { mode: 'create', profileId };
-    }
-    if (mode === 'join') {
-      const { joinData } = state;
-      if (typeof joinData !== 'string') {
-        throw new Error('Invalid join data: expected a string');
-      }
-      return {
-        mode: 'join',
-        profileId,
-        joinData,
-      };
-    }
-
-    throw new Error("Invalid setup mode: expected 'create' or 'join'");
+    throw new Error("Invalid setup mode: expected 'create' or 'import'");
   }
 
   #applyKeyState(state: MPCKeyringState): void {
