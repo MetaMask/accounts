@@ -114,6 +114,11 @@ describe('TrezorSidecarManager', () => {
     await expect(manager.start()).rejects.toThrow(
       'connect-web iframe assets not found',
     );
+
+    // A failed start() must not leave half-started servers behind: the
+    // manager reports stopped and no proxy port is held open.
+    expect(manager.isRunning()).toBe(false);
+    expect(await isPortOpen(21348)).toBe(false);
   });
 
   it('stop() also closes the secondary CORS proxy on port 21325', async () => {

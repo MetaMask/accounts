@@ -192,32 +192,36 @@ class SidecarManager implements TrezorSidecarManager {
   async start(): Promise<void> {
     await this.stop();
 
-    this.#corsProxy = await createCorsProxy(
-      this.#corsProxyPort,
-      this.#upstreamBridge,
-    );
-    // Also proxy 21325 (the iframe's secondary BridgeTransport default)
-    try {
-      this.#secondaryCorsProxy = await createCorsProxy(
-        SECONDARY_CORS_PROXY_PORT,
-        this.#upstreamBridge,
-      );
-    } catch (error) {
-      // Best-effort: the port may already be in use by another instance.
-      // Log so the failure (e.g. EADDRINUSE) is not silent.
-      console.warn(
-        `TrezorSidecarManager: failed to start secondary CORS proxy on port ${SECONDARY_CORS_PROXY_PORT}:`,
-        error,
-      );
-    }
-
+    // Validate the asset dir before binding anything so a missing dir
+    // cannot leave half-started listening servers behind.
     if (!fs.existsSync(this.#assetDir)) {
       throw new Error(
         `connect-web iframe assets not found at ${this.#assetDir}`,
       );
     }
     const resolvedAssetDir = path.resolve(this.#assetDir);
-    const assetServer = http.createServer((req, res) => {
+
+    try {
+      this.#corsProxy = await createCorsProxy(
+        this.#corsProxyPort,
+        this.#upstreamBridge,
+      );
+      // Also proxy 21325 (the iframe's secondary BridgeTransport default)
+      try {
+        this.#secondaryCorsProxy = await createCorsProxy(
+          SECONDARY_CORS_PROXY_PORT,
+          this.#upstreamBridge,
+        );
+      } catch (error) {
+        // Best-effort: the port may already be in use by another instance.
+        // Log so the failure (e.g. EADDRINUSE) is not silent.
+        console.warn(
+          `TrezorSidecarManager: failed to start secondary CORS proxy on port ${SECONDARY_CORS_PROXY_PORT}:`,
+          error,
+        );
+      }
+
+      const assetServer = http.createServer((req, res) => {
       const url = req.url === '/' ? '/iframe.html' : (req.url ?? '');
       // `path.join` normalizes `..` segments while keeping the result
       // anchored at the asset dir; the resolved-prefix check then ensures
@@ -251,6 +255,12 @@ class SidecarManager implements TrezorSidecarManager {
       });
     });
     this.#assetServer = assetServer;
+    } catch (startError: unknown) {
+      // A later startup step failed: tear down everything already bound
+      // so start() never leaves half-open servers behind.
+      await this.stop();
+      throw startError;
+    }
   }
 
   async stop(): Promise<void> {
