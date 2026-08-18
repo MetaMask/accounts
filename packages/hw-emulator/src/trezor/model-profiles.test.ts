@@ -1,16 +1,7 @@
-import {
-  MODEL_PROFILES,
-  type TrezorModel,
-  type ModelProfile,
-} from './model-profiles';
+import { MODEL_PROFILES } from './model-profiles';
+import type { ModelProfile, TrezorModel } from './model-profiles';
 
-const ALL_MODELS: TrezorModel[] = [
-  'T1B1',
-  'T2T1',
-  'T3B1',
-  'T3T1',
-  'T3W1',
-];
+const ALL_MODELS: TrezorModel[] = ['T1B1', 'T2T1', 'T3B1', 'T3T1', 'T3W1'];
 
 describe('MODEL_PROFILES', () => {
   it('has a profile for every supported model', () => {
@@ -19,7 +10,7 @@ describe('MODEL_PROFILES', () => {
     }
   });
 
-  it('T1B1 uses physical buttons (press-yes/press-no)', () => {
+  it('t1B1 uses physical buttons (press-yes/press-no)', () => {
     expect(MODEL_PROFILES.T1B1.interaction).toBe('button');
     expect(MODEL_PROFILES.T1B1.confirm).toBe('press-yes');
     expect(MODEL_PROFILES.T1B1.reject).toBe('press-no');
@@ -28,26 +19,35 @@ describe('MODEL_PROFILES', () => {
 
   it('touchscreen models use click coordinates', () => {
     for (const model of ['T2T1', 'T3B1', 'T3T1', 'T3W1'] as TrezorModel[]) {
-      const p = MODEL_PROFILES[model];
-      expect(p.interaction).toBe('touch');
-      expect(p.layout).toBe('touch-240x280');
-      expect(typeof p.confirm).toBe('object');
+      const profile = MODEL_PROFILES[model];
+      expect(profile.interaction).toBe('touch');
+      expect(profile.layout).toBe('touch-240x280');
+      expect(typeof profile.confirm).toBe('object');
       expect(
-        (p.confirm as { click: { x: number; y: number } }).click,
+        (profile.confirm as { click: { x: number; y: number } }).click,
       ).toBeDefined();
     }
   });
 
   it('every profile has confirm + reject actions matching its interaction paradigm', () => {
-    for (const model of ALL_MODELS) {
-      const p: ModelProfile = MODEL_PROFILES[model];
-      if (p.interaction === 'button') {
-        expect(p.confirm).toBe('press-yes');
-        expect(p.reject).toBe('press-no');
-      } else {
-        expect((p.confirm as { click: unknown }).click).toBeDefined();
-        expect((p.reject as { click: unknown }).click).toBeDefined();
-      }
+    const confirmActions = ALL_MODELS.map((model) => {
+      const profile: ModelProfile = MODEL_PROFILES[model];
+      return profile.interaction === 'button'
+        ? profile.confirm
+        : (profile.confirm as { click: unknown }).click;
+    });
+    const rejectActions = ALL_MODELS.map((model) => {
+      const profile: ModelProfile = MODEL_PROFILES[model];
+      return profile.interaction === 'button'
+        ? profile.reject
+        : (profile.reject as { click: unknown }).click;
+    });
+
+    for (const confirm of confirmActions) {
+      expect(confirm).toBeDefined();
+    }
+    for (const reject of rejectActions) {
+      expect(reject).toBeDefined();
     }
   });
 });

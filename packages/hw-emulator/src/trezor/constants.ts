@@ -7,17 +7,27 @@ export const TREZOR_EMULATOR_SEED =
 /** Default model: Trezor Model T / Safe 3 (touchscreen, flagship). */
 export const TREZOR_DEFAULT_MODEL: TrezorModel = 'T2T1';
 
-/** connectSrc override: URL of the locally-served connect-web iframe assets.
- * Injected via window.__TREZOR_CONNECT_SRC (see html-injector.ts). */
+/**
+ * connectSrc override: URL of the locally-served connect-web iframe assets.
+ * Injected via window.__TREZOR_CONNECT_SRC (see html-injector.ts).
+ */
 export const TREZOR_CONNECT_SRC = 'http://localhost:8088/';
 
-/** @trezor/transport-bridge HTTP port (default). The iframe's BridgeTransport hits this. */
+/**
+ * @trezor/transport-bridge HTTP port (default). The iframe's BridgeTransport
+ * hits this; the sidecar's CORS proxy listens on it (see sidecar-manager.ts).
+ */
 export const TREZOR_TRANSPORT_BRIDGE_PORT = 21328;
 
 /** trezor-user-env WebSocket controller port. */
 export const TREZOR_CONTROLLER_PORT = 9001;
 
-/** Emulator UDP debug-link port (informational; transport-bridge talks to this). */
+/**
+ * Emulator UDP debug-link port (informational; transport-bridge talks to
+ * this). The port mapping lives in the trezor-user-env docker-compose file
+ * rather than in runtime source, so no runtime code binds or dials it. Kept
+ * as part of the package's public constants surface.
+ */
 export const TREZOR_EMULATOR_PORT = 21324;
 
 /** Trezor protobuf message type IDs used for signing detection. */

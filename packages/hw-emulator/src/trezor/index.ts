@@ -17,6 +17,7 @@ export type {
 export { TrezorControllerClient } from './controller-client';
 export type {
   ControllerClientOptions,
+  ControllerResponse,
   SetupParams,
 } from './controller-client';
 export { createSidecarManager } from './sidecar-manager';

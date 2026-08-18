@@ -1,4 +1,6 @@
+// eslint-disable-next-line import-x/no-nodejs-modules
 import { execFile } from 'node:child_process';
+// eslint-disable-next-line import-x/no-nodejs-modules
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
@@ -8,20 +10,25 @@ export type DockerRunner = (
   args: string[],
 ) => Promise<{ stdout: string; stderr: string }>;
 
-export interface DockerManagerOptions {
+export type DockerManagerOptions = {
   composeFile: string;
   runner?: DockerRunner;
-}
+};
 
 export class TrezorDockerManager {
   readonly #composeFile: string;
+
   readonly #runner: DockerRunner;
 
   constructor(opts: DockerManagerOptions) {
     this.#composeFile = opts.composeFile;
     this.#runner =
       opts.runner ??
-      ((file, args) => execFileAsync(file, args));
+      (async (
+        file: string,
+        args: string[],
+      ): Promise<{ stdout: string; stderr: string }> =>
+        execFileAsync(file, args));
   }
 
   async start(): Promise<void> {
@@ -35,11 +42,6 @@ export class TrezorDockerManager {
   }
 
   async stop(): Promise<void> {
-    await this.#runner('docker', [
-      'compose',
-      '-f',
-      this.#composeFile,
-      'down',
-    ]);
+    await this.#runner('docker', ['compose', '-f', this.#composeFile, 'down']);
   }
 }

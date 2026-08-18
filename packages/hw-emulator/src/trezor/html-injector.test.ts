@@ -1,5 +1,5 @@
-import { getTrezorConnectSrcInjectionScript } from './html-injector';
 import { TREZOR_CONNECT_SRC } from './constants';
+import { getTrezorConnectSrcInjectionScript } from './html-injector';
 
 describe('getTrezorConnectSrcInjectionScript', () => {
   it('returns a script that sets window.__TREZOR_CONNECT_SRC to the connectSrc constant', () => {

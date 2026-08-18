@@ -16,6 +16,8 @@ import { TREZOR_CONNECT_SRC } from './constants';
  *     `<script>${getTrezorConnectSrcInjectionScript()}</script></head>`,
  *   );
  *   writeFileSync('dist/offscreen.html', injected);
+ *
+ * @returns The JavaScript source snippet to inject.
  */
 export function getTrezorConnectSrcInjectionScript(): string {
   return `window.__TREZOR_CONNECT_SRC = '${TREZOR_CONNECT_SRC}';`;

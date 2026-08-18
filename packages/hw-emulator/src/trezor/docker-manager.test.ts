@@ -5,13 +5,16 @@ describe('TrezorDockerManager', () => {
     const calls: string[][] = [];
     const mgr = new TrezorDockerManager({
       composeFile: '/tmp/trezor.yml',
-      runner: async (file, args) => {
+      runner: async (
+        file: string,
+        args: string[],
+      ): Promise<{ stdout: string; stderr: string }> => {
         calls.push([file, ...args]);
         return { stdout: '', stderr: '' };
       },
     });
     await mgr.start();
-    expect(calls[0]).toEqual([
+    expect(calls[0]).toStrictEqual([
       'docker',
       'compose',
       '-f',
@@ -25,13 +28,16 @@ describe('TrezorDockerManager', () => {
     const calls: string[][] = [];
     const mgr = new TrezorDockerManager({
       composeFile: '/tmp/trezor.yml',
-      runner: async (file, args) => {
+      runner: async (
+        file: string,
+        args: string[],
+      ): Promise<{ stdout: string; stderr: string }> => {
         calls.push([file, ...args]);
         return { stdout: '', stderr: '' };
       },
     });
     await mgr.stop();
-    expect(calls[0]).toEqual([
+    expect(calls[0]).toStrictEqual([
       'docker',
       'compose',
       '-f',
