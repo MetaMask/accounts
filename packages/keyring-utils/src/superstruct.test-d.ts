@@ -1,8 +1,17 @@
 import type { Infer } from '@metamask/superstruct';
-import { boolean, number, optional, string } from '@metamask/superstruct';
+import {
+  object,
+  exactOptional,
+  boolean,
+  number,
+  optional,
+  string,
+} from '@metamask/superstruct';
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
-import { exactOptional, object } from '.';
+// NOTE: Kept this test as non-regression tests after the migration from ours `exactOptional`
+// implementation to the one from `@metamask/superstruct` package. The tests are not
+// exhaustive, but they cover the most common use cases.
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const exactOptionalObject = object({

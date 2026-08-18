@@ -1,6 +1,9 @@
 import { EthMethod, EthScope } from '@metamask/keyring-api';
 
-import { toKeyringRequestWithoutOrigin } from './keyring-request';
+import {
+  toKeyringRequestWithoutOrigin,
+  toKeyringRequestWithoutOriginMetadata,
+} from './keyring-request';
 
 describe('v1', () => {
   describe('toKeyringRequestWithoutOrigin', () => {
@@ -18,6 +21,29 @@ describe('v1', () => {
 
     it('converts a keyring request to a keyring request v1', () => {
       expect(toKeyringRequestWithoutOrigin(request)).toStrictEqual(requestV1);
+    });
+  });
+});
+
+describe('v2', () => {
+  describe('toKeyringRequestWithoutOriginMetadata', () => {
+    const request = {
+      id: 'mock-request-id',
+      scope: EthScope.Mainnet,
+      account: '55583f38-d81b-48f8-8494-fc543c2b5c95',
+      origin: 'test',
+      originMetadata: null,
+      request: {
+        method: EthMethod.PersonalSign,
+        params: {},
+      },
+    };
+    const { originMetadata, ...requestV1 } = request;
+
+    it('converts a keyring request to a keyring request v2', () => {
+      expect(toKeyringRequestWithoutOriginMetadata(request)).toStrictEqual(
+        requestV1,
+      );
     });
   });
 });

@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-trezor-keyring",
-  "version": "10.1.0",
+  "version": "11.0.0",
   "description": "A MetaMask compatible keyring, for trezor hardware wallets",
   "keywords": [
     "ethereum",
@@ -71,10 +71,10 @@
     "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^8.2.0",
-    "@metamask/hw-wallet-sdk": "^0.8.0",
-    "@metamask/keyring-api": "^23.3.0",
-    "@metamask/keyring-sdk": "^2.2.0",
-    "@metamask/keyring-utils": "^3.3.1",
+    "@metamask/hw-wallet-sdk": "^1.0.0",
+    "@metamask/keyring-api": "^24.1.0",
+    "@metamask/keyring-sdk": "^3.1.0",
+    "@metamask/keyring-utils": "^5.0.0",
     "@metamask/utils": "^11.11.0",
     "@trezor/connect-plugin-ethereum": "^9.0.5",
     "@trezor/connect-web": "^9.6.0",
@@ -85,7 +85,7 @@
     "@ethereumjs/common": "^4.4.0",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
-    "@metamask/account-api": "^1.0.4",
+    "@metamask/account-api": "^2.0.0",
     "@metamask/auto-changelog": "^6.1.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/ethereumjs-tx": "^1.0.1",
@@ -107,7 +107,7 @@
     "typescript": "~5.3.3"
   },
   "engines": {
-    "node": "^18.18 || >=20"
+    "node": ">=22"
   },
   "installConfig": {
     "hoistingLimits": "workspaces"

@@ -4,7 +4,9 @@ import {
 } from '@metamask/hw-wallet-sdk';
 
 import {
+  createDmkError,
   createLedgerError,
+  createKeyringStateError,
   isKnownLedgerError,
   getLedgerErrorMapping,
 } from './errors';
@@ -93,5 +95,93 @@ describe('getLedgerErrorMapping', () => {
     const mapping = getLedgerErrorMapping('0x9999');
 
     expect(mapping).toBeUndefined();
+  });
+});
+
+describe('createKeyringStateError', () => {
+  it('creates HardwareWalletError for DeviceStateOnlyV4Supported', () => {
+    const error = createKeyringStateError(
+      ErrorCodeEnum.DeviceStateOnlyV4Supported,
+    );
+
+    expect(error).toBeInstanceOf(HardwareWalletError);
+    expect(error.code).toBe(ErrorCodeEnum.DeviceStateOnlyV4Supported);
+    expect(error.message).toBe(
+      'Ledger: Only version 4 of typed data signing is supported',
+    );
+    expect(error.userMessage).toBe(
+      'This device can only sign version 4 (V4) typed data. This site requested an older signature type that is not supported.',
+    );
+  });
+
+  it('creates fallback error for unmapped error codes', () => {
+    const error = createKeyringStateError(ErrorCodeEnum.Unknown);
+
+    expect(error).toBeInstanceOf(HardwareWalletError);
+    expect(error.code).toBe(ErrorCodeEnum.Unknown);
+    expect(error.message).toContain('Unknown Ledger keyring error');
+  });
+});
+
+describe('createDmkError', () => {
+  describe('known DMK tags', () => {
+    it('creates HardwareWalletError for DeviceSessionNotFound', () => {
+      const error = createDmkError('DeviceSessionNotFound');
+
+      expect(error).toBeInstanceOf(HardwareWalletError);
+      expect(error.code).toBe(ErrorCodeEnum.DeviceDisconnected);
+      expect(error.message).toBe('DMK device session not found');
+    });
+
+    it('creates HardwareWalletError for DeviceLockedError', () => {
+      const error = createDmkError('DeviceLockedError');
+
+      expect(error).toBeInstanceOf(HardwareWalletError);
+      expect(error.code).toBe(ErrorCodeEnum.AuthenticationDeviceLocked);
+    });
+
+    it('creates HardwareWalletError for ConnectionOpeningError', () => {
+      const error = createDmkError('ConnectionOpeningError');
+
+      expect(error).toBeInstanceOf(HardwareWalletError);
+      expect(error.code).toBe(ErrorCodeEnum.BluetoothConnectionFailed);
+    });
+
+    it('includes context in message when provided', () => {
+      const error = createDmkError(
+        'DeviceSessionNotFound',
+        'during signTransaction',
+      );
+
+      expect(error.message).toBe(
+        'DMK device session not found (during signTransaction)',
+      );
+    });
+
+    it('uses the mapping userMessage', () => {
+      const error = createDmkError('DeviceLockedError');
+
+      expect(error.userMessage).toBe(
+        'Please unlock your Ledger device to continue.',
+      );
+    });
+  });
+
+  describe('unknown DMK tags', () => {
+    it('creates fallback error for unknown tag without context', () => {
+      const error = createDmkError('SomeUnknownTag');
+
+      expect(error).toBeInstanceOf(HardwareWalletError);
+      expect(error.code).toBe(ErrorCodeEnum.Unknown);
+      expect(error.message).toBe('Unknown DMK error: SomeUnknownTag');
+    });
+
+    it('creates fallback error for unknown tag with context', () => {
+      const error = createDmkError('SomeUnknownTag', 'while connecting');
+
+      expect(error.message).toBe(
+        'Unknown DMK error: SomeUnknownTag (while connecting)',
+      );
+    });
   });
 });

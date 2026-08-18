@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.0]
+
+### Changed
+
+- **BREAKING:** Drop support for Node.js v18 and v20; minimum version is now v22 ([#593](https://github.com/MetaMask/accounts/pull/593))
+- **BREAKING:** Bump `@metamask/keyring-api` from `^23.0.0` to `^24.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+- Bump `@metamask/keyring-utils` from `^4.0.0` to `^5.0.0` ([#611](https://github.com/MetaMask/accounts/pull/611))
+
+## [9.2.1]
+
+### Changed
+
+- Bump `@metamask/superstruct` from `^3.1.0` to `^3.4.1` ([#580](https://github.com/MetaMask/accounts/pull/580), [#577](https://github.com/MetaMask/accounts/pull/577))
+- Bump `@metamask/keyring-utils` from `^3.3.1` to `^4.0.0` ([#600](https://github.com/MetaMask/accounts/pull/600))
+
+## [9.2.0]
+
+### Added
+
+- Add `keyring_resolveAccountAddress` dispatch to v2 `handleKeyringRequest` ([#585](https://github.com/MetaMask/accounts/pull/585))
+
+### Changed
+
+- Bump `@metamask/superstruct` from `^3.1.0` to `^3.3.0` ([#580](https://github.com/MetaMask/accounts/pull/580))
+
+## [9.1.0]
+
+### Added
+
+- Supports new `KeyringSnapRpc` (v2) in `handleKeyringRequest` (v2) ([#582](https://github.com/MetaMask/accounts/pull/582))
+  - Handles the four snap-specific methods (`keyring_setSelectedAccounts`, `keyring_getAccountTransactions`, `keyring_getAccountAssets`, `keyring_getAccountBalances`) in addition to all core v2 methods.
+  - Includes backwards-compatible dispatch for the deprecated v1 method names `keyring_listAccountTransactions` and `keyring_listAccountAssets`, forwarding them to `getAccountTransactions` and `getAccountAssets` respectively.
+
+### Changed
+
+- Update v1 `handleKeyringRequest` to accept `KeyringSnapRpc` instead of `Keyring` ([#582](https://github.com/MetaMask/accounts/pull/582))
+
 ## [9.0.2]
 
 ### Changed
@@ -182,7 +219,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@10.0.0...HEAD
+[10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.2.1...@metamask/keyring-snap-sdk@10.0.0
+[9.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.2.0...@metamask/keyring-snap-sdk@9.2.1
+[9.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.1.0...@metamask/keyring-snap-sdk@9.2.0
+[9.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.2...@metamask/keyring-snap-sdk@9.1.0
 [9.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.1...@metamask/keyring-snap-sdk@9.0.2
 [9.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.0.0...@metamask/keyring-snap-sdk@9.0.1
 [9.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@8.0.0...@metamask/keyring-snap-sdk@9.0.0

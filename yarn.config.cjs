@@ -26,6 +26,16 @@ const { inspect } = require('util');
 const ALLOWED_INCONSISTENT_DEPENDENCIES = {};
 
 /**
+ * These packages are allowed to use a pinned (exact) version rather than a
+ * `^`-prefixed range in `dependencies` or `devDependencies`. Add a package
+ * here only when pinning is intentional and necessary; include a comment
+ * explaining why.
+ *
+ * @type {string[]}
+ */
+const PINNED_VERSION_EXCEPTIONS = [];
+
+/**
  * Aliases for the Yarn type definitions, to make the code more readable.
  *
  * @typedef {import('@yarnpkg/types').Yarn.Constraints.Yarn} Yarn
@@ -239,8 +249,8 @@ module.exports = defineConfig({
         expectWorkspaceField(workspace, 'packageManager', 'yarn@4.16.0');
       }
 
-      // All packages must specify a minimum Node.js version of 18.18.
-      expectWorkspaceField(workspace, 'engines.node', '^18.18 || >=20');
+      // All packages must specify a minimum Node.js version of 22.
+      expectWorkspaceField(workspace, 'engines.node', '>=22');
 
       // All non-root public packages should be published to the NPM registry;
       // all non-root private packages should not.
@@ -264,6 +274,10 @@ module.exports = defineConfig({
     // All version ranges in `dependencies` and `devDependencies` for the same
     // non-workspace dependency across the monorepo must be the same.
     expectConsistentDependenciesAndDevDependencies(Yarn);
+
+    // All non-workspace dependencies in `dependencies` and `devDependencies`
+    // must use a `^`-prefixed version range rather than a pinned exact version.
+    expectNoPinnedExternalDependencies(Yarn);
   },
 });
 
@@ -790,6 +804,45 @@ function getInconsistentDependenciesAndDevDependencies(
       ([range]) => !ignoredRanges.includes(range),
     ),
   );
+}
+
+/**
+ * Expect that all non-workspace entries in `dependencies` and
+ * `devDependencies` across the monorepo use a `^`-prefixed version range
+ * rather than a pinned exact version. Packages listed in
+ * `PINNED_VERSION_EXCEPTIONS` are exempt.
+ *
+ * @param {Yarn} Yarn - The Yarn "global".
+ */
+function expectNoPinnedExternalDependencies(Yarn) {
+  for (const dependency of Yarn.dependencies()) {
+    if (dependency.type === 'peerDependencies') {
+      continue;
+    }
+
+    if (PINNED_VERSION_EXCEPTIONS.includes(dependency.ident)) {
+      continue;
+    }
+
+    const dependencyWorkspace = Yarn.workspace({ ident: dependency.ident });
+    if (dependencyWorkspace) {
+      continue;
+    }
+
+    const isRangeAllowed =
+      dependency.range.startsWith('^') ||
+      dependency.range.startsWith('~') ||
+      dependency.range.startsWith('>=') ||
+      dependency.range.startsWith('>') ||
+      dependency.range.startsWith('workspace:') ||
+      dependency.range.startsWith('npm:');
+
+    if (!isRangeAllowed) {
+      dependency.error(
+        `Expected version range for ${dependency.ident} to use a range prefix such as \`^\` (got "${dependency.range}"). Pinned exact versions are not allowed. If this is intentional, add the package to PINNED_VERSION_EXCEPTIONS in yarn.config.cjs.`,
+      );
+    }
+  }
 }
 
 /**

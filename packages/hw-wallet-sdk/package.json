@@ -1,6 +1,6 @@
 {
   "name": "@metamask/hw-wallet-sdk",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "description": "MetaMask Hardware Device SDK",
   "keywords": [
     "hardware-wallet",
@@ -79,7 +79,7 @@
     "directory": "src"
   },
   "engines": {
-    "node": "^18.18 || >=20"
+    "node": ">=22"
   },
   "lavamoat": {
     "allowScripts": {

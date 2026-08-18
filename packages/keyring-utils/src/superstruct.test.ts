@@ -5,81 +5,13 @@ import {
   create,
   is,
   literal,
-  max,
   number,
+  object,
   string,
-  union,
 } from '@metamask/superstruct';
 import { isPlainObject } from '@metamask/utils';
 
-import { exactOptional, object, strictMask, selectiveUnion, type } from '.';
-
-describe('exactOptional', () => {
-  const simpleStruct = object({
-    foo: exactOptional(string()),
-  });
-
-  it.each([
-    { struct: simpleStruct, obj: {}, expected: true },
-    { struct: simpleStruct, obj: { foo: undefined }, expected: false },
-    { struct: simpleStruct, obj: { foo: 'hi' }, expected: true },
-    { struct: simpleStruct, obj: { bar: 'hi' }, expected: false },
-    { struct: simpleStruct, obj: { foo: 1 }, expected: false },
-  ])(
-    'returns $expected for is($obj, <struct>)',
-    ({ struct, obj, expected }) => {
-      expect(is(obj, struct)).toBe(expected);
-    },
-  );
-
-  const nestedStruct = object({
-    foo: object({
-      bar: exactOptional(string()),
-    }),
-  });
-
-  it.each([
-    { struct: nestedStruct, obj: { foo: {} }, expected: true },
-    { struct: nestedStruct, obj: { foo: { bar: 'hi' } }, expected: true },
-    {
-      struct: nestedStruct,
-      obj: { foo: { bar: undefined } },
-      expected: false,
-    },
-  ])(
-    'returns $expected for is($obj, <struct>)',
-    ({ struct, obj, expected }) => {
-      expect(is(obj, struct)).toBe(expected);
-    },
-  );
-
-  const structWithUndef = object({
-    foo: exactOptional(union([string(), literal(undefined)])),
-  });
-
-  it.each([
-    { struct: structWithUndef, obj: {}, expected: true },
-    { struct: structWithUndef, obj: { foo: undefined }, expected: true },
-    { struct: structWithUndef, obj: { foo: 'hi' }, expected: true },
-    { struct: structWithUndef, obj: { bar: 'hi' }, expected: false },
-    { struct: structWithUndef, obj: { foo: 1 }, expected: false },
-  ])(
-    'returns $expected for is($obj, <struct>)',
-    ({ struct, obj, expected }) => {
-      expect(is(obj, struct)).toBe(expected);
-    },
-  );
-
-  it('should support refinements', () => {
-    const struct = object({
-      foo: exactOptional(max(number(), 0)),
-    });
-
-    expect(is({ foo: 0 }, struct)).toBe(true);
-    expect(is({ foo: -1 }, struct)).toBe(true);
-    expect(is({ foo: 1 }, struct)).toBe(false);
-  });
-});
+import { strictMask, selectiveUnion } from '.';
 
 describe('selectiveUnion', () => {
   const structA = object({
@@ -151,22 +83,6 @@ describe('strictMask', () => {
     );
     expect(() => strictMask({ bar: 1 }, struct)).toThrow(
       'At path: foo -- Expected a string, but received: undefined',
-    );
-  });
-});
-
-describe('type', () => {
-  const struct = type({
-    foo: string(),
-  });
-
-  it('is valid even with extra properties', () => {
-    expect(is({ foo: 'foo', bar: 1 }, struct)).toBe(true);
-  });
-
-  it('throws an error if value is invalid', () => {
-    expect(() => assert({ foo: 1, bar: 1 }, struct)).toThrow(
-      'At path: foo -- Expected a string, but received: 1',
     );
   });
 });

@@ -1,29 +1,19 @@
-import {
-  object,
-  selectiveUnion,
-  StringNumberStruct,
-} from '@metamask/keyring-utils';
+import { selectiveUnion } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
-import { literal, string } from '@metamask/superstruct';
+import { literal, object } from '@metamask/superstruct';
 import {
   CaipAssetIdStruct,
   CaipAssetTypeStruct,
   isPlainObject,
 } from '@metamask/utils';
 
+import { BalanceStruct } from './balance';
+
 /**
  * Fungible asset amount struct.
  */
 export const FungibleAssetAmountStruct = object({
-  /**
-   * Asset unit.
-   */
-  unit: string(),
-
-  /**
-   * Asset amount.
-   */
-  amount: StringNumberStruct,
+  ...BalanceStruct.schema,
 });
 
 /**

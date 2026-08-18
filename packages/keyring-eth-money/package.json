@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-money-keyring",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "A money account keyring that wraps the HD keyring with a different keyring type and derivation path",
   "keywords": [
     "ethereum",
@@ -66,11 +66,11 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
-    "@metamask/eth-hd-keyring": "^14.1.1",
-    "@metamask/keyring-api": "^23.3.0",
-    "@metamask/keyring-sdk": "^2.2.0",
-    "@metamask/keyring-utils": "^3.3.1",
-    "@metamask/superstruct": "^3.1.0",
+    "@metamask/eth-hd-keyring": "^15.0.0",
+    "@metamask/keyring-api": "^24.1.0",
+    "@metamask/keyring-sdk": "^3.1.0",
+    "@metamask/keyring-utils": "^5.0.0",
+    "@metamask/superstruct": "^3.4.1",
     "async-mutex": "^0.5.0"
   },
   "devDependencies": {
@@ -87,7 +87,7 @@
     "typescript": "~5.3.3"
   },
   "engines": {
-    "node": "^18.18 || >=20"
+    "node": ">=22"
   },
   "lavamoat": {
     "allowScripts": {

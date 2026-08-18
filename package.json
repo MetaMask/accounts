@@ -1,6 +1,6 @@
 {
   "name": "@metamask/accounts-monorepo",
-  "version": "115.0.0",
+  "version": "126.0.0",
   "private": true,
   "description": "Monorepo for MetaMask accounts related packages",
   "repository": {
@@ -20,6 +20,7 @@
     "create-release-branch": "create-release-branch --formatter oxfmt",
     "foreach": "yarn workspaces foreach --all --parallel --verbose --exclude '@metamask/accounts-monorepo' run",
     "lint": "yarn lint:eslint && yarn lint:misc --check && yarn constraints && yarn lint:dependencies && yarn lint:readme",
+    "lint:ci": "yarn lint:eslint && yarn lint:misc --check && yarn lint:dependencies && yarn lint:readme",
     "lint:dependencies": "yarn foreach depcheck && yarn dedupe --check",
     "lint:dependencies:fix": "yarn foreach depcheck && yarn dedupe",
     "lint:eslint": "yarn build:only-clean && yarn eslint",
@@ -91,7 +92,7 @@
     "ws@7.4.6": "^7.5.10"
   },
   "engines": {
-    "node": "^18.18 || >=20"
+    "node": ">=22"
   },
   "packageManager": "yarn@4.16.0",
   "lavamoat": {
