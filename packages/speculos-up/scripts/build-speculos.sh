@@ -39,9 +39,15 @@ echo "[build] Building speculos v${VERSION} standalone binary (linux-${HOST_ARCH
 rm -rf "${DIST_DIR}"
 mkdir -p "${DIST_DIR}"
 
+# PyInstaller is pinned to an exact version so release builds are reproducible
+# and verifiable against bundled/checksums.json. speculos stays parameterized
+# via VERSION by design. Bump the pin deliberately, then rebuild both
+# architectures and update the bundled archives and checksums together.
+PYINSTALLER_VERSION="6.14.1"
+
 python3 -m venv "${DIST_DIR}/venv"
 source "${DIST_DIR}/venv/bin/activate"
-pip install --quiet "speculos==${VERSION}" pyinstaller
+pip install --quiet "speculos==${VERSION}" "pyinstaller==${PYINSTALLER_VERSION}"
 
 pyinstaller \
   --onefile \

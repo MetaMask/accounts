@@ -14,6 +14,11 @@ set -euo pipefail
 #   speculos-v<version>-linux-arm64.tar.gz
 
 DEFAULT_VERSION="0.25.13"
+# PyInstaller is pinned to an exact version so release builds are reproducible
+# and verifiable against bundled/checksums.json. speculos stays parameterized
+# via VERSION by design. Bump the pin deliberately, then rebuild both
+# architectures and update the bundled archives and checksums together.
+PYINSTALLER_VERSION="6.14.1"
 PYTHON_IMAGE="python:3.11-bookworm"
 DEBIAN_IMAGE="debian:bookworm-slim"
 
@@ -114,6 +119,7 @@ build_arch() {
       -e "SPECULOS_VERSION=${VERSION}" \
       -e "TARGET_ARCH=${arch}" \
       -e "FILE_ARCH=${file_arch}" \
+      -e "PYINSTALLER_VERSION=${PYINSTALLER_VERSION}" \
       "${image}" \
       bash -c '
 set -euo pipefail
@@ -124,7 +130,7 @@ apt-get update -qq && apt-get install -qq -y --no-install-recommends \
 python3 -m venv --system-site-packages /tmp/venv
 source /tmp/venv/bin/activate
 pip install --upgrade pip
-pip install pyinstaller "speculos==${SPECULOS_VERSION}" --no-deps
+pip install "pyinstaller==${PYINSTALLER_VERSION}" "speculos==${SPECULOS_VERSION}" --no-deps
 pip install construct "flask>=2.0.0,<3.0.0" flask-restful flask-cors \
   "jsonschema>=3.2.0,<4.18.0" mnemonic "pillow>=8.0.0,<11.0.0" \
   pyelftools requests ledgered pygame altgraph packaging setuptools pyinstaller-hooks-contrib
@@ -152,11 +158,12 @@ ls -lh "${ARCHIVE}"
       -e "SPECULOS_VERSION=${VERSION}" \
       -e "TARGET_ARCH=${arch}" \
       -e "FILE_ARCH=${file_arch}" \
+      -e "PYINSTALLER_VERSION=${PYINSTALLER_VERSION}" \
       "${image}" \
       bash -lc '
 set -euo pipefail
 pip install --upgrade pip
-pip install pyinstaller "speculos==${SPECULOS_VERSION}"
+pip install "pyinstaller==${PYINSTALLER_VERSION}" "speculos==${SPECULOS_VERSION}"
 rm -rf build dist
 mkdir -p build dist
 pyinstaller \

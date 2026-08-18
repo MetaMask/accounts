@@ -1,9 +1,5 @@
 // eslint-disable-next-line import-x/no-nodejs-modules
-import { createHash } from 'node:crypto';
-// eslint-disable-next-line import-x/no-nodejs-modules
 import type { Dir } from 'node:fs';
-// eslint-disable-next-line import-x/no-nodejs-modules
-import { readFile } from 'node:fs/promises';
 // eslint-disable-next-line import-x/no-nodejs-modules
 import {
   copyFile,
@@ -14,22 +10,26 @@ import {
   unlink,
 } from 'node:fs/promises';
 // eslint-disable-next-line import-x/no-nodejs-modules
-import { dirname, join, relative } from 'node:path';
+import { basename, dirname, join, relative } from 'node:path';
 
-import { extractFrom, extractFromLocal } from './extract';
+import { downloadToFile } from './download';
+import { extractFromLocal } from './extract';
 import type { SpeculosupOptions } from './types';
 import { Binary, Platform } from './types';
 import {
+  CLEANUP_MAX_RETRIES,
+  computeFileSha256,
   getBinaryArchiveUrl,
   getBinaryPath,
   getBundledArchivePath,
-  getBundledChecksum,
   getDefaultCacheDir,
   getDefaultRepo,
   getDefaultVersion,
+  getRequiredChecksum,
   getVersion,
   isCodedError,
   isInstalled,
+  isPathWithin,
   noop,
   normalizeSystemArchitecture,
   say,
@@ -58,37 +58,32 @@ function resolvePackageDir(): string | undefined {
 }
 
 /**
- * Verify the SHA256 checksum of a bundled archive against checksums.json.
+ * Verify the SHA-256 checksum of a bundled archive against checksums.json.
+ *
+ * Verification fails closed: if the checksums file is unreadable, malformed,
+ * or has no entry for the archive, an error is thrown rather than skipping
+ * verification.
  *
  * @param archivePath - The path to the archive file.
  * @param packageDir - The package root directory.
- * @returns True if the checksum matches or no checksum is recorded.
+ * @returns True if the checksum matches, false if it does not.
+ * @throws If the checksums file is unreadable or malformed, or if no checksum
+ * is recorded for the archive.
  */
-async function verifyBundledChecksum(
+export async function verifyBundledChecksum(
   archivePath: string,
   packageDir: string,
 ): Promise<boolean> {
-  try {
-    const checksumsPath = join(packageDir, 'bundled', 'checksums.json');
-    const checksums = JSON.parse(
-      await readFile(checksumsPath, 'utf8'),
-    ) as Record<string, string>;
-    const expected = getBundledChecksum(archivePath, checksums);
-    if (!expected) {
-      say('no checksum on file, skipping verification');
-      return true;
-    }
-    const fileBuffer = await readFile(archivePath);
-    const actual = createHash('sha256').update(fileBuffer).digest('hex');
-    if (actual !== expected) {
-      say(`checksum mismatch: expected ${expected}, got ${actual}`);
-      return false;
-    }
-    say('bundled archive checksum verified');
-    return true;
-  } catch {
-    return true;
+  const checksumsPath = join(packageDir, 'bundled', 'checksums.json');
+  const archiveName = basename(archivePath);
+  const expected = await getRequiredChecksum(checksumsPath, archiveName);
+  const actual = await computeFileSha256(archivePath);
+  if (actual !== expected) {
+    say(`checksum mismatch: expected ${expected}, got ${actual}`);
+    return false;
   }
+  say('bundled archive checksum verified');
+  return true;
 }
 
 /**
@@ -136,64 +131,90 @@ export function isSpeculosInstalled(options: SpeculosupOptions = {}): boolean {
 }
 
 /**
- * Check if binaries are already in the cache. If not, download and extract them.
+ * Check if binaries are already in the cache. If not, download the archive
+ * from the given HTTPS URL, verify its SHA-256 checksum against the package's
+ * `bundled/checksums.json`, and only then extract it.
  *
- * @param url - The URL to download from.
+ * The cache is only treated as valid if the expected binary file actually
+ * exists; an empty or partial cache directory is re-populated.
+ *
+ * @param url - The HTTPS URL of the tar.gz archive to download.
  * @param cachePath - The cache directory.
- * @param checksums - Optional checksums.
+ * @param packageDir - The package root directory containing
+ * `bundled/checksums.json`.
  * @returns A directory handle for the cached binaries.
+ * @throws If the checksums file is unreadable, malformed, or has no entry for
+ * the archive, if the downloaded archive's checksum does not match, or if the
+ * download or extraction fails. Verification fails closed in all those cases.
  */
 export async function checkAndDownloadBinaries(
   url: URL,
   cachePath: string,
-  checksums?: { algorithm: string; binaries: Record<Binary, string> } | null,
+  packageDir: string,
 ): Promise<Dir> {
-  let downloadedBinaries: Dir;
-  try {
-    say('checking cache');
-    downloadedBinaries = await opendir(cachePath);
+  say('checking cache');
+  if (isInstalled(cachePath)) {
     say('found binaries in cache');
-  } catch (cacheError: unknown) {
-    say('binaries not in cache');
-    if ((cacheError as NodeJS.ErrnoException).code === 'ENOENT') {
-      say(`installing from ${url.toString()}`);
-      const platformChecksums = checksums ?? null;
-      await extractFrom(url, [Binary.Speculos], cachePath, platformChecksums);
-      downloadedBinaries = await opendir(cachePath);
-    } else {
-      throw cacheError;
-    }
+    return opendir(cachePath);
   }
-  return downloadedBinaries;
+
+  say('binaries not in cache');
+  say(`installing from ${url.toString()}`);
+
+  const archiveName = basename(url.pathname);
+  const checksumsPath = join(packageDir, 'bundled', 'checksums.json');
+  const expectedChecksum = await getRequiredChecksum(
+    checksumsPath,
+    archiveName,
+  );
+
+  await mkdir(dirname(cachePath), { recursive: true });
+  const archivePath = `${cachePath}.download.tar.gz`;
+  await downloadToFile(url, archivePath);
+  try {
+    const actualChecksum = await computeFileSha256(archivePath);
+    if (actualChecksum !== expectedChecksum) {
+      throw new Error(
+        `Checksum mismatch for downloaded archive "${archiveName}": expected ${expectedChecksum}, got ${actualChecksum}`,
+      );
+    }
+    say('downloaded archive checksum verified');
+    await extractFromLocal(archivePath, [Binary.Speculos], cachePath);
+  } finally {
+    await rm(archivePath, {
+      recursive: true,
+      force: true,
+      maxRetries: CLEANUP_MAX_RETRIES,
+    }).catch(noop);
+  }
+  return opendir(cachePath);
 }
 
 /**
  * Check if binaries are already in the cache. If not, extract from a local archive.
  *
+ * The cache is only treated as valid if the expected binary file actually
+ * exists; an empty or partial cache directory is re-populated.
+ *
  * @param archivePath - The absolute path to the local tar.gz archive.
  * @param cachePath - The cache directory.
  * @returns A directory handle for the cached binaries.
+ * @throws If extraction fails.
  */
 export async function checkAndExtractLocalBinaries(
   archivePath: string,
   cachePath: string,
 ): Promise<Dir> {
-  let extractedBinaries: Dir;
-  try {
-    say('checking cache');
-    extractedBinaries = await opendir(cachePath);
+  say('checking cache');
+  if (isInstalled(cachePath)) {
     say('found binaries in cache');
-  } catch (cacheError: unknown) {
-    say('binaries not in cache');
-    if ((cacheError as NodeJS.ErrnoException).code === 'ENOENT') {
-      say('extracting from bundled archive');
-      await extractFromLocal(archivePath, [Binary.Speculos], cachePath);
-      extractedBinaries = await opendir(cachePath);
-    } else {
-      throw cacheError;
-    }
+    return opendir(cachePath);
   }
-  return extractedBinaries;
+
+  say('binaries not in cache');
+  say('extracting from bundled archive');
+  await extractFromLocal(archivePath, [Binary.Speculos], cachePath);
+  return opendir(cachePath);
 }
 
 /**
@@ -201,27 +222,28 @@ export async function checkAndExtractLocalBinaries(
  *
  * @param downloadedBinaries - The directory containing the binaries.
  * @param binDir - The target directory for installation.
- * @param cachePath - The cache directory path.
+ * @param sourceDir - The directory the binaries were downloaded and
+ * extracted into.
  */
 export async function installBinaries(
   downloadedBinaries: Dir,
   binDir: string,
-  cachePath: string,
+  sourceDir: string,
 ): Promise<void> {
   for await (const file of downloadedBinaries) {
     if (!file.isFile()) {
       continue;
     }
-    const target = join(file.parentPath, file.name);
-    const filePath = join(binDir, relative(cachePath, target));
+    const sourcePath = join(file.parentPath, file.name);
+    const installPath = join(binDir, relative(sourceDir, sourcePath));
 
-    const relativeTarget = relative(dirname(filePath), target);
+    const relativeSource = relative(dirname(installPath), sourcePath);
 
     await mkdir(binDir, { recursive: true });
 
-    await unlink(filePath).catch(noop);
+    await unlink(installPath).catch(noop);
     try {
-      await symlink(relativeTarget, filePath);
+      await symlink(relativeSource, installPath);
     } catch (linkError) {
       if (
         !(
@@ -230,17 +252,29 @@ export async function installBinaries(
       ) {
         throw linkError;
       }
-      await copyFile(target, filePath);
+      await copyFile(sourcePath, installPath);
     }
-    say(`installed - ${getVersion(filePath).toString()}`);
+    say(`installed - ${getVersion(installPath)}`);
   }
 }
 
 /**
  * Download and install the Speculos binary.
  *
+ * If a bundled archive exists for the target platform and architecture and
+ * its checksum verifies, it is used directly. Otherwise the archive is
+ * downloaded over HTTPS from the release URL and its SHA-256 checksum is
+ * verified against the package's `bundled/checksums.json` before extraction.
+ *
+ * Binaries are installed into the version-named directory returned by
+ * `getInstallDir()` — the same directory that `getSpeculosBinaryPath()` and
+ * `isSpeculosInstalled()` check — and symlinked into `node_modules/.bin`.
+ *
  * @param options - Installation options.
  * @returns The path to the installed speculos binary.
+ * @throws If the system architecture is unsupported, the checksums file is
+ * unreadable, malformed, or missing an entry, a checksum does not match, or
+ * the download or extraction fails.
  */
 export async function downloadAndInstall(
   options: SpeculosupOptions = {},
@@ -249,14 +283,13 @@ export async function downloadAndInstall(
   const repo = options.repo ?? getDefaultRepo();
   const platform = options.platform ?? Platform.Linux;
   const targetArch = options.arch ?? normalizeSystemArchitecture();
-  const cacheDir = options.cacheDir ?? getDefaultCacheDir();
 
   say(`fetching speculos v${version} for ${String(platform)} ${targetArch}`);
 
-  const cacheKey = createHash('sha256')
-    .update(`speculos-v${version}-${String(platform)}-${targetArch}`)
-    .digest('hex');
-  const cachePath = join(cacheDir, cacheKey);
+  // Install into the readable, version-named directory that
+  // getSpeculosBinaryPath()/isSpeculosInstalled() look in, so a successful
+  // install is immediately visible to callers.
+  const installDir = getInstallDir(options);
 
   const binDir = join(
     // eslint-disable-next-line no-restricted-globals
@@ -279,30 +312,50 @@ export async function downloadAndInstall(
     say('using bundled binary');
     downloadedBinaries = await checkAndExtractLocalBinaries(
       bundledArchive,
-      cachePath,
+      installDir,
     );
   } else {
+    if (!packageDir) {
+      throw new Error(
+        'Unable to resolve the speculos-up package directory; cannot verify checksums for remote downloads.',
+      );
+    }
     const archiveUrl = getBinaryArchiveUrl(repo, version, platform, targetArch);
     const url = new URL(archiveUrl);
-    downloadedBinaries = await checkAndDownloadBinaries(url, cachePath);
+    downloadedBinaries = await checkAndDownloadBinaries(
+      url,
+      installDir,
+      packageDir,
+    );
   }
 
-  await installBinaries(downloadedBinaries, binDir, cachePath);
+  await installBinaries(downloadedBinaries, binDir, installDir);
 
   say('done!');
 
-  return getBinaryPath(cachePath);
+  return getBinaryPath(installDir);
 }
 
 /**
  * Remove a cached speculos installation.
  *
+ * The cache directory to remove must be the default cache directory itself or
+ * a path inside it; anything else is refused, so a caller-supplied path can
+ * never cause an arbitrary directory to be recursively deleted.
+ *
  * @param options - Installation options.
+ * @throws If the resolved cache directory is outside the expected cache root.
  */
 export async function cleanCache(
   options: SpeculosupOptions = {},
 ): Promise<void> {
-  const cacheDir = options.cacheDir ?? getDefaultCacheDir();
+  const cacheRoot = getDefaultCacheDir();
+  const cacheDir = options.cacheDir ?? cacheRoot;
+  if (!isPathWithin(cacheRoot, cacheDir)) {
+    throw new Error(
+      `Refusing to delete "${cacheDir}" because it is outside the speculos-up cache root "${cacheRoot}".`,
+    );
+  }
   await rm(cacheDir, { recursive: true, force: true });
   say('cache cleaned');
 }

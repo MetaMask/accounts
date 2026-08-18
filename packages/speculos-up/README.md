@@ -66,6 +66,10 @@ await emulator.start();
 
 Download, cache, and symlink the Speculos binary.
 
+Binaries are installed into the version-named directory `<cacheDir>/speculos-<version>-<platform>-<arch>` — the same directory that `getSpeculosBinaryPath()` and `isSpeculosInstalled()` check — and symlinked into `node_modules/.bin`.
+
+Bundled archives (shipped with this package) are used when their SHA-256 checksum verifies against `bundled/checksums.json`. Otherwise the archive is downloaded over HTTPS from the release URL and its checksum is verified against the same file before extraction. Downloads fail closed: a missing or mismatching checksum entry aborts the install instead of proceeding unverified. Throws for unsupported system architectures.
+
 ### `getSpeculosBinaryPath(options?)`
 
 Returns the absolute path to the managed binary, or `null` if not installed.
@@ -74,9 +78,13 @@ Returns the absolute path to the managed binary, or `null` if not installed.
 
 Returns `true` if the managed binary exists on disk.
 
+### `verifyBundledChecksum(archivePath, packageDir)`
+
+Verifies an archive's SHA-256 checksum against a package's `bundled/checksums.json`. Returns `true`/`false` on checksum match/mismatch, and throws when the checksums file is unreadable or malformed or has no entry for the archive (fail closed).
+
 ### `cleanCache(options?)`
 
-Removes all cached installations.
+Removes cached installations. Only the default cache directory itself or paths inside it can be deleted; anything else throws. The default cache directory is `$XDG_CACHE_HOME/metamask/speculos-up` when `XDG_CACHE_HOME` is set to an absolute path, and `~/.cache/metamask/speculos-up` otherwise.
 
 ### `SpeculosupOptions`
 
@@ -90,11 +98,12 @@ Removes all cached installations.
 
 ## How It Works
 
-1. Computes a download URL for the target platform/architecture
-2. Checks a local cache (`~/.cache/metamask/speculos-up/`) for existing binaries
-3. If not cached, downloads the tar.gz from GitHub releases
-4. Extracts and verifies checksums (if provided)
-5. Symlinks (or copies) into `node_modules/.bin/speculos`
+1. Computes an HTTPS download URL for the target platform/architecture
+2. Checks the version-named install directory (`~/.cache/metamask/speculos-up/speculos-<version>-<platform>-<arch>/`) for existing binaries; a cached entry only counts if the binary file actually exists
+3. If a bundled archive exists and its checksum verifies, extracts it directly — no network needed
+4. Otherwise downloads the tar.gz over HTTPS (rejecting `http:` URLs and redirects), verifies its SHA-256 checksum against `bundled/checksums.json`, and extracts it only if the checksum matches
+5. Extracts with hardened tar settings: symlinks, hardlinks, and other non-regular entries are rejected, warnings are treated as errors, and archives that decompress beyond 1 GiB are aborted
+6. Symlinks (or copies) into `node_modules/.bin/speculos`
 
 ## Requirements
 
