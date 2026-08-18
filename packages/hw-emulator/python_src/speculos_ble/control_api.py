@@ -13,12 +13,34 @@ from typing import TYPE_CHECKING
 import aiohttp
 from aiohttp import web
 
-from .types import ConnectionState
+from .types import (
+    ConnectionState,
+    validate_button_press,
+)
 
 if TYPE_CHECKING:
     from .device import VirtualLedgerDevice
 
 logger = logging.getLogger(__name__)
+
+# Largest accepted error-injection payload (typical injections are a
+# 2-byte status word).
+MAX_INJECTED_ERROR_SIZE = 64
+
+DEFAULT_AUTO_APPROVE_TIMEOUT = 60.0
+MAX_AUTO_APPROVE_TIMEOUT = 300.0
+
+# The blind-signing toggle sits several screens deep in the Speculos
+# settings menu: each "right" press advances one screen, so the full
+# sequence of presses (with a delay for Speculos to render each
+# transition) is required to reach the toggle, which "both" then enables.
+BLIND_SIGNING_RIGHT_PRESSES = 5
+BLIND_SIGNING_STEP_DELAY_S = 0.3
+
+# Default auto-approve sequence: advance through the review screens with
+# "right" presses, then confirm with a single "both" press.
+DEFAULT_AUTO_APPROVE_RIGHT_PRESSES = 4
+DEFAULT_AUTO_APPROVE_CONFIRM_PRESSES = 1
 
 
 class ControlApiServer:
@@ -68,12 +90,28 @@ class ControlApiServer:
             "speculos_connected": self._device.apdu_bridge.is_connected,
         })
 
+    @staticmethod
+    def _bad_request(message: str) -> web.Response:
+        return web.json_response({"ok": False, "error": message}, status=400)
+
     async def _button_press(self, request: web.Request) -> web.Response:
-        body = await request.json()
+        try:
+            body = await request.json()
+        except ValueError:
+            return self._bad_request("request body must be valid JSON")
+
         button = body.get("button", "right")
         count = body.get("count", 1)
+
+        try:
+            validate_button_press(button, count)
+        except ValueError as e:
+            return self._bad_request(str(e))
+
         try:
             await self._device.press_button(button, count)
+        except ValueError as e:
+            return self._bad_request(str(e))
         except Exception as e:
             return web.json_response(
                 {"ok": False, "error": str(e)}, status=502
@@ -88,9 +126,9 @@ class ControlApiServer:
         )
 
     async def _blind_signing_enable(self, request: web.Request) -> web.Response:
-        for _ in range(5):
+        for _ in range(BLIND_SIGNING_RIGHT_PRESSES):
             await self._device.press_button("right", 1)
-            await asyncio.sleep(0.3)
+            await asyncio.sleep(BLIND_SIGNING_STEP_DELAY_S)
         await self._device.press_button("both", 1)
         return web.json_response({"ok": True})
 
@@ -113,9 +151,27 @@ class ControlApiServer:
         return web.json_response({"ok": True})
 
     async def _error_inject(self, request: web.Request) -> web.Response:
-        body = await request.json()
+        try:
+            body = await request.json()
+        except ValueError:
+            return self._bad_request("request body must be valid JSON")
+
         error_hex = body.get("response", "6D00")
-        error_bytes = bytes.fromhex(error_hex)
+        if not isinstance(error_hex, str):
+            return self._bad_request("'response' must be a hex string")
+        try:
+            error_bytes = bytes.fromhex(error_hex)
+        except ValueError:
+            return self._bad_request(
+                f"'response' is not a valid hex string: {error_hex!r}"
+            )
+        if not error_bytes:
+            return self._bad_request("'response' must not be empty")
+        if len(error_bytes) > MAX_INJECTED_ERROR_SIZE:
+            return self._bad_request(
+                f"'response' too large: {len(error_bytes)} bytes "
+                f"(max {MAX_INJECTED_ERROR_SIZE})"
+            )
         self._device.apdu_bridge.inject_error(error_bytes)
         return web.json_response({"ok": True})
 
@@ -132,10 +188,50 @@ class ControlApiServer:
         ])
 
     async def _signing_auto_approve(self, request: web.Request) -> web.Response:
-        body = await request.json()
+        try:
+            body = await request.json()
+        except ValueError:
+            return self._bad_request("request body must be valid JSON")
+
         sequence = body.get("presses", [
-            {"button": "right", "count": 4},
-            {"button": "both", "count": 1},
+            {"button": "right", "count": DEFAULT_AUTO_APPROVE_RIGHT_PRESSES},
+            {"button": "both", "count": DEFAULT_AUTO_APPROVE_CONFIRM_PRESSES},
         ])
-        await self._device.wait_for_signing_and_approve(sequence)
+        timeout = body.get("timeout", DEFAULT_AUTO_APPROVE_TIMEOUT)
+
+        if not isinstance(sequence, list):
+            return self._bad_request("'presses' must be a list")
+        try:
+            for step in sequence:
+                if not isinstance(step, dict):
+                    raise ValueError("each press in 'presses' must be an object")
+                validate_button_press(
+                    step.get("button", "right"), step.get("count", 1)
+                )
+        except ValueError as e:
+            return self._bad_request(str(e))
+
+        if (
+            not isinstance(timeout, (int, float))
+            or isinstance(timeout, bool)
+            or not 0 < timeout <= MAX_AUTO_APPROVE_TIMEOUT
+        ):
+            return self._bad_request(
+                f"'timeout' must be a number in (0, {MAX_AUTO_APPROVE_TIMEOUT}]"
+            )
+
+        try:
+            await self._device.wait_for_signing_and_approve(
+                sequence, timeout=timeout
+            )
+        except asyncio.TimeoutError:
+            return web.json_response(
+                {
+                    "ok": False,
+                    "error": (
+                        f"signing request not detected within {timeout}s"
+                    ),
+                },
+                status=504,
+            )
         return web.json_response({"ok": True})

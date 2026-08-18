@@ -15,9 +15,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Standard maximum APDU response size (64 KiB). Applies to the declared
+# data length; the 2-byte status word is extra.
+MAX_RESPONSE_SIZE = 64 * 1024
+
 
 class SpeculosTimeoutError(Exception):
     """Raised when a Speculos TCP operation times out."""
+
+
+class SpeculosProtocolError(Exception):
+    """Raised when Speculos sends a malformed or oversized response."""
 
 
 class SpeculosTcpClient:
@@ -50,6 +58,15 @@ class SpeculosTcpClient:
         logger.info("Disconnected from Speculos")
 
     async def exchange(self, apdu: bytes) -> bytes:
+        """Exchange one APDU with Speculos and return data + status word.
+
+        Auto-connects if the client is not yet connected. On
+        ConnectionError, OSError, or IncompleteReadError the client
+        disconnects, reconnects, and retries the exchange exactly once.
+        Send/receive timeouts are wrapped in SpeculosTimeoutError (after
+        tearing down the connection); a malformed or oversized response
+        raises SpeculosProtocolError and also disconnects.
+        """
         async with self._lock:
             try:
                 if self._writer is None or self._reader is None:
@@ -57,6 +74,13 @@ class SpeculosTcpClient:
 
                 await self._send(apdu)
                 return await self._recv()
+            except SpeculosProtocolError:
+                logger.error(
+                    "Speculos protocol error (oversized or malformed response), "
+                    "disconnecting"
+                )
+                await self.disconnect()
+                raise
             except asyncio.TimeoutError:
                 msg = (
                     f"Speculos operation timed out after {self._timeout}s "
@@ -85,6 +109,11 @@ class SpeculosTcpClient:
             self._reader.readexactly(4), timeout=self._timeout,
         )
         raw_length = struct.unpack(">I", length_data)[0]
+        if raw_length > MAX_RESPONSE_SIZE:
+            raise SpeculosProtocolError(
+                f"Speculos declared a response length of {raw_length} bytes, "
+                f"which exceeds the maximum allowed {MAX_RESPONSE_SIZE} bytes"
+            )
         response = await asyncio.wait_for(
             self._reader.readexactly(raw_length), timeout=self._timeout,
         )

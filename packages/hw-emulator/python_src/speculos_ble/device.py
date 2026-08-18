@@ -31,10 +31,19 @@ from .types import (
     ConnectionState,
     DEFAULT_DEVICE_NAME,
     LEDGER_SERVICE_UUID,
+    MTU_PROBE_BYTE,
     VirtualLedgerConfig,
+    validate_button_press,
 )
 
 logger = logging.getLogger(__name__)
+
+# BLE static random addresses have the two most-significant bits set.
+STATIC_RANDOM_ADDRESS_MSB_MASK = 0xC0
+
+# Delay between consecutive Speculos button presses, so each screen
+# transition settles before the next press.
+BUTTON_PRESS_INTERVAL_S = 0.1
 
 
 class VirtualLedgerDevice(Device.Listener, Connection.Listener):
@@ -62,6 +71,7 @@ class VirtualLedgerDevice(Device.Listener, Connection.Listener):
         self._transport: Any = None
         self._connection: Connection | None = None
         self._http_session: aiohttp.ClientSession | None = None
+        self._stopped = False
 
     @property
     def state(self) -> ConnectionState:
@@ -125,6 +135,13 @@ class VirtualLedgerDevice(Device.Listener, Connection.Listener):
         )
 
     async def stop(self) -> None:
+        # Idempotency guard: stop() may be invoked both from the signal
+        # handler and from the CLI's finally block (and re-entrantly from
+        # concurrent shutdown paths); only the first call runs teardown.
+        if self._stopped:
+            return
+        self._stopped = True
+
         self._set_state(ConnectionState.DISCONNECTING)
 
         await self._control_api.stop()
@@ -159,7 +176,7 @@ class VirtualLedgerDevice(Device.Listener, Connection.Listener):
     @staticmethod
     def _generate_random_address() -> Address:
         random_bytes = bytearray(os.urandom(6))
-        random_bytes[0] |= 0xC0
+        random_bytes[0] |= STATIC_RANDOM_ADDRESS_MSB_MASK
         addr_str = ":".join(f"{b:02X}" for b in random_bytes)
         return Address(addr_str)
 
@@ -169,9 +186,11 @@ class VirtualLedgerDevice(Device.Listener, Connection.Listener):
         logger.info("MTU probe handled, negotiated MTU: %d", negotiated_mtu)
 
         mtu_value = max(negotiated_mtu, 23)
-        probe_response = bytes(
-            [0x08, 0x00, 0x00, 0x00, 0x00, mtu_value & 0xFF, (mtu_value >> 8) & 0xFF]
-        )
+        probe_response = bytes([
+            MTU_PROBE_BYTE,                                # probe marker echo
+            0x00, 0x00, 0x00, 0x00,                        # reserved padding
+            mtu_value & 0xFF, (mtu_value >> 8) & 0xFF,     # MTU, little-endian
+        ])
         await self.gatt_server.send_raw_notification(connection, probe_response)
 
     def _get_http_session(self) -> aiohttp.ClientSession:
@@ -180,6 +199,7 @@ class VirtualLedgerDevice(Device.Listener, Connection.Listener):
         return self._http_session
 
     async def press_button(self, button: str, count: int = 1) -> None:
+        validate_button_press(button, count)
         session = self._get_http_session()
         url = (
             f"http://{self._config.speculos_host}:{self._config.speculos_api_port}"
@@ -188,7 +208,7 @@ class VirtualLedgerDevice(Device.Listener, Connection.Listener):
         for _ in range(count):
             async with session.post(url, json={"action": "press-and-release"}) as resp:
                 resp.raise_for_status()
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(BUTTON_PRESS_INTERVAL_S)
 
     async def take_screenshot(self) -> bytes:
         session = self._get_http_session()

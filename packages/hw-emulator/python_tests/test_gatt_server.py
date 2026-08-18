@@ -214,3 +214,150 @@ async def test_exchange_lock_serializes_apdus():
     assert call_order[1].startswith("end-")
     assert call_order[2].startswith("start-")
     assert call_order[3].startswith("end-")
+
+
+def test_reset_keeps_same_exchange_lock():
+    """reset() must not replace the lock a coroutine may still hold."""
+
+    async def on_apdu(apdu):
+        return b"\x90\x00"
+
+    server = LedgerGattServer(on_apdu=on_apdu)
+    lock_before = server._exchange_lock
+    server.reset()
+    assert server._exchange_lock is lock_before
+
+
+@pytest.mark.asyncio
+async def test_reset_cancels_inflight_exchange():
+    """An exchange in flight when reset() is called gets cancelled."""
+    exchange_started = asyncio.Event()
+
+    async def slow_on_apdu(apdu):
+        exchange_started.set()
+        await asyncio.sleep(30)
+        return b"\x90\x00"
+
+    server = LedgerGattServer(on_apdu=slow_on_apdu)
+
+    task = asyncio.ensure_future(
+        server._on_write(object(), _chunk0(total=1, data=bytes([0x01])))
+    )
+    await asyncio.wait_for(exchange_started.wait(), timeout=5)
+
+    server.reset()
+
+    with pytest.raises(asyncio.CancelledError):
+        await task
+
+
+@pytest.mark.asyncio
+async def test_reset_lets_waiting_exchange_proceed():
+    """A queued writer is not orphaned when reset() runs mid-exchange."""
+    first_started = asyncio.Event()
+    release_first = asyncio.Event()
+
+    async def controlled_on_apdu(apdu):
+        if apdu[0] == 0x01:
+            first_started.set()
+            await release_first.wait()
+        return b"\x90\x00"
+
+    server = LedgerGattServer(on_apdu=controlled_on_apdu)
+
+    first = asyncio.ensure_future(
+        server._on_write(object(), _chunk0(total=1, data=bytes([0x01])))
+    )
+    second = asyncio.ensure_future(
+        server._on_write(object(), _chunk0(total=1, data=bytes([0x02])))
+    )
+
+    await asyncio.wait_for(first_started.wait(), timeout=5)
+    server.reset()  # cancels the first (in-flight) exchange
+    second_done, _ = await asyncio.wait({second}, timeout=5)
+    assert second in second_done  # acquired the same, never-replaced lock
+
+    release_first.set()
+    with pytest.raises(asyncio.CancelledError):
+        await first
+
+
+class _OkDevice:
+    def __init__(self):
+        self.sent_chunks = []
+
+    async def notify_subscriber(self, connection, characteristic):
+        self.sent_chunks.append(characteristic.value)
+
+
+class _FailingDevice:
+    def __init__(self, fail_on_call=1):
+        self.calls = 0
+        self.fail_on_call = fail_on_call
+
+    async def notify_subscriber(self, connection, characteristic):
+        self.calls += 1
+        if self.calls >= self.fail_on_call:
+            raise RuntimeError("notify failed")
+
+
+@pytest.mark.asyncio
+async def test_send_response_success_logs_sent_after_delivery():
+    async def on_apdu(apdu):
+        return b"\x90\x00"
+
+    server = LedgerGattServer(on_apdu=on_apdu)
+    device = _OkDevice()
+    server.bind(device)
+
+    response = bytes([0x30, 0x31, 0x32])
+    await server._send_response(object(), response)
+
+    tags = [e.tag for e in server.apdu_log]
+    assert tags[-1] == "apdu_response_sent"
+    assert b"".join(device.sent_chunks) == struct.pack(">BHH", 0x05, 0, 3) + response
+
+
+@pytest.mark.asyncio
+async def test_send_response_failure_propagates():
+    """Notification failures are raised, not silently swallowed."""
+
+    async def on_apdu(apdu):
+        return b"\x90\x00"
+
+    server = LedgerGattServer(on_apdu=on_apdu)
+    server.bind(_FailingDevice(fail_on_call=1))
+
+    with pytest.raises(RuntimeError, match="notify failed"):
+        await server._send_response(object(), b"\x90\x00")
+
+    tags = [e.tag for e in server.apdu_log]
+    assert tags[-1] == "apdu_response_failed"
+
+
+@pytest.mark.asyncio
+async def test_send_response_partial_chunk_failure_propagates():
+    """A failure on a later chunk still surfaces the error."""
+
+    async def on_apdu(apdu):
+        return b"\x90\x00"
+
+    server = LedgerGattServer(on_apdu=on_apdu)
+    device = _FailingDevice(fail_on_call=2)
+    server.bind(device)
+
+    # 30-byte response with MTU 23 → 2 chunks; second chunk fails.
+    with pytest.raises(RuntimeError, match="notify failed"):
+        await server._send_response(object(), bytes(range(30)))
+    assert device.calls == 2
+
+
+@pytest.mark.asyncio
+async def test_send_response_without_device_raises():
+    async def on_apdu(apdu):
+        return b"\x90\x00"
+
+    server = LedgerGattServer(on_apdu=on_apdu)
+
+    with pytest.raises(RuntimeError, match="No device bound"):
+        await server._send_response(object(), b"\x90\x00")

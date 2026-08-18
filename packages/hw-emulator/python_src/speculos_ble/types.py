@@ -19,6 +19,12 @@ BLE_TAG_ID = 0x05
 MTU_PROBE_BYTE = 0x08
 DEFAULT_MTU = 23
 LEDGER_REQUESTED_MTU = 156
+# Smallest MTU the Ledger BLE framing can carry: chunk-0 overhead
+# (5 header bytes) + non-zero payload.
+MIN_MTU = 7
+
+VALID_BUTTONS = frozenset({"left", "right", "both"})
+MAX_BUTTON_PRESS_COUNT = 20
 
 SIGNING_INS_BYTES = frozenset({
     0x02,  # GET_PUBLIC_KEY (used for derivation verification)
@@ -58,3 +64,26 @@ class VirtualLedgerConfig:
     control_api_port: int = DEFAULT_CONTROL_API_PORT
     auto_restart_advertising: bool = True
     apdu_log_size: int = 100
+
+
+def validate_button_press(button: str, count: int) -> None:
+    """Validate button press arguments.
+
+    @param button - Button name, must be one of VALID_BUTTONS.
+    @param count - Number of presses, an integer in [1, MAX_BUTTON_PRESS_COUNT].
+    @raises ValueError if either argument is invalid.
+    """
+    if not isinstance(button, str) or button not in VALID_BUTTONS:
+        raise ValueError(
+            f"Invalid button {button!r}: must be one of "
+            f"{', '.join(sorted(VALID_BUTTONS))}"
+        )
+    if (
+        not isinstance(count, int)
+        or isinstance(count, bool)
+        or not 1 <= count <= MAX_BUTTON_PRESS_COUNT
+    ):
+        raise ValueError(
+            f"Invalid count {count!r}: must be an integer between 1 and "
+            f"{MAX_BUTTON_PRESS_COUNT}"
+        )

@@ -2,12 +2,20 @@
 
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 import pytest_asyncio
 from aiohttp.test_utils import TestClient, TestServer
 
-from speculos_ble.control_api import ControlApiServer
-from speculos_ble.types import ConnectionState
+from speculos_ble.control_api import (
+    MAX_INJECTED_ERROR_SIZE,
+    ControlApiServer,
+)
+from speculos_ble.types import (
+    MAX_BUTTON_PRESS_COUNT,
+    ConnectionState,
+)
 
 
 class FakeDevice:
@@ -16,6 +24,8 @@ class FakeDevice:
         self.apdu_bridge = self._FakeBridge()
         self.gatt_server = self._FakeGatt()
         self._button_presses = []
+        self.signing_times_out = False
+        self.last_signing_timeout = None
 
     @property
     def state(self):
@@ -37,6 +47,9 @@ class FakeDevice:
         pass
 
     async def wait_for_signing_and_approve(self, sequence, timeout=60.0):
+        self.last_signing_timeout = timeout
+        if self.signing_times_out:
+            raise asyncio.TimeoutError()
         self._button_presses.extend(
             (step["button"], step.get("count", 1)) for step in sequence
         )
@@ -44,8 +57,11 @@ class FakeDevice:
     class _FakeBridge:
         is_connected = True
 
+        def __init__(self):
+            self.injected = []
+
         def inject_error(self, response):
-            pass
+            self.injected.append(response)
 
     class _FakeGatt:
         connection = None
@@ -159,3 +175,118 @@ async def test_blind_signing_enable(client):
     assert resp.status == 200
     body = await resp.json()
     assert body["ok"] is True
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("button", ["left", "right", "both"])
+async def test_button_press_valid_buttons(client, button):
+    resp = await client.post("/button/press", json={"button": button})
+    assert resp.status == 200
+    assert (button, 1) in client._fake_device._button_presses
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "button", ["middle", "", "RIGHT", "up", None, 3],
+)
+async def test_button_press_invalid_button_returns_400(client, button):
+    resp = await client.post("/button/press", json={"button": button})
+    assert resp.status == 400
+    body = await resp.json()
+    assert body["ok"] is False
+    assert "button" in body["error"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("count", [0, -1, MAX_BUTTON_PRESS_COUNT + 1, "3", 3.5, True])
+async def test_button_press_invalid_count_returns_400(client, count):
+    resp = await client.post("/button/press", json={"button": "right", "count": count})
+    assert resp.status == 400
+    body = await resp.json()
+    assert body["ok"] is False
+    assert "count" in body["error"]
+
+
+@pytest.mark.asyncio
+async def test_button_press_count_upper_bound_accepted(client):
+    resp = await client.post(
+        "/button/press", json={"button": "right", "count": MAX_BUTTON_PRESS_COUNT}
+    )
+    assert resp.status == 200
+    assert ("right", MAX_BUTTON_PRESS_COUNT) in client._fake_device._button_presses
+
+
+@pytest.mark.asyncio
+async def test_button_press_malformed_json_returns_400(client):
+    resp = await client.post(
+        "/button/press", data=b"this is not json", headers={"Content-Type": "application/json"}
+    )
+    assert resp.status == 400
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("response_hex", ["6985", "6D00", "00" * MAX_INJECTED_ERROR_SIZE])
+async def test_error_inject_valid_hex_accepted(client, response_hex):
+    resp = await client.post("/error/inject", json={"response": response_hex})
+    assert resp.status == 200
+    assert bytes.fromhex(response_hex) in client._fake_device.apdu_bridge.injected
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "response_hex", ["XYZ", "6E0", "", "6E 8", "00" * (MAX_INJECTED_ERROR_SIZE + 1), 1234],
+)
+async def test_error_inject_invalid_hex_returns_400(client, response_hex):
+    resp = await client.post("/error/inject", json={"response": response_hex})
+    assert resp.status == 400
+    body = await resp.json()
+    assert body["ok"] is False
+
+
+@pytest.mark.asyncio
+async def test_error_inject_empty_body_uses_default(client):
+    resp = await client.post("/error/inject", json={})
+    assert resp.status == 200
+    assert bytes.fromhex("6D00") in client._fake_device.apdu_bridge.injected
+
+
+@pytest.mark.asyncio
+async def test_signing_auto_approve_timeout_returns_504(client):
+    client._fake_device.signing_times_out = True
+    resp = await client.post("/signing/auto-approve", json={"timeout": 5})
+    assert resp.status == 504
+    body = await resp.json()
+    assert body["ok"] is False
+    assert "not detected" in body["error"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("timeout", [-1, 0, "60", 301, None])
+async def test_signing_auto_approve_invalid_timeout_returns_400(client, timeout):
+    resp = await client.post("/signing/auto-approve", json={"timeout": timeout})
+    assert resp.status == 400
+
+
+@pytest.mark.asyncio
+async def test_signing_auto_approve_timeout_forwarded(client):
+    resp = await client.post("/signing/auto-approve", json={"timeout": 300})
+    assert resp.status == 200
+    assert client._fake_device.last_signing_timeout == 300
+
+
+@pytest.mark.asyncio
+async def test_signing_auto_approve_invalid_sequence_returns_400(client):
+    resp = await client.post(
+        "/signing/auto-approve",
+        json={"presses": [{"button": "middle", "count": 1}]},
+    )
+    assert resp.status == 400
+
+
+@pytest.mark.asyncio
+async def test_signing_auto_approve_invalid_press_count_returns_400(client):
+    resp = await client.post(
+        "/signing/auto-approve",
+        json={"presses": [{"button": "right", "count": 99}]},
+    )
+    assert resp.status == 400

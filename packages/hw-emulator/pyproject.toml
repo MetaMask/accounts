@@ -8,18 +8,17 @@ version = "0.1.0"
 description = "Virtual BLE Ledger device for E2E testing with Speculos"
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "bumble>=0.0.228",
-    "grpcio>=1.62.0,<2",
-    "aiohttp>=3.9.0,<4",
-    "click>=8.1.0,<9",
+  # Pinned exactly on purpose: the emulator must behave identically on CI
+  # and dev machines, and BLE-stack behavior (bumble) should not drift
+  # between installs. Bump pins deliberately, then re-run python_tests.
+  "bumble==0.0.233",
+  "grpcio>=1.62.0,<2",
+  "aiohttp==3.14.3",
+  "click==8.4.2",
 ]
 
 [project.optional-dependencies]
-test = [
-    "pytest>=8.0",
-    "pytest-asyncio>=0.23",
-    "aiohttp[speedups]>=3.9",
-]
+test = ["pytest>=8.0", "pytest-asyncio>=0.23", "aiohttp[speedups]>=3.9"]
 
 [project.scripts]
 speculos-ble = "speculos_ble.__main__:main"

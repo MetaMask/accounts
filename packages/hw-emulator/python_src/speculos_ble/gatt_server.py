@@ -26,6 +26,7 @@ from .types import (
     LEDGER_WRITE_CMD_CHAR_UUID,
     MTU_PROBE_BYTE,
     DEFAULT_MTU,
+    MIN_MTU,
     ApduLogEntry,
 )
 
@@ -33,6 +34,10 @@ if TYPE_CHECKING:
     from bumble.device import Device, Connection
 
 logger = logging.getLogger(__name__)
+
+# Status word 0x6D00 ("instruction not supported"), notified to the peer
+# when an APDU exchange fails.
+DEFAULT_APDU_ERROR_RESPONSE = bytes([0x6D, 0x00])
 
 
 class LedgerGattServer:
@@ -48,7 +53,11 @@ class LedgerGattServer:
         self._connection: Connection | None = None
         self._device: Device | None = None
         self._mtu: int = DEFAULT_MTU
+        # Single lock for the server lifetime; reset() never replaces it
+        # (a coroutine holding the old lock would be orphaned). In-flight
+        # exchanges are cancelled in reset() instead, via _exchange_task.
         self._exchange_lock = asyncio.Lock()
+        self._exchange_task: "asyncio.Task[None] | None" = None
         self._apdu_log: list[ApduLogEntry] = []
         self._apdu_log_size = apdu_log_size
         self._subscribed_connections: set[Connection] = set()
@@ -85,7 +94,7 @@ class LedgerGattServer:
         self._device = device
 
     def set_mtu(self, mtu: int) -> None:
-        self._mtu = max(mtu, 7)
+        self._mtu = max(mtu, MIN_MTU)
 
     def _log_apdu(self, direction: str, data: bytes, tag: str = "") -> None:
         entry = ApduLogEntry(
@@ -144,27 +153,48 @@ class LedgerGattServer:
             logger.info("Complete APDU received (%d bytes)", len(complete_apdu))
 
             async with self._exchange_lock:
+                # Track the in-flight exchange so reset() can cancel it
+                # instead of orphaning the coroutine on a replaced lock.
+                self._exchange_task = asyncio.current_task()
                 try:
-                    response = await self._on_apdu(complete_apdu)
-                except Exception:
-                    logger.exception("APDU exchange failed")
-                    self._reassembler.reset()
-                    error_apdu = bytes([0x6D, 0x00])
-                    await self._send_response(connection, error_apdu)
-                    return
-
-            if response:
-                self._log_apdu("out", response, "apdu_response")
-                await self._send_response(connection, response)
+                    await self._run_apdu_exchange(connection, complete_apdu)
+                finally:
+                    self._exchange_task = None
+        except asyncio.CancelledError:
+            logger.info("In-flight APDU exchange cancelled (connection reset)")
+            raise
         except Exception:
             logger.exception("GATT write handler error")
+
+    async def _run_apdu_exchange(
+        self, connection: "Connection", apdu: bytes,
+    ) -> None:
+        """Run one complete-APDU exchange and notify the response.
+
+        On failure the reassembler is reset and the standard 0x6D00 error
+        status word is notified to the peer instead of a real response.
+        """
+        try:
+            response = await self._on_apdu(apdu)
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            logger.exception("APDU exchange failed")
+            self._reassembler.reset()
+            await self._send_response(connection, DEFAULT_APDU_ERROR_RESPONSE)
+            return
+
+        if response:
+            self._log_apdu("out", response, "apdu_response")
+            await self._send_response(connection, response)
 
     async def _send_response(
         self, connection: "Connection", response: bytes,
     ) -> None:
         if self._device is None:
-            logger.error("No device bound, cannot send notification")
-            return
+            raise RuntimeError(
+                "No device bound to GATT server, cannot send notification"
+            )
 
         chunks = fragment_apdu(response, self._mtu)
         logger.debug(
@@ -173,13 +203,27 @@ class LedgerGattServer:
             len(chunks),
         )
 
+        send_error: Exception | None = None
         for i, chunk in enumerate(chunks):
             self.notify_char.value = chunk
             try:
                 await self._device.notify_subscriber(connection, self.notify_char)
-            except Exception:
-                logger.exception("Failed to send notification chunk %d", i)
+            except Exception as e:
+                logger.error(
+                    "Failed to send notification chunk %d/%d: %s",
+                    i + 1,
+                    len(chunks),
+                    e,
+                )
+                send_error = e
                 break
+
+        if send_error is not None:
+            # The response was NOT delivered (or only partially); record
+            # the failure and propagate so the caller doesn't treat the
+            # exchange as successful.
+            self._log_apdu("out", response, "apdu_response_failed")
+            raise send_error
 
         self._log_apdu("out", response, "apdu_response_sent")
 
@@ -208,7 +252,17 @@ class LedgerGattServer:
         await self._device.notify_subscriber(connection, self.notify_char)
 
     def reset(self) -> None:
+        """Reset per-connection state.
+
+        The exchange lock is intentionally NOT replaced: a coroutine
+        holding it during an in-flight exchange would be orphaned by a
+        swap. Instead, the in-flight exchange task (if any) is cancelled,
+        which releases the single lock and lets queued writers proceed.
+        """
         self._reassembler.reset()
         self._connection = None
         self._subscribed_connections.clear()
-        self._exchange_lock = asyncio.Lock()
+        task = self._exchange_task
+        if task is not None and not task.done():
+            logger.info("Cancelling in-flight APDU exchange on reset")
+            task.cancel()

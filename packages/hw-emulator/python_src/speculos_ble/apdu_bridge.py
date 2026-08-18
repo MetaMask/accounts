@@ -29,6 +29,10 @@ class ApduBridge:
         self._signing_detected = asyncio.Event()
         self._error_injection: bytes | None = None
         self._connected = False
+        # Serializes APDU handling so that the error-injection check and
+        # consumption are atomic with respect to concurrent GATT writes;
+        # without this, an injected error could be applied to the wrong APDU.
+        self._apdu_lock = asyncio.Lock()
 
     async def start(self) -> None:
         await self._speculos.connect()
@@ -39,22 +43,36 @@ class ApduBridge:
         self._connected = False
 
     async def handle_apdu(self, apdu: bytes) -> bytes:
-        if not self._connected:
-            await self.start()
+        """Handle one reassembled APDU and return the response bytes.
 
-        is_signing = self._is_signing_apdu(apdu)
-        if is_signing:
-            logger.info("Signing APDU detected (INS=0x%02X)", apdu[1] if len(apdu) > 1 else 0)
-            self._signing_detected.set()
+        Auto-connects to Speculos on the first APDU if the bridge is not
+        yet connected. As a side effect, when the APDU looks like a
+        signing request (INS in SIGNING_INS_BYTES), the
+        ``signing_detected`` event is set for test orchestration. An
+        injected error response (see ``inject_error``) takes precedence
+        over forwarding the APDU to Speculos and is consumed by exactly
+        one exchange.
+        """
+        async with self._apdu_lock:
+            if not self._connected:
+                await self.start()
 
-        if self._error_injection is not None:
-            response = self._error_injection
-            self._error_injection = None
-            logger.info("Error injection active, returning injected response")
+            is_signing = self._is_signing_apdu(apdu)
+            if is_signing:
+                logger.info(
+                    "Signing APDU detected (INS=0x%02X)",
+                    apdu[1] if len(apdu) > 1 else 0,
+                )
+                self._signing_detected.set()
+
+            if self._error_injection is not None:
+                response = self._error_injection
+                self._error_injection = None
+                logger.info("Error injection active, returning injected response")
+                return response
+
+            response = await self._speculos.exchange(apdu)
             return response
-
-        response = await self._speculos.exchange(apdu)
-        return response
 
     def inject_error(self, response: bytes) -> None:
         self._error_injection = response

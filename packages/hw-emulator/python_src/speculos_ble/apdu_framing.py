@@ -14,7 +14,11 @@ from __future__ import annotations
 import struct
 from collections.abc import Iterator
 
-from .types import BLE_TAG_ID
+from .types import BLE_TAG_ID, MIN_MTU
+
+# The chunk-0 header encodes the total APDU length as a 16-bit BE field,
+# so a framed APDU can never exceed 65535 bytes.
+MAX_APDU_SIZE = 0xFFFF
 
 
 def _chunk_overhead(index: int) -> int:
@@ -22,8 +26,13 @@ def _chunk_overhead(index: int) -> int:
 
 
 def fragment_apdu(apdu: bytes, mtu: int) -> list[bytes]:
-    if mtu < 7:
+    if mtu < MIN_MTU:
         raise ValueError(f"MTU too small for Ledger framing: {mtu}")
+    if len(apdu) > MAX_APDU_SIZE:
+        raise ValueError(
+            f"APDU too large for Ledger BLE framing: {len(apdu)} bytes "
+            f"(max {MAX_APDU_SIZE})"
+        )
     if not apdu:
         return []
 
@@ -74,6 +83,11 @@ class ApduReassembler:
                 return None
             self._buffer.clear()
             self._expected_total = struct.unpack_from(">H", frame, 3)[0]
+            if self._expected_total == 0:
+                # A zero-length APDU is invalid; fragment_apdu() never
+                # emits an empty sequence.
+                self.reset()
+                return None
             self._next_index = 0
             data_offset = 5
         else:
@@ -86,8 +100,22 @@ class ApduReassembler:
         self._buffer.extend(data)
         self._next_index = chunk_index + 1
 
-        if self._expected_total is not None and len(self._buffer) >= self._expected_total:
-            result = bytes(self._buffer[: self._expected_total])
+        if self._expected_total is None:
+            return None
+
+        if len(self._buffer) > self._expected_total:
+            # More data arrived than the chunk-0 header declared. Reject
+            # explicitly instead of silently truncating.
+            received = len(self._buffer)
+            declared = self._expected_total
+            self.reset()
+            raise ValueError(
+                f"APDU reassembly overflow: received {received} bytes but "
+                f"chunk-0 header declared a total of {declared} bytes"
+            )
+
+        if len(self._buffer) == self._expected_total:
+            result = bytes(self._buffer)
             self.reset()
             return result
 

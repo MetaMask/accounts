@@ -3,7 +3,11 @@
 import struct
 import pytest
 
-from speculos_ble.apdu_framing import fragment_apdu, ApduReassembler
+from speculos_ble.apdu_framing import (
+    MAX_APDU_SIZE,
+    ApduReassembler,
+    fragment_apdu,
+)
 from speculos_ble.types import BLE_TAG_ID
 
 
@@ -82,6 +86,28 @@ class TestFragmentApdu:
         tag, idx, total = struct.unpack_from(">BHH", chunks[0], 0)
         assert total == 100
 
+    def test_oversize_apdu_rejected(self):
+        """APDUs larger than the 16-bit total-length field are rejected."""
+        apdu = b"\x00" * (MAX_APDU_SIZE + 1)
+        with pytest.raises(ValueError, match="too large"):
+            fragment_apdu(apdu, mtu=156)
+
+    def test_max_size_apdu_fragmented_and_reassembled(self):
+        """An APDU of exactly 65535 bytes round-trips at the 16-bit limit."""
+        apdu = b"\xAB" * MAX_APDU_SIZE
+        chunks = fragment_apdu(apdu, mtu=156)
+        assert len(chunks) > 1
+        tag, idx, total = struct.unpack_from(">BHH", chunks[0], 0)
+        assert tag == BLE_TAG_ID
+        assert idx == 0
+        assert total == MAX_APDU_SIZE
+
+        reassembler = ApduReassembler()
+        result = None
+        for chunk in chunks:
+            result = reassembler.feed(chunk)
+        assert result == apdu
+
 
 class TestApduReassembler:
     def test_single_chunk_reassembly(self):
@@ -134,6 +160,43 @@ class TestApduReassembler:
         reassembler = ApduReassembler()
         assert reassembler.feed(bytes([0x05])) is None
         assert reassembler.feed(bytes([0x05, 0x00])) is None
+
+    def test_chunk0_data_exceeding_declared_total_rejected(self):
+        """Chunk 0 carrying more data than its header declares is rejected."""
+        reassembler = ApduReassembler()
+        frame = struct.pack(">BHH", BLE_TAG_ID, 0, 2) + bytes([0x01, 0x02, 0x03])
+        with pytest.raises(ValueError, match="overflow"):
+            reassembler.feed(frame)
+
+    def test_subsequent_chunk_overflow_rejected(self):
+        """Accumulated data exceeding the declared total raises, not truncates."""
+        reassembler = ApduReassembler()
+        chunk0 = struct.pack(">BHH", BLE_TAG_ID, 0, 5) + bytes([0x01, 0x02, 0x03])
+        assert reassembler.feed(chunk0) is None
+
+        chunk1 = struct.pack(">BH", BLE_TAG_ID, 1) + bytes([0x04, 0x05, 0x06, 0x07])
+        with pytest.raises(ValueError, match="overflow"):
+            reassembler.feed(chunk1)
+
+    def test_overflow_resets_reassembler_state(self):
+        """After an overflow rejection, a fresh APDU assembles normally."""
+        reassembler = ApduReassembler()
+        bad_chunk = struct.pack(">BHH", BLE_TAG_ID, 0, 2) + bytes([0x01, 0x02, 0x03])
+        with pytest.raises(ValueError):
+            reassembler.feed(bad_chunk)
+
+        good_chunk = struct.pack(">BHH", BLE_TAG_ID, 0, 3) + bytes([0xAA, 0xBB, 0xCC])
+        assert reassembler.feed(good_chunk) == bytes([0xAA, 0xBB, 0xCC])
+
+    def test_zero_declared_total_rejected(self):
+        """A chunk-0 header declaring a zero-length APDU is dropped."""
+        reassembler = ApduReassembler()
+        frame = struct.pack(">BHH", BLE_TAG_ID, 0, 0)
+        assert reassembler.feed(frame) is None
+
+        # State stays usable afterwards.
+        good = struct.pack(">BHH", BLE_TAG_ID, 0, 2) + bytes([0x01, 0x02])
+        assert reassembler.feed(good) == bytes([0x01, 0x02])
 
     def test_roundtrip_all_sizes(self):
         for size in [1, 5, 18, 20, 50, 100, 200, 255]:

@@ -128,3 +128,31 @@ class TestApduBridgeAsync:
         await bridge.handle_apdu(bytes([0xE0, 0x10, 0x00, 0x00, 0x00]))
         assert not bridge.signing_detected.is_set()
         await bridge.stop()
+
+    @pytest.mark.asyncio
+    async def test_error_injection_applied_to_exactly_one_concurrent_apdu(self):
+        """Concurrent APDUs: the injected error hits exactly one, atomically."""
+        bridge = ApduBridge()
+
+        async def slow_exchange(apdu):
+            await asyncio.sleep(0.05)
+            return bytes([0x90, 0x00])
+
+        bridge._speculos.exchange = AsyncMock(side_effect=slow_exchange)
+        bridge._speculos.connect = AsyncMock()
+        bridge._speculos.disconnect = AsyncMock()
+        await bridge.start()
+
+        injected = bytes([0x6D, 0x00])
+        bridge.inject_error(injected)
+
+        results = await asyncio.gather(
+            bridge.handle_apdu(bytes([0xE0, 0x10, 0x00, 0x00, 0x00])),
+            bridge.handle_apdu(bytes([0xE0, 0x11, 0x00, 0x00, 0x00])),
+        )
+
+        assert results.count(injected) == 1
+        assert bytes([0x90, 0x00]) in results
+        assert bridge._error_injection is None
+        bridge._speculos.exchange.assert_called_once()
+        await bridge.stop()
