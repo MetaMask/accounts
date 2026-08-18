@@ -67,6 +67,7 @@ linkStyle default opacity:0.5
   speculos_up(["@metamask/speculos-up"]);
   account_api --> keyring_api;
   account_api --> keyring_utils;
+  hw_emulator --> keyring_eth_qr;
   keyring_api --> keyring_utils;
   eth_hd_keyring --> keyring_api;
   eth_hd_keyring --> keyring_sdk;

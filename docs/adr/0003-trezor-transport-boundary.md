@@ -1,17 +1,17 @@
 # ADR-0003: Trezor transport boundary — local connect-web iframe + Suite Node Bridge (`@trezor/transport-bridge`)
 
-| Field    | Value                                                                  |
-| -------- | ---------------------------------------------------------------------- |
-| Status   | Accepted (locked by 4 Phase-0 spikes; see §"Evidence")                |
-| Date     | 2026-06-23                                                             |
-| Context  | `feat/hw-emulators-master` planning                                    |
-| Related  | [Trezor Emulator Spec](../specs/trezor-emulator.md), [ADR-0001](./0001-qr-emulator-placement.md), [ADR-0002](./0002-no-scripts-transport.md) |
+| Field   | Value                                                                                                                                        |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Status  | Accepted (locked by 4 Phase-0 spikes; see §"Evidence")                                                                                       |
+| Date    | 2026-06-23                                                                                                                                   |
+| Context | `feat/hw-emulators-master` planning                                                                                                          |
+| Related | [Trezor Emulator Spec](../specs/trezor-emulator.md), [ADR-0001](./0001-qr-emulator-placement.md), [ADR-0002](./0002-no-scripts-transport.md) |
 
 ## Context
 
 The Trezor hardware wallet emulator must deliver its transport between the production `@trezor/connect-web` SDK (running in MetaMask's offscreen document) and the real-firmware emulator (`trezor-user-env` Docker). The transport choice was constrained by two structural browser barriers — both discovered empirically during Phase 0:
 
-- **Chrome Private Network Access (PNA):** blocks a *public*-origin iframe (`connect.trezor.io`) from fetching loopback addresses (`127.0.0.1:21325`/`21328`).
+- **Chrome Private Network Access (PNA):** blocks a _public_-origin iframe (`connect.trezor.io`) from fetching loopback addresses (`127.0.0.1:21325`/`21328`).
 - **`trezord-go` Origin whitelist:** `trezord-go` v2.0.33 403s any Origin not in its hardcoded set (`connect.trezor.io`, `suite.trezor.io` — no `chrome-extension://`, no `localhost`).
 
 Additionally, the offscreen document inherently **cannot open popup windows** — `connect-web`'s default `popup:true` hangs indefinitely waiting for a `POPUP.LOADED` handshake that never arrives.
@@ -41,9 +41,9 @@ Adopt the **"Trezor Suite way"** — the same architecture Trezor Suite uses for
 
 ## Rationale
 
-### 1. The `window.__TREZOR_CONNECT_SRC` global + transport-bridge on its default port means the iframe's *default* transport config finds the emulator automatically — no `connectSrc` or `transports` override needed in `trezor.ts`.
+### 1. The `window.__TREZOR_CONNECT_SRC` global + transport-bridge on its default port means the iframe's _default_ transport config finds the emulator automatically — no `connectSrc` or `transports` override needed in `trezor.ts`.
 
-`connectSettings.js:25-32` reads `window.__TREZOR_CONNECT_SRC` and sets `connectSrc` with **precedence over `init()` input**. The iframe loads from `http://localhost:8088/` (Origin = `localhost`). The iframe's *default* `BridgeTransport` targets port 21328 — exactly where `@trezor/transport-bridge` listens in UDP mode. No `transports` param needed. The real `TrezorConnect.init({ manifest, env:'webextension' })` runs unmodified except for `popup:false`.
+`connectSettings.js:25-32` reads `window.__TREZOR_CONNECT_SRC` and sets `connectSrc` with **precedence over `init()` input**. The iframe loads from `http://localhost:8088/` (Origin = `localhost`). The iframe's _default_ `BridgeTransport` targets port 21328 — exactly where `@trezor/transport-bridge` listens in UDP mode. No `transports` param needed. The real `TrezorConnect.init({ manifest, env:'webextension' })` runs unmodified except for `popup:false`.
 
 ### 2. `localhost` iframe origin dissolves both PNA and the Origin whitelist.
 
@@ -77,7 +77,7 @@ The spike searched for any zero-source seam for `popup:false` (another `window._
 
 ### Approach A — HTTP proxy on connect-web's default port (original ADR-0003 decision)
 
-Node HTTP proxy on `:21328` forwarding to `trezord-go` `:21325`, with connect-web's *default* config hitting it. **Rejected by spike** (commit `685544fc`): Chrome PNA blocks the public `connect.trezor.io` iframe from fetching `127.0.0.1:21328`. Also: `trezord-go`'s Origin whitelist rejects the `connect.trezor.io` origin (the proxy receives the same Origin the iframe sends). Dead.
+Node HTTP proxy on `:21328` forwarding to `trezord-go` `:21325`, with connect-web's _default_ config hitting it. **Rejected by spike** (commit `685544fc`): Chrome PNA blocks the public `connect.trezor.io` iframe from fetching `127.0.0.1:21328`. Also: `trezord-go`'s Origin whitelist rejects the `connect.trezor.io` origin (the proxy receives the same Origin the iframe sends). Dead.
 
 ### Approach B — Production-source transport override (`IN_TEST` gate in `trezor.ts`)
 
@@ -99,12 +99,12 @@ The injected HTML script could wrap `TrezorConnect.init` to inject `popup:false`
 
 Four Phase-0 spikes committed on `feat/hw-emulators-master` under `packages/hw-emulator/spike/`:
 
-| Spike | Commits | Outcome |
-|---|---|---|
-| R1 (proxy) | `fceda3f1`, `685544fc` | ❌ Proxy DEAD (PNA) |
-| R1 (Approach B, Node headless) | `685544fc` | ⚠️ Works in Node, but MM uses `connect-web` (iframe), not headless `connect` |
-| C2 (headless in offscreen) | `959266d6` | ❌ BLOCKED by `trezord-go` Origin whitelist (403) |
-| Zero-source (`__TREZOR_CONNECT_SRC` + transport-bridge + local iframe) | `b781c0ba` | ✅ PASS: canonical SLIP-14 xpub returned. One unavoidable line: `popup:false`. |
+| Spike                                                                  | Commits                | Outcome                                                                        |
+| ---------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------ |
+| R1 (proxy)                                                             | `fceda3f1`, `685544fc` | ❌ Proxy DEAD (PNA)                                                            |
+| R1 (Approach B, Node headless)                                         | `685544fc`             | ⚠️ Works in Node, but MM uses `connect-web` (iframe), not headless `connect`   |
+| C2 (headless in offscreen)                                             | `959266d6`             | ❌ BLOCKED by `trezord-go` Origin whitelist (403)                              |
+| Zero-source (`__TREZOR_CONNECT_SRC` + transport-bridge + local iframe) | `b781c0ba`             | ✅ PASS: canonical SLIP-14 xpub returned. One unavoidable line: `popup:false`. |
 
 ## Implementation risk
 
@@ -118,7 +118,7 @@ The existing `metamask-extension/test/e2e/speculos/TREZOR_REPLICATION_GUIDE.md` 
 
 - The guide's `new BridgeTransport({url})` constructor claim was correct (verified: `@trezor/transport` v1.5.0 accepts `{url, messages, id}`), but the proxy it proposes is non-viable (PNA + Origin whitelist).
 - The guide placed files in `test/e2e/trezor/` for both emulator core and E2E wiring; the established [ADR-0001](./0001-qr-emulator-placement.md) pattern puts the emulator core in `packages/hw-emulator/src/trezor/`.
-- The guide's Step 2 (webusb-only mode) is not applicable (WebUSB is the transport that *works* in production but cannot be mocked; emulator tests need the bridge transport).
+- The guide's Step 2 (webusb-only mode) is not applicable (WebUSB is the transport that _works_ in production but cannot be mocked; emulator tests need the bridge transport).
 
 ## References
 

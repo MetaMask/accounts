@@ -1,11 +1,11 @@
 # ADR-0002: No-scripts transport architecture for the QR emulator
 
-| Field    | Value                                                                  |
-| -------- | ---------------------------------------------------------------------- |
-| Status   | Accepted                                                               |
-| Date     | 2026-06-19                                                             |
-| Context  | `feat/hw-emulators-master` planning                                    |
-| Related  | [QR Emulator Spec](../specs/qr-emulator.md), [ADR-0001](./0001-qr-emulator-placement.md) |
+| Field   | Value                                                                                    |
+| ------- | ---------------------------------------------------------------------------------------- |
+| Status  | Accepted                                                                                 |
+| Date    | 2026-06-19                                                                               |
+| Context | `feat/hw-emulators-master` planning                                                      |
+| Related | [QR Emulator Spec](../specs/qr-emulator.md), [ADR-0001](./0001-qr-emulator-placement.md) |
 
 ## Context
 
@@ -51,12 +51,12 @@ The QR boundary is lower than Ledger's, which means QR tests exercise **more** o
 
 ### 3. The trade-offs of no-scripts are acceptable and well-mitigated.
 
-| Trade-off | Mitigation |
-| --- | --- |
-| Chrome-only (no Firefox). | Ledger E2E is also Chrome-only (WebHID is Chrome-only). Firefox can be added later via a thin `getUserMedia`-override script if a need is demonstrated. |
-| Slower per test (~3–5s per scan vs <5ms for bridge mock). | Keep E2E test count small (5–10 critical paths). The QR keyring already has comprehensive Jest unit tests for breadth. |
-| Single-video-device-per-Chrome limit. | Already in the concurrency model: one Chromium instance per Playwright worker, each with a unique Y4M feed path. |
-| Cannot test the scanner overlay UI in isolation. | The scanner overlay is already covered by Jest unit tests (`useDecoderLifecycle.test.ts`, `qr-utils.test.ts`). |
+| Trade-off                                                 | Mitigation                                                                                                                                              |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chrome-only (no Firefox).                                 | Ledger E2E is also Chrome-only (WebHID is Chrome-only). Firefox can be added later via a thin `getUserMedia`-override script if a need is demonstrated. |
+| Slower per test (~3–5s per scan vs <5ms for bridge mock). | Keep E2E test count small (5–10 critical paths). The QR keyring already has comprehensive Jest unit tests for breadth.                                  |
+| Single-video-device-per-Chrome limit.                     | Already in the concurrency model: one Chromium instance per Playwright worker, each with a unique Y4M feed path.                                        |
+| Cannot test the scanner overlay UI in isolation.          | The scanner overlay is already covered by Jest unit tests (`useDecoderLifecycle.test.ts`, `qr-utils.test.ts`).                                          |
 
 ## Consequences
 

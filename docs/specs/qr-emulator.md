@@ -1,13 +1,13 @@
 # QR Hardware Wallet Emulator — Design Specification
 
-| Field     | Value                                                              |
-| --------- | ------------------------------------------------------------------ |
-| Status    | Draft                                                              |
-| Author    | (pending)                                                          |
-| Branch    | `feat/hw-emulators-master`                                         |
-| Package   | `@metamask/hw-emulator` (new `src/qr/` submodule)                  |
-| Consumer  | `metamask-extension` (via `file:` resolution against local build)  |
-| Related   | [ADR-0001](../adr/0001-qr-emulator-placement.md), [ADR-0002](../adr/0002-no-scripts-transport.md) |
+| Field    | Value                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------- |
+| Status   | Draft                                                                                             |
+| Author   | (pending)                                                                                         |
+| Branch   | `feat/hw-emulators-master`                                                                        |
+| Package  | `@metamask/hw-emulator` (new `src/qr/` submodule)                                                 |
+| Consumer | `metamask-extension` (via `file:` resolution against local build)                                 |
+| Related  | [ADR-0001](../adr/0001-qr-emulator-placement.md), [ADR-0002](../adr/0002-no-scripts-transport.md) |
 
 ## 1. Purpose
 
@@ -37,23 +37,23 @@ The existing `FakeQrBridge` test stub and its frozen CBOR/ADDRESS artifacts in `
 
 ### 4.1 Current state of QR testing in `metamask-extension`
 
-| File | Role |
-| --- | --- |
-| `app/scripts/wallet-init/keyrings.ts` (lines 32–52) | Contains a `process.env.IN_TEST` override that swaps `QrKeyringScannerBridge` for `FakeQrBridge` in test builds. **Production code contaminated with a test hook.** |
-| `test/stub/keyring-bridge.js` (lines 381–388) | `FakeQrBridge` — returns one frozen CBOR blob, ignores the camera, doesn't sign. |
-| `test/stub/keyring-bridge.js` (lines 66–79) | `KNOWN_QR_CBOR` (frozen), `KNOWN_QR_ACCOUNTS` (frozen address list). |
-| `test/e2e/tests/hardware-wallets/qr-account.spec.ts` | Skipped (`describe.skip`, line 15). Asserts against `KNOWN_QR_ACCOUNTS`. |
+| File                                                 | Role                                                                                                                                                                |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/scripts/wallet-init/keyrings.ts` (lines 32–52)  | Contains a `process.env.IN_TEST` override that swaps `QrKeyringScannerBridge` for `FakeQrBridge` in test builds. **Production code contaminated with a test hook.** |
+| `test/stub/keyring-bridge.js` (lines 381–388)        | `FakeQrBridge` — returns one frozen CBOR blob, ignores the camera, doesn't sign.                                                                                    |
+| `test/stub/keyring-bridge.js` (lines 66–79)          | `KNOWN_QR_CBOR` (frozen), `KNOWN_QR_ACCOUNTS` (frozen address list).                                                                                                |
+| `test/e2e/tests/hardware-wallets/qr-account.spec.ts` | Skipped (`describe.skip`, line 15). Asserts against `KNOWN_QR_ACCOUNTS`.                                                                                            |
 
 ### 4.2 The Ledger/Speculos precedent (the pattern to mirror)
 
-| Concern | Ledger | QR (this spec) |
-| --- | --- | --- |
-| Production keyring wiring | Real `LedgerOffscreenBridge` | Real `QrKeyringScannerBridge` |
-| Test keyring wiring | Real `LedgerOffscreenBridge` (no `IN_TEST` override) | Real `QrKeyringScannerBridge` (no `IN_TEST` override) |
-| Transport mocked at | Browser API boundary (`navigator.hid` via injected WebHID mock script) | OS device boundary (`getUserMedia` via Chrome `--use-fake-device-for-media-stream` + `--use-file-for-fake-video-capture`) |
-| Test-only branches in production code | None | None |
-| Device emulator | Speculos (Docker, real firmware) | QR emulator (pure TS, real BC-UR + real ECDSA) |
-| Mock artifacts in test dir | None | None (after cleanup) |
+| Concern                               | Ledger                                                                 | QR (this spec)                                                                                                            |
+| ------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Production keyring wiring             | Real `LedgerOffscreenBridge`                                           | Real `QrKeyringScannerBridge`                                                                                             |
+| Test keyring wiring                   | Real `LedgerOffscreenBridge` (no `IN_TEST` override)                   | Real `QrKeyringScannerBridge` (no `IN_TEST` override)                                                                     |
+| Transport mocked at                   | Browser API boundary (`navigator.hid` via injected WebHID mock script) | OS device boundary (`getUserMedia` via Chrome `--use-fake-device-for-media-stream` + `--use-file-for-fake-video-capture`) |
+| Test-only branches in production code | None                                                                   | None                                                                                                                      |
+| Device emulator                       | Speculos (Docker, real firmware)                                       | QR emulator (pure TS, real BC-UR + real ECDSA)                                                                            |
+| Mock artifacts in test dir            | None                                                                   | None (after cleanup)                                                                                                      |
 
 ## 5. Architecture
 
@@ -87,15 +87,15 @@ accounts/packages/hw-emulator/
 
 ### 5.2 Component responsibilities
 
-| Component | Responsibility | Library deps |
-| --- | --- | --- |
-| `core/ur-synth.ts` | Derive HDKey from seed, build `CryptoAccount` / `CryptoHDKey`, serialize to `SerializedUR` | `@keystonehq/bc-ur-registry-eth`, `hdkey`, `bip39` |
-| `core/signer.ts` | Sign `EthSignRequest` UR → `ETHSignature` UR. Real ECDSA from derived private key. | `@ethereumjs/tx`, `@metamask/eth-sig-util`, `secp256k1` |
-| `codec/encoder.ts` | Wrap typed UR in `@ngraveio/bc-ur` `UR`, build `UREncoder(fragmentSize=200)`, emit fragment strings | `@ngraveio/bc-ur` |
-| `codec/decoder.ts` | Ingest scraped fragments into `URDecoder`, return reconstructed `UR` | `@ngraveio/bc-ur` |
-| `render/png.ts` | Render one fragment string to QR PNG (mirror MM's `player.js` constants: `QR_CODE_SIZE=225`, uppercase value) | `qrcode-generator` |
-| `render/y4m.ts` | Encode PNG sequence to Y4M via ffmpeg child process. Defaults: `fps=5`, `durationS=4`, `pix_fmt=yuv420p`. | `ffmpeg` (external binary) |
-| `decode/screenshots.ts` | Decode a PNG (or sequence) to a fragment string using `@zxing/library`'s `BinaryBitmap` / `HybridBinarizer` path (Node-side). | `@zxing/library` |
+| Component               | Responsibility                                                                                                                | Library deps                                            |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `core/ur-synth.ts`      | Derive HDKey from seed, build `CryptoAccount` / `CryptoHDKey`, serialize to `SerializedUR`                                    | `@keystonehq/bc-ur-registry-eth`, `hdkey`, `bip39`      |
+| `core/signer.ts`        | Sign `EthSignRequest` UR → `ETHSignature` UR. Real ECDSA from derived private key.                                            | `@ethereumjs/tx`, `@metamask/eth-sig-util`, `secp256k1` |
+| `codec/encoder.ts`      | Wrap typed UR in `@ngraveio/bc-ur` `UR`, build `UREncoder(fragmentSize=200)`, emit fragment strings                           | `@ngraveio/bc-ur`                                       |
+| `codec/decoder.ts`      | Ingest scraped fragments into `URDecoder`, return reconstructed `UR`                                                          | `@ngraveio/bc-ur`                                       |
+| `render/png.ts`         | Render one fragment string to QR PNG (mirror MM's `player.js` constants: `QR_CODE_SIZE=225`, uppercase value)                 | `qrcode-generator`                                      |
+| `render/y4m.ts`         | Encode PNG sequence to Y4M via ffmpeg child process. Defaults: `fps=5`, `durationS=4`, `pix_fmt=yuv420p`.                     | `ffmpeg` (external binary)                              |
+| `decode/screenshots.ts` | Decode a PNG (or sequence) to a fragment string using `@zxing/library`'s `BinaryBitmap` / `HybridBinarizer` path (Node-side). | `@zxing/library`                                        |
 
 ### 5.3 The no-scripts data flow
 
@@ -155,12 +155,12 @@ REJECT FLOW:
 import { createEmulator, EmulatorType } from '@metamask/hw-emulator';
 
 const emulator = createEmulator(EmulatorType.Qr, {
-  seed: QR_EMULATOR_SEED,                       // default; override per-instance
+  seed: QR_EMULATOR_SEED, // default; override per-instance
   deviceName: 'Keystone Test',
   xfp: QR_EMULATOR_DEFAULT_XFP,
-  derivationPath: "m/44'/60'/0'",               // default
-  childrenPath: '0/*',                          // default
-  pairMode: 'crypto-account',                   // 'crypto-account' | 'crypto-hdkey'
+  derivationPath: "m/44'/60'/0'", // default
+  childrenPath: '0/*', // default
+  pairMode: 'crypto-account', // 'crypto-account' | 'crypto-hdkey'
   // No transport option — transport is the test driver's concern, not the emulator's.
 });
 ```
@@ -172,35 +172,35 @@ const emulator = createEmulator(EmulatorType.Qr, {
 ```ts
 export interface QrEmulator extends HardwareWalletEmulator, QrKeyringBridge {
   // ── HardwareWalletEmulator (some semantic mappings) ─────────────────
-  start(): Promise<void>;                        // no-op (pure TS, no process to spawn)
-  stop(): Promise<void>;                         // release ffmpeg child handles if any
+  start(): Promise<void>; // no-op (pure TS, no process to spawn)
+  stop(): Promise<void>; // release ffmpeg child handles if any
   isRunning(): boolean;
-  getInteraction(): DeviceInteraction;           // QrDeviceInteraction
-  approveTransaction(): Promise<void>;           // auto-approve next incoming sign-request
-  approveSigning(): Promise<void>;               // ditto, semantic alias
-  rejectTransaction(): Promise<void>;            // auto-reject next incoming sign-request
-  navigateToMainMenu(): Promise<void>;           // no-op
+  getInteraction(): DeviceInteraction; // QrDeviceInteraction
+  approveTransaction(): Promise<void>; // auto-approve next incoming sign-request
+  approveSigning(): Promise<void>; // ditto, semantic alias
+  rejectTransaction(): Promise<void>; // auto-reject next incoming sign-request
+  navigateToMainMenu(): Promise<void>; // no-op
 
   // ── QrKeyringBridge (so emulator.asBridge() works in Jest) ──────────
   requestScan(req: QrScanRequest): Promise<SerializedUR>;
 
   // ── UR production (transport-agnostic) ──────────────────────────────
-  getAccountUR(): SerializedUR;                   // for PAIR flow
-  handleSignRequest(ur: SerializedUR): Promise<SerializedUR>;  // for SIGN flow
+  getAccountUR(): SerializedUR; // for PAIR flow
+  handleSignRequest(ur: SerializedUR): Promise<SerializedUR>; // for SIGN flow
 
   // ── QR rendering (test driver uses these to produce camera feed files) ──
   renderToY4m(
     ur: SerializedUR,
     opts?: { fps?: number; durationS?: number; outputPath: string },
-  ): Promise<string>;                             // returns outputPath
+  ): Promise<string>; // returns outputPath
   renderToPng(ur: SerializedUR): Promise<Buffer>; // single-frame shortcut (small URs)
 
   // ── QR decoding (test driver uses these to decode MM's sign-request QR) ──
-  decodeQrScreenshots(paths: string[]): Promise<SerializedUR>;  // accumulate fragments → UR
-  decodeQrImage(png: Buffer): Promise<string | null>;           // one frame → fragment or null
+  decodeQrScreenshots(paths: string[]): Promise<SerializedUR>; // accumulate fragments → UR
+  decodeQrImage(png: Buffer): Promise<string | null>; // one frame → fragment or null
 
   // ── Convenience for Jest unit tests ─────────────────────────────────
-  asBridge(): QrKeyringBridge;                    // returns this (typed as QrKeyringBridge)
+  asBridge(): QrKeyringBridge; // returns this (typed as QrKeyringBridge)
 }
 ```
 
@@ -245,12 +245,12 @@ export const QR_EMULATOR_ADDRESS: Hex; // computed at module load
 ### 6.4 Codec constants (mirror MM's `player.js` exactly)
 
 ```ts
-export const QR_FRAGMENT_SIZE = 200;   // bytes per fountain fragment (matches player.js)
-export const QR_REFRESH_MS = 200;      // 5fps (matches player.js)
-export const QR_CODE_SIZE_PX = 225;    // matches player.js
-export const QR_UPPERCASE = true;      // fragment string uppercased before encoding (matches player.js)
-export const QR_ACCOUNT_COUNT = 5;     // getAddressesPage(0,5) requires ≥5 outputs in the crypto-account UR (resolved R1, 2026-06-19)
-export const QR_ACCOUNT_COUNT = 5;     // crypto-account UR must contain ≥5 outputs — `Device#getAddressesPage(0,5)` throws "Address not found for index N" if fewer (resolved R1, 2026-06-19)
+export const QR_FRAGMENT_SIZE = 200; // bytes per fountain fragment (matches player.js)
+export const QR_REFRESH_MS = 200; // 5fps (matches player.js)
+export const QR_CODE_SIZE_PX = 225; // matches player.js
+export const QR_UPPERCASE = true; // fragment string uppercased before encoding (matches player.js)
+export const QR_ACCOUNT_COUNT = 5; // getAddressesPage(0,5) requires ≥5 outputs in the crypto-account UR (resolved R1, 2026-06-19)
+export const QR_ACCOUNT_COUNT = 5; // crypto-account UR must contain ≥5 outputs — `Device#getAddressesPage(0,5)` throws "Address not found for index N" if fewer (resolved R1, 2026-06-19)
 ```
 
 ## 7. Implementation files
@@ -275,13 +275,13 @@ All files live under `accounts/packages/hw-emulator/src/qr/`. See §5.1 for the 
 
 ### 7.2 Files to modify
 
-| File | Change |
-| --- | --- |
-| `packages/hw-emulator/src/types.ts` | Add `Qr: 'qr'` to `EmulatorType`. |
-| `packages/hw-emulator/src/factory.ts` | Add `case EmulatorType.Qr: return new QrEmulator(options);` |
-| `packages/hw-emulator/src/index.ts` | Re-export `QrEmulator`, `QrEmulatorOptions`, and the `QR_*` constants. |
-| `packages/hw-emulator/package.json` | Add deps: `@ngraveio/bc-ur`, `@keystonehq/bc-ur-registry-eth` (promote from transitive), `qrcode-generator`, `@zxing/library`. Add peerDep / optionalDep note for `ffmpeg` (external binary, runtime requirement for Y4M rendering only). Update `files` array if needed. Bump version (per release process). |
-| `packages/hw-emulator/CHANGELOG.md` | Add entry: `feat(hw-emulator): add QR hardware wallet emulator ([#TODO](...))`. |
+| File                                  | Change                                                                                                                                                                                                                                                                                                        |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/hw-emulator/src/types.ts`   | Add `Qr: 'qr'` to `EmulatorType`.                                                                                                                                                                                                                                                                             |
+| `packages/hw-emulator/src/factory.ts` | Add `case EmulatorType.Qr: return new QrEmulator(options);`                                                                                                                                                                                                                                                   |
+| `packages/hw-emulator/src/index.ts`   | Re-export `QrEmulator`, `QrEmulatorOptions`, and the `QR_*` constants.                                                                                                                                                                                                                                        |
+| `packages/hw-emulator/package.json`   | Add deps: `@ngraveio/bc-ur`, `@keystonehq/bc-ur-registry-eth` (promote from transitive), `qrcode-generator`, `@zxing/library`. Add peerDep / optionalDep note for `ffmpeg` (external binary, runtime requirement for Y4M rendering only). Update `files` array if needed. Bump version (per release process). |
+| `packages/hw-emulator/CHANGELOG.md`   | Add entry: `feat(hw-emulator): add QR hardware wallet emulator ([#TODO](...))`.                                                                                                                                                                                                                               |
 
 ## 8. Test architecture
 
@@ -300,7 +300,11 @@ Jest, colocated. No browser, no camera. These cover:
 A small integration test that wires the real `QrKeyring` to `emulator.asBridge()` and exercises addAccounts / signTransaction / signTypedData / signPersonalMessage end-to-end with no mocks.
 
 ```ts
-import { createEmulator, EmulatorType, QR_EMULATOR_ADDRESS } from '@metamask/hw-emulator';
+import {
+  createEmulator,
+  EmulatorType,
+  QR_EMULATOR_ADDRESS,
+} from '@metamask/hw-emulator';
 import { QrKeyring, QrScanRequestType } from '@metamask/eth-qr-keyring';
 
 const emulator = createEmulator(EmulatorType.Qr, {});
@@ -340,12 +344,12 @@ Becomes:
 
 ### 9.3 Cleanup tasks in `metamask-extension`
 
-| File | Action |
-| --- | --- |
-| `app/scripts/wallet-init/keyrings.ts` | Remove the `qrBridge` line from the `IN_TEST` overrides object (lines 39–40). Remove the `overrides?.qrBridge \|\|` fallback in the `qrKeyringBuilderFactory` call (line 47). Always pass `QrKeyringScannerBridge`. |
-| `test/stub/keyring-bridge.js` | Delete `FakeQrBridge` class (lines 381–388). Delete `KNOWN_QR_CBOR` (lines 66–67). Delete `KNOWN_QR_ACCOUNTS` (lines 69–79). Leave `FakeTrezorBridge`, `FakeLedgerBridge`, `KNOWN_PUBLIC_KEY*`, `KNOWN_PRIVATE_KEYS` untouched. |
-| `test/e2e/tests/hardware-wallets/qr-account.spec.ts` | Unskip (`describe.skip` → `describe`). Replace `KNOWN_QR_ACCOUNTS` assertions with `QR_EMULATOR_ADDRESS` and derived siblings from `@metamask/hw-emulator`. |
-| `test/e2e/page-objects/flows/account-list.flow.ts` | Audit and update any `KNOWN_QR_ACCOUNTS` references. |
+| File                                                 | Action                                                                                                                                                                                                                          |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/scripts/wallet-init/keyrings.ts`                | Remove the `qrBridge` line from the `IN_TEST` overrides object (lines 39–40). Remove the `overrides?.qrBridge \|\|` fallback in the `qrKeyringBuilderFactory` call (line 47). Always pass `QrKeyringScannerBridge`.             |
+| `test/stub/keyring-bridge.js`                        | Delete `FakeQrBridge` class (lines 381–388). Delete `KNOWN_QR_CBOR` (lines 66–67). Delete `KNOWN_QR_ACCOUNTS` (lines 69–79). Leave `FakeTrezorBridge`, `FakeLedgerBridge`, `KNOWN_PUBLIC_KEY*`, `KNOWN_PRIVATE_KEYS` untouched. |
+| `test/e2e/tests/hardware-wallets/qr-account.spec.ts` | Unskip (`describe.skip` → `describe`). Replace `KNOWN_QR_ACCOUNTS` assertions with `QR_EMULATOR_ADDRESS` and derived siblings from `@metamask/hw-emulator`.                                                                     |
+| `test/e2e/page-objects/flows/account-list.flow.ts`   | Audit and update any `KNOWN_QR_ACCOUNTS` references.                                                                                                                                                                            |
 
 ### 9.4 Publishing handoff (when ready)
 
@@ -386,11 +390,11 @@ QR_E2E=1 yarn test:e2e:single \
 
 ### 10.3 CI matrix
 
-| OS | Chrome | Firefox |
-| --- | --- | --- |
-| Linux (Docker) | ✅ Full L3 path | ❌ No fake-camera equivalent |
-| macOS | ✅ Local dev | ❌ |
-| Windows | ⚠️ Verify ffmpeg availability | ❌ |
+| OS             | Chrome                        | Firefox                      |
+| -------------- | ----------------------------- | ---------------------------- |
+| Linux (Docker) | ✅ Full L3 path               | ❌ No fake-camera equivalent |
+| macOS          | ✅ Local dev                  | ❌                           |
+| Windows        | ⚠️ Verify ffmpeg availability | ❌                           |
 
 Firefox coverage is deferred (Non-Goal N1).
 
@@ -402,12 +406,12 @@ Because `metamask-extension` consumes `accounts` via `file:`, any CI workflow ru
 
 ### 11.1 New runtime deps added to `@metamask/hw-emulator`
 
-| Package | Version | Why |
-| --- | --- | --- |
-| `@ngraveio/bc-ur` | `^1.1.13` | BC-UR codec (encoder + decoder). Same lib MM uses in production. |
-| `@keystonehq/bc-ur-registry-eth` | `^0.19.1` *(see deviation note)* | Typed UR construction (CryptoAccount, CryptoHDKey, EthSignRequest, ETHSignature). Promote from transitive (already pulled in by `@metamask/eth-qr-keyring`). |
-| `qrcode-generator` | `^2.0.4` | Render fragment string → QR PNG. Same lib MM uses. **Note**: in Node, this library emits GIF by default; the emulator's `render/png.ts` hand-rolls a real PNG (signature + IHDR + IDAT + CRC-32 + zlib) from the QR module matrix to satisfy `@zxing/library`'s decoder. See `packages/hw-emulator/src/qr/render/png.ts` for the implementation. |
-| `@zxing/library` | `^0.21.3` | Decode QR PNG → fragment string (Node-side). Same lib MM uses in browser. **Note**: must use `MultiFormatReader` + `BinaryBitmap`/`HybridBinarizer`/`PlanarYUVLuminanceSource` path, NOT `BrowserQRCodeReader` (which silently fails in Node — see §12.1 known gotcha). |
+| Package                          | Version                          | Why                                                                                                                                                                                                                                                                                                                                              |
+| -------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@ngraveio/bc-ur`                | `^1.1.13`                        | BC-UR codec (encoder + decoder). Same lib MM uses in production.                                                                                                                                                                                                                                                                                 |
+| `@keystonehq/bc-ur-registry-eth` | `^0.19.1` _(see deviation note)_ | Typed UR construction (CryptoAccount, CryptoHDKey, EthSignRequest, ETHSignature). Promote from transitive (already pulled in by `@metamask/eth-qr-keyring`).                                                                                                                                                                                     |
+| `qrcode-generator`               | `^2.0.4`                         | Render fragment string → QR PNG. Same lib MM uses. **Note**: in Node, this library emits GIF by default; the emulator's `render/png.ts` hand-rolls a real PNG (signature + IHDR + IDAT + CRC-32 + zlib) from the QR module matrix to satisfy `@zxing/library`'s decoder. See `packages/hw-emulator/src/qr/render/png.ts` for the implementation. |
+| `@zxing/library`                 | `^0.21.3`                        | Decode QR PNG → fragment string (Node-side). Same lib MM uses in browser. **Note**: must use `MultiFormatReader` + `BinaryBitmap`/`HybridBinarizer`/`PlanarYUVLuminanceSource` path, NOT `BrowserQRCodeReader` (which silently fails in Node — see §12.1 known gotcha).                                                                          |
 
 **Deviation note (recorded 2026-06-19 by Phase-1 implementation):** the spec originally specified `@keystonehq/bc-ur-registry-eth ^0.22.1`. The installed/locked version in the accounts monorepo is `^0.19.1`. Phase-1 implementation kept 0.19.1 because (a) it's the version already transitively locked via `@metamask/eth-qr-keyring`, (b) all BC-UR types the emulator uses are present and working (`CryptoAccount`, `CryptoOutput`, `ScriptExpressions`, `EthSignRequest.constructETHRequest`). Bumping to 0.22.1 would require coordinated updates across `keyring-eth-qr` and is out of scope for the QR emulator work.
 
@@ -431,6 +435,7 @@ Chrome's `--use-file-for-fake-video-capture` loops the Y4M at the file's declare
 **Mitigation:** Build a one-hour spike before locking the implementation plan: render a known accountUR → Y4M → fake camera → MM scanner → assert successful decode. If flaky, bump Y4M fps to 10–15 (still small files). This is a tuning parameter, not an architectural risk.
 
 **Status (updated 2026-06-19, fully RESOLVED):** **RESOLVED at codec AND browser levels.** The original "browser-level pending" status was based on the spike being blocked by `FakeQrBridge` short-circuiting the production scanner. After Phase-1.5 cleanup landed, fix-1's R1 investigation discovered the actual blockers: (a) a missing `--use-fake-ui-for-media-stream` Chrome flag (without it, `getUserMedia`'s permission prompt hangs forever — zxing never runs), and (b) a 5-output minimum in `@metamask/eth-qr-keyring`'s `Device#getAddressesPage(0,5)`. With both fixes applied (the first via a one-line `chrome.js` edit, the second via `render-y4m.mjs` emitting 5 accounts), browser-level PASS verified at **15.77s test / 17.86s total** (fresh run 2026-06-19 against permanent `chrome.js` plumbing — not a monkey-patch). The fps ↔ zxing compatibility risk did not materialize at the codec level. Spike verification (`test/e2e/speculos/qr-spike/`):
+
 - 20/20 frames decodable from a Y4M rendered at the spec §6.4 defaults (5fps, 4s, fragmentSize=200, uppercase, 584×584).
 - `URDecoder` reconstructs the `crypto-account` UR after the first fragment.
 - Reconstructed address matches the expected derivation: `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`.
@@ -463,17 +468,17 @@ Adding `@ngraveio/bc-ur` etc. transitively into MM's bundle via `hw-emulator` wi
 
 ## 13. Migration plan (ordered)
 
-| Phase | Scope | Exit criterion |
-| --- | --- | --- |
-| **0. Spike** | R1 + R2 codec-level verification: prove Y4M → zxing → URDecoder round-trip with hand-crafted fixtures; prove Chrome fake-camera flags land in the browser and the production scanner UI opens. | **(COMPLETE 2026-06-19)** Codec-level PASS achieved (20/20 frames decode, address matches expected derivation `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`). Browser-level plumbing proven. Full browser-level PASS deferred to Phase 1.5 because the test build compiles in `FakeQrBridge` which short-circuits the production scanner. |
-| **1. Core emulator** | Implement `core/ur-synth.ts`, `core/signer.ts`, `core/registry.ts`, `codec/*`, `render/png.ts`, `decode/screenshots.ts`. Full unit test coverage. | **(COMPLETE 2026-06-19)** 90 new QR tests, 182 total passing across 21 suites (no regressions in existing ledger/ble/factory). Integration test in `emulator.test.ts` wires `emulator.asBridge()` to a real `QrKeyring`, calls `addAccounts(1)`, asserts the returned address equals `QR_EMULATOR_ADDRESS`. ESLint clean, oxfmt clean, ts-bridge build clean. Real ffmpeg path exercised. |
-| **1.5. §9.3 cleanup** *(promoted from Phase 4 per spike finding)* | Delete `FakeQrBridge`, `KNOWN_QR_CBOR`, `KNOWN_QR_ACCOUNTS` from `test/stub/keyring-bridge.js`. Remove the `qrBridge` line from the `IN_TEST` overrides in `app/scripts/wallet-init/keyrings.ts`. **Re-run `qr-spike.spec.ts`** to convert Phase 0's browser-level result from BLOCKED to PASS (or to surface a real R1 symptom if one exists). | **(COMPLETE 2026-06-19)** All cleanup landed. `chrome.js` has full `QR_E2E=1` plumbing including `--use-fake-device-for-media-stream` AND `--use-fake-ui-for-media-stream` (R1 fix). Fresh verification: `qr-spike.spec.ts` PASS at 15.77s; `qr-account.spec.ts` PASS 2/2 at 26.95s. |
-| **2. Y4M rendering** | Implement `render/y4m.ts` with ffmpeg probe. | `renderToY4m` produces a Y4M MM can scan. |
-| **3. Public API + factory wiring** | Implement `emulator.ts`, wire `factory.ts`, export from `index.ts`. Update `types.ts`. | `createEmulator(EmulatorType.Qr, {})` returns a working `QrEmulator`. |
-| **4. ~~Cleanup in `metamask-extension`~~** | *(Promoted to Phase 1.5 — see above. The original Phase 4 placement was unworkable because the production scanner cannot be exercised in any test build while `FakeQrBridge` is compiled in.)* |
-| **5. Rewrite `qr-account.spec.ts`** | Unskip, replace `KNOWN_QR_ACCOUNTS` with `QR_EMULATOR_ADDRESS`. | **(COMPLETE 2026-06-19)** Test PASSes 2/2 at 26.95s against production QR keyring + camera pipeline. Both "derives the correct account and unlocks it" (13.44s) and "unlocks the account and removes it" (13.50s) green on fresh run. |
-| **6. Sign-flow specs** | Add `qr-send.spec.ts`, `qr-sign.spec.ts`, `qr-error-modals.spec.ts` mirroring the Ledger suite. | **(COMPLETE 2026-06-19)** 5/6 green. The 6th (legacy ETH send type 0) is `it.skip`'d with documentation — non-QR send-form/gas-estimation issue with `muirGlacier` hardfork, not a sign-flow issue. EIP-1559 PASS proves the full bidirectional sign pipeline (scrape → decode → emulator sign → y4m overwrite → camera decode → broadcast). Y4M swap mechanism: direct file overwrite (option A from the open question). |
-| **7. Documentation** | `src/qr/README.md`, this spec doc finalised, CHANGELOG entries. | **(COMPLETE 2026-06-19)** Spec doc current through Phase 7. `src/qr/README.md` drafted (169 lines). CHANGELOG entries added in both repos (`accounts/packages/hw-emulator/CHANGELOG.md` under `### Added`; `metamask-speculos/CHANGELOG.md` under `## [Unreleased]`). Version bumped `@metamask/hw-emulator` 0.1.0 → 0.2.0. `emulator.test.ts` relative-import workaround documented. Verification: hw-emulator build ✔, tests ✔ (coverage report generated), mm-speculos `yarn lint:changed:fix` ✔ (10 files, no errors). |
+| Phase                                                             | Scope                                                                                                                                                                                                                                                                                                                                           | Exit criterion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0. Spike**                                                      | R1 + R2 codec-level verification: prove Y4M → zxing → URDecoder round-trip with hand-crafted fixtures; prove Chrome fake-camera flags land in the browser and the production scanner UI opens.                                                                                                                                                  | **(COMPLETE 2026-06-19)** Codec-level PASS achieved (20/20 frames decode, address matches expected derivation `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`). Browser-level plumbing proven. Full browser-level PASS deferred to Phase 1.5 because the test build compiles in `FakeQrBridge` which short-circuits the production scanner.                                                                                                                                                                                   |
+| **1. Core emulator**                                              | Implement `core/ur-synth.ts`, `core/signer.ts`, `core/registry.ts`, `codec/*`, `render/png.ts`, `decode/screenshots.ts`. Full unit test coverage.                                                                                                                                                                                               | **(COMPLETE 2026-06-19)** 90 new QR tests, 182 total passing across 21 suites (no regressions in existing ledger/ble/factory). Integration test in `emulator.test.ts` wires `emulator.asBridge()` to a real `QrKeyring`, calls `addAccounts(1)`, asserts the returned address equals `QR_EMULATOR_ADDRESS`. ESLint clean, oxfmt clean, ts-bridge build clean. Real ffmpeg path exercised.                                                                                                                                  |
+| **1.5. §9.3 cleanup** _(promoted from Phase 4 per spike finding)_ | Delete `FakeQrBridge`, `KNOWN_QR_CBOR`, `KNOWN_QR_ACCOUNTS` from `test/stub/keyring-bridge.js`. Remove the `qrBridge` line from the `IN_TEST` overrides in `app/scripts/wallet-init/keyrings.ts`. **Re-run `qr-spike.spec.ts`** to convert Phase 0's browser-level result from BLOCKED to PASS (or to surface a real R1 symptom if one exists). | **(COMPLETE 2026-06-19)** All cleanup landed. `chrome.js` has full `QR_E2E=1` plumbing including `--use-fake-device-for-media-stream` AND `--use-fake-ui-for-media-stream` (R1 fix). Fresh verification: `qr-spike.spec.ts` PASS at 15.77s; `qr-account.spec.ts` PASS 2/2 at 26.95s.                                                                                                                                                                                                                                       |
+| **2. Y4M rendering**                                              | Implement `render/y4m.ts` with ffmpeg probe.                                                                                                                                                                                                                                                                                                    | `renderToY4m` produces a Y4M MM can scan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **3. Public API + factory wiring**                                | Implement `emulator.ts`, wire `factory.ts`, export from `index.ts`. Update `types.ts`.                                                                                                                                                                                                                                                          | `createEmulator(EmulatorType.Qr, {})` returns a working `QrEmulator`.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **4. ~~Cleanup in `metamask-extension`~~**                        | _(Promoted to Phase 1.5 — see above. The original Phase 4 placement was unworkable because the production scanner cannot be exercised in any test build while `FakeQrBridge` is compiled in.)_                                                                                                                                                  |
+| **5. Rewrite `qr-account.spec.ts`**                               | Unskip, replace `KNOWN_QR_ACCOUNTS` with `QR_EMULATOR_ADDRESS`.                                                                                                                                                                                                                                                                                 | **(COMPLETE 2026-06-19)** Test PASSes 2/2 at 26.95s against production QR keyring + camera pipeline. Both "derives the correct account and unlocks it" (13.44s) and "unlocks the account and removes it" (13.50s) green on fresh run.                                                                                                                                                                                                                                                                                      |
+| **6. Sign-flow specs**                                            | Add `qr-send.spec.ts`, `qr-sign.spec.ts`, `qr-error-modals.spec.ts` mirroring the Ledger suite.                                                                                                                                                                                                                                                 | **(COMPLETE 2026-06-19)** 5/6 green. The 6th (legacy ETH send type 0) is `it.skip`'d with documentation — non-QR send-form/gas-estimation issue with `muirGlacier` hardfork, not a sign-flow issue. EIP-1559 PASS proves the full bidirectional sign pipeline (scrape → decode → emulator sign → y4m overwrite → camera decode → broadcast). Y4M swap mechanism: direct file overwrite (option A from the open question).                                                                                                  |
+| **7. Documentation**                                              | `src/qr/README.md`, this spec doc finalised, CHANGELOG entries.                                                                                                                                                                                                                                                                                 | **(COMPLETE 2026-06-19)** Spec doc current through Phase 7. `src/qr/README.md` drafted (169 lines). CHANGELOG entries added in both repos (`accounts/packages/hw-emulator/CHANGELOG.md` under `### Added`; `metamask-speculos/CHANGELOG.md` under `## [Unreleased]`). Version bumped `@metamask/hw-emulator` 0.1.0 → 0.2.0. `emulator.test.ts` relative-import workaround documented. Verification: hw-emulator build ✔, tests ✔ (coverage report generated), mm-speculos `yarn lint:changed:fix` ✔ (10 files, no errors). |
 
 ## 14. References
 

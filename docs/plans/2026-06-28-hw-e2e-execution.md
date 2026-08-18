@@ -31,6 +31,7 @@
 Run each spec, record green/red. Fix reds. **Gate: all 6 green before Phase 2.**
 
 Run command template (replace `<spec>`):
+
 ```bash
 SE_BROWSER_PATH="/tmp/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing" \
   TREZOR_E2E=1 yarn env:e2e test:e2e:single \
@@ -53,13 +54,17 @@ SE_BROWSER_PATH="/tmp/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Ma
 Each lane: read the Ledger twin → port to Trezor → run → fix → commit. **Handoff constraint pack** for every lane: the 10 Key Decisions from the trezor handoff (localhost/8188, popup:false, Ledger-init-skip, lazyLoad, etc.).
 
 ### Task 2A — `trezor-error-modals.spec.ts`
+
 **Files:** Create `test/e2e/tests/hardware-wallets/trezor/trezor-error-modals.spec.ts`. Template: `test/e2e/tests/hardware-wallets/ledger/ledger-error-modals.spec.ts` (2 tests).
+
 - [ ] Port: (1) reject transaction on device → assert no confirmed tx; (2) remove Trezor account from list.
-- [ ] Trezor adaptation: rejection path uses the emulator's debug-link (auto-confirm is on; to test *rejection*, the spec must drive a negative decision via the emulator control API — check `trezor-helpers.ts` / `test/e2e/trezor/with-trezor-fixtures.ts` for the reject primitive; if absent, add a helper).
+- [ ] Trezor adaptation: rejection path uses the emulator's debug-link (auto-confirm is on; to test _rejection_, the spec must drive a negative decision via the emulator control API — check `trezor-helpers.ts` / `test/e2e/trezor/with-trezor-fixtures.ts` for the reject primitive; if absent, add a helper).
 - [ ] Run; fix; commit `test(trezor-e2e): add error-modals spec`.
 
 ### Task 2B — `trezor-swap.spec.ts`
+
 **Files:** Create `test/e2e/tests/hardware-wallets/trezor/trezor-swap.spec.ts`. Template: `ledger-swap.spec.ts` (1 test: ETH→mUSD).
+
 - [ ] Port the swap flow; reuse `withTrezorAccount` fixture.
 - [ ] Run; fix; commit `test(trezor-e2e): add swap spec`.
 
@@ -68,11 +73,13 @@ Each lane: read the Ledger twin → port to Trezor → run → fix → commit. *
 ## Phase 3 — QR Verify + Fix (orchestrator-run)
 
 QR uses **no Docker** — standard build + fake camera. Run command:
+
 ```bash
 SE_BROWSER_PATH="/tmp/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing" \
   QR_E2E=1 yarn env:e2e test:e2e:single \
   test/e2e/tests/hardware-wallets/qr/<spec>.spec.ts --browser=chrome
 ```
+
 (`qr-account` lives at `test/e2e/tests/hardware-wallets/qr-account.spec.ts` — top level, not in `qr/`.)
 
 - [ ] **3.1** Confirm standard `yarn build:test` is sufficient for QR (no plugin). If a QR-specific build flag is needed, add `build:test:qr` script first.
@@ -89,15 +96,19 @@ SE_BROWSER_PATH="/tmp/chrome-mac-arm64/Google Chrome for Testing.app/Contents/Ma
 **Constraint for every lane:** single-address only. Do NOT assert on sibling accounts (`/1…/4`) — deferred to qr-emulator spec §13 Phase 6.
 
 ### Task 4A — `qr-erc20.spec.ts`
+
 Template: `ledger-erc20.spec.ts` (4 tests: create/transfer/approve/increase-allowance). **Known issue:** Ledger template has a pre-existing LSP error at `ledger-erc20.spec.ts:93` (`Cannot find name 'AssetListPage'`) — fix the import when porting; do not propagate the bug.
 
 ### Task 4B — `qr-erc721.spec.ts`
+
 Template: `ledger-erc721.spec.ts` (4 tests: deploy/mint/approve/set-approval-for-all).
 
 ### Task 4C — `qr-forget-device.spec.ts`
-Template: `ledger-forget-device.spec.ts` (1 test). Note: `qr-account` already has a *remove-account* test; forget-device is the distinct *forget HW device* flow — confirm the page-object path before writing.
+
+Template: `ledger-forget-device.spec.ts` (1 test). Note: `qr-account` already has a _remove-account_ test; forget-device is the distinct _forget HW device_ flow — confirm the page-object path before writing.
 
 ### Task 4D — `qr-send.spec.ts` add legacy case
+
 Modify: add a legacy-tx loop case mirroring `trezor-send.spec.ts` (EIP-1559 + legacy). Currently EIP-1559 only.
 
 - [ ] Each task: port → run → fix → commit `test(qr-e2e): add <name> spec`.

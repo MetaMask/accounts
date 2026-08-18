@@ -29,6 +29,7 @@
 ### Task 0.1: Spike scaffolding + trezor-user-env docker-compose
 
 **Files:**
+
 - Create: `accounts/packages/hw-emulator/spike/trezor-r1/docker-compose.yml`
 - Create: `accounts/packages/hw-emulator/spike/trezor-r1/README.md`
 
@@ -41,9 +42,9 @@ services:
     image: ghcr.io/trezor/trezor-user-env:latest
     container_name: trezor-spike
     ports:
-      - '9001:9001'    # WebSocket controller
-      - '21325:21325'  # trezord-go HTTP bridge
-      - '21324:21324'  # emulator UDP debug-link (informational)
+      - '9001:9001' # WebSocket controller
+      - '21325:21325' # trezord-go HTTP bridge
+      - '21324:21324' # emulator UDP debug-link (informational)
     restart: 'no'
 ```
 
@@ -58,10 +59,11 @@ services:
 BridgeTransport's default port 21328?
 
 **Decision gate:**
-- If YES  → ADR-0003 Approach A confirmed; G3 (zero prod source change) holds.
-- If NO   → Document the exact failure. Fall back to Approach B: add an
-            `IN_TEST` transport override in `app/offscreen/hardware-wallets/trezor.ts`
-            per ADR-0003. Update spec §6/§9 to reflect the source change.
+
+- If YES → ADR-0003 Approach A confirmed; G3 (zero prod source change) holds.
+- If NO → Document the exact failure. Fall back to Approach B: add an
+  `IN_TEST` transport override in `app/offscreen/hardware-wallets/trezor.ts`
+  per ADR-0003. Update spec §6/§9 to reflect the source change.
 
 **Steps to run:** see run-spike.mjs header.
 ```
@@ -76,6 +78,7 @@ git commit -m "chore(hw-emulator): add Trezor R1 spike scaffolding"
 ### Task 0.2: Spike controller client + proxy + connect-web driver
 
 **Files:**
+
 - Create: `accounts/packages/hw-emulator/spike/trezor-r1/run-spike.mjs`
 
 - [ ] **Step 1: Write the spike driver (controller + proxy + headless connect-web check)**
@@ -93,8 +96,8 @@ import http from 'node:http';
 import { WebSocket } from 'ws';
 import { chromium } from 'playwright'; // dev dep available in workspace
 
-const PROXY_PORT = 21328;       // connect-web BridgeTransport DEFAULT port
-const TREZORD_PORT = 21325;      // trezor-user-env trezord-go
+const PROXY_PORT = 21328; // connect-web BridgeTransport DEFAULT port
+const TREZORD_PORT = 21325; // trezor-user-env trezord-go
 const CONTROLLER = 'ws://127.0.0.1:9001';
 const SEED = 'all all all all all all all all all all all all'; // SLIP-14
 
@@ -106,13 +109,21 @@ function startProxy() {
       for await (const c of req) chunks.push(c);
       const body = Buffer.concat(chunks);
       try {
-        const upstream = await fetch(`http://127.0.0.1:${TREZORD_PORT}${req.url}`, {
-          method: req.method,
-          headers: { 'content-type': req.headers['content-type'] ?? 'application/json' },
-          body: req.method === 'GET' ? undefined : body,
-        });
+        const upstream = await fetch(
+          `http://127.0.0.1:${TREZORD_PORT}${req.url}`,
+          {
+            method: req.method,
+            headers: {
+              'content-type': req.headers['content-type'] ?? 'application/json',
+            },
+            body: req.method === 'GET' ? undefined : body,
+          },
+        );
         const up = Buffer.from(await upstream.arrayBuffer());
-        res.writeHead(upstream.status, { 'content-type': upstream.headers.get('content-type') ?? 'application/json' });
+        res.writeHead(upstream.status, {
+          'content-type':
+            upstream.headers.get('content-type') ?? 'application/json',
+        });
         res.end(up);
       } catch (err) {
         res.writeHead(502, { 'content-type': 'application/json' });
@@ -129,10 +140,16 @@ function controllerSend(ws, msg) {
     const id = Math.random().toString(36).slice(2);
     const onMessage = (data) => {
       let parsed;
-      try { parsed = JSON.parse(data.toString()); } catch { return; }
+      try {
+        parsed = JSON.parse(data.toString());
+      } catch {
+        return;
+      }
       if (parsed.id === id) {
         ws.off('message', onMessage);
-        parsed.success ? resolve(parsed.response) : reject(new Error(JSON.stringify(parsed)));
+        parsed.success
+          ? resolve(parsed.response)
+          : reject(new Error(JSON.stringify(parsed)));
       }
     };
     ws.on('message', onMessage);
@@ -142,11 +159,21 @@ function controllerSend(ws, msg) {
 
 async function setupEmulator() {
   const ws = new WebSocket(CONTROLLER);
-  await new Promise((r, j) => { ws.once('open', r); ws.once('error', j); });
-  await controllerSend(ws, { type: 'emulator-start', model: 'T2T1', wipe: true });
+  await new Promise((r, j) => {
+    ws.once('open', r);
+    ws.once('error', j);
+  });
+  await controllerSend(ws, {
+    type: 'emulator-start',
+    model: 'T2T1',
+    wipe: true,
+  });
   await controllerSend(ws, {
     type: 'emulator-setup',
-    mnemonic: SEED, pin: '', passphrase_protection: false, label: 'Spike',
+    mnemonic: SEED,
+    pin: '',
+    passphrase_protection: false,
+    label: 'Spike',
   });
   await controllerSend(ws, { type: 'bridge-start' });
   return ws;
@@ -159,7 +186,8 @@ async function probeConnectWeb(offline) {
   if (offline) {
     // Block the iframe host to simulate offline CI
     await ctx.route('**/*', (route) => {
-      if (route.request().url().includes('connect.trezor.io')) return route.abort();
+      if (route.request().url().includes('connect.trezor.io'))
+        return route.abort();
       return route.continue();
     });
   }
@@ -188,7 +216,11 @@ async function probeConnectWeb(offline) {
     </body></html>
   `);
   try {
-    await page.waitForFunction(() => document.getElementById('out').textContent !== 'pending', null, { timeout: 30000 });
+    await page.waitForFunction(
+      () => document.getElementById('out').textContent !== 'pending',
+      null,
+      { timeout: 30000 },
+    );
     result.result = await page.locator('#out').textContent();
   } catch (e) {
     result.error = String(e);
@@ -207,7 +239,9 @@ console.log('\n=== RUN 1: ONLINE (iframe can load) ===');
 const online = await probeConnectWeb(false);
 console.log(JSON.stringify(online, null, 2));
 
-console.log('\n=== RUN 2: OFFLINE (connect.trezor.io blocked — simulates CI) ===');
+console.log(
+  '\n=== RUN 2: OFFLINE (connect.trezor.io blocked — simulates CI) ===',
+);
 const offlineRun = await probeConnectWeb(true);
 console.log(JSON.stringify(offlineRun, null, 2));
 
@@ -215,11 +249,17 @@ console.log('\n=== DECISION ===');
 if (offlineRun.result && offlineRun.result.includes('"success":true')) {
   console.log('APPROACH A CONFIRMED — default config works offline; G3 holds.');
 } else {
-  console.log('APPROACH A FAILS offline — adopt Approach B (IN_TEST transport override).');
-  console.log('Failure mode:', offlineRun.error ?? offlineRun.result ?? offlineRun.console.slice(-5));
+  console.log(
+    'APPROACH A FAILS offline — adopt Approach B (IN_TEST transport override).',
+  );
+  console.log(
+    'Failure mode:',
+    offlineRun.error ?? offlineRun.result ?? offlineRun.console.slice(-5),
+  );
 }
 
-proxy.close(); ctl.close();
+proxy.close();
+ctl.close();
 ```
 
 - [ ] **Step 2: Boot trezor-user-env and run the spike**
@@ -255,6 +295,7 @@ git commit -m "chore(hw-emulator): record Trezor R1 spike outcome"
 ### Task 1.1: Constants + types
 
 **Files:**
+
 - Create: `src/trezor/constants.ts`
 - Create: `src/trezor/constants.test.ts`
 - Create: `src/trezor/model-profiles.ts` (forward-declared types only here; filled in Task 1.2)
@@ -274,7 +315,9 @@ import {
 
 describe('trezor constants', () => {
   it('exposes the SLIP-14 canonical seed', () => {
-    expect(TREZOR_EMULATOR_SEED).toBe('all all all all all all all all all all all all');
+    expect(TREZOR_EMULATOR_SEED).toBe(
+      'all all all all all all all all all all all all',
+    );
   });
 
   it('defaults to Model T (T2T1)', () => {
@@ -306,6 +349,7 @@ describe('trezor constants', () => {
 ```bash
 yarn jest src/trezor/constants.test.ts
 ```
+
 Expected: FAIL (module not found).
 
 - [ ] **Step 3: Implement constants**
@@ -357,6 +401,7 @@ export type TrezorModel = 'T1B1' | 'T2T1' | 'T3B1' | 'T3T1' | 'T3W1';
 ```bash
 yarn jest src/trezor/constants.test.ts
 ```
+
 Expected: PASS (6 tests).
 
 - [ ] **Step 6: Lint + commit**
@@ -370,6 +415,7 @@ git commit -m "feat(hw-emulator/trezor): add constants and model type"
 ### Task 1.2: Model profiles
 
 **Files:**
+
 - Modify: `src/trezor/model-profiles.ts`
 - Create: `src/trezor/model-profiles.test.ts`
 
@@ -377,7 +423,11 @@ git commit -m "feat(hw-emulator/trezor): add constants and model type"
 
 ```typescript
 // src/trezor/model-profiles.test.ts
-import { MODEL_PROFILES, type TrezorModel, type ModelProfile } from './model-profiles';
+import {
+  MODEL_PROFILES,
+  type TrezorModel,
+  type ModelProfile,
+} from './model-profiles';
 
 const ALL_MODELS: TrezorModel[] = ['T1B1', 'T2T1', 'T3B1', 'T3T1', 'T3W1'];
 
@@ -401,7 +451,9 @@ describe('MODEL_PROFILES', () => {
       expect(p.interaction).toBe('touch');
       expect(p.layout).toBe('touch-240x280');
       expect(typeof p.confirm).toBe('object');
-      expect((p.confirm as { click: { x: number; y: number } }).click).toBeDefined();
+      expect(
+        (p.confirm as { click: { x: number; y: number } }).click,
+      ).toBeDefined();
     }
   });
 
@@ -507,6 +559,7 @@ git commit -m "feat(hw-emulator/trezor): add model profiles for all 5 models"
 ### Task 1.3: TrezorControllerClient (WebSocket client to :9001)
 
 **Files:**
+
 - Create: `src/trezor/controller-client.ts`
 - Create: `src/trezor/controller-client.test.ts`
 
@@ -521,22 +574,37 @@ import { TrezorControllerClient } from './controller-client';
 class MockSocket extends EventEmitter {
   sent: any[] = [];
   readyState = 1; // OPEN
-  send(payload: string) { this.sent.push(JSON.parse(payload)); }
-  close() { this.readyState = 3; this.emit('close'); }
+  send(payload: string) {
+    this.sent.push(JSON.parse(payload));
+  }
+  close() {
+    this.readyState = 3;
+    this.emit('close');
+  }
   // Test helper: reply to a sent command by id.
   reply(id: string, response: unknown, success = true) {
-    this.emit('message', Buffer.from(JSON.stringify({ id, success, response })));
+    this.emit(
+      'message',
+      Buffer.from(JSON.stringify({ id, success, response })),
+    );
   }
 }
 
 describe('TrezorControllerClient', () => {
   it('sends emulator-start with a generated id and resolves on the matching reply', async () => {
     const sock = new MockSocket();
-    const client = new TrezorControllerClient({ socketFactory: async () => sock });
+    const client = new TrezorControllerClient({
+      socketFactory: async () => sock,
+    });
     const pending = client.emulatorStart({ model: 'T2T1', wipe: true });
     await new Promise((r) => setImmediate(r));
     expect(sock.sent).toEqual([
-      expect.objectContaining({ type: 'emulator-start', model: 'T2T1', wipe: true, id: expect.any(String) }),
+      expect.objectContaining({
+        type: 'emulator-start',
+        model: 'T2T1',
+        wipe: true,
+        id: expect.any(String),
+      }),
     ]);
     sock.reply(sock.sent[0].id, { ok: true });
     await expect(pending).resolves.toEqual({ ok: true });
@@ -544,8 +612,15 @@ describe('TrezorControllerClient', () => {
 
   it('rejects when the controller returns success:false', async () => {
     const sock = new MockSocket();
-    const client = new TrezorControllerClient({ socketFactory: async () => sock });
-    const pending = client.emulatorSetup({ mnemonic: 'x', pin: '', passphrase_protection: false, label: 't' });
+    const client = new TrezorControllerClient({
+      socketFactory: async () => sock,
+    });
+    const pending = client.emulatorSetup({
+      mnemonic: 'x',
+      pin: '',
+      passphrase_protection: false,
+      label: 't',
+    });
     await new Promise((r) => setImmediate(r));
     sock.reply(sock.sent[0].id, { error: 'bad mnemonic' }, false);
     await expect(pending).rejects.toThrow('bad mnemonic');
@@ -553,19 +628,28 @@ describe('TrezorControllerClient', () => {
 
   it('maps approve/reject to emulator-press-yes/no', async () => {
     const sock = new MockSocket();
-    const client = new TrezorControllerClient({ socketFactory: async () => sock });
+    const client = new TrezorControllerClient({
+      socketFactory: async () => sock,
+    });
     client.pressYes();
     client.pressNo();
     await new Promise((r) => setImmediate(r));
-    expect(sock.sent.map((s) => s.type)).toEqual(['emulator-press-yes', 'emulator-press-no']);
+    expect(sock.sent.map((s) => s.type)).toEqual([
+      'emulator-press-yes',
+      'emulator-press-no',
+    ]);
   });
 
   it('maps a touchscreen click to emulator-click with coords', async () => {
     const sock = new MockSocket();
-    const client = new TrezorControllerClient({ socketFactory: async () => sock });
+    const client = new TrezorControllerClient({
+      socketFactory: async () => sock,
+    });
     client.click({ x: 120, y: 200 });
     await new Promise((r) => setImmediate(r));
-    expect(sock.sent[0]).toEqual(expect.objectContaining({ type: 'emulator-click', x: 120, y: 200 }));
+    expect(sock.sent[0]).toEqual(
+      expect.objectContaining({ type: 'emulator-click', x: 120, y: 200 }),
+    );
   });
 });
 ```
@@ -585,7 +669,9 @@ export interface ControllerClientOptions {
   host?: string;
   port?: number;
   /** Injectable for tests. Default opens a real `ws` WebSocket. */
-  socketFactory?: (url: string) => Promise<EventEmitter & { send(payload: string): void; close(): void }>;
+  socketFactory?: (
+    url: string,
+  ) => Promise<EventEmitter & { send(payload: string): void; close(): void }>;
 }
 
 export interface SetupParams {
@@ -602,7 +688,10 @@ export class TrezorControllerClient {
   readonly #url: string;
   readonly #socketFactory: (url: string) => Promise<WireSocket>;
   #socket: WireSocket | null = null;
-  #pending = new Map<string, { resolve: (v: unknown) => void; reject: (e: Error) => void }>();
+  #pending = new Map<
+    string,
+    { resolve: (v: unknown) => void; reject: (e: Error) => void }
+  >();
 
   constructor(opts: ControllerClientOptions = {}) {
     const host = opts.host ?? '127.0.0.1';
@@ -614,7 +703,9 @@ export class TrezorControllerClient {
   async connect(): Promise<void> {
     this.#socket = await this.#socketFactory(this.#url);
     this.#socket.on('message', (data: Buffer) => this.#onMessage(data));
-    this.#socket.on('close', () => this.#rejectAll(new Error('controller socket closed')));
+    this.#socket.on('close', () =>
+      this.#rejectAll(new Error('controller socket closed')),
+    );
   }
 
   async disconnect(): Promise<void> {
@@ -624,11 +715,17 @@ export class TrezorControllerClient {
 
   #onMessage(data: Buffer): void {
     let msg: any;
-    try { msg = JSON.parse(data.toString()); } catch { return; }
+    try {
+      msg = JSON.parse(data.toString());
+    } catch {
+      return;
+    }
     const pending = this.#pending.get(msg.id);
     if (!pending) return;
     this.#pending.delete(msg.id);
-    msg.success ? pending.resolve(msg.response) : pending.reject(new Error(msg.error ?? 'controller error'));
+    msg.success
+      ? pending.resolve(msg.response)
+      : pending.reject(new Error(msg.error ?? 'controller error'));
   }
 
   #rejectAll(err: Error): void {
@@ -640,7 +737,10 @@ export class TrezorControllerClient {
     if (!this.#socket) return Promise.reject(new Error('not connected'));
     const id = randomUUID();
     return new Promise<T>((resolve, reject) => {
-      this.#pending.set(id, { resolve: resolve as (v: unknown) => void, reject });
+      this.#pending.set(id, {
+        resolve: resolve as (v: unknown) => void,
+        reject,
+      });
       this.#socket!.send(JSON.stringify({ ...msg, id }));
     });
   }
@@ -652,15 +752,29 @@ export class TrezorControllerClient {
   emulatorSetup(p: SetupParams): Promise<unknown> {
     return this.send({ type: 'emulator-setup', ...p });
   }
-  bridgeStart(): Promise<unknown> { return this.send({ type: 'bridge-start' }); }
-  bridgeStop(): Promise<unknown> { return this.send({ type: 'bridge-stop' }); }
-  backgroundCheck(): Promise<unknown> { return this.send({ type: 'background-check' }); }
-  ping(): Promise<unknown> { return this.send({ type: 'ping' }); }
+  bridgeStart(): Promise<unknown> {
+    return this.send({ type: 'bridge-start' });
+  }
+  bridgeStop(): Promise<unknown> {
+    return this.send({ type: 'bridge-stop' });
+  }
+  backgroundCheck(): Promise<unknown> {
+    return this.send({ type: 'background-check' });
+  }
+  ping(): Promise<unknown> {
+    return this.send({ type: 'ping' });
+  }
 
   // ── device interaction ───────────────────────────────────────────────
-  pressYes(): Promise<unknown> { return this.send({ type: 'emulator-press-yes' }); }
-  pressNo(): Promise<unknown> { return this.send({ type: 'emulator-press-no' }); }
-  input(value: string): Promise<unknown> { return this.send({ type: 'emulator-input', value }); }
+  pressYes(): Promise<unknown> {
+    return this.send({ type: 'emulator-press-yes' });
+  }
+  pressNo(): Promise<unknown> {
+    return this.send({ type: 'emulator-press-no' });
+  }
+  input(value: string): Promise<unknown> {
+    return this.send({ type: 'emulator-input', value });
+  }
   click(p: { x: number; y: number }): Promise<unknown> {
     return this.send({ type: 'emulator-click', x: p.x, y: p.y });
   }
@@ -676,7 +790,9 @@ export class TrezorControllerClient {
 async function defaultFactory(url: string): Promise<WireSocket> {
   const { WebSocket } = await import('ws');
   return new Promise((resolve, reject) => {
-    const ws = new WebSocket(url) as unknown as WireSocket & { on(e: string, cb: (...a: any[]) => void): any };
+    const ws = new WebSocket(url) as unknown as WireSocket & {
+      on(e: string, cb: (...a: any[]) => void): any;
+    };
     ws.on('open', () => resolve(ws as WireSocket));
     ws.on('error', reject);
   });
@@ -695,6 +811,7 @@ git commit -m "feat(hw-emulator/trezor): add TrezorControllerClient (WS :9001 pr
 ### Task 1.4: TrezorBridgeProxy (HTTP :21328 → :21325 + signing detection + error injection)
 
 **Files:**
+
 - Create: `src/trezor/bridge-proxy.ts`
 - Create: `src/trezor/bridge-proxy.test.ts`
 
@@ -707,8 +824,17 @@ import { TrezorBridgeProxy } from './bridge-proxy';
 import { TREZOR_MSG } from './constants';
 
 // Stand up a fake trezord-go on an ephemeral port; the proxy will forward to it.
-function startFakeBridge(handler: (req: http.IncomingMessage, body: Buffer) => { status: number; body: string }) {
-  return new Promise<{ server: http.Server; port: number; close(): Promise<void> }>((resolve) => {
+function startFakeBridge(
+  handler: (
+    req: http.IncomingMessage,
+    body: Buffer,
+  ) => { status: number; body: string },
+) {
+  return new Promise<{
+    server: http.Server;
+    port: number;
+    close(): Promise<void>;
+  }>((resolve) => {
     const server = http.createServer(async (req, res) => {
       const chunks: Buffer[] = [];
       for await (const c of req) chunks.push(c as Buffer);
@@ -716,11 +842,13 @@ function startFakeBridge(handler: (req: http.IncomingMessage, body: Buffer) => {
       res.writeHead(status, { 'content-type': 'application/json' });
       res.end(body);
     });
-    server.listen(0, () => resolve({
-      server,
-      port: (server.address() as any).port,
-      close: () => new Promise((r) => server.close(() => r())),
-    }));
+    server.listen(0, () =>
+      resolve({
+        server,
+        port: (server.address() as any).port,
+        close: () => new Promise((r) => server.close(() => r())),
+      }),
+    );
   });
 }
 
@@ -735,49 +863,88 @@ function protoHex(msgType: number, payload = ''): string {
 
 describe('TrezorBridgeProxy', () => {
   it('forwards /enumerate transparently to the upstream trezord-go', async () => {
-    const upstream = await startFakeBridge(() => ({ status: 200, body: JSON.stringify([{ path: '1' }]) }));
-    const proxy = new TrezorBridgeProxy({ listenPort: 0, upstreamPort: upstream.port });
+    const upstream = await startFakeBridge(() => ({
+      status: 200,
+      body: JSON.stringify([{ path: '1' }]),
+    }));
+    const proxy = new TrezorBridgeProxy({
+      listenPort: 0,
+      upstreamPort: upstream.port,
+    });
     await proxy.start();
     const r = await fetch(`http://127.0.0.1:${proxy.getPort()}/enumerate`);
     expect(r.status).toBe(200);
     expect(await r.json()).toEqual([{ path: '1' }]);
-    await proxy.stop(); await upstream.close();
+    await proxy.stop();
+    await upstream.close();
   });
 
   it('detects EthereumSignTx (msgType 58) and emits signing-call', async () => {
-    const upstream = await startFakeBridge(() => ({ status: 200, body: protoHex(0) })); // dummy response
-    const proxy = new TrezorBridgeProxy({ listenPort: 0, upstreamPort: upstream.port });
+    const upstream = await startFakeBridge(() => ({
+      status: 200,
+      body: protoHex(0),
+    })); // dummy response
+    const proxy = new TrezorBridgeProxy({
+      listenPort: 0,
+      upstreamPort: upstream.port,
+    });
     await proxy.start();
-    const seen = new Promise<void>((res) => proxy.once('signing-call', () => res()));
+    const seen = new Promise<void>((res) =>
+      proxy.once('signing-call', () => res()),
+    );
     await fetch(`http://127.0.0.1:${proxy.getPort()}/call/sess1`, {
-      method: 'POST', body: protoHex(TREZOR_MSG.EthereumSignTx),
+      method: 'POST',
+      body: protoHex(TREZOR_MSG.EthereumSignTx),
     });
     await expect(seen).resolves.toBeUndefined();
-    await proxy.stop(); await upstream.close();
+    await proxy.stop();
+    await upstream.close();
   });
 
   it('does NOT emit signing-call for non-signing message types', async () => {
-    const upstream = await startFakeBridge(() => ({ status: 200, body: protoHex(0) }));
-    const proxy = new TrezorBridgeProxy({ listenPort: 0, upstreamPort: upstream.port });
+    const upstream = await startFakeBridge(() => ({
+      status: 200,
+      body: protoHex(0),
+    }));
+    const proxy = new TrezorBridgeProxy({
+      listenPort: 0,
+      upstreamPort: upstream.port,
+    });
     await proxy.start();
     let fired = false;
-    proxy.on('signing-call', () => { fired = true; });
-    await fetch(`http://127.0.0.1:${proxy.getPort()}/call/sess1`, { method: 'POST', body: protoHex(11) }); // GetPublicKey=11
+    proxy.on('signing-call', () => {
+      fired = true;
+    });
+    await fetch(`http://127.0.0.1:${proxy.getPort()}/call/sess1`, {
+      method: 'POST',
+      body: protoHex(11),
+    }); // GetPublicKey=11
     expect(fired).toBe(false);
-    await proxy.stop(); await upstream.close();
+    await proxy.stop();
+    await upstream.close();
   });
 
   it('injectErrorResponse short-circuits the next matching /call', async () => {
-    const upstream = await startFakeBridge(() => ({ status: 200, body: protoHex(0) }));
-    const proxy = new TrezorBridgeProxy({ listenPort: 0, upstreamPort: upstream.port });
+    const upstream = await startFakeBridge(() => ({
+      status: 200,
+      body: protoHex(0),
+    }));
+    const proxy = new TrezorBridgeProxy({
+      listenPort: 0,
+      upstreamPort: upstream.port,
+    });
     await proxy.start();
-    proxy.injectErrorResponse(TREZOR_MSG.EthereumSignMessage, { error: 'Device disconnected' });
+    proxy.injectErrorResponse(TREZOR_MSG.EthereumSignMessage, {
+      error: 'Device disconnected',
+    });
     const r = await fetch(`http://127.0.0.1:${proxy.getPort()}/call/sess1`, {
-      method: 'POST', body: protoHex(TREZOR_MSG.EthereumSignMessage),
+      method: 'POST',
+      body: protoHex(TREZOR_MSG.EthereumSignMessage),
     });
     expect(await r.json()).toEqual({ error: 'Device disconnected' });
     // Upstream was NOT hit for the injected call:
-    await proxy.stop(); await upstream.close();
+    await proxy.stop();
+    await upstream.close();
   });
 });
 ```
@@ -790,7 +957,11 @@ describe('TrezorBridgeProxy', () => {
 // src/trezor/bridge-proxy.ts
 import http from 'node:http';
 import { EventEmitter } from 'events';
-import { TREZOR_BRIDGE_PROXY_PORT, TREZOR_BRIDGE_PORT, TREZOR_MSG } from './constants';
+import {
+  TREZOR_BRIDGE_PROXY_PORT,
+  TREZOR_BRIDGE_PORT,
+  TREZOR_MSG,
+} from './constants';
 
 const SIGNING_MSG_TYPES = new Set<number>([
   TREZOR_MSG.EthereumSignTx,
@@ -799,7 +970,7 @@ const SIGNING_MSG_TYPES = new Set<number>([
 ]);
 
 export interface BridgeProxyOptions {
-  listenPort?: number;  // default 21328 (connect-web BridgeTransport default)
+  listenPort?: number; // default 21328 (connect-web BridgeTransport default)
   upstreamHost?: string; // default 127.0.0.1
   upstreamPort?: number; // default 21325 (trezord-go)
 }
@@ -824,12 +995,20 @@ export class TrezorBridgeProxy extends EventEmitter {
     this.#upstream = `http://${host}:${port}`;
   }
 
-  getPort(): number { return this.#listenPort; }
-  isRunning(): boolean { return this.#server?.listening ?? false; }
+  getPort(): number {
+    return this.#listenPort;
+  }
+  isRunning(): boolean {
+    return this.#server?.listening ?? false;
+  }
 
   async start(): Promise<void> {
-    this.#server = http.createServer(async (req, res) => this.#handle(req, res));
-    await new Promise<void>((resolve) => this.#server!.listen(this.#listenPort, () => resolve()));
+    this.#server = http.createServer(async (req, res) =>
+      this.#handle(req, res),
+    );
+    await new Promise<void>((resolve) =>
+      this.#server!.listen(this.#listenPort, () => resolve()),
+    );
   }
 
   async stop(): Promise<void> {
@@ -841,9 +1020,14 @@ export class TrezorBridgeProxy extends EventEmitter {
     this.#injections.set(msgType, errorJson);
   }
 
-  clearInjectedErrors(): void { this.#injections.clear(); }
+  clearInjectedErrors(): void {
+    this.#injections.clear();
+  }
 
-  async #handle(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+  async #handle(
+    req: http.IncomingMessage,
+    res: http.ServerResponse,
+  ): Promise<void> {
     const chunks: Buffer[] = [];
     for await (const c of req) chunks.push(c as Buffer);
     const body = Buffer.concat(chunks);
@@ -860,7 +1044,11 @@ export class TrezorBridgeProxy extends EventEmitter {
           res.end(JSON.stringify(injection));
           return;
         }
-        this.emit('signing-call', { msgType, body: body.toString('ascii'), sessionId } satisfies SigningCallEvent);
+        this.emit('signing-call', {
+          msgType,
+          body: body.toString('ascii'),
+          sessionId,
+        } satisfies SigningCallEvent);
       }
     }
 
@@ -868,11 +1056,16 @@ export class TrezorBridgeProxy extends EventEmitter {
     try {
       const upstream = await fetch(`${this.#upstream}${req.url}`, {
         method: req.method,
-        headers: { 'content-type': req.headers['content-type'] ?? 'application/json' },
+        headers: {
+          'content-type': req.headers['content-type'] ?? 'application/json',
+        },
         body: req.method === 'GET' ? undefined : body,
       });
       const up = Buffer.from(await upstream.arrayBuffer());
-      res.writeHead(upstream.status, { 'content-type': upstream.headers.get('content-type') ?? 'application/json' });
+      res.writeHead(upstream.status, {
+        'content-type':
+          upstream.headers.get('content-type') ?? 'application/json',
+      });
       res.end(up);
     } catch (err) {
       res.writeHead(502, { 'content-type': 'application/json' });
@@ -887,10 +1080,19 @@ function parseMessageType(hexBody: string): number {
   return buf.readUInt16BE(0);
 }
 
-export function waitForSigningCall(proxy: TrezorBridgeProxy, timeoutMs = 30_000): Promise<SigningCallEvent> {
+export function waitForSigningCall(
+  proxy: TrezorBridgeProxy,
+  timeoutMs = 30_000,
+): Promise<SigningCallEvent> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => { proxy.removeListener('signing-call', h); reject(new Error('timeout')); }, timeoutMs);
-    const h = (e: SigningCallEvent) => { clearTimeout(timer); resolve(e); };
+    const timer = setTimeout(() => {
+      proxy.removeListener('signing-call', h);
+      reject(new Error('timeout'));
+    }, timeoutMs);
+    const h = (e: SigningCallEvent) => {
+      clearTimeout(timer);
+      resolve(e);
+    };
     proxy.once('signing-call', h);
   });
 }
@@ -908,6 +1110,7 @@ git commit -m "feat(hw-emulator/trezor): add TrezorBridgeProxy (transparent forw
 ### Task 1.5: Docker manager (mirrors `ledger/docker-manager.ts`)
 
 **Files:**
+
 - Create: `src/trezor/docker-manager.ts`
 - Create: `src/trezor/docker-manager.test.ts`
 
@@ -922,20 +1125,39 @@ describe('TrezorDockerManager', () => {
     const calls: string[][] = [];
     const mgr = new TrezorDockerManager({
       composeFile: '/tmp/trezor.yml',
-      runner: async (file, args) => { calls.push([file, ...args]); return { stdout: '', stderr: '' }; },
+      runner: async (file, args) => {
+        calls.push([file, ...args]);
+        return { stdout: '', stderr: '' };
+      },
     });
     await mgr.start();
-    expect(calls[0]).toEqual(['docker', 'compose', '-f', '/tmp/trezor.yml', 'up', '-d']);
+    expect(calls[0]).toEqual([
+      'docker',
+      'compose',
+      '-f',
+      '/tmp/trezor.yml',
+      'up',
+      '-d',
+    ]);
   });
 
   it('runs docker compose down on stop', async () => {
     const calls: string[][] = [];
     const mgr = new TrezorDockerManager({
       composeFile: '/tmp/trezor.yml',
-      runner: async (file, args) => { calls.push([file, ...args]); return { stdout: '', stderr: '' }; },
+      runner: async (file, args) => {
+        calls.push([file, ...args]);
+        return { stdout: '', stderr: '' };
+      },
     });
     await mgr.stop();
-    expect(calls[0]).toEqual(['docker', 'compose', '-f', '/tmp/trezor.yml', 'down']);
+    expect(calls[0]).toEqual([
+      'docker',
+      'compose',
+      '-f',
+      '/tmp/trezor.yml',
+      'down',
+    ]);
   });
 });
 ```
@@ -951,7 +1173,10 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 
-export type DockerRunner = (file: string, args: string[]) => Promise<{ stdout: string; stderr: string }>;
+export type DockerRunner = (
+  file: string,
+  args: string[],
+) => Promise<{ stdout: string; stderr: string }>;
 
 export interface DockerManagerOptions {
   composeFile: string;
@@ -968,7 +1193,13 @@ export class TrezorDockerManager {
   }
 
   async start(): Promise<void> {
-    await this.#runner('docker', ['compose', '-f', this.#composeFile, 'up', '-d']);
+    await this.#runner('docker', [
+      'compose',
+      '-f',
+      this.#composeFile,
+      'up',
+      '-d',
+    ]);
   }
 
   async stop(): Promise<void> {
@@ -989,6 +1220,7 @@ git commit -m "feat(hw-emulator/trezor): add Docker manager (trezor-user-env lif
 ### Task 1.6: Device interaction (multi-model dispatch)
 
 **Files:**
+
 - Create: `src/trezor/device-interaction.ts`
 - Create: `src/trezor/device-interaction.test.ts`
 
@@ -1002,11 +1234,25 @@ import { MODEL_PROFILES } from './model-profiles';
 
 class FakeController extends TrezorControllerClient {
   calls: string[] = [];
-  constructor() { super({ socketFactory: async () => ({}) as any }); }
-  override pressYes() { this.calls.push('press-yes'); return Promise.resolve({}); }
-  override pressNo() { this.calls.push('press-no'); return Promise.resolve({}); }
-  override click(p: { x: number; y: number }) { this.calls.push(`click:${p.x},${p.y}`); return Promise.resolve({}); }
-  override swipe(d: 'up'|'down'|'left'|'right') { this.calls.push(`swipe:${d}`); return Promise.resolve({}); }
+  constructor() {
+    super({ socketFactory: async () => ({}) as any });
+  }
+  override pressYes() {
+    this.calls.push('press-yes');
+    return Promise.resolve({});
+  }
+  override pressNo() {
+    this.calls.push('press-no');
+    return Promise.resolve({});
+  }
+  override click(p: { x: number; y: number }) {
+    this.calls.push(`click:${p.x},${p.y}`);
+    return Promise.resolve({});
+  }
+  override swipe(d: 'up' | 'down' | 'left' | 'right') {
+    this.calls.push(`swipe:${d}`);
+    return Promise.resolve({});
+  }
 }
 
 describe('TrezorDeviceInteraction', () => {
@@ -1062,20 +1308,34 @@ export class TrezorDeviceInteraction implements DeviceInteraction {
     private readonly profile: ModelProfile,
   ) {}
 
-  async approveTransaction(): Promise<void> { await this.#run(this.profile.confirm); }
-  async approveSigning(): Promise<void> { await this.approveTransaction(); }
-  async rejectTransaction(): Promise<void> { await this.#run(this.profile.reject); }
+  async approveTransaction(): Promise<void> {
+    await this.#run(this.profile.confirm);
+  }
+  async approveSigning(): Promise<void> {
+    await this.approveTransaction();
+  }
+  async rejectTransaction(): Promise<void> {
+    await this.#run(this.profile.reject);
+  }
 
   async navigateToMainMenu(): Promise<void> {
     // Best-effort: a couple of swipe-ups returns most layouts to the home screen.
     if (this.profile.scrollApproach) {
-      await this.controller.swipe(this.profile.scrollApproach === 'swipe-up' ? 'up' : 'down');
+      await this.controller.swipe(
+        this.profile.scrollApproach === 'swipe-up' ? 'up' : 'down',
+      );
     }
   }
 
   async #run(action: PressAction): Promise<void> {
-    if (action === 'press-yes') { await this.controller.pressYes(); return; }
-    if (action === 'press-no') { await this.controller.pressNo(); return; }
+    if (action === 'press-yes') {
+      await this.controller.pressYes();
+      return;
+    }
+    if (action === 'press-no') {
+      await this.controller.pressNo();
+      return;
+    }
     await this.controller.click(action.click);
   }
 }
@@ -1093,6 +1353,7 @@ git commit -m "feat(hw-emulator/trezor): add multi-model device interaction"
 ### Task 1.7: TrezorEmulator orchestrator + derived-address computation
 
 **Files:**
+
 - Create: `src/trezor/trezor-emulator.ts`
 - Create: `src/trezor/trezor-emulator.test.ts`
 - Modify: `src/trezor/constants.ts` (add `TREZOR_ADDRESSES` / `TREZOR_ADDRESS`)
@@ -1123,11 +1384,11 @@ import type { Hex } from '@metamask/utils'; // or the repo's Hex type per AGENTS
 
 /** m/44'/60'/0'/0/n (n=0..4) for TREZOR_EMULATOR_SEED. Replace with the real derived values. */
 export const TREZOR_ADDRESSES: Record<TrezorModel, Hex[]> = {
-  T1B1:  ['0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE'],
-  T2T1:  ['0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE'],
-  T3B1:  ['0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE'],
-  T3T1:  ['0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE'],
-  T3W1:  ['0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE'],
+  T1B1: ['0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE'],
+  T2T1: ['0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE'],
+  T3B1: ['0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE'],
+  T3T1: ['0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE'],
+  T3W1: ['0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE', '0x REPLACE'],
 };
 export const TREZOR_ADDRESS: Hex = TREZOR_ADDRESSES[TREZOR_DEFAULT_MODEL][0];
 ```
@@ -1147,35 +1408,84 @@ import { MODEL_PROFILES } from './model-profiles';
 describe('TrezorEmulator', () => {
   it('start() brings up docker, controller-setup, and the bridge proxy in order', async () => {
     const order: string[] = [];
-    const docker = { start: async () => { order.push('docker'); }, stop: async () => {} } as unknown as TrezorDockerManager;
+    const docker = {
+      start: async () => {
+        order.push('docker');
+      },
+      stop: async () => {},
+    } as unknown as TrezorDockerManager;
     const ctl = {
-      connect: async () => { order.push('ctl-connect'); },
-      ping: async () => { order.push('ping'); return {}; },
-      emulatorStart: async () => { order.push('emu-start'); return {}; },
-      emulatorSetup: async () => { order.push('emu-setup'); return {}; },
-      bridgeStart: async () => { order.push('bridge-start'); return {}; },
+      connect: async () => {
+        order.push('ctl-connect');
+      },
+      ping: async () => {
+        order.push('ping');
+        return {};
+      },
+      emulatorStart: async () => {
+        order.push('emu-start');
+        return {};
+      },
+      emulatorSetup: async () => {
+        order.push('emu-setup');
+        return {};
+      },
+      bridgeStart: async () => {
+        order.push('bridge-start');
+        return {};
+      },
       disconnect: async () => {},
-      pressYes: async () => ({}), pressNo: async () => ({}),
-      click: async () => ({}), swipe: async () => ({}), input: async () => ({}), getScreenshot: async () => Buffer.alloc(0),
+      pressYes: async () => ({}),
+      pressNo: async () => ({}),
+      click: async () => ({}),
+      swipe: async () => ({}),
+      input: async () => ({}),
+      getScreenshot: async () => Buffer.alloc(0),
     } as unknown as TrezorControllerClient;
     const proxy = {
-      start: async () => { order.push('proxy'); },
+      start: async () => {
+        order.push('proxy');
+      },
       stop: async () => {},
-      isRunning: () => true, getPort: () => 21328,
-      on: () => {}, once: () => {}, emit: () => false,
-      injectErrorResponse: () => {}, clearInjectedErrors: () => {},
+      isRunning: () => true,
+      getPort: () => 21328,
+      on: () => {},
+      once: () => {},
+      emit: () => false,
+      injectErrorResponse: () => {},
+      clearInjectedErrors: () => {},
     } as unknown as TrezorBridgeProxy;
 
-    const emu = new TrezorEmulator({ model: 'T2T1', docker, controller: ctl, bridgeProxy: proxy, composeFile: '/tmp/x.yml' });
+    const emu = new TrezorEmulator({
+      model: 'T2T1',
+      docker,
+      controller: ctl,
+      bridgeProxy: proxy,
+      composeFile: '/tmp/x.yml',
+    });
     await emu.start();
-    expect(order).toEqual(['docker', 'ctl-connect', 'ping', 'emu-start', 'emu-setup', 'bridge-start', 'proxy']);
+    expect(order).toEqual([
+      'docker',
+      'ctl-connect',
+      'ping',
+      'emu-start',
+      'emu-setup',
+      'bridge-start',
+      'proxy',
+    ]);
   });
 
   it('getInteraction() returns a device interaction bound to the model profile', () => {
     const ctl = {} as unknown as TrezorControllerClient;
     const proxy = {} as unknown as TrezorBridgeProxy;
     const docker = {} as unknown as TrezorDockerManager;
-    const emu = new TrezorEmulator({ model: 'T1B1', docker, controller: ctl, bridgeProxy: proxy, composeFile: '/tmp/x.yml' });
+    const emu = new TrezorEmulator({
+      model: 'T1B1',
+      docker,
+      controller: ctl,
+      bridgeProxy: proxy,
+      composeFile: '/tmp/x.yml',
+    });
     expect(emu.getModel()).toBe('T1B1');
     expect(() => emu.getInteraction()).not.toThrow();
   });
@@ -1212,7 +1522,9 @@ export interface TrezorEmulatorOptions {
 }
 
 export class TrezorEmulator implements HardwareWalletEmulator {
-  readonly #opts: Required<Omit<TrezorEmulatorOptions, 'docker'|'controller'|'bridgeProxy'>>;
+  readonly #opts: Required<
+    Omit<TrezorEmulatorOptions, 'docker' | 'controller' | 'bridgeProxy'>
+  >;
   #docker: TrezorDockerManager;
   #controller: TrezorControllerClient;
   #proxy: TrezorBridgeProxy;
@@ -1236,27 +1548,46 @@ export class TrezorEmulator implements HardwareWalletEmulator {
     this.#proxy = opts.bridgeProxy!;
   }
 
-  getModel(): TrezorModel { return this.#opts.model; }
-  isRunning(): boolean { return this.#running; }
-  getControllerClient(): TrezorControllerClient { return this.#controller; }
-  getBridgeProxy(): TrezorBridgeProxy { return this.#proxy; }
+  getModel(): TrezorModel {
+    return this.#opts.model;
+  }
+  isRunning(): boolean {
+    return this.#running;
+  }
+  getControllerClient(): TrezorControllerClient {
+    return this.#controller;
+  }
+  getBridgeProxy(): TrezorBridgeProxy {
+    return this.#proxy;
+  }
   getInteraction(): DeviceInteraction {
     if (!this.#interaction) throw new Error('emulator not started');
     return this.#interaction;
   }
-  async getScreenshot(): Promise<Buffer> { return this.#controller.getScreenshot(); }
+  async getScreenshot(): Promise<Buffer> {
+    return this.#controller.getScreenshot();
+  }
 
   async start(): Promise<void> {
     await this.#docker.start();
     await this.#controller.connect();
     await this.#controller.ping();
-    await this.#controller.emulatorStart({ model: this.#opts.model, wipe: true });
+    await this.#controller.emulatorStart({
+      model: this.#opts.model,
+      wipe: true,
+    });
     await this.#controller.emulatorSetup({
-      mnemonic: this.#opts.seed, pin: '', passphrase_protection: false, label: this.#opts.label,
+      mnemonic: this.#opts.seed,
+      pin: '',
+      passphrase_protection: false,
+      label: this.#opts.label,
     });
     await this.#controller.bridgeStart();
     await this.#proxy.start();
-    this.#interaction = new TrezorDeviceInteraction(this.#controller, MODEL_PROFILES[this.#opts.model]);
+    this.#interaction = new TrezorDeviceInteraction(
+      this.#controller,
+      MODEL_PROFILES[this.#opts.model],
+    );
     this.#running = true;
   }
 
@@ -1268,10 +1599,18 @@ export class TrezorEmulator implements HardwareWalletEmulator {
     this.#running = false;
   }
 
-  async approveTransaction(): Promise<void> { await this.getInteraction().approveTransaction(); }
-  async approveSigning(): Promise<void> { await this.getInteraction().approveSigning(); }
-  async rejectTransaction(): Promise<void> { await this.getInteraction().rejectTransaction(); }
-  async navigateToMainMenu(): Promise<void> { await this.getInteraction().navigateToMainMenu(); }
+  async approveTransaction(): Promise<void> {
+    await this.getInteraction().approveTransaction();
+  }
+  async approveSigning(): Promise<void> {
+    await this.getInteraction().approveSigning();
+  }
+  async rejectTransaction(): Promise<void> {
+    await this.getInteraction().rejectTransaction();
+  }
+  async navigateToMainMenu(): Promise<void> {
+    await this.getInteraction().navigateToMainMenu();
+  }
 }
 ```
 
@@ -1289,6 +1628,7 @@ git commit -m "feat(hw-emulator/trezor): add TrezorEmulator orchestrator + deriv
 ### Task 1.8: Barrel + factory wiring
 
 **Files:**
+
 - Create: `src/trezor/index.ts`
 - Modify: `src/factory.ts` (replace the Trezor `throw`)
 - Modify: `src/index.ts` (re-export public surface)
@@ -1297,10 +1637,24 @@ git commit -m "feat(hw-emulator/trezor): add TrezorEmulator orchestrator + deriv
 
 ```typescript
 // src/trezor/index.ts
-export { TREZOR_EMULATOR_SEED, TREZOR_DEFAULT_MODEL, TREZOR_BRIDGE_PROXY_PORT, TREZOR_BRIDGE_PORT,
-  TREZOR_CONTROLLER_PORT, TREZOR_EMULATOR_PORT, TREZOR_MSG, TREZOR_ADDRESSES, TREZOR_ADDRESS } from './constants';
+export {
+  TREZOR_EMULATOR_SEED,
+  TREZOR_DEFAULT_MODEL,
+  TREZOR_BRIDGE_PROXY_PORT,
+  TREZOR_BRIDGE_PORT,
+  TREZOR_CONTROLLER_PORT,
+  TREZOR_EMULATOR_PORT,
+  TREZOR_MSG,
+  TREZOR_ADDRESSES,
+  TREZOR_ADDRESS,
+} from './constants';
 export { MODEL_PROFILES } from './model-profiles';
-export type { TrezorModel, ModelProfile, Interaction, PressAction } from './model-profiles';
+export type {
+  TrezorModel,
+  ModelProfile,
+  Interaction,
+  PressAction,
+} from './model-profiles';
 export { TrezorControllerClient } from './controller-client';
 export type { ControllerClientOptions, SetupParams } from './controller-client';
 export { TrezorBridgeProxy, waitForSigningCall } from './bridge-proxy';
@@ -1342,7 +1696,9 @@ export * from './trezor';
 import { createEmulator, EmulatorType } from './index';
 
 it('createEmulator(Trezor) returns a TrezorEmulator without throwing', () => {
-  const emu = createEmulator(EmulatorType.Trezor, { composeFile: '/tmp/x.yml' });
+  const emu = createEmulator(EmulatorType.Trezor, {
+    composeFile: '/tmp/x.yml',
+  });
   expect(emu).toBeDefined();
   expect(emu.isRunning()).toBe(false);
 });
@@ -1353,6 +1709,7 @@ it('createEmulator(Trezor) returns a TrezorEmulator without throwing', () => {
 ```bash
 yarn jest src/trezor src/factory.test.ts
 ```
+
 Expected: all green.
 
 - [ ] **Step 6: Build the package**
@@ -1360,6 +1717,7 @@ Expected: all green.
 ```bash
 yarn build
 ```
+
 Expected: clean build, `dist/` includes the trezor module.
 
 - [ ] **Step 7: Lint + commit**
@@ -1379,17 +1737,19 @@ git commit -m "feat(hw-emulator/trezor): wire TrezorEmulator into the factory + 
 ### Task 2.1: Delete FakeTrezorBridge
 
 **Files:**
+
 - Modify: `test/stub/keyring-bridge.js` (delete lines 72–178, the `FakeTrezorBridge` class)
 
 - [ ] **Step 1: Delete the `FakeTrezorBridge` class**
 
-Open `test/stub/keyring-bridge.js`, delete the entire `FakeTrezorBridge` class definition (lines 72–178 per spec §9.3). Leave `FakeLedgerBridge` (181–364), `KNOWN_PUBLIC_KEY*`, `KNOWN_PRIVATE_KEYS` untouched. If any `KNOWN_*` constants were *only* used by `FakeTrezorBridge`, leave them — `FakeLedgerBridge` may still use them.
+Open `test/stub/keyring-bridge.js`, delete the entire `FakeTrezorBridge` class definition (lines 72–178 per spec §9.3). Leave `FakeLedgerBridge` (181–364), `KNOWN_PUBLIC_KEY*`, `KNOWN_PRIVATE_KEYS` untouched. If any `KNOWN_*` constants were _only_ used by `FakeTrezorBridge`, leave them — `FakeLedgerBridge` may still use them.
 
 - [ ] **Step 2: Confirm no lingering `FakeTrezorBridge` references**
 
 ```bash
 rg -n "FakeTrezorBridge" app/ test/
 ```
+
 Expected: the only remaining hit is the import in `app/scripts/wallet-init/keyrings.ts` (removed in Task 2.2). No other references.
 
 - [ ] **Step 3: Commit**
@@ -1402,6 +1762,7 @@ git commit -m "chore(trezor): remove FakeTrezorBridge stub"
 ### Task 2.2: Remove the `trezorBridge` IN_TEST override
 
 **Files:**
+
 - Modify: `app/scripts/wallet-init/keyrings.ts` (lines 34–37, 62, 77)
 
 - [ ] **Step 1: Remove the override object's `trezorBridge` key**
@@ -1411,7 +1772,8 @@ git commit -m "chore(trezor): remove FakeTrezorBridge stub"
 // BEFORE (lines 34-37):
 const overrides = process.env.IN_TEST
   ? {
-      trezorBridge: require('../../../test/stub/keyring-bridge').FakeTrezorBridge,
+      trezorBridge: require('../../../test/stub/keyring-bridge')
+        .FakeTrezorBridge,
     }
   : {};
 
@@ -1437,6 +1799,7 @@ hardwareKeyringBuilderFactory(TrezorKeyring, TrezorOffscreenBridge),
 yarn lint:tsc
 yarn lint:changed:fix
 ```
+
 Expected: clean. (The pre-existing `ledgerBridge` LSP error from the QR work is unrelated and should not change.)
 
 - [ ] **Step 3: Build the test bundle**
@@ -1444,6 +1807,7 @@ Expected: clean. (The pre-existing `ledgerBridge` LSP error from the QR work is 
 ```bash
 yarn build:test
 ```
+
 Expected: clean build.
 
 - [ ] **Step 4: Commit**
@@ -1462,6 +1826,7 @@ git commit -m "chore(trezor): remove IN_TEST Trezor bridge override (use real br
 ### Task 3.1: keyring-eth-trezor integration test (Docker-gated)
 
 **Files:**
+
 - Create: `src/trezor/integration.test.ts`
 
 - [ ] **Step 1: Write the integration test (gated; skips without Docker + env flag)**
@@ -1469,28 +1834,39 @@ git commit -m "chore(trezor): remove IN_TEST Trezor bridge override (use real br
 ```typescript
 // src/trezor/integration.test.ts
 import { createEmulator, EmulatorType, TREZOR_ADDRESS } from '../index';
-import { TrezorKeyring, TrezorConnectBridge } from '@metamask/keyring-eth-trezor';
+import {
+  TrezorKeyring,
+  TrezorConnectBridge,
+} from '@metamask/keyring-eth-trezor';
 
 const RUN = process.env.TREZOR_INTEGRATION === '1';
 
-(RUN ? describe : describe.skip)('Trezor emulator <-> real TrezorKeyring integration', () => {
-  it('addAccounts(1) derives TREZOR_ADDRESS via the real connect-web + proxy + firmware', async () => {
-    const emulator = createEmulator(EmulatorType.Trezor, {
-      composeFile: require('path').join(__dirname, '../../../test/e2e/trezor/docker-compose.yml'),
-    });
-    await emulator.start();
-    try {
-      // Wire the real keyring to the real TrezorConnectBridge; transport flows
-      // connect-web -> proxy :21328 -> trezord :21325 -> emulator firmware.
-      const keyring = new TrezorKeyring({ bridge: new TrezorConnectBridge() });
-      await keyring.addAccounts(1);
-      const accounts = await keyring.getAccounts();
-      expect(accounts[0].toLowerCase()).toBe(TREZOR_ADDRESS.toLowerCase());
-    } finally {
-      await emulator.stop();
-    }
-  }, 120_000);
-});
+(RUN ? describe : describe.skip)(
+  'Trezor emulator <-> real TrezorKeyring integration',
+  () => {
+    it('addAccounts(1) derives TREZOR_ADDRESS via the real connect-web + proxy + firmware', async () => {
+      const emulator = createEmulator(EmulatorType.Trezor, {
+        composeFile: require('path').join(
+          __dirname,
+          '../../../test/e2e/trezor/docker-compose.yml',
+        ),
+      });
+      await emulator.start();
+      try {
+        // Wire the real keyring to the real TrezorConnectBridge; transport flows
+        // connect-web -> proxy :21328 -> trezord :21325 -> emulator firmware.
+        const keyring = new TrezorKeyring({
+          bridge: new TrezorConnectBridge(),
+        });
+        await keyring.addAccounts(1);
+        const accounts = await keyring.getAccounts();
+        expect(accounts[0].toLowerCase()).toBe(TREZOR_ADDRESS.toLowerCase());
+      } finally {
+        await emulator.stop();
+      }
+    }, 120_000);
+  },
+);
 ```
 
 - [ ] **Step 2: Run (skipped by default)**
@@ -1498,6 +1874,7 @@ const RUN = process.env.TREZOR_INTEGRATION === '1';
 ```bash
 yarn jest src/trezor/integration.test.ts
 ```
+
 Expected: 1 skipped.
 
 - [ ] **Step 3: Run for real (requires Docker daemon + Phase 5's docker-compose present)**
@@ -1507,6 +1884,7 @@ Expected: 1 skipped.
 # copy/symlink it into the path above, then:
 TREZOR_INTEGRATION=1 yarn jest src/trezor/integration.test.ts
 ```
+
 Expected: PASS within 120s. (This is the first end-to-end proof of the transport seam against real firmware.)
 
 - [ ] **Step 4: Commit**
@@ -1526,6 +1904,7 @@ git commit -m "test(hw-emulator/trezor): add Docker-gated integration test again
 ### Task 4.1: docker-compose + constants
 
 **Files:**
+
 - Create: `test/e2e/trezor/docker-compose.yml`
 - Create: `test/e2e/trezor/constants.ts`
 
@@ -1570,6 +1949,7 @@ git commit -m "feat(trezor-e2e): add docker-compose + constants"
 ### Task 4.2: shared-context + test-helper + cleanup
 
 **Files:**
+
 - Create: `test/e2e/trezor/shared-context.ts`
 - Create: `test/e2e/trezor/test-helper.ts`
 - Create: `test/e2e/trezor/cleanup.ts`
@@ -1580,7 +1960,11 @@ The shared context owns the singleton `TrezorEmulator` (started once per suite).
 
 ```typescript
 // test/e2e/trezor/shared-context.ts
-import { createEmulator, EmulatorType, type TrezorEmulator } from '@metamask/hw-emulator';
+import {
+  createEmulator,
+  EmulatorType,
+  type TrezorEmulator,
+} from '@metamask/hw-emulator';
 import { TREZOR_COMPOSE_FILE } from './constants';
 
 export interface SharedTrezorContext {
@@ -1588,15 +1972,25 @@ export interface SharedTrezorContext {
 }
 
 export async function startSharedTrezor(): Promise<SharedTrezorContext> {
-  const emulator = createEmulator(EmulatorType.Trezor, { composeFile: TREZOR_COMPOSE_FILE }) as TrezorEmulator;
+  const emulator = createEmulator(EmulatorType.Trezor, {
+    composeFile: TREZOR_COMPOSE_FILE,
+  }) as TrezorEmulator;
   await emulator.start();
-  const cleanup = async () => { try { await emulator.stop(); } catch { /* swallow on exit */ } };
+  const cleanup = async () => {
+    try {
+      await emulator.stop();
+    } catch {
+      /* swallow on exit */
+    }
+  };
   process.once('SIGTERM', cleanup);
   process.once('SIGINT', cleanup);
   return { emulator };
 }
 
-export async function stopSharedTrezor(ctx: SharedTrezorContext): Promise<void> {
+export async function stopSharedTrezor(
+  ctx: SharedTrezorContext,
+): Promise<void> {
   await ctx.emulator.stop();
 }
 ```
@@ -1610,11 +2004,17 @@ Port the structure of `test/e2e/speculos/test-helper.ts`, replacing Speculos hea
 import { TrezorControllerClient } from '@metamask/hw-emulator';
 import { TREZOR_CONTROLLER_PORT } from '@metamask/hw-emulator';
 
-export async function waitForController(host = '127.0.0.1', timeoutMs = 60_000): Promise<void> {
+export async function waitForController(
+  host = '127.0.0.1',
+  timeoutMs = 60_000,
+): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      const ctl = new TrezorControllerClient({ host, port: TREZOR_CONTROLLER_PORT });
+      const ctl = new TrezorControllerClient({
+        host,
+        port: TREZOR_CONTROLLER_PORT,
+      });
       await ctl.connect();
       await ctl.ping();
       await ctl.disconnect();
@@ -1623,7 +2023,9 @@ export async function waitForController(host = '127.0.0.1', timeoutMs = 60_000):
       await new Promise((r) => setTimeout(r, 1000));
     }
   }
-  throw new Error(`trezor-user-env controller not reachable on ${host}:${TREZOR_CONTROLLER_PORT}`);
+  throw new Error(
+    `trezor-user-env controller not reachable on ${host}:${TREZOR_CONTROLLER_PORT}`,
+  );
 }
 ```
 
@@ -1640,6 +2042,7 @@ git commit -m "feat(trezor-e2e): add shared context, test helper, cleanup"
 ### Task 4.3: with-trezor-fixtures + build-config + chrome.js gate
 
 **Files:**
+
 - Create: `test/e2e/trezor/with-trezor-fixtures.ts`
 - Create: `test/e2e/trezor/build-config.ts`
 - Modify: `test/e2e/webdriver/chrome.js` (add `TREZOR_E2E=1` block)
@@ -1685,6 +2088,7 @@ git commit -m "feat(trezor-e2e): add fixture wrapper, build config, chrome.js ga
 ### Task 5.1: trezor-helpers.ts
 
 **Files:**
+
 - Create: `test/e2e/tests/hardware-wallets/trezor/trezor-helpers.ts`
 
 - [ ] **Step 1: Mirror `ledger-helpers.ts` (48 lines) for Trezor.**
@@ -1698,13 +2102,17 @@ export { TREZOR_ADDRESS };
 export { TREZOR_SEED_BALANCES as LEDGER_SEED_BALANCE } from '../../../trezor/constants';
 export { RECIPIENT } from '../../../trezor/constants';
 
-export async function approveTransaction(emulator: TrezorEmulator): Promise<void> {
+export async function approveTransaction(
+  emulator: TrezorEmulator,
+): Promise<void> {
   await emulator.approveTransaction();
 }
 export async function approveSigning(emulator: TrezorEmulator): Promise<void> {
   await emulator.approveSigning();
 }
-export async function rejectTransaction(emulator: TrezorEmulator): Promise<void> {
+export async function rejectTransaction(
+  emulator: TrezorEmulator,
+): Promise<void> {
   await emulator.rejectTransaction();
 }
 ```
@@ -1716,6 +2124,7 @@ export async function rejectTransaction(emulator: TrezorEmulator): Promise<void>
 ### Task 5.2–5.9: The 8 specs (account → smoke first)
 
 For each spec, port the Ledger counterpart under `test/e2e/tests/hardware-wallets/ledger/`, substituting:
+
 - `startSharedSpeculos` → `startSharedTrezor`
 - `withSpeculosFixtures` → `withTrezorFixtures`
 - `apduBridge`/`interaction` → `emulator` (call `emulator.approveTransaction()` etc.)

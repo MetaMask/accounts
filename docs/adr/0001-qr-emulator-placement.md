@@ -1,11 +1,11 @@
 # ADR-0001: QR emulator as submodule of `@metamask/hw-emulator`
 
-| Field    | Value                                            |
-| -------- | ------------------------------------------------ |
-| Status   | Accepted                                         |
-| Date     | 2026-06-19                                       |
-| Context  | `feat/hw-emulators-master` planning              |
-| Related  | [QR Emulator Spec](../specs/qr-emulator.md)      |
+| Field   | Value                                       |
+| ------- | ------------------------------------------- |
+| Status  | Accepted                                    |
+| Date    | 2026-06-19                                  |
+| Context | `feat/hw-emulators-master` planning         |
+| Related | [QR Emulator Spec](../specs/qr-emulator.md) |
 
 ## Context
 
