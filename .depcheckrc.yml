@@ -2,6 +2,8 @@
 ignore-patterns:
   - '.yarn'
   - 'dist/'
+  # Python virtualenv created by scripts/setup-python.sh
+  - '.venv/'
 ignores:
   # Ignore depcheck itself (seems to be required for monorepos)
   - 'depcheck'
@@ -31,3 +33,7 @@ ignores:
   # Ignore dependency that is used with jest "directives" (thus, they cannot be detected
   # by depcheck properly)
   - 'jest-environment-jsdom'
+  # @metamask/hw-emulator: imported via a relative source path (documented
+  # workaround in src/qr/emulator.test.ts — the sibling package's name does
+  # not match its directory and its v2 build is broken)
+  - '@metamask/eth-qr-keyring'

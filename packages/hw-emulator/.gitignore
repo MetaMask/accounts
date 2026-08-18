@@ -6,3 +6,5 @@ __pycache__/
 dist/
 build/
 .pytest_cache/
+# Archived research spikes — kept locally, not tracked
+spike/
