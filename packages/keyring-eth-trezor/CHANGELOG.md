@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump `@metamask/keyring-sdk` from `^3.0.0` to `^3.1.0` ([#614](https://github.com/MetaMask/accounts/pull/614))
 - Bump `@metamask/keyring-api` from `^24.0.0` to `^24.1.0` ([#620](https://github.com/MetaMask/accounts/pull/620))
 
+### Fixed
+
+- Remove the `process.env.IN_TEST` escape hatch from `TrezorKeyring` initialization and always pass `lazyLoad: true` to the bridge, so test-environment detection no longer leaks into shipped library code ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [11.0.0]
 
 ### Changed
