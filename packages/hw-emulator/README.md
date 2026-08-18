@@ -153,10 +153,10 @@ await runner.stop();
 
 ### Transport Modes
 
-| Transport         | Description                                                        |
-| ----------------- | ------------------------------------------------------------------ |
-| `android-netsim`  | Android emulator with Bluetooth netsim support (default).          |
-| `vhci`            | Linux VHCI kernel module (for other Bluetooth stacks).             |
+| Transport        | Description                                               |
+| ---------------- | --------------------------------------------------------- |
+| `android-netsim` | Android emulator with Bluetooth netsim support (default). |
+| `vhci`           | Linux VHCI kernel module (for other Bluetooth stacks).    |
 
 ### Python Tests
 

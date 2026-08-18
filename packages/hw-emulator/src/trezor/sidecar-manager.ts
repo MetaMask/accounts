@@ -222,39 +222,39 @@ class SidecarManager implements TrezorSidecarManager {
       }
 
       const assetServer = http.createServer((req, res) => {
-      const url = req.url === '/' ? '/iframe.html' : (req.url ?? '');
-      // `path.join` normalizes `..` segments while keeping the result
-      // anchored at the asset dir; the resolved-prefix check then ensures
-      // the normalized path cannot escape it (e.g. via `/../sibling-dir/`).
-      const filePath = path.join(resolvedAssetDir, url);
-      if (!filePath.startsWith(resolvedAssetDir + path.sep)) {
-        res.writeHead(403);
-        res.end();
-        return;
-      }
-      try {
-        const content = fs.readFileSync(filePath);
-        const ext = path.extname(filePath);
-        res.writeHead(200, {
-          'content-type':
-            {
-              '.html': 'text/html',
-              '.js': 'application/javascript',
-            }[ext] ?? 'application/octet-stream',
-          'access-control-allow-origin': '*',
-        });
-        res.end(content);
-      } catch {
-        res.writeHead(404);
-        res.end();
-      }
-    });
-    await new Promise<void>((resolve) => {
-      assetServer.listen(this.#assetPort, '127.0.0.1', () => {
-        resolve();
+        const url = req.url === '/' ? '/iframe.html' : (req.url ?? '');
+        // `path.join` normalizes `..` segments while keeping the result
+        // anchored at the asset dir; the resolved-prefix check then ensures
+        // the normalized path cannot escape it (e.g. via `/../sibling-dir/`).
+        const filePath = path.join(resolvedAssetDir, url);
+        if (!filePath.startsWith(resolvedAssetDir + path.sep)) {
+          res.writeHead(403);
+          res.end();
+          return;
+        }
+        try {
+          const content = fs.readFileSync(filePath);
+          const ext = path.extname(filePath);
+          res.writeHead(200, {
+            'content-type':
+              {
+                '.html': 'text/html',
+                '.js': 'application/javascript',
+              }[ext] ?? 'application/octet-stream',
+            'access-control-allow-origin': '*',
+          });
+          res.end(content);
+        } catch {
+          res.writeHead(404);
+          res.end();
+        }
       });
-    });
-    this.#assetServer = assetServer;
+      await new Promise<void>((resolve) => {
+        assetServer.listen(this.#assetPort, '127.0.0.1', () => {
+          resolve();
+        });
+      });
+      this.#assetServer = assetServer;
     } catch (startError: unknown) {
       // A later startup step failed: tear down everything already bound
       // so start() never leaves half-open servers behind.
