@@ -76,10 +76,11 @@ describe('QR PNG renderer', () => {
     const pngLower = renderQrPng('ur:crypto-hdkey/lowercase-test');
     const pngUpper = renderQrPng('UR:CRYPTO-HDKEY/LOWERCASE-TEST');
     // Both render the same uppercase payload, so both decode to the same text.
-    expect(decodeWithZxing(pngLower)).toBe(decodeWithZxing(pngUpper));
-    expect(decodeWithZxing(pngLower).toUpperCase()).toBe(
-      decodeWithZxing(pngLower),
-    );
+    const decodedLower = decodeWithZxing(pngLower);
+    expect(decodedLower).toBe(decodeWithZxing(pngUpper));
+    // The lowercase input is rendered as its uppercase form (the intended
+    // check — not a tautology against itself).
+    expect(decodedLower).toBe('UR:CRYPTO-HDKEY/LOWERCASE-TEST');
   });
 
   it('honours a custom target size', () => {

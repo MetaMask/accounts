@@ -16,6 +16,10 @@ const PNG_SIGNATURE = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ]);
 
+// Quiet-zone width in modules — the standard 4-module margin the QR spec
+// requires around the code for reliable decoding.
+const QR_QUIET_ZONE_MODULES = 4;
+
 // Precomputed CRC-32 table (PNG uses the standard IEEE polynomial).
 const CRC_TABLE: Uint32Array = ((): Uint32Array => {
   const table = new Uint32Array(256);
@@ -89,7 +93,7 @@ export function renderQrPng(
   qr.make();
 
   const moduleCount = qr.getModuleCount();
-  const margin = 4; // standard quiet zone, in modules
+  const margin = QR_QUIET_ZONE_MODULES;
   const cellSize = Math.max(
     1,
     Math.floor(targetSize / (moduleCount + margin * 2)),

@@ -192,7 +192,10 @@ export function signRequest(
   const request = decodeSignRequest(ur);
   const dataType = request.getDataType();
   const signData = Buffer.from(request.getSignData());
-  const path = request.getDerivationPath() ?? '';
+  const path = request.getDerivationPath();
+  if (!path) {
+    throw new Error('EthSignRequest missing derivation path');
+  }
   const privateKey = derivePrivateKey(options.seed, path);
 
   let parts: SignatureParts;

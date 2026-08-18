@@ -1,7 +1,8 @@
 /* eslint-disable no-restricted-globals -- Buffer is required for PNG decoding. */
-/* eslint-disable no-bitwise -- PNG de-filtering and pixel packing require bitwise ops. */
+/* eslint-disable no-bitwise -- PNG de-filtering, CRC-32, and pixel packing require bitwise ops. */
 /* eslint-disable import-x/no-nodejs-modules -- zlib and fs are required for PNG decoding. */
 /* eslint-disable id-length -- Single-letter x/y/pixel loop variables are idiomatic in image code. */
+/* eslint-disable @typescript-eslint/no-non-null-assertion -- CRC table index and readByte indices are provably in range. */
 
 import {
   BinaryBitmap,
@@ -34,6 +35,34 @@ type DecodedImage = {
 const PNG_SIGNATURE = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
 ]);
+
+// Precomputed CRC-32 table (PNG uses the standard IEEE polynomial). No CRC
+// dependency exists in package.json, so this is a small local implementation.
+const CRC_TABLE: Uint32Array = ((): Uint32Array => {
+  const table = new Uint32Array(256);
+  for (let entry = 0; entry < 256; entry++) {
+    let current = entry;
+    for (let bit = 0; bit < 8; bit++) {
+      current = current & 1 ? 0xedb88320 ^ (current >>> 1) : current >>> 1;
+    }
+    table[entry] = current >>> 0;
+  }
+  return table;
+})();
+
+/**
+ * Compute the CRC-32 of a buffer (PNG chunk checksum, per the PNG spec).
+ *
+ * @param data - The bytes to checksum.
+ * @returns The unsigned 32-bit CRC.
+ */
+function crc32(data: Buffer): number {
+  let current = 0xffffffff;
+  for (const byte of data) {
+    current = CRC_TABLE[(current ^ byte) & 0xff]! ^ (current >>> 8);
+  }
+  return (current ^ 0xffffffff) >>> 0;
+}
 
 /**
  * Paeth predictor used in PNG filtering.
@@ -80,9 +109,28 @@ export function decodePngToRgb(png: Buffer): DecodedImage {
   const palette: number[][] = [];
 
   while (offset < png.length) {
+    // A chunk header is 8 bytes (4 length + 4 type); a full chunk adds the
+    // data length and a 4-byte trailing CRC.
+    if (offset + 8 > png.length) {
+      throw new Error(
+        `Corrupt PNG: truncated chunk header at offset ${String(offset)}`,
+      );
+    }
     const length = png.readUInt32BE(offset);
     const type = png.toString('ascii', offset + 4, offset + 8);
+    if (offset + 12 + length > png.length) {
+      throw new Error(
+        `Corrupt PNG: chunk '${type}' of length ${String(length)} extends past end of buffer`,
+      );
+    }
     const data = png.subarray(offset + 8, offset + 8 + length);
+    const expectedCrc = png.readUInt32BE(offset + 8 + length);
+    const actualCrc = crc32(png.subarray(offset + 4, offset + 8 + length));
+    if (actualCrc !== expectedCrc) {
+      throw new Error(
+        `Corrupt PNG: CRC mismatch in '${type}' chunk at offset ${String(offset)} (expected 0x${expectedCrc.toString(16)}, got 0x${actualCrc.toString(16)})`,
+      );
+    }
     offset += 8 + length + 4; // length + type + data + CRC
 
     switch (type) {
@@ -121,15 +169,24 @@ export function decodePngToRgb(png: Buffer): DecodedImage {
 
   const inflated = inflateSync(Buffer.concat(idatChunks));
   const stride = width * bytesPerPixel;
+  const expectedInflatedLength = height * (stride + 1);
+  if (inflated.length !== expectedInflatedLength) {
+    // A truncated IDAT stream would otherwise inflate "successfully" and be
+    // silently padded with zeroes by readByte, decoding into garbage pixels.
+    throw new Error(
+      `Corrupt PNG: inflated IDAT stream is ${String(inflated.length)} bytes, expected ${String(expectedInflatedLength)} (${String(height)} rows × (${String(stride)} + 1) bytes)`,
+    );
+  }
   const raw = Buffer.alloc(stride * height);
 
   /**
-   * Read a byte from `inflated`, treating out-of-range as 0.
+   * Read a byte from `inflated`. The length assertion above guarantees the
+   * index is in range.
    *
    * @param idx - The byte index to read.
-   * @returns The byte value, or 0 if out of range.
+   * @returns The byte value.
    */
-  const readByte = (idx: number): number => inflated[idx] ?? 0;
+  const readByte = (idx: number): number => inflated[idx]!;
 
   let inIdx = 0;
   let outIdx = 0;
@@ -235,6 +292,17 @@ export async function decodeQrImage(png: Buffer): Promise<string | null> {
   }
 }
 
+/** Options for {@link decodeQrScreenshots}. */
+export type DecodeQrScreenshotsOptions = {
+  /**
+   * Optional debug sink. Invoked when a frame decodes to a QR code but the
+   * BC-UR fountain decoder rejects it as an invalid fragment (e.g. an
+   * unrelated QR captured in the frame). Invalid fragments remain tolerated;
+   * this only makes the rejection observable instead of silently swallowed.
+   */
+  onLog?: (message: string) => void;
+};
+
 /**
  * Decode a sequence of QR-code PNG screenshots (captured from an animated QR,
  * e.g. via Playwright's `locator.screenshot()`) into the original SerializedUR.
@@ -244,11 +312,13 @@ export async function decodeQrImage(png: Buffer): Promise<string | null> {
  *
  * @param pathsOrBuffers - Either filesystem paths to PNG files, or PNG buffers.
  * For string entries, the file is read from disk.
+ * @param options - Optional decoding options (e.g. a debug `onLog` sink).
  * @returns The reconstructed SerializedUR.
  * @throws If the fragments are insufficient to reconstruct the UR.
  */
 export async function decodeQrScreenshots(
   pathsOrBuffers: (string | Buffer)[],
+  options: DecodeQrScreenshotsOptions = {},
 ): Promise<SerializedUR> {
   const { readFile } = await import('node:fs/promises');
   const decoder = new FragmentDecoder();
@@ -258,12 +328,17 @@ export async function decodeQrScreenshots(
     const fragment = await decodeQrImage(png);
     if (fragment !== null) {
       // Tolerate frames that decode to a QR but are not valid BC-UR fragments
-      // (e.g. noise, partial reads, or an unrelated QR in the frame). Mirrors
-      // the spike's per-frame try/catch around `decoder.receivePart`.
+      // (e.g. noise, partial reads, or an unrelated QR in the frame). The
+      // rejection is surfaced through the optional debug sink so real bugs
+      // are not silently hidden.
       try {
         decoder.receivePart(fragment);
-      } catch {
-        // Ignore invalid fragments; the fountain decoder keeps accumulating.
+      } catch (error) {
+        options.onLog?.(
+          `Rejected invalid BC-UR fragment: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
       }
     }
     if (decoder.isComplete()) {
@@ -275,6 +350,9 @@ export async function decodeQrScreenshots(
     throw new Error(
       'QR screenshot decoding incomplete: insufficient fragments',
     );
+  }
+  if (!decoder.isSuccess()) {
+    throw new Error('QR screenshot decoding failed: reconstruction error');
   }
   return decoder.resultUR();
 }

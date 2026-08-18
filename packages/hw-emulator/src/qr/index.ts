@@ -52,6 +52,7 @@ export {
   decodeQrImage,
   decodeQrScreenshots,
   decodePngToRgb,
+  type DecodeQrScreenshotsOptions,
 } from './decode/screenshots';
 export {
   QR_EMULATOR_SEED,

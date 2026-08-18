@@ -30,6 +30,7 @@ import { QrKeyring, QrScanRequestType } from '../../../keyring-eth-qr/src';
 import { createEmulator } from '../factory';
 import { EmulatorType } from '../types';
 import type { HardwareWalletEmulator } from '../types';
+import { encodeToFragments } from './codec/encoder';
 import { QR_EMULATOR_ADDRESS, QR_EMULATOR_SEED } from './constants';
 import type { SerializedUR } from './core/ur-synth';
 import { QrEmulator } from './emulator';
@@ -37,6 +38,21 @@ import type { QrKeyringBridge } from './emulator';
 
 const common = new Common({ chain: 1, hardfork: Hardfork.SpuriousDragon });
 const londonCommon = new Common({ chain: 1, hardfork: Hardfork.London });
+
+// Build a minimal valid eth-sign-request SerializedUR the way the keyring does.
+async function buildSignRequestUr(): Promise<SerializedUR> {
+  const { EthSignRequest, DataType } =
+    await import('@keystonehq/bc-ur-registry-eth');
+  const request = EthSignRequest.constructETHRequest(
+    Buffer.from('deadbeef', 'hex'),
+    DataType.personalMessage,
+    "m/44'/60'/0'/0/0",
+    'deadbeef',
+    randomUUID(),
+  );
+  const ur = request.toUR();
+  return { type: ur.type, cbor: ur.cbor.toString('hex') };
+}
 
 describe('QrEmulator', () => {
   describe('factory', () => {
@@ -152,6 +168,82 @@ describe('QrEmulator', () => {
         request: { requestId: 'x', payload: ur },
       });
       expect(result.type).toBe('eth-signature');
+    });
+  });
+
+  describe('targeted rejection', () => {
+    it('a rejection armed with a request id only consumes the matching request', async () => {
+      const emulator = new QrEmulator({});
+      const ur = await buildSignRequestUr();
+
+      await emulator.rejectTransaction('req-1');
+
+      // A different request id is signed normally; the rejection stays armed.
+      const other = await emulator.requestScan({
+        type: QrScanRequestType.SIGN,
+        request: { requestId: 'req-2', payload: ur },
+      });
+      expect(other.type).toBe('eth-signature');
+
+      // The matching request id is rejected and consumes the rejection.
+      await expect(
+        emulator.requestScan({
+          type: QrScanRequestType.SIGN,
+          request: { requestId: 'req-1', payload: ur },
+        }),
+      ).rejects.toThrow(/rejected/iu);
+
+      // After consumption, the same request id signs again.
+      const after = await emulator.requestScan({
+        type: QrScanRequestType.SIGN,
+        request: { requestId: 'req-1', payload: ur },
+      });
+      expect(after.type).toBe('eth-signature');
+    });
+
+    it('an untargeted rejection consumes the next sign request regardless of id', async () => {
+      const emulator = new QrEmulator({});
+      const ur = await buildSignRequestUr();
+
+      await emulator.rejectTransaction();
+
+      await expect(
+        emulator.requestScan({
+          type: QrScanRequestType.SIGN,
+          request: { requestId: 'any-id', payload: ur },
+        }),
+      ).rejects.toThrow(/rejected/iu);
+
+      const next = await emulator.requestScan({
+        type: QrScanRequestType.SIGN,
+        request: { requestId: 'any-id', payload: ur },
+      });
+      expect(next.type).toBe('eth-signature');
+    });
+  });
+
+  describe('renderToPng', () => {
+    it('renders a single-fragment UR to a decodable PNG', async () => {
+      const emulator = new QrEmulator({});
+      // Minimal UR that fits in one default-size BC-UR fragment.
+      const ur: SerializedUR = { type: 'bytes', cbor: '44deadbeef' };
+      expect(encodeToFragments(ur)).toHaveLength(1);
+
+      const png = await emulator.renderToPng(ur);
+      expect(png[0]).toBe(0x89);
+      expect(png.subarray(1, 4).toString('ascii')).toBe('PNG');
+
+      const fragment = encodeToFragments(ur)[0] as string;
+      expect(await emulator.decodeQrImage(png)).toBe(fragment.toUpperCase());
+    });
+
+    it('throws when the UR encodes to multiple fragments', async () => {
+      const emulator = new QrEmulator({});
+      // The default 5-descriptor crypto-account exceeds one fragment.
+      const ur = emulator.getAccountUR();
+      expect(encodeToFragments(ur).length).toBeGreaterThan(1);
+
+      await expect(emulator.renderToPng(ur)).rejects.toThrow(/renderToY4m/iu);
     });
   });
 

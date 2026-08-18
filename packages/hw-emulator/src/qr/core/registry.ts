@@ -15,9 +15,16 @@ import {
  *
  * @param xfp - The hex-encoded fingerprint, optionally `0x`-prefixed.
  * @returns A 4-byte Buffer.
+ * @throws If the fingerprint is not exactly 8 hex characters (optionally
+ * `0x`-prefixed), i.e. 4 bytes.
  */
 export function parseXfp(xfp: string): Buffer {
   const hexPart = xfp.startsWith('0x') ? xfp.slice(2) : xfp;
+  if (!/^[0-9a-f]{8}$/iu.test(hexPart)) {
+    throw new Error(
+      `Invalid device fingerprint '${xfp}': expected exactly 8 hex characters (4 bytes), optionally 0x-prefixed`,
+    );
+  }
   return Buffer.from(hexPart, 'hex');
 }
 

@@ -51,8 +51,9 @@ export const QR_EMULATOR_FIRST_ADDRESS_PATH = `${QR_EMULATOR_ACCOUNT_DERIVATION_
 
 /**
  * Internal helper: derive the checksum address at a given derivation path from
- * a mnemonic seed. Uses the compressed public key, matching the way the QR
- * keyring computes addresses from a `CryptoHDKey` public key.
+ * a mnemonic seed. Passes the compressed public key to `publicToAddress`,
+ * which decompresses it internally before keccak-hashing — matching the way
+ * the QR keyring computes addresses from a `CryptoHDKey` public key.
  *
  * @param seed - The BIP-39 mnemonic seed.
  * @param path - The full derivation path (e.g. `m/44'/60'/0'/0/0`).

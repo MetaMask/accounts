@@ -70,6 +70,13 @@ export class FragmentDecoder {
    * @throws If decoding is not yet complete or failed.
    */
   resultUR(): SerializedUR {
+    if (!this.isSuccess()) {
+      throw new Error(
+        this.isComplete()
+          ? 'BC-UR decoding failed: fragments complete but reconstruction failed'
+          : 'BC-UR decoding failed: not yet complete',
+      );
+    }
     const ur: UR = this.#decoder.resultUR();
     return { type: ur.type, cbor: ur.cbor.toString('hex') };
   }
@@ -91,6 +98,9 @@ export function decodeFragments(parts: string[]): SerializedUR {
     throw new Error(
       'BC-UR decoding incomplete: insufficient or invalid fragments',
     );
+  }
+  if (!decoder.isSuccess()) {
+    throw new Error('BC-UR decoding failed: reconstruction error');
   }
   return decoder.resultUR();
 }

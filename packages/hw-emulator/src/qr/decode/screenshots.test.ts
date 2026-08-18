@@ -29,6 +29,11 @@ const baseOptions: SynthesizeOptions = {
   descriptorCount: 5,
 };
 
+const PNG_SIGNATURE = Buffer.from([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+]);
+const PNG_SIGNATURE_LEN = PNG_SIGNATURE.length;
+
 describe('QR screenshot decoder', () => {
   describe('decodeQrImage', () => {
     it('decodes a rendered single-frame PNG back to its fragment string', async () => {
@@ -89,6 +94,75 @@ describe('QR screenshot decoder', () => {
       expect(width).toBe(height);
       expect(data).toHaveLength(width * height);
     });
+
+    it('throws on a truncated PNG whose last chunk extends past the buffer', () => {
+      const ur = buildCryptoHDKeyUR({
+        ...baseOptions,
+        pairMode: 'crypto-hdkey',
+      });
+      const fragment = encodeToFragments(ur, 10_000)[0] as string;
+      const png = renderQrPng(fragment);
+      // Cut 2 bytes off the trailing IEND chunk: its 8-byte header survives,
+      // but the chunk's trailing CRC no longer fits in the buffer.
+      const truncated = png.subarray(0, png.length - 2);
+      expect(() => decodePngToRgb(truncated)).toThrow(
+        /corrupt png: .* extends past end of buffer/iu,
+      );
+    });
+
+    it('throws on a truncated chunk header', () => {
+      const ur = buildCryptoHDKeyUR({
+        ...baseOptions,
+        pairMode: 'crypto-hdkey',
+      });
+      const fragment = encodeToFragments(ur, 10_000)[0] as string;
+      const png = renderQrPng(fragment);
+      // Keep the signature plus only 4 bytes of the next chunk header (the
+      // length prefix) — not enough for length + type.
+      const truncated = png.subarray(0, PNG_SIGNATURE_LEN + 4);
+      expect(() => decodePngToRgb(truncated)).toThrow(
+        /corrupt png: truncated chunk header/iu,
+      );
+    });
+
+    it('throws on a chunk CRC mismatch', () => {
+      const ur = buildCryptoHDKeyUR({
+        ...baseOptions,
+        pairMode: 'crypto-hdkey',
+      });
+      const fragment = encodeToFragments(ur, 10_000)[0] as string;
+      const png = Buffer.from(renderQrPng(fragment));
+      // The file ends with IEND's 4-byte CRC; corrupt its last byte.
+      png[png.length - 1] = (png[png.length - 1] as number) ^ 0xff;
+      expect(() => decodePngToRgb(png)).toThrow(
+        /corrupt png: crc mismatch in 'iend'/iu,
+      );
+    });
+
+    it('throws on a truncated IDAT stream that inflates short', async () => {
+      const { deflateSync } = await import('node:zlib');
+      const size = 32;
+      const rowCount = 10; // IHDR declares 32 rows but only 10 are supplied.
+      const scanlines = Buffer.concat(
+        Array.from({ length: rowCount }, () =>
+          Buffer.concat([Buffer.from([0]), Buffer.alloc(size, 255)]),
+        ),
+      );
+      const ihdr = Buffer.alloc(13);
+      ihdr.writeUInt32BE(size, 0);
+      ihdr.writeUInt32BE(size, 4);
+      ihdr[8] = 8;
+      ihdr[9] = 0;
+      const truncatedIdatPng = Buffer.concat([
+        PNG_SIGNATURE,
+        chunk('IHDR', ihdr),
+        chunk('IDAT', deflateSync(scanlines)),
+        chunk('IEND', Buffer.alloc(0)),
+      ]);
+      expect(() => decodePngToRgb(truncatedIdatPng)).toThrow(
+        /corrupt png: inflated idat/iu,
+      );
+    });
   });
 
   describe('decodeQrScreenshots', () => {
@@ -120,6 +194,23 @@ describe('QR screenshot decoder', () => {
       pngs.splice(Math.floor(pngs.length / 2), 0, blank);
       const decoded = await decodeQrScreenshots(pngs);
       expect(decoded).toStrictEqual(ur);
+    });
+
+    it('surfaces rejected invalid fragments through the onLog debug sink', async () => {
+      const ur = buildCryptoAccountUR(baseOptions);
+      const fragments = encodeToFragments(ur, 50);
+      const pngs = fragments.map((fragment) => renderQrPng(fragment));
+      // A QR that is not a valid BC-UR fragment: tolerated, but logged.
+      const invalid = renderQrPng('no-qr-here-just-text-padding');
+      const logs: string[] = [];
+      const decoded = await decodeQrScreenshots([invalid, ...pngs], {
+        onLog: (message) => {
+          logs.push(message);
+        },
+      });
+      expect(decoded).toStrictEqual(ur);
+      expect(logs.length).toBeGreaterThan(0);
+      expect(logs[0]).toMatch(/rejected invalid bc-ur fragment/iu);
     });
 
     it('throws when the screenshots are insufficient to reconstruct the UR', async () => {

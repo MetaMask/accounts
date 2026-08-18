@@ -73,6 +73,11 @@ describe('QR codec decoder', () => {
       }
       expect(raw.isComplete()).toBe(true);
     });
+
+    it('throws a clear error from resultUR before decoding completes', () => {
+      const decoder = new FragmentDecoder();
+      expect(() => decoder.resultUR()).toThrow(/not yet complete/iu);
+    });
   });
 
   describe('decodeFragments', () => {
@@ -113,6 +118,24 @@ describe('QR codec decoder', () => {
       expect(() => decodeFragments([fragments[0] as string])).toThrow(
         /incomplete/iu,
       );
+    });
+
+    it('throws a decoding-failed error when complete but not successful', () => {
+      const ur = buildCryptoAccountUR(baseOptions);
+      const fragments = encodeToFragments(ur, 50);
+      // Simulate a fountain decoder that reached completion but failed
+      // reconstruction (defensive branch; not reachable with well-formed
+      // fragments from this lib version).
+      const isSuccessSpy = jest
+        .spyOn(FragmentDecoder.prototype, 'isSuccess')
+        .mockReturnValue(false);
+      try {
+        expect(() => decodeFragments(fragments)).toThrow(
+          /bc-ur decoding failed/iu,
+        );
+      } finally {
+        isSuccessSpy.mockRestore();
+      }
     });
 
     it('tolerates a mix of complete and duplicate fragments', () => {

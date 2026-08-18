@@ -5,6 +5,7 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import type { TypedTransaction } from '@ethereumjs/tx';
 import type { AddressLike } from '@ethereumjs/util';
 import {
+  CryptoKeypath,
   DataType,
   ETHSignature,
   EthSignRequest,
@@ -86,6 +87,23 @@ describe('QR signer', () => {
       FIRST_ADDRESS_PATH.replace('m/', ''),
     );
     expect(request.getDataType()).toBe(DataType.personalMessage);
+  });
+
+  it('throws a descriptive error when the sign request has no derivation path', () => {
+    // An empty CryptoKeypath makes getDerivationPath() return undefined;
+    // without the guard this falls through to a cryptic hdkey derive error.
+    const request = new EthSignRequest({
+      signData: Buffer.from('deadbeef', 'hex'),
+      dataType: DataType.personalMessage,
+      derivationPath: new CryptoKeypath([], undefined),
+    });
+    const ur = request.toUR();
+    expect(() =>
+      signRequest(
+        { type: ur.type, cbor: ur.cbor.toString('hex') },
+        { seed: QR_EMULATOR_SEED },
+      ),
+    ).toThrow(/missing derivation path/iu);
   });
 
   describe('transactions', () => {

@@ -22,6 +22,26 @@ describe('QR registry helpers', () => {
         Buffer.from('deadbeef', 'hex'),
       );
     });
+
+    it('throws on a fingerprint that is too short', () => {
+      expect(() => parseXfp('0xdead')).toThrow(/invalid device fingerprint/iu);
+    });
+
+    it('throws on a fingerprint that is too long', () => {
+      expect(() => parseXfp('deadbeefff')).toThrow(
+        /invalid device fingerprint/iu,
+      );
+    });
+
+    it('throws on an odd-length fingerprint', () => {
+      expect(() => parseXfp('deadbee')).toThrow(/invalid device fingerprint/iu);
+    });
+
+    it('throws on a non-hex fingerprint', () => {
+      expect(() => parseXfp('zzzzzzzz')).toThrow(
+        /invalid device fingerprint/iu,
+      );
+    });
   });
 
   describe('pathToComponents', () => {

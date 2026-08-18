@@ -1,6 +1,7 @@
-/* eslint-disable import-x/no-nodejs-modules -- child_process is required to spawn ffmpeg. */
+/* eslint-disable import-x/no-nodejs-modules -- child_process and fs are required to spawn ffmpeg and clean up partial output. */
 
 import { spawn, spawnSync } from 'node:child_process';
+import { rm } from 'node:fs/promises';
 
 import { encodeToFragments } from '../codec/encoder';
 import { QR_REFRESH_MS, QR_Y4M_RENDER_SIZE_PX } from '../constants';
@@ -142,31 +143,67 @@ export async function renderUrToY4m(
   await new Promise<void>((resolve, reject) => {
     const child = spawn('ffmpeg', args, { stdio: ['pipe', 'ignore', 'pipe'] });
 
+    let settled = false;
+    /**
+     * Settle the render promise exactly once. On failure, best-effort remove
+     * the partial output file first so it cannot poison later runs, then
+     * reject.
+     *
+     * @param error - The failure reason, or `undefined` on success.
+     */
+    const finish = (error?: Error): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      if (!error) {
+        resolve();
+        return;
+      }
+      // eslint-disable-next-line promise/no-promise-in-callback -- best-effort removal of the partial output file before rejecting
+      rm(options.outputPath, { force: true })
+        .catch(() => undefined)
+        .finally(() => {
+          reject(error);
+        });
+    };
+
     let stderr = '';
     child.stderr?.on('data', (chunk: Buffer) => {
       stderr += chunk.toString('utf8');
     });
-    child.on('error', reject);
+    child.on('error', (error: Error) => finish(error));
     child.on('close', (code) => {
       if (code === 0) {
-        resolve();
+        finish();
       } else {
-        reject(new Error(`ffmpeg exited with code ${String(code)}\n${stderr}`));
+        finish(new Error(`ffmpeg exited with code ${String(code)}\n${stderr}`));
       }
     });
 
     const { stdin } = child;
     if (!stdin) {
-      reject(new Error('ffmpeg stdin stream unavailable'));
+      finish(new Error('ffmpeg stdin stream unavailable'));
       return;
     }
 
-    for (let i = 0; i < frameCount; i++) {
-      const fragment = fragments[i % fragments.length] ?? fragments[0] ?? '';
-      const png = renderQrPng(fragment, size);
-      stdin.write(png);
+    // An early ffmpeg exit surfaces as an EPIPE 'error' event on stdin;
+    // without a listener the process would crash.
+    stdin.on('error', (error: Error) => finish(error));
+
+    try {
+      for (let i = 0; i < frameCount; i++) {
+        // encodeToFragments (BC-UR fountain encoding) always yields at
+        // least one fragment, so direct indexing is safe.
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- fragment index is provably in range
+        const fragment = fragments[i % fragments.length]!;
+        const png = renderQrPng(fragment, size);
+        stdin.write(png);
+      }
+      stdin.end();
+    } catch (error) {
+      finish(error instanceof Error ? error : new Error(String(error)));
     }
-    stdin.end();
   });
 
   return options.outputPath;

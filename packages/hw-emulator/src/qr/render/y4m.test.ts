@@ -1,11 +1,13 @@
 /* eslint-disable n/no-sync -- synchronous fs is acceptable for temp-file test fixtures. */
 
 import {
+  chmodSync,
   existsSync,
   mkdtempSync,
   readFileSync,
   rmSync,
   statSync,
+  writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -76,43 +78,87 @@ describe('QR Y4M renderer', () => {
       rmSync(tempDir, { recursive: true, force: true });
     });
 
-    it('produces a non-empty Y4M file that starts with the YUV4MPEG2 signature', async () => {
-      const ur = buildCryptoHDKeyUR(baseOptions);
-      const outputPath = join(tempDir, 'account.y4m');
-      const result = await renderUrToY4m(ur, {
-        outputPath,
-        fps: 5,
-        durationS: 1,
-      });
+    // These tests spawn ffmpeg and encode real frames; on loaded machines the
+    // default 2s timeout is flaky, so allow 15s per render.
+    const FFMPEG_TEST_TIMEOUT_MS = 15_000;
 
-      expect(result).toBe(outputPath);
-      expect(existsSync(outputPath)).toBe(true);
-      const stat = statSync(outputPath);
-      expect(stat.size).toBeGreaterThan(0);
+    it(
+      'produces a non-empty Y4M file that starts with the YUV4MPEG2 signature',
+      async () => {
+        const ur = buildCryptoHDKeyUR(baseOptions);
+        const outputPath = join(tempDir, 'account.y4m');
+        const result = await renderUrToY4m(ur, {
+          outputPath,
+          fps: 5,
+          durationS: 1,
+        });
 
-      const header = readFileSync(outputPath).subarray(0, 10).toString('ascii');
-      // Y4M files begin with the "YUV4MPEG2" signature.
-      expect(header.startsWith('YUV4MPEG2')).toBe(true);
-    });
+        expect(result).toBe(outputPath);
+        expect(existsSync(outputPath)).toBe(true);
+        const stat = statSync(outputPath);
+        expect(stat.size).toBeGreaterThan(0);
 
-    it('honours the requested fps and duration', async () => {
-      const ur = buildCryptoHDKeyUR(baseOptions);
-      const outputPath = join(tempDir, 'account-dur.y4m');
-      await renderUrToY4m(ur, {
-        outputPath,
-        fps: 5,
-        durationS: 2,
-      });
-      const header = readFileSync(outputPath).toString('ascii').slice(0, 64);
-      // The Y4M header carries the framerate, e.g. "F5:1" for 5 fps.
-      expect(header).toMatch(/F5:1/u);
-    });
+        const header = readFileSync(outputPath)
+          .subarray(0, 10)
+          .toString('ascii');
+        // Y4M files begin with the "YUV4MPEG2" signature.
+        expect(header.startsWith('YUV4MPEG2')).toBe(true);
+      },
+      FFMPEG_TEST_TIMEOUT_MS,
+    );
 
-    it('returns the output path', async () => {
-      const ur = buildCryptoHDKeyUR(baseOptions);
-      const outputPath = join(tempDir, 'return-path.y4m');
-      const returned = await renderUrToY4m(ur, { outputPath });
-      expect(returned).toBe(outputPath);
-    });
+    it(
+      'honours the requested fps and duration',
+      async () => {
+        const ur = buildCryptoHDKeyUR(baseOptions);
+        const outputPath = join(tempDir, 'account-dur.y4m');
+        await renderUrToY4m(ur, {
+          outputPath,
+          fps: 5,
+          durationS: 2,
+        });
+        const header = readFileSync(outputPath).toString('ascii').slice(0, 64);
+        // The Y4M header carries the framerate, e.g. "F5:1" for 5 fps.
+        expect(header).toMatch(/F5:1/u);
+      },
+      FFMPEG_TEST_TIMEOUT_MS,
+    );
+
+    it(
+      'returns the output path',
+      async () => {
+        const ur = buildCryptoHDKeyUR(baseOptions);
+        const outputPath = join(tempDir, 'return-path.y4m');
+        const returned = await renderUrToY4m(ur, { outputPath });
+        expect(returned).toBe(outputPath);
+      },
+      FFMPEG_TEST_TIMEOUT_MS,
+    );
+
+    it(
+      'removes the partial output file when ffmpeg exits non-zero',
+      async () => {
+        if (process.getuid?.() === 0) {
+          // A read-only file does not block ffmpeg's output open when running
+          // as root, so the forced failure (and cleanup assertion) would be
+          // non-deterministic there.
+          return;
+        }
+        const ur = buildCryptoHDKeyUR(baseOptions);
+        const outputPath = join(tempDir, 'partial.y4m');
+        // Pre-create a sentinel "partial output" and make it read-only so
+        // ffmpeg fails to open it for writing and exits non-zero.
+        writeFileSync(outputPath, 'partial-output-sentinel');
+        chmodSync(outputPath, 0o444);
+        await expect(
+          renderUrToY4m(ur, { outputPath, fps: 5, durationS: 1 }),
+          // The rejection is either ffmpeg's non-zero exit (with its stderr
+          // attached) or the resulting stdin EPIPE when it dies mid-write.
+        ).rejects.toThrow(/ffmpeg|epipe/iu);
+        // The failed render must not leave the poisoned partial file behind.
+        expect(existsSync(outputPath)).toBe(false);
+      },
+      FFMPEG_TEST_TIMEOUT_MS,
+    );
   });
 });

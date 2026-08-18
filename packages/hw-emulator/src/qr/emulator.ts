@@ -20,8 +20,10 @@ import type {
   SynthesizeOptions,
 } from './core/ur-synth';
 import { decodeQrImage, decodeQrScreenshots } from './decode/screenshots';
+import type { DecodeQrScreenshotsOptions } from './decode/screenshots';
 import { renderQrPng } from './render/png';
 import { renderUrToY4m } from './render/y4m';
+import type { Y4mRenderOptions } from './render/y4m';
 
 /**
  * Scan-request type discriminator. Mirrors `QrScanRequestType` from
@@ -99,6 +101,8 @@ export class QrEmulator implements HardwareWalletEmulator, QrKeyringBridge {
   #running = false;
 
   #rejectNext = false;
+
+  #rejectNextRequestId: string | undefined;
 
   /**
    * @param options - Configuration options (all optional; sensible defaults).
@@ -188,13 +192,13 @@ export class QrEmulator implements HardwareWalletEmulator, QrKeyringBridge {
   getInteraction(): DeviceInteraction {
     return {
       approveTransaction: async (): Promise<void> => {
-        this.#rejectNext = false;
+        await this.approveTransaction();
       },
       approveSigning: async (): Promise<void> => {
-        this.#rejectNext = false;
+        await this.approveTransaction();
       },
       rejectTransaction: async (): Promise<void> => {
-        this.#rejectNext = true;
+        await this.rejectTransaction();
       },
       navigateToMainMenu: async (): Promise<void> => {
         // No device screen to navigate; intentional no-op.
@@ -210,6 +214,7 @@ export class QrEmulator implements HardwareWalletEmulator, QrKeyringBridge {
    */
   async approveTransaction(): Promise<void> {
     this.#rejectNext = false;
+    this.#rejectNextRequestId = undefined;
   }
 
   /**
@@ -221,13 +226,43 @@ export class QrEmulator implements HardwareWalletEmulator, QrKeyringBridge {
   }
 
   /**
-   * Pre-reject the next incoming sign request. The flag is consumed by the
-   * next `handleSignRequest` call, which will throw.
+   * Pre-reject the next incoming sign request. The rejection is consumed by
+   * the next sign request, which will throw.
    *
+   * To guard against rapid-fire flows where an untargeted rejection could be
+   * consumed by the wrong request, pass a `requestId`: the rejection then
+   * stays armed until a sign request with exactly that id arrives (requests
+   * carrying a different id — or none — are signed normally).
+   *
+   * @param requestId - Optional request id to target the rejection at; when
+   * omitted, the next sign request consumes the rejection.
    * @returns Resolves once rejection is armed.
    */
-  async rejectTransaction(): Promise<void> {
+  async rejectTransaction(requestId?: string): Promise<void> {
     this.#rejectNext = true;
+    this.#rejectNextRequestId = requestId;
+  }
+
+  /**
+   * Consume an armed rejection if it applies to the given request id.
+   *
+   * @param requestId - The incoming sign request's id, if known.
+   * @returns `true` if the rejection applies to this request and was consumed.
+   */
+  #consumeRejection(requestId: string | undefined): boolean {
+    if (!this.#rejectNext) {
+      return false;
+    }
+    if (
+      this.#rejectNextRequestId !== undefined &&
+      this.#rejectNextRequestId !== requestId
+    ) {
+      // Armed for a different (or unknown) request id; leave it armed.
+      return false;
+    }
+    this.#rejectNext = false;
+    this.#rejectNextRequestId = undefined;
+    return true;
   }
 
   /**
@@ -253,6 +288,9 @@ export class QrEmulator implements HardwareWalletEmulator, QrKeyringBridge {
         if (!req.request) {
           throw new Error('Sign request missing payload');
         }
+        if (this.#consumeRejection(req.request.requestId)) {
+          throw new Error('Sign request rejected by emulator');
+        }
         return this.handleSignRequest(req.request.payload);
       default:
         throw new Error(`Unknown scan request type: ${String(req.type)}`);
@@ -275,7 +313,9 @@ export class QrEmulator implements HardwareWalletEmulator, QrKeyringBridge {
    * a real ECDSA signature from the derived key.
    *
    * If a rejection was armed via {@link rejectTransaction}, the next call
-   * throws and the rejection flag is cleared. By default (and after an explicit
+   * throws and the rejection flag is cleared. A rejection armed with a
+   * specific request id is only consumed by a matching id (see
+   * `requestScan`). By default (and after an explicit
    * {@link approveTransaction}) signing is permitted.
    *
    * @param ur - The `eth-sign-request` SerializedUR.
@@ -283,8 +323,7 @@ export class QrEmulator implements HardwareWalletEmulator, QrKeyringBridge {
    * @throws If a rejection is armed.
    */
   async handleSignRequest(ur: SerializedUR): Promise<SerializedUR> {
-    if (this.#rejectNext) {
-      this.#rejectNext = false;
+    if (this.#consumeRejection(undefined)) {
       throw new Error('Sign request rejected by emulator');
     }
     return signRequest(ur, { seed: this.#options.seed });
@@ -304,24 +343,27 @@ export class QrEmulator implements HardwareWalletEmulator, QrKeyringBridge {
    * @param opts.size - Target square edge length in pixels (optional, defaults to `QR_Y4M_RENDER_SIZE_PX`).
    * @returns The output path.
    */
-  async renderToY4m(
-    ur: SerializedUR,
-    opts: { fps?: number; durationS?: number; size?: number; outputPath: string },
-  ): Promise<string> {
+  async renderToY4m(ur: SerializedUR, opts: Y4mRenderOptions): Promise<string> {
     return renderUrToY4m(ur, opts);
   }
 
   /**
-   * Render a (small) SerializedUR as a single-frame QR PNG. Suitable for URs
-   * that fit in one BC-UR fragment.
+   * Render a (small) SerializedUR as a single-frame QR PNG. Only suitable for
+   * URs that fit in a single BC-UR fragment.
    *
    * @param ur - The SerializedUR to render.
    * @returns A PNG Buffer.
+   * @throws If the UR encodes to more than one BC-UR fragment (use
+   * {@link renderToY4m} for animated multi-fragment QRs).
    */
   async renderToPng(ur: SerializedUR): Promise<Buffer> {
     const fragments = encodeToFragments(ur);
-    const fragment = fragments[0] ?? '';
-    return renderQrPng(fragment);
+    if (fragments.length !== 1) {
+      throw new Error(
+        `renderToPng requires a UR that fits in a single BC-UR fragment, but it encodes to ${String(fragments.length)} fragments; use renderToY4m for animated multi-fragment QRs`,
+      );
+    }
+    return renderQrPng(fragments[0] as string);
   }
 
   // ── QR decoding (test driver) ───────────────────────────────────────────
@@ -331,12 +373,14 @@ export class QrEmulator implements HardwareWalletEmulator, QrKeyringBridge {
    * (fragments may arrive in any order).
    *
    * @param pathsOrBuffers - PNG file paths or buffers.
+   * @param options - Optional decoding options (e.g. a debug `onLog` sink).
    * @returns The reconstructed SerializedUR.
    */
   async decodeQrScreenshots(
     pathsOrBuffers: (string | Buffer)[],
+    options: DecodeQrScreenshotsOptions = {},
   ): Promise<SerializedUR> {
-    return decodeQrScreenshots(pathsOrBuffers);
+    return decodeQrScreenshots(pathsOrBuffers, options);
   }
 
   /**
@@ -363,12 +407,14 @@ export class QrEmulator implements HardwareWalletEmulator, QrKeyringBridge {
 
   /**
    * Reconstruct a SerializedUR from a list of fragments. Exposed as a
-   * convenience for tests that capture fragments directly.
+   * convenience for tests that capture fragments directly. Named
+   * `reconstructFromFragments` (rather than `decodeFragments`) so it does
+   * not shadow the free function from `./codec/decoder` it delegates to.
    *
    * @param fragments - BC-UR fragment strings.
    * @returns The reconstructed SerializedUR.
    */
-  decodeFragments(fragments: string[]): SerializedUR {
+  reconstructFromFragments(fragments: string[]): SerializedUR {
     return decodeFragments(fragments);
   }
 }
