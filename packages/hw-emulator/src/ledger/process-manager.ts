@@ -104,7 +104,26 @@ export function createProcessManager(
 ): ProcessManager {
   let proc: ChildProcess | undefined;
   let status: ProcessManagerStatus = 'idle';
+  let stopPromise: Promise<void> | undefined;
   const emitter = new EventEmitter();
+
+  /**
+   * Send a signal to the child process, ignoring errors from processes that
+   * already exited (kill() throws for already-dead PIDs in some cases).
+   *
+   * @param processToKill - The child process to signal.
+   * @param signal - The signal to send.
+   */
+  function killProcess(
+    processToKill: ChildProcess,
+    signal: NodeJS.Signals,
+  ): void {
+    try {
+      processToKill.kill(signal);
+    } catch {
+      // The process already exited; nothing to do.
+    }
+  }
 
   function buildArgs(): string[] {
     const args: string[] = [];
@@ -195,7 +214,9 @@ export function createProcessManager(
         }
         settled = true;
         cleanup();
-        proc?.kill('SIGTERM');
+        if (proc) {
+          killProcess(proc, 'SIGTERM');
+        }
         status = 'idle';
         reject(new Error('Speculos failed to start within timeout'));
       }, timeout);
@@ -261,34 +282,53 @@ export function createProcessManager(
     });
   }
 
-  async function stop(): Promise<void> {
-    if (!proc || status === 'idle') {
-      return undefined;
+  /**
+   * Stop the Speculos process gracefully (SIGTERM, SIGKILL after the stop
+   * timeout). Concurrent or repeated calls share the same in-flight stop
+   * instead of accumulating extra 'exit' listeners and SIGKILL timers.
+   *
+   * @returns A promise that resolves once the process has stopped.
+   */
+  // eslint-disable-next-line @typescript-eslint/promise-function-async -- returns the shared in-flight promise (not async) so concurrent callers get the same object.
+  function stop(): Promise<void> {
+    if (!stopPromise && (!proc || status === 'idle')) {
+      return Promise.resolve();
+    }
+    if (stopPromise) {
+      // A stop is already in flight — reuse it.
+      return stopPromise;
     }
     status = 'stopping';
     const timeout = options.stopTimeout ?? 10_000;
 
-    return new Promise((resolve) => {
+    stopPromise = new Promise<void>((resolve) => {
       const stopTimer = setTimeout((): void => {
-        proc?.kill('SIGKILL');
+        if (proc) {
+          killProcess(proc, 'SIGKILL');
+        }
         status = 'idle';
         resolve();
       }, timeout);
 
       if (proc) {
-        proc.on('exit', () => {
+        const currentProc = proc;
+        currentProc.once('exit', () => {
           clearTimeout(stopTimer);
           status = 'idle';
           proc = undefined;
           resolve();
         });
-        proc.kill('SIGTERM');
+        killProcess(currentProc, 'SIGTERM');
       } else {
         clearTimeout(stopTimer);
         status = 'idle';
         resolve();
       }
+    }).finally(() => {
+      stopPromise = undefined;
     });
+
+    return stopPromise;
   }
 
   return {

@@ -16,7 +16,7 @@ export type SpeculosBleConfig = {
   transport: string;
   /** Enable verbose logging. */
   verbose: boolean;
-}
+};
 
 /**
  * The BLE process stream (or lifecycle event) that produced a log line.

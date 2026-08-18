@@ -20,6 +20,66 @@ export type DeviceInteraction = {
   navigateToMainMenu(): Promise<void>;
 };
 
+// ---- Shared review-flow constants ----
+
+/** Default number of review screens scrolled before confirming blind signing. */
+const DEFAULT_BLIND_SIGNING_SCROLL_COUNT = 4;
+
+// ---- Button-based (Nano S+/Nano X) interaction constants ----
+
+/** Review screens scrolled when approving a transaction on button devices. */
+const TX_REVIEW_SCREEN_COUNT = 6;
+
+/** Review screens scrolled when approving a message on button devices. */
+const SIGNING_REVIEW_SCREEN_COUNT = 2;
+
+/** Settings entries scrolled when enabling blind signing on button devices. */
+const BLIND_SIGNING_SETTINGS_SCREEN_COUNT = 6;
+
+/** Delay after a regular button press, in milliseconds. */
+const BUTTON_PRESS_DELAY_MS = 500;
+
+/** Delay after a button press that triggers a screen transition, in milliseconds. */
+const BUTTON_TRANSITION_DELAY_MS = 800;
+
+/** Delay after the button press that navigates toward the reject option, in milliseconds. */
+const REJECT_NAVIGATION_DELAY_MS = 300;
+
+/** Delay between scrolls in the settings menu, in milliseconds. */
+const SETTINGS_SCROLL_DELAY_MS = 200;
+
+/** Delay after a navigation press, in milliseconds. */
+const NAVIGATION_DELAY_MS = 400;
+
+// ---- Touch-based (Stax/Flex) interaction constants ----
+
+/** Review swipes when approving a transaction on touch devices. */
+const TOUCH_TX_REVIEW_SWIPE_COUNT = 3;
+
+/** Review swipes when approving a message on touch devices. */
+const TOUCH_SIGNING_REVIEW_SWIPE_COUNT = 2;
+
+/** Horizontal distance of a review swipe, in pixels. */
+const SWIPE_DISTANCE_PX = 10;
+
+/** Duration of a swipe gesture, in seconds. */
+const SWIPE_DURATION_SECONDS = 0.5;
+
+/** Delay after a swipe or screen-changing tap, in milliseconds. */
+const TOUCH_TRANSITION_DELAY_MS = 800;
+
+/** Delay between blind-signing review swipes, in milliseconds. */
+const BLIND_SIGNING_SWIPE_DELAY_MS = 300;
+
+/** Delay letting a confirm/reject tap settle, in milliseconds. */
+const TAP_SETTLE_DELAY_MS = 500;
+
+/** Duration of a short tap, in seconds. */
+const TAP_DURATION_SECONDS = 0.1;
+
+/** Duration the review-confirm button is held, in seconds. */
+const CONFIRM_HOLD_SECONDS = 3.0;
+
 async function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -41,24 +101,24 @@ export class NanoInteraction implements DeviceInteraction {
    * Approve a transaction by scrolling through 6 review screens and confirming.
    */
   async approveTransaction(): Promise<void> {
-    for (let step = 0; step < 6; step++) {
+    for (let step = 0; step < TX_REVIEW_SCREEN_COUNT; step++) {
       await this.#client.pressButton('right');
-      await delay(500);
+      await delay(BUTTON_PRESS_DELAY_MS);
     }
     await this.#client.pressButton('both');
-    await delay(500);
+    await delay(BUTTON_PRESS_DELAY_MS);
   }
 
   /**
    * Approve a personal signing request by scrolling through 2 review screens and confirming.
    */
   async approveSigning(): Promise<void> {
-    for (let step = 0; step < 2; step++) {
+    for (let step = 0; step < SIGNING_REVIEW_SCREEN_COUNT; step++) {
       await this.#client.pressButton('right');
-      await delay(500);
+      await delay(BUTTON_PRESS_DELAY_MS);
     }
     await this.#client.pressButton('both');
-    await delay(500);
+    await delay(BUTTON_PRESS_DELAY_MS);
   }
 
   /**
@@ -66,15 +126,17 @@ export class NanoInteraction implements DeviceInteraction {
    *
    * @param scrollCount - Number of screens to scroll through (default 4).
    */
-  async approveBlindSigning(scrollCount = 4): Promise<void> {
+  async approveBlindSigning(
+    scrollCount = DEFAULT_BLIND_SIGNING_SCROLL_COUNT,
+  ): Promise<void> {
     await this.#client.pressButton('both');
-    await delay(800);
+    await delay(BUTTON_TRANSITION_DELAY_MS);
     for (let step = 0; step < scrollCount; step++) {
       await this.#client.pressButton('right');
-      await delay(500);
+      await delay(BUTTON_PRESS_DELAY_MS);
     }
     await this.#client.pressButton('both');
-    await delay(500);
+    await delay(BUTTON_PRESS_DELAY_MS);
   }
 
   /**
@@ -82,9 +144,9 @@ export class NanoInteraction implements DeviceInteraction {
    */
   async rejectTransaction(): Promise<void> {
     await this.#client.pressButton('right');
-    await delay(300);
+    await delay(REJECT_NAVIGATION_DELAY_MS);
     await this.#client.pressButton('both');
-    await delay(500);
+    await delay(BUTTON_PRESS_DELAY_MS);
   }
 
   /**
@@ -92,21 +154,21 @@ export class NanoInteraction implements DeviceInteraction {
    */
   async enableBlindSigning(): Promise<void> {
     await this.#client.pressButton('both');
-    await delay(800);
+    await delay(BUTTON_TRANSITION_DELAY_MS);
     await this.#client.pressButton('right');
-    await delay(400);
+    await delay(NAVIGATION_DELAY_MS);
     await this.#client.pressButton('both');
-    await delay(800);
+    await delay(BUTTON_TRANSITION_DELAY_MS);
     await this.#client.pressButton('both');
-    await delay(800);
-    for (let step = 0; step < 6; step++) {
+    await delay(BUTTON_TRANSITION_DELAY_MS);
+    for (let step = 0; step < BLIND_SIGNING_SETTINGS_SCREEN_COUNT; step++) {
       await this.#client.pressButton('right');
-      await delay(200);
+      await delay(SETTINGS_SCROLL_DELAY_MS);
     }
     await this.#client.pressButton('both');
-    await delay(500);
+    await delay(BUTTON_PRESS_DELAY_MS);
     await this.#client.pressButton('left');
-    await delay(400);
+    await delay(NAVIGATION_DELAY_MS);
   }
 
   /**
@@ -114,7 +176,7 @@ export class NanoInteraction implements DeviceInteraction {
    */
   async navigateToMainMenu(): Promise<void> {
     await this.#client.pressButton('left');
-    await delay(400);
+    await delay(NAVIGATION_DELAY_MS);
   }
 }
 
@@ -145,95 +207,105 @@ export class TouchInteraction implements DeviceInteraction {
     await this.#client.fingerSwipe(
       centerX,
       centerY,
-      centerX - 10,
+      centerX - SWIPE_DISTANCE_PX,
       centerY,
-      0.5,
+      SWIPE_DURATION_SECONDS,
     );
-    await delay(800);
+    await delay(TOUCH_TRANSITION_DELAY_MS);
   }
 
   /**
    * Tap and hold the review confirm button.
    *
    * @param holdSeconds - Duration to hold the tap in seconds.
+   * @throws If the device model does not define reviewConfirmButton coordinates.
    */
-  async tapConfirm(holdSeconds = 3.0): Promise<void> {
-    if (this.#model.reviewConfirmButton) {
-      await this.#client.fingerTap(
-        this.#model.reviewConfirmButton.x,
-        this.#model.reviewConfirmButton.y,
-        holdSeconds,
+  async tapConfirm(holdSeconds = CONFIRM_HOLD_SECONDS): Promise<void> {
+    const button = this.#model.reviewConfirmButton;
+    if (!button) {
+      throw new Error(
+        `Device model "${this.#model.id}" does not define reviewConfirmButton coordinates`,
       );
     }
+    await this.#client.fingerTap(button.x, button.y, holdSeconds);
   }
 
   /**
    * Tap the review reject button.
+   *
+   * @throws If the device model does not define reviewRejectButton coordinates.
    */
   async tapReject(): Promise<void> {
-    if (this.#model.reviewRejectButton) {
-      await this.#client.fingerTap(
-        this.#model.reviewRejectButton.x,
-        this.#model.reviewRejectButton.y,
-        0.1,
+    const button = this.#model.reviewRejectButton;
+    if (!button) {
+      throw new Error(
+        `Device model "${this.#model.id}" does not define reviewRejectButton coordinates`,
       );
     }
+    await this.#client.fingerTap(button.x, button.y, TAP_DURATION_SECONDS);
   }
 
   /**
    * Tap the back button.
+   *
+   * @throws If the device model does not define backButton coordinates.
    */
   async tapBack(): Promise<void> {
-    if (this.#model.backButton) {
-      await this.#client.fingerTap(
-        this.#model.backButton.x,
-        this.#model.backButton.y,
-        0.1,
+    const button = this.#model.backButton;
+    if (!button) {
+      throw new Error(
+        `Device model "${this.#model.id}" does not define backButton coordinates`,
       );
     }
+    await this.#client.fingerTap(button.x, button.y, TAP_DURATION_SECONDS);
   }
 
   /**
    * Approve a transaction by swiping through review screens and tapping confirm.
    */
   async approveTransaction(): Promise<void> {
-    for (let step = 0; step < 3; step++) {
+    for (let step = 0; step < TOUCH_TX_REVIEW_SWIPE_COUNT; step++) {
       await this.swipeLeft();
     }
     await this.tapConfirm();
-    await delay(500);
+    await delay(TAP_SETTLE_DELAY_MS);
   }
 
   /**
    * Approve a personal signing request by swiping through review screens and tapping confirm.
    */
   async approveSigning(): Promise<void> {
-    for (let step = 0; step < 2; step++) {
+    for (let step = 0; step < TOUCH_SIGNING_REVIEW_SWIPE_COUNT; step++) {
       await this.swipeLeft();
     }
     await this.tapConfirm();
-    await delay(500);
+    await delay(TAP_SETTLE_DELAY_MS);
   }
 
   /**
    * Approve blind signing by tapping confirm, scrolling, and confirming.
    *
    * @param scrollCount - Number of screens to scroll through (default 4).
+   * @throws If the device model does not define confirmButton coordinates.
    */
-  async approveBlindSigning(scrollCount = 4): Promise<void> {
-    await this.#client.fingerTap(
-      this.#model.confirmButton?.x ?? 240,
-      this.#model.confirmButton?.y ?? 530,
-      0.1,
-    );
-    await delay(800);
+  async approveBlindSigning(
+    scrollCount = DEFAULT_BLIND_SIGNING_SCROLL_COUNT,
+  ): Promise<void> {
+    const button = this.#model.confirmButton;
+    if (!button) {
+      throw new Error(
+        `Device model "${this.#model.id}" does not define confirmButton coordinates`,
+      );
+    }
+    await this.#client.fingerTap(button.x, button.y, TAP_DURATION_SECONDS);
+    await delay(TOUCH_TRANSITION_DELAY_MS);
 
     for (let step = 0; step < scrollCount; step++) {
       await this.swipeLeft();
-      await delay(300);
+      await delay(BLIND_SIGNING_SWIPE_DELAY_MS);
     }
     await this.tapConfirm();
-    await delay(500);
+    await delay(TAP_SETTLE_DELAY_MS);
   }
 
   /**
@@ -241,7 +313,7 @@ export class TouchInteraction implements DeviceInteraction {
    */
   async rejectTransaction(): Promise<void> {
     await this.tapReject();
-    await delay(500);
+    await delay(TAP_SETTLE_DELAY_MS);
   }
 
   /**
@@ -258,7 +330,7 @@ export class TouchInteraction implements DeviceInteraction {
    */
   async navigateToMainMenu(): Promise<void> {
     await this.tapBack();
-    await delay(400);
+    await delay(NAVIGATION_DELAY_MS);
   }
 }
 

@@ -29,6 +29,10 @@ export function createEmulator(
   options?: QrEmulatorOptions,
 ): HardwareWalletEmulator;
 export function createEmulator(
+  type: typeof EmulatorType.Trezor,
+  options?: TrezorEmulatorOptions,
+): HardwareWalletEmulator;
+export function createEmulator(
   type: EmulatorTypeValue,
   options?: Record<string, unknown>,
 ): HardwareWalletEmulator;
@@ -42,7 +46,7 @@ export function createEmulator(
     case EmulatorType.Qr:
       return new QrEmulator(options as QrEmulatorOptions);
     case EmulatorType.Trezor:
-      return new TrezorEmulator(options as unknown as TrezorEmulatorOptions);
+      return new TrezorEmulator(options as TrezorEmulatorOptions);
     default:
       throw new Error(`Unknown emulator type: ${String(type)}`);
   }

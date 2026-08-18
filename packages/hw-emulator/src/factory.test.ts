@@ -1,4 +1,8 @@
 import { createEmulator } from './factory';
+import type { TrezorEmulatorOptions } from './trezor';
+import type { TrezorDockerManager } from './trezor';
+import type { TrezorControllerClient } from './trezor';
+import type { TrezorSidecarManager } from './trezor';
 import { EmulatorType } from './types';
 import type { EmulatorType as EmulatorTypeValue } from './types';
 
@@ -26,19 +30,63 @@ describe('createEmulator', () => {
 
   it('creates a Trezor emulator with mock injections', () => {
     const emu = createEmulator(EmulatorType.Trezor, {
-      docker: { start: async () => {}, stop: async () => {} },
+      docker: { start: jest.fn(), stop: jest.fn() },
       controller: {
-        connect: async () => {}, disconnect: async () => {},
-        ping: async () => ({}),
-        emulatorStart: async () => ({}),
-        emulatorSetup: async () => ({}),
-        bridgeStart: async () => ({}),
-        pressYes: async () => ({}), pressNo: async () => ({}),
-        click: async () => ({}), swipe: async () => ({}),
-        input: async () => ({}), getScreenshot: async () => Buffer.alloc(0),
+        connect: jest.fn(),
+        disconnect: jest.fn(),
+        ping: jest.fn(),
+        emulatorStart: jest.fn(),
+        emulatorSetup: jest.fn(),
+        bridgeStart: jest.fn(),
+        pressYes: jest.fn(),
+        pressNo: jest.fn(),
+        click: jest.fn(),
+        swipe: jest.fn(),
+        input: jest.fn(),
+        getScreenshot: jest.fn(),
       },
-      sidecarManager: { start: async () => {}, stop: async () => {}, isRunning: () => false },
+      sidecarManager: {
+        start: jest.fn(),
+        stop: jest.fn(),
+        isRunning: () => false,
+      },
     } as Record<string, unknown>);
+    expect(emu).toBeDefined();
+    expect(emu.isRunning()).toBe(false);
+  });
+
+  it('creates a Trezor emulator from typed TrezorEmulatorOptions', () => {
+    const options: TrezorEmulatorOptions = {
+      model: 'T2T1',
+      seed: 'test seed words',
+      label: 'test trezor',
+      docker: {
+        start: jest.fn(),
+        stop: jest.fn(),
+      } as unknown as TrezorDockerManager,
+      controller: {
+        connect: jest.fn(),
+        disconnect: jest.fn(),
+        ping: jest.fn(),
+        emulatorStart: jest.fn(),
+        emulatorSetup: jest.fn(),
+        bridgeStart: jest.fn(),
+        pressYes: jest.fn(),
+        pressNo: jest.fn(),
+        click: jest.fn(),
+        swipe: jest.fn(),
+        input: jest.fn(),
+        getScreenshot: jest.fn(),
+      } as unknown as TrezorControllerClient,
+      sidecarManager: {
+        start: jest.fn(),
+        stop: jest.fn(),
+        isRunning: () => false,
+      } as TrezorSidecarManager,
+    };
+
+    // This resolves through the Trezor-specific overload (no `unknown` cast).
+    const emu = createEmulator(EmulatorType.Trezor, options);
     expect(emu).toBeDefined();
     expect(emu.isRunning()).toBe(false);
   });

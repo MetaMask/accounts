@@ -169,6 +169,10 @@ export class Speculos implements HardwareWalletEmulator {
   /**
    * Start the Speculos emulator and connect the APDU client.
    *
+   * If the client connect or interaction setup fails after the emulator
+   * process/container has started, all already-started resources are cleaned
+   * up before the error is rethrown, so nothing leaks.
+   *
    * @throws If already started.
    */
   async start(): Promise<void> {
@@ -184,21 +188,28 @@ export class Speculos implements HardwareWalletEmulator {
       await this.startDocker(config);
     }
 
-    this.#clientInstance = new SpeculosClient({
-      apduPort: config.deviceConfig.apduPort,
-      apiPort: config.deviceConfig.apiPort,
-    });
+    try {
+      this.#clientInstance = new SpeculosClient({
+        apduPort: config.deviceConfig.apduPort,
+        apiPort: config.deviceConfig.apiPort,
+      });
 
-    await this.#clientInstance.connectWithRetry({
-      autoReconnect: true,
-      reconnectAttempts: 5,
-      reconnectDelayMs: 2000,
-    });
+      await this.#clientInstance.connectWithRetry({
+        autoReconnect: true,
+        reconnectAttempts: 5,
+        reconnectDelayMs: 2000,
+      });
 
-    this.#interactionInstance = createDeviceInteraction(
-      this.#clientInstance,
-      config.deviceModel,
-    );
+      this.#interactionInstance = createDeviceInteraction(
+        this.#clientInstance,
+        config.deviceModel,
+      );
+    } catch (startError: unknown) {
+      // The process/container is already running at this point — clean up all
+      // started resources so a failed start does not leak them.
+      await this.#cleanup();
+      throw startError;
+    }
 
     this.#started = true;
   }
@@ -254,34 +265,73 @@ export class Speculos implements HardwareWalletEmulator {
 
   /**
    * Stop the emulator and release all resources (bridge, process/docker, client).
+   *
+   * Safe to call even if start() failed partway: any resource that was created
+   * is cleaned up regardless of the `started` flag, and each step is attempted
+   * even when an earlier step fails.
    */
   async stop(): Promise<void> {
-    if (!this.#started) {
-      return;
-    }
+    await this.#cleanup();
+    this.#started = false;
+  }
 
+  /**
+   * Best-effort cleanup of every created resource. Never throws: a failing
+   * step is logged and the remaining steps still run.
+   */
+  async #cleanup(): Promise<void> {
     if (this.#bridgeInstance) {
-      await this.#bridgeInstance.stop();
+      const bridge = this.#bridgeInstance;
       this.#bridgeInstance = null;
+      try {
+        await bridge.stop();
+      } catch (stopError: unknown) {
+        this.#logCleanupError('bridge', stopError);
+      }
     }
 
     if (this.#processManager) {
-      await this.#processManager.stop();
+      const processManager = this.#processManager;
       this.#processManager = null;
+      try {
+        await processManager.stop();
+      } catch (stopError: unknown) {
+        this.#logCleanupError('process manager', stopError);
+      }
     }
 
     if (this.#dockerManager) {
-      await this.#dockerManager.stop();
+      const dockerManager = this.#dockerManager;
       this.#dockerManager = null;
+      try {
+        await dockerManager.stop();
+      } catch (stopError: unknown) {
+        this.#logCleanupError('docker manager', stopError);
+      }
     }
 
     if (this.#clientInstance) {
-      await this.#clientInstance.disconnect();
+      const client = this.#clientInstance;
       this.#clientInstance = null;
+      try {
+        await client.disconnect();
+      } catch (stopError: unknown) {
+        this.#logCleanupError('client', stopError);
+      }
     }
 
     this.#interactionInstance = null;
-    this.#started = false;
+  }
+
+  /**
+   * Log a resource cleanup failure without interrupting the remaining steps.
+   *
+   * @param resource - Name of the resource being cleaned up.
+   * @param error - The error thrown while stopping it.
+   */
+  #logCleanupError(resource: string, error: unknown): void {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[Speculos] Error stopping ${resource}: ${message}`);
   }
 
   /**
@@ -315,11 +365,17 @@ export class Speculos implements HardwareWalletEmulator {
    *
    * @param wsPort - Override port for the WebSocket server.
    * @returns The started ApduBridge instance.
-   * @throws If the emulator has not been started.
+   * @throws If the emulator has not been started, or a bridge is already
+   * running (call stop() first instead of silently replacing it).
    */
   async startBridge(wsPort?: number): Promise<ApduBridge> {
     if (!this.#clientInstance) {
       throw new Error('Speculos not started. Call start() first.');
+    }
+    if (this.#bridgeInstance) {
+      throw new Error(
+        'A bridge is already running. Call stop() before starting another bridge.',
+      );
     }
 
     const config = this.resolveConfig();

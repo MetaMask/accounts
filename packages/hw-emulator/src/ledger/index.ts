@@ -4,7 +4,7 @@ export {
   type SpeculosClientOptions,
   type APDUResponse,
 } from './client';
-export { ApduBridge } from './apdu-bridge';
+export { ApduBridge, type InjectedErrorMatcher } from './apdu-bridge';
 export {
   createDeviceInteraction,
   NanoInteraction,

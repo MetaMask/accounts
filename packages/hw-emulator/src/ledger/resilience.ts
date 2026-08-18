@@ -1,43 +1,8 @@
-/**
- * Retry a function with exponential backoff.
- *
- * @param fn - The async function to retry.
- * @param options - Retry configuration.
- * @param options.maxRetries - Maximum number of retry attempts.
- * @param options.shouldRetry - Optional predicate to determine if an error is retryable.
- * @param options.onRetry - Optional callback invoked before each retry.
- * @returns The result of the function.
- */
-export async function withRetry<TResult>(
-  fn: () => Promise<TResult>,
-  options: {
-    maxRetries: number;
-    shouldRetry?: (error: Error) => boolean;
-    onRetry?: (error: Error, attempt: number) => void;
-  },
-): Promise<TResult> {
-  const { maxRetries, shouldRetry, onRetry } = options;
+/** Initial retry backoff delay in milliseconds. */
+const INITIAL_BACKOFF_MS = 1000;
 
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (rawError: unknown) {
-      const error =
-        rawError instanceof Error ? rawError : new Error(String(rawError));
-      const canRetry =
-        attempt < maxRetries && (shouldRetry ? shouldRetry(error) : true);
-      if (!canRetry) {
-        throw error;
-      }
-      onRetry?.(error, attempt + 1);
-      const delay = Math.min(1000 * Math.pow(2, attempt), 8000);
-      await new Promise((resolve) => {
-        setTimeout(resolve, delay);
-      });
-    }
-  }
-  throw new Error('Unreachable');
-}
+/** Maximum retry backoff delay in milliseconds. */
+const MAX_BACKOFF_MS = 8000;
 
 /**
  * Exponential backoff delay calculator.
@@ -75,6 +40,47 @@ export class ExponentialBackoff {
   reset(): void {
     this.#current = this.#initialMs;
   }
+}
+
+/**
+ * Retry a function with exponential backoff.
+ *
+ * @param fn - The async function to retry.
+ * @param options - Retry configuration.
+ * @param options.maxRetries - Maximum number of retry attempts.
+ * @param options.shouldRetry - Optional predicate to determine if an error is retryable.
+ * @param options.onRetry - Optional callback invoked before each retry.
+ * @returns The result of the function.
+ */
+export async function withRetry<TResult>(
+  fn: () => Promise<TResult>,
+  options: {
+    maxRetries: number;
+    shouldRetry?: (error: Error) => boolean;
+    onRetry?: (error: Error, attempt: number) => void;
+  },
+): Promise<TResult> {
+  const { maxRetries, shouldRetry, onRetry } = options;
+  const backoff = new ExponentialBackoff(INITIAL_BACKOFF_MS, MAX_BACKOFF_MS);
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (rawError: unknown) {
+      const error =
+        rawError instanceof Error ? rawError : new Error(String(rawError));
+      const canRetry =
+        attempt < maxRetries && (shouldRetry ? shouldRetry(error) : true);
+      if (!canRetry) {
+        throw error;
+      }
+      onRetry?.(error, attempt + 1);
+      await new Promise((resolve) => {
+        setTimeout(resolve, backoff.next());
+      });
+    }
+  }
+  throw new Error('Unreachable');
 }
 
 /**

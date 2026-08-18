@@ -33,12 +33,25 @@ export function getWebHidMockScript(wsPort: number): string {
         }
         ws = new _WS('ws://localhost:' + wsPort);
 
+        const failAllPending = function(message) {
+          pendingExchanges.forEach(function(pending) {
+            pending.reject(new Error(message));
+          });
+          pendingExchanges.clear();
+        };
+
         ws.onopen = function() {
           console.log('[WebHID Mock] WebSocket connected');
         };
 
         ws.onmessage = function(event) {
-          const response = JSON.parse(event.data);
+          let response;
+          try {
+            response = JSON.parse(event.data);
+          } catch (parseError) {
+            console.error('[WebHID Mock] Invalid JSON message from bridge:', parseError);
+            return;
+          }
           if (response.type === 'HID_RECV') {
             const pending = pendingExchanges.get(response.id);
             if (!pending) return;
@@ -75,11 +88,13 @@ export function getWebHidMockScript(wsPort: number): string {
 
         ws.onclose = function() {
           console.log('[WebHID Mock] WebSocket disconnected');
+          failAllPending('WebSocket closed before the exchange completed');
           ws = null;
         };
 
         ws.onerror = function(socketError) {
           console.error('[WebHID Mock] WebSocket error:', socketError);
+          failAllPending('WebSocket error before the exchange completed');
         };
       };
 

@@ -23,4 +23,34 @@ describe('getWebHidMockScript', () => {
       /APDU_ERROR[\s\S]*?pendingExchanges\.delete\(response\.id\)/u,
     );
   });
+
+  it('wraps JSON.parse in try/catch', () => {
+    const script = getWebHidMockScript(9876);
+
+    expect(script).toMatch(
+      /try \{[\s\S]*?JSON\.parse\(event\.data\)[\s\S]*?\} catch \(parseError\)/u,
+    );
+  });
+
+  it('rejects all pending exchanges on ws.onclose and ws.onerror', () => {
+    const script = getWebHidMockScript(9876);
+
+    expect(script).toMatch(/const failAllPending = function\(message\)/u);
+    expect(script).toMatch(/pendingExchanges\.forEach[\s\S]*?pending\.reject/u);
+    expect(script).toMatch(/pendingExchanges\.clear\(\)/u);
+    // Both close and error paths invoke failAllPending.
+    const onclose = script.match(
+      /ws\.onclose = function\(\) \{[\s\S]*?\};/u,
+    )?.[0];
+    const onerror = script.match(/ws\.onerror = function[\s\S]*?\};/u)?.[0];
+    expect(onclose).toContain('failAllPending(');
+    expect(onerror).toContain('failAllPending(');
+  });
+
+  it('produces syntactically valid JavaScript for injection', () => {
+    const script = getWebHidMockScript(9876);
+
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+    expect(() => new Function(script)).not.toThrow();
+  });
 });

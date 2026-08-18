@@ -100,4 +100,55 @@ describe('TouchInteraction', () => {
       expect(client.fingerSwipe).not.toHaveBeenCalled();
     });
   });
+
+  describe('missing coordinates', () => {
+    const minimalModel: DeviceModel = {
+      id: 'minimal-touch',
+      name: 'Minimal Touch',
+      speculosModel: 'minimal',
+      interactionType: 'touch',
+      elfFile: 'minimal.elf',
+      screenSize: { width: 400, height: 672 },
+    };
+
+    it('throws when tapConfirm has no reviewConfirmButton coordinates', async () => {
+      const interaction = new TouchInteraction(
+        createMockClient(),
+        minimalModel,
+      );
+      await expect(interaction.tapConfirm()).rejects.toThrow(
+        'reviewConfirmButton coordinates',
+      );
+    });
+
+    it('throws when tapReject has no reviewRejectButton coordinates', async () => {
+      const interaction = new TouchInteraction(
+        createMockClient(),
+        minimalModel,
+      );
+      await expect(interaction.tapReject()).rejects.toThrow(
+        'reviewRejectButton coordinates',
+      );
+    });
+
+    it('throws when tapBack has no backButton coordinates', async () => {
+      const interaction = new TouchInteraction(
+        createMockClient(),
+        minimalModel,
+      );
+      await expect(interaction.tapBack()).rejects.toThrow(
+        'backButton coordinates',
+      );
+    });
+
+    it('throws when approveBlindSigning has no confirmButton coordinates', async () => {
+      const interaction = new TouchInteraction(
+        createMockClient(),
+        minimalModel,
+      );
+      await expect(interaction.approveBlindSigning()).rejects.toThrow(
+        'confirmButton coordinates',
+      );
+    });
+  });
 });

@@ -1,7 +1,12 @@
-import { execSync, spawn  } from 'child_process';
-import type {ChildProcess} from 'child_process';
-import { existsSync } from 'fs';
-import { dirname, join, resolve } from 'path';
+// eslint-disable-next-line import-x/no-nodejs-modules
+import { execFileSync, spawn } from 'node:child_process';
+// eslint-disable-next-line import-x/no-nodejs-modules
+import type { ChildProcess } from 'node:child_process';
+// eslint-disable-next-line import-x/no-nodejs-modules
+import { existsSync } from 'node:fs';
+// eslint-disable-next-line import-x/no-nodejs-modules
+import { dirname, join, resolve } from 'node:path';
+
 import type {
   SpeculosBleConfig,
   SpeculosBleLogStream,
@@ -30,13 +35,13 @@ const DEFAULT_CONFIG: SpeculosBleConfig = {
  * `scripts/setup-python.sh`.
  */
 export class SpeculosBleRunner {
-  private readonly config: SpeculosBleConfig;
+  readonly #config: SpeculosBleConfig;
 
-  private readonly onLog:
+  readonly #onLog:
     | ((line: string, stream: SpeculosBleLogStream) => void)
     | undefined;
 
-  private childProcess: ChildProcess | undefined;
+  #childProcess: ChildProcess | undefined;
 
   /**
    * Resolve the package root directory.
@@ -47,14 +52,22 @@ export class SpeculosBleRunner {
    * and the venv even when the package has been copied into a consumer's
    * `node_modules` (e.g. via a Yarn `file:` resolution), where the relative
    * resolution would point at the copy rather than the source of truth.
+   *
+   * @returns The resolved package root directory.
    */
   static get packageDir(): string {
+    // eslint-disable-next-line no-restricted-globals
     const envDir = process.env.SPECULOS_BLE_PACKAGE_DIR;
-    return envDir ? resolve(envDir) : dirname(dirname(__dirname));
+    return envDir
+      ? resolve(envDir)
+      : // eslint-disable-next-line no-restricted-globals
+        dirname(dirname(__dirname));
   }
 
   /**
    * Resolve the Python source directory (`<packageDir>/python_src`).
+   *
+   * @returns The resolved Python source directory.
    */
   static get pythonDir(): string {
     return join(SpeculosBleRunner.packageDir, 'python_src');
@@ -67,14 +80,21 @@ export class SpeculosBleRunner {
    * `SPECULOS_BLE_VENV_DIR` environment variable (mirrors
    * `scripts/setup-python.sh`) to keep the venv at a stable location
    * independent of where the package is resolved.
+   *
+   * @returns The resolved virtualenv directory.
    */
   static get venvDir(): string {
+    // eslint-disable-next-line no-restricted-globals
     const envVenv = process.env.SPECULOS_BLE_VENV_DIR;
-    return envVenv ? resolve(envVenv) : join(SpeculosBleRunner.packageDir, '.venv');
+    return envVenv
+      ? resolve(envVenv)
+      : join(SpeculosBleRunner.packageDir, '.venv');
   }
 
   /**
    * Path to the Python venv interpreter.
+   *
+   * @returns The path to the venv's Python interpreter.
    */
   static get venvPython(): string {
     return join(SpeculosBleRunner.venvDir, 'bin', 'python');
@@ -82,6 +102,8 @@ export class SpeculosBleRunner {
 
   /**
    * Check whether the Python venv has been created.
+   *
+   * @returns True if the venv interpreter exists.
    */
   static isVenvReady(): boolean {
     return existsSync(SpeculosBleRunner.venvPython);
@@ -89,30 +111,49 @@ export class SpeculosBleRunner {
 
   /**
    * Run `scripts/setup-python.sh` to create the venv.
+   *
+   * The script path is passed as a dedicated argument to `bash` via
+   * `execFileSync` (no shell) so it is never subject to shell interpolation.
    */
   static setupVenv(): void {
-    const script = join(SpeculosBleRunner.packageDir, 'scripts', 'setup-python.sh');
-    execSync(`bash "${script}"`, { stdio: 'inherit' });
+    const script = join(
+      SpeculosBleRunner.packageDir,
+      'scripts',
+      'setup-python.sh',
+    );
+    execFileSync('bash', [script], { stdio: 'inherit' });
   }
 
   constructor(options: SpeculosBleRunnerOptions = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...options };
-    this.onLog = options.onLog;
+    this.#config = { ...DEFAULT_CONFIG, ...options };
+    this.#onLog = options.onLog;
   }
 
-  /** Speculos host. */
+  /**
+   * Speculos host.
+   *
+   * @returns The configured Speculos host.
+   */
   get host(): string {
-    return this.config.speculosHost;
+    return this.#config.speculosHost;
   }
 
-  /** Control API port. */
+  /**
+   * Control API port.
+   *
+   * @returns The configured Control API port.
+   */
   get controlApiPort(): number {
-    return this.config.controlApiPort;
+    return this.#config.controlApiPort;
   }
 
-  /** Whether the child process is still running. */
+  /**
+   * Whether the child process is still running.
+   *
+   * @returns True if the child process has not exited.
+   */
   get isRunning(): boolean {
-    return this.childProcess?.exitCode === null;
+    return this.#childProcess?.exitCode === null;
   }
 
   /**
@@ -132,34 +173,35 @@ export class SpeculosBleRunner {
       '-m',
       'speculos_ble',
       '--transport',
-      this.config.transport,
+      this.#config.transport,
       '--device-name',
-      this.config.deviceName,
+      this.#config.deviceName,
       '--speculos-host',
-      this.config.speculosHost,
+      this.#config.speculosHost,
       '--speculos-apdu-port',
-      String(this.config.speculosApduPort),
+      String(this.#config.speculosApduPort),
       '--speculos-api-port',
-      String(this.config.speculosApiPort),
+      String(this.#config.speculosApiPort),
       '--control-api-port',
-      String(this.config.controlApiPort),
+      String(this.#config.controlApiPort),
     ];
 
-    if (this.config.verbose) {
+    if (this.#config.verbose) {
       args.push('-v');
     }
 
-    this.childProcess = spawn(SpeculosBleRunner.venvPython, args, {
+    this.#childProcess = spawn(SpeculosBleRunner.venvPython, args, {
       cwd: SpeculosBleRunner.pythonDir,
       stdio: ['ignore', 'pipe', 'pipe'],
       env: {
+        // eslint-disable-next-line no-restricted-globals
         ...process.env,
         VIRTUAL_ENV: SpeculosBleRunner.venvDir,
       },
     });
 
-    const proc = this.childProcess;
-    const {onLog} = this;
+    const proc = this.#childProcess;
+    const onLog = this.#onLog;
     if (onLog) {
       proc.stdout?.on('data', (data: Buffer) => {
         const line = data.toString().trim();
@@ -173,50 +215,74 @@ export class SpeculosBleRunner {
           onLog(line, 'stderr');
         }
       });
-      proc.on('error', (err: Error) => {
-        onLog(err.message, 'error');
+      proc.on('error', (error: Error) => {
+        onLog(error.message, 'error');
       });
-      proc.on('exit', (code, signal) => {
+      proc.on('exit', (code: number | null, signal: string | null) => {
         onLog(`exited code=${code} signal=${signal}`, 'exit');
       });
     }
 
-    return this.childProcess;
+    return this.#childProcess;
   }
 
   /**
    * Stop the BLE bridge service gracefully (SIGTERM, then SIGKILL after 5s).
+   *
+   * Killing a process that already exited throws, so both signals are
+   * best-effort and an already-exited process is a no-op.
    */
   async stop(): Promise<void> {
-    const proc = this.childProcess;
+    const proc = this.#childProcess;
     if (!proc) {
       return;
     }
-    this.childProcess = undefined;
+    this.#childProcess = undefined;
 
-    proc.kill('SIGTERM');
+    // Already exited — nothing to terminate or wait for.
+    if (proc.exitCode !== null || proc.signalCode !== null) {
+      return;
+    }
 
-    await new Promise<void>((res) => {
-      proc.once('exit', () => res());
-      setTimeout(() => {
-        proc.kill('SIGKILL');
-        res();
+    try {
+      proc.kill('SIGTERM');
+    } catch {
+      // Already exited.
+      return;
+    }
+
+    await new Promise<void>((resolveExit) => {
+      const killTimer = setTimeout(() => {
+        try {
+          proc.kill('SIGKILL');
+        } catch {
+          // Already exited.
+        }
+        resolveExit();
       }, 5_000);
+      proc.once('exit', () => {
+        clearTimeout(killTimer);
+        resolveExit();
+      });
     });
   }
 
   /**
    * Check whether the Control API is responding and reports `ready`.
+   *
+   * The abort timer is always cleared, including when the fetch rejects, so
+   * no timer is leaked.
+   *
+   * @returns True if the Control API reports `ready`.
    */
   async isControlApiReady(): Promise<boolean> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2_000);
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 2_000);
       const resp = await fetch(
-        `http://${this.config.speculosHost}:${this.config.controlApiPort}/health`,
+        `http://${this.#config.speculosHost}:${this.#config.controlApiPort}/health`,
         { signal: controller.signal },
       );
-      clearTimeout(timeout);
       if (!resp.ok) {
         return false;
       }
@@ -224,6 +290,8 @@ export class SpeculosBleRunner {
       return json.status === 'ready';
     } catch {
       return false;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
@@ -239,10 +307,12 @@ export class SpeculosBleRunner {
       if (await this.isControlApiReady()) {
         return;
       }
-      await new Promise((r) => setTimeout(r, delayMs));
+      await new Promise((resolveDelay) => {
+        setTimeout(resolveDelay, delayMs);
+      });
     }
     throw new Error(
-      `Control API not ready at ${this.config.speculosHost}:${this.config.controlApiPort} after ${maxRetries} retries`,
+      `Control API not ready at ${this.#config.speculosHost}:${this.#config.controlApiPort} after ${maxRetries} retries`,
     );
   }
 
@@ -252,7 +322,7 @@ export class SpeculosBleRunner {
   async disconnectBle(): Promise<void> {
     try {
       await fetch(
-        `http://${this.config.speculosHost}:${this.config.controlApiPort}/ble/disconnect`,
+        `http://${this.#config.speculosHost}:${this.#config.controlApiPort}/ble/disconnect`,
         { method: 'POST' },
       );
     } catch {
