@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   speculos:
-    image: ghcr.io/ledgerhq/speculos:latest
+    image: ghcr.io/ledgerhq/speculos:0.25.13
     container_name: metamask-speculos
     ports:
       - '${SPECULOS_APDU_PORT:-9998}:9999'
@@ -29,8 +29,11 @@ services:
 
 ---
 # Note:
+# - Image is pinned to 0.25.13, the Speculos version this branch bundles
 # - SPECULOS_APDU_PORT / SPECULOS_API_PORT are host-side ports (defaults 9998 / 5001)
 # - Container listens on 9999 (APDU) and 5000 (API) internally
+# - Host-side defaults match src/ledger/constants.ts (DEFAULT_DEVICE) and
+#   scripts/start-android.sh (APDU 9998, API 5001)
 # - SPECULOS_DEVICE selects the device model (nanosp, nanox, stax, flex)
 # - SPECULOS_ELF_FILENAME is the ELF filename inside /speculos/apps/ (NOT the host path)
 # - SPECULOS_SEED sets the mnemonic for deterministic accounts (DockerManager / Speculos seed option)

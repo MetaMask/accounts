@@ -96,7 +96,7 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^6.1.0",
-    "@metamask/eth-qr-keyring": "workspace:^",
+    "@metamask/eth-qr-keyring": "^3.0.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
@@ -124,7 +124,7 @@
     }
   },
   "engines": {
-    "node": "^18.18 || >=20"
+    "node": ">=22"
   },
   "lavamoat": {
     "allowScripts": {

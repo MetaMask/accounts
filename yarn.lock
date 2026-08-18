@@ -1497,17 +1497,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/errors@npm:^6.12.3":
+"@ledgerhq/errors@npm:^6.12.3, @ledgerhq/errors@npm:^6.19.1":
   version: 6.35.0
   resolution: "@ledgerhq/errors@npm:6.35.0"
   checksum: 10/1bbc4a314d22aca480a5433c9d4b5aded9907c86073ac8678c3f6bb50b6627973f12a5f93040993bf313aed8e8db72ce67758f5ae7b51b5302d8a05cf8055a15
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/errors@npm:^6.19.1":
-  version: 6.19.1
-  resolution: "@ledgerhq/errors@npm:6.19.1"
-  checksum: 10/8265c6d73c314a4aabbe060ec29e2feebb4e904fe811bf7a9c53cde08e713dcbceded9d927ebb2f0ffc47a7b16524379d4a7e9aa3d61945b8a832be7cd5cf69b
   languageName: node
   linkType: hard
 
@@ -1580,17 +1573,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/logs@npm:^6.10.1":
+"@ledgerhq/logs@npm:^6.10.1, @ledgerhq/logs@npm:^6.12.0":
   version: 6.17.0
   resolution: "@ledgerhq/logs@npm:6.17.0"
   checksum: 10/81332b4db29e1e76ee24f8d741d30152b5c0676e58feedebfde93c7ef4bd641813596d9402d734af779fe3cb6e28599b91b6e6f57ac0017d1231f7d2dad49404
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/logs@npm:^6.12.0":
-  version: 6.12.0
-  resolution: "@ledgerhq/logs@npm:6.12.0"
-  checksum: 10/a0a01f5d6edb0c14e7a42d24ab67ce362219517f6a50d0572c917f4f7988a1e2e9363e3d0fb170fe267f054e1e30a111564de44276e01c538b258d902c546421
   languageName: node
   linkType: hard
 
@@ -2021,7 +2007,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/eth-qr-keyring@workspace:^, @metamask/eth-qr-keyring@workspace:packages/keyring-eth-qr":
+"@metamask/eth-qr-keyring@npm:^3.0.0, @metamask/eth-qr-keyring@workspace:packages/keyring-eth-qr":
   version: 0.0.0-use.local
   resolution: "@metamask/eth-qr-keyring@workspace:packages/keyring-eth-qr"
   dependencies:
@@ -2235,7 +2221,7 @@ __metadata:
     "@ledgerhq/devices": "npm:^7.0.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/bip39": "npm:^4.0.0"
-    "@metamask/eth-qr-keyring": "workspace:^"
+    "@metamask/eth-qr-keyring": "npm:^3.0.0"
     "@metamask/eth-sig-util": "npm:^8.2.0"
     "@metamask/utils": "npm:^11.11.0"
     "@ngraveio/bc-ur": "npm:^1.1.13"
@@ -4910,21 +4896,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/secp256k1@npm:^4.0.0":
+"@types/secp256k1@npm:^4.0.0, @types/secp256k1@npm:^4.0.1":
   version: 4.0.7
   resolution: "@types/secp256k1@npm:4.0.7"
   dependencies:
     "@types/node": "npm:*"
   checksum: 10/bcf7adbd953d2cb829ae98a3cd2f8eeb1e2316f4f6de720ee3863da90bd98899c08fa8c42748e8701cad16ede0898df69a6e7f22660d1fb3cb276d5c771069db
-  languageName: node
-  linkType: hard
-
-"@types/secp256k1@npm:^4.0.1":
-  version: 4.0.6
-  resolution: "@types/secp256k1@npm:4.0.6"
-  dependencies:
-    "@types/node": "npm:*"
-  checksum: 10/211f823be990b55612e604d620acf0dc3bc942d3836bdd8da604269effabc86d98161e5947487b4e4e128f9180fc1682daae2f89ea7a4d9648fdfe52fba365fc
   languageName: node
   linkType: hard
 
@@ -7084,7 +7061,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"elliptic@npm:6.6.1, elliptic@npm:^6.4.0, elliptic@npm:^6.5.2, elliptic@npm:^6.5.4, elliptic@npm:^6.5.7":
+"elliptic@npm:6.6.1, elliptic@npm:^6.4.0, elliptic@npm:^6.5.2, elliptic@npm:^6.5.7":
   version: 6.6.1
   resolution: "elliptic@npm:6.6.1"
   dependencies:
@@ -10575,14 +10552,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minipass@npm:^5.0.0 || ^6.0.2 || ^7.0.0, minipass@npm:^7.0.2, minipass@npm:^7.0.3, minipass@npm:^7.1.2":
-  version: 7.1.2
-  resolution: "minipass@npm:7.1.2"
-  checksum: 10/c25f0ee8196d8e6036661104bacd743785b2599a21de5c516b32b3fa2b83113ac89a2358465bc04956baab37ffb956ae43be679b2262bf7be15fce467ccd7950
-  languageName: node
-  linkType: hard
-
-"minipass@npm:^7.0.4":
+"minipass@npm:^5.0.0 || ^6.0.2 || ^7.0.0, minipass@npm:^7.0.2, minipass@npm:^7.0.3, minipass@npm:^7.0.4, minipass@npm:^7.1.2":
   version: 7.1.3
   resolution: "minipass@npm:7.1.3"
   checksum: 10/175e4d5e20980c3cd316ae82d2c031c42f6c746467d8b1905b51060a0ba4461441a0c25bb67c025fd9617f9a3873e152c7b543c6b5ac83a1846be8ade80dffd6
@@ -12052,19 +12022,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"secp256k1@npm:^4.0.0, secp256k1@npm:^4.0.1":
-  version: 4.0.3
-  resolution: "secp256k1@npm:4.0.3"
-  dependencies:
-    elliptic: "npm:^6.5.4"
-    node-addon-api: "npm:^2.0.0"
-    node-gyp: "npm:latest"
-    node-gyp-build: "npm:^4.2.0"
-  checksum: 10/8b45820cd90fd2f95cc8fdb9bf8a71e572de09f2311911ae461a951ffa9e30c99186a129d0f1afeb380dd67eca0c10493f8a7513c39063fda015e99995088e3b
-  languageName: node
-  linkType: hard
-
-"secp256k1@npm:^4.0.3":
+"secp256k1@npm:^4.0.0, secp256k1@npm:^4.0.1, secp256k1@npm:^4.0.3":
   version: 4.0.4
   resolution: "secp256k1@npm:4.0.4"
   dependencies:

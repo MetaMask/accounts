@@ -4,9 +4,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PKG_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Host-side port defaults are aligned with docker-compose.yml and the
+# DEFAULT_DEVICE defaults in src/ledger/constants.ts (APDU 9998, API 5001),
+# so all entry points expose Speculos on the same host ports.
 SPECULOS_HOST="${SPECULOS_HOST:-127.0.0.1}"
-SPECULOS_APDU_PORT="${SPECULOS_APDU_PORT:-9999}"
-SPECULOS_API_PORT="${SPECULOS_API_PORT:-5000}"
+SPECULOS_APDU_PORT="${SPECULOS_APDU_PORT:-9998}"
+SPECULOS_API_PORT="${SPECULOS_API_PORT:-5001}"
 CONTROL_API_PORT="${CONTROL_API_PORT:-5002}"
 DEVICE_NAME="${DEVICE_NAME:-Ledger Nano X}"
 TRANSPORT="${TRANSPORT:-android-netsim}"
@@ -40,7 +43,12 @@ fi
 cleanup() {
     echo ""
     echo "Stopping processes..."
-    [ -n "${SPECULOS_PID:-}" ] && kill "$SPECULOS_PID" 2>/dev/null || true
+    if [ -n "${SPECULOS_PID:-}" ]; then
+        # `docker run -d` was detached: killing the CLI PID does not stop the
+        # container. Stop and remove it so interrupted runs don't leak it.
+        docker stop speculos-ledger >/dev/null 2>&1 || true
+        docker rm speculos-ledger >/dev/null 2>&1 || true
+    fi
     [ -n "${BLE_PID:-}" ] && kill "$BLE_PID" 2>/dev/null || true
     wait 2>/dev/null
 }
