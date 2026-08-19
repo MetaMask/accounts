@@ -25,6 +25,7 @@ import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
+import { withDerivedEip712Domain } from './eip712';
 import { createKeyringStateError } from './errors';
 import {
   AppConfigurationResponse,
@@ -540,8 +541,13 @@ export class LedgerKeyring implements Keyring {
       throw createKeyringStateError(ErrorCode.DeviceStateOnlyV4Supported);
     }
 
+    // Normalize before `sanitizeData` injects an empty `EIP712Domain` type:
+    // derive it from the `domain` object keys when the payload omits it, so
+    // the device and the verification below both use the real domain values.
+    const normalizedData = withDerivedEip712Domain(data);
+
     const { domain, types, primaryType, message } =
-      TypedDataUtils.sanitizeData(data);
+      TypedDataUtils.sanitizeData(normalizedData);
 
     const hdPath = await this.unlockAccountByAddress(withAccount);
 
@@ -581,7 +587,7 @@ export class LedgerKeyring implements Keyring {
     );
     const signature = `0x${payload.r}${payload.s}${recoveryId}`;
     const addressSignedWith = recoverTypedSignature({
-      data,
+      data: normalizedData,
       signature,
       version: SignTypedDataVersion.V4,
     });
