@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- fix: revert `originMetadata` addition to `EthKeyringV1Adapter` ([#621](https://github.com/MetaMask/accounts/pull/621))
+- feat: add `originMetadata` to `submitRequest` ([#615](https://github.com/MetaMask/accounts/pull/615))
+
 ### Changed
 
 - **BREAKING:** Remove envelope from migration framework ([#619](https://github.com/MetaMask/accounts/pull/619))
