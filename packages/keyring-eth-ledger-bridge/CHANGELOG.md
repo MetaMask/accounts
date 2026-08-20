@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix Ledger Gen5 EIP-712 signing for payloads that omit the `EIP712Domain` type by deriving it from the `domain` object keys before sending to the device and before signature verification ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Fix Ledger Gen5 EIP-712 signing for payloads that omit the `EIP712Domain` type by deriving it from the `domain` object keys before sending to the device and before signature verification ([#624](https://github.com/MetaMask/accounts/pull/624))
 
 ## [13.0.2]
 
