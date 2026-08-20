@@ -9,6 +9,7 @@ import { bytesToHex, Hex, remove0x } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
+import { withDerivedEip712Domain } from './eip712';
 import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
 import { LedgerIframeBridge } from './ledger-iframe-bridge';
 import { AccountDetails, LedgerKeyring } from './ledger-keyring';
@@ -1456,6 +1457,197 @@ describe('LedgerKeyring', function () {
             version: sigUtil.SignTypedDataVersion.V4,
           }),
         ).rejects.toThrow('Some other transport error');
+      });
+
+      // Matches the shape of the test dapp's `getNFTMsgParams()` payload from
+      // metamask-extension#42625: `domain` carries real values, but `types`
+      // omits the `EIP712Domain` entry.
+      const nftPermitData = {
+        domain: {
+          name: 'My NFT',
+          version: '1',
+          chainId: 1,
+          verifyingContract: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
+        },
+        message: {
+          spender: '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+          tokenId: 57,
+          nonce: 5,
+          deadline: 1755555555,
+        },
+        primaryType: 'Permit' as const,
+        types: {
+          Permit: [
+            { name: 'spender', type: 'address' },
+            { name: 'tokenId', type: 'uint256' },
+            { name: 'nonce', type: 'uint256' },
+            { name: 'deadline', type: 'uint256' },
+          ],
+        },
+      };
+
+      const testPrivateKey = Buffer.from(
+        '4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318',
+        'hex',
+      );
+
+      it('derives the EIP712Domain type and sends it to the device when the payload omits it', async function () {
+        const derivedAddress = bytesToHex(
+          ethUtil.privateToAddress(testPrivateKey),
+        );
+
+        const normalized = withDerivedEip712Domain(
+          nftPermitData as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>,
+        );
+        const signature = sigUtil.signTypedData({
+          privateKey: testPrivateKey,
+          data: normalized,
+          version: sigUtil.SignTypedDataVersion.V4,
+        });
+
+        const deviceSignTypedDataSpy = jest
+          .spyOn(keyring.bridge, 'deviceSignTypedData')
+          .mockImplementation(async () => ({
+            v: parseInt(signature.slice(130, 132), 16),
+            r: signature.slice(2, 66),
+            s: signature.slice(66, 130),
+          }));
+        const recoverTypedSignatureSpy = jest.spyOn(
+          sigUtil,
+          'recoverTypedSignature',
+        );
+
+        const result = await keyring.signTypedData(
+          derivedAddress,
+          nftPermitData as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>,
+          { version: sigUtil.SignTypedDataVersion.V4 },
+        );
+
+        expect(result).toBe(signature);
+        expect(deviceSignTypedDataSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            hdPath: "m/44'/60'/15'",
+            message: expect.objectContaining({
+              types: expect.objectContaining({
+                EIP712Domain: [
+                  { name: 'name', type: 'string' },
+                  { name: 'version', type: 'string' },
+                  { name: 'chainId', type: 'uint256' },
+                  { name: 'verifyingContract', type: 'address' },
+                ],
+              }),
+            }),
+          }),
+        );
+        expect(recoverTypedSignatureSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ data: normalized }),
+        );
+      });
+
+      it('treats an empty EIP712Domain array as missing and derives it', async function () {
+        const derivedAddress = bytesToHex(
+          ethUtil.privateToAddress(testPrivateKey),
+        );
+
+        const dataWithEmptyDomain = {
+          ...nftPermitData,
+          types: {
+            EIP712Domain: [],
+            Permit: nftPermitData.types.Permit,
+          },
+        } as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>;
+
+        const normalized = withDerivedEip712Domain(dataWithEmptyDomain);
+        const signature = sigUtil.signTypedData({
+          privateKey: testPrivateKey,
+          data: normalized,
+          version: sigUtil.SignTypedDataVersion.V4,
+        });
+
+        const deviceSignTypedDataSpy = jest
+          .spyOn(keyring.bridge, 'deviceSignTypedData')
+          .mockImplementation(async () => ({
+            v: parseInt(signature.slice(130, 132), 16),
+            r: signature.slice(2, 66),
+            s: signature.slice(66, 130),
+          }));
+
+        const result = await keyring.signTypedData(
+          derivedAddress,
+          dataWithEmptyDomain,
+          { version: sigUtil.SignTypedDataVersion.V4 },
+        );
+
+        expect(result).toBe(signature);
+        expect(deviceSignTypedDataSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            hdPath: "m/44'/60'/15'",
+            message: expect.objectContaining({
+              types: expect.objectContaining({
+                EIP712Domain: [
+                  { name: 'name', type: 'string' },
+                  { name: 'version', type: 'string' },
+                  { name: 'chainId', type: 'uint256' },
+                  { name: 'verifyingContract', type: 'address' },
+                ],
+              }),
+            }),
+          }),
+        );
+      });
+
+      it('leaves payloads with a declared EIP712Domain untouched for both device and verification', async function () {
+        const derivedAddress = bytesToHex(
+          ethUtil.privateToAddress(testPrivateKey),
+        );
+
+        const normalized = withDerivedEip712Domain(
+          fixtureData as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>,
+        );
+        const signature = sigUtil.signTypedData({
+          privateKey: testPrivateKey,
+          data: normalized,
+          version: sigUtil.SignTypedDataVersion.V4,
+        });
+
+        const deviceSignTypedDataSpy = jest
+          .spyOn(keyring.bridge, 'deviceSignTypedData')
+          .mockImplementation(async () => ({
+            v: parseInt(signature.slice(130, 132), 16),
+            r: signature.slice(2, 66),
+            s: signature.slice(66, 130),
+          }));
+        const recoverTypedSignatureSpy = jest.spyOn(
+          sigUtil,
+          'recoverTypedSignature',
+        );
+
+        const result = await keyring.signTypedData(
+          derivedAddress,
+          fixtureData as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>,
+          { version: sigUtil.SignTypedDataVersion.V4 },
+        );
+
+        expect(result).toBe(signature);
+        expect(deviceSignTypedDataSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            hdPath: "m/44'/60'/15'",
+            message: expect.objectContaining({
+              types: expect.objectContaining({
+                EIP712Domain: fixtureData.types.EIP712Domain,
+              }),
+            }),
+          }),
+        );
+        expect(recoverTypedSignatureSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              types: expect.objectContaining({
+                EIP712Domain: fixtureData.types.EIP712Domain,
+              }),
+            }),
+          }),
+        );
       });
     });
 
