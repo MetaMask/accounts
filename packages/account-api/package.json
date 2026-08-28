@@ -68,7 +68,7 @@
   "dependencies": {
     "@metamask/keyring-api": "^24.1.0",
     "@metamask/keyring-utils": "^5.0.0",
-    "uuid": "^9.0.1"
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
