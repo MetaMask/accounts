@@ -249,6 +249,7 @@ describe('MPCKeyring', () => {
 
   it('exposes the expected type constant', () => {
     const keyring = makeKeyring();
+    expect(MPCKeyring.type).toBe('MPC Keyring');
     expect(keyring.type).toBe('MPC Keyring');
   });
 

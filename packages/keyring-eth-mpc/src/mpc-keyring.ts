@@ -104,6 +104,8 @@ function shareBindings(
 }
 
 export class MPCKeyring implements Keyring {
+  static type: string = mpcKeyringType;
+
   readonly type: string = mpcKeyringType;
 
   readonly #rng: RandomNumberGenerator;
