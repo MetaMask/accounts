@@ -7,4 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-[Unreleased]: https://github.com/MetaMask/accounts
+### Added
+
+- Initial release of `@metamask/eth-mpc-keyring` ([#627](https://github.com/MetaMask/accounts/pull/627))
+  - 2-party client/server MPC keyring with DKLS23 TSS and cloud backup sync.
+  - Supports create/import, key-share rotate/check/sync, and signing (transactions, personal_sign, typed data, EIP-7702 authorizations).
+
+[Unreleased]: https://github.com/MetaMask/accounts/

@@ -1996,7 +1996,7 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/eth-sig-util": "npm:^9.0.0"
-    "@metamask/keyring-utils": "workspace:^"
+    "@metamask/keyring-utils": "npm:^5.0.0"
     "@metamask/mfa-wallet-cl24-lib": "npm:^0.0.0"
     "@metamask/mfa-wallet-dkls23-lib": "npm:^0.0.0"
     "@metamask/mfa-wallet-e2ee": "npm:^0.0.0"
@@ -2461,7 +2461,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@metamask/keyring-utils@npm:^5.0.0, @metamask/keyring-utils@workspace:^, @metamask/keyring-utils@workspace:packages/keyring-utils":
+"@metamask/keyring-utils@npm:^5.0.0, @metamask/keyring-utils@workspace:packages/keyring-utils":
   version: 0.0.0-use.local
   resolution: "@metamask/keyring-utils@workspace:packages/keyring-utils"
   dependencies:

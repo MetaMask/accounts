@@ -1,7 +1,7 @@
 {
   "name": "@metamask/eth-mpc-keyring",
   "version": "0.0.0",
-  "description": "A Keyring for Ethereum accounts that uses Multi-Party Computation (MPC) for key management and signing.",
+  "description": "A Keyring for Ethereum accounts that uses Multi-Party Computation (MPC) for key management and signing",
   "keywords": [
     "ethereum",
     "keyring"
@@ -10,11 +10,17 @@
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
+  "license": "ISC",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/accounts.git"
   },
-  "license": "ISC",
+  "files": [
+    "dist/"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
@@ -25,22 +31,28 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    }
+    },
+    "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.cts",
-  "files": [
-    "dist/"
-  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
-    "build": "ts-bridge --project tsconfig.build.json --no-references",
+    "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-mpc-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-mpc-keyring",
     "publish:preview": "yarn npm publish --tag preview",
-    "test": "jest",
-    "test:clean": "jest --clearCache"
+    "test": "yarn test:source && yarn test:types",
+    "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
+    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
+    "since-latest-release": "../../scripts/since-latest-release.sh",
+    "test:source": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
+    "test:types": "../../scripts/tsd-test.sh ./src",
+    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
     "@ethereumjs/util": "^9.1.0",
@@ -56,7 +68,7 @@
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^6.1.0",
-    "@metamask/keyring-utils": "workspace:^",
+    "@metamask/keyring-utils": "^5.0.0",
     "@metamask/mfa-wallet-interface": "^0.0.0",
     "@metamask/utils": "^11.11.0",
     "@ts-bridge/cli": "^0.6.3",
@@ -67,10 +79,6 @@
   },
   "engines": {
     "node": ">=22"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   },
   "lavamoat": {
     "allowScripts": {

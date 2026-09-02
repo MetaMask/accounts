@@ -1,9 +1,10 @@
 import {
   ecsign,
   privateToAddress,
-  privateToPublic,
-  type ECDSASignature,
+  privateToPublic
+  
 } from '@ethereumjs/util';
+import type {ECDSASignature} from '@ethereumjs/util';
 import {
   SignTypedDataVersion,
   TypedDataUtils,
