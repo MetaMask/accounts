@@ -588,6 +588,7 @@ describe('MPCKeyring', () => {
       27n,
       expect.any(Uint8Array),
       expect.any(Uint8Array),
+      true,
     );
   });
 

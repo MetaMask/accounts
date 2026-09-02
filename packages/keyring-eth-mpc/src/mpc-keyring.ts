@@ -380,7 +380,9 @@ export class MPCKeyring implements Keyring {
 
     const { r, s, v } = parseEthSig(signature);
 
-    const signedTx = tx.addSignature(v, r, s);
+    // convertV adapts the message-style recovery id (27|28) to typed-tx
+    // yParity (0|1) or legacy EIP-155 v, matching `TypedTransaction.sign()`.
+    const signedTx = tx.addSignature(v, r, s, true);
     return signedTx;
   }
 
