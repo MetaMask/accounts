@@ -177,6 +177,9 @@ const makeRootSession = () => {
       .mockResolvedValue(
         new TextEncoder().encode(JSON.stringify({ haveSetup: true })),
       ),
+    createSubsession: jest
+      .fn()
+      .mockImplementation((label: string) => ({ label })),
     disconnect: jest.fn().mockResolvedValue(undefined),
   };
   return session;
@@ -363,9 +366,16 @@ describe('MPCKeyring', () => {
       expect.objectContaining({
         custodians: ['local-user', 'cloud-user'],
         threshold: 2,
+        networkSession: { label: 'create-key' },
       }),
     );
-    expect(mockDklsSetup).toHaveBeenCalledTimes(1);
+    expect(mockDklsSetup).toHaveBeenCalledWith(
+      expect.objectContaining({
+        networkSession: { label: 'tss-setup' },
+      }),
+    );
+    expect(rootSession.createSubsession).toHaveBeenCalledWith('create-key');
+    expect(rootSession.createSubsession).toHaveBeenCalledWith('tss-setup');
     expect(mockStoreKeyShareBackup).toHaveBeenCalledWith(
       expect.objectContaining({
         token: 'token',

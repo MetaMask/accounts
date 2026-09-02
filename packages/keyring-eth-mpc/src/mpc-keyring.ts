@@ -454,15 +454,19 @@ export class MPCKeyring implements Keyring {
     try {
       const custodians = partyNetIds(netCreds.partyId, serverNetId);
       const bindings = shareBindings(netCreds.partyId, serverNetId);
-      keyShare = await this.#dkm.createKey({
-        custodians,
-        threshold: 2,
-        networkSession: netSession,
-      });
-      tssSetup = await this.#tss.setup({
-        signers: bindings,
-        networkSession: netSession,
-      });
+      const createKeySession = netSession.createSubsession('create-key');
+      const tssSetupSession = netSession.createSubsession('tss-setup');
+      [keyShare, tssSetup] = await Promise.all([
+        this.#dkm.createKey({
+          custodians,
+          threshold: 2,
+          networkSession: createKeySession,
+        }),
+        this.#tss.setup({
+          signers: bindings,
+          networkSession: tssSetupSession,
+        }),
+      ]);
     } finally {
       await netSession.disconnect();
     }
