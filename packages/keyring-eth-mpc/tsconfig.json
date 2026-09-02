@@ -11,10 +11,6 @@
       "path": "../keyring-utils"
     }
   ],
-  "include": [
-    "./src"
-  ],
-  "exclude": [
-    "./dist/**/*"
-  ]
+  "include": ["./src"],
+  "exclude": ["./dist/**/*"]
 }

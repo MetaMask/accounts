@@ -8,9 +8,7 @@
     // skipLibCheck bypasses type-checking of .d.ts files in node_modules.
     "skipLibCheck": true
   },
-  "references": [
-    { "path": "../keyring-utils/tsconfig.build.json" }
-  ],
+  "references": [{ "path": "../keyring-utils/tsconfig.build.json" }],
   "include": ["./src/**/*.ts"],
   "exclude": ["./src/**/*.test.ts"]
 }
