@@ -474,6 +474,14 @@ describe('MPCKeyring', () => {
       clientNetId: 'local-user',
       nonce: mockSessionNonce,
     });
+    expect(mockRotateKeyShares).toHaveBeenCalledWith(
+      expect.objectContaining({
+        networkSession: { label: 'rotate-key-shares' },
+      }),
+    );
+    expect(rootSession.createSubsession).toHaveBeenCalledWith(
+      'rotate-key-shares',
+    );
     expect(mockDklsSetup).not.toHaveBeenCalled();
     expect(mockStoreKeyShareBackup).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -559,6 +567,13 @@ describe('MPCKeyring', () => {
       }),
     );
     expect(mockDklsSetup).not.toHaveBeenCalled();
+    expect(mockDklsSign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        networkSession: { label: 'tss-sign' },
+      }),
+    );
+    expect(signSession.createSubsession).toHaveBeenCalledWith('tss-sign');
+    expect(signSession.createSubsession).not.toHaveBeenCalledWith('tss-setup');
 
     const tx = {
       getHashedMessageToSign: jest.fn().mockReturnValue(new Uint8Array([1, 2])),
@@ -588,7 +603,18 @@ describe('MPCKeyring', () => {
 
     await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f');
 
-    expect(mockDklsSetup).toHaveBeenCalledTimes(1);
+    expect(mockDklsSetup).toHaveBeenCalledWith(
+      expect.objectContaining({
+        networkSession: { label: 'tss-setup' },
+      }),
+    );
+    expect(mockDklsSign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        networkSession: { label: 'tss-sign' },
+      }),
+    );
+    expect(signSession.createSubsession).toHaveBeenCalledWith('tss-setup');
+    expect(signSession.createSubsession).toHaveBeenCalledWith('tss-sign');
     expect(await keyring.serialize()).toStrictEqual(
       expect.objectContaining({ tssSetup: '0x090909' }),
     );
@@ -602,7 +628,13 @@ describe('MPCKeyring', () => {
     mockCreateSession.mockResolvedValue(signSession);
 
     await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f');
-    expect(mockDklsSetup).toHaveBeenCalledTimes(1);
+    expect(mockDklsSetup).toHaveBeenCalledWith(
+      expect.objectContaining({
+        networkSession: { label: 'tss-setup' },
+      }),
+    );
+    expect(signSession.createSubsession).toHaveBeenCalledWith('tss-setup');
+    expect(signSession.createSubsession).toHaveBeenCalledWith('tss-sign');
   });
 
   it('discards tssSetup when TSS.sign fails', async () => {

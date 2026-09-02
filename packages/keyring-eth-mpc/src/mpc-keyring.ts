@@ -268,7 +268,7 @@ export class MPCKeyring implements Keyring {
         key: keyShare,
         dealers: dealersFromCL24Key(keyShare, custodians),
         custodians,
-        networkSession: netSession,
+        networkSession: netSession.createSubsession('rotate-key-shares'),
       });
     } finally {
       await netSession.disconnect();
@@ -562,7 +562,7 @@ export class MPCKeyring implements Keyring {
             key: keyShare,
             signers: bindings,
             message: hash,
-            networkSession: netSession,
+            networkSession: netSession.createSubsession('tss-sign'),
             setup: tssSetup,
           });
           return toEthSig(signature, hash, keyShare.publicKey);
@@ -602,7 +602,7 @@ export class MPCKeyring implements Keyring {
 
     return this.#tss.setup({
       signers: bindings,
-      networkSession: netSession,
+      networkSession: netSession.createSubsession('tss-setup'),
     });
   }
 
