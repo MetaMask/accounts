@@ -5,15 +5,17 @@ import type {
   TypedMessage,
   SignTypedDataVersion,
   MessageTypes,
+  EIP7702Authorization,
 } from '@metamask/eth-sig-util';
+import { hashEIP7702Authorization } from '@metamask/eth-sig-util';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
   CL24DKM,
   CL24ThresholdKeySerializer,
   dealersFromCL24Key,
   secp256k1 as secp256k1Curve,
-  type CL24ThresholdKey,
 } from '@metamask/mfa-wallet-cl24-lib';
+import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24-lib';
 import { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23-lib';
 import type {
   PartyId,
@@ -27,7 +29,8 @@ import {
   MfaNetworkManager,
   createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
-import { bytesToHex, hexToBytes, type Hex, type Json } from '@metamask/utils';
+import { bytesToHex, hexToBytes } from '@metamask/utils';
+import type { Hex, Json } from '@metamask/utils';
 
 import {
   checkKeyShareBackupId,
@@ -39,13 +42,13 @@ import {
   sign as startSign,
   storeKeyShareBackup,
 } from './cloud';
-import {
-  type MPCKeyringOpts,
-  type MPCKeyringSerializer,
-  type MPCKeyringSetupParams,
-  type MPCKeyringState,
-  type MPCKeyringStorageState,
-  type ProfileTokenOpts,
+import type {
+  MPCKeyringOpts,
+  MPCKeyringSerializer,
+  MPCKeyringSetupParams,
+  MPCKeyringState,
+  MPCKeyringStorageState,
+  ProfileTokenOpts,
 } from './types';
 import {
   AES_GCM_IV_LENGTH,
@@ -424,6 +427,24 @@ export class MPCKeyring implements Keyring {
 
     const messageHash = getSignedTypedDataHash(data, version);
 
+    const signature = await this.#signHash(address, messageHash);
+    return bytesToHex(signature);
+  }
+
+  /**
+   * Sign an EIP-7702 authorization using the specified account.
+   *
+   * @param address - The address of the account.
+   * @param authorization - The EIP-7702 authorization to sign.
+   * @param _opts - The options for signing the authorization.
+   * @returns The signature of the authorization.
+   */
+  async signEip7702Authorization(
+    address: Hex,
+    authorization: EIP7702Authorization,
+    _opts?: Record<string, unknown>,
+  ): Promise<string> {
+    const messageHash = new Uint8Array(hashEIP7702Authorization(authorization));
     const signature = await this.#signHash(address, messageHash);
     return bytesToHex(signature);
   }

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { hashPersonalMessage } from '@ethereumjs/util';
-import { type Hex, type Json, bytesToHex } from '@metamask/utils';
+import { bytesToHex } from '@metamask/utils';
+import type { Hex, Json } from '@metamask/utils';
 
 import { MPCKeyring } from './mpc-keyring';
 
@@ -587,6 +588,51 @@ describe('MPCKeyring', () => {
       27n,
       expect.any(Uint8Array),
       expect.any(Uint8Array),
+    );
+  });
+
+  it('signs EIP-7702 authorizations through the MPC flow', async () => {
+    const getProfileToken = jest.fn().mockResolvedValue('token');
+    const keyring = makeKeyring(getProfileToken);
+    await deserializeState(keyring);
+
+    const signSession = makeRootSession();
+    mockCreateSession.mockResolvedValue(signSession);
+
+    const { hashEIP7702Authorization } = jest.requireActual(
+      '@metamask/eth-sig-util',
+    );
+    const authorization = [
+      1,
+      '0x1234567890abcdef1234567890abcdef12345678',
+      1,
+    ] as const;
+    const expectedHash = new Uint8Array(
+      hashEIP7702Authorization(authorization),
+    );
+
+    const signatureHex = await keyring.signEip7702Authorization(
+      mockDerivedAddress,
+      [...authorization],
+    );
+
+    expect(signatureHex).toBe(bytesToHex(mockEthSignature));
+    expect(getProfileToken).toHaveBeenCalledWith({
+      twoFactor: true,
+      challenge: expectedHash,
+    });
+    expect(mockStartSign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        clientNetId: 'local-user',
+        token: 'token',
+        data: expectedHash,
+      }),
+    );
+    expect(mockDklsSign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expectedHash,
+        networkSession: { label: 'tss-sign' },
+      }),
     );
   });
 
