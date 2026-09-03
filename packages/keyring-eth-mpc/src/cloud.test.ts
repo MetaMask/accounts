@@ -50,7 +50,11 @@ describe('cloud helpers', () => {
       'https://cloud.example/net-id',
       expect.objectContaining({
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer token-1',
+        },
+        body: '{}',
       }),
     );
   });
@@ -145,10 +149,14 @@ describe('cloud helpers', () => {
       data,
     });
 
-    const body = JSON.parse(
-      (fetchSpy.mock.calls[0]?.[1] as { body: string }).body,
-    ) as { data: string };
+    const init = fetchSpy.mock.calls[0]?.[1] as {
+      body: string;
+      headers: Record<string, string>;
+    };
+    expect(init.headers.Authorization).toBe('Bearer token-1');
+    const body = JSON.parse(init.body) as { data: string; token?: string };
     expect(body.data).toBe('aGk=');
+    expect(body.token).toBeUndefined();
   });
 
   it('throws when cloud sign initialization fails', async () => {
@@ -213,11 +221,19 @@ describe('cloud helpers', () => {
       encryptedKeyShare,
     });
 
-    const body = JSON.parse(
-      (fetchSpy.mock.calls[0]?.[1] as { body: string }).body,
-    ) as { encryptedKeyShare: string; backupId: string };
+    const init = fetchSpy.mock.calls[0]?.[1] as {
+      body: string;
+      headers: Record<string, string>;
+    };
+    expect(init.headers.Authorization).toBe('Bearer token-1');
+    const body = JSON.parse(init.body) as {
+      encryptedKeyShare: string;
+      backupId: string;
+      token?: string;
+    };
     expect(body.backupId).toBe('backup-1');
     expect(body.encryptedKeyShare).toBe(bytesToBase64(encryptedKeyShare));
+    expect(body.token).toBeUndefined();
   });
 
   it('throws when storing a key share backup fails', async () => {
