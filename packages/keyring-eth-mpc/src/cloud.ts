@@ -16,12 +16,14 @@ export type CheckKeyShareResult = {
  * Fetch JSON from the MPC backend, throwing on non-OK responses.
  *
  * @param url - The request URL.
+ * @param token - Profile token sent as a Bearer header.
  * @param body - The JSON request body.
  * @param errorPrefix - Prefix for the thrown error message.
  * @returns The parsed JSON body, or `undefined` when the response is empty.
  */
 async function postJson<Response>(
   url: string,
+  token: string,
   body: Record<string, unknown>,
   errorPrefix: string,
 ): Promise<Response> {
@@ -29,6 +31,7 @@ async function postJson<Response>(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(body),
   });
@@ -58,7 +61,8 @@ export async function getNetId(opts: {
 }): Promise<PartyId> {
   const data = await postJson<{ netId: string }>(
     `${opts.baseURL}/net-id`,
-    { token: opts.token },
+    opts.token,
+    {},
     'Failed to get server network id',
   );
   return data.netId;
@@ -81,8 +85,8 @@ export async function createKey(opts: {
 }): Promise<void> {
   await postJson(
     `${opts.baseURL}/create-key`,
+    opts.token,
     {
-      token: opts.token,
       clientNetId: opts.clientNetId,
       nonce: opts.nonce,
     },
@@ -105,8 +109,8 @@ export async function registerClient(opts: {
 }): Promise<void> {
   await postJson(
     `${opts.baseURL}/register-client`,
+    opts.token,
     {
-      token: opts.token,
       clientNetId: opts.clientNetId,
     },
     'Failed to register client',
@@ -134,8 +138,8 @@ export async function sign(opts: {
 }): Promise<void> {
   await postJson(
     `${opts.baseURL}/sign`,
+    opts.token,
     {
-      token: opts.token,
       data: bytesToBase64(opts.data),
       clientNetId: opts.clientNetId,
       nonce: opts.nonce,
@@ -164,8 +168,8 @@ export async function rotateKeyShares(opts: {
 }): Promise<void> {
   await postJson(
     `${opts.baseURL}/rotate-key-shares`,
+    opts.token,
     {
-      token: opts.token,
       clientNetId: opts.clientNetId,
       nonce: opts.nonce,
       expectedActiveEpoch: opts.expectedActiveEpoch,
@@ -193,8 +197,8 @@ export async function storeKeyShareBackup(opts: {
 }): Promise<void> {
   await postJson(
     `${opts.baseURL}/store-key-share-backup`,
+    opts.token,
     {
-      token: opts.token,
       epoch: opts.epoch,
       attemptNonce: opts.attemptNonce,
       encryptedKeyShare: bytesToBase64(opts.encryptedKeyShare),
@@ -217,7 +221,8 @@ export async function checkKeyShare(opts: {
 }): Promise<CheckKeyShareResult> {
   return await postJson<CheckKeyShareResult>(
     `${opts.baseURL}/check-key-share`,
-    { token: opts.token },
+    opts.token,
+    {},
     'Failed to check key share',
   );
 }
@@ -237,8 +242,8 @@ export async function setActiveEpoch(opts: {
 }): Promise<void> {
   await postJson(
     `${opts.baseURL}/set-active-epoch`,
+    opts.token,
     {
-      token: opts.token,
       epoch: opts.epoch,
     },
     'Failed to set active epoch',
@@ -262,7 +267,8 @@ export async function loadKeyShareBackup(opts: {
     epoch: number;
   }>(
     `${opts.baseURL}/load-key-share-backup`,
-    { token: opts.token },
+    opts.token,
+    {},
     'Failed to load key share backup',
   );
   return {
