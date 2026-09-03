@@ -3,7 +3,13 @@ import { base64ToBytes, bytesToBase64 } from '@metamask/utils';
 
 export type LoadKeyShareBackupResult = {
   encryptedKeyShare: Uint8Array;
-  backupId: string;
+  epoch: number;
+};
+
+export type CheckKeyShareResult = {
+  latestShareEpoch?: number;
+  latestBackupEpoch?: number;
+  activeEpoch?: number;
 };
 
 /**
@@ -59,7 +65,7 @@ export async function getNetId(opts: {
 }
 
 /**
- * Start DKG on the backend for a new key.
+ * Start DKG on the backend for a new key (appends epoch 1; does not activate).
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
@@ -108,7 +114,7 @@ export async function registerClient(opts: {
 }
 
 /**
- * Start a backend signing session.
+ * Start a backend signing session for the active share epoch.
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
@@ -116,6 +122,7 @@ export async function registerClient(opts: {
  * @param opts.data - Message hash to sign.
  * @param opts.clientNetId - Client network id.
  * @param opts.nonce - Client session nonce.
+ * @param opts.shareEpoch - Local share epoch (must equal backend activeEpoch).
  */
 export async function sign(opts: {
   baseURL: string;
@@ -123,6 +130,7 @@ export async function sign(opts: {
   data: Uint8Array;
   clientNetId: PartyId;
   nonce: string;
+  shareEpoch: number;
 }): Promise<void> {
   await postJson(
     `${opts.baseURL}/sign`,
@@ -131,25 +139,28 @@ export async function sign(opts: {
       data: bytesToBase64(opts.data),
       clientNetId: opts.clientNetId,
       nonce: opts.nonce,
+      shareEpoch: opts.shareEpoch,
     },
     'Failed to initialize cloud sign session',
   );
 }
 
 /**
- * Start a backend share-rotation session.
+ * Start a backend share-rotation session (appends next epoch; does not activate).
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
  * @param opts.token - Profile token with 2FA.
  * @param opts.clientNetId - Client network id.
  * @param opts.nonce - Client session nonce.
+ * @param opts.expectedActiveEpoch - Current active epoch on client and server.
  */
 export async function rotateKeyShares(opts: {
   baseURL: string;
   token: string;
   clientNetId: PartyId;
   nonce: string;
+  expectedActiveEpoch: number;
 }): Promise<void> {
   await postJson(
     `${opts.baseURL}/rotate-key-shares`,
@@ -157,31 +168,32 @@ export async function rotateKeyShares(opts: {
       token: opts.token,
       clientNetId: opts.clientNetId,
       nonce: opts.nonce,
+      expectedActiveEpoch: opts.expectedActiveEpoch,
     },
     'Failed to initialize cloud key rotation session',
   );
 }
 
 /**
- * Store an encrypted key-share backup and its client-minted id.
+ * Store an encrypted key-share backup for a share epoch.
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
  * @param opts.token - Profile token with 2FA.
- * @param opts.backupId - Opaque backup id minted by the client.
+ * @param opts.epoch - Share epoch this backup belongs to.
  * @param opts.encryptedKeyShare - Encrypted key share ciphertext.
  */
 export async function storeKeyShareBackup(opts: {
   baseURL: string;
   token: string;
-  backupId: string;
+  epoch: number;
   encryptedKeyShare: Uint8Array;
 }): Promise<void> {
   await postJson(
     `${opts.baseURL}/store-key-share-backup`,
     {
       token: opts.token,
-      backupId: opts.backupId,
+      epoch: opts.epoch,
       encryptedKeyShare: bytesToBase64(opts.encryptedKeyShare),
     },
     'Failed to store key share backup',
@@ -189,32 +201,54 @@ export async function storeKeyShareBackup(opts: {
 }
 
 /**
- * Return the backup id currently stored on the backend.
+ * Return the latest share/backup epochs and the active epoch from the backend.
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
  * @param opts.token - Profile token (2FA not required).
- * @returns The stored backup id, or `null` if none exists.
+ * @returns Epoch metadata from the backend.
  */
-export async function checkKeyShareBackupId(opts: {
+export async function checkKeyShare(opts: {
   baseURL: string;
   token: string;
-}): Promise<string | null> {
-  const data = await postJson<{ backupId?: string | null }>(
-    `${opts.baseURL}/check-key-share-backup-id`,
+}): Promise<CheckKeyShareResult> {
+  return await postJson<CheckKeyShareResult>(
+    `${opts.baseURL}/check-key-share`,
     { token: opts.token },
-    'Failed to check key share backup id',
+    'Failed to check key share',
   );
-  return typeof data.backupId === 'string' ? data.backupId : null;
 }
 
 /**
- * Load the encrypted key-share backup from the backend.
+ * Activate a share epoch after its share and backup are present.
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
  * @param opts.token - Profile token with 2FA.
- * @returns The ciphertext and backup id.
+ * @param opts.epoch - Epoch to activate.
+ */
+export async function setActiveEpoch(opts: {
+  baseURL: string;
+  token: string;
+  epoch: number;
+}): Promise<void> {
+  await postJson(
+    `${opts.baseURL}/set-active-epoch`,
+    {
+      token: opts.token,
+      epoch: opts.epoch,
+    },
+    'Failed to set active epoch',
+  );
+}
+
+/**
+ * Load the encrypted key-share backup for the active epoch.
+ *
+ * @param opts - Request options.
+ * @param opts.baseURL - MPC backend base URL.
+ * @param opts.token - Profile token with 2FA.
+ * @returns The ciphertext and share epoch.
  */
 export async function loadKeyShareBackup(opts: {
   baseURL: string;
@@ -222,7 +256,7 @@ export async function loadKeyShareBackup(opts: {
 }): Promise<LoadKeyShareBackupResult> {
   const data = await postJson<{
     encryptedKeyShare: string;
-    backupId: string;
+    epoch: number;
   }>(
     `${opts.baseURL}/load-key-share-backup`,
     { token: opts.token },
@@ -230,6 +264,6 @@ export async function loadKeyShareBackup(opts: {
   );
   return {
     encryptedKeyShare: base64ToBytes(data.encryptedKeyShare),
-    backupId: data.backupId,
+    epoch: data.epoch,
   };
 }

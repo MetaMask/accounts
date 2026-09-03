@@ -32,13 +32,15 @@ import {
 import { bytesToHex, hexToBytes } from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
+import type { CheckKeyShareResult } from './cloud';
 import {
-  checkKeyShareBackupId,
+  checkKeyShare as checkKeyShareRemote,
   createKey as startCreateKey,
   getNetId,
   loadKeyShareBackup,
   registerClient,
   rotateKeyShares as startRotateKeyShares,
+  setActiveEpoch,
   sign as startSign,
   storeKeyShareBackup,
 } from './cloud';
@@ -52,15 +54,14 @@ import type {
 } from './types';
 import {
   AES_GCM_IV_LENGTH,
-  createBackupId,
   decryptBytes,
   encryptBytes,
   equalAddresses,
   generateSessionNonce,
   getSignedTypedDataHash,
-  parseBackupId,
   parseEthSig,
   parseServerNetId,
+  parseShareEpoch,
   parseSignedTypedDataVersion,
   parseTssSetup,
   publicKeyToAddressHex,
@@ -71,6 +72,29 @@ const mpcKeyringType = 'MPC Keyring';
 const TSS_HAVE_SETUP_MESSAGE_TYPE = 'tss-have-setup';
 const CLIENT_SHARE_INDEX = 0;
 const SERVER_SHARE_INDEX = 1;
+const INITIAL_SHARE_EPOCH = 1;
+
+/**
+ * Assert that the latest share and backup epochs both equal `expectedEpoch`.
+ *
+ * @param check - Backend epoch metadata.
+ * @param expectedEpoch - Epoch that must be ready for activation.
+ */
+function assertEpochReady(
+  check: CheckKeyShareResult,
+  expectedEpoch: number,
+): void {
+  if (
+    check.latestShareEpoch !== expectedEpoch ||
+    check.latestBackupEpoch !== expectedEpoch
+  ) {
+    throw new Error(
+      `Share epoch ${expectedEpoch} is not ready (latestShareEpoch=${String(
+        check.latestShareEpoch,
+      )}, latestBackupEpoch=${String(check.latestBackupEpoch)})`,
+    );
+  }
+}
 
 /**
  * Party net ids indexed by 0-based share slot.
@@ -170,12 +194,13 @@ export class MPCKeyring implements Keyring {
       return this.#state.setup;
     }
 
-    const { netCreds, keyShare, serverNetId, backupId, tssSetup } = this.#state;
+    const { netCreds, keyShare, serverNetId, shareEpoch, tssSetup } =
+      this.#state;
     return {
       netCreds: this.#serializer.networkIdentity.toJson(netCreds),
       keyShare: this.#serializer.thresholdKey.toJson(keyShare),
       serverNetId,
-      backupId,
+      shareEpoch,
       tssSetup: tssSetup === null ? null : bytesToHex(tssSetup),
     };
   }
@@ -195,7 +220,7 @@ export class MPCKeyring implements Keyring {
       'netCreds' in stateObj &&
       'keyShare' in stateObj &&
       'serverNetId' in stateObj &&
-      'backupId' in stateObj &&
+      'shareEpoch' in stateObj &&
       'tssSetup' in stateObj
     ) {
       this.#state = {
@@ -203,7 +228,7 @@ export class MPCKeyring implements Keyring {
         netCreds: this.#serializer.networkIdentity.fromJson(stateObj.netCreds),
         keyShare: this.#serializer.thresholdKey.fromJson(stateObj.keyShare),
         serverNetId: parseServerNetId(stateObj.serverNetId),
-        backupId: parseBackupId(stateObj.backupId),
+        shareEpoch: parseShareEpoch(stateObj.shareEpoch),
         tssSetup: parseTssSetup(stateObj.tssSetup),
       };
       return;
@@ -246,12 +271,14 @@ export class MPCKeyring implements Keyring {
   }
 
   /**
-   * Rotate client and server shares. Existing TSS setup remains valid.
+   * Rotate client and server shares to the next epoch, then activate it.
+   * Clears local TSS setup so it is rebuilt against the new shares.
    */
   async rotateKeyShares(): Promise<void> {
     const state = this.#assertState();
-    const { netCreds, serverNetId } = state;
+    const { netCreds, serverNetId, shareEpoch } = state;
     let { keyShare } = state;
+    const nextEpoch = shareEpoch + 1;
 
     const token = await this.#getProfileToken({ twoFactor: true });
     const nonce = generateSessionNonce(this.#rng);
@@ -260,6 +287,7 @@ export class MPCKeyring implements Keyring {
       token,
       clientNetId: netCreds.partyId,
       nonce,
+      expectedActiveEpoch: shareEpoch,
     });
 
     const netSession = await this.#createNetworkSession(
@@ -273,50 +301,68 @@ export class MPCKeyring implements Keyring {
         key: keyShare,
         dealers: dealersFromCL24Key(keyShare, custodians),
         custodians,
-        networkSession: netSession.createSubsession('rotate-key-shares'),
+        networkSession: netSession.createSubsession('dkg-rotate'),
       });
     } finally {
       await netSession.disconnect();
     }
 
-    const backupId = createBackupId(this.#rng);
     await storeKeyShareBackup({
       baseURL: this.#cloudURL,
       token,
-      backupId,
+      epoch: nextEpoch,
       encryptedKeyShare: await this.#encryptKeyShare(keyShare),
+    });
+
+    assertEpochReady(
+      await checkKeyShareRemote({
+        baseURL: this.#cloudURL,
+        token,
+      }),
+      nextEpoch,
+    );
+
+    await setActiveEpoch({
+      baseURL: this.#cloudURL,
+      token,
+      epoch: nextEpoch,
     });
 
     this.#applyKeyState({
       ...state,
       keyShare,
-      backupId,
+      shareEpoch: nextEpoch,
+      tssSetup: null,
     });
   }
 
   /**
-   * Compare the local backup id with the id stored on the backend.
+   * Compare the local share epoch with backend share/backup/active epochs.
    *
-   * @returns Whether the backup ids match.
+   * @returns Whether all remote epochs match the local share epoch.
    */
   async checkKeyShare(): Promise<boolean> {
-    const { backupId } = this.#assertState();
+    const { shareEpoch } = this.#assertState();
     const token = await this.#getProfileToken();
-    const serverBackupId = await checkKeyShareBackupId({
+    const check = await checkKeyShareRemote({
       baseURL: this.#cloudURL,
       token,
     });
-    return backupId === serverBackupId;
+    return (
+      check.latestShareEpoch === shareEpoch &&
+      check.latestBackupEpoch === shareEpoch &&
+      check.activeEpoch === shareEpoch
+    );
   }
 
   /**
-   * Refresh `keyShare` and `backupId` from the backend backup.
-   * `netCreds`, `serverNetId`, and `tssSetup` are unchanged.
+   * Refresh `keyShare` and `shareEpoch` from the active-epoch backend backup.
+   * Clears `tssSetup`; `netCreds` and `serverNetId` are unchanged.
    */
   async syncKeyShare(): Promise<void> {
     const state = this.#assertState();
     const token = await this.#getProfileToken({ twoFactor: true });
-    const { encryptedKeyShare, backupId } = await loadKeyShareBackup({
+    const { encryptedKeyShare, epoch } = await loadKeyShareBackup({
       baseURL: this.#cloudURL,
       token,
     });
@@ -324,7 +370,8 @@ export class MPCKeyring implements Keyring {
     this.#applyKeyState({
       ...state,
       keyShare,
-      backupId,
+      shareEpoch: epoch,
+      tssSetup: null,
     });
   }
 
@@ -479,7 +526,7 @@ export class MPCKeyring implements Keyring {
     try {
       const custodians = partyNetIds(netCreds.partyId, serverNetId);
       const bindings = shareBindings(netCreds.partyId, serverNetId);
-      const createKeySession = netSession.createSubsession('create-key');
+      const createKeySession = netSession.createSubsession('dkg-create');
       const tssSetupSession = netSession.createSubsession('tss-setup');
       [keyShare, tssSetup] = await Promise.all([
         this.#dkm.createKey({
@@ -496,19 +543,32 @@ export class MPCKeyring implements Keyring {
       await netSession.disconnect();
     }
 
-    const backupId = createBackupId(this.#rng);
     await storeKeyShareBackup({
       baseURL: this.#cloudURL,
       token,
-      backupId,
+      epoch: INITIAL_SHARE_EPOCH,
       encryptedKeyShare: await this.#encryptKeyShare(keyShare),
+    });
+
+    assertEpochReady(
+      await checkKeyShareRemote({
+        baseURL: this.#cloudURL,
+        token,
+      }),
+      INITIAL_SHARE_EPOCH,
+    );
+
+    await setActiveEpoch({
+      baseURL: this.#cloudURL,
+      token,
+      epoch: INITIAL_SHARE_EPOCH,
     });
 
     this.#applyKeyState({
       keyShare,
       netCreds,
       serverNetId,
-      backupId,
+      shareEpoch: INITIAL_SHARE_EPOCH,
       tssSetup,
     });
   }
@@ -537,7 +597,7 @@ export class MPCKeyring implements Keyring {
       keyShare,
       netCreds,
       serverNetId,
-      backupId: loaded.backupId,
+      shareEpoch: loaded.epoch,
       tssSetup: null,
     });
   }
@@ -545,7 +605,7 @@ export class MPCKeyring implements Keyring {
   async #signHash(address: Hex, hash: Uint8Array): Promise<Uint8Array> {
     return this.#serializeSign(async () => {
       const state = this.#assertState();
-      const { keyShare, netCreds, serverNetId } = state;
+      const { keyShare, netCreds, serverNetId, shareEpoch } = state;
       let { tssSetup } = state;
 
       const addr = this.#address();
@@ -564,6 +624,7 @@ export class MPCKeyring implements Keyring {
         data: hash,
         clientNetId: netCreds.partyId,
         nonce,
+        shareEpoch,
       });
 
       const netSession = await this.#createNetworkSession(

@@ -22,15 +22,15 @@ const mockRegisterClient = jest.fn();
 const mockStartSign = jest.fn();
 const mockStartRotateKeyShares = jest.fn();
 const mockStoreKeyShareBackup = jest.fn();
-const mockCheckKeyShareBackupId = jest.fn();
+const mockCheckKeyShare = jest.fn();
+const mockSetActiveEpoch = jest.fn();
 const mockLoadKeyShareBackup = jest.fn();
 let lastNetworkManagerOptions: Record<string, unknown> | undefined;
 
 const mockDerivedAddress = '0x1111111111111111111111111111111111111111' as Hex;
 const mockSessionNonce =
   '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' as Hex;
-const mockBackupId =
-  '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+const mockShareEpoch = 1;
 const mockTypedDataHash = new Uint8Array([9, 8, 7, 6]);
 const mockEthSignature = new Uint8Array(65);
 mockEthSignature[64] = 27;
@@ -127,8 +127,8 @@ jest.mock('./cloud', () => ({
   sign: (...args: unknown[]) => mockStartSign(...args),
   rotateKeyShares: (...args: unknown[]) => mockStartRotateKeyShares(...args),
   storeKeyShareBackup: (...args: unknown[]) => mockStoreKeyShareBackup(...args),
-  checkKeyShareBackupId: (...args: unknown[]) =>
-    mockCheckKeyShareBackupId(...args),
+  checkKeyShare: (...args: unknown[]) => mockCheckKeyShare(...args),
+  setActiveEpoch: (...args: unknown[]) => mockSetActiveEpoch(...args),
   loadKeyShareBackup: (...args: unknown[]) => mockLoadKeyShareBackup(...args),
 }));
 
@@ -137,7 +137,6 @@ jest.mock('./util', () => {
   return {
     ...actual,
     generateSessionNonce: jest.fn(() => mockSessionNonce),
-    createBackupId: jest.fn(() => mockBackupId),
     encryptBytes: jest.fn(async (_key: Uint8Array, plaintext: Uint8Array) => {
       return plaintext;
     }),
@@ -165,7 +164,7 @@ const makeSerializedState = (overrides: Record<string, unknown> = {}) => ({
   netCreds: { partyId: 'local-user' },
   keyShare: makeThresholdKey(),
   serverNetId: 'cloud-user',
-  backupId: mockBackupId,
+  shareEpoch: mockShareEpoch,
   tssSetup: '0x0102',
   ...overrides,
 });
@@ -213,7 +212,6 @@ describe('MPCKeyring', () => {
     const mockedUtil = jest.requireMock('./util');
 
     mockedUtil.generateSessionNonce.mockReturnValue(mockSessionNonce);
-    mockedUtil.createBackupId.mockReturnValue(mockBackupId);
     mockedUtil.encryptBytes.mockImplementation(
       async (_key: Uint8Array, plaintext: Uint8Array) => plaintext,
     );
@@ -238,10 +236,15 @@ describe('MPCKeyring', () => {
     mockStartSign.mockResolvedValue(undefined);
     mockStartRotateKeyShares.mockResolvedValue(undefined);
     mockStoreKeyShareBackup.mockResolvedValue(undefined);
-    mockCheckKeyShareBackupId.mockResolvedValue(mockBackupId);
+    mockCheckKeyShare.mockResolvedValue({
+      latestShareEpoch: mockShareEpoch,
+      latestBackupEpoch: mockShareEpoch,
+      activeEpoch: mockShareEpoch,
+    });
+    mockSetActiveEpoch.mockResolvedValue(undefined);
     mockLoadKeyShareBackup.mockResolvedValue({
       encryptedKeyShare: new TextEncoder().encode(JSON.stringify({ ok: true })),
-      backupId: mockBackupId,
+      epoch: mockShareEpoch,
     });
     mockDklsSetup.mockResolvedValue(new Uint8Array([1, 2, 3]));
     mockDklsSign.mockResolvedValue({ signature: new Uint8Array(64).fill(9) });
@@ -330,7 +333,7 @@ describe('MPCKeyring', () => {
 
   it('does not initialize from incomplete serialized state', async () => {
     const keyring = makeKeyring();
-    await keyring.deserialize({ backupId: 'only-backup-id' });
+    await keyring.deserialize({ shareEpoch: 1 });
     await expect(keyring.checkKeyShare()).rejects.toThrow(
       'Keyring not initialized',
     );
@@ -368,7 +371,7 @@ describe('MPCKeyring', () => {
       expect.objectContaining({
         custodians: ['local-user', 'cloud-user'],
         threshold: 2,
-        networkSession: { label: 'create-key' },
+        networkSession: { label: 'dkg-create' },
       }),
     );
     expect(mockDklsSetup).toHaveBeenCalledWith(
@@ -376,21 +379,49 @@ describe('MPCKeyring', () => {
         networkSession: { label: 'tss-setup' },
       }),
     );
-    expect(rootSession.createSubsession).toHaveBeenCalledWith('create-key');
+    expect(rootSession.createSubsession).toHaveBeenCalledWith('dkg-create');
     expect(rootSession.createSubsession).toHaveBeenCalledWith('tss-setup');
     expect(mockStoreKeyShareBackup).toHaveBeenCalledWith(
       expect.objectContaining({
         token: 'token',
-        backupId: mockBackupId,
+        epoch: 1,
       }),
     );
+    expect(mockCheckKeyShare).toHaveBeenCalledWith({
+      baseURL: 'https://cloud.example',
+      token: 'token',
+    });
+    expect(mockSetActiveEpoch).toHaveBeenCalledWith({
+      baseURL: 'https://cloud.example',
+      token: 'token',
+      epoch: 1,
+    });
     expect(await keyring.serialize()).toStrictEqual({
       netCreds: { partyId: 'local-user' },
       keyShare: makeThresholdKey(),
       serverNetId: 'cloud-user',
-      backupId: mockBackupId,
+      shareEpoch: 1,
       tssSetup: '0x010203',
     });
+  });
+
+  it('throws when create cannot activate an incomplete epoch', async () => {
+    const keyring = makeKeyring();
+    const rootSession = makeRootSession();
+    mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
+    mockCreateSession.mockResolvedValueOnce(rootSession);
+    mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+    mockCheckKeyShare.mockResolvedValueOnce({
+      latestShareEpoch: 1,
+      latestBackupEpoch: undefined,
+      activeEpoch: undefined,
+    });
+
+    await expect(keyring.init('create')).rejects.toThrow(
+      'Share epoch 1 is not ready',
+    );
+    expect(mockSetActiveEpoch).not.toHaveBeenCalled();
+    expect(await keyring.serialize()).toStrictEqual({});
   });
 
   it('imports a key from the backend backup', async () => {
@@ -417,7 +448,7 @@ describe('MPCKeyring', () => {
       netCreds: { partyId: 'imported-user' },
       keyShare: makeThresholdKey(),
       serverNetId: 'cloud-user',
-      backupId: mockBackupId,
+      shareEpoch: mockShareEpoch,
       tssSetup: null,
     });
   });
@@ -449,7 +480,7 @@ describe('MPCKeyring', () => {
     expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
   });
 
-  it('rotates key shares without regenerating tssSetup', async () => {
+  it('rotates key shares, activates the next epoch, and clears tssSetup', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(getProfileToken);
     await deserializeState(keyring);
@@ -458,14 +489,15 @@ describe('MPCKeyring', () => {
       ...makeThresholdKey(),
       privateKeyShare: new Uint8Array([9, 9, 9]),
     };
-    const newBackupId =
-      '0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
-    const mockedUtil = jest.requireMock('./util');
-    mockedUtil.createBackupId.mockReturnValueOnce(newBackupId);
 
     const rootSession = makeRootSession();
     mockCreateSession.mockResolvedValueOnce(rootSession);
     mockRotateKeyShares.mockResolvedValueOnce(rotatedKey);
+    mockCheckKeyShare.mockResolvedValueOnce({
+      latestShareEpoch: 2,
+      latestBackupEpoch: 2,
+      activeEpoch: 1,
+    });
 
     await keyring.rotateKeyShares();
 
@@ -475,48 +507,56 @@ describe('MPCKeyring', () => {
       token: 'token',
       clientNetId: 'local-user',
       nonce: mockSessionNonce,
+      expectedActiveEpoch: 1,
     });
     expect(mockRotateKeyShares).toHaveBeenCalledWith(
       expect.objectContaining({
-        networkSession: { label: 'rotate-key-shares' },
+        networkSession: { label: 'dkg-rotate' },
       }),
     );
-    expect(rootSession.createSubsession).toHaveBeenCalledWith(
-      'rotate-key-shares',
-    );
+    expect(rootSession.createSubsession).toHaveBeenCalledWith('dkg-rotate');
     expect(mockDklsSetup).not.toHaveBeenCalled();
     expect(mockStoreKeyShareBackup).toHaveBeenCalledWith(
       expect.objectContaining({
-        backupId: newBackupId,
+        epoch: 2,
         token: 'token',
       }),
     );
+    expect(mockSetActiveEpoch).toHaveBeenCalledWith({
+      baseURL: 'https://cloud.example',
+      token: 'token',
+      epoch: 2,
+    });
     expect(await keyring.serialize()).toStrictEqual({
       netCreds: { partyId: 'local-user' },
       keyShare: rotatedKey,
       serverNetId: 'cloud-user',
-      backupId: newBackupId,
-      tssSetup: '0x0102',
+      shareEpoch: 2,
+      tssSetup: null,
     });
   });
 
-  it('checks whether the local backup id matches the backend', async () => {
+  it('checks whether local and backend epochs match', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(getProfileToken);
     await deserializeState(keyring);
 
     expect(await keyring.checkKeyShare()).toBe(true);
     expect(getProfileToken).toHaveBeenCalledWith();
-    expect(mockCheckKeyShareBackupId).toHaveBeenCalledWith({
+    expect(mockCheckKeyShare).toHaveBeenCalledWith({
       baseURL: 'https://cloud.example',
       token: 'token',
     });
 
-    mockCheckKeyShareBackupId.mockResolvedValueOnce('other-backup-id');
+    mockCheckKeyShare.mockResolvedValueOnce({
+      latestShareEpoch: 2,
+      latestBackupEpoch: 1,
+      activeEpoch: 1,
+    });
     expect(await keyring.checkKeyShare()).toBe(false);
   });
 
-  it('syncs key share and backup id from the backend', async () => {
+  it('syncs key share and epoch from the backend and clears tssSetup', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(getProfileToken);
     await deserializeState(keyring);
@@ -527,7 +567,7 @@ describe('MPCKeyring', () => {
     };
     mockLoadKeyShareBackup.mockResolvedValueOnce({
       encryptedKeyShare: new TextEncoder().encode(JSON.stringify({ ok: true })),
-      backupId: 'synced-backup-id',
+      epoch: 3,
     });
     mockThresholdKeyFromJson.mockReturnValueOnce(syncedKey);
 
@@ -538,8 +578,8 @@ describe('MPCKeyring', () => {
       netCreds: { partyId: 'local-user' },
       keyShare: syncedKey,
       serverNetId: 'cloud-user',
-      backupId: 'synced-backup-id',
-      tssSetup: '0x0102',
+      shareEpoch: 3,
+      tssSetup: null,
     });
   });
 
@@ -566,6 +606,7 @@ describe('MPCKeyring', () => {
         clientNetId: 'local-user',
         token: 'token',
         data: hashPersonalMessage(new TextEncoder().encode('hello')),
+        shareEpoch: 1,
       }),
     );
     expect(mockDklsSetup).not.toHaveBeenCalled();
@@ -628,6 +669,7 @@ describe('MPCKeyring', () => {
         clientNetId: 'local-user',
         token: 'token',
         data: expectedHash,
+        shareEpoch: 1,
       }),
     );
     expect(mockDklsSign).toHaveBeenCalledWith(

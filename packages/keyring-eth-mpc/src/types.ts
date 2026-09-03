@@ -23,9 +23,9 @@ export type MPCKeyringOpts = {
 
 export type MPCKeyringState = {
   keyShare: CL24ThresholdKey;
+  shareEpoch: number;
   netCreds: MfaNetworkIdentity;
   serverNetId: string;
-  backupId: string;
   tssSetup: Uint8Array | null;
 };
 

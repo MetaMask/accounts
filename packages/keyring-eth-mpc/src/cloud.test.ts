@@ -1,12 +1,13 @@
 import { bytesToBase64 } from '@metamask/utils';
 
 import {
-  checkKeyShareBackupId,
+  checkKeyShare,
   createKey,
   getNetId,
   loadKeyShareBackup,
   registerClient,
   rotateKeyShares,
+  setActiveEpoch,
   sign,
   storeKeyShareBackup,
 } from './cloud';
@@ -133,7 +134,7 @@ describe('cloud helpers', () => {
     ).rejects.toThrow('Failed to register client: Forbidden');
   });
 
-  it('starts a cloud sign session with a base64-encoded message', async () => {
+  it('starts a cloud sign session with epoch and base64-encoded message', async () => {
     okEmpty();
     const data = new Uint8Array([104, 105]); // "hi"
 
@@ -143,12 +144,14 @@ describe('cloud helpers', () => {
       clientNetId: 'local-1',
       nonce: '0xnonce',
       data,
+      shareEpoch: 1,
     });
 
     const body = JSON.parse(
       (fetchSpy.mock.calls[0]?.[1] as { body: string }).body,
-    ) as { data: string };
+    ) as { data: string; shareEpoch: number };
     expect(body.data).toBe('aGk=');
+    expect(body.shareEpoch).toBe(1);
   });
 
   it('throws when cloud sign initialization fails', async () => {
@@ -164,6 +167,7 @@ describe('cloud helpers', () => {
         clientNetId: 'local-1',
         nonce: '0xnonce',
         data: new Uint8Array([1]),
+        shareEpoch: 1,
       }),
     ).rejects.toThrow('Failed to initialize cloud sign session: Server Error');
   });
@@ -176,8 +180,13 @@ describe('cloud helpers', () => {
       token: 'token-1',
       clientNetId: 'local-1',
       nonce: '0xnonce',
+      expectedActiveEpoch: 1,
     });
 
+    const body = JSON.parse(
+      (fetchSpy.mock.calls[0]?.[1] as { body: string }).body,
+    ) as { expectedActiveEpoch: number };
+    expect(body.expectedActiveEpoch).toBe(1);
     expect(fetchSpy).toHaveBeenCalledWith(
       'https://cloud.example/rotate-key-shares',
       expect.objectContaining({ method: 'POST' }),
@@ -196,27 +205,28 @@ describe('cloud helpers', () => {
         token: 'token-1',
         clientNetId: 'local-1',
         nonce: '0xnonce',
+        expectedActiveEpoch: 1,
       }),
     ).rejects.toThrow(
       'Failed to initialize cloud key rotation session: Forbidden',
     );
   });
 
-  it('stores an encrypted key share backup', async () => {
+  it('stores an encrypted key share backup for an epoch', async () => {
     okEmpty();
     const encryptedKeyShare = new Uint8Array([1, 2, 3]);
 
     await storeKeyShareBackup({
       baseURL: 'https://cloud.example',
       token: 'token-1',
-      backupId: 'backup-1',
+      epoch: 2,
       encryptedKeyShare,
     });
 
     const body = JSON.parse(
       (fetchSpy.mock.calls[0]?.[1] as { body: string }).body,
-    ) as { encryptedKeyShare: string; backupId: string };
-    expect(body.backupId).toBe('backup-1');
+    ) as { encryptedKeyShare: string; epoch: number };
+    expect(body.epoch).toBe(2);
     expect(body.encryptedKeyShare).toBe(bytesToBase64(encryptedKeyShare));
   });
 
@@ -230,53 +240,84 @@ describe('cloud helpers', () => {
       storeKeyShareBackup({
         baseURL: 'https://cloud.example',
         token: 'token-1',
-        backupId: 'backup-1',
+        epoch: 1,
         encryptedKeyShare: new Uint8Array([1]),
       }),
     ).rejects.toThrow('Failed to store key share backup: Bad Request');
   });
 
-  it('checks the stored backup id', async () => {
-    okJson({ backupId: 'backup-1' });
+  it('checks key share epochs', async () => {
+    okJson({
+      latestShareEpoch: 2,
+      latestBackupEpoch: 2,
+      activeEpoch: 1,
+    });
 
     expect(
-      await checkKeyShareBackupId({
+      await checkKeyShare({
         baseURL: 'https://cloud.example',
         token: 'token-1',
       }),
-    ).toBe('backup-1');
+    ).toStrictEqual({
+      latestShareEpoch: 2,
+      latestBackupEpoch: 2,
+      activeEpoch: 1,
+    });
   });
 
-  it('returns null when the backend has no backup id', async () => {
-    okJson({});
-
-    expect(
-      await checkKeyShareBackupId({
-        baseURL: 'https://cloud.example',
-        token: 'token-1',
-      }),
-    ).toBeNull();
-  });
-
-  it('throws when checking the backup id fails', async () => {
+  it('throws when checking key share fails', async () => {
     fetchSpy.mockResolvedValue({
       ok: false,
       statusText: 'Not Found',
     } as never);
 
     await expect(
-      checkKeyShareBackupId({
+      checkKeyShare({
         baseURL: 'https://cloud.example',
         token: 'token-1',
       }),
-    ).rejects.toThrow('Failed to check key share backup id: Not Found');
+    ).rejects.toThrow('Failed to check key share: Not Found');
+  });
+
+  it('sets the active epoch', async () => {
+    okEmpty();
+
+    await setActiveEpoch({
+      baseURL: 'https://cloud.example',
+      token: 'token-1',
+      epoch: 2,
+    });
+
+    const body = JSON.parse(
+      (fetchSpy.mock.calls[0]?.[1] as { body: string }).body,
+    ) as { epoch: number };
+    expect(body.epoch).toBe(2);
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'https://cloud.example/set-active-epoch',
+      expect.objectContaining({ method: 'POST' }),
+    );
+  });
+
+  it('throws when setting the active epoch fails', async () => {
+    fetchSpy.mockResolvedValue({
+      ok: false,
+      statusText: 'Conflict',
+    } as never);
+
+    await expect(
+      setActiveEpoch({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+        epoch: 2,
+      }),
+    ).rejects.toThrow('Failed to set active epoch: Conflict');
   });
 
   it('loads an encrypted key share backup', async () => {
     const encryptedKeyShare = new Uint8Array([9, 8, 7]);
     okJson({
       encryptedKeyShare: bytesToBase64(encryptedKeyShare),
-      backupId: 'backup-1',
+      epoch: 3,
     });
 
     expect(
@@ -286,7 +327,7 @@ describe('cloud helpers', () => {
       }),
     ).toStrictEqual({
       encryptedKeyShare,
-      backupId: 'backup-1',
+      epoch: 3,
     });
   });
 

@@ -9,16 +9,15 @@ import { bytesToHex, hexToBytes } from '@metamask/utils';
 
 import {
   AES_GCM_IV_LENGTH,
-  createBackupId,
   decryptBytes,
   encryptBytes,
   equalAddresses,
   generateSessionNonce,
   getSignedTypedDataHash,
   normalizeAddress,
-  parseBackupId,
   parseEthSig,
   parseServerNetId,
+  parseShareEpoch,
   parseSignedTypedDataVersion,
   parseTssSetup,
   publicKeyToAddressHex,
@@ -217,14 +216,6 @@ describe('util', () => {
     );
   });
 
-  it('creates an opaque backup id from RNG bytes', () => {
-    const bytes = new Uint8Array(32).fill(2);
-    const rng = { generateRandomBytes: jest.fn().mockReturnValue(bytes) };
-
-    expect(createBackupId(rng)).toBe(bytesToHex(bytes));
-    expect(rng.generateRandomBytes).toHaveBeenCalledWith(32);
-  });
-
   it('encrypts and decrypts bytes with AES-GCM', async () => {
     const key = new Uint8Array(32).fill(9);
     const iv = new Uint8Array(AES_GCM_IV_LENGTH).fill(1);
@@ -276,12 +267,15 @@ describe('util', () => {
       'Invalid server network id: expected a non-empty string',
     );
 
-    expect(parseBackupId('backup-1')).toBe('backup-1');
-    expect(() => parseBackupId(1 as never)).toThrow(
-      'Invalid backup id: expected a string',
+    expect(parseShareEpoch(3)).toBe(3);
+    expect(() => parseShareEpoch('1' as never)).toThrow(
+      'Invalid share epoch: expected an integer',
     );
-    expect(() => parseBackupId('')).toThrow(
-      'Invalid backup id: expected a non-empty string',
+    expect(() => parseShareEpoch(1.5)).toThrow(
+      'Invalid share epoch: expected an integer',
+    );
+    expect(() => parseShareEpoch(0)).toThrow(
+      'Invalid share epoch: expected a positive integer',
     );
 
     expect(parseTssSetup('0x1234')).toStrictEqual(new Uint8Array([0x12, 0x34]));

@@ -21,7 +21,6 @@ import type { Hex, Json } from '@metamask/utils';
 import { add0x, assert, bytesToHex, hexToBytes } from '@metamask/utils';
 
 const SESSION_NONCE_BYTE_LENGTH = 32;
-const BACKUP_ID_BYTE_LENGTH = 32;
 export const AES_GCM_IV_LENGTH = 12;
 
 /**
@@ -32,16 +31,6 @@ export const AES_GCM_IV_LENGTH = 12;
  */
 export function generateSessionNonce(rng: RandomNumberGenerator): Hex {
   return bytesToHex(rng.generateRandomBytes(SESSION_NONCE_BYTE_LENGTH));
-}
-
-/**
- * Mint an opaque backup id. Not a counter.
- *
- * @param rng - The random number generator.
- * @returns Hex-encoded 32-byte random id.
- */
-export function createBackupId(rng: RandomNumberGenerator): string {
-  return bytesToHex(rng.generateRandomBytes(BACKUP_ID_BYTE_LENGTH));
 }
 
 /**
@@ -313,13 +302,19 @@ export function parseServerNetId(serverNetId: Json): string {
 }
 
 /**
- * Parse a backup id from a JSON value.
+ * Parse a share epoch from a JSON value.
  *
- * @param backupId - The backup id to parse.
- * @returns The parsed backup id.
+ * @param shareEpoch - The share epoch to parse.
+ * @returns The parsed share epoch.
  */
-export function parseBackupId(backupId: Json): string {
-  return parseNonEmptyString(backupId, 'backup id');
+export function parseShareEpoch(shareEpoch: Json): number {
+  if (typeof shareEpoch !== 'number' || !Number.isInteger(shareEpoch)) {
+    throw new Error('Invalid share epoch: expected an integer');
+  }
+  if (shareEpoch < 1) {
+    throw new Error('Invalid share epoch: expected a positive integer');
+  }
+  return shareEpoch;
 }
 
 /**
