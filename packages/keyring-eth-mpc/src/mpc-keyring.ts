@@ -315,6 +315,7 @@ export class MPCKeyring implements Keyring {
         baseURL: this.#cloudURL,
         token,
         epoch: nextEpoch,
+        attemptNonce: nonce,
         encryptedKeyShare: await this.#encryptKeyShare(keyShare),
       });
 
@@ -557,6 +558,7 @@ export class MPCKeyring implements Keyring {
       baseURL: this.#cloudURL,
       token,
       epoch: INITIAL_SHARE_EPOCH,
+      attemptNonce: nonce,
       encryptedKeyShare: await this.#encryptKeyShare(keyShare),
     });
 

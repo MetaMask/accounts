@@ -385,6 +385,7 @@ describe('MPCKeyring', () => {
       expect.objectContaining({
         token: 'token',
         epoch: 1,
+        attemptNonce: mockSessionNonce,
       }),
     );
     expect(mockCheckKeyShare).toHaveBeenCalledWith({
@@ -520,6 +521,7 @@ describe('MPCKeyring', () => {
       expect.objectContaining({
         epoch: 2,
         token: 'token',
+        attemptNonce: mockSessionNonce,
       }),
     );
     expect(mockSetActiveEpoch).toHaveBeenCalledWith({

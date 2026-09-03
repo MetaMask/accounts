@@ -220,13 +220,15 @@ describe('cloud helpers', () => {
       baseURL: 'https://cloud.example',
       token: 'token-1',
       epoch: 2,
+      attemptNonce: '0xnonce',
       encryptedKeyShare,
     });
 
     const body = JSON.parse(
       (fetchSpy.mock.calls[0]?.[1] as { body: string }).body,
-    ) as { encryptedKeyShare: string; epoch: number };
+    ) as { encryptedKeyShare: string; epoch: number; attemptNonce: string };
     expect(body.epoch).toBe(2);
+    expect(body.attemptNonce).toBe('0xnonce');
     expect(body.encryptedKeyShare).toBe(bytesToBase64(encryptedKeyShare));
   });
 
@@ -241,6 +243,7 @@ describe('cloud helpers', () => {
         baseURL: 'https://cloud.example',
         token: 'token-1',
         epoch: 1,
+        attemptNonce: '0xnonce',
         encryptedKeyShare: new Uint8Array([1]),
       }),
     ).rejects.toThrow('Failed to store key share backup: Bad Request');

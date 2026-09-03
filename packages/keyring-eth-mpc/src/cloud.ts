@@ -181,12 +181,14 @@ export async function rotateKeyShares(opts: {
  * @param opts.baseURL - MPC backend base URL.
  * @param opts.token - Profile token with 2FA.
  * @param opts.epoch - Share epoch this backup belongs to.
+ * @param opts.attemptNonce - DKG client nonce for that epoch (rejects stale backups).
  * @param opts.encryptedKeyShare - Encrypted key share ciphertext.
  */
 export async function storeKeyShareBackup(opts: {
   baseURL: string;
   token: string;
   epoch: number;
+  attemptNonce: string;
   encryptedKeyShare: Uint8Array;
 }): Promise<void> {
   await postJson(
@@ -194,6 +196,7 @@ export async function storeKeyShareBackup(opts: {
     {
       token: opts.token,
       epoch: opts.epoch,
+      attemptNonce: opts.attemptNonce,
       encryptedKeyShare: bytesToBase64(opts.encryptedKeyShare),
     },
     'Failed to store key share backup',
