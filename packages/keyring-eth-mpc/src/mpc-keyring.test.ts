@@ -767,6 +767,78 @@ describe('MPCKeyring', () => {
     expect(maxInFlight).toBe(1);
   });
 
+  it('serializes sign, rotate, and sync on one op queue', async () => {
+    const keyring = makeKeyring();
+    await deserializeState(keyring);
+
+    const order: string[] = [];
+    let inFlight = 0;
+    let maxInFlight = 0;
+
+    const track = async (label: string, work: () => Promise<void>) => {
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      order.push(`${label}-start`);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      await work();
+      order.push(`${label}-end`);
+      inFlight -= 1;
+    };
+
+    mockCreateSession.mockImplementation(async () => makeRootSession());
+    mockDklsSign.mockImplementation(async () => {
+      await track('sign', async () => undefined);
+      return { signature: new Uint8Array(64).fill(9) };
+    });
+    mockRotateKeyShares.mockImplementation(async () => {
+      await track('rotate', async () => undefined);
+      return {
+        ...makeThresholdKey(),
+        privateKeyShare: new Uint8Array([9, 9, 9]),
+      };
+    });
+    mockCheckKeyShare.mockResolvedValue({
+      latestShareEpoch: 2,
+      latestBackupEpoch: 2,
+      activeEpoch: 1,
+    });
+    mockLoadKeyShareBackup.mockImplementation(async () => {
+      await track('sync', async () => undefined);
+      return {
+        encryptedKeyShare: new TextEncoder().encode(
+          JSON.stringify({ ok: true }),
+        ),
+        epoch: 2,
+      };
+    });
+    mockThresholdKeyFromJson.mockReturnValue({
+      ...makeThresholdKey(),
+      privateKeyShare: new Uint8Array([1, 1, 1]),
+    });
+
+    await Promise.all([
+      keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
+      keyring.rotateKeyShares(),
+      keyring.syncKeyShare(),
+    ]);
+
+    expect(maxInFlight).toBe(1);
+    expect(order).toStrictEqual([
+      'sign-start',
+      'sign-end',
+      'rotate-start',
+      'rotate-end',
+      'sync-start',
+      'sync-end',
+    ]);
+    expect(await keyring.serialize()).toStrictEqual(
+      expect.objectContaining({
+        shareEpoch: 2,
+        tssSetup: null,
+      }),
+    );
+  });
+
   it('signs typed data and validates signer constraints', async () => {
     const keyring = makeKeyring();
     await deserializeState(keyring);

@@ -150,7 +150,7 @@ export class MPCKeyring implements Keyring {
 
   readonly #getBackupEncryptionKey: () => Promise<Uint8Array>;
 
-  #signQueue: Promise<void> = Promise.resolve();
+  #opQueue: Promise<void> = Promise.resolve();
 
   constructor(opts: MPCKeyringOpts) {
     this.#rng = {
@@ -273,66 +273,71 @@ export class MPCKeyring implements Keyring {
   /**
    * Rotate client and server shares to the next epoch, then activate it.
    * Clears local TSS setup so it is rebuilt against the new shares.
+   * Serialized with sign and sync so mid-flight state writes cannot race.
+   *
+   * @returns Resolves when rotation and activation complete.
    */
   async rotateKeyShares(): Promise<void> {
-    const state = this.#assertState();
-    const { netCreds, serverNetId, shareEpoch } = state;
-    let { keyShare } = state;
-    const nextEpoch = shareEpoch + 1;
+    return this.#serializeOp(async () => {
+      const state = this.#assertState();
+      const { netCreds, serverNetId, shareEpoch } = state;
+      let { keyShare } = state;
+      const nextEpoch = shareEpoch + 1;
 
-    const token = await this.#getProfileToken({ twoFactor: true });
-    const nonce = generateSessionNonce(this.#rng);
-    await startRotateKeyShares({
-      baseURL: this.#cloudURL,
-      token,
-      clientNetId: netCreds.partyId,
-      nonce,
-      expectedActiveEpoch: shareEpoch,
-    });
-
-    const netSession = await this.#createNetworkSession(
-      netCreds,
-      serverNetId,
-      nonce,
-    );
-    try {
-      const custodians = partyNetIds(netCreds.partyId, serverNetId);
-      keyShare = await this.#dkm.rotateKeyShares({
-        key: keyShare,
-        dealers: dealersFromCL24Key(keyShare, custodians),
-        custodians,
-        networkSession: netSession.createSubsession('dkg-rotate'),
-      });
-    } finally {
-      await netSession.disconnect();
-    }
-
-    await storeKeyShareBackup({
-      baseURL: this.#cloudURL,
-      token,
-      epoch: nextEpoch,
-      encryptedKeyShare: await this.#encryptKeyShare(keyShare),
-    });
-
-    assertEpochReady(
-      await checkKeyShareRemote({
+      const token = await this.#getProfileToken({ twoFactor: true });
+      const nonce = generateSessionNonce(this.#rng);
+      await startRotateKeyShares({
         baseURL: this.#cloudURL,
         token,
-      }),
-      nextEpoch,
-    );
+        clientNetId: netCreds.partyId,
+        nonce,
+        expectedActiveEpoch: shareEpoch,
+      });
 
-    await setActiveEpoch({
-      baseURL: this.#cloudURL,
-      token,
-      epoch: nextEpoch,
-    });
+      const netSession = await this.#createNetworkSession(
+        netCreds,
+        serverNetId,
+        nonce,
+      );
+      try {
+        const custodians = partyNetIds(netCreds.partyId, serverNetId);
+        keyShare = await this.#dkm.rotateKeyShares({
+          key: keyShare,
+          dealers: dealersFromCL24Key(keyShare, custodians),
+          custodians,
+          networkSession: netSession.createSubsession('dkg-rotate'),
+        });
+      } finally {
+        await netSession.disconnect();
+      }
 
-    this.#applyKeyState({
-      ...state,
-      keyShare,
-      shareEpoch: nextEpoch,
-      tssSetup: null,
+      await storeKeyShareBackup({
+        baseURL: this.#cloudURL,
+        token,
+        epoch: nextEpoch,
+        encryptedKeyShare: await this.#encryptKeyShare(keyShare),
+      });
+
+      assertEpochReady(
+        await checkKeyShareRemote({
+          baseURL: this.#cloudURL,
+          token,
+        }),
+        nextEpoch,
+      );
+
+      await setActiveEpoch({
+        baseURL: this.#cloudURL,
+        token,
+        epoch: nextEpoch,
+      });
+
+      this.#applyKeyState({
+        ...state,
+        keyShare,
+        shareEpoch: nextEpoch,
+        tssSetup: null,
+      });
     });
   }
 
@@ -358,20 +363,25 @@ export class MPCKeyring implements Keyring {
   /**
    * Refresh `keyShare` and `shareEpoch` from the active-epoch backend backup.
    * Clears `tssSetup`; `netCreds` and `serverNetId` are unchanged.
+   * Serialized with sign and rotate so mid-flight state writes cannot race.
+   *
+   * @returns Resolves when the local share has been refreshed.
    */
   async syncKeyShare(): Promise<void> {
-    const state = this.#assertState();
-    const token = await this.#getProfileToken({ twoFactor: true });
-    const { encryptedKeyShare, epoch } = await loadKeyShareBackup({
-      baseURL: this.#cloudURL,
-      token,
-    });
-    const keyShare = await this.#decryptKeyShare(encryptedKeyShare);
-    this.#applyKeyState({
-      ...state,
-      keyShare,
-      shareEpoch: epoch,
-      tssSetup: null,
+    return this.#serializeOp(async () => {
+      const state = this.#assertState();
+      const token = await this.#getProfileToken({ twoFactor: true });
+      const { encryptedKeyShare, epoch } = await loadKeyShareBackup({
+        baseURL: this.#cloudURL,
+        token,
+      });
+      const keyShare = await this.#decryptKeyShare(encryptedKeyShare);
+      this.#applyKeyState({
+        ...state,
+        keyShare,
+        shareEpoch: epoch,
+        tssSetup: null,
+      });
     });
   }
 
@@ -603,7 +613,7 @@ export class MPCKeyring implements Keyring {
   }
 
   async #signHash(address: Hex, hash: Uint8Array): Promise<Uint8Array> {
-    return this.#serializeSign(async () => {
+    return this.#serializeOp(async () => {
       const state = this.#assertState();
       const { keyShare, netCreds, serverNetId, shareEpoch } = state;
       let { tssSetup } = state;
@@ -723,12 +733,12 @@ export class MPCKeyring implements Keyring {
     );
   }
 
-  async #serializeSign<Result>(
+  async #serializeOp<Result>(
     operation: () => Promise<Result>,
   ): Promise<Result> {
-    const previous = this.#signQueue;
+    const previous = this.#opQueue;
     let release!: () => void;
-    this.#signQueue = new Promise<void>((resolve) => {
+    this.#opQueue = new Promise<void>((resolve) => {
       release = resolve;
     });
     await previous;

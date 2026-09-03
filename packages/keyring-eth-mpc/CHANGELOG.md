@@ -13,5 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 2-party client/server MPC keyring with DKLS23 TSS and cloud backup sync.
   - Supports create/import, share-epoch rotate/check/sync, and signing (transactions, personal_sign, typed data, EIP-7702 authorizations).
   - Create and rotate append a share epoch, store backup, assert readiness, then `setActiveEpoch` before updating local state.
+  - Serialize sign, rotate, and sync on one op queue to avoid stale local state overwrites.
 
 [Unreleased]: https://github.com/MetaMask/accounts/
