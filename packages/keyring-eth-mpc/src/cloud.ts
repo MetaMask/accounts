@@ -13,7 +13,51 @@ export type CheckKeyShareResult = {
 };
 
 /**
- * Fetch JSON from the MPC backend, throwing on non-OK responses.
+ * Parse a fetch response as JSON, throwing on non-OK status.
+ *
+ * @param response - The fetch response.
+ * @param errorPrefix - Prefix for the thrown error message.
+ * @returns The parsed JSON body, or `undefined` when the response is empty.
+ */
+async function parseJsonResponse<Result>(
+  response: Response,
+  errorPrefix: string,
+): Promise<Result> {
+  if (!response.ok) {
+    throw new Error(`${errorPrefix}: ${response.statusText}`);
+  }
+
+  const text = await response.text();
+  if (text.length === 0) {
+    return undefined as Result;
+  }
+  return JSON.parse(text) as Result;
+}
+
+/**
+ * GET JSON from the MPC backend, throwing on non-OK responses.
+ *
+ * @param url - The request URL.
+ * @param token - Profile token sent as a Bearer header.
+ * @param errorPrefix - Prefix for the thrown error message.
+ * @returns The parsed JSON body, or `undefined` when the response is empty.
+ */
+async function getJson<Result>(
+  url: string,
+  token: string,
+  errorPrefix: string,
+): Promise<Result> {
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return parseJsonResponse(response, errorPrefix);
+}
+
+/**
+ * POST JSON to the MPC backend, throwing on non-OK responses.
  *
  * @param url - The request URL.
  * @param token - Profile token sent as a Bearer header.
@@ -21,12 +65,12 @@ export type CheckKeyShareResult = {
  * @param errorPrefix - Prefix for the thrown error message.
  * @returns The parsed JSON body, or `undefined` when the response is empty.
  */
-async function postJson<Response>(
+async function postJson<Result>(
   url: string,
   token: string,
   body: Record<string, unknown>,
   errorPrefix: string,
-): Promise<Response> {
+): Promise<Result> {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -35,16 +79,7 @@ async function postJson<Response>(
     },
     body: JSON.stringify(body),
   });
-
-  if (!response.ok) {
-    throw new Error(`${errorPrefix}: ${response.statusText}`);
-  }
-
-  const text = await response.text();
-  if (text.length === 0) {
-    return undefined as Response;
-  }
-  return JSON.parse(text) as Response;
+  return parseJsonResponse(response, errorPrefix);
 }
 
 /**
@@ -262,13 +297,12 @@ export async function loadKeyShareBackup(opts: {
   baseURL: string;
   token: string;
 }): Promise<LoadKeyShareBackupResult> {
-  const data = await postJson<{
+  const data = await getJson<{
     encryptedKeyShare: string;
     epoch: number;
   }>(
     `${opts.baseURL}/load-key-share-backup`,
     opts.token,
-    {},
     'Failed to load key share backup',
   );
   return {
