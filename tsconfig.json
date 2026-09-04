@@ -5,6 +5,7 @@
     { "path": "./packages/keyring-api" },
     { "path": "./packages/keyring-eth-hd" },
     { "path": "./packages/keyring-eth-ledger-bridge" },
+    { "path": "./packages/keyring-eth-mpc" },
     { "path": "./packages/keyring-eth-simple" },
     { "path": "./packages/keyring-eth-trezor" },
     { "path": "./packages/keyring-internal-api" },
