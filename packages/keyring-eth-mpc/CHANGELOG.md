@@ -16,4 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Bind key-share backups to the DKG attempt nonce so a delayed backup cannot attach to a retried share.
   - Serialize sign, rotate, and sync on one op queue to avoid stale local state overwrites.
 
+### Changed
+
+- Send the MPC profile token as an `Authorization: Bearer` header instead of in the JSON request body ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 [Unreleased]: https://github.com/MetaMask/accounts/
