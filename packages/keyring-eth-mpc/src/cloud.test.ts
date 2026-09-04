@@ -353,6 +353,14 @@ describe('cloud helpers', () => {
       encryptedKeyShare,
       epoch: 3,
     });
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'https://cloud.example/load-key-share-backup',
+      expect.objectContaining({
+        method: 'GET',
+        headers: { Authorization: 'Bearer token-1' },
+      }),
+    );
   });
 
   it('throws when loading a key share backup fails', async () => {
