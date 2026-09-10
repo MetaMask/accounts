@@ -67,7 +67,7 @@
   },
   "dependencies": {
     "@ethereumjs/tx": "^5.4.0",
-    "@metamask/eth-sig-util": "^8.2.0",
+    "@metamask/eth-sig-util": "^9.0.0",
     "@metamask/keyring-api": "^24.1.0",
     "@metamask/keyring-utils": "^5.0.0",
     "@metamask/scure-bip39": "^2.1.1",
