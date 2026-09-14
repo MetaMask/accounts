@@ -14,10 +14,10 @@ import {
   MOCK_WALLET_1_BTC_P2WPKH_ACCOUNT,
   MOCK_WALLET_1_EVM_ACCOUNT,
   MOCK_WALLET_1_SOL_ACCOUNT,
-} from '../mocks';
-import type { Bip44Account } from './bip44';
-import type { AccountSelector } from './selector';
-import { select, selectOne } from './selector';
+} from '../mocks/index.js';
+import type { Bip44Account } from './bip44.js';
+import type { AccountSelector } from './selector.js';
+import { select, selectOne } from './selector.js';
 
 describe('selector', () => {
   const accounts = [

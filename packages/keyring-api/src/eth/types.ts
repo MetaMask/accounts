@@ -7,8 +7,8 @@ import {
   CaipChainIdStruct,
   EthAccountType,
   KeyringAccountStruct,
-} from '../api';
-import { EthScope } from './constants';
+} from '../api/index.js';
+import { EthScope } from './constants.js';
 
 const ETH_BYTES_REGEX = /^0x[0-9a-f]*$/iu;
 export const EthBytesStruct = definePattern('EthBytes', ETH_BYTES_REGEX);

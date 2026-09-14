@@ -1,7 +1,7 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 import { isScopeEqualToAny } from '@metamask/keyring-utils';
 
-import { areBothEmpty } from './internal';
+import { areBothEmpty } from './internal/index.js';
 
 /**
  * Selector to query a specific account based on some criteria.

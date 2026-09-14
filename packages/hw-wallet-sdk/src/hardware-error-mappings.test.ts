@@ -5,9 +5,9 @@ import {
   QR_WALLET_ERROR_MAPPINGS,
   TREZOR_ERROR_MAPPINGS,
   KEYRING_ERROR_MAPPINGS,
-} from './hardware-error-mappings';
-import type { ErrorMapping } from './hardware-error-mappings';
-import { ErrorCode, Severity, Category } from './hardware-errors-enums';
+} from './hardware-error-mappings.js';
+import type { ErrorMapping } from './hardware-error-mappings.js';
+import { ErrorCode, Severity, Category } from './hardware-errors-enums.js';
 
 describe('HARDWARE_ERROR_MAPPINGS', () => {
   describe('Ledger mappings', () => {

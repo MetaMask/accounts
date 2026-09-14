@@ -1,7 +1,7 @@
 import { Keyring, KeyringType } from '@metamask/keyring-api/v2';
 import { EthKeyringV1Adapter } from '@metamask/keyring-sdk/v2';
 
-import type { SnapKeyring } from './SnapKeyring';
+import type { SnapKeyring } from './SnapKeyring.js';
 
 /**
  * Check if a given keyring instance is a SnapKeyringV1Adapter.

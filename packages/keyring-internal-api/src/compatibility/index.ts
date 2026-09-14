@@ -1,1 +1,1 @@
-export * from './keyring-request';
+export * from './keyring-request.js';

@@ -1,6 +1,6 @@
 import { is } from '@metamask/superstruct';
 
-import { AssetStruct } from './asset';
+import { AssetStruct } from './asset.js';
 
 describe('AssetStruct', () => {
   it.each([

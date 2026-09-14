@@ -1,8 +1,8 @@
 import type { Infer } from '@metamask/superstruct';
 import { array, literal, object } from '@metamask/superstruct';
 
-import { CaipChainIdStruct } from './caip';
-import { DerivationPathStruct } from './derivation';
+import { CaipChainIdStruct } from './caip.js';
+import { DerivationPathStruct } from './derivation.js';
 
 /**
  * Account type tag.

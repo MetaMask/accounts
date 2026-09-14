@@ -1,5 +1,5 @@
-import type { Category } from './hardware-errors-enums';
-import { ErrorCode, Severity } from './hardware-errors-enums';
+import type { Category } from './hardware-errors-enums.js';
+import { ErrorCode, Severity } from './hardware-errors-enums.js';
 
 /**
  * Generates a unique error ID using timestamp and random values.

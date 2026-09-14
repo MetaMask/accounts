@@ -4,7 +4,7 @@ import type {
   KeyringCapabilities,
 } from '@metamask/keyring-api/v2';
 
-import type { Bip44Account } from './bip44';
+import type { Bip44Account } from './bip44.js';
 
 /**
  * An account provider is reponsible of providing accounts to an account group.

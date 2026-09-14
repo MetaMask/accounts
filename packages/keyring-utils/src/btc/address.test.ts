@@ -1,4 +1,4 @@
-import { isBtcMainnetAddress, isBtcTestnetAddress } from './address';
+import { isBtcMainnetAddress, isBtcTestnetAddress } from './address.js';
 
 const BTC_MAINNET_ADDRESSES = [
   // P2PKH

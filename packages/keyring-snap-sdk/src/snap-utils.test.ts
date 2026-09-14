@@ -1,7 +1,7 @@
 import { KeyringEvent } from '@metamask/keyring-api';
 
-import { SnapManageAccountsMethod } from './methods';
-import { emitSnapKeyringEvent, getSelectedAccounts } from './snap-utils';
+import { SnapManageAccountsMethod } from './methods.js';
+import { emitSnapKeyringEvent, getSelectedAccounts } from './snap-utils.js';
 
 describe('emitSnapKeyringEvent', () => {
   it('should call snap.request with the correct parameters', async () => {

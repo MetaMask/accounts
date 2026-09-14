@@ -6,8 +6,8 @@ import { toEntropySourceId } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
-import { HdKeyring as LegacyHdKeyring } from '../hd-keyring';
-import { HdKeyring } from './hd-keyring';
+import { HdKeyring as LegacyHdKeyring } from '../hd-keyring.js';
+import { HdKeyring } from './hd-keyring.js';
 
 const TEST_MNEMONIC =
   'test test test test test test test test test test test junk';

@@ -20,7 +20,7 @@ import type { AccountId } from '@metamask/keyring-utils';
 import { add0x } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
-import type { HdKeyring as LegacyHdKeyring } from '../hd-keyring';
+import type { HdKeyring as LegacyHdKeyring } from '../hd-keyring.js';
 
 /**
  * Methods supported by HD keyring EOA accounts.

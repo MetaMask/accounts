@@ -1,6 +1,6 @@
 import { is } from '@metamask/superstruct';
 
-import { KeyringResponseStruct } from './response';
+import { KeyringResponseStruct } from './response.js';
 
 describe('KeyringResponseStruct', () => {
   it.each([

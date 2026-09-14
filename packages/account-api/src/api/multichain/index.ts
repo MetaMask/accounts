@@ -1,2 +1,2 @@
-export * from './group';
-export * from './wallet';
+export * from './group.js';
+export * from './wallet.js';

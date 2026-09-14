@@ -1,6 +1,6 @@
 import { is } from '@metamask/superstruct';
 
-import { KeyringAccountDataStruct } from './export';
+import { KeyringAccountDataStruct } from './export.js';
 
 describe('KeyringAccountDataStruct', () => {
   const sym = Symbol('Unique symbol for testing purposes');

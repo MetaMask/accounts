@@ -1,2 +1,2 @@
-export * from './SnapKeyring';
-export * from './SnapKeyringV1Adapter';
+export * from './SnapKeyring.js';
+export * from './SnapKeyringV1Adapter.js';

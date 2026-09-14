@@ -1,4 +1,4 @@
-import { CaseInsensitiveMap } from './CaseInsensitiveMap';
+import { CaseInsensitiveMap } from './CaseInsensitiveMap.js';
 
 describe('CaseInsensitiveMap', () => {
   it('sets and gets values case-insensitively', () => {

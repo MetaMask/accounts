@@ -1,3 +1,3 @@
-export * from './compatibility';
-export type * from './eth';
-export * from './types';
+export * from './compatibility/index.js';
+export type * from './eth/index.js';
+export * from './types.js';

@@ -6,7 +6,7 @@ import {
   CaipChainIdStruct,
   KeyringAccountStruct,
   TrxAccountType,
-} from '../api';
+} from '../api/index.js';
 
 /**
  * TRON addresses are Base58-encoded strings that are exactly 34 characters long

@@ -1,9 +1,9 @@
 import { KeyringType } from '@metamask/keyring-api/v2';
 
-import { OneKeyKeyring as LegacyOneKeyKeyring } from '../onekey-keyring';
-import type { TrezorBridge } from '../trezor-bridge';
-import { OneKeyKeyring } from './onekey-keyring';
-import { TrezorKeyring } from './trezor-keyring';
+import { OneKeyKeyring as LegacyOneKeyKeyring } from '../onekey-keyring.js';
+import type { TrezorBridge } from '../trezor-bridge.js';
+import { OneKeyKeyring } from './onekey-keyring.js';
+import { TrezorKeyring } from './trezor-keyring.js';
 
 const entropySource = 'onekey-device-id-123';
 

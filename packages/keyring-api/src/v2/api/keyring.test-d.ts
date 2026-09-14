@@ -1,6 +1,6 @@
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
-import { AccountCreationType } from './create-account';
+import { AccountCreationType } from './create-account/index.js';
 import type {
   CreateAccountBip44DiscoverOptions,
   CreateAccountBip44DeriveIndexOptions,
@@ -8,17 +8,17 @@ import type {
   CreateAccountCustomOptions,
   CreateAccountOptions,
   CreateAccountPrivateKeyOptions,
-} from './create-account';
-import { AccountExportType } from './export-account';
+} from './create-account/index.js';
+import { AccountExportType } from './export-account/index.js';
 import type {
   ExportAccountOptions,
   ExportedAccount,
   PrivateKeyExportedAccount,
-} from './export-account';
-import type { Keyring } from './keyring';
-import type { KeyringCapabilities } from './keyring-capabilities';
-import { KeyringType } from './keyring-type';
-import type { ImportPrivateKeyFormat } from './private-key';
+} from './export-account/index.js';
+import type { KeyringCapabilities } from './keyring-capabilities.js';
+import { KeyringType } from './keyring-type.js';
+import type { Keyring } from './keyring.js';
+import type { ImportPrivateKeyFormat } from './private-key.js';
 
 // Test KeyringType enum
 expectAssignable<KeyringType>(KeyringType.Hd);

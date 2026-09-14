@@ -39,15 +39,15 @@ type KeyringOpt = {
 };
 
 type Wallet = {
-  privateKey: Buffer;
-  publicKey: Buffer;
+  privateKey: Uint8Array;
+  publicKey: Uint8Array;
 };
 
 const TYPE = 'Simple Key Pair';
 
 // FIXME: This should not be exported as default.
 export default class SimpleKeyring implements Keyring {
-  #wallets: { privateKey: Buffer; publicKey: Buffer }[];
+  #wallets: { privateKey: Uint8Array; publicKey: Uint8Array }[];
 
   readonly type: string = TYPE;
 
@@ -64,14 +64,16 @@ export default class SimpleKeyring implements Keyring {
   }
 
   async serialize(): Promise<string[]> {
-    return this.#wallets.map((a) => a.privateKey.toString('hex'));
+    return this.#wallets.map((a) => Buffer.from(a.privateKey).toString('hex'));
   }
 
   async deserialize(privateKeys: string[]): Promise<void> {
     this.#wallets = privateKeys.map((hexPrivateKey) => {
       const strippedHexPrivateKey = stripHexPrefix(hexPrivateKey);
-      const privateKey = Buffer.from(strippedHexPrivateKey, 'hex');
-      const publicKey = Buffer.from(privateToPublic(privateKey));
+      const privateKey = new Uint8Array(
+        Buffer.from(strippedHexPrivateKey, 'hex'),
+      );
+      const publicKey = privateToPublic(privateKey);
       return { privateKey, publicKey };
     });
   }
@@ -80,7 +82,7 @@ export default class SimpleKeyring implements Keyring {
     const newWallets = [];
     for (let i = 0; i < numAccounts; i++) {
       const privateKey = generateKey();
-      const publicKey = Buffer.from(privateToPublic(privateKey));
+      const publicKey = privateToPublic(privateKey);
       newWallets.push({ privateKey, publicKey });
     }
     this.#wallets = this.#wallets.concat(newWallets);
@@ -102,7 +104,7 @@ export default class SimpleKeyring implements Keyring {
     opts: KeyringOpt = {},
   ): Promise<TypedTransaction> {
     const privKey = this.#getPrivateKeyFor(address, opts);
-    const signedTx = transaction.sign(privKey);
+    const signedTx = transaction.sign(Uint8Array.from(privKey));
     // Newer versions of Ethereumjs-tx are immutable and return a new tx object
     return signedTx ?? transaction;
   }
@@ -113,7 +115,10 @@ export default class SimpleKeyring implements Keyring {
     opts: KeyringOpt = {},
   ): Promise<string> {
     const privateKey = this.#getPrivateKeyFor(address, opts);
-    return signEIP7702Authorization({ privateKey, authorization });
+    return signEIP7702Authorization({
+      privateKey: Buffer.from(privateKey),
+      authorization,
+    });
   }
 
   // For eth_sign, we need to sign arbitrary data:
@@ -130,7 +135,7 @@ export default class SimpleKeyring implements Keyring {
       throw new Error('Cannot sign invalid message');
     }
     const privKey = this.#getPrivateKeyFor(address, opts);
-    const msgSig = ecsign(Buffer.from(message, 'hex'), privKey);
+    const msgSig = ecsign(new Uint8Array(Buffer.from(message, 'hex')), privKey);
     const rawMsgSig = concatSig(
       Buffer.from(bigIntToBytes(msgSig.v)),
       Buffer.from(msgSig.r),
@@ -146,7 +151,7 @@ export default class SimpleKeyring implements Keyring {
     opts = { withAppKeyOrigin: '' },
   ): Promise<string> {
     const privKey = this.#getPrivateKeyFor(address, opts);
-    return personalSign({ privateKey: privKey, data: msgHex });
+    return personalSign({ privateKey: Buffer.from(privKey), data: msgHex });
   }
 
   // For eth_decryptMessage:
@@ -155,7 +160,7 @@ export default class SimpleKeyring implements Keyring {
     encryptedData: Eip1024EncryptedData,
   ): Promise<string> {
     const wallet = this.#getWalletForAccount(withAccount);
-    const privateKey = wallet.privateKey.toString('hex');
+    const privateKey = Buffer.from(wallet.privateKey).toString('hex');
     return decrypt({ privateKey, encryptedData });
   }
 
@@ -176,7 +181,11 @@ export default class SimpleKeyring implements Keyring {
     }
 
     const privateKey = this.#getPrivateKeyFor(address, options);
-    return signTypedData({ privateKey, data, version });
+    return signTypedData({
+      privateKey: Buffer.from(privateKey),
+      data,
+      version,
+    });
   }
 
   // get public key for nacl
@@ -185,14 +194,16 @@ export default class SimpleKeyring implements Keyring {
     opts?: KeyringOpt,
   ): Promise<string> {
     const privKey = this.#getPrivateKeyFor(withAccount, opts);
-    const publicKey = getEncryptionPublicKey(privKey.toString('hex'));
+    const publicKey = getEncryptionPublicKey(
+      Buffer.from(privKey).toString('hex'),
+    );
     return publicKey;
   }
 
   #getPrivateKeyFor(
     address: Hex,
     opts: KeyringOpt = { withAppKeyOrigin: '' },
-  ): Buffer {
+  ): Uint8Array {
     if (!address) {
       throw new Error('Must specify address.');
     }
@@ -218,7 +229,7 @@ export default class SimpleKeyring implements Keyring {
     opts = { withAppKeyOrigin: '' },
   ): Promise<string> {
     const wallet = this.#getWalletForAccount(address, opts);
-    return wallet.privateKey.toString('hex');
+    return Buffer.from(wallet.privateKey).toString('hex');
   }
 
   removeAccount(address: string): void {
@@ -253,14 +264,15 @@ export default class SimpleKeyring implements Keyring {
 
     if (opts.withAppKeyOrigin) {
       const { privateKey } = wallet;
-      const appKeyOriginBuffer = Buffer.from(opts.withAppKeyOrigin, 'utf8');
-      const appKeyBuffer = Buffer.concat([privateKey, appKeyOriginBuffer]);
-      const appKeyPrivateKey = keccak256(appKeyBuffer);
+      const appKeyOriginBytes = new TextEncoder().encode(opts.withAppKeyOrigin);
+      const combined = new Uint8Array(
+        privateKey.length + appKeyOriginBytes.length,
+      );
+      combined.set(privateKey);
+      combined.set(appKeyOriginBytes, privateKey.length);
+      const appKeyPrivateKey = keccak256(combined);
       const appKeyPublicKey = privateToPublic(appKeyPrivateKey);
-      wallet = {
-        privateKey: Buffer.from(appKeyPrivateKey),
-        publicKey: Buffer.from(appKeyPublicKey),
-      };
+      wallet = { privateKey: appKeyPrivateKey, publicKey: appKeyPublicKey };
     }
 
     return wallet;
@@ -272,8 +284,8 @@ export default class SimpleKeyring implements Keyring {
  *
  * @returns Buffer The generated key.
  */
-function generateKey(): Buffer {
-  const privateKey = randombytes(32);
+function generateKey(): Uint8Array {
+  const privateKey = new Uint8Array(randombytes(32));
 
   if (!isValidPrivate(privateKey)) {
     throw new Error(

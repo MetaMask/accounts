@@ -6,7 +6,7 @@ import {
   HardwareWalletError,
 } from '@metamask/hw-wallet-sdk';
 
-import { createLedgerError, isKnownLedgerError } from './errors';
+import { createLedgerError, isKnownLedgerError } from './errors.js';
 
 const LEDGER_ERROR_PREFIX = 'Ledger: ';
 const LEDGER_PREFIX_STATUS_CODES = new Set([

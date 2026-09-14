@@ -1,6 +1,6 @@
 import type { DeviceExchangeError } from '@ledgerhq/device-management-kit';
 
-import { ETH_APP_COMMAND_ERROR_TAG } from '../eth-get-app-configuration-command';
+import { ETH_APP_COMMAND_ERROR_TAG } from '../eth-get-app-configuration-command.js';
 
 /**
  * Construct a mock {@link DeviceExchangeError} for tests.

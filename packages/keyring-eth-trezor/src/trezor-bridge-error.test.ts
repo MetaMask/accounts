@@ -1,6 +1,6 @@
 import { ErrorCode, HardwareWalletError } from '@metamask/hw-wallet-sdk';
 
-import { createErrorFromTrezorResponse } from './trezor-bridge-error';
+import { createErrorFromTrezorResponse } from './trezor-bridge-error.js';
 
 describe('createErrorFromTrezorResponse', () => {
   it('returns UserCancelled for cancellation messages', () => {

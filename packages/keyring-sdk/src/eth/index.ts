@@ -1,2 +1,2 @@
-export * from './account-id';
-export type * from './eth-4337-keyring';
+export * from './account-id.js';
+export type * from './eth-4337-keyring.js';

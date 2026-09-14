@@ -1,6 +1,6 @@
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
-import type { Balance } from './balance';
+import type { Balance } from './balance.js';
 
 expectAssignable<Balance>({ amount: '1.0', unit: 'ETH' });
 expectAssignable<Balance>({ amount: '0.1', unit: 'BTC' });

@@ -23,9 +23,9 @@ import type {
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { TrezorBridge } from './trezor-bridge';
-import { createErrorFromTrezorResponse } from './trezor-bridge-error';
-import { handleTrezorTransportError } from './trezor-error-handler';
+import { createErrorFromTrezorResponse } from './trezor-bridge-error.js';
+import { TrezorBridge } from './trezor-bridge.js';
+import { handleTrezorTransportError } from './trezor-error-handler.js';
 
 const hdPathString = `m/44'/60'/0'/0`;
 const SLIP0044TestnetPath = `m/44'/1'/0'/0`;
@@ -305,13 +305,15 @@ export class TrezorKeyring implements Keyring {
   async signTransaction(
     address: Hex,
     tx: TypedTransaction | OldEthJsTransaction,
-  ): Promise<TypedTransaction | OldEthJsTransaction> {
+  ): Promise<TypedTxData> {
     if (isOldStyleEthereumjsTx(tx)) {
       // In this version of ethereumjs-tx we must add the chainId in hex format
       // to the initial v value. The chainId must be included in the serialized
       // transaction which is only communicated to ethereumjs-tx in this
       // value. In newer versions the chainId is communicated via the 'Common'
       // object.
+      // Note: OldEthJsTransaction uses Buffer for tx fields which is incompatible
+      // with TypedTxData in TS7; cast is necessary for backward compat.
       return this.#signTransaction(
         address,
         // @types/ethereumjs-tx and old ethereumjs-tx versions document
@@ -326,7 +328,7 @@ export class TrezorKeyring implements Keyring {
           tx.s = Buffer.from(payload.s, 'hex');
           return tx;
         },
-      );
+      ) as unknown as Promise<TypedTxData>;
     }
     return this.#signTransaction(
       address,
@@ -572,8 +574,8 @@ export class TrezorKeyring implements Keyring {
     this.hdPath = hdPath;
   }
 
-  #normalize(buf: Buffer): string {
-    return bytesToHex(buf);
+  #normalize(buf: Buffer | Uint8Array): string {
+    return bytesToHex(Uint8Array.from(buf));
   }
 
   /**
@@ -585,7 +587,9 @@ export class TrezorKeyring implements Keyring {
    */
   #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = bytesToHex(publicToAddress(dkey.publicKey, true));
+    const address = bytesToHex(
+      publicToAddress(Uint8Array.from(dkey.publicKey), true),
+    );
     return toChecksumAddress(address);
   }
 

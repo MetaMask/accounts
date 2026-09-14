@@ -1,7 +1,10 @@
 import { TransportStatusError } from '@ledgerhq/hw-transport';
-import type Transport from '@ledgerhq/hw-transport';
 
-import { ERC20_WRITE_SELECTORS, NFT_ONLY_SELECTORS } from './constants';
+// TS7 CJS/ESM interop: @ledgerhq/hw-transport is CJS without exports field.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Transport = any;
+
+import { ERC20_WRITE_SELECTORS, NFT_ONLY_SELECTORS } from './constants.js';
 import {
   AppConfigurationResponse,
   GetAppNameAndVersionResponse,
@@ -16,11 +19,11 @@ import {
   LedgerSignTransactionResponse,
   LedgerSignTypedDataParams,
   LedgerSignTypedDataResponse,
-} from './ledger-bridge';
-import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
-import { TransportMiddleware } from './ledger-transport-middleware';
-import { LedgerMobileBridgeOptions } from './type';
-import { getTransactionSelector } from './utils';
+} from './ledger-bridge.js';
+import { MetaMaskLedgerHwAppEth } from './ledger-hw-app.js';
+import { TransportMiddleware } from './ledger-transport-middleware.js';
+import { LedgerMobileBridgeOptions } from './type.js';
+import { getTransactionSelector } from './utils.js';
 
 /** Ledger APDU: CONDITIONS_OF_USE_NOT_SATISFIED (user rejected on device). */
 const LEDGER_USER_REJECTION_STATUS = 0x6985;

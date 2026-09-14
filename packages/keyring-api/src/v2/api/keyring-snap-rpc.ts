@@ -12,26 +12,26 @@ import {
   union,
 } from '@metamask/superstruct';
 
-import { ResolvedAccountAddressStruct } from '../../api/address';
-import type { ResolvedAccountAddress } from '../../api/address';
-import { BalanceStruct } from '../../api/balance';
-import type { Balance } from '../../api/balance';
+import { ResolvedAccountAddressStruct } from '../../api/address.js';
+import type { ResolvedAccountAddress } from '../../api/address.js';
+import { BalanceStruct } from '../../api/balance.js';
+import type { Balance } from '../../api/balance.js';
 import {
   CaipAssetTypeOrIdStruct,
   CaipAssetTypeStruct,
   CaipChainIdStruct,
-} from '../../api/caip';
+} from '../../api/caip.js';
 import type {
   CaipAssetType,
   CaipAssetTypeOrId,
   CaipChainId,
-} from '../../api/caip';
-import { PaginationStruct } from '../../api/pagination';
-import type { Pagination } from '../../api/pagination';
-import { TransactionsPageStruct } from '../../api/transaction';
-import type { TransactionsPage } from '../../api/transaction';
-import { KeyringRpcMethod } from './keyring-rpc';
-import type { KeyringRpc, KeyringRpcRequests } from './keyring-rpc';
+} from '../../api/caip.js';
+import { PaginationStruct } from '../../api/pagination.js';
+import type { Pagination } from '../../api/pagination.js';
+import { TransactionsPageStruct } from '../../api/transaction.js';
+import type { TransactionsPage } from '../../api/transaction.js';
+import { KeyringRpcMethod } from './keyring-rpc.js';
+import type { KeyringRpc, KeyringRpcRequests } from './keyring-rpc.js';
 
 /**
  * All keyring RPC methods available to a Snap - includes the base

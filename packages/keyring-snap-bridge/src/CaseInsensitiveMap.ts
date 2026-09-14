@@ -1,4 +1,4 @@
-import { throwError } from './util';
+import { throwError } from './util.js';
 
 /**
  * A case-insensitive map that stores key-value pairs.

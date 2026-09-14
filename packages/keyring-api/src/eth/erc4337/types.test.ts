@@ -1,6 +1,6 @@
 import { assert } from '@metamask/superstruct';
 
-import { EthUserOperationStruct, EthBaseUserOperationStruct } from './types';
+import { EthUserOperationStruct, EthBaseUserOperationStruct } from './types.js';
 
 describe('types', () => {
   it('is a valid UserOperation', () => {

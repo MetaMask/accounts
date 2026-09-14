@@ -9,7 +9,7 @@ import {
   createKeyringStateError,
   isKnownLedgerError,
   getLedgerErrorMapping,
-} from './errors';
+} from './errors.js';
 
 describe('createLedgerError', () => {
   describe('known error codes', () => {

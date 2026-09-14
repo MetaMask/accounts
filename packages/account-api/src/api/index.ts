@@ -1,8 +1,8 @@
-export * from './bip44';
-export * from './group';
-export * from './wallet';
-export type * from './provider';
-export * from './selector';
-export * from './multichain';
+export * from './bip44.js';
+export * from './group.js';
+export * from './wallet.js';
+export type * from './provider.js';
+export * from './selector.js';
+export * from './multichain/index.js';
 
 // NOTE: Do not export the `internal` sub-path.

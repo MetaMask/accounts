@@ -5,7 +5,7 @@ import {
   Category,
 } from '@metamask/hw-wallet-sdk';
 
-import { handleTrezorTransportError } from './trezor-error-handler';
+import { handleTrezorTransportError } from './trezor-error-handler.js';
 
 describe('handleTrezorTransportError', () => {
   const fallbackMessage = 'Default Trezor error';

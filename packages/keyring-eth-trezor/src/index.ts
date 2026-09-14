@@ -1,6 +1,6 @@
-export * from './trezor-keyring';
-export * from './onekey-keyring';
-export * from './trezor-error-handler';
-export * from './trezor-errors';
-export type * from './trezor-bridge';
-export * from './trezor-connect-bridge';
+export * from './trezor-keyring.js';
+export * from './onekey-keyring.js';
+export * from './trezor-error-handler.js';
+export * from './trezor-errors.js';
+export type * from './trezor-bridge.js';
+export * from './trezor-connect-bridge.js';

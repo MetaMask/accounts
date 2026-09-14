@@ -1,10 +1,10 @@
 import type { EntropySourceId, KeyringAccount } from '@metamask/keyring-api';
 
-import type { Bip44Account } from '../bip44';
-import type { AccountGroup, AccountGroupId } from '../group';
-import type { AccountWalletStatus, BaseAccountWallet } from '../wallet';
-import { AccountWalletType } from '../wallet';
-import type { MultichainAccountGroup } from './group';
+import type { Bip44Account } from '../bip44.js';
+import type { AccountGroup, AccountGroupId } from '../group.js';
+import type { AccountWalletStatus, BaseAccountWallet } from '../wallet.js';
+import { AccountWalletType } from '../wallet.js';
+import type { MultichainAccountGroup } from './group.js';
 
 /**
  * Multichain account wallet ID.

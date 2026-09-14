@@ -20,7 +20,7 @@ import {
   KeyringAccountStruct,
   TransactionStruct,
   MetaMaskOptionsStruct,
-} from './api';
+} from './api/index.js';
 
 /**
  * Supported keyring events.

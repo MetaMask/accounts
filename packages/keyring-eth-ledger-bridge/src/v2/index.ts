@@ -1,1 +1,1 @@
-export * from './ledger-keyring';
+export * from './ledger-keyring.js';

@@ -10,10 +10,10 @@ import { KeyringType } from '@metamask/keyring-api/v2';
 import { EthKeyringMethod } from '@metamask/keyring-sdk/v2';
 import HDKey from 'hdkey';
 
-import type { LedgerBridge, LedgerBridgeOptions } from '../ledger-bridge';
-import { LedgerIframeBridge } from '../ledger-iframe-bridge';
-import { LedgerKeyring as LegacyLedgerKeyring } from '../ledger-keyring';
-import { LedgerKeyring } from './ledger-keyring';
+import type { LedgerBridge, LedgerBridgeOptions } from '../ledger-bridge.js';
+import { LedgerIframeBridge } from '../ledger-iframe-bridge.js';
+import { LedgerKeyring as LegacyLedgerKeyring } from '../ledger-keyring.js';
+import { LedgerKeyring } from './ledger-keyring.js';
 
 /**
  * Type alias for Ledger keyring accounts (always BIP-44 derived).

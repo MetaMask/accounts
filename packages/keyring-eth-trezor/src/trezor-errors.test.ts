@@ -10,7 +10,7 @@ import {
   createTrezorError,
   getTrezorErrorMapping,
   isKnownTrezorError,
-} from './trezor-errors';
+} from './trezor-errors.js';
 
 describe('trezor-errors', () => {
   describe('isKnownTrezorError', () => {

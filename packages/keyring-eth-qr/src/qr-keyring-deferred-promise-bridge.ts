@@ -6,7 +6,7 @@ import type {
   QrKeyringBridge,
   QrScanRequest,
   SerializedUR,
-} from './qr-keyring';
+} from './qr-keyring.js';
 
 export type QrKeyringDeferredPromiseBridgeOptions = {
   /**

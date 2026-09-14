@@ -6,13 +6,13 @@ import {
   CreateAccountBip44DeriveIndexOptionsStruct,
   CreateAccountBip44DeriveIndexRangeOptionsStruct,
   CreateAccountBip44DerivePathOptionsStruct,
-} from './bip44';
-import { CreateAccountCustomOptionsStruct } from './custom';
-import { CreateAccountPrivateKeyOptionsStruct } from './private-key';
+} from './bip44.js';
+import { CreateAccountCustomOptionsStruct } from './custom.js';
+import { CreateAccountPrivateKeyOptionsStruct } from './private-key.js';
 
-export * from './bip44';
-export * from './custom';
-export * from './private-key';
+export * from './bip44.js';
+export * from './custom.js';
+export * from './private-key.js';
 
 /**
  * Enum representing the different ways an account can be created.

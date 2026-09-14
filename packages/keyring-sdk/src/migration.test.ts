@@ -2,8 +2,8 @@ import { object, number, string, array } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
-import { createMigrations, isVersionedState } from './migration';
-import type { JsonObject } from './migration';
+import { createMigrations, isVersionedState } from './migration.js';
+import type { JsonObject } from './migration.js';
 
 describe('isVersionedState', () => {
   it('returns true for a flat state with only a version field', () => {

@@ -20,13 +20,16 @@ import {
   normalizeAccount,
   normalizeAccountAddress,
   transformAccount,
-} from '../account';
-import { isAccountV1, migrateAccountV1 } from '../migrations';
-import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA } from '../platform-versions';
-import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
-import { SnapKeyringV1 } from '../SnapKeyringV1';
-import type { AccountMethod, SnapKeyringV1Callbacks } from '../SnapKeyringV1';
-import { equalsIgnoreCase } from '../util';
+} from '../account.js';
+import { isAccountV1, migrateAccountV1 } from '../migrations/index.js';
+import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA } from '../platform-versions.js';
+import type { SnapKeyringMessenger } from '../SnapKeyringMessenger.js';
+import { SnapKeyringV1 } from '../SnapKeyringV1.js';
+import type {
+  AccountMethod,
+  SnapKeyringV1Callbacks,
+} from '../SnapKeyringV1.js';
+import { equalsIgnoreCase } from '../util.js';
 
 /**
  * Default, empty capabilities used until the snap manifest is read on

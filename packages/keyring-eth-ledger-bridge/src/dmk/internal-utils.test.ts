@@ -3,7 +3,7 @@ import {
   stripHexPrefix,
   stripPathPrefix,
   toHexString,
-} from './internal-utils';
+} from './internal-utils.js';
 
 describe('stripHexPrefix', () => {
   it('strips the 0x prefix when present', () => {

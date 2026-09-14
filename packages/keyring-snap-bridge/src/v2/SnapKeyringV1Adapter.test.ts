@@ -5,13 +5,13 @@ import { KeyringV1Adapter } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
-import { SnapKeyring } from './SnapKeyring';
-import type { SnapKeyringCallbacks, SnapKeyringState } from './SnapKeyring';
+import type { SnapKeyringMessenger } from '../SnapKeyringMessenger.js';
+import { SnapKeyring } from './SnapKeyring.js';
+import type { SnapKeyringCallbacks, SnapKeyringState } from './SnapKeyring.js';
 import {
   isSnapKeyringV1Adapter,
   SnapKeyringV1Adapter,
-} from './SnapKeyringV1Adapter';
+} from './SnapKeyringV1Adapter.js';
 
 const ACCOUNT_ID = 'f2b88e0e-82a4-4e93-8c60-4fe59c6892d7';
 const ACCOUNT_ADDRESS = '0xdeadbeef00000000000000000000000000000000';

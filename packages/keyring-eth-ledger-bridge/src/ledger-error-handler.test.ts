@@ -6,7 +6,7 @@ import {
   Category as CategoryEnum,
 } from '@metamask/hw-wallet-sdk';
 
-import { handleLedgerTransportError } from './ledger-error-handler';
+import { handleLedgerTransportError } from './ledger-error-handler.js';
 
 describe('handleLedgerTransportError', () => {
   const fallbackMessage = 'Default error message';

@@ -5,9 +5,9 @@ import Transport, { TransportStatusError } from '@ledgerhq/hw-transport';
 import { EIP712Message } from '@ledgerhq/types-live';
 import { remove0x } from '@metamask/utils';
 
-import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
-import { LedgerMobileBridge } from './ledger-mobile-bridge';
-import { LedgerTransportMiddleware } from './ledger-transport-middleware';
+import { MetaMaskLedgerHwAppEth } from './ledger-hw-app.js';
+import { LedgerMobileBridge } from './ledger-mobile-bridge.js';
+import { LedgerTransportMiddleware } from './ledger-transport-middleware.js';
 
 type MockDeviceModel = {
   id: string;

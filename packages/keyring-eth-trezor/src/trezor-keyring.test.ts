@@ -11,8 +11,8 @@ import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 import { assert, restore, stub } from 'sinon';
 
-import { TrezorBridge } from './trezor-bridge';
-import { TrezorKeyring, TREZOR_CONNECT_MANIFEST } from './trezor-keyring';
+import { TrezorBridge } from './trezor-bridge.js';
+import { TrezorKeyring, TREZOR_CONNECT_MANIFEST } from './trezor-keyring.js';
 
 const fakeAccounts = [
   '0xF30952A1c534CDE7bC471380065726fa8686dfB3',
@@ -546,7 +546,9 @@ describe('TrezorKeyring', function () {
         },
       });
 
-      expect(returnedTx.toJSON()).toStrictEqual({
+      expect(
+        (returnedTx as unknown as TypedTransaction).toJSON(),
+      ).toStrictEqual({
         ...fakeTypeTwoTx.toJSON(),
         ...expectedRSV,
       });

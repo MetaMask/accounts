@@ -14,7 +14,7 @@ import {
   LedgerSignTransactionResponse,
   LedgerSignTypedDataParams,
   LedgerSignTypedDataResponse,
-} from './ledger-bridge';
+} from './ledger-bridge.js';
 
 const LEDGER_IFRAME_ID = 'LEDGER-IFRAME';
 

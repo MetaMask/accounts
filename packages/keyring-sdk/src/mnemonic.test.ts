@@ -3,7 +3,7 @@ import {
   decodeMnemonicWords,
   encodeMnemonic,
   encodeMnemonicWords,
-} from './mnemonic';
+} from './mnemonic.js';
 
 const toIndicesBytes = (indices: number[]): Uint8Array =>
   new Uint8Array(new Uint16Array(indices).buffer);

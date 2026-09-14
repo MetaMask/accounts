@@ -1,13 +1,13 @@
-import { MOCK_ENTROPY_SOURCE_1 } from '../../mocks';
-import { toAccountGroupId } from '../group';
-import { AccountWalletType, toAccountWalletId } from '../wallet';
-import type { MultichainAccountGroupId } from './group';
+import { MOCK_ENTROPY_SOURCE_1 } from '../../mocks/index.js';
+import { toAccountGroupId } from '../group.js';
+import { AccountWalletType, toAccountWalletId } from '../wallet.js';
+import type { MultichainAccountGroupId } from './group.js';
 import {
   getGroupIndexFromMultichainAccountGroupId,
   isMultichainAccountGroupId,
   toMultichainAccountGroupId,
-} from './group';
-import { toMultichainAccountWalletId } from './wallet';
+} from './group.js';
+import { toMultichainAccountWalletId } from './wallet.js';
 
 describe('multichain group', () => {
   describe('toMultichainAccountGroupId', () => {

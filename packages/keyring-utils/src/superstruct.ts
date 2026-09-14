@@ -1,7 +1,7 @@
 import { Struct, assert } from '@metamask/superstruct';
 import type { Infer, AnyStruct } from '@metamask/superstruct';
 
-import type { Equals } from './types';
+import type { Equals } from './types.js';
 
 /**
  * Assert that a value is valid according to a struct.

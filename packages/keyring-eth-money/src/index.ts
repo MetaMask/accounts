@@ -4,4 +4,4 @@ export {
   type GetMnemonicCallback,
   type MoneyKeyringOptions,
   type MoneyKeyringSerializedState,
-} from './money-keyring';
+} from './money-keyring.js';

@@ -21,14 +21,14 @@ import type { Snap } from '@metamask/snaps-utils';
 import type { Json } from '@metamask/utils';
 import { Mutex } from 'async-mutex';
 
-import { normalizeAccountAddress } from './account';
-import type { SnapKeyringInternalOptions } from './options';
-import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
-import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger';
-import type { AccountMethod, SnapKeyringV1 } from './SnapKeyringV1';
-import type { SnapMessage } from './types';
-import { throwError, unique } from './util';
-import { SnapKeyring as SnapKeyringV2 } from './v2/SnapKeyring';
+import { normalizeAccountAddress } from './account.js';
+import type { SnapKeyringInternalOptions } from './options.js';
+import type { SnapKeyringMessenger } from './SnapKeyringMessenger.js';
+import { SNAP_KEYRING_NAME } from './SnapKeyringMessenger.js';
+import type { AccountMethod, SnapKeyringV1 } from './SnapKeyringV1.js';
+import type { SnapMessage } from './types.js';
+import { throwError, unique } from './util.js';
+import { SnapKeyring as SnapKeyringV2 } from './v2/SnapKeyring.js';
 
 /**
  * Return the v1 instance of a per-snap keyring, throwing if the snap only

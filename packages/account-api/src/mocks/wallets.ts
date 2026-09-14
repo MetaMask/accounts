@@ -1,9 +1,9 @@
-import { AccountWalletType } from '../api';
+import { AccountWalletType } from '../api/index.js';
 import {
   MOCK_ENTROPY_SOURCE_1,
   MOCK_PRIVATE_KEY_KEYRING_TYPE,
-} from './keyrings';
-import { MOCK_SNAP_1, MOCK_SNAP_2 } from './snaps';
+} from './keyrings.js';
+import { MOCK_SNAP_1, MOCK_SNAP_2 } from './snaps.js';
 
 export const MOCK_ENTROPY_WALLET_ID = `${AccountWalletType.Entropy}:${MOCK_ENTROPY_SOURCE_1}`;
 export const MOCK_SNAP_LOCAL_WALLET_ID = `${AccountWalletType.Snap}:${MOCK_SNAP_1.id}`;
