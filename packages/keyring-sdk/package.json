@@ -84,6 +84,7 @@
     "typescript": "^7.0.2"
   },
   "tsd": {
+    "typings": "./dist/index.d.ts",
     "compilerOptions": {
       "composite": "false"
     },
