@@ -110,5 +110,13 @@
       "hdkey>secp256k1": false,
       "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>keccak": false
     }
+  },
+  "tsd": {
+    "typings": "./dist/index.d.ts",
+    "compilerOptions": {
+      "composite": "false",
+      "module": "CommonJS",
+      "moduleResolution": "Node"
+    }
   }
 }
