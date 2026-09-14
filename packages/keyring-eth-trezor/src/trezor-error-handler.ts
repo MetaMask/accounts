@@ -6,7 +6,7 @@ import {
   resolveUserRejectionErrorCode,
 } from '@metamask/hw-wallet-sdk';
 
-import { createTrezorError, isKnownTrezorError } from './trezor-errors';
+import { createTrezorError, isKnownTrezorError } from './trezor-errors.js';
 
 type ErrorDetails = {
   message?: string;

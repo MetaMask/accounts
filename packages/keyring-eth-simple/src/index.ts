@@ -1,1 +1,1 @@
-export { default } from './simple-keyring';
+export { default } from './simple-keyring.js';

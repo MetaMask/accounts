@@ -2,8 +2,8 @@ import { KeyringClient } from '@metamask/keyring-snap-client/v2';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { HandlerType } from '@metamask/snaps-utils';
 
-import type { KeyringInternalSnapClientMessenger } from '../KeyringInternalSnapClient';
-import { SnapControllerMessengerSender } from '../KeyringInternalSnapClient';
+import type { KeyringInternalSnapClientMessenger } from '../KeyringInternalSnapClient.js';
+import { SnapControllerMessengerSender } from '../KeyringInternalSnapClient.js';
 
 /**
  * A `KeyringClient` that allows the communication with a Snap through a

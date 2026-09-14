@@ -1,7 +1,7 @@
 import { enums, exactOptional, object } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 
-import { KeyringAccountTypeStruct } from '../../api/account';
+import { KeyringAccountTypeStruct } from '../../api/account.js';
 
 /**
  * Supported encoding formats for private keys.

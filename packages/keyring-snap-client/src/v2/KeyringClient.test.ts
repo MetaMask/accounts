@@ -6,7 +6,7 @@ import {
 } from '@metamask/keyring-api/v2';
 import type { Json } from '@metamask/utils';
 
-import { KeyringClient } from './KeyringClient';
+import { KeyringClient } from './KeyringClient.js';
 
 describe('KeyringClient', () => {
   const mockSender = {

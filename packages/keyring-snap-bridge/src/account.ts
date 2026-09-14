@@ -21,7 +21,7 @@ import {
 import { assert, omit } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 
-import { isAccountV1, transformAccountV1 } from './migrations';
+import { isAccountV1, transformAccountV1 } from './migrations/index.js';
 /**
  * A `KeyringAccount` with some optional fields which can be used to keep
  * the retro-compatility with older version of keyring accounts/events.

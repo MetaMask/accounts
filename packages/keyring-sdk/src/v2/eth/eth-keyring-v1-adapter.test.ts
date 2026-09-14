@@ -19,14 +19,14 @@ import {
 import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
 import type { Hex, Json } from '@metamask/utils';
 
-import { KeyringV1Adapter } from '../keyring-v1-adapter';
-import type { BaseEthKeyring } from './eth-keyring-v1-adapter';
+import { KeyringV1Adapter } from '../keyring-v1-adapter.js';
+import type { BaseEthKeyring } from './eth-keyring-v1-adapter.js';
 import {
   EthKeyringV1AccountNotFoundError,
   EthKeyringV1Adapter,
   EthKeyringV1MethodNotSupportedError,
-} from './eth-keyring-v1-adapter';
-import { EthKeyringMethod } from './eth-keyring-wrapper';
+} from './eth-keyring-v1-adapter.js';
+import { EthKeyringMethod } from './eth-keyring-wrapper.js';
 
 const ACCOUNT_ADDRESS = '0x660265edc169bab511a40c0e049cc1e33774443d';
 const ACCOUNT_ID = 'mock-account-id';

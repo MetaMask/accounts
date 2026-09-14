@@ -1,13 +1,13 @@
 import type { Extends } from '@metamask/keyring-utils';
 import { expectTrue } from '@metamask/keyring-utils';
 
-import type { KeyringAccount } from '../api';
+import type { KeyringAccount } from '../api/index.js';
 import type {
   BtcP2pkhAccount,
   BtcP2shAccount,
   BtcP2trAccount,
   BtcP2wpkhAccount,
-} from './types';
+} from './types.js';
 
 // BTC account types extend `KeyringAccount`
 expectTrue<Extends<BtcP2pkhAccount, KeyringAccount>>();

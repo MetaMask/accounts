@@ -1,4 +1,4 @@
-import { ErrorCode, Severity, Category } from './hardware-errors-enums';
+import { ErrorCode, Severity, Category } from './hardware-errors-enums.js';
 
 export type ErrorMapping = {
   code: ErrorCode;

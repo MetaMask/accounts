@@ -1,6 +1,6 @@
 import { Common, Chain, Hardfork } from '@ethereumjs/common';
 import { RLP } from '@ethereumjs/rlp';
-import { TransactionFactory } from '@ethereumjs/tx';
+import { TransactionFactory, TypedTransaction } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 import * as sigUtil from '@metamask/eth-sig-util';
@@ -9,10 +9,10 @@ import { bytesToHex, Hex, remove0x } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { withDerivedEip712Domain } from './eip712';
-import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
-import { LedgerIframeBridge } from './ledger-iframe-bridge';
-import { AccountDetails, LedgerKeyring } from './ledger-keyring';
+import { withDerivedEip712Domain } from './eip712.js';
+import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge.js';
+import { LedgerIframeBridge } from './ledger-iframe-bridge.js';
+import { AccountDetails, LedgerKeyring } from './ledger-keyring.js';
 
 jest.mock('@metamask/eth-sig-util', () => {
   return {
@@ -682,7 +682,9 @@ describe('LedgerKeyring', function () {
           );
 
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
-          expect(returnedTx.toJSON()).toStrictEqual(signedNewFakeTx.toJSON());
+          expect(
+            (returnedTx as unknown as TypedTransaction).toJSON(),
+          ).toStrictEqual(signedNewFakeTx.toJSON());
         });
 
         it('passes correctly encoded EIP1559 transaction to ledger and return signed tx', async function () {
@@ -729,9 +731,9 @@ describe('LedgerKeyring', function () {
           );
 
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
-          expect(returnedTx.toJSON()).toStrictEqual(
-            signedFakeTypeTwoTx.toJSON(),
-          );
+          expect(
+            (returnedTx as unknown as TypedTransaction).toJSON(),
+          ).toStrictEqual(signedFakeTypeTwoTx.toJSON());
         });
       });
 
@@ -1516,7 +1518,6 @@ describe('LedgerKeyring', function () {
           sigUtil,
           'recoverTypedSignature',
         );
-
         const result = await keyring.signTypedData(
           derivedAddress,
           nftPermitData as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>,
@@ -1621,7 +1622,6 @@ describe('LedgerKeyring', function () {
           sigUtil,
           'recoverTypedSignature',
         );
-
         const result = await keyring.signTypedData(
           derivedAddress,
           fixtureData as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>,

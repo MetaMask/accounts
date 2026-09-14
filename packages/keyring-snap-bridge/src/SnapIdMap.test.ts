@@ -1,6 +1,6 @@
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import { InvalidSnapIdError, SnapIdMap } from './SnapIdMap';
+import { InvalidSnapIdError, SnapIdMap } from './SnapIdMap.js';
 
 const SNAP_1_ID = 'snap-1' as SnapId;
 const SNAP_2_ID = 'snap-2' as SnapId;

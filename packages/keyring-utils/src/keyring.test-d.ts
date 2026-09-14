@@ -2,9 +2,9 @@ import type { TypedTransaction, TypedTxData } from '@ethereumjs/tx';
 import type { Eip1024EncryptedData, Hex, Json } from '@metamask/utils';
 import { expectAssignable, expectNotAssignable, expectType } from 'tsd';
 
-import type { BaseKeyring, EthKeyring, Keyring } from './keyring';
-import type { Extends } from './typing';
-import { expectTrue } from './typing';
+import type { BaseKeyring, EthKeyring, Keyring } from './keyring.js';
+import type { Extends } from './typing.js';
+import { expectTrue } from './typing.js';
 
 // Required members are all present on Keyring
 expectTrue<

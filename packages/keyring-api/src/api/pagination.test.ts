@@ -1,6 +1,6 @@
 import { is } from '@metamask/superstruct';
 
-import { PaginationStruct } from './pagination';
+import { PaginationStruct } from './pagination.js';
 
 describe('PaginationStruct', () => {
   it.each([

@@ -1,6 +1,8 @@
-import type Transport from '@ledgerhq/hw-transport';
+import { MetaMaskLedgerHwAppEth } from './ledger-hw-app.js';
 
-import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
+// TS7 CJS/ESM interop: @ledgerhq/hw-transport is CJS without exports field.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Transport = any;
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export interface TransportMiddleware {

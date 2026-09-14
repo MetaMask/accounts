@@ -58,10 +58,10 @@ import { v4 as uuid } from 'uuid';
 
 import type { KeyringState, SnapKeyringInternalOptions } from '.';
 import { getDefaultInternalOptions, SnapKeyring } from '.';
-import type { KeyringAccountV1 } from './account';
-import { migrateAccountV1, getScopesForAccountV1 } from './migrations';
-import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions';
-import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
+import type { KeyringAccountV1 } from './account.js';
+import { migrateAccountV1, getScopesForAccountV1 } from './migrations/index.js';
+import { PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN } from './platform-versions.js';
+import type { SnapKeyringMessenger } from './SnapKeyringMessenger.js';
 
 type SnapRpcRequest = Parameters<
   SnapControllerHandleRequestAction['handler']
