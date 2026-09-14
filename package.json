@@ -51,7 +51,7 @@
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.14.191",
-    "@types/node": "^20.12.12",
+    "@types/node": "^22.13.14",
     "@types/semver": "^7",
     "@typescript-eslint/eslint-plugin": "^8.48.0",
     "@typescript-eslint/parser": "^8.48.0",
@@ -78,11 +78,12 @@
     "semver": "^7.6.3",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
-    "typescript": "~5.3.3",
-    "typescript-eslint": "^8.48.0"
+    "typescript": "^7.0.2",
+    "typescript-eslint": "^8.48.0",
+    "typescript-for-ts-jest": "npm:typescript@~5.4.5"
   },
   "resolutions": {
-    "@types/node": "^20.12.12",
+    "@types/node": "^22.13.14",
     "@types/web": "^0.0.69",
     "@typescript/lib-dom": "npm:@types/web@^0.0.69",
     "axios@1.7.3": "^1.7.7",
@@ -94,7 +95,7 @@
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "yarn@4.16.0",
+  "packageManager": "yarn@4.17.1+sha256.471ffb15e0523663865bbf46a69e7d157ecf532412eb436c48dfab6e3f2abe88",
   "lavamoat": {
     "allowScripts": {
       "@lavamoat/preinstall-always-fail": false,

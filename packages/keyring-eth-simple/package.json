@@ -84,7 +84,7 @@
     "@ts-bridge/cli": "^0.6.3",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.12.12",
+    "@types/node": "^22.13.14",
     "@types/randombytes": "^2.0.0",
     "deepmerge": "^4.2.2",
     "depcheck": "^1.4.7",
@@ -93,7 +93,7 @@
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
-    "typescript": "~5.3.3"
+    "typescript": "^7.0.2"
   },
   "engines": {
     "node": ">=22"
