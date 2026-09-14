@@ -1,10 +1,30 @@
-import LedgerHwAppEth from '@ledgerhq/hw-app-eth';
+import * as LedgerHwAppEthModule from '@ledgerhq/hw-app-eth';
 import { Buffer } from 'buffer';
 
-import type { GetAppNameAndVersionResponse } from './ledger-bridge';
+import type { GetAppNameAndVersionResponse } from './ledger-bridge.js';
+import type { LedgerHwAppEthInterface } from './ledger-hw-app-eth.js';
+
+export type { LedgerHwAppEthInterface } from './ledger-hw-app-eth.js';
+
+// ---------------------------------------------------------------------------
+// Runtime interop
+//
+// @ledgerhq/hw-app-eth is CJS; its module.exports is { default: Eth, ... }.
+// In CJS (ts-jest), __importStar gives .default = Eth directly.
+// In native ESM, .default = module.exports = { default: Eth }, so we need
+// one extra level. Check by type: a function means we already have the class.
+// ---------------------------------------------------------------------------
+const rawLedgerHwAppEthDefault: unknown =
+  (LedgerHwAppEthModule as unknown as { default: unknown }).default;
+/* istanbul ignore next: only one branch is reachable per module system */
+const LedgerHwAppEthBase = (
+  typeof rawLedgerHwAppEthDefault === 'function'
+    ? rawLedgerHwAppEthDefault
+    : (rawLedgerHwAppEthDefault as { default: unknown }).default
+) as unknown as abstract new (transport: LedgerHwAppEthInterface['transport']) => LedgerHwAppEthInterface;
 
 export class MetaMaskLedgerHwAppEth
-  extends LedgerHwAppEth
+  extends LedgerHwAppEthBase
   implements MetaMaskLedgerHwAppEth
 {
   readonly mainAppName = 'BOLOS';
