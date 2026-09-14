@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.packages.build.json",
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": "./",
     "outDir": "dist",
     "rootDir": "src",
     "exactOptionalPropertyTypes": false
