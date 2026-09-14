@@ -1,6 +1,6 @@
 import { is, assert } from '@metamask/superstruct';
 
-import { StringNumberStruct, UrlStruct, UuidStruct } from './types';
+import { StringNumberStruct, UrlStruct, UuidStruct } from './types.js';
 
 describe('UuidStruct', () => {
   it('is a valid UUID', () => {

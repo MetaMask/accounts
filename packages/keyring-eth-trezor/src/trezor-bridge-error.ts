@@ -1,6 +1,6 @@
 import { HardwareWalletError } from '@metamask/hw-wallet-sdk';
 
-import { convertToHardwareWalletError } from './trezor-error-handler';
+import { convertToHardwareWalletError } from './trezor-error-handler.js';
 
 type TrezorErrorPayload = {
   error?: string;

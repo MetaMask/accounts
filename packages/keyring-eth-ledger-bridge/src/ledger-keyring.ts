@@ -25,15 +25,15 @@ import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { withDerivedEip712Domain } from './eip712';
-import { createKeyringStateError } from './errors';
+import { withDerivedEip712Domain } from './eip712.js';
+import { createKeyringStateError } from './errors.js';
 import {
   AppConfigurationResponse,
   GetAppNameAndVersionResponse,
   LedgerBridge,
   LedgerBridgeOptions,
-} from './ledger-bridge';
-import { handleLedgerTransportError } from './ledger-error-handler';
+} from './ledger-bridge.js';
+import { handleLedgerTransportError } from './ledger-error-handler.js';
 
 const pathBase = 'm';
 const hdPathString = `${pathBase}/44'/60'/0'`;
@@ -234,7 +234,7 @@ export class LedgerKeyring implements Keyring {
       // we return the checksummed address of the public key stored in
       // `this.hdk`, which is the root address of the last unlocked path.
       return this.#getChecksumHexAddress(
-        bytesToHex(publicToAddress(this.hdk.publicKey, true)),
+        bytesToHex(publicToAddress(Uint8Array.from(this.hdk.publicKey), true)),
       );
     }
     const path = hdPath ? this.#toLedgerPath(hdPath) : this.hdPath;
@@ -362,7 +362,7 @@ export class LedgerKeyring implements Keyring {
   async signTransaction(
     address: Hex,
     tx: TypedTransaction | OldEthJsTransaction,
-  ): Promise<TypedTransaction | OldEthJsTransaction> {
+  ): Promise<TypedTxData> {
     let rawTxHex;
     // transactions built with older versions of ethereumjs-tx have a
     // getChainId method that newer versions do not. Older versions are mutable
@@ -382,12 +382,14 @@ export class LedgerKeyring implements Keyring {
 
       rawTxHex = tx.serialize().toString('hex');
 
+      // OldEthJsTransaction uses Buffer for tx fields which is incompatible
+      // with TypedTxData in TS7; cast is necessary for backward compat.
       return this.#signTransaction(address, rawTxHex, (payload) => {
         tx.v = Buffer.from(payload.v, 'hex');
         tx.r = Buffer.from(payload.r, 'hex');
         tx.s = Buffer.from(payload.s, 'hex');
         return tx;
-      });
+      }) as unknown as Promise<TypedTxData>;
     }
 
     // The below `encode` call is only necessary for legacy transactions, as `getMessageToSign`
@@ -421,7 +423,7 @@ export class LedgerKeyring implements Keyring {
         common: tx.common,
         freeze: Object.isFrozen(tx),
       });
-    });
+    }) as unknown as Promise<TypedTxData>;
   }
 
   async #signTransaction(
@@ -725,7 +727,9 @@ export class LedgerKeyring implements Keyring {
 
   #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = bytesToHex(publicToAddress(dkey.publicKey, true));
+    const address = bytesToHex(
+      publicToAddress(Uint8Array.from(dkey.publicKey), true),
+    );
     return this.#getChecksumHexAddress(address);
   }
 

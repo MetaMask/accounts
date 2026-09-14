@@ -1,8 +1,8 @@
 import { assert } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
-import { MoneyKeyring } from './money-keyring';
-import type { MoneyKeyringSerializedState } from './money-keyring';
+import { MoneyKeyring } from './money-keyring.js';
+import type { MoneyKeyringSerializedState } from './money-keyring.js';
 
 const mockMnemonic =
   'finish oppose decorate face calm tragic certain desk hour urge dinosaur mango';

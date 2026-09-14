@@ -5,8 +5,8 @@ import { assert } from '@metamask/superstruct';
 import {
   GetSelectedAccountsResponseStruct,
   SnapManageAccountsMethod,
-} from './methods';
-import type { GetSelectedAccountsResponse } from './methods';
+} from './methods.js';
+import type { GetSelectedAccountsResponse } from './methods.js';
 
 /**
  * Emit a keyring event from a snap.

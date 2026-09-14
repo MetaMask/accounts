@@ -1,18 +1,18 @@
-import { BtcAccountType } from '../api';
-import { BtcScope } from './constants';
+import { BtcAccountType } from '../api/index.js';
+import { BtcScope } from './constants.js';
 import type {
   BtcP2pkhAccount,
   BtcP2shAccount,
   BtcP2trAccount,
   BtcP2wpkhAccount,
-} from './types';
+} from './types.js';
 import {
   BtcMethod,
   BtcP2pkhAccountStruct,
   BtcP2shAccountStruct,
   BtcP2trAccountStruct,
   BtcP2wpkhAccountStruct,
-} from './types';
+} from './types.js';
 
 const BTC_P2PKH_MAINNET_ADDRESS = '1AXaVdPBb6zqrTMb6ebrBb9g3JmeAPGeCF';
 const BTC_P2SH_MAINNET_ADDRESS = '3KQPirCGGbVyWJLGuWN6VPC7uLeiarYB7x';

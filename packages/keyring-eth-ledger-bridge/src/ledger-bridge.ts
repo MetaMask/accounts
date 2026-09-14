@@ -1,7 +1,7 @@
 import type { EIP712Message } from '@ledgerhq/types-live';
 
-import type { LedgerHwAppEth } from './ledger-hw-app-eth';
-import type { Transport } from './ledger-hw-transport';
+import type { LedgerHwAppEth } from './ledger-hw-app-eth.js';
+import type { Transport } from './ledger-hw-transport.js';
 
 export type GetPublicKeyParams = { hdPath: string };
 export type GetPublicKeyResponse = Awaited<

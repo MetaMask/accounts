@@ -3,7 +3,7 @@ import { assert } from '@metamask/superstruct';
 import {
   KeyringAccountEntropyTypeOption,
   KeyringAccountOptionsStruct,
-} from './account-options';
+} from './account-options.js';
 
 describe('api', () => {
   describe('KeyringAccountOptionsStruct', () => {

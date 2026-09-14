@@ -10,7 +10,7 @@ import {
   normalizeAccount,
   normalizeAccountAddress,
   transformAccount,
-} from './account';
+} from './account.js';
 
 const ethAccount: KeyringAccount = {
   id: 'b05d918a-b37c-497a-bb28-3d15c0d56b7a',

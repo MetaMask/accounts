@@ -1,5 +1,5 @@
-import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
-import type { Transport } from './ledger-hw-transport';
+import { MetaMaskLedgerHwAppEth } from './ledger-hw-app.js';
+import type { Transport } from './ledger-hw-transport.js';
 
 export type { Transport };
 

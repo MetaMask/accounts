@@ -8,7 +8,7 @@ import {
 } from '@metamask/keyring-api';
 import { object, union } from '@metamask/superstruct';
 
-import { KeyringAccountV1Struct } from './account';
+import { KeyringAccountV1Struct } from './account.js';
 
 export const AccountCreatedEventStruct = object({
   ...OriginalAccountCreatedEventStruct.schema,

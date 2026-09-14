@@ -1,4 +1,4 @@
-import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
+import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english.js';
 
 /**
  * Encodes a mnemonic as a string of words.
