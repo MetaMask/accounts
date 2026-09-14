@@ -1613,9 +1613,8 @@ __metadata:
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/keyring-api": "npm:^24.1.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     "@types/uuid": "npm:^9.0.8"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
@@ -1626,7 +1625,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
@@ -1644,10 +1643,9 @@ __metadata:
     "@metamask/eslint-config-typescript": "npm:^15.0.0"
     "@metamask/utils": "npm:^11.11.0"
     "@npmcli/package-json": "npm:^5.0.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
     "@types/lodash": "npm:^4.14.191"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     "@types/semver": "npm:^7"
     "@typescript-eslint/eslint-plugin": "npm:^8.48.0"
     "@typescript-eslint/parser": "npm:^8.48.0"
@@ -1674,8 +1672,9 @@ __metadata:
     semver: "npm:^7.6.3"
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
     typescript-eslint: "npm:^8.48.0"
+    typescript-for-ts-jest: "npm:typescript@~5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -1906,12 +1905,11 @@ __metadata:
     "@metamask/scure-bip39": "npm:^2.1.1"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
     deepmerge: "npm:^4.2.2"
     ethereum-cryptography: "npm:^2.2.1"
     jest: "npm:^29.5.0"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 
@@ -1941,7 +1939,6 @@ __metadata:
     "@metamask/keyring-sdk": "npm:^3.1.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
     "@metamask/utils": "npm:^11.11.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/ethereumjs-tx": "npm:^1.0.1"
     "@types/hdkey": "npm:^2.0.1"
     "@types/jest": "npm:^29.5.12"
@@ -1958,7 +1955,7 @@ __metadata:
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 
@@ -1977,12 +1974,11 @@ __metadata:
     "@metamask/keyring-utils": "npm:^5.0.0"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
     async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     jest: "npm:^29.5.0"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 
@@ -2007,7 +2003,7 @@ __metadata:
     "@metamask/utils": "npm:^11.11.0"
     "@types/hdkey": "npm:^2.0.1"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
@@ -2016,7 +2012,7 @@ __metadata:
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
@@ -2073,10 +2069,9 @@ __metadata:
     "@metamask/keyring-sdk": "npm:^3.1.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
     "@metamask/utils": "npm:^11.11.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/ethereumjs-tx": "npm:^1.0.1"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     "@types/randombytes": "npm:^2.0.0"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
@@ -2087,7 +2082,7 @@ __metadata:
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 
@@ -2112,9 +2107,8 @@ __metadata:
     "@metamask/snaps-utils": "npm:^12.2.1"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     "@types/uuid": "npm:^9.0.8"
     async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
@@ -2125,7 +2119,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
     uuid: "npm:^9.0.1"
   peerDependencies:
     "@metamask/keyring-api": ^24.0.0
@@ -2151,11 +2145,10 @@ __metadata:
     "@metamask/utils": "npm:^11.11.0"
     "@trezor/connect-plugin-ethereum": "npm:^9.0.5"
     "@trezor/connect-web": "npm:^9.6.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/ethereumjs-tx": "npm:^1.0.1"
     "@types/hdkey": "npm:^2.0.1"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     "@types/sinon": "npm:^17.0.3"
     "@types/w3c-web-usb": "npm:^1.0.6"
     deepmerge: "npm:^4.2.2"
@@ -2170,7 +2163,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tslib: "npm:^2.6.2"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 
@@ -2193,9 +2186,8 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
@@ -2205,7 +2197,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 
@@ -2259,9 +2251,8 @@ __metadata:
     "@metamask/keyring-utils": "npm:^5.0.0"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     "@types/webextension-polyfill": "npm:^0.12.1"
     bitcoin-address-validation: "npm:^2.2.3"
     deepmerge: "npm:^4.2.2"
@@ -2272,7 +2263,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 
@@ -2286,9 +2277,8 @@ __metadata:
     "@metamask/keyring-api": "npm:^24.1.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
     "@metamask/superstruct": "npm:^3.4.1"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
@@ -2298,7 +2288,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 
@@ -2318,9 +2308,8 @@ __metadata:
     "@metamask/snaps-sdk": "npm:^11.0.0"
     "@metamask/snaps-utils": "npm:^12.2.1"
     "@metamask/utils": "npm:^11.11.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
@@ -2330,7 +2319,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 
@@ -2349,9 +2338,8 @@ __metadata:
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
     "@noble/hashes": "npm:^1.8.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     "@types/uuid": "npm:^9.0.8"
     async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
@@ -2364,7 +2352,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
@@ -2381,9 +2369,8 @@ __metadata:
     "@metamask/providers": "npm:^19.0.0"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     "@types/uuid": "npm:^9.0.8"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
@@ -2394,7 +2381,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
     uuid: "npm:^9.0.1"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
@@ -2415,9 +2402,8 @@ __metadata:
     "@metamask/snaps-sdk": "npm:^11.0.0"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
@@ -2427,7 +2413,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
     "@metamask/keyring-api": ^24.0.0
@@ -2445,9 +2431,8 @@ __metadata:
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
-    "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^22.13.14"
     bitcoin-address-validation: "npm:^2.2.3"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
@@ -2458,7 +2443,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:^7.0.2"
   languageName: unknown
   linkType: soft
 
@@ -4475,30 +4460,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ts-bridge/cli@npm:^0.6.3":
-  version: 0.6.3
-  resolution: "@ts-bridge/cli@npm:0.6.3"
-  dependencies:
-    "@ts-bridge/resolver": "npm:^0.2.0"
-    chalk: "npm:^5.3.0"
-    cjs-module-lexer: "npm:^1.3.1"
-    yargs: "npm:^17.7.2"
-  peerDependencies:
-    typescript: ">=4.8.0"
-  bin:
-    ts-bridge: ./dist/index.js
-    tsbridge: ./dist/index.js
-  checksum: 10/01cba56ff0f097ca0ef15b79cff80a6be07b7f237e7153f63f7a9acf911583d0a410385fa1711d7b14e3a5e95fed63310b6a743700e7ecc0dd3a2d97a0df75b3
-  languageName: node
-  linkType: hard
-
-"@ts-bridge/resolver@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "@ts-bridge/resolver@npm:0.2.0"
-  checksum: 10/d4cfd1f47e9648a5f9c893b1b076adabde3a57cbe81ef823bcbbcc77a122fb6f06d99f40ff48198f8dc766bfc4b3b351d4e87cfcf2db64f7e6db924eb82a5db1
-  languageName: node
-  linkType: hard
-
 "@tsconfig/node10@npm:^1.0.7":
   version: 1.0.8
   resolution: "@tsconfig/node10@npm:1.0.8"
@@ -4759,12 +4720,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.12.12":
-  version: 20.16.1
-  resolution: "@types/node@npm:20.16.1"
+"@types/node@npm:^22.13.14":
+  version: 22.20.2
+  resolution: "@types/node@npm:22.20.2"
   dependencies:
-    undici-types: "npm:~6.19.2"
-  checksum: 10/9bae1dffd2094694147a91ebec51dc89a60a607d16d47a0d770320f1a75d3ba58663708fd93c37954a63acb701a4e0fd64245139c57ae810d3ad524e75481d4e
+    undici-types: "npm:~6.21.0"
+  checksum: 10/f785e2f5be31b355927c6749f674f28b0eef51036ed5667c033a2e867356ec61e68e0e94aa30ca3f0026de32a572fd8f7327ba8d79b9c087f4f4206f4cec19be
   languageName: node
   linkType: hard
 
@@ -5040,6 +5001,146 @@ __metadata:
     "@typescript-eslint/types": "npm:8.58.2"
     eslint-visitor-keys: "npm:^5.0.0"
   checksum: 10/051dd3d3507d4b36b5ead6acd3a00813b0775405cb074ad8fb4eb951b6c7a007a6f45c57b90ffab7755b8b7636e6f9a23b787221880db174584eca0739a0a9ab
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-aix-ppc64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-aix-ppc64@npm:7.0.2"
+  conditions: os=aix & cpu=ppc64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-darwin-arm64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-darwin-arm64@npm:7.0.2"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-darwin-x64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-darwin-x64@npm:7.0.2"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-freebsd-arm64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-freebsd-arm64@npm:7.0.2"
+  conditions: os=freebsd & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-freebsd-x64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-freebsd-x64@npm:7.0.2"
+  conditions: os=freebsd & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-linux-arm64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-linux-arm64@npm:7.0.2"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-linux-arm@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-linux-arm@npm:7.0.2"
+  conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-linux-loong64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-linux-loong64@npm:7.0.2"
+  conditions: os=linux & cpu=loong64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-linux-mips64el@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-linux-mips64el@npm:7.0.2"
+  conditions: os=linux & cpu=mips64el
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-linux-ppc64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-linux-ppc64@npm:7.0.2"
+  conditions: os=linux & cpu=ppc64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-linux-riscv64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-linux-riscv64@npm:7.0.2"
+  conditions: os=linux & cpu=riscv64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-linux-s390x@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-linux-s390x@npm:7.0.2"
+  conditions: os=linux & cpu=s390x
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-linux-x64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-linux-x64@npm:7.0.2"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-netbsd-arm64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-netbsd-arm64@npm:7.0.2"
+  conditions: os=netbsd & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-netbsd-x64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-netbsd-x64@npm:7.0.2"
+  conditions: os=netbsd & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-openbsd-arm64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-openbsd-arm64@npm:7.0.2"
+  conditions: os=openbsd & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-openbsd-x64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-openbsd-x64@npm:7.0.2"
+  conditions: os=openbsd & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-sunos-x64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-sunos-x64@npm:7.0.2"
+  conditions: os=sunos & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-win32-arm64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-win32-arm64@npm:7.0.2"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@typescript/typescript-win32-x64@npm:7.0.2":
+  version: 7.0.2
+  resolution: "@typescript/typescript-win32-x64@npm:7.0.2"
+  conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
@@ -6193,7 +6294,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^5.3.0, chalk@npm:^5.4.1":
+"chalk@npm:^5.4.1":
   version: 5.4.1
   resolution: "chalk@npm:5.4.1"
   checksum: 10/29df3ffcdf25656fed6e95962e2ef86d14dfe03cd50e7074b06bad9ffbbf6089adbb40f75c00744d843685c8d008adaf3aed31476780312553caf07fa86e5bc7
@@ -6238,7 +6339,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cjs-module-lexer@npm:^1.0.0, cjs-module-lexer@npm:^1.3.1":
+"cjs-module-lexer@npm:^1.0.0":
   version: 1.4.1
   resolution: "cjs-module-lexer@npm:1.4.1"
   checksum: 10/6e830a1e00a34d416949bbc1924f3e8da65cef4a6a09e2b7fa35722e2d1c34bf378d3baca987b698d1cbc3eb83e44b044039b4e82755c96f30e0f03d1d227637
@@ -11678,14 +11779,14 @@ __metadata:
 
 "resolve@patch:resolve@npm%3A1.22.8#optional!builtin<compat/resolve>, resolve@patch:resolve@npm%3A^1.10.0#optional!builtin<compat/resolve>, resolve@patch:resolve@npm%3A^1.20.0#optional!builtin<compat/resolve>, resolve@patch:resolve@npm%3A^1.22.3#optional!builtin<compat/resolve>, resolve@patch:resolve@npm%3A^1.22.4#optional!builtin<compat/resolve>":
   version: 1.22.8
-  resolution: "resolve@patch:resolve@npm%3A1.22.8#optional!builtin<compat/resolve>::version=1.22.8&hash=c3c19d"
+  resolution: "resolve@patch:resolve@npm%3A1.22.8#optional!builtin<compat/resolve>::version=1.22.8&hash=9bd1a5"
   dependencies:
     is-core-module: "npm:^2.13.0"
     path-parse: "npm:^1.0.7"
     supports-preserve-symlinks-flag: "npm:^1.0.0"
   bin:
     resolve: bin/resolve
-  checksum: 10/f345cd37f56a2c0275e3fe062517c650bb673815d885e7507566df589375d165bbbf4bdb6aa95600a9bc55f4744b81f452b5a63f95b9f10a72787dba3c90890a
+  checksum: 10/b14c82cbce48701a1e963c60f196b91a289186e8b596334e09c881df8069cefcfb0ac9ce85ea768742b361a58005494bf2428a95dc5056d2ba441aa993731b1f
   languageName: node
   linkType: hard
 
@@ -12945,23 +13046,155 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:~5.3.3":
-  version: 5.3.3
-  resolution: "typescript@npm:5.3.3"
+"typescript-for-ts-jest@npm:typescript@~5.4.5":
+  version: 5.4.5
+  resolution: "typescript@npm:5.4.5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10/6e4e6a14a50c222b3d14d4ea2f729e79f972fa536ac1522b91202a9a65af3605c2928c4a790a4a50aa13694d461c479ba92cedaeb1e7b190aadaa4e4b96b8e18
+  checksum: 10/d04a9e27e6d83861f2126665aa8d84847e8ebabcea9125b9ebc30370b98cb38b5dff2508d74e2326a744938191a83a69aa9fddab41f193ffa43eabfdf3f190a5
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A~5.3.3#optional!builtin<compat/typescript>":
-  version: 5.3.3
-  resolution: "typescript@patch:typescript@npm%3A5.3.3#optional!builtin<compat/typescript>::version=5.3.3&hash=e012d7"
+"typescript@npm:^7.0.2":
+  version: 7.0.2
+  resolution: "typescript@npm:7.0.2"
+  dependencies:
+    "@typescript/typescript-aix-ppc64": "npm:7.0.2"
+    "@typescript/typescript-darwin-arm64": "npm:7.0.2"
+    "@typescript/typescript-darwin-x64": "npm:7.0.2"
+    "@typescript/typescript-freebsd-arm64": "npm:7.0.2"
+    "@typescript/typescript-freebsd-x64": "npm:7.0.2"
+    "@typescript/typescript-linux-arm": "npm:7.0.2"
+    "@typescript/typescript-linux-arm64": "npm:7.0.2"
+    "@typescript/typescript-linux-loong64": "npm:7.0.2"
+    "@typescript/typescript-linux-mips64el": "npm:7.0.2"
+    "@typescript/typescript-linux-ppc64": "npm:7.0.2"
+    "@typescript/typescript-linux-riscv64": "npm:7.0.2"
+    "@typescript/typescript-linux-s390x": "npm:7.0.2"
+    "@typescript/typescript-linux-x64": "npm:7.0.2"
+    "@typescript/typescript-netbsd-arm64": "npm:7.0.2"
+    "@typescript/typescript-netbsd-x64": "npm:7.0.2"
+    "@typescript/typescript-openbsd-arm64": "npm:7.0.2"
+    "@typescript/typescript-openbsd-x64": "npm:7.0.2"
+    "@typescript/typescript-sunos-x64": "npm:7.0.2"
+    "@typescript/typescript-win32-arm64": "npm:7.0.2"
+    "@typescript/typescript-win32-x64": "npm:7.0.2"
+  dependenciesMeta:
+    "@typescript/typescript-aix-ppc64":
+      optional: true
+    "@typescript/typescript-darwin-arm64":
+      optional: true
+    "@typescript/typescript-darwin-x64":
+      optional: true
+    "@typescript/typescript-freebsd-arm64":
+      optional: true
+    "@typescript/typescript-freebsd-x64":
+      optional: true
+    "@typescript/typescript-linux-arm":
+      optional: true
+    "@typescript/typescript-linux-arm64":
+      optional: true
+    "@typescript/typescript-linux-loong64":
+      optional: true
+    "@typescript/typescript-linux-mips64el":
+      optional: true
+    "@typescript/typescript-linux-ppc64":
+      optional: true
+    "@typescript/typescript-linux-riscv64":
+      optional: true
+    "@typescript/typescript-linux-s390x":
+      optional: true
+    "@typescript/typescript-linux-x64":
+      optional: true
+    "@typescript/typescript-netbsd-arm64":
+      optional: true
+    "@typescript/typescript-netbsd-x64":
+      optional: true
+    "@typescript/typescript-openbsd-arm64":
+      optional: true
+    "@typescript/typescript-openbsd-x64":
+      optional: true
+    "@typescript/typescript-sunos-x64":
+      optional: true
+    "@typescript/typescript-win32-arm64":
+      optional: true
+    "@typescript/typescript-win32-x64":
+      optional: true
   bin:
     tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10/c93786fcc9a70718ba1e3819bab56064ead5817004d1b8186f8ca66165f3a2d0100fee91fa64c840dcd45f994ca5d615d8e1f566d39a7470fc1e014dbb4cf15d
+  checksum: 10/b0179005349b43dc1febb35c4e79162cdf89b84eae60f6deac142429109041e07582e69a6aacf5a897e085869686d4512ea444a10acf5b5aa2b60910f82a19ca
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A^7.0.2#optional!builtin<compat/typescript>":
+  version: 7.0.2
+  resolution: "typescript@patch:typescript@npm%3A7.0.2#optional!builtin<compat/typescript>::version=7.0.2&hash=3bafbf"
+  dependencies:
+    "@typescript/typescript-aix-ppc64": "npm:7.0.2"
+    "@typescript/typescript-darwin-arm64": "npm:7.0.2"
+    "@typescript/typescript-darwin-x64": "npm:7.0.2"
+    "@typescript/typescript-freebsd-arm64": "npm:7.0.2"
+    "@typescript/typescript-freebsd-x64": "npm:7.0.2"
+    "@typescript/typescript-linux-arm": "npm:7.0.2"
+    "@typescript/typescript-linux-arm64": "npm:7.0.2"
+    "@typescript/typescript-linux-loong64": "npm:7.0.2"
+    "@typescript/typescript-linux-mips64el": "npm:7.0.2"
+    "@typescript/typescript-linux-ppc64": "npm:7.0.2"
+    "@typescript/typescript-linux-riscv64": "npm:7.0.2"
+    "@typescript/typescript-linux-s390x": "npm:7.0.2"
+    "@typescript/typescript-linux-x64": "npm:7.0.2"
+    "@typescript/typescript-netbsd-arm64": "npm:7.0.2"
+    "@typescript/typescript-netbsd-x64": "npm:7.0.2"
+    "@typescript/typescript-openbsd-arm64": "npm:7.0.2"
+    "@typescript/typescript-openbsd-x64": "npm:7.0.2"
+    "@typescript/typescript-sunos-x64": "npm:7.0.2"
+    "@typescript/typescript-win32-arm64": "npm:7.0.2"
+    "@typescript/typescript-win32-x64": "npm:7.0.2"
+  dependenciesMeta:
+    "@typescript/typescript-aix-ppc64":
+      optional: true
+    "@typescript/typescript-darwin-arm64":
+      optional: true
+    "@typescript/typescript-darwin-x64":
+      optional: true
+    "@typescript/typescript-freebsd-arm64":
+      optional: true
+    "@typescript/typescript-freebsd-x64":
+      optional: true
+    "@typescript/typescript-linux-arm":
+      optional: true
+    "@typescript/typescript-linux-arm64":
+      optional: true
+    "@typescript/typescript-linux-loong64":
+      optional: true
+    "@typescript/typescript-linux-mips64el":
+      optional: true
+    "@typescript/typescript-linux-ppc64":
+      optional: true
+    "@typescript/typescript-linux-riscv64":
+      optional: true
+    "@typescript/typescript-linux-s390x":
+      optional: true
+    "@typescript/typescript-linux-x64":
+      optional: true
+    "@typescript/typescript-netbsd-arm64":
+      optional: true
+    "@typescript/typescript-netbsd-x64":
+      optional: true
+    "@typescript/typescript-openbsd-arm64":
+      optional: true
+    "@typescript/typescript-openbsd-x64":
+      optional: true
+    "@typescript/typescript-sunos-x64":
+      optional: true
+    "@typescript/typescript-win32-arm64":
+      optional: true
+    "@typescript/typescript-win32-x64":
+      optional: true
+  bin:
+    tsc: bin/tsc
+  checksum: 10/6d7f3d34ca7fbd3eb4999f06db29340d3dcedd7d40ed71654ea53ecd0f28a330edf0f55a0acf541bf294a2f024f11242075c1a83aed4bd99776fe99af45b994b
   languageName: node
   linkType: hard
 
@@ -13001,10 +13234,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~6.19.2":
-  version: 6.19.8
-  resolution: "undici-types@npm:6.19.8"
-  checksum: 10/cf0b48ed4fc99baf56584afa91aaffa5010c268b8842f62e02f752df209e3dea138b372a60a963b3b2576ed932f32329ce7ddb9cb5f27a6c83040d8cd74b7a70
+"undici-types@npm:~6.21.0":
+  version: 6.21.0
+  resolution: "undici-types@npm:6.21.0"
+  checksum: 10/ec8f41aa4359d50f9b59fa61fe3efce3477cc681908c8f84354d8567bb3701fafdddf36ef6bff307024d3feb42c837cf6f670314ba37fc8145e219560e473d14
   languageName: node
   linkType: hard
 
