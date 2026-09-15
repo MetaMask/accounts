@@ -13,6 +13,9 @@ dependencies = [
   # between installs. Bump pins deliberately, then re-run python_tests.
   "bumble==0.0.233",
   "grpcio>=1.62.0,<2",
+  # bumble's android_netsim transport imports google.protobuf at runtime;
+  # grpcio does not pull it in transitively.
+  "protobuf>=5.26,<7",
   "aiohttp==3.14.3",
   "click==8.4.2",
 ]

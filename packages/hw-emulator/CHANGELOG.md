@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Pinned `protobuf>=5.26,<7` in the Python BLE bridge dependencies — bumble's `android_netsim` transport imports `google.protobuf` at runtime and `grpcio` does not pull it in transitively, so fresh virtualenvs were missing it at import time.
+
 ### Changed
 
 - `SpeculosBleRunner` now honors `SPECULOS_BLE_PACKAGE_DIR` and `SPECULOS_BLE_VENV_DIR` environment variables (mirroring `scripts/setup-python.sh`) so it can locate `python_src/` and the virtualenv at a stable path even when the package is copied into a consumer's `node_modules` via a Yarn `file:` resolution.
