@@ -11,6 +11,7 @@ import type {
   DeviceActionState,
   DeviceManagementKit,
 } from '@ledgerhq/device-management-kit';
+import type { Transport } from '../ledger-hw-transport.js';
 import type { Signature } from '@ledgerhq/device-signer-kit-ethereum';
 import { getDmkErrorFromTag } from '@metamask/hw-wallet-sdk';
 import type { Observable } from 'rxjs';
@@ -236,7 +237,7 @@ export class LedgerDmkBridge implements LedgerBridge<LedgerDmkBridgeOptions> {
    * @returns A promise that resolves with `true`.
    */
   async updateTransportMethod(
-    _transportType: string | unknown,
+    _transportType: string | Transport,
   ): Promise<boolean> {
     return true;
   }
