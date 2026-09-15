@@ -44,7 +44,7 @@ type ResolutionConfig = {
   uniswapV3?: boolean;
 };
 
-export type LedgerHwAppEthInterface = {
+export type LedgerHwAppEth = {
   transport: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     send: (...args: any[]) => Promise<Buffer>;

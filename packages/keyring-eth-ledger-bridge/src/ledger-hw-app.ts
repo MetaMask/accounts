@@ -2,9 +2,9 @@ import * as LedgerHwAppEthModule from '@ledgerhq/hw-app-eth';
 import { Buffer } from 'buffer';
 
 import type { GetAppNameAndVersionResponse } from './ledger-bridge.js';
-import type { LedgerHwAppEthInterface } from './ledger-hw-app-eth.js';
+import type { LedgerHwAppEth } from './ledger-hw-app-eth.js';
 
-export type { LedgerHwAppEthInterface } from './ledger-hw-app-eth.js';
+export type { LedgerHwAppEth } from './ledger-hw-app-eth.js';
 
 // ---------------------------------------------------------------------------
 // Runtime interop
@@ -21,7 +21,7 @@ const LedgerHwAppEthBase = (
   typeof rawLedgerHwAppEthDefault === 'function'
     ? rawLedgerHwAppEthDefault
     : (rawLedgerHwAppEthDefault as { default: unknown }).default
-) as unknown as abstract new (transport: LedgerHwAppEthInterface['transport']) => LedgerHwAppEthInterface;
+) as unknown as abstract new (transport: LedgerHwAppEth['transport']) => LedgerHwAppEth;
 
 export class MetaMaskLedgerHwAppEth
   extends LedgerHwAppEthBase

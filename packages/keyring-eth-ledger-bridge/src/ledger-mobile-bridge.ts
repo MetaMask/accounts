@@ -1,8 +1,6 @@
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 
-// TS7 CJS/ESM interop: @ledgerhq/hw-transport is CJS without exports field.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Transport = any;
+import type { Transport } from './ledger-hw-transport.js';
 
 import { ERC20_WRITE_SELECTORS, NFT_ONLY_SELECTORS } from './constants.js';
 import {

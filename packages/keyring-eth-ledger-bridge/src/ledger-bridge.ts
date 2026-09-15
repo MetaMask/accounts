@@ -1,23 +1,30 @@
 import type { EIP712Message } from '@ledgerhq/types-live';
 
+import type { LedgerHwAppEth } from './ledger-hw-app-eth.js';
+import type { Transport } from './ledger-hw-transport.js';
+
 export type GetPublicKeyParams = { hdPath: string };
-export type GetPublicKeyResponse = {
-  publicKey: string;
-  address: string;
-  chainCode?: string;
-};
+export type GetPublicKeyResponse = Awaited<
+  ReturnType<LedgerHwAppEth['getAddress']>
+>;
 
 export type LedgerSignTransactionParams = { hdPath: string; tx: string };
-export type LedgerSignTransactionResponse = { r: string; v: string; s: string };
+export type LedgerSignTransactionResponse = Awaited<
+  ReturnType<LedgerHwAppEth['signTransaction']>
+>;
 
 export type LedgerSignMessageParams = { hdPath: string; message: string };
-export type LedgerSignMessageResponse = { v: number; r: string; s: string };
+export type LedgerSignMessageResponse = Awaited<
+  ReturnType<LedgerHwAppEth['signPersonalMessage']>
+>;
 
 export type LedgerSignTypedDataParams = {
   hdPath: string;
   message: EIP712Message;
 };
-export type LedgerSignTypedDataResponse = { v: number; r: string; s: string };
+export type LedgerSignTypedDataResponse = Awaited<
+  ReturnType<LedgerHwAppEth['signEIP712Message']>
+>;
 
 export type LedgerSignDelegationAuthorizationParams = {
   hdPath: string;
@@ -69,7 +76,7 @@ export type LedgerBridge<T extends LedgerBridgeOptions> = {
 
   attemptMakeApp(): Promise<boolean>;
 
-  updateTransportMethod(transportType: string | unknown): Promise<boolean>;
+  updateTransportMethod(transportType: string | Transport): Promise<boolean>;
 
   getPublicKey(params: GetPublicKeyParams): Promise<GetPublicKeyResponse>;
 
