@@ -362,7 +362,7 @@ export class LedgerKeyring implements Keyring {
   async signTransaction(
     address: Hex,
     tx: TypedTransaction | OldEthJsTransaction,
-  ): Promise<TypedTxData> {
+  ): Promise<TypedTransaction | OldEthJsTransaction> {
     let rawTxHex;
     // transactions built with older versions of ethereumjs-tx have a
     // getChainId method that newer versions do not. Older versions are mutable
@@ -382,14 +382,12 @@ export class LedgerKeyring implements Keyring {
 
       rawTxHex = tx.serialize().toString('hex');
 
-      // OldEthJsTransaction uses Buffer for tx fields which is incompatible
-      // with TypedTxData in TS7; cast is necessary for backward compat.
       return this.#signTransaction(address, rawTxHex, (payload) => {
         tx.v = Buffer.from(payload.v, 'hex');
         tx.r = Buffer.from(payload.r, 'hex');
         tx.s = Buffer.from(payload.s, 'hex');
         return tx;
-      }) as unknown as Promise<TypedTxData>;
+      });
     }
 
     // The below `encode` call is only necessary for legacy transactions, as `getMessageToSign`
@@ -423,7 +421,7 @@ export class LedgerKeyring implements Keyring {
         common: tx.common,
         freeze: Object.isFrozen(tx),
       });
-    }) as unknown as Promise<TypedTxData>;
+    });
   }
 
   async #signTransaction(
