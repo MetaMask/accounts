@@ -683,7 +683,7 @@ describe('LedgerKeyring', function () {
 
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
           expect(
-            (returnedTx as unknown as TypedTransaction).toJSON(),
+            returnedTx.toJSON(),
           ).toStrictEqual(signedNewFakeTx.toJSON());
         });
 
@@ -732,7 +732,7 @@ describe('LedgerKeyring', function () {
 
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
           expect(
-            (returnedTx as unknown as TypedTransaction).toJSON(),
+            returnedTx.toJSON(),
           ).toStrictEqual(signedFakeTypeTwoTx.toJSON());
         });
       });
