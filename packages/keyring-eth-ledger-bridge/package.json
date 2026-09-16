@@ -109,8 +109,17 @@
     "jest-it-up": "^3.1.0",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
+    "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
     "typescript": "~5.3.3"
+  },
+  "tsd": {
+    "compilerOptions": {
+      "composite": "false",
+      "module": "CommonJS",
+      "moduleResolution": "Node"
+    },
+    "typings": "./dist/index.d.ts"
   },
   "engines": {
     "node": ">=22"
@@ -123,14 +132,6 @@
       "ethereumjs-tx>ethereumjs-util>secp256k1": false,
       "hdkey>secp256k1": false,
       "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>keccak": false
-    }
-  },
-  "tsd": {
-    "typings": "./dist/index.d.ts",
-    "compilerOptions": {
-      "composite": "false",
-      "module": "CommonJS",
-      "moduleResolution": "Node"
     }
   }
 }
