@@ -28,6 +28,7 @@ import {
   assertIsHexString,
   bigIntToBytes,
   bytesToHex,
+  concatBytes,
   remove0x,
 } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
@@ -585,13 +586,7 @@ export class HdKeyring implements Keyring {
       const { privateKey } = walletData.hdKey;
       assert(privateKey, 'Expected private key to be set');
       const appKeyOriginBytes = new TextEncoder().encode(withAppKeyOrigin);
-      const pkBytes = new Uint8Array(privateKey);
-      const combined = new Uint8Array(
-        pkBytes.length + appKeyOriginBytes.length,
-      );
-      combined.set(pkBytes);
-      combined.set(appKeyOriginBytes, pkBytes.length);
-      const appKeyPrivateKey = keccak256(combined);
+      const appKeyPrivateKey = keccak256(concatBytes([new Uint8Array(privateKey), appKeyOriginBytes]));
       const appKeyPublicKey = privateToPublic(appKeyPrivateKey);
       return { privateKey: appKeyPrivateKey, publicKey: appKeyPublicKey };
     }
