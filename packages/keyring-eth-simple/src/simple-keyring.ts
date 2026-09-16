@@ -27,6 +27,7 @@ import {
   add0x,
   bigIntToBytes,
   bytesToHex,
+  concatBytes,
   Eip1024EncryptedData,
   Hex,
 } from '@metamask/utils';
@@ -265,12 +266,7 @@ export default class SimpleKeyring implements Keyring {
     if (opts.withAppKeyOrigin) {
       const { privateKey } = wallet;
       const appKeyOriginBytes = new TextEncoder().encode(opts.withAppKeyOrigin);
-      const combined = new Uint8Array(
-        privateKey.length + appKeyOriginBytes.length,
-      );
-      combined.set(privateKey);
-      combined.set(appKeyOriginBytes, privateKey.length);
-      const appKeyPrivateKey = keccak256(combined);
+      const appKeyPrivateKey = keccak256(concatBytes([privateKey, appKeyOriginBytes]));
       const appKeyPublicKey = privateToPublic(appKeyPrivateKey);
       wallet = { privateKey: appKeyPrivateKey, publicKey: appKeyPublicKey };
     }
