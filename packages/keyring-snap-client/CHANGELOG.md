@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `getAccountsTransactions` to the v2 `KeyringClient` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `getAccountsTransactions` to the v2 `KeyringClient` ([#634](https://github.com/MetaMask/accounts/pull/634))
 
 ### Changed
 
