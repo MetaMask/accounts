@@ -1604,7 +1604,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/account-api@npm:^2.0.0, @metamask/account-api@workspace:packages/account-api":
+"@metamask/account-api@npm:^2.1.0, @metamask/account-api@workspace:packages/account-api":
   version: 0.0.0-use.local
   resolution: "@metamask/account-api@workspace:packages/account-api"
   dependencies:
@@ -1894,7 +1894,7 @@ __metadata:
     "@ethereumjs/util": "npm:^9.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/account-api": "npm:^2.0.0"
+    "@metamask/account-api": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/bip39": "npm:^4.0.0"
     "@metamask/eth-sig-util": "npm:^9.0.0"
@@ -1933,7 +1933,7 @@ __metadata:
     "@ledgerhq/types-cryptoassets": "npm:^7.15.1"
     "@ledgerhq/types-devices": "npm:^6.25.3"
     "@ledgerhq/types-live": "npm:^6.52.0"
-    "@metamask/account-api": "npm:^2.0.0"
+    "@metamask/account-api": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/eth-sig-util": "npm:^9.0.0"
     "@metamask/hw-wallet-sdk": "npm:^1.0.0"
@@ -1998,7 +1998,7 @@ __metadata:
     "@keystonehq/metamask-airgapped-keyring": "npm:^0.15.2"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/account-api": "npm:^2.0.0"
+    "@metamask/account-api": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/eth-sig-util": "npm:^9.0.0"
     "@metamask/keyring-api": "npm:^24.1.0"
@@ -2141,7 +2141,7 @@ __metadata:
     "@ethereumjs/util": "npm:^9.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
-    "@metamask/account-api": "npm:^2.0.0"
+    "@metamask/account-api": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/eth-sig-util": "npm:^9.0.0"
     "@metamask/hw-wallet-sdk": "npm:^1.0.0"
