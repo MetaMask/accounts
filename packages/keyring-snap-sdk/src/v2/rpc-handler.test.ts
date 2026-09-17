@@ -17,6 +17,7 @@ import type {
   SubmitRequestRequest,
   SetSelectedAccountsRequest,
   GetAccountTransactionsRequest,
+  GetAccountsTransactionsRequest,
   GetAccountAssetsRequest,
   GetAccountBalancesRequest,
   ResolveAccountAddressRequest,
@@ -37,6 +38,7 @@ describe('handleKeyringRequest', () => {
     submitRequest: jest.fn(),
     setSelectedAccounts: jest.fn(),
     getAccountTransactions: jest.fn(),
+    getAccountsTransactions: jest.fn(),
     getAccountAssets: jest.fn(),
     getAccountBalances: jest.fn(),
     resolveAccountAddress: jest.fn(),
@@ -316,6 +318,74 @@ describe('handleKeyringRequest', () => {
 
     await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
       `Method not supported: ${KeyringSnapRpcMethod.GetAccountTransactions}`,
+    );
+  });
+
+  it('calls `keyring_getAccountsTransactions`', async () => {
+    const accountId1 = '4f983fa2-4f53-4c63-a7c2-f9a5ed750041';
+    const accountId2 = 'e95c98f7-d122-4b63-b431-fec44261f52d';
+    const request: GetAccountsTransactionsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.GetAccountsTransactions}`,
+      params: {
+        accounts: [
+          {
+            id: accountId1,
+            pagination: { limit: 10 },
+          },
+          {
+            id: accountId2,
+            pagination: { limit: 10, next: 'next-cursor' },
+          },
+        ],
+      },
+    };
+
+    const mockedResult = [
+      {
+        id: accountId1,
+        success: true,
+        transactions: { data: [], next: null },
+      },
+      {
+        id: accountId2,
+        success: false,
+        error: {
+          code: 'account_not_found',
+          message: 'Account not found',
+        },
+      },
+    ];
+    keyring.getAccountsTransactions.mockResolvedValue(mockedResult);
+    const result = await handleKeyringRequest(keyring, request);
+
+    expect(keyring.getAccountsTransactions).toHaveBeenCalledWith(
+      request.params.accounts,
+    );
+    expect(result).toStrictEqual(mockedResult);
+  });
+
+  it('throws an error if `keyring_getAccountsTransactions` is not implemented', async () => {
+    const request: GetAccountsTransactionsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringSnapRpcMethod.GetAccountsTransactions}`,
+      params: {
+        accounts: [
+          {
+            id: '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+            pagination: { limit: 10 },
+          },
+        ],
+      },
+    };
+
+    const partialKeyring: KeyringSnapRpc = { ...keyring };
+    delete partialKeyring.getAccountsTransactions;
+
+    await expect(handleKeyringRequest(partialKeyring, request)).rejects.toThrow(
+      `Method not supported: ${KeyringSnapRpcMethod.GetAccountsTransactions}`,
     );
   });
 

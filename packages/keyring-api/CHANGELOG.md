@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `keyring_getAccountsTransactions` request and response types with account-specific pagination and partial-success results ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [24.1.0]
 
 ### Added

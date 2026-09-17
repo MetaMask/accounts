@@ -17,6 +17,12 @@ import type {
 } from './export-account';
 import type { Keyring } from './keyring';
 import type { KeyringCapabilities } from './keyring-capabilities';
+import type {
+  AccountTransactionsPagination,
+  AccountTransactionsResult,
+  GetAccountsTransactionsRequest,
+  GetAccountsTransactionsResponse,
+} from './keyring-snap-rpc';
 import { KeyringType } from './keyring-type';
 import type { ImportPrivateKeyFormat } from './private-key';
 
@@ -217,3 +223,64 @@ expectAssignable<Keyring['type']>(KeyringType.Hd);
 expectAssignable<Keyring['capabilities']>({
   scopes: ['eip155:1'],
 });
+
+// Test get accounts transactions types
+expectAssignable<AccountTransactionsPagination>({
+  id: '49116980-0712-4fa5-b045-e4294f1d440e',
+  pagination: {
+    limit: 10,
+    next: null,
+  },
+});
+
+expectAssignable<AccountTransactionsResult>({
+  id: '49116980-0712-4fa5-b045-e4294f1d440e',
+  success: true,
+  transactions: {
+    data: [],
+    next: null,
+  },
+});
+
+expectAssignable<AccountTransactionsResult>({
+  id: '46b5ccd3-4786-427c-89d2-cef626dffe9b',
+  success: false,
+  error: {
+    code: 'account_not_found',
+    message: 'Account not found',
+  },
+});
+
+expectNotAssignable<AccountTransactionsResult>({
+  id: '46b5ccd3-4786-427c-89d2-cef626dffe9b',
+  success: true,
+  error: {
+    code: 'account_not_found',
+    message: 'Account not found',
+  },
+});
+
+expectAssignable<GetAccountsTransactionsRequest>({
+  jsonrpc: '2.0',
+  id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+  method: 'keyring_getAccountsTransactions',
+  params: {
+    accounts: [
+      {
+        id: '49116980-0712-4fa5-b045-e4294f1d440e',
+        pagination: { limit: 10 },
+      },
+    ],
+  },
+});
+
+expectAssignable<GetAccountsTransactionsResponse>([
+  {
+    id: '49116980-0712-4fa5-b045-e4294f1d440e',
+    success: true,
+    transactions: {
+      data: [],
+      next: null,
+    },
+  },
+]);
