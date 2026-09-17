@@ -14,6 +14,7 @@ import {
   SubmitRequestRequestStruct,
   SetSelectedAccountsRequestStruct,
   GetAccountTransactionsRequestStruct,
+  GetAccountsTransactionsRequestStruct,
   GetAccountAssetsRequestStruct,
   GetAccountBalancesRequestStruct,
   ResolveAccountAddressRequestStruct,
@@ -109,6 +110,14 @@ async function dispatchKeyringRequest(
         request.params.id,
         request.params.pagination,
       );
+    }
+
+    case `${KeyringSnapRpcMethod.GetAccountsTransactions}`: {
+      if (keyring.getAccountsTransactions === undefined) {
+        throw new MethodNotSupportedError(request.method);
+      }
+      assert(request, GetAccountsTransactionsRequestStruct);
+      return keyring.getAccountsTransactions(request.params.accounts);
     }
 
     // Deprecated, but still supported for backwards compatibility with v1 of the Keyring API.

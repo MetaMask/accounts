@@ -229,6 +229,51 @@ describe('KeyringClient', () => {
       });
     });
 
+    describe('getAccountsTransactions', () => {
+      it('sends a request to get transactions for multiple accounts', async () => {
+        const accountId1 = '49116980-0712-4fa5-b045-e4294f1d440e';
+        const accountId2 = '46b5ccd3-4786-427c-89d2-cef626dffe9b';
+        const accounts = [
+          {
+            id: accountId1,
+            pagination: { limit: 10 },
+          },
+          {
+            id: accountId2,
+            pagination: { limit: 10, next: 'next-cursor' },
+          },
+        ];
+        const expectedResponse = [
+          {
+            id: accountId1,
+            success: true,
+            transactions: {
+              data: [],
+              next: null,
+            },
+          },
+          {
+            id: accountId2,
+            success: false,
+            error: {
+              code: 'account_not_found',
+              message: 'Account not found',
+            },
+          },
+        ];
+
+        mockSender.send.mockResolvedValue(expectedResponse);
+        const response = await client.getAccountsTransactions(accounts);
+        expect(mockSender.send).toHaveBeenCalledWith({
+          jsonrpc: '2.0',
+          id: expect.any(String),
+          method: `${KeyringSnapRpcMethod.GetAccountsTransactions}`,
+          params: { accounts },
+        });
+        expect(response).toStrictEqual(expectedResponse);
+      });
+    });
+
     describe('getAccountAssets', () => {
       it('sends a request to get account assets', async () => {
         const id = '49116980-0712-4fa5-b045-e4294f1d440e';

@@ -3,6 +3,7 @@ import { UuidStruct, JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import {
   array,
+  exactOptional,
   literal,
   nullable,
   number,
@@ -11,6 +12,7 @@ import {
   string,
   union,
 } from '@metamask/superstruct';
+import { JsonStruct } from '@metamask/utils';
 
 import { ResolvedAccountAddressStruct } from '../../api/address';
 import type { ResolvedAccountAddress } from '../../api/address';
@@ -41,6 +43,7 @@ export const KeyringSnapRpcMethod = {
   ...KeyringRpcMethod,
   SetSelectedAccounts: 'keyring_setSelectedAccounts',
   GetAccountTransactions: 'keyring_getAccountTransactions',
+  GetAccountsTransactions: 'keyring_getAccountsTransactions',
   GetAccountAssets: 'keyring_getAccountAssets',
   GetAccountBalances: 'keyring_getAccountBalances',
   ResolveAccountAddress: 'keyring_resolveAccountAddress',
@@ -95,15 +98,38 @@ export type SetSelectedAccountsResponse = Infer<
 >;
 
 // ----------------------------------------------------------------------------
+// Account transactions pagination
+
+/**
+ * Struct for the account and pagination pair used by account transaction
+ * requests.
+ */
+export const AccountTransactionsPaginationStruct = object({
+  /**
+   * ID of the account to retrieve transactions for.
+   */
+  id: UuidStruct,
+
+  /**
+   * Pagination options for this account.
+   */
+  pagination: PaginationStruct,
+});
+
+/**
+ * Account and pagination pair used by account transaction requests.
+ */
+export type AccountTransactionsPagination = Infer<
+  typeof AccountTransactionsPaginationStruct
+>;
+
+// ----------------------------------------------------------------------------
 // Get account transactions
 
 export const GetAccountTransactionsRequestStruct = object({
   ...CommonHeader,
   method: literal(`${KeyringSnapRpcMethod.GetAccountTransactions}`),
-  params: object({
-    id: UuidStruct,
-    pagination: PaginationStruct,
-  }),
+  params: AccountTransactionsPaginationStruct,
 });
 
 export type GetAccountTransactionsRequest = Infer<
@@ -114,6 +140,101 @@ export const GetAccountTransactionsResponseStruct = TransactionsPageStruct;
 
 export type GetAccountTransactionsResponse = Infer<
   typeof GetAccountTransactionsResponseStruct
+>;
+
+// ----------------------------------------------------------------------------
+// Get accounts transactions
+
+/**
+ * Struct for an account-specific transaction retrieval error.
+ */
+export const AccountTransactionsErrorStruct = object({
+  /**
+   * Stable error code.
+   */
+  code: string(),
+
+  /**
+   * Human-readable error message.
+   */
+  message: string(),
+
+  /**
+   * Optional structured error data.
+   */
+  data: exactOptional(JsonStruct),
+});
+
+/**
+ * Account-specific transaction retrieval error.
+ */
+export type AccountTransactionsError = Infer<
+  typeof AccountTransactionsErrorStruct
+>;
+
+/**
+ * Struct for an account-specific transaction retrieval result.
+ */
+export const AccountTransactionsResultStruct = union([
+  object({
+    /**
+     * ID of the account the transactions belong to.
+     */
+    id: UuidStruct,
+
+    /**
+     * Whether transactions were retrieved successfully for this account.
+     */
+    success: literal(true),
+
+    /**
+     * Transactions retrieved for this account.
+     */
+    transactions: TransactionsPageStruct,
+  }),
+  object({
+    /**
+     * ID of the account the error belongs to.
+     */
+    id: UuidStruct,
+
+    /**
+     * Whether transactions were retrieved successfully for this account.
+     */
+    success: literal(false),
+
+    /**
+     * Error returned for this account.
+     */
+    error: AccountTransactionsErrorStruct,
+  }),
+]);
+
+/**
+ * Account-specific transaction retrieval result.
+ */
+export type AccountTransactionsResult = Infer<
+  typeof AccountTransactionsResultStruct
+>;
+
+export const GetAccountsTransactionsRequestStruct = object({
+  ...CommonHeader,
+  method: literal(`${KeyringSnapRpcMethod.GetAccountsTransactions}`),
+  params: object({
+    accounts: array(AccountTransactionsPaginationStruct),
+  }),
+});
+
+export type GetAccountsTransactionsRequest = Infer<
+  typeof GetAccountsTransactionsRequestStruct
+>;
+
+export const GetAccountsTransactionsResponseStruct = array(
+  AccountTransactionsResultStruct,
+);
+
+export type GetAccountsTransactionsResponse = Infer<
+  typeof GetAccountsTransactionsResponseStruct
 >;
 
 // ----------------------------------------------------------------------------
@@ -196,6 +317,7 @@ export type KeyringSnapRpcRequests =
   | KeyringRpcRequests
   | SetSelectedAccountsRequest
   | GetAccountTransactionsRequest
+  | GetAccountsTransactionsRequest
   | GetAccountAssetsRequest
   | GetAccountBalancesRequest
   | ResolveAccountAddressRequest;
@@ -227,6 +349,14 @@ export type KeyringSnapRpc = KeyringRpc & {
     id: AccountId,
     pagination: Pagination,
   ) => Promise<TransactionsPage>;
+
+  /**
+   * Get transactions for multiple accounts with account-specific pagination.
+   * Maps to `keyring_getAccountsTransactions`.
+   */
+  getAccountsTransactions?: (
+    accounts: AccountTransactionsPagination[],
+  ) => Promise<AccountTransactionsResult[]>;
 
   /**
    * Get the asset types supported by an account.

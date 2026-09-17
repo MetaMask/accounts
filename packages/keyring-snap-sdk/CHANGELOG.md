@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `keyring_getAccountsTransactions` dispatch to v2 `handleKeyringRequest` ([#634](https://github.com/MetaMask/accounts/pull/634))
+
 ## [10.0.0]
 
 ### Changed

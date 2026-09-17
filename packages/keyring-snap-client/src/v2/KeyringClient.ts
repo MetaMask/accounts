@@ -22,11 +22,14 @@ import {
   KeyringSnapRpcMethod,
   SetSelectedAccountsResponseStruct,
   GetAccountTransactionsResponseStruct,
+  GetAccountsTransactionsResponseStruct,
   GetAccountAssetsResponseStruct,
   GetAccountBalancesResponseStruct,
   ResolveAccountAddressResponseStruct,
 } from '@metamask/keyring-api/v2';
 import type {
+  AccountTransactionsPagination,
+  AccountTransactionsResult,
   CreateAccountOptions,
   ExportAccountOptions,
   ExportedAccount,
@@ -217,6 +220,26 @@ export class KeyringClient implements KeyringSnapRpc {
         params: { id, pagination },
       }),
       GetAccountTransactionsResponseStruct,
+    );
+  }
+
+  /**
+   * Gets transactions for multiple accounts with account-specific pagination.
+   *
+   * @param accounts - Accounts and pagination options.
+   * @returns A promise that resolves to transaction results for each account.
+   */
+  async getAccountsTransactions(
+    accounts: AccountTransactionsPagination[],
+  ): Promise<AccountTransactionsResult[]> {
+    return strictMask(
+      await this.#sender.send({
+        jsonrpc: '2.0',
+        id: uuid(),
+        method: KeyringSnapRpcMethod.GetAccountsTransactions,
+        params: { accounts },
+      }),
+      GetAccountsTransactionsResponseStruct,
     );
   }
 
