@@ -387,14 +387,25 @@ export class MPCKeyring implements Keyring {
   }
 
   /**
-   * Add new accounts to the keyring. The accounts will be derived
-   * sequentially from the root HD wallet, using increasing indices.
+   * Return the single MPC account. The account is created during
+   * {@link MPCKeyring.init}, not by this method.
    *
-   * @param numberOfAccounts - The number of accounts to add.
-   * @returns The addresses of the new accounts.
+   * @param numberOfAccounts - Must be 1 (the only supported value).
+   * @returns The address of the existing account.
+   * @throws If `numberOfAccounts` is not 1 or the keyring has no account.
    */
   async addAccounts(numberOfAccounts = 1): Promise<Hex[]> {
-    throw new Error(`addAccounts(${numberOfAccounts}): not implemented`);
+    if (numberOfAccounts !== 1) {
+      throw new Error('MPCKeyring: supports adding exactly one account');
+    }
+
+    const accounts = await this.getAccounts();
+    const account = accounts[0];
+    if (!account) {
+      throw new Error('MPCKeyring: has no account');
+    }
+
+    return [account];
   }
 
   /**

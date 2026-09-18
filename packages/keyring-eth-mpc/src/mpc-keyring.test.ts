@@ -869,15 +869,36 @@ describe('MPCKeyring', () => {
     );
   });
 
+  describe('addAccounts', () => {
+    it('throws if called before initialization', async () => {
+      const keyring = makeKeyring();
+
+      await expect(keyring.addAccounts()).rejects.toThrow(
+        'MPCKeyring: has no account',
+      );
+    });
+
+    it('throws if numberOfAccounts is not 1', async () => {
+      const keyring = makeKeyring();
+      await deserializeState(keyring);
+
+      await expect(keyring.addAccounts(2)).rejects.toThrow(
+        'MPCKeyring: supports adding exactly one account',
+      );
+    });
+
+    it('returns the existing account after initialization', async () => {
+      const keyring = makeKeyring();
+      await deserializeState(keyring);
+
+      expect(await keyring.addAccounts()).toStrictEqual([mockDerivedAddress]);
+      expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
+    });
+  });
+
   it('throws for unsupported account APIs that are not implemented', async () => {
     const keyring = makeKeyring();
 
-    await expect(keyring.addAccounts()).rejects.toThrow(
-      'addAccounts(1): not implemented',
-    );
-    await expect(keyring.addAccounts(2)).rejects.toThrow(
-      'addAccounts(2): not implemented',
-    );
     await expect(
       keyring.getAppKeyAddress(mockDerivedAddress, 'example.com'),
     ).rejects.toThrow(
