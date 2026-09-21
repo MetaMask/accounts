@@ -30,7 +30,7 @@ const DEFAULT_CONFIG: SpeculosBleConfig = {
  * monitoring, and stopping the BLE bridge process that emulates a
  * Bluetooth Ledger device using Speculos.
  *
- * The Python source lives under `python_src/` in this package. The
+ * The Python source lives under `python/` in this package. The
  * virtual environment is created at `.venv/` by running
  * `scripts/setup-python.sh`.
  */
@@ -48,7 +48,7 @@ export class SpeculosBleRunner {
    *
    * Defaults to the directory two levels above the compiled output
    * (`dist/ble/` → package root). Override with the `SPECULOS_BLE_PACKAGE_DIR`
-   * environment variable so the runner can locate `python_src/`, `scripts/`,
+   * environment variable so the runner can locate `python/`, `scripts/`,
    * and the venv even when the package has been copied into a consumer's
    * `node_modules` (e.g. via a Yarn `file:` resolution), where the relative
    * resolution would point at the copy rather than the source of truth.
@@ -65,12 +65,12 @@ export class SpeculosBleRunner {
   }
 
   /**
-   * Resolve the Python source directory (`<packageDir>/python_src`).
+   * Resolve the Python source directory (`<packageDir>/python`).
    *
    * @returns The resolved Python source directory.
    */
   static get pythonDir(): string {
-    return join(SpeculosBleRunner.packageDir, 'python_src');
+    return join(SpeculosBleRunner.packageDir, 'python');
   }
 
   /**

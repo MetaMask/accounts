@@ -15,7 +15,7 @@ describe('SpeculosBleRunner', () => {
   describe('static methods', () => {
     it('resolves pythonDir to a path containing speculos_ble source', () => {
       const dir = SpeculosBleRunner.pythonDir;
-      expect(dir).toContain('python_src');
+      expect(dir).toContain('python');
     });
 
     it('resolves packageDir to the package root', () => {
@@ -38,7 +38,7 @@ describe('SpeculosBleRunner', () => {
       try {
         process.env.SPECULOS_BLE_PACKAGE_DIR = '/tmp/fake-pkg';
         expect(SpeculosBleRunner.packageDir).toBe('/tmp/fake-pkg');
-        expect(SpeculosBleRunner.pythonDir).toBe('/tmp/fake-pkg/python_src');
+        expect(SpeculosBleRunner.pythonDir).toBe('/tmp/fake-pkg/python');
         // venv follows packageDir by default
         expect(SpeculosBleRunner.venvPython).toBe(
           '/tmp/fake-pkg/.venv/bin/python',

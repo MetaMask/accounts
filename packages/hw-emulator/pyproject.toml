@@ -10,7 +10,7 @@ requires-python = ">=3.10,<3.14"
 dependencies = [
   # Pinned exactly on purpose: the emulator must behave identically on CI
   # and dev machines, and BLE-stack behavior (bumble) should not drift
-  # between installs. Bump pins deliberately, then re-run python_tests.
+  # between installs. Bump pins deliberately, then re-run tests/python.
   "bumble==0.0.233",
   "grpcio>=1.62.0,<2",
   # bumble's android_netsim transport imports google.protobuf at runtime;
@@ -27,7 +27,7 @@ test = ["pytest>=8.0", "pytest-asyncio>=0.23", "aiohttp[speedups]>=3.9"]
 speculos-ble = "speculos_ble.__main__:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["python_src/speculos_ble"]
+packages = ["python/speculos_ble"]
 
 [tool.pytest.ini_options]
-testpaths = ["python_tests"]
+testpaths = ["tests/python"]

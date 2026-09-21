@@ -117,7 +117,7 @@ It bridges three surfaces:
 2. **APDU bridge** — forwards BLE APDU packets to/from the Speculos emulator
 3. **Control API** — HTTP endpoint for test automation (button presses, screenshots, BLE disconnect)
 
-The Python source lives in `python_src/speculos_ble/`, and the `SpeculosBleRunner` TypeScript class (in `src/ble/`) provides a programmatic API for starting, monitoring, and stopping the bridge process.
+The Python source lives in `python/speculos_ble/`, and the `SpeculosBleRunner` TypeScript class (in `src/ble/`) provides a programmatic API for starting, monitoring, and stopping the bridge process.
 
 ### Setup
 
@@ -162,7 +162,7 @@ await runner.stop();
 
 ```bash
 yarn test:python
-# or: cd python_tests && python -m pytest -v
+# or: cd tests/python && python -m pytest -v
 ```
 
 ### Requirements

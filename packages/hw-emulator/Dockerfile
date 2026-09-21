@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 COPY pyproject.toml ./
-COPY python_src/ python_src/
+COPY python/ python/
 
 RUN pip install --no-cache-dir ".[test]"
 
