@@ -35,13 +35,13 @@ import type { Hex, Json } from '@metamask/utils';
 import type { CheckKeyShareResult } from './cloud';
 import {
   checkKeyShare as checkKeyShareRemote,
-  createKey as startCreateKey,
+  createKey as createCloudKey,
   getNetId,
   loadKeyShareBackup,
   registerClient,
-  rotateKeyShares as startRotateKeyShares,
+  rotateKeyShares as rotateCloudKeyShares,
   setActiveEpoch,
-  sign as startSign,
+  sign as signWithCloud,
   storeKeyShareBackup,
 } from './cloud';
 import type {
@@ -94,6 +94,18 @@ function assertEpochReady(
       )}, latestBackupEpoch=${String(check.latestBackupEpoch)})`,
     );
   }
+}
+
+/**
+ * Re-throw `error` if it is already an `Error`, otherwise wrap it.
+ *
+ * @param error - The rejected value.
+ */
+function throwError(error: unknown): never {
+  if (error instanceof Error) {
+    throw error;
+  }
+  throw new Error(String(error));
 }
 
 /**
@@ -286,30 +298,29 @@ export class MPCKeyring implements Keyring {
 
       const token = await this.#getProfileToken({ twoFactor: true });
       const nonce = generateSessionNonce(this.#rng);
-      await startRotateKeyShares({
-        baseURL: this.#cloudURL,
-        token,
-        clientNetId: netCreds.partyId,
-        nonce,
-        expectedActiveEpoch: shareEpoch,
-      });
-
-      const netSession = await this.#createNetworkSession(
+      const custodians = partyNetIds(netCreds.partyId, serverNetId);
+      keyShare = await this.#runWithBackend(
         netCreds,
         serverNetId,
         nonce,
+        async () => {
+          await rotateCloudKeyShares({
+            baseURL: this.#cloudURL,
+            token,
+            clientNetId: netCreds.partyId,
+            nonce,
+            expectedActiveEpoch: shareEpoch,
+          });
+        },
+        async (netSession) => {
+          return this.#dkm.rotateKeyShares({
+            key: keyShare,
+            dealers: dealersFromCL24Key(keyShare, custodians),
+            custodians,
+            networkSession: netSession.createSubsession('dkg-rotate'),
+          });
+        },
       );
-      try {
-        const custodians = partyNetIds(netCreds.partyId, serverNetId);
-        keyShare = await this.#dkm.rotateKeyShares({
-          key: keyShare,
-          dealers: dealersFromCL24Key(keyShare, custodians),
-          custodians,
-          networkSession: netSession.createSubsession('dkg-rotate'),
-        });
-      } finally {
-        await netSession.disconnect();
-      }
 
       await storeKeyShareBackup({
         baseURL: this.#cloudURL,
@@ -531,39 +542,34 @@ export class MPCKeyring implements Keyring {
     });
 
     const nonce = generateSessionNonce(this.#rng);
-    await startCreateKey({
-      baseURL: this.#cloudURL,
-      token,
-      clientNetId: netCreds.partyId,
-      nonce,
-    });
-
-    const netSession = await this.#createNetworkSession(
+    const custodians = partyNetIds(netCreds.partyId, serverNetId);
+    const bindings = shareBindings(netCreds.partyId, serverNetId);
+    const [keyShare, tssSetup] = await this.#runWithBackend(
       netCreds,
       serverNetId,
       nonce,
+      async () => {
+        await createCloudKey({
+          baseURL: this.#cloudURL,
+          token,
+          clientNetId: netCreds.partyId,
+          nonce,
+        });
+      },
+      async (netSession): Promise<[CL24ThresholdKey, Uint8Array]> => {
+        return Promise.all([
+          this.#dkm.createKey({
+            custodians,
+            threshold: 2,
+            networkSession: netSession.createSubsession('dkg-create'),
+          }),
+          this.#tss.setup({
+            signers: bindings,
+            networkSession: netSession.createSubsession('tss-setup'),
+          }),
+        ]);
+      },
     );
-    let keyShare: CL24ThresholdKey;
-    let tssSetup: Uint8Array;
-    try {
-      const custodians = partyNetIds(netCreds.partyId, serverNetId);
-      const bindings = shareBindings(netCreds.partyId, serverNetId);
-      const createKeySession = netSession.createSubsession('dkg-create');
-      const tssSetupSession = netSession.createSubsession('tss-setup');
-      [keyShare, tssSetup] = await Promise.all([
-        this.#dkm.createKey({
-          custodians,
-          threshold: 2,
-          networkSession: createKeySession,
-        }),
-        this.#tss.setup({
-          signers: bindings,
-          networkSession: tssSetupSession,
-        }),
-      ]);
-    } finally {
-      await netSession.disconnect();
-    }
 
     await storeKeyShareBackup({
       baseURL: this.#cloudURL,
@@ -628,8 +634,7 @@ export class MPCKeyring implements Keyring {
   async #signHash(address: Hex, hash: Uint8Array): Promise<Uint8Array> {
     return this.#serializeOp(async () => {
       const state = this.#assertState();
-      const { keyShare, netCreds, serverNetId, shareEpoch } = state;
-      let { tssSetup } = state;
+      const { keyShare, netCreds, serverNetId, shareEpoch, tssSetup } = state;
 
       const addr = this.#address();
       if (!equalAddresses(address, addr)) {
@@ -641,47 +646,46 @@ export class MPCKeyring implements Keyring {
         challenge: hash,
       });
       const nonce = generateSessionNonce(this.#rng);
-      await startSign({
-        baseURL: this.#cloudURL,
-        token,
-        data: hash,
-        clientNetId: netCreds.partyId,
-        nonce,
-        shareEpoch,
-      });
+      const bindings = shareBindings(netCreds.partyId, serverNetId);
 
-      const netSession = await this.#createNetworkSession(
+      return this.#runWithBackend(
         netCreds,
         serverNetId,
         nonce,
-      );
-      const bindings = shareBindings(netCreds.partyId, serverNetId);
-
-      try {
-        tssSetup = await this.#ensureTssSetup(
-          netSession,
-          serverNetId,
-          bindings,
-          tssSetup,
-        );
-        this.#applyKeyState({ ...state, tssSetup });
-
-        try {
-          const { signature } = await this.#tss.sign({
-            key: keyShare,
-            signers: bindings,
-            message: hash,
-            networkSession: netSession.createSubsession('tss-sign'),
-            setup: tssSetup,
+        async () => {
+          await signWithCloud({
+            baseURL: this.#cloudURL,
+            token,
+            data: hash,
+            clientNetId: netCreds.partyId,
+            nonce,
+            shareEpoch,
           });
-          return toEthSig(signature, hash, keyShare.publicKey);
-        } catch (error) {
-          this.#applyKeyState({ ...state, tssSetup: null });
-          throw error;
-        }
-      } finally {
-        await netSession.disconnect();
-      }
+        },
+        async (netSession) => {
+          const setup = await this.#ensureTssSetup(
+            netSession,
+            serverNetId,
+            bindings,
+            tssSetup,
+          );
+          this.#applyKeyState({ ...state, tssSetup: setup });
+
+          try {
+            const { signature } = await this.#tss.sign({
+              key: keyShare,
+              signers: bindings,
+              message: hash,
+              networkSession: netSession.createSubsession('tss-sign'),
+              setup,
+            });
+            return toEthSig(signature, hash, keyShare.publicKey);
+          } catch (error) {
+            this.#applyKeyState({ ...state, tssSetup: null });
+            throw error;
+          }
+        },
+      );
     });
   }
 
@@ -713,6 +717,64 @@ export class MPCKeyring implements Keyring {
       signers: bindings,
       networkSession: netSession.createSubsession('tss-setup'),
     });
+  }
+
+  /**
+   * Run a client protocol in parallel with the matching backend call.
+   * The backend call returns only after the server has finished its side.
+   * If either side fails, disconnect the root session so the other aborts,
+   * then wait for both to settle so the op queue stays held.
+   *
+   * @param netCreds - Client network identity.
+   * @param serverNetId - Server network id.
+   * @param nonce - Shared session nonce.
+   * @param backend - Backend protocol call.
+   * @param protocol - Client protocol, given the root session.
+   * @returns The client protocol result.
+   */
+  async #runWithBackend<Result>(
+    netCreds: MfaNetworkIdentity,
+    serverNetId: PartyId,
+    nonce: string,
+    backend: () => Promise<void>,
+    protocol: (netSession: RootNetworkSession) => Promise<Result>,
+  ): Promise<Result> {
+    const netSession = await this.#createNetworkSession(
+      netCreds,
+      serverNetId,
+      nonce,
+    );
+    let firstError: unknown;
+    const abortOnFailure = async <Value>(
+      operation: Promise<Value>,
+    ): Promise<Value> => {
+      try {
+        return await operation;
+      } catch (error) {
+        if (firstError === undefined) {
+          firstError = error;
+          try {
+            await netSession.disconnect();
+          } catch {
+            // Ignore disconnect errors while aborting the other side.
+          }
+        }
+        throw error;
+      }
+    };
+
+    try {
+      const [protocolResult] = await Promise.allSettled([
+        abortOnFailure(protocol(netSession)),
+        abortOnFailure(backend()),
+      ]);
+      if (firstError !== undefined) {
+        throwError(firstError);
+      }
+      return (protocolResult as PromiseFulfilledResult<Result>).value;
+    } finally {
+      await netSession.disconnect();
+    }
   }
 
   async #createNetworkSession(

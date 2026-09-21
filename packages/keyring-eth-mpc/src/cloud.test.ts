@@ -74,7 +74,7 @@ describe('cloud helpers', () => {
     ).rejects.toThrow('Failed to get server network id: Unauthorized');
   });
 
-  it('starts cloud key generation', async () => {
+  it('creates a cloud key', async () => {
     okEmpty();
 
     await createKey({
@@ -90,7 +90,7 @@ describe('cloud helpers', () => {
     );
   });
 
-  it('throws when cloud key generation initialization fails', async () => {
+  it('throws when cloud key creation fails', async () => {
     fetchSpy.mockResolvedValue({
       ok: false,
       statusText: 'Unauthorized',
@@ -103,9 +103,7 @@ describe('cloud helpers', () => {
         clientNetId: 'local-1',
         nonce: '0xnonce',
       }),
-    ).rejects.toThrow(
-      'Failed to initialize cloud keygen session: Unauthorized',
-    );
+    ).rejects.toThrow('Failed to create cloud key: Unauthorized');
   });
 
   it('registers a client network id', async () => {
@@ -138,7 +136,7 @@ describe('cloud helpers', () => {
     ).rejects.toThrow('Failed to register client: Forbidden');
   });
 
-  it('starts a cloud sign session with epoch and base64-encoded message', async () => {
+  it('signs with the cloud using epoch and a base64-encoded message', async () => {
     okEmpty();
     const data = new Uint8Array([104, 105]); // "hi"
 
@@ -166,7 +164,7 @@ describe('cloud helpers', () => {
     expect(body.token).toBeUndefined();
   });
 
-  it('throws when cloud sign initialization fails', async () => {
+  it('throws when cloud sign fails', async () => {
     fetchSpy.mockResolvedValue({
       ok: false,
       statusText: 'Server Error',
@@ -181,10 +179,10 @@ describe('cloud helpers', () => {
         data: new Uint8Array([1]),
         shareEpoch: 1,
       }),
-    ).rejects.toThrow('Failed to initialize cloud sign session: Server Error');
+    ).rejects.toThrow('Failed to sign with cloud: Server Error');
   });
 
-  it('starts a cloud key rotation session', async () => {
+  it('rotates cloud key shares', async () => {
     okEmpty();
 
     await rotateKeyShares({
@@ -205,7 +203,7 @@ describe('cloud helpers', () => {
     );
   });
 
-  it('throws when cloud key rotation initialization fails', async () => {
+  it('throws when cloud key rotation fails', async () => {
     fetchSpy.mockResolvedValue({
       ok: false,
       statusText: 'Forbidden',
@@ -219,9 +217,7 @@ describe('cloud helpers', () => {
         nonce: '0xnonce',
         expectedActiveEpoch: 1,
       }),
-    ).rejects.toThrow(
-      'Failed to initialize cloud key rotation session: Forbidden',
-    );
+    ).rejects.toThrow('Failed to rotate cloud key shares: Forbidden');
   });
 
   it('stores an encrypted key share backup for an epoch', async () => {
