@@ -866,6 +866,30 @@ describe('MPCKeyring', () => {
     expect(mockDklsSign).not.toHaveBeenCalled();
   });
 
+  it('aborts a hanging backend call if the client protocol fails', async () => {
+    const keyring = makeKeyring();
+    await deserializeState(keyring);
+
+    const signSession = makeRootSession();
+    mockCreateSession.mockResolvedValue(signSession);
+    const hang = hangUntilDisconnect(signSession);
+    mockStartSign.mockImplementationOnce(async () => hang());
+    mockDklsSign.mockRejectedValueOnce(new Error('sign failed'));
+
+    const firstSign = keyring.signPersonalMessage(
+      mockDerivedAddress,
+      '0x68656c6c6f',
+    );
+    const secondSign = keyring.signPersonalMessage(
+      mockDerivedAddress,
+      '0x68656c6c6f',
+    );
+
+    await expect(firstSign).rejects.toThrow('sign failed');
+    expect(signSession.disconnect).toHaveBeenCalled();
+    await secondSign;
+  });
+
   it('holds the op queue until an aborted sign protocol settles', async () => {
     const keyring = makeKeyring();
     await deserializeState(keyring);

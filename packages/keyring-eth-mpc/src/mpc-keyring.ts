@@ -722,8 +722,8 @@ export class MPCKeyring implements Keyring {
   /**
    * Run a client protocol in parallel with the matching backend call.
    * The backend call returns only after the server has finished its side.
-   * If the backend fails, disconnect the root session so the protocol aborts,
-   * then wait for the protocol to settle so the op queue stays held.
+   * If either side fails, disconnect the root session so the other aborts,
+   * then wait for both to settle so the op queue stays held.
    *
    * @param netCreds - Client network identity.
    * @param serverNetId - Server network id.
@@ -744,30 +744,34 @@ export class MPCKeyring implements Keyring {
       serverNetId,
       nonce,
     );
-    let backendError: unknown;
-    const backendOp = backend().catch(async (error: unknown) => {
-      backendError = error;
+    let firstError: unknown;
+    const abortOnFailure = async <Value>(
+      operation: Promise<Value>,
+    ): Promise<Value> => {
       try {
-        await netSession.disconnect();
-      } catch {
-        // Ignore disconnect errors while aborting the protocol.
+        return await operation;
+      } catch (error) {
+        if (firstError === undefined) {
+          firstError = error;
+          try {
+            await netSession.disconnect();
+          } catch {
+            // Ignore disconnect errors while aborting the other side.
+          }
+        }
+        throw error;
       }
-      throw error;
-    });
-    const protocolOp = protocol(netSession);
+    };
 
     try {
       const [protocolResult] = await Promise.allSettled([
-        protocolOp,
-        backendOp,
+        abortOnFailure(protocol(netSession)),
+        abortOnFailure(backend()),
       ]);
-      if (backendError !== undefined) {
-        throwError(backendError);
+      if (firstError !== undefined) {
+        throwError(firstError);
       }
-      if (protocolResult.status === 'rejected') {
-        throwError(protocolResult.reason);
-      }
-      return protocolResult.value;
+      return (protocolResult as PromiseFulfilledResult<Result>).value;
     } finally {
       await netSession.disconnect();
     }
