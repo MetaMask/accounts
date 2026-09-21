@@ -104,7 +104,8 @@ export async function getNetId(opts: {
 }
 
 /**
- * Start DKG on the backend for a new key (appends epoch 1; does not activate).
+ * Run DKG on the backend for a new key (appends epoch 1; does not activate).
+ * Returns only after the backend has completed its side of the protocol.
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
@@ -125,7 +126,7 @@ export async function createKey(opts: {
       clientNetId: opts.clientNetId,
       nonce: opts.nonce,
     },
-    'Failed to initialize cloud keygen session',
+    'Failed to create cloud key',
   );
 }
 
@@ -153,7 +154,8 @@ export async function registerClient(opts: {
 }
 
 /**
- * Start a backend signing session for the active share epoch.
+ * Sign on the backend for the active share epoch.
+ * Returns only after the backend has completed its side of the protocol.
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
@@ -180,12 +182,13 @@ export async function sign(opts: {
       nonce: opts.nonce,
       shareEpoch: opts.shareEpoch,
     },
-    'Failed to initialize cloud sign session',
+    'Failed to sign with cloud',
   );
 }
 
 /**
- * Start a backend share-rotation session (appends next epoch; does not activate).
+ * Rotate shares on the backend (appends next epoch; does not activate).
+ * Returns only after the backend has completed its side of the protocol.
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
@@ -209,7 +212,7 @@ export async function rotateKeyShares(opts: {
       nonce: opts.nonce,
       expectedActiveEpoch: opts.expectedActiveEpoch,
     },
-    'Failed to initialize cloud key rotation session',
+    'Failed to rotate cloud key shares',
   );
 }
 
