@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- Run create, sign, and rotate protocols in parallel with the matching backend call, and abort the client protocol if the backend fails ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-
 ### Added
 
 - Initial release of `@metamask/eth-mpc-keyring` ([#627](https://github.com/MetaMask/accounts/pull/627))
