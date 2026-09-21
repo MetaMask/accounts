@@ -97,6 +97,18 @@ function assertEpochReady(
 }
 
 /**
+ * Re-throw `error` if it is already an `Error`, otherwise wrap it.
+ *
+ * @param error - The rejected value.
+ */
+function throwError(error: unknown): never {
+  if (error instanceof Error) {
+    throw error;
+  }
+  throw new Error(String(error));
+}
+
+/**
  * Party net ids indexed by 0-based share slot.
  *
  * @param clientNetId - Client (share 0) network id.
@@ -710,7 +722,8 @@ export class MPCKeyring implements Keyring {
   /**
    * Run a client protocol in parallel with the matching backend call.
    * The backend call returns only after the server has finished its side.
-   * If the backend fails, disconnect the root session so the protocol aborts.
+   * If the backend fails, disconnect the root session so the protocol aborts,
+   * then wait for the protocol to settle so the op queue stays held.
    *
    * @param netCreds - Client network identity.
    * @param serverNetId - Server network id.
@@ -741,12 +754,20 @@ export class MPCKeyring implements Keyring {
       }
       throw error;
     });
+    const protocolOp = protocol(netSession);
 
     try {
-      const [result] = await Promise.all([protocol(netSession), backendOp]);
-      return result;
-    } catch (error) {
-      throw backendError ?? error;
+      const [protocolResult] = await Promise.allSettled([
+        protocolOp,
+        backendOp,
+      ]);
+      if (backendError !== undefined) {
+        throwError(backendError);
+      }
+      if (protocolResult.status === 'rejected') {
+        throwError(protocolResult.reason);
+      }
+      return protocolResult.value;
     } finally {
       await netSession.disconnect();
     }

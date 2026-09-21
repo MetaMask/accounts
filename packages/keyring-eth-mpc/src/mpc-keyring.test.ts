@@ -185,6 +185,22 @@ const makeRootSession = () => {
   return session;
 };
 
+const hangUntilDisconnect = (
+  session: ReturnType<typeof makeRootSession>,
+): ((onStart?: () => void) => Promise<never>) => {
+  const rejectors: ((error: Error) => void)[] = [];
+  session.disconnect.mockImplementation(async () => {
+    for (const reject of rejectors) {
+      reject(new Error('disconnected'));
+    }
+  });
+  return async (onStart?: () => void): Promise<never> =>
+    new Promise((_resolve, reject) => {
+      onStart?.();
+      rejectors.push(reject);
+    });
+};
+
 const makeKeyring = (
   getProfileToken = jest.fn().mockResolvedValue('token'),
   getBackupEncryptionKey = jest.fn().mockResolvedValue(mockBackupKey),
@@ -491,11 +507,9 @@ describe('MPCKeyring', () => {
     const started = new Promise<void>((resolve) => {
       protocolStarted = resolve;
     });
-    mockCreateKey.mockImplementation(async () => {
-      protocolStarted();
-      return new Promise(() => undefined);
-    });
-    mockDklsSetup.mockImplementation(async () => new Promise(() => undefined));
+    const hang = hangUntilDisconnect(rootSession);
+    mockCreateKey.mockImplementation(async () => hang(protocolStarted));
+    mockDklsSetup.mockImplementation(async () => hang());
 
     let rejectBackend!: (error: Error) => void;
     mockStartCreateKey.mockReturnValueOnce(
@@ -582,10 +596,9 @@ describe('MPCKeyring', () => {
     const started = new Promise<void>((resolve) => {
       protocolStarted = resolve;
     });
-    mockRotateKeyShares.mockImplementation(async () => {
-      protocolStarted();
-      return new Promise(() => undefined);
-    });
+    mockRotateKeyShares.mockImplementation(async () =>
+      hangUntilDisconnect(rootSession)(protocolStarted),
+    );
 
     let rejectBackend!: (error: Error) => void;
     mockStartRotateKeyShares.mockReturnValueOnce(
@@ -805,7 +818,7 @@ describe('MPCKeyring', () => {
 
     const signSession = makeRootSession();
     mockCreateSession.mockResolvedValue(signSession);
-    mockDklsSign.mockRejectedValueOnce(new Error('sign failed'));
+    mockDklsSign.mockRejectedValueOnce('sign failed');
 
     await expect(
       keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
@@ -830,8 +843,8 @@ describe('MPCKeyring', () => {
     signSession.sendMessage.mockImplementation(() => {
       protocolStarted();
     });
-    signSession.receiveMessage.mockImplementation(
-      async () => new Promise(() => undefined),
+    signSession.receiveMessage.mockImplementation(async () =>
+      hangUntilDisconnect(signSession)(),
     );
 
     let rejectBackend!: (error: Error) => void;
@@ -851,6 +864,64 @@ describe('MPCKeyring', () => {
     await expect(signPromise).rejects.toThrow('Failed to sign with cloud');
     expect(signSession.disconnect).toHaveBeenCalled();
     expect(mockDklsSign).not.toHaveBeenCalled();
+  });
+
+  it('holds the op queue until an aborted sign protocol settles', async () => {
+    const keyring = makeKeyring();
+    await deserializeState(keyring);
+
+    const signSession = makeRootSession();
+    mockCreateSession.mockResolvedValue(signSession);
+
+    let protocolStarted!: () => void;
+    const started = new Promise<void>((resolve) => {
+      protocolStarted = resolve;
+    });
+    let releaseReceive!: (value: Uint8Array) => void;
+    signSession.sendMessage.mockImplementation(() => {
+      protocolStarted();
+    });
+    signSession.receiveMessage.mockImplementationOnce(
+      async () =>
+        new Promise((resolve) => {
+          releaseReceive = resolve;
+        }),
+    );
+
+    let rejectBackend!: (error: Error) => void;
+    mockStartSign.mockReturnValueOnce(
+      new Promise((_resolve, reject) => {
+        rejectBackend = reject;
+      }),
+    );
+
+    const firstSign = keyring.signPersonalMessage(
+      mockDerivedAddress,
+      '0x68656c6c6f',
+    );
+    await started;
+    rejectBackend(new Error('Failed to sign with cloud'));
+    await Promise.resolve();
+
+    let secondSignStarted = false;
+    mockDklsSign.mockImplementation(async () => {
+      secondSignStarted = true;
+      return { signature: new Uint8Array(64).fill(9) };
+    });
+    const secondSign = keyring.signPersonalMessage(
+      mockDerivedAddress,
+      '0x68656c6c6f',
+    );
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(secondSignStarted).toBe(false);
+
+    releaseReceive(
+      new TextEncoder().encode(JSON.stringify({ haveSetup: true })),
+    );
+
+    await expect(firstSign).rejects.toThrow('Failed to sign with cloud');
+    await secondSign;
+    expect(secondSignStarted).toBe(true);
   });
 
   it('serializes concurrent sign calls', async () => {
