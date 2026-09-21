@@ -70,9 +70,29 @@ import {
 
 const mpcKeyringType = 'MPC Keyring';
 const TSS_HAVE_SETUP_MESSAGE_TYPE = 'tss-have-setup';
+const STATUS_MESSAGE_TYPE = 'status';
+const STATUS_DONE_PAYLOAD = 'done';
 const CLIENT_SHARE_INDEX = 0;
 const SERVER_SHARE_INDEX = 1;
 const INITIAL_SHARE_EPOCH = 1;
+
+/**
+ * Wait until the backend has persisted create/rotate and sent `status: done`.
+ *
+ * @param networkSession - Root network session shared with the backend.
+ * @param peerNetId - Server network id.
+ */
+async function waitForDoneStatus(
+  networkSession: RootNetworkSession,
+  peerNetId: PartyId,
+): Promise<void> {
+  const status = new TextDecoder().decode(
+    await networkSession.receiveMessage(peerNetId, STATUS_MESSAGE_TYPE),
+  );
+  if (status !== STATUS_DONE_PAYLOAD) {
+    throw new Error(`Expected status done, received ${status}`);
+  }
+}
 
 /**
  * Assert that the latest share and backup epochs both equal `expectedEpoch`.
@@ -307,6 +327,7 @@ export class MPCKeyring implements Keyring {
           custodians,
           networkSession: netSession.createSubsession('dkg-rotate'),
         });
+        await waitForDoneStatus(netSession, serverNetId);
       } finally {
         await netSession.disconnect();
       }
@@ -561,6 +582,7 @@ export class MPCKeyring implements Keyring {
           networkSession: tssSetupSession,
         }),
       ]);
+      await waitForDoneStatus(netSession, serverNetId);
     } finally {
       await netSession.disconnect();
     }

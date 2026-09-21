@@ -169,14 +169,20 @@ const makeSerializedState = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
+const encodeText = (value: string): Uint8Array =>
+  new TextEncoder().encode(value);
+
 const makeRootSession = () => {
   const session = {
     sendMessage: jest.fn(),
     receiveMessage: jest
       .fn()
-      .mockResolvedValue(
-        new TextEncoder().encode(JSON.stringify({ haveSetup: true })),
-      ),
+      .mockImplementation(async (_peer: string, type: string) => {
+        if (type === 'status') {
+          return Promise.resolve(encodeText('done'));
+        }
+        return Promise.resolve(encodeText(JSON.stringify({ haveSetup: true })));
+      }),
     createSubsession: jest
       .fn()
       .mockImplementation((label: string) => ({ label })),
@@ -381,6 +387,11 @@ describe('MPCKeyring', () => {
     );
     expect(rootSession.createSubsession).toHaveBeenCalledWith('dkg-create');
     expect(rootSession.createSubsession).toHaveBeenCalledWith('tss-setup');
+    expect(rootSession.receiveMessage).toHaveBeenCalledWith(
+      'cloud-user',
+      'status',
+    );
+    expect(rootSession.disconnect).toHaveBeenCalled();
     expect(mockStoreKeyShareBackup).toHaveBeenCalledWith(
       expect.objectContaining({
         token: 'token',
@@ -481,6 +492,27 @@ describe('MPCKeyring', () => {
     expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
   });
 
+  it('throws when create receives a non-done status', async () => {
+    const keyring = makeKeyring();
+    const rootSession = makeRootSession();
+    rootSession.receiveMessage.mockImplementation(
+      async (_peer: string, type: string) => {
+        if (type === 'status') {
+          return encodeText('running');
+        }
+        return encodeText(JSON.stringify({ haveSetup: true }));
+      },
+    );
+    mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
+    mockCreateSession.mockResolvedValueOnce(rootSession);
+    mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+
+    await expect(keyring.init('create')).rejects.toThrow(
+      'Expected status done, received running',
+    );
+    expect(mockStoreKeyShareBackup).not.toHaveBeenCalled();
+  });
+
   it('rotates key shares, activates the next epoch, and clears tssSetup', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(getProfileToken);
@@ -516,6 +548,11 @@ describe('MPCKeyring', () => {
       }),
     );
     expect(rootSession.createSubsession).toHaveBeenCalledWith('dkg-rotate');
+    expect(rootSession.receiveMessage).toHaveBeenCalledWith(
+      'cloud-user',
+      'status',
+    );
+    expect(rootSession.disconnect).toHaveBeenCalled();
     expect(mockDklsSetup).not.toHaveBeenCalled();
     expect(mockStoreKeyShareBackup).toHaveBeenCalledWith(
       expect.objectContaining({
