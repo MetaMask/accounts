@@ -10,6 +10,7 @@ The 4-byte length prefix covers the data only; the 2-byte SW follows.
 from __future__ import annotations
 
 import asyncio
+import os
 import struct
 import logging
 
@@ -29,7 +30,15 @@ class SpeculosProtocolError(Exception):
 
 
 class SpeculosTcpClient:
-    def __init__(self, host: str = "127.0.0.1", port: int = 9999, timeout: float = 30.0) -> None:
+    def __init__(
+        self,
+        host: str = "127.0.0.1",
+        port: int = 9999,
+        # E2E approval automation presses device buttons while an APDU is
+        # pending; a 30s fuse races the adaptive approval loop's worst case
+        # (~50s). Env-overridable, default raised to 120s.
+        timeout: float = float(os.environ.get("SPECULOS_APDU_TIMEOUT", "120.0")),
+    ) -> None:
         self._host = host
         self._port = port
         self._timeout = timeout
