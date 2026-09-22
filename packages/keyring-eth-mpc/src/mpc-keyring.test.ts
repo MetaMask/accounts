@@ -656,6 +656,10 @@ describe('MPCKeyring', () => {
     );
     expect(signSession.createSubsession).toHaveBeenCalledWith('tss-sign');
     expect(signSession.createSubsession).not.toHaveBeenCalledWith('tss-setup');
+    expect(signSession.receiveMessage).toHaveBeenCalledWith(
+      'cloud-user',
+      'status',
+    );
 
     const tx = {
       getHashedMessageToSign: jest.fn().mockReturnValue(new Uint8Array([1, 2])),
@@ -670,6 +674,33 @@ describe('MPCKeyring', () => {
       expect.any(Uint8Array),
       expect.any(Uint8Array),
       true,
+    );
+  });
+
+  it('returns the signature when sign status is not done', async () => {
+    const keyring = makeKeyring();
+    await deserializeState(keyring);
+
+    const signSession = makeRootSession();
+    signSession.receiveMessage.mockImplementation(
+      async (_peer: string, type: string) => {
+        if (type === 'status') {
+          return encodeText('running');
+        }
+        return encodeText(JSON.stringify({ haveSetup: true }));
+      },
+    );
+    mockCreateSession.mockResolvedValue(signSession);
+
+    const signatureHex = await keyring.signPersonalMessage(
+      mockDerivedAddress,
+      '0x68656c6c6f',
+    );
+
+    expect(signatureHex).toBe(bytesToHex(mockEthSignature));
+    expect(signSession.disconnect).toHaveBeenCalled();
+    expect(await keyring.serialize()).toStrictEqual(
+      expect.objectContaining({ tssSetup: '0x0102' }),
     );
   });
 

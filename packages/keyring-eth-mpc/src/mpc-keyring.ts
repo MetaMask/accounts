@@ -77,7 +77,7 @@ const SERVER_SHARE_INDEX = 1;
 const INITIAL_SHARE_EPOCH = 1;
 
 /**
- * Wait until the backend has persisted create/rotate and sent `status: done`.
+ * Wait until the backend has persisted the session and sent `status: done`.
  *
  * @param networkSession - Root network session shared with the backend.
  * @param peerNetId - Server network id.
@@ -688,6 +688,7 @@ export class MPCKeyring implements Keyring {
         );
         this.#applyKeyState({ ...state, tssSetup });
 
+        let ethSignature: Uint8Array;
         try {
           const { signature } = await this.#tss.sign({
             key: keyShare,
@@ -696,11 +697,17 @@ export class MPCKeyring implements Keyring {
             networkSession: netSession.createSubsession('tss-sign'),
             setup: tssSetup,
           });
-          return toEthSig(signature, hash, keyShare.publicKey);
+          ethSignature = toEthSig(signature, hash, keyShare.publicKey);
         } catch (error) {
           this.#applyKeyState({ ...state, tssSetup: null });
           throw error;
         }
+        try {
+          await waitForDoneStatus(netSession, serverNetId);
+        } catch {
+          // Signing does not mutate shares, so a late status failure must not drop the signature.
+        }
+        return ethSignature;
       } finally {
         await netSession.disconnect();
       }
