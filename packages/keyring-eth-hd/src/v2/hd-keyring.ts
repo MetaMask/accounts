@@ -18,6 +18,7 @@ import { DeleteAccountsError } from '@metamask/keyring-api/v2';
 import { toEntropySourceId as computeEntropySourceId } from '@metamask/keyring-sdk';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
+import { toErrorMessage } from '@metamask/keyring-utils';
 import { add0x } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
@@ -291,8 +292,7 @@ export class HdKeyring
           this.inner.removeAccount(hexAddress);
           this.registry.delete(accountId);
         } catch (error) {
-          failures[accountId] =
-            error instanceof Error ? error.message : String(error);
+          failures[accountId] = toErrorMessage(error);
         }
       }
 

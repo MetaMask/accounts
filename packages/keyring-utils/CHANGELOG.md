@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `toErrorMessage` helper for extracting a message from unknown error values ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [5.0.0]
 
 ### Changed

@@ -1,4 +1,5 @@
 export * from './btc';
+export * from './errors';
 export * from './types';
 export * from './typing';
 export * from './scopes';

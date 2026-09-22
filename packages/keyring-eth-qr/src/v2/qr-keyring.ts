@@ -16,6 +16,7 @@ import type {
 import { DeleteAccountsError } from '@metamask/keyring-api/v2';
 import { EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
+import { toErrorMessage } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 
 import { DeviceMode } from '../device';
@@ -444,10 +445,7 @@ export class QrKeyring
       results.forEach((result, index) => {
         if (result.status === 'rejected') {
           const id = accountIds[index] as AccountId;
-          failures[id] =
-            result.reason instanceof Error
-              ? result.reason.message
-              : String(result.reason);
+          failures[id] = toErrorMessage(result.reason);
         }
       });
 
