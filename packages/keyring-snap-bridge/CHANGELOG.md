@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Implement `deleteAccounts` method in `SnapKeyring` for bulk account deletion via the `keyring_deleteAccounts` RPC method ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Implement `deleteAccounts` method in `SnapKeyring` for bulk account deletion via the `keyring_deleteAccounts` RPC method ([#637](https://github.com/MetaMask/accounts/pull/637))
   - Removes all accounts from the local registry first, then asks the snap to delete them.
   - If the snap fails to delete the accounts, the error is logged but not thrown, as the accounts have already been removed from the local registry.
 

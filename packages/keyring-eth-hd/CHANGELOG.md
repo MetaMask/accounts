@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Implement `deleteAccounts` method for bulk account deletion with best-effort semantics ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Implement `deleteAccounts` method for bulk account deletion with best-effort semantics ([#637](https://github.com/MetaMask/accounts/pull/637))
   - Accounts are deleted in reverse order (last first) to satisfy derivation index constraints.
   - All accounts are attempted even if some fail, and a `DeleteAccountsError` is thrown if any deletion fails.
 

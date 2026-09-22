@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `deleteAccounts` method to the v2 `Keyring` interface for deleting multiple accounts at once ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `deleteAccounts` method to the v2 `Keyring` interface for deleting multiple accounts at once ([#637](https://github.com/MetaMask/accounts/pull/637))
   - This method is best-effort: all accounts are attempted even if some fail, and a `DeleteAccountsError` is thrown if any deletion fails.
-- Add `DeleteAccountsError` class to the v2 API for reporting partial failures during bulk account deletion ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-- Add `keyring_deleteAccounts` RPC method and associated request/response structs to the v2 API ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `DeleteAccountsError` class to the v2 API for reporting partial failures during bulk account deletion ([#637](https://github.com/MetaMask/accounts/pull/637))
+- Add `keyring_deleteAccounts` RPC method and associated request/response structs to the v2 API ([#637](https://github.com/MetaMask/accounts/pull/637))
 
 ## [24.1.0]
 
