@@ -20,9 +20,7 @@ export class DeleteAccountsSnapError extends SnapError {
    * @param failures - Map of account IDs to error messages.
    */
   constructor(failures: Record<AccountId, string>) {
-    const count = Object.keys(failures).length;
-    const accountIds = Object.keys(failures).join(', ');
-    super(`Failed to delete ${count} account(s): ${accountIds}`, {
+    super('Failed to delete one or more accounts', {
       failures: failures as unknown as Record<string, Json>,
     });
   }

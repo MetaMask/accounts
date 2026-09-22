@@ -10,15 +10,13 @@ describe('DeleteAccountsError', () => {
       expect(error.name).toBe('DeleteAccountsError');
     });
 
-    it('creates an error with a descriptive message', () => {
+    it('creates an error with a stable message', () => {
       const error = new DeleteAccountsError({
         '49116980-0712-4fa5-b045-e4294f1d440e': 'Account not found',
         '46b5ccd3-4786-427c-89d2-cef626dffe9b': 'Permission denied',
       });
 
-      expect(error.message).toBe(
-        'Failed to delete 2 account(s): 49116980-0712-4fa5-b045-e4294f1d440e, 46b5ccd3-4786-427c-89d2-cef626dffe9b',
-      );
+      expect(error.message).toBe('Failed to delete one or more accounts');
     });
 
     it('stores the failures map', () => {
@@ -36,9 +34,7 @@ describe('DeleteAccountsError', () => {
         '49116980-0712-4fa5-b045-e4294f1d440e': 'Account not found',
       });
 
-      expect(error.message).toBe(
-        'Failed to delete 1 account(s): 49116980-0712-4fa5-b045-e4294f1d440e',
-      );
+      expect(error.message).toBe('Failed to delete one or more accounts');
     });
 
     it('is an instance of Error', () => {
@@ -49,29 +45,12 @@ describe('DeleteAccountsError', () => {
       expect(error).toBeInstanceOf(Error);
       expect(error).toBeInstanceOf(DeleteAccountsError);
     });
-  });
 
-  describe('fromFailures', () => {
-    it('creates a DeleteAccountsError from a failures map', () => {
-      const failures = {
-        '49116980-0712-4fa5-b045-e4294f1d440e': 'Account not found',
-        '46b5ccd3-4786-427c-89d2-cef626dffe9b': 'Permission denied',
-      };
-
-      const error = DeleteAccountsError.fromFailures(failures);
-
-      expect(error).toBeInstanceOf(DeleteAccountsError);
-      expect(error.failures).toStrictEqual(failures);
-      expect(error.message).toBe(
-        'Failed to delete 2 account(s): 49116980-0712-4fa5-b045-e4294f1d440e, 46b5ccd3-4786-427c-89d2-cef626dffe9b',
-      );
-    });
-
-    it('creates an error with an empty failures map', () => {
-      const error = DeleteAccountsError.fromFailures({});
+    it('handles an empty failures map', () => {
+      const error = new DeleteAccountsError({});
 
       expect(error.failures).toStrictEqual({});
-      expect(error.message).toBe('Failed to delete 0 account(s): ');
+      expect(error.message).toBe('Failed to delete one or more accounts');
     });
   });
 });

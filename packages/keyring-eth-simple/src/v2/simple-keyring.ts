@@ -255,7 +255,7 @@ export class SimpleKeyring
       });
 
       if (Object.keys(failures).length > 0) {
-        throw DeleteAccountsError.fromFailures(failures);
+        throw new DeleteAccountsError(failures);
       }
     });
   }

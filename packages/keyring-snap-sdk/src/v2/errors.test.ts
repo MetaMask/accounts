@@ -7,9 +7,7 @@ describe('DeleteAccountsSnapError', () => {
       '46b5ccd3-4786-427c-89d2-cef626dffe9b': 'Permission denied',
     });
 
-    expect(error.message).toBe(
-      'Failed to delete 2 account(s): 49116980-0712-4fa5-b045-e4294f1d440e, 46b5ccd3-4786-427c-89d2-cef626dffe9b',
-    );
+    expect(error.message).toBe('Failed to delete one or more accounts');
   });
 
   it('stores the failures in the error data', () => {
@@ -48,14 +46,12 @@ describe('DeleteAccountsSnapError', () => {
       '49116980-0712-4fa5-b045-e4294f1d440e': 'Account not found',
     });
 
-    expect(error.message).toBe(
-      'Failed to delete 1 account(s): 49116980-0712-4fa5-b045-e4294f1d440e',
-    );
+    expect(error.message).toBe('Failed to delete one or more accounts');
   });
 
   it('handles an empty failures map', () => {
     const error = new DeleteAccountsSnapError({});
 
-    expect(error.message).toBe('Failed to delete 0 account(s): ');
+    expect(error.message).toBe('Failed to delete one or more accounts');
   });
 });

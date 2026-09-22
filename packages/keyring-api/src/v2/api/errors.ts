@@ -15,27 +15,13 @@ export class DeleteAccountsError extends Error {
   readonly failures: Record<AccountId, string>;
 
   /**
-   * Create a `DeleteAccountsError` from a map of failures.
-   *
-   * @param failures - Map of account IDs to error messages.
-   * @returns A new `DeleteAccountsError`.
-   */
-  static fromFailures(
-    failures: Record<AccountId, string>,
-  ): DeleteAccountsError {
-    return new DeleteAccountsError(failures);
-  }
-
-  /**
    * Create a new `DeleteAccountsError`.
    *
    * @param failures - Map of account IDs that could not be deleted, to their
    * error messages.
    */
   constructor(failures: Record<AccountId, string>) {
-    const count = Object.keys(failures).length;
-    const accountIds = Object.keys(failures).join(', ');
-    super(`Failed to delete ${count} account(s): ${accountIds}`);
+    super('Failed to delete one or more accounts');
     this.name = 'DeleteAccountsError';
     this.failures = failures;
   }
