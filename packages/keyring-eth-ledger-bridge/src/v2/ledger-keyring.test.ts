@@ -7,7 +7,9 @@ import {
 } from '@metamask/keyring-api';
 import type { KeyringAccount } from '@metamask/keyring-api';
 import { KeyringType } from '@metamask/keyring-api/v2';
+import { DeleteAccountsError } from '@metamask/keyring-api/v2';
 import { EthKeyringMethod } from '@metamask/keyring-sdk/v2';
+import type { AccountId } from '@metamask/keyring-utils';
 import HDKey from 'hdkey';
 
 import type { LedgerBridge, LedgerBridgeOptions } from '../ledger-bridge';
@@ -747,8 +749,76 @@ describe('LedgerKeyring', () => {
       const { wrapper } = await createWrapperWithAccounts(1);
 
       await expect(wrapper.deleteAccount('non-existent-id')).rejects.toThrow(
-        /Account not found/u,
+        DeleteAccountsError,
       );
+    });
+  });
+
+  describe('deleteAccounts', () => {
+    it('deletes multiple accounts at once', async () => {
+      const { wrapper } = await createWrapperWithAccounts(3);
+
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      await wrapper.deleteAccounts([
+        accounts[0]?.id as AccountId,
+        accounts[1]?.id as AccountId,
+      ]);
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(1);
+      expect(remaining[0]?.id).toBe(accounts[2]?.id);
+    });
+
+    it('deletes all accounts at once', async () => {
+      const { wrapper } = await createWrapperWithAccounts(3);
+
+      const accounts = await wrapper.getAccounts();
+      await wrapper.deleteAccounts(accounts.map((a) => a.id));
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(0);
+    });
+
+    it('is a no-op for an empty array', async () => {
+      const { wrapper } = await createWrapperWithAccounts(2);
+
+      await wrapper.deleteAccounts([]);
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(2);
+    });
+
+    it('throws DeleteAccountsError when some accounts do not exist', async () => {
+      const { wrapper } = await createWrapperWithAccounts(2);
+
+      const accounts = await wrapper.getAccounts();
+      const validId = accounts[0]?.id as AccountId;
+      const nonExistentId = '00000000-0000-0000-0000-000000000099';
+
+      await expect(
+        wrapper.deleteAccounts([validId, nonExistentId]),
+      ).rejects.toThrow(DeleteAccountsError);
+
+      // The valid account should still be deleted (best-effort)
+      const remaining = await wrapper.getAccounts();
+      expect(remaining.find((a) => a.id === validId)).toBeUndefined();
+      expect(remaining).toHaveLength(1);
+    });
+
+    it('handles non-Error rejection reasons', async () => {
+      const { wrapper } = await createWrapperWithAccounts(1);
+
+      jest
+        .spyOn(wrapper, 'getAccount')
+        .mockRejectedValue('string error' as unknown as never);
+
+      await expect(
+        wrapper.deleteAccounts(['00000000-0000-0000-0000-000000000001']),
+      ).rejects.toThrow(DeleteAccountsError);
+
+      jest.restoreAllMocks();
     });
   });
 

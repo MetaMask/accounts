@@ -12,6 +12,7 @@ import type {
   KeyringCapabilities,
   Keyring,
 } from '@metamask/keyring-api/v2';
+import { DeleteAccountsError } from '@metamask/keyring-api/v2';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import { add0x, getChecksumAddress } from '@metamask/utils';
@@ -343,20 +344,39 @@ export class LedgerKeyring
   }
 
   /**
-   * Delete an account from the keyring.
+   * Delete accounts from the keyring.
    *
-   * @param accountId - The account ID to delete.
+   * This method is best-effort: all accounts are attempted even if some
+   * fail. If any deletion fails, a {@link DeleteAccountsError} is thrown
+   * after all accounts have been processed.
+   *
+   * @param accountIds - The account IDs to delete.
    */
-  async deleteAccount(accountId: AccountId): Promise<void> {
+  async deleteAccounts(accountIds: AccountId[]): Promise<void> {
     await this.withLock(async () => {
-      const { address } = await this.getAccount(accountId);
-      const hexAddress = this.toHexAddress(address);
+      const results = await Promise.allSettled(
+        accountIds.map(async (accountId) => {
+          const { address } = await this.getAccount(accountId);
+          const hexAddress = this.toHexAddress(address);
+          this.inner.removeAccount(hexAddress);
+          this.registry.delete(accountId);
+        }),
+      );
 
-      // Remove from the legacy keyring
-      this.inner.removeAccount(hexAddress);
+      const failures: Record<AccountId, string> = {};
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          const id = accountIds[index] as AccountId;
+          failures[id] =
+            result.reason instanceof Error
+              ? result.reason.message
+              : String(result.reason);
+        }
+      });
 
-      // Remove from the registry
-      this.registry.delete(accountId);
+      if (Object.keys(failures).length > 0) {
+        throw DeleteAccountsError.fromFailures(failures);
+      }
     });
   }
 

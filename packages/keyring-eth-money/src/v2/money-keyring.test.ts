@@ -401,6 +401,48 @@ describe('MoneyKeyring (v2 wrapper)', () => {
     });
   });
 
+  describe('deleteAccounts', () => {
+    it('is a no-op (MoneyKeyring does not support deletion)', async () => {
+      const { wrapper } = await setup({ withAccount: true });
+
+      const [account] = await wrapper.getAccounts();
+      const accountId = account?.id as AccountId;
+      expect(accountId).toBeDefined();
+
+      expect(await wrapper.deleteAccounts([accountId])).toBeUndefined();
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(1);
+      expect(remaining[0]?.id).toBe(accountId);
+    });
+
+    it('is a no-op for multiple accounts', async () => {
+      const { wrapper } = await setup({ withAccount: true });
+
+      const [account] = await wrapper.getAccounts();
+      const accountId = account?.id as AccountId;
+
+      expect(
+        await wrapper.deleteAccounts([
+          accountId,
+          '00000000-0000-0000-0000-000000000099',
+        ]),
+      ).toBeUndefined();
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(1);
+    });
+
+    it('is a no-op for an empty array', async () => {
+      const { wrapper } = await setup({ withAccount: true });
+
+      expect(await wrapper.deleteAccounts([])).toBeUndefined();
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(1);
+    });
+  });
+
   describe('serialize', () => {
     it('delegates to the inner keyring', async () => {
       const { wrapper, inner } = await setup({ withAccount: true });

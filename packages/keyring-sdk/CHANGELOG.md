@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add abstract `deleteAccounts` method to `KeyringWrapper` for bulk account deletion ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - This method is best-effort: all accounts are attempted even if some fail, and a `DeleteAccountsError` is thrown if any deletion fails.
+- Provide default `deleteAccount` implementation in `KeyringWrapper` that delegates to `deleteAccounts` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Subclasses now only need to implement `deleteAccounts`; `deleteAccount` is provided by default.
+
 ### Changed
 
 - **BREAKING:** Remove envelope from migration framework ([#619](https://github.com/MetaMask/accounts/pull/619))

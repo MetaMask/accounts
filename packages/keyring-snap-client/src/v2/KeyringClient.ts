@@ -14,6 +14,7 @@ import type {
 import {
   CreateAccountsResponseStruct,
   DeleteAccountResponseStruct,
+  DeleteAccountsResponseStruct,
   GetAccountResponseStruct,
   GetAccountsResponseStruct,
   SubmitRequestResponseStruct,
@@ -159,6 +160,28 @@ export class KeyringClient implements KeyringSnapRpc {
         params: { id },
       }),
       DeleteAccountResponseStruct,
+    );
+  }
+
+  /**
+   * Deletes the accounts with the specified IDs.
+   *
+   * This method is best-effort: all accounts are attempted even if some
+   * fail. If any deletion fails, an error is thrown after all accounts have
+   * been processed.
+   *
+   * @param ids - IDs of the accounts to delete.
+   * @returns A promise that resolves when all accounts have been processed.
+   */
+  async deleteAccounts(ids: AccountId[]): Promise<void> {
+    assert(
+      await this.send({
+        jsonrpc: '2.0',
+        id: uuid(),
+        method: KeyringRpcMethod.DeleteAccounts,
+        params: { ids },
+      }),
+      DeleteAccountsResponseStruct,
     );
   }
 

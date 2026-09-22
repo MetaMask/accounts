@@ -2,6 +2,7 @@ import type { TypedTxData } from '@ethereumjs/tx';
 import { EthAccountType, EthMethod, EthScope } from '@metamask/keyring-api';
 import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
+import { DeleteAccountsError } from '@metamask/keyring-api/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
@@ -552,6 +553,110 @@ describe('SimpleKeyring (v2 wrapper)', () => {
 
       const remaining = await wrapper.getAccounts();
       expect(remaining).toHaveLength(1);
+    });
+  });
+
+  describe('deleteAccounts', () => {
+    beforeEach(async () => {
+      // Create accounts sequentially
+      await wrapper.createAccounts({
+        type: 'private-key:import',
+        accountType: EthAccountType.Eoa,
+        encoding: PrivateKeyEncoding.Hexadecimal,
+        privateKey: TEST_PRIVATE_KEY_1,
+      });
+      await wrapper.createAccounts({
+        type: 'private-key:import',
+        accountType: EthAccountType.Eoa,
+        encoding: PrivateKeyEncoding.Hexadecimal,
+        privateKey: TEST_PRIVATE_KEY_2,
+      });
+      await wrapper.createAccounts({
+        type: 'private-key:import',
+        accountType: EthAccountType.Eoa,
+        encoding: PrivateKeyEncoding.Hexadecimal,
+        privateKey: TEST_PRIVATE_KEY_3,
+      });
+    });
+
+    it('deletes multiple accounts at once', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      await wrapper.deleteAccounts([
+        accounts[0]?.id as AccountId,
+        accounts[1]?.id as AccountId,
+      ]);
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(1);
+      expect(remaining[0]?.id).toBe(accounts[2]?.id);
+    });
+
+    it('deletes all accounts at once', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      await wrapper.deleteAccounts(accounts.map((a) => a.id));
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(0);
+    });
+
+    it('is a no-op for an empty array', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      await wrapper.deleteAccounts([]);
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(3);
+    });
+
+    it('throws DeleteAccountsError when some accounts do not exist', async () => {
+      const accounts = await wrapper.getAccounts();
+      const validId = accounts[0]?.id as AccountId;
+      const nonExistentId = '00000000-0000-0000-0000-000000000099';
+
+      await expect(
+        wrapper.deleteAccounts([validId, nonExistentId]),
+      ).rejects.toThrow(DeleteAccountsError);
+
+      // The valid account should still be deleted (best-effort)
+      const remaining = await wrapper.getAccounts();
+      expect(remaining.find((a) => a.id === validId)).toBeUndefined();
+      expect(remaining).toHaveLength(2);
+    });
+
+    it('handles non-Error rejection reasons', async () => {
+      const accounts = await wrapper.getAccounts();
+      const validId = accounts[0]?.id as AccountId;
+
+      // Mock getAccount to throw a non-Error value
+      jest
+        .spyOn(wrapper, 'getAccount')
+        .mockRejectedValue('string error' as unknown as never);
+
+      await expect(wrapper.deleteAccounts([validId])).rejects.toThrow(
+        DeleteAccountsError,
+      );
+
+      jest.restoreAllMocks();
+    });
+
+    it('deleteAccountsError contains failure details', async () => {
+      const accounts = await wrapper.getAccounts();
+      const validId = accounts[0]?.id as AccountId;
+      const nonExistentId = '00000000-0000-0000-0000-000000000099';
+
+      const promise = wrapper.deleteAccounts([validId, nonExistentId]);
+
+      await expect(promise).rejects.toThrow(DeleteAccountsError);
+      await expect(promise).rejects.toMatchObject({
+        failures: expect.objectContaining({
+          [nonExistentId]: expect.any(String),
+        }),
+      });
     });
   });
 

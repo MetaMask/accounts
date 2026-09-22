@@ -101,6 +101,20 @@ export type Keyring = {
   deleteAccount(accountId: AccountId): Promise<void>;
 
   /**
+   * Deletes the accounts with the specified IDs.
+   *
+   * This method is best-effort: implementations MUST attempt to delete all
+   * specified accounts, even if some deletions fail. If any deletion fails,
+   * an error is thrown after all accounts have been processed, containing
+   * details about which accounts failed and why.
+   *
+   * @param accountIds - IDs of the accounts to delete.
+   * @returns A promise that resolves when all accounts have been processed.
+   * @throws {DeleteAccountsError} If one or more accounts could not be deleted.
+   */
+  deleteAccounts(accountIds: AccountId[]): Promise<void>;
+
+  /**
    * Exports the private key or secret material for the specified account.
    *
    * @param accountId - ID of the account to export.

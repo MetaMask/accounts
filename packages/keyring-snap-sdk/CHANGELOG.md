@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `DeleteAccountsSnapError` class for Snaps to throw structured errors during bulk account deletion ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Extends `SnapError` so that failure data is preserved across the Snap boundary.
+- Add handler for `keyring_deleteAccounts` RPC method in the v2 RPC handler ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [10.0.0]
 
 ### Changed

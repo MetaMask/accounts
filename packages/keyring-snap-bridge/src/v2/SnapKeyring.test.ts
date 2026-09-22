@@ -624,6 +624,62 @@ describe('SnapKeyring', () => {
       });
     });
 
+    describe('deleteAccounts', () => {
+      it('removes all accounts and calls snap to delete them', async () => {
+        const { keyring, unregistered } = await makeKeyring();
+        keyring.setAccount(account1);
+        keyring.setAccount(account2);
+        const deleteAccountsSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccounts')
+          .mockResolvedValue(undefined);
+
+        await keyring.deleteAccounts([account1.id, account2.id]);
+
+        expect(keyring.hasAccount(account1.id)).toBe(false);
+        expect(keyring.hasAccount(account2.id)).toBe(false);
+        expect(unregistered).toStrictEqual([account1.id, account2.id]);
+        expect(deleteAccountsSpy).toHaveBeenCalledWith([
+          account1.id,
+          account2.id,
+        ]);
+      });
+
+      it('removes accounts from registry even if snap deletion fails', async () => {
+        const consoleSpy = jest
+          .spyOn(console, 'error')
+          .mockImplementation(() => undefined);
+        const { keyring, unregistered } = await makeKeyring();
+        keyring.setAccount(account1);
+        keyring.setAccount(account2);
+        jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccounts')
+          .mockRejectedValue(new Error('snap error'));
+
+        // Should not throw
+        await keyring.deleteAccounts([account1.id, account2.id]);
+
+        expect(keyring.hasAccount(account1.id)).toBe(false);
+        expect(keyring.hasAccount(account2.id)).toBe(false);
+        expect(unregistered).toStrictEqual([account1.id, account2.id]);
+        expect(consoleSpy).toHaveBeenCalled();
+        consoleSpy.mockRestore();
+      });
+
+      it('is a no-op for an empty array', async () => {
+        const { keyring, unregistered } = await makeKeyring();
+        keyring.setAccount(account1);
+        const deleteAccountsSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccounts')
+          .mockResolvedValue(undefined);
+
+        await keyring.deleteAccounts([]);
+
+        expect(keyring.hasAccount(account1.id)).toBe(true);
+        expect(unregistered).toStrictEqual([]);
+        expect(deleteAccountsSpy).toHaveBeenCalledWith([]);
+      });
+    });
+
     describe('submitRequest', () => {
       it('delegates to v1.submitSnapRequest for a v1 snap (no declared capabilities)', async () => {
         const mockResult = { success: true };

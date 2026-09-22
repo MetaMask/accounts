@@ -13,6 +13,7 @@ import type {
   GetAccountRequest,
   GetAccountsRequest,
   DeleteAccountRequest,
+  DeleteAccountsRequest,
   ExportAccountRequest,
   SubmitRequestRequest,
   SetSelectedAccountsRequest,
@@ -33,6 +34,7 @@ describe('handleKeyringRequest', () => {
     getAccount: jest.fn(),
     createAccounts: jest.fn(),
     deleteAccount: jest.fn(),
+    deleteAccounts: jest.fn(),
     exportAccount: jest.fn(),
     submitRequest: jest.fn(),
     setSelectedAccounts: jest.fn(),
@@ -150,6 +152,54 @@ describe('handleKeyringRequest', () => {
     await handleKeyringRequest(keyring, request);
 
     expect(keyring.deleteAccount).toHaveBeenCalledWith(request.params.id);
+  });
+
+  it('calls `keyring_v2_deleteAccounts`', async () => {
+    const request: DeleteAccountsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringRpcMethod.DeleteAccounts}`,
+      params: {
+        ids: [
+          '4f983fa2-4f53-4c63-a7c2-f9a5ed750041',
+          '46b5ccd3-4786-427c-89d2-cef626dffe9b',
+        ],
+      },
+    };
+
+    keyring.deleteAccounts.mockResolvedValue(undefined);
+    await handleKeyringRequest(keyring, request);
+
+    expect(keyring.deleteAccounts).toHaveBeenCalledWith(request.params.ids);
+  });
+
+  it('fails to call `keyring_v2_deleteAccounts` without providing account IDs', async () => {
+    const request: DeleteAccountsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringRpcMethod.DeleteAccounts}`,
+      // @ts-expect-error - Testing error case.
+      params: {}, // Missing ids.
+    };
+
+    await expect(handleKeyringRequest(keyring, request)).rejects.toThrow(
+      'At path: params.ids -- Expected an array value, but received: undefined',
+    );
+  });
+
+  it('fails to call `keyring_v2_deleteAccounts` with invalid account IDs', async () => {
+    const request: DeleteAccountsRequest = {
+      jsonrpc: '2.0',
+      id: '7c507ff0-365f-4de0-8cd5-eb83c30ebda4',
+      method: `${KeyringRpcMethod.DeleteAccounts}`,
+      params: {
+        ids: ['not-a-uuid'],
+      },
+    };
+
+    await expect(handleKeyringRequest(keyring, request)).rejects.toThrow(
+      'At path: params.ids.0 -- Expected a value of type `UuidV4`',
+    );
   });
 
   it('calls `keyring_v2_exportAccount` (without options)', async () => {

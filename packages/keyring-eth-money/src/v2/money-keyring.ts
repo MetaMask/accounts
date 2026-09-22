@@ -186,15 +186,15 @@ export class MoneyKeyring
   }
 
   /**
-   * Deletes the account with the specified ID.
+   * Deletes the accounts with the specified IDs.
    *
-   * NOTE: MoneyKeyring does not currently support deleting accounts
+   * NOTE: MoneyKeyring does not currently support deleting accounts.
    *
-   * @param accountId - The account ID to delete.
-   * @returns A promise that resolves when the account has been deleted.
+   * @param accountIds - The account IDs to delete.
+   * @returns A promise that resolves when the accounts have been processed.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async deleteAccount(accountId: AccountId): Promise<void> {
+  async deleteAccounts(accountIds: AccountId[]): Promise<void> {
     /**
      * NOOP: MoneyKeyring does not support deleting accounts
      */
