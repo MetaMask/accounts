@@ -433,6 +433,10 @@ export class SnapKeyring implements Keyring {
    * errors are logged but no error is thrown, as the accounts have already
    * been removed from the local registry.
    *
+   * For v1 snaps (which do not implement `keyring_deleteAccounts`), this
+   * method falls back to calling `keyring_deleteAccount` for each account
+   * individually.
+   *
    * @param accountIds - IDs of the accounts to delete.
    */
   async deleteAccounts(accountIds: AccountId[]): Promise<void> {
@@ -443,6 +447,22 @@ export class SnapKeyring implements Keyring {
     // clean #accountIndex for each account.
     for (const accountId of accountIds) {
       this.removeAccount(accountId);
+    }
+
+    if (this.#v1) {
+      // v1 snap: `keyring_deleteAccounts` is not supported, fall back to
+      // calling `keyring_deleteAccount` for each account individually.
+      for (const accountId of accountIds) {
+        try {
+          await this.#client.deleteAccount(accountId);
+        } catch (error) {
+          console.error(
+            `Account '${accountId}' may not have been removed from snap '${this.snapId}':`,
+            error,
+          );
+        }
+      }
+      return;
     }
 
     try {
