@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `toErrorMessage` helper for extracting a message from unknown error values ([#637](https://github.com/MetaMask/accounts/pull/637))
+- Add `toAccountsFailures` helper for collecting failures from `Promise.allSettled` results keyed by account ID ([#637](https://github.com/MetaMask/accounts/pull/637))
 
 ## [5.0.0]
 

@@ -16,7 +16,7 @@ import type {
 import { DeleteAccountsError } from '@metamask/keyring-api/v2';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
-import { toErrorMessage } from '@metamask/keyring-utils';
+import { toAccountsFailures } from '@metamask/keyring-utils';
 import { add0x } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
@@ -246,15 +246,9 @@ export class SimpleKeyring
         }),
       );
 
-      const failures: Record<AccountId, string> = {};
-      results.forEach((result, index) => {
-        if (result.status === 'rejected') {
-          const id = accountIds[index] as AccountId;
-          failures[id] = toErrorMessage(result.reason);
-        }
-      });
+      const failures = toAccountsFailures(accountIds, results);
 
-      if (Object.keys(failures).length > 0) {
+      if (failures) {
         throw new DeleteAccountsError(failures);
       }
     });
