@@ -13,8 +13,10 @@ import type {
   KeyringCapabilities,
   Keyring,
 } from '@metamask/keyring-api/v2';
+import { DeleteAccountsError } from '@metamask/keyring-api/v2';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
+import { toAccountsFailures } from '@metamask/keyring-utils';
 import { add0x } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
@@ -226,19 +228,29 @@ export class SimpleKeyring
   }
 
   /**
-   * Delete an account from the keyring.
+   * Delete accounts from the keyring.
    *
-   * @param accountId - The account ID to delete.
+   * This method is best-effort: all accounts are attempted even if some
+   * fail. If any deletion fails, a {@link DeleteAccountsError} is thrown
+   * after all accounts have been processed.
+   *
+   * @param accountIds - The account IDs to delete.
    */
-  async deleteAccount(accountId: AccountId): Promise<void> {
+  async deleteAccounts(accountIds: AccountId[]): Promise<void> {
     await this.withLock(async () => {
-      const account = await this.getAccount(accountId);
+      const results = await Promise.allSettled(
+        accountIds.map(async (accountId) => {
+          const account = await this.getAccount(accountId);
+          this.inner.removeAccount(account.address);
+          this.registry.delete(accountId);
+        }),
+      );
 
-      // Remove from the legacy keyring
-      this.inner.removeAccount(account.address);
+      const failures = toAccountsFailures(accountIds, results);
 
-      // Remove from the registry
-      this.registry.delete(accountId);
+      if (failures) {
+        throw new DeleteAccountsError(failures);
+      }
     });
   }
 

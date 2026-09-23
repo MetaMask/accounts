@@ -57,7 +57,7 @@ export type EthKeyringWrapperOptions<InnerKeyring extends EthKeyring> = Omit<
  * Subclasses must implement:
  * - `getAccounts()`: Return all managed accounts
  * - `createAccounts()`: Create new accounts based on options
- * - `deleteAccount()`: Remove an account from the keyring
+ * - `deleteAccounts()`: Remove accounts from the keyring
  * - `exportAccount()` (optional): Export private key in specified format
  */
 export abstract class EthKeyringWrapper<

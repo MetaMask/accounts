@@ -425,6 +425,60 @@ export class SnapKeyring implements Keyring {
   }
 
   /**
+   * Deletes the accounts with the specified IDs.
+   *
+   * This method is best-effort: all accounts are removed from the local
+   * registry first (firing `onUnregister` for each), then the snap is asked
+   * to delete them. If the snap fails to delete some or all accounts, the
+   * errors are logged but no error is thrown, as the accounts have already
+   * been removed from the local registry.
+   *
+   * For v1 snaps (which do not implement `keyring_deleteAccounts`), this
+   * method falls back to calling `keyring_deleteAccount` for each account
+   * individually.
+   *
+   * @param accountIds - IDs of the accounts to delete.
+   */
+  async deleteAccounts(accountIds: AccountId[]): Promise<void> {
+    this.#assertInitialized();
+
+    // Always remove all accounts from the registry first, even if the Snap
+    // is going to fail to delete them. removeAccount fires onUnregister to
+    // clean #accountIndex for each account.
+    for (const accountId of accountIds) {
+      this.removeAccount(accountId);
+    }
+
+    if (this.#v1) {
+      // v1 snap: `keyring_deleteAccounts` is not supported, fall back to
+      // calling `keyring_deleteAccount` for each account individually.
+      for (const accountId of accountIds) {
+        try {
+          await this.#client.deleteAccount(accountId);
+        } catch (error) {
+          console.error(
+            `Account '${accountId}' may not have been removed from snap '${this.snapId}':`,
+            error,
+          );
+        }
+      }
+      return;
+    }
+
+    try {
+      await this.#client.deleteAccounts(accountIds);
+    } catch (error) {
+      // If the Snap failed to delete the accounts, log the error and continue
+      // with the account deletion, otherwise the accounts will be stuck in
+      // the keyring.
+      console.error(
+        `One or more accounts may not have been removed from snap '${this.snapId}':`,
+        error,
+      );
+    }
+  }
+
+  /**
    * Submits a request to the keyring.
    *
    * For v1 snaps (those without declared capabilities), delegates to the v1

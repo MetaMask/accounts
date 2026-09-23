@@ -101,7 +101,7 @@ export abstract class KeyringWrapper<
    *
    * This method ensures thread-safety for operations that read or mutate
    * the inner keyring state. All operations that modify the keyring
-   * (createAccounts, deleteAccount, deserialize) should use this method
+   * (createAccounts, deleteAccounts, deserialize) should use this method
    * to prevent race conditions.
    *
    * Within the callback, use `this.inner` to access the inner keyring.
@@ -210,11 +210,33 @@ export abstract class KeyringWrapper<
    * Remove the account associated with the given {@link AccountId} from this
    * keyring.
    *
-   * Implementations are expected to translate the ID to an underlying
-   * address (typically via the registry) and then invoke the appropriate
-   * removal mechanism on the legacy keyring.
+   * This is a default implementation that delegates to
+   * {@link deleteAccounts} with a single-element array. Concrete adapters
+   * may override this method if they need specialized behavior.
+   *
+   * @param accountId - The AccountId to remove.
+   * @returns A promise that resolves when the account has been removed.
    */
-  abstract deleteAccount(accountId: AccountId): Promise<void>;
+  async deleteAccount(accountId: AccountId): Promise<void> {
+    return this.deleteAccounts([accountId]);
+  }
+
+  /**
+   * Remove the accounts associated with the given {@link AccountId}s from
+   * this keyring.
+   *
+   * This method is best-effort: implementations MUST attempt to delete all
+   * specified accounts, even if some deletions fail. If any deletion fails,
+   * a {@link DeleteAccountsError} is thrown after all accounts have been
+   * processed, containing details about which accounts failed and why.
+   *
+   * Implementations are expected to translate the IDs to underlying
+   * addresses (typically via the registry) and then invoke the appropriate
+   * removal mechanism on the legacy keyring.
+   *
+   * @param accountIds - The AccountIds to remove.
+   */
+  abstract deleteAccounts(accountIds: AccountId[]): Promise<void>;
 
   /**
    * Export the secrets associated with the given account in a format

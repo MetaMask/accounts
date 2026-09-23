@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `toAccountsFailures` helper for collecting failures from `Promise.allSettled` results keyed by account ID ([#637](https://github.com/MetaMask/accounts/pull/637))
+
 ## [5.0.0]
 
 ### Changed

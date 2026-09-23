@@ -14,9 +14,11 @@ import type {
   KeyringCapabilities,
   Keyring,
 } from '@metamask/keyring-api/v2';
+import { DeleteAccountsError } from '@metamask/keyring-api/v2';
 import { toEntropySourceId as computeEntropySourceId } from '@metamask/keyring-sdk';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
+import { toErrorMessage } from '@metamask/keyring-utils';
 import { add0x } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
@@ -247,31 +249,56 @@ export class HdKeyring
   }
 
   /**
-   * Delete an account from the keyring.
+   * Delete accounts from the keyring.
    *
-   * ⚠️ Warning: Only deleting the last account is possible.
+   * ⚠️ Warning: Only deleting the last accounts is possible. Accounts are
+   * deleted in reverse order (last first) to satisfy derivation index
+   * constraints.
    *
-   * @param accountId - The account ID to delete.
+   * This method is best-effort: all accounts are attempted even if some
+   * fail. If any deletion fails, a {@link DeleteAccountsError} is thrown
+   * after all accounts have been processed.
+   *
+   * @param accountIds - The account IDs to delete.
    */
-  async deleteAccount(accountId: AccountId): Promise<void> {
+  async deleteAccounts(accountIds: AccountId[]): Promise<void> {
     await this.withLock(async () => {
-      // Get the account first, before any registry operations
-      const { address } = await this.getAccount(accountId);
-      const hexAddress = this.toHexAddress(address);
+      // Get all accounts to determine their indices
+      const allAccounts = await this.getAccounts();
+      const accountMap = new Map(
+        allAccounts.map((acc, index) => [acc.id, index]),
+      );
 
-      // Assert that the account to delete is the last one in the inner keyring
-      // We check against the inner keyring directly to avoid stale registry issues
-      if (!(await this.#isLastAccount(address))) {
-        throw new Error(
-          'Can only delete the last account in the HD keyring due to derivation index constraints.',
-        );
+      // Sort account IDs by index in descending order (last first)
+      const sortedIds = [...accountIds].sort((a, b) => {
+        const indexA = accountMap.get(a) ?? -1;
+        const indexB = accountMap.get(b) ?? -1;
+        return indexB - indexA;
+      });
+
+      const failures: Record<AccountId, string> = {};
+
+      for (const accountId of sortedIds) {
+        try {
+          const account = await this.getAccount(accountId);
+          const hexAddress = this.toHexAddress(account.address);
+
+          if (!(await this.#isLastAccount(account.address))) {
+            throw new Error(
+              'Can only delete the last account in the HD keyring due to derivation index constraints.',
+            );
+          }
+
+          this.inner.removeAccount(hexAddress);
+          this.registry.delete(accountId);
+        } catch (error) {
+          failures[accountId] = toErrorMessage(error);
+        }
       }
 
-      // Remove from the legacy keyring
-      this.inner.removeAccount(hexAddress);
-
-      // Remove from the registry
-      this.registry.delete(accountId);
+      if (Object.keys(failures).length > 0) {
+        throw new DeleteAccountsError(failures);
+      }
     });
   }
 

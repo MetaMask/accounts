@@ -8,6 +8,7 @@ import type {
 } from '@metamask/keyring-api';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import type { Keyring } from '@metamask/keyring-utils';
+import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
 import { generateEthAccountId } from '../../eth/account-id';
@@ -79,7 +80,7 @@ class TestEthKeyringWrapper extends EthKeyringWrapper<Keyring> {
     return [];
   }
 
-  async deleteAccount(_id: string): Promise<void> {
+  async deleteAccounts(_ids: AccountId[]): Promise<void> {
     // noop
   }
 
@@ -153,7 +154,7 @@ class TestEthKeyringWrapperWithRegister extends EthKeyringWrapper<Keyring> {
     return [];
   }
 
-  async deleteAccount(_id: string): Promise<void> {
+  async deleteAccounts(_ids: AccountId[]): Promise<void> {
     // noop
   }
 

@@ -115,6 +115,25 @@ describe('KeyringClient', () => {
       });
     });
 
+    describe('deleteAccounts', () => {
+      it('sends a request to delete multiple accounts', async () => {
+        const ids = [
+          '49116980-0712-4fa5-b045-e4294f1d440e',
+          '46b5ccd3-4786-427c-89d2-cef626dffe9b',
+        ];
+
+        mockSender.send.mockResolvedValue(null);
+        const response = await client.deleteAccounts(ids);
+        expect(mockSender.send).toHaveBeenCalledWith({
+          jsonrpc: '2.0',
+          id: expect.any(String),
+          method: `${KeyringRpcMethod.DeleteAccounts}`,
+          params: { ids },
+        });
+        expect(response).toBeUndefined();
+      });
+    });
+
     describe('exportAccount', () => {
       it('sends a request to export an account', async () => {
         const id = '49116980-0712-4fa5-b045-e4294f1d440e';

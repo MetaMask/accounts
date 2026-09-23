@@ -92,6 +92,7 @@ function setup({
   });
   const createAccounts = jest.fn(async () => []);
   const deleteAccount = jest.fn(async () => undefined);
+  const deleteAccounts = jest.fn(async () => undefined);
   const submitRequest: SubmitRequestMock = jest.fn(
     async (_request) => submitRequestResult,
   );
@@ -113,6 +114,7 @@ function setup({
     getAccount,
     createAccounts,
     deleteAccount,
+    deleteAccounts,
     submitRequest,
     ...(exportAccount === undefined ? {} : { exportAccount }),
   };

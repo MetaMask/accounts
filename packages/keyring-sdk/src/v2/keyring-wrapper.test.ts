@@ -45,9 +45,11 @@ class TestKeyringWrapper extends KeyringWrapper<TestKeyring> {
     return this.getAccounts();
   }
 
-  async deleteAccount(accountId: AccountId): Promise<void> {
-    this.deletedAccountIds.push(accountId);
-    this.registry.delete(accountId);
+  async deleteAccounts(accountIds: AccountId[]): Promise<void> {
+    for (const accountId of accountIds) {
+      this.deletedAccountIds.push(accountId);
+      this.registry.delete(accountId);
+    }
   }
 
   async submitRequest(): Promise<Json> {
@@ -87,7 +89,7 @@ class NoCacheTestKeyringWrapper extends KeyringWrapper<TestKeyring> {
     return this.getAccounts();
   }
 
-  async deleteAccount(): Promise<void> {
+  async deleteAccounts(): Promise<void> {
     // no-op
   }
 
@@ -313,5 +315,24 @@ describe('KeyringWrapper', () => {
 
     expect(accounts).toHaveLength(1);
     expect(accounts[0]?.scopes).toStrictEqual(['eip155:1']);
+  });
+
+  it('default deleteAccount delegates to deleteAccounts', async () => {
+    const addresses = ['0x1' as const, '0x2' as const];
+    const inner = new TestKeyring(addresses);
+    const wrapper = new TestKeyringWrapper({
+      inner,
+      type: KeyringType.Hd,
+      capabilities,
+    });
+
+    const accounts = await wrapper.getAccounts();
+    expect(accounts).toHaveLength(2);
+
+    const firstAccountId = accounts[0]?.id as AccountId;
+    await wrapper.deleteAccount(firstAccountId);
+
+    // deleteAccount should have delegated to deleteAccounts with a single-element array
+    expect(wrapper.deletedAccountIds).toStrictEqual([firstAccountId]);
   });
 });

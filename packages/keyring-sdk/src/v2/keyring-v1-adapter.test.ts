@@ -42,6 +42,7 @@ function makeMockInner(
     getAccount: jest.fn(),
     createAccounts: jest.fn(),
     deleteAccount: jest.fn(),
+    deleteAccounts: jest.fn(),
     submitRequest: jest.fn(),
     serialize: jest.fn().mockResolvedValue(state),
     deserialize: jest.fn().mockResolvedValue(undefined),

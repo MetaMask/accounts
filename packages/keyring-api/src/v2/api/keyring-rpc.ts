@@ -29,6 +29,7 @@ export type KeyringRpc = {
   getAccounts: Keyring['getAccounts'];
   createAccounts: Keyring['createAccounts'];
   deleteAccount: Keyring['deleteAccount'];
+  deleteAccounts: Keyring['deleteAccounts'];
   submitRequest: Keyring['submitRequest'];
   exportAccount?: Keyring['exportAccount'];
 };
@@ -43,6 +44,7 @@ export const KeyringRpcMethod = {
   // NOTE: We use literals here to avoid circular dependencies.
   GetAccount: 'keyring_getAccount',
   DeleteAccount: 'keyring_deleteAccount',
+  DeleteAccounts: 'keyring_deleteAccounts',
   ExportAccount: 'keyring_exportAccount',
   SubmitRequest: 'keyring_submitRequest',
 } as const;
@@ -134,6 +136,23 @@ export const DeleteAccountResponseStruct = literal(null);
 export type DeleteAccountResponse = Infer<typeof DeleteAccountResponseStruct>;
 
 // ----------------------------------------------------------------------------
+// Delete accounts
+
+export const DeleteAccountsRequestStruct = object({
+  ...CommonHeader,
+  method: literal(`${KeyringRpcMethod.DeleteAccounts}`),
+  params: object({
+    ids: array(UuidStruct),
+  }),
+});
+
+export type DeleteAccountsRequest = Infer<typeof DeleteAccountsRequestStruct>;
+
+export const DeleteAccountsResponseStruct = literal(null);
+
+export type DeleteAccountsResponse = Infer<typeof DeleteAccountsResponseStruct>;
+
+// ----------------------------------------------------------------------------
 // Export account
 
 export const ExportAccountRequestStruct = object({
@@ -176,6 +195,7 @@ export type KeyringRpcRequests =
   | GetAccountRequest
   | CreateAccountsRequest
   | DeleteAccountRequest
+  | DeleteAccountsRequest
   | ExportAccountRequest
   | SubmitRequestRequest;
 

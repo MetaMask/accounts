@@ -92,6 +92,52 @@ async function makeKeyring(
   return { keyring, registered, unregistered, callbacks };
 }
 
+/**
+ * Create a v2 `SnapKeyring` test instance (snap declares capabilities).
+ *
+ * @returns The keyring and tracking arrays.
+ */
+async function makeV2Keyring(): Promise<{
+  keyring: SnapKeyring;
+  registered: string[];
+  unregistered: string[];
+  callbacks: SnapKeyringCallbacks;
+}> {
+  const registered: string[] = [];
+  const unregistered: string[] = [];
+  const callbacks: SnapKeyringCallbacks = {
+    ...makeMockCallbacks(),
+    onRegister: (id): void => {
+      registered.push(id);
+    },
+    onUnregister: (id): void => {
+      unregistered.push(id);
+    },
+  };
+  const messenger = {
+    call: jest.fn((action: string) =>
+      action === 'SnapController:getSnap'
+        ? {
+            manifest: {
+              initialPermissions: {
+                'endowment:keyring': {
+                  capabilities: {
+                    scopes: ['eip155:1'],
+                  },
+                },
+              },
+            },
+          }
+        : undefined,
+    ),
+    publish: jest.fn(),
+  } as unknown as SnapKeyringMessenger;
+  const keyring = new SnapKeyring({ messenger, callbacks });
+  await keyring.deserialize({ snapId: SNAP_ID, accounts: {} });
+  expect(keyring.v1).toBeUndefined();
+  return { keyring, registered, unregistered, callbacks };
+}
+
 describe('SnapKeyring', () => {
   describe('type', () => {
     it('returns `KeyringType.Snap`', async () => {
@@ -620,6 +666,109 @@ describe('SnapKeyring', () => {
 
         expect(keyring.hasAccount(account1.id)).toBe(false);
         expect(consoleSpy).toHaveBeenCalled();
+        consoleSpy.mockRestore();
+      });
+    });
+
+    describe('deleteAccounts', () => {
+      it('removes all accounts and calls snap to delete them (v2 snap)', async () => {
+        const { keyring, unregistered } = await makeV2Keyring();
+        keyring.setAccount(account1);
+        keyring.setAccount(account2);
+        const deleteAccountsSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccounts')
+          .mockResolvedValue(undefined);
+
+        await keyring.deleteAccounts([account1.id, account2.id]);
+
+        expect(keyring.hasAccount(account1.id)).toBe(false);
+        expect(keyring.hasAccount(account2.id)).toBe(false);
+        expect(unregistered).toStrictEqual([account1.id, account2.id]);
+        expect(deleteAccountsSpy).toHaveBeenCalledWith([
+          account1.id,
+          account2.id,
+        ]);
+      });
+
+      it('removes accounts from registry even if snap deletion fails (v2 snap)', async () => {
+        const consoleSpy = jest
+          .spyOn(console, 'error')
+          .mockImplementation(() => undefined);
+        const { keyring, unregistered } = await makeV2Keyring();
+        keyring.setAccount(account1);
+        keyring.setAccount(account2);
+        jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccounts')
+          .mockRejectedValue(new Error('snap error'));
+
+        // Should not throw
+        await keyring.deleteAccounts([account1.id, account2.id]);
+
+        expect(keyring.hasAccount(account1.id)).toBe(false);
+        expect(keyring.hasAccount(account2.id)).toBe(false);
+        expect(unregistered).toStrictEqual([account1.id, account2.id]);
+        expect(consoleSpy).toHaveBeenCalled();
+        consoleSpy.mockRestore();
+      });
+
+      it('is a no-op for an empty array (v2 snap)', async () => {
+        const { keyring, unregistered } = await makeV2Keyring();
+        keyring.setAccount(account1);
+        const deleteAccountsSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccounts')
+          .mockResolvedValue(undefined);
+
+        await keyring.deleteAccounts([]);
+
+        expect(keyring.hasAccount(account1.id)).toBe(true);
+        expect(unregistered).toStrictEqual([]);
+        expect(deleteAccountsSpy).toHaveBeenCalledWith([]);
+      });
+
+      it('falls back to deleteAccount for v1 snaps', async () => {
+        const { keyring, unregistered } = await makeKeyring();
+        keyring.setAccount(account1);
+        keyring.setAccount(account2);
+        expect(keyring.v1).toBeDefined();
+
+        const deleteAccountSpy = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+          .mockResolvedValue(undefined);
+        const deleteAccountsSpy = jest.spyOn(
+          KeyringInternalSnapClient.prototype,
+          'deleteAccounts',
+        );
+
+        await keyring.deleteAccounts([account1.id, account2.id]);
+
+        expect(keyring.hasAccount(account1.id)).toBe(false);
+        expect(keyring.hasAccount(account2.id)).toBe(false);
+        expect(unregistered).toStrictEqual([account1.id, account2.id]);
+        expect(deleteAccountSpy).toHaveBeenCalledWith(account1.id);
+        expect(deleteAccountSpy).toHaveBeenCalledWith(account2.id);
+        expect(deleteAccountsSpy).not.toHaveBeenCalled();
+      });
+
+      it('logs errors per account for v1 snaps but does not throw', async () => {
+        const consoleSpy = jest
+          .spyOn(console, 'error')
+          .mockImplementation(() => undefined);
+        const { keyring } = await makeKeyring();
+        keyring.setAccount(account1);
+        keyring.setAccount(account2);
+        expect(keyring.v1).toBeDefined();
+
+        jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+          .mockRejectedValueOnce(new Error('snap error'))
+          .mockResolvedValueOnce(undefined);
+
+        // Should not throw
+        await keyring.deleteAccounts([account1.id, account2.id]);
+
+        expect(keyring.hasAccount(account1.id)).toBe(false);
+        expect(keyring.hasAccount(account2.id)).toBe(false);
+        expect(consoleSpy).toHaveBeenCalledTimes(1);
         consoleSpy.mockRestore();
       });
     });

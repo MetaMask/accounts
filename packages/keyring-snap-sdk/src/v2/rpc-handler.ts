@@ -10,6 +10,7 @@ import {
   GetAccountRequestStruct,
   CreateAccountsRequestStruct,
   DeleteAccountRequestStruct,
+  DeleteAccountsRequestStruct,
   ExportAccountRequestStruct,
   SubmitRequestRequestStruct,
   SetSelectedAccountsRequestStruct,
@@ -65,6 +66,11 @@ async function dispatchKeyringRequest(
     case `${KeyringRpcMethod.DeleteAccount}`: {
       assert(request, DeleteAccountRequestStruct);
       return keyring.deleteAccount(request.params.id);
+    }
+
+    case `${KeyringRpcMethod.DeleteAccounts}`: {
+      assert(request, DeleteAccountsRequestStruct);
+      return keyring.deleteAccounts(request.params.ids);
     }
 
     case `${KeyringRpcMethod.ExportAccount}`: {

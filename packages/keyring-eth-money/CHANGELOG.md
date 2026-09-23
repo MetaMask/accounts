@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Implement `deleteAccounts` method as a no-op (MoneyKeyring does not support account deletion) ([#637](https://github.com/MetaMask/accounts/pull/637))
+
 ### Changed
 
 - Bump `@metamask/keyring-sdk` from `^3.0.0` to `^3.1.0` ([#614](https://github.com/MetaMask/accounts/pull/614))

@@ -2,6 +2,7 @@ import type { TypedTxData } from '@ethereumjs/tx';
 import { EthAccountType, EthMethod, EthScope } from '@metamask/keyring-api';
 import type { KeyringAccount, KeyringRequest } from '@metamask/keyring-api';
 import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
+import { DeleteAccountsError } from '@metamask/keyring-api/v2';
 import { toEntropySourceId } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
@@ -601,9 +602,7 @@ describe('HdKeyring (v2 wrapper)', () => {
 
       await expect(
         wrapper.deleteAccount(middleAccountId as string),
-      ).rejects.toThrow(
-        'Can only delete the last account in the HD keyring due to derivation index constraints.',
-      );
+      ).rejects.toThrow(DeleteAccountsError);
 
       // All accounts should still be present
       const remaining = await wrapper.getAccounts();
@@ -621,9 +620,7 @@ describe('HdKeyring (v2 wrapper)', () => {
 
       await expect(
         wrapper.deleteAccount(firstAccountId as string),
-      ).rejects.toThrow(
-        'Can only delete the last account in the HD keyring due to derivation index constraints.',
-      );
+      ).rejects.toThrow(DeleteAccountsError);
 
       // All accounts should still be present
       const remaining = await wrapper.getAccounts();
@@ -692,6 +689,158 @@ describe('HdKeyring (v2 wrapper)', () => {
 
       const final = await wrapper.getAccounts();
       expect(final).toHaveLength(1);
+    });
+  });
+
+  describe('deleteAccounts', () => {
+    beforeEach(async () => {
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 0,
+      });
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 1,
+      });
+      await wrapper.createAccounts({
+        type: 'bip44:derive-index',
+        entropySource: TEST_ENTROPY_SOURCE_ID,
+        groupIndex: 2,
+      });
+    });
+
+    it('deletes the last account only', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      await wrapper.deleteAccounts([accounts[2]?.id as AccountId]);
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(2);
+    });
+
+    it('deletes multiple accounts in reverse order (last first)', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      await wrapper.deleteAccounts([
+        accounts[2]?.id as AccountId,
+        accounts[1]?.id as AccountId,
+      ]);
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(1);
+      expect(remaining[0]?.id).toBe(accounts[0]?.id);
+    });
+
+    it('deletes all accounts in reverse order', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      await wrapper.deleteAccounts([
+        accounts[2]?.id as AccountId,
+        accounts[1]?.id as AccountId,
+        accounts[0]?.id as AccountId,
+      ]);
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(0);
+    });
+
+    it('is a no-op for an empty array', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      await wrapper.deleteAccounts([]);
+
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(3);
+    });
+
+    it('throws DeleteAccountsError when trying to delete a non-last account', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      // Try to delete the first account (not last) — should fail
+      await expect(
+        wrapper.deleteAccounts([accounts[0]?.id as AccountId]),
+      ).rejects.toThrow(DeleteAccountsError);
+
+      // No accounts should be deleted
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(3);
+    });
+
+    it('throws DeleteAccountsError when mixing deletable and non-deletable accounts', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      // Try to delete first (non-last) and last account
+      // The last will be deleted, but the first will fail
+      await expect(
+        wrapper.deleteAccounts([
+          accounts[0]?.id as AccountId,
+          accounts[2]?.id as AccountId,
+        ]),
+      ).rejects.toThrow(DeleteAccountsError);
+
+      // The last account should have been deleted (best-effort)
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(2);
+      expect(remaining.find((a) => a.id === accounts[2]?.id)).toBeUndefined();
+    });
+
+    it('deleteAccountsError contains failure details', async () => {
+      const accounts = await wrapper.getAccounts();
+      const firstAccountId = accounts[0]?.id as AccountId;
+
+      const promise = wrapper.deleteAccounts([firstAccountId]);
+
+      await expect(promise).rejects.toThrow(DeleteAccountsError);
+      await expect(promise).rejects.toMatchObject({
+        failures: expect.objectContaining({
+          [firstAccountId]: expect.stringContaining(
+            'Can only delete the last account',
+          ),
+        }),
+      });
+    });
+
+    it('handles non-existent account IDs in the sort path', async () => {
+      const accounts = await wrapper.getAccounts();
+      expect(accounts).toHaveLength(3);
+
+      // Include two non-existent IDs alongside a valid last account
+      // The non-existent IDs will fail, but the last account should be deleted (best-effort)
+      await expect(
+        wrapper.deleteAccounts([
+          '00000000-0000-0000-0000-000000000099',
+          '00000000-0000-0000-0000-000000000098',
+          accounts[2]?.id as AccountId,
+        ]),
+      ).rejects.toThrow(DeleteAccountsError);
+
+      // The last account should be deleted, the non-existent ones should not
+      const remaining = await wrapper.getAccounts();
+      expect(remaining).toHaveLength(2);
+    });
+
+    it('handles non-Error rejection reasons', async () => {
+      const accounts = await wrapper.getAccounts();
+      const firstAccountId = accounts[0]?.id as AccountId;
+
+      // Mock getAccount to throw a non-Error value
+      jest
+        .spyOn(wrapper, 'getAccount')
+        .mockRejectedValue('string error' as unknown as never);
+
+      await expect(wrapper.deleteAccounts([firstAccountId])).rejects.toThrow(
+        DeleteAccountsError,
+      );
+
+      jest.restoreAllMocks();
     });
   });
 
