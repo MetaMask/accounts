@@ -71,26 +71,29 @@ import {
 const mpcKeyringType = 'MPC Keyring';
 const TSS_HAVE_SETUP_MESSAGE_TYPE = 'tss-have-setup';
 const STATUS_MESSAGE_TYPE = 'status';
-const STATUS_DONE_PAYLOAD = 'done';
+const STATUS_DATA_PERSISTED_PAYLOAD = 'data persisted';
+const STATUS_SIGNING_COMPLETED_PAYLOAD = 'signing completed';
 const CLIENT_SHARE_INDEX = 0;
 const SERVER_SHARE_INDEX = 1;
 const INITIAL_SHARE_EPOCH = 1;
 
 /**
- * Wait until the backend has persisted the session and sent `status: done`.
+ * Wait for a backend `status` message and assert it matches `expectedStatus`.
  *
  * @param networkSession - Root network session shared with the backend.
  * @param peerNetId - Server network id.
+ * @param expectedStatus - Payload the backend must send for this operation.
  */
 async function waitForDoneStatus(
   networkSession: RootNetworkSession,
   peerNetId: PartyId,
+  expectedStatus: string,
 ): Promise<void> {
   const status = new TextDecoder().decode(
     await networkSession.receiveMessage(peerNetId, STATUS_MESSAGE_TYPE),
   );
-  if (status !== STATUS_DONE_PAYLOAD) {
-    throw new Error(`Expected status done, received ${status}`);
+  if (status !== expectedStatus) {
+    throw new Error(`Expected status ${expectedStatus}, received ${status}`);
   }
 }
 
@@ -327,7 +330,11 @@ export class MPCKeyring implements Keyring {
           custodians,
           networkSession: netSession.createSubsession('dkg-rotate'),
         });
-        await waitForDoneStatus(netSession, serverNetId);
+        await waitForDoneStatus(
+          netSession,
+          serverNetId,
+          STATUS_DATA_PERSISTED_PAYLOAD,
+        );
       } finally {
         await netSession.disconnect();
       }
@@ -582,7 +589,11 @@ export class MPCKeyring implements Keyring {
           networkSession: tssSetupSession,
         }),
       ]);
-      await waitForDoneStatus(netSession, serverNetId);
+      await waitForDoneStatus(
+        netSession,
+        serverNetId,
+        STATUS_DATA_PERSISTED_PAYLOAD,
+      );
     } finally {
       await netSession.disconnect();
     }
@@ -703,7 +714,11 @@ export class MPCKeyring implements Keyring {
           throw error;
         }
         try {
-          await waitForDoneStatus(netSession, serverNetId);
+          await waitForDoneStatus(
+            netSession,
+            serverNetId,
+            STATUS_SIGNING_COMPLETED_PAYLOAD,
+          );
         } catch {
           // Signing does not mutate shares, so a late status failure must not drop the signature.
         }
