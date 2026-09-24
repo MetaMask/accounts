@@ -7,11 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `getDeterministicUuidV4{,Random}` for deriving deterministic UUID v4 values from arbitrary hex strings ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Both are memoized, with unmemoized variants exported for testing.
+  - `getDeterministicUuidV4Random` returns a fresh copy of the seed bytes on every call.
+
 ### Changed
 
 - **BREAKING:** Remove envelope from migration framework ([#619](https://github.com/MetaMask/accounts/pull/619))
   - The envelope made it harder to integrate with existing state.
   - We still keep the requirement of having a `version` field to be declared, but the state can be "flatten" instead of living inside the `data` (envelope) field.
+- Memoize `generateEthAccountId` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Following the `@metamask/utils` pattern for memoization (use of `lodash`'s `memoize`) .
+- Replace `ethereum-cryptography` with `@noble/hashes` in the account ID derivation ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Account IDs remain byte-identical.
 - Bump `@metamask/keyring-api` from `^24.0.0` to `^24.1.0` ([#620](https://github.com/MetaMask/accounts/pull/620))
 - Bump `@metamask/eth-sig-util` from `^8.2.0` to `^9.0.0` ([#626](https://github.com/MetaMask/accounts/pull/626))
 
