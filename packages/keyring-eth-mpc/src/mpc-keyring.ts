@@ -70,9 +70,32 @@ import {
 
 const mpcKeyringType = 'MPC Keyring';
 const TSS_HAVE_SETUP_MESSAGE_TYPE = 'tss-have-setup';
+const STATUS_MESSAGE_TYPE = 'status';
+const STATUS_DATA_PERSISTED_PAYLOAD = 'data persisted';
+const STATUS_SIGNING_COMPLETED_PAYLOAD = 'signing completed';
 const CLIENT_SHARE_INDEX = 0;
 const SERVER_SHARE_INDEX = 1;
 const INITIAL_SHARE_EPOCH = 1;
+
+/**
+ * Wait for a backend `status` message and assert it matches `expectedStatus`.
+ *
+ * @param networkSession - Root network session shared with the backend.
+ * @param peerNetId - Server network id.
+ * @param expectedStatus - Payload the backend must send for this operation.
+ */
+async function waitForDoneStatus(
+  networkSession: RootNetworkSession,
+  peerNetId: PartyId,
+  expectedStatus: string,
+): Promise<void> {
+  const status = new TextDecoder().decode(
+    await networkSession.receiveMessage(peerNetId, STATUS_MESSAGE_TYPE),
+  );
+  if (status !== expectedStatus) {
+    throw new Error(`Expected status ${expectedStatus}, received ${status}`);
+  }
+}
 
 /**
  * Assert that the latest share and backup epochs both equal `expectedEpoch`.
@@ -307,6 +330,11 @@ export class MPCKeyring implements Keyring {
           custodians,
           networkSession: netSession.createSubsession('dkg-rotate'),
         });
+        await waitForDoneStatus(
+          netSession,
+          serverNetId,
+          STATUS_DATA_PERSISTED_PAYLOAD,
+        );
       } finally {
         await netSession.disconnect();
       }
@@ -561,6 +589,11 @@ export class MPCKeyring implements Keyring {
           networkSession: tssSetupSession,
         }),
       ]);
+      await waitForDoneStatus(
+        netSession,
+        serverNetId,
+        STATUS_DATA_PERSISTED_PAYLOAD,
+      );
     } finally {
       await netSession.disconnect();
     }
@@ -666,6 +699,7 @@ export class MPCKeyring implements Keyring {
         );
         this.#applyKeyState({ ...state, tssSetup });
 
+        let ethSignature: Uint8Array;
         try {
           const { signature } = await this.#tss.sign({
             key: keyShare,
@@ -674,11 +708,21 @@ export class MPCKeyring implements Keyring {
             networkSession: netSession.createSubsession('tss-sign'),
             setup: tssSetup,
           });
-          return toEthSig(signature, hash, keyShare.publicKey);
+          ethSignature = toEthSig(signature, hash, keyShare.publicKey);
         } catch (error) {
           this.#applyKeyState({ ...state, tssSetup: null });
           throw error;
         }
+        try {
+          await waitForDoneStatus(
+            netSession,
+            serverNetId,
+            STATUS_SIGNING_COMPLETED_PAYLOAD,
+          );
+        } catch {
+          // Signing does not mutate shares, so a late status failure must not drop the signature.
+        }
+        return ethSignature;
       } finally {
         await netSession.disconnect();
       }

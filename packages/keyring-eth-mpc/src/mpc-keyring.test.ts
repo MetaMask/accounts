@@ -169,14 +169,20 @@ const makeSerializedState = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-const makeRootSession = () => {
+const encodeText = (value: string): Uint8Array =>
+  new TextEncoder().encode(value);
+
+const makeRootSession = (statusPayload = 'data persisted') => {
   const session = {
     sendMessage: jest.fn(),
     receiveMessage: jest
       .fn()
-      .mockResolvedValue(
-        new TextEncoder().encode(JSON.stringify({ haveSetup: true })),
-      ),
+      .mockImplementation(async (_peer: string, type: string) => {
+        if (type === 'status') {
+          return Promise.resolve(encodeText(statusPayload));
+        }
+        return Promise.resolve(encodeText(JSON.stringify({ haveSetup: true })));
+      }),
     createSubsession: jest
       .fn()
       .mockImplementation((label: string) => ({ label })),
@@ -381,6 +387,11 @@ describe('MPCKeyring', () => {
     );
     expect(rootSession.createSubsession).toHaveBeenCalledWith('dkg-create');
     expect(rootSession.createSubsession).toHaveBeenCalledWith('tss-setup');
+    expect(rootSession.receiveMessage).toHaveBeenCalledWith(
+      'cloud-user',
+      'status',
+    );
+    expect(rootSession.disconnect).toHaveBeenCalled();
     expect(mockStoreKeyShareBackup).toHaveBeenCalledWith(
       expect.objectContaining({
         token: 'token',
@@ -481,6 +492,27 @@ describe('MPCKeyring', () => {
     expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
   });
 
+  it('throws when create status is not data persisted', async () => {
+    const keyring = makeKeyring();
+    const rootSession = makeRootSession();
+    rootSession.receiveMessage.mockImplementation(
+      async (_peer: string, type: string) => {
+        if (type === 'status') {
+          return encodeText('running');
+        }
+        return encodeText(JSON.stringify({ haveSetup: true }));
+      },
+    );
+    mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
+    mockCreateSession.mockResolvedValueOnce(rootSession);
+    mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+
+    await expect(keyring.init('create')).rejects.toThrow(
+      'Expected status data persisted, received running',
+    );
+    expect(mockStoreKeyShareBackup).not.toHaveBeenCalled();
+  });
+
   it('rotates key shares, activates the next epoch, and clears tssSetup', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(getProfileToken);
@@ -516,6 +548,11 @@ describe('MPCKeyring', () => {
       }),
     );
     expect(rootSession.createSubsession).toHaveBeenCalledWith('dkg-rotate');
+    expect(rootSession.receiveMessage).toHaveBeenCalledWith(
+      'cloud-user',
+      'status',
+    );
+    expect(rootSession.disconnect).toHaveBeenCalled();
     expect(mockDklsSetup).not.toHaveBeenCalled();
     expect(mockStoreKeyShareBackup).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -590,7 +627,7 @@ describe('MPCKeyring', () => {
     const keyring = makeKeyring(getProfileToken);
     await deserializeState(keyring);
 
-    const signSession = makeRootSession();
+    const signSession = makeRootSession('signing completed');
     mockCreateSession.mockResolvedValue(signSession);
 
     const messageHex = '0x68656c6c6f';
@@ -619,6 +656,10 @@ describe('MPCKeyring', () => {
     );
     expect(signSession.createSubsession).toHaveBeenCalledWith('tss-sign');
     expect(signSession.createSubsession).not.toHaveBeenCalledWith('tss-setup');
+    expect(signSession.receiveMessage).toHaveBeenCalledWith(
+      'cloud-user',
+      'status',
+    );
 
     const tx = {
       getHashedMessageToSign: jest.fn().mockReturnValue(new Uint8Array([1, 2])),
@@ -636,12 +677,39 @@ describe('MPCKeyring', () => {
     );
   });
 
+  it('returns the signature when sign status is not signing completed', async () => {
+    const keyring = makeKeyring();
+    await deserializeState(keyring);
+
+    const signSession = makeRootSession();
+    signSession.receiveMessage.mockImplementation(
+      async (_peer: string, type: string) => {
+        if (type === 'status') {
+          return encodeText('running');
+        }
+        return encodeText(JSON.stringify({ haveSetup: true }));
+      },
+    );
+    mockCreateSession.mockResolvedValue(signSession);
+
+    const signatureHex = await keyring.signPersonalMessage(
+      mockDerivedAddress,
+      '0x68656c6c6f',
+    );
+
+    expect(signatureHex).toBe(bytesToHex(mockEthSignature));
+    expect(signSession.disconnect).toHaveBeenCalled();
+    expect(await keyring.serialize()).toStrictEqual(
+      expect.objectContaining({ tssSetup: '0x0102' }),
+    );
+  });
+
   it('signs EIP-7702 authorizations through the MPC flow', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(getProfileToken);
     await deserializeState(keyring);
 
-    const signSession = makeRootSession();
+    const signSession = makeRootSession('signing completed');
     mockCreateSession.mockResolvedValue(signSession);
 
     const { hashEIP7702Authorization } = jest.requireActual(
@@ -686,7 +754,7 @@ describe('MPCKeyring', () => {
     const keyring = makeKeyring();
     await deserializeState(keyring);
 
-    const signSession = makeRootSession();
+    const signSession = makeRootSession('signing completed');
     signSession.receiveMessage.mockResolvedValueOnce(
       new TextEncoder().encode(JSON.stringify({ haveSetup: false })),
     );
@@ -716,7 +784,7 @@ describe('MPCKeyring', () => {
     const keyring = makeKeyring();
     await deserializeState(keyring, makeSerializedState({ tssSetup: null }));
 
-    const signSession = makeRootSession();
+    const signSession = makeRootSession('signing completed');
     mockCreateSession.mockResolvedValue(signSession);
 
     await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f');
@@ -759,7 +827,9 @@ describe('MPCKeyring', () => {
       inFlight -= 1;
       return { signature: new Uint8Array(64).fill(9) };
     });
-    mockCreateSession.mockImplementation(async () => makeRootSession());
+    mockCreateSession.mockImplementation(async () =>
+      makeRootSession('signing completed'),
+    );
 
     await Promise.all([
       keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
@@ -845,7 +915,7 @@ describe('MPCKeyring', () => {
     const keyring = makeKeyring();
     await deserializeState(keyring);
 
-    mockCreateSession.mockResolvedValue(makeRootSession());
+    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
 
     const signature = await keyring.signTypedData(
       mockDerivedAddress,
