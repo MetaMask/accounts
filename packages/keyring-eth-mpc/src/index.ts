@@ -1,9 +1,9 @@
-export { MPCKeyring } from './mpc-keyring';
+export { MpcKeyring } from './mpc-keyring';
 
 export type {
-  MPCKeyringOpts,
-  MPCKeyringSerializer,
-  MPCKeyringSetupParams,
-  MPCKeyringState,
+  MpcKeyringOpts,
+  MpcKeyringSerializer,
+  MpcKeyringSetupParams,
+  MpcKeyringState,
   ProfileTokenOpts,
 } from './types';

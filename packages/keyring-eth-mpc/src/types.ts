@@ -10,7 +10,7 @@ export type ProfileTokenOpts = {
 
 export type Dkls23Lib = ConstructorParameters<typeof Dkls23TssLib>[0];
 
-export type MPCKeyringOpts = {
+export type MpcKeyringOpts = {
   getRandomBytes: (size: number) => Uint8Array;
   dkls23Lib: Dkls23Lib;
   cloudURL: string;
@@ -21,7 +21,7 @@ export type MPCKeyringOpts = {
   webSocket?: unknown;
 };
 
-export type MPCKeyringState = {
+export type MpcKeyringState = {
   keyShare: CL24ThresholdKey;
   shareEpoch: number;
   netCreds: MfaNetworkIdentity;
@@ -29,7 +29,7 @@ export type MPCKeyringState = {
   tssSetup: Uint8Array | null;
 };
 
-export type MPCKeyringSetupParams = {
+export type MpcKeyringSetupParams = {
   mode: 'create' | 'import';
 };
 
@@ -38,20 +38,20 @@ type JsonSerializer<Value> = {
   fromJson: (value: Json) => Value;
 };
 
-export type MPCKeyringInitializedState = {
+export type MpcKeyringInitializedState = {
   status: 'initialized';
-} & MPCKeyringState;
+} & MpcKeyringState;
 
-export type MPCKeyringUninitializedState = {
+export type MpcKeyringUninitializedState = {
   status: 'uninitialized';
-  setup: MPCKeyringSetupParams;
+  setup: MpcKeyringSetupParams;
 };
 
-export type MPCKeyringStorageState =
-  | MPCKeyringInitializedState
-  | MPCKeyringUninitializedState;
+export type MpcKeyringStorageState =
+  | MpcKeyringInitializedState
+  | MpcKeyringUninitializedState;
 
-export type MPCKeyringSerializer = {
+export type MpcKeyringSerializer = {
   thresholdKey: JsonSerializer<CL24ThresholdKey>;
   networkIdentity: JsonSerializer<MfaNetworkIdentity>;
 };

@@ -45,11 +45,11 @@ import {
   storeKeyShareBackup,
 } from './cloud';
 import type {
-  MPCKeyringOpts,
-  MPCKeyringSerializer,
-  MPCKeyringSetupParams,
-  MPCKeyringState,
-  MPCKeyringStorageState,
+  MpcKeyringOpts,
+  MpcKeyringSerializer,
+  MpcKeyringSetupParams,
+  MpcKeyringState,
+  MpcKeyringStorageState,
   ProfileTokenOpts,
 } from './types';
 import {
@@ -151,7 +151,7 @@ function shareBindings(
   ];
 }
 
-export class MPCKeyring implements Keyring {
+export class MpcKeyring implements Keyring {
   static type: string = mpcKeyringType;
 
   readonly type: string = mpcKeyringType;
@@ -164,11 +164,11 @@ export class MPCKeyring implements Keyring {
 
   readonly #dkm: CL24DKM;
 
-  #state?: MPCKeyringStorageState;
+  #state?: MpcKeyringStorageState;
 
   readonly #cloudURL: string;
 
-  readonly #serializer: MPCKeyringSerializer;
+  readonly #serializer: MpcKeyringSerializer;
 
   readonly #getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
 
@@ -176,7 +176,7 @@ export class MPCKeyring implements Keyring {
 
   #opQueue: Promise<void> = Promise.resolve();
 
-  constructor(opts: MPCKeyringOpts) {
+  constructor(opts: MpcKeyringOpts) {
     this.#rng = {
       generateRandomBytes: opts.getRandomBytes,
     };
@@ -273,7 +273,7 @@ export class MPCKeyring implements Keyring {
    *
    * @param mode - Create a new key or import from the backend backup.
    */
-  async init(mode?: MPCKeyringSetupParams['mode']): Promise<void> {
+  async init(mode?: MpcKeyringSetupParams['mode']): Promise<void> {
     if (this.#state?.status === 'initialized') {
       return;
     }
@@ -417,7 +417,7 @@ export class MPCKeyring implements Keyring {
 
   /**
    * Return the single MPC account. The account is created during
-   * {@link MPCKeyring.init}, not by this method.
+   * {@link MpcKeyring.init}, not by this method.
    *
    * @param numberOfAccounts - Must be 1 (the only supported value).
    * @returns The address of the existing account.
@@ -425,13 +425,13 @@ export class MPCKeyring implements Keyring {
    */
   async addAccounts(numberOfAccounts = 1): Promise<Hex[]> {
     if (numberOfAccounts !== 1) {
-      throw new Error('MPCKeyring: supports adding exactly one account');
+      throw new Error('MpcKeyring: supports adding exactly one account');
     }
 
     const accounts = await this.getAccounts();
     const account = accounts[0];
     if (!account) {
-      throw new Error('MPCKeyring: has no account');
+      throw new Error('MpcKeyring: has no account');
     }
 
     return [account];
@@ -812,7 +812,7 @@ export class MPCKeyring implements Keyring {
 
   #parseSetupParams(
     state: Record<string, Json>,
-  ): MPCKeyringSetupParams | undefined {
+  ): MpcKeyringSetupParams | undefined {
     if (!('mode' in state)) {
       return undefined;
     }
@@ -823,14 +823,14 @@ export class MPCKeyring implements Keyring {
     throw new Error("Invalid setup mode: expected 'create' or 'import'");
   }
 
-  #applyKeyState(state: MPCKeyringState): void {
+  #applyKeyState(state: MpcKeyringState): void {
     this.#state = {
       status: 'initialized',
       ...state,
     };
   }
 
-  #assertState(): MPCKeyringState {
+  #assertState(): MpcKeyringState {
     if (!this.#state || this.#state.status !== 'initialized') {
       throw new Error('Keyring not initialized');
     }

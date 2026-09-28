@@ -3,7 +3,7 @@ import { hashPersonalMessage } from '@ethereumjs/util';
 import { bytesToHex } from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import { MPCKeyring } from './mpc-keyring';
+import { MpcKeyring } from './mpc-keyring';
 
 const mockCreateKey = jest.fn();
 const mockRotateKeyShares = jest.fn();
@@ -195,7 +195,7 @@ const makeKeyring = (
   getProfileToken = jest.fn().mockResolvedValue('token'),
   getBackupEncryptionKey = jest.fn().mockResolvedValue(mockBackupKey),
 ) =>
-  new MPCKeyring({
+  new MpcKeyring({
     getRandomBytes: (size) => new Uint8Array(size).fill(3),
     dkls23Lib: {} as never,
     cloudURL: 'https://cloud.example',
@@ -205,13 +205,13 @@ const makeKeyring = (
   });
 
 const deserializeState = async (
-  keyring: MPCKeyring,
+  keyring: MpcKeyring,
   state = makeSerializedState(),
 ) => {
   await keyring.deserialize(state as unknown as Json);
 };
 
-describe('MPCKeyring', () => {
+describe('MpcKeyring', () => {
   beforeEach(() => {
     lastNetworkManagerOptions = undefined;
 
@@ -258,7 +258,7 @@ describe('MPCKeyring', () => {
 
   it('exposes the expected type constant', () => {
     const keyring = makeKeyring();
-    expect(MPCKeyring.type).toBe('MPC Keyring');
+    expect(MpcKeyring.type).toBe('MPC Keyring');
     expect(keyring.type).toBe('MPC Keyring');
   });
 
@@ -269,7 +269,7 @@ describe('MPCKeyring', () => {
       .fn()
       .mockReturnValueOnce(new Uint8Array([1, 2, 3, 4]));
 
-    const keyring = new MPCKeyring({
+    const keyring = new MpcKeyring({
       getRandomBytes: randomBytes,
       dkls23Lib: {} as never,
       cloudURL: 'https://cloud.example',
@@ -944,7 +944,7 @@ describe('MPCKeyring', () => {
       const keyring = makeKeyring();
 
       await expect(keyring.addAccounts()).rejects.toThrow(
-        'MPCKeyring: has no account',
+        'MpcKeyring: has no account',
       );
     });
 
@@ -953,7 +953,7 @@ describe('MPCKeyring', () => {
       await deserializeState(keyring);
 
       await expect(keyring.addAccounts(2)).rejects.toThrow(
-        'MPCKeyring: supports adding exactly one account',
+        'MpcKeyring: supports adding exactly one account',
       );
     });
 
