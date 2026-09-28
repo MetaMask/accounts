@@ -157,8 +157,9 @@ export class ReadWriteLock {
         acquire = false;
       } else if (
         mode === 'read' &&
+        // We might have pending write requests in the queue.
         this.#hasWaiters() &&
-        this.#priority !== 'read'
+        this.#priority === 'write'
       ) {
         // We cannot acquire the lock for reading if there are waiters, unless priority is 'read'.
         acquire = false;
