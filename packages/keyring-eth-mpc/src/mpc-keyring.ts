@@ -151,7 +151,16 @@ function shareBindings(
   ];
 }
 
+/**
+ * 2-of-2 Ethereum keyring. The client holds one DKLS23 share and signs
+ * with a cloud peer. Shares are stored as encrypted epochs on the backend.
+ *
+ * The controller keyring type is `'MPC Keyring'`.
+ */
 export class MpcKeyring implements Keyring {
+  /**
+   * Keyring type registered with the controller.
+   */
   static type: string = mpcKeyringType;
 
   readonly type: string = mpcKeyringType;
@@ -176,6 +185,14 @@ export class MpcKeyring implements Keyring {
 
   #opQueue: Promise<void> = Promise.resolve();
 
+  /**
+   * Create a keyring bound to the given cloud and relayer endpoints.
+   *
+   * The keyring stays uninitialized until {@link MpcKeyring.init} or
+   * {@link MpcKeyring.deserialize}.
+   *
+   * @param opts - Randomness, TSS library, backend URLs, and token callbacks.
+   */
   constructor(opts: MpcKeyringOpts) {
     this.#rng = {
       generateRandomBytes: opts.getRandomBytes,
