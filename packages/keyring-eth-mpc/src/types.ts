@@ -1,6 +1,6 @@
-import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24-lib';
-import type { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23-lib';
-import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
+import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
+import type { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
+import type { CentrifugeIdentity } from '@metamask/mfa-wallet-network';
 import type { Json } from '@metamask/utils';
 
 export type ProfileTokenOpts = {
@@ -24,7 +24,7 @@ export type MpcKeyringOpts = {
 export type MpcKeyringState = {
   keyShare: CL24ThresholdKey;
   shareEpoch: number;
-  netCreds: MfaNetworkIdentity;
+  netCreds: CentrifugeIdentity;
   serverNetId: string;
   tssSetup: Uint8Array | null;
 };
@@ -53,5 +53,5 @@ export type MpcKeyringStorageState =
 
 export type MpcKeyringSerializer = {
   thresholdKey: JsonSerializer<CL24ThresholdKey>;
-  networkIdentity: JsonSerializer<MfaNetworkIdentity>;
+  networkIdentity: JsonSerializer<CentrifugeIdentity>;
 };

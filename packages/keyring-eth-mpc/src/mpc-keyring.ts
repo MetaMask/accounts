@@ -14,19 +14,19 @@ import {
   CL24ThresholdKeySerializer,
   dealersFromCL24Key,
   secp256k1 as secp256k1Curve,
-} from '@metamask/mfa-wallet-cl24-lib';
-import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24-lib';
-import { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23-lib';
+} from '@metamask/mfa-wallet-cl24';
+import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
+import { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
 import type {
   PartyId,
   RandomNumberGenerator,
   RootNetworkSession,
   ShareBinding,
 } from '@metamask/mfa-wallet-interface';
-import type { MfaNetworkIdentity } from '@metamask/mfa-wallet-network';
+import type { CentrifugeIdentity } from '@metamask/mfa-wallet-network';
 import {
-  MfaNetworkIdentitySerializer,
-  MfaNetworkManager,
+  CentrifugeIdentitySerializer,
+  CentrifugeNetworkManager,
   createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
 import {
@@ -205,7 +205,7 @@ export class MpcKeyring implements Keyring {
 
   readonly #rng: RandomNumberGenerator;
 
-  readonly #networkManager: MfaNetworkManager;
+  readonly #networkManager: CentrifugeNetworkManager;
 
   readonly #tss: Dkls23TssLib;
 
@@ -240,9 +240,9 @@ export class MpcKeyring implements Keyring {
     this.#cloudURL = opts.cloudURL;
     this.#serializer = {
       thresholdKey: new CL24ThresholdKeySerializer(),
-      networkIdentity: new MfaNetworkIdentitySerializer(),
+      networkIdentity: new CentrifugeIdentitySerializer(),
     };
-    this.#networkManager = new MfaNetworkManager({
+    this.#networkManager = new CentrifugeNetworkManager({
       url: opts.relayerURL,
       randomBytes: {
         getRandomValues: (array: Uint8Array): Uint8Array => {
@@ -825,7 +825,7 @@ export class MpcKeyring implements Keyring {
   }
 
   async #createNetworkSession(
-    netCreds: MfaNetworkIdentity,
+    netCreds: CentrifugeIdentity,
     serverNetId: PartyId,
     nonce: string,
   ): Promise<RootNetworkSession> {

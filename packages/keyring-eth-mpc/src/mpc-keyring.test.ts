@@ -36,7 +36,7 @@ const mockEthSignature = new Uint8Array(65);
 mockEthSignature[64] = 27;
 const mockBackupKey = new Uint8Array(32).fill(7);
 
-jest.mock('@metamask/mfa-wallet-cl24-lib', () => {
+jest.mock('@metamask/mfa-wallet-cl24', () => {
   class MockCL24DKM {
     createKey(...args: unknown[]) {
       return mockCreateKey(...args);
@@ -74,7 +74,7 @@ jest.mock('@metamask/mfa-wallet-cl24-lib', () => {
 });
 
 jest.mock('@metamask/mfa-wallet-network', () => {
-  class MockMfaNetworkManager {
+  class MockCentrifugeNetworkManager {
     constructor(opts: Record<string, unknown>) {
       lastNetworkManagerOptions = opts;
     }
@@ -88,7 +88,7 @@ jest.mock('@metamask/mfa-wallet-network', () => {
     }
   }
 
-  class MockMfaNetworkIdentitySerializer {
+  class MockCentrifugeIdentitySerializer {
     toJson(value: unknown) {
       return mockNetworkIdentityToJson(value);
     }
@@ -99,14 +99,14 @@ jest.mock('@metamask/mfa-wallet-network', () => {
   }
 
   return {
-    MfaNetworkManager: MockMfaNetworkManager,
-    MfaNetworkIdentitySerializer: MockMfaNetworkIdentitySerializer,
+    CentrifugeNetworkManager: MockCentrifugeNetworkManager,
+    CentrifugeIdentitySerializer: MockCentrifugeIdentitySerializer,
     createScopedSessionId: (...args: unknown[]) =>
       mockCreateScopedSessionId(...args),
   };
 });
 
-jest.mock('@metamask/mfa-wallet-dkls23-lib', () => {
+jest.mock('@metamask/mfa-wallet-dkls23', () => {
   class MockDkls23TssLib {
     setup(...args: unknown[]) {
       return mockDklsSetup(...args);
