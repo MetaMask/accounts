@@ -111,7 +111,9 @@ describe('cloud helpers', () => {
         baseURL: 'https://cloud.example',
         token: 'token-1',
       }),
-    ).rejects.toThrow(/^Failed to get server network id: bad response format$/u);
+    ).rejects.toThrow(
+      /^Failed to get server network id: bad response format$/u,
+    );
   });
 
   it('throws when getting the server network id fails', async () => {
@@ -436,7 +438,9 @@ describe('cloud helpers', () => {
         baseURL: 'https://cloud.example',
         token: 'token-1',
       }),
-    ).rejects.toThrow(/^Failed to load key share backup: bad response format$/u);
+    ).rejects.toThrow(
+      /^Failed to load key share backup: bad response format$/u,
+    );
   });
 
   it('throws when loading a key share backup fails', async () => {
