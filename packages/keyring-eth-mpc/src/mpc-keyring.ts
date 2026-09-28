@@ -326,28 +326,33 @@ export class MpcKeyring implements Keyring {
   /**
    * Run key generation or import. `mode` may be passed directly, or taken
    * from setup params previously stored via {@link deserialize}.
+   * Serialized with sign, rotate and sync so overlapping `init` calls run
+   * setup once: the second call waits, sees the initialized state and returns.
    *
    * @param mode - Create a new key or import from the backend backup.
+   * @returns Resolves when the keyring is initialized.
    */
   async init(mode?: MpcKeyringSetupParams['mode']): Promise<void> {
-    if (this.#state?.status === 'initialized') {
-      return;
-    }
+    return this.#serializeOp(async () => {
+      if (this.#state?.status === 'initialized') {
+        return;
+      }
 
-    const resolvedMode =
-      mode ??
-      (this.#state?.status === 'uninitialized'
-        ? this.#state.setup.mode
-        : undefined);
-    if (resolvedMode === undefined) {
-      return;
-    }
+      const resolvedMode =
+        mode ??
+        (this.#state?.status === 'uninitialized'
+          ? this.#state.setup.mode
+          : undefined);
+      if (resolvedMode === undefined) {
+        return;
+      }
 
-    if (resolvedMode === 'create') {
-      await this.#setupCreate();
-    } else {
-      await this.#setupImport();
-    }
+      if (resolvedMode === 'create') {
+        await this.#setupCreate();
+      } else {
+        await this.#setupImport();
+      }
+    });
   }
 
   /**

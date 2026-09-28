@@ -500,6 +500,21 @@ describe('MpcKeyring', () => {
     expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
   });
 
+  it('runs setup once when init is called concurrently', async () => {
+    const keyring = makeKeyring();
+    const rootSession = makeRootSession();
+    mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
+    mockCreateSession.mockResolvedValueOnce(rootSession);
+    mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+
+    await Promise.all([keyring.init('create'), keyring.init('create')]);
+
+    expect(mockCreateIdentity).toHaveBeenCalledTimes(1);
+    expect(mockStartCreateKey).toHaveBeenCalledTimes(1);
+    expect(mockCreateKey).toHaveBeenCalledTimes(1);
+    expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
+  });
+
   it('throws when create status is not data persisted', async () => {
     const keyring = makeKeyring();
     const rootSession = makeRootSession();
