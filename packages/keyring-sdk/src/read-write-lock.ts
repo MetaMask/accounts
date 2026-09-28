@@ -108,34 +108,6 @@ export class ReadWriteLock {
   }
 
   /**
-   * Whether the read lock can be granted immediately. Under write priority,
-   * a queued waiter blocks new readers, so reads cannot jump ahead of a
-   * waiting writer. Under read priority, new readers join active readers
-   * even while a writer is queued.
-   *
-   * @returns Whether the read lock may be granted immediately.
-   */
-  #canGrantRead(): boolean {
-    if (this.#isWriting()) {
-      return false;
-    }
-    return this.#priority === 'read' || !this.#hasWaiters();
-  }
-
-  /**
-   * Whether the write lock can be granted immediately: no holder and no
-   * earlier waiter.
-   *
-   * @returns Whether the write lock may be granted immediately.
-   */
-  #canGrantWrite(): boolean {
-    if (this.#isWriting()) {
-      return false;
-    }
-    return !this.#isReading() && !this.#hasWaiters();
-  }
-
-  /**
    * Whether any acquisition request is queued, waiting for the lock to turn
    * over to it. A queued waiter always blocks newcomers, which keeps the
    * grant order first-in-first-out.
@@ -168,23 +140,6 @@ export class ReadWriteLock {
   }
 
   /**
-   * Whether the lock can be granted to the waiter at the front of the
-   * queue. Unlike a newcomer, the front waiter never jumps anyone —
-   * everyone behind it arrived later — so queued waiters are irrelevant
-   * here. Only active holders matter: a read is blocked by an active
-   * writer; a write is blocked by an active writer or any active reader.
-   *
-   * @param mode - The mode of the waiter at the front of the queue.
-   * @returns Whether the front waiter can be granted the lock.
-   */
-  #canGrantHead(mode: LockMode): boolean {
-    if (this.#isWriting()) {
-      return false;
-    }
-    return mode === 'read' || !this.#isReading();
-  }
-
-  /**
    * Acquire the lock in the given mode, queuing when it cannot be granted
    * immediately.
    *
@@ -192,15 +147,30 @@ export class ReadWriteLock {
    * @returns A promise that resolves once the lock is held.
    */
   async #acquire(mode: LockMode): Promise<void> {
-    const canGrant =
-      mode === 'read' ? this.#canGrantRead() : this.#canGrantWrite();
-    if (canGrant) {
-      this.#grant(mode);
-      return Promise.resolve();
-    }
-
     return new Promise<void>((resolve) => {
-      this.#waiters.push({ mode, resolve });
+      let acquire = true;
+      if (this.#isWriting()) {
+        // Writing is exclusive, so we cannot acquire the lock if a writer is active.
+        acquire = false;
+      } else if (mode === 'write' && this.#isReading()) {
+        // Writing is exclusive with readers, so we cannot acquire the lock if any reader is active.
+        acquire = false;
+      } else if (
+        mode === 'read' &&
+        this.#hasWaiters() &&
+        this.#priority !== 'read'
+      ) {
+        // We cannot acquire the lock for reading if there are waiters, unless priority is 'read'.
+        acquire = false;
+      }
+
+      if (acquire) {
+        this.#grant(mode);
+        resolve();
+      } else {
+        // We cannot grant the lock immediately, so we queue the waiter.
+        this.#waiters.push({ mode, resolve });
+      }
     });
   }
 
@@ -234,21 +204,33 @@ export class ReadWriteLock {
   /**
    * Grant queued waiters, in order, while the front of the queue can be
    * granted. Consecutive queued readers are granted together; a granted
-   * writer blocks everything behind it.
+   * writer blocks everything behind it. Unlike a newcomer, the front
+   * waiter is never blocked by queued waiters — everyone behind it
+   * arrived later — so only active holders block a grant here.
    */
   #drain(): void {
     let waiter: LockWaiter | undefined = this.#waiters.shift();
     while (waiter !== undefined) {
-      if (!this.#canGrantHead(waiter.mode)) {
-        // Blocked by an active holder; put the waiter back at the front.
+      let acquire = true;
+
+      if (this.#isWriting()) {
+        // Writing is exclusive, so the waiter cannot acquire the lock if a writer is active.
+        acquire = false;
+      } else if (waiter.mode === 'write' && this.#isReading()) {
+        // Writing is exclusive with readers, so the waiter cannot acquire the lock if any reader is active.
+        acquire = false;
+      }
+
+      if (acquire) {
+        // Grant the front waiter and continue with the next one, so consecutive queued readers are granted together.
+        this.#grant(waiter.mode);
+        waiter.resolve();
+        waiter = this.#waiters.shift();
+      } else {
+        // The waiter is blocked by an active holder; put it back at the front and stop.
         this.#waiters.unshift(waiter);
         return;
       }
-
-      this.#grant(waiter.mode);
-      waiter.resolve();
-
-      waiter = this.#waiters.shift();
     }
   }
 }
