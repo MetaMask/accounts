@@ -60,6 +60,49 @@ describe('cloud helpers', () => {
     );
   });
 
+  it('rejects cloud requests that time out', async () => {
+    jest.useFakeTimers();
+    try {
+      fetchSpy.mockImplementation(async (_url: string, init?: RequestInit) => {
+        const { signal } = init ?? {};
+        if (!signal) {
+          throw new Error('missing abort signal');
+        }
+        await new Promise((_resolve, reject) => {
+          signal.addEventListener('abort', () => {
+            reject(
+              new DOMException('The operation was aborted.', 'AbortError'),
+            );
+          });
+        });
+      });
+
+      const pending = getNetId({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+      });
+      await Promise.all([
+        expect(pending).rejects.toThrow(
+          'Failed to get server network id: timed out after 30000ms',
+        ),
+        jest.advanceTimersByTimeAsync(30_000),
+      ]);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('rethrows cloud network errors that are not timeouts', async () => {
+    fetchSpy.mockRejectedValue(new TypeError('Failed to fetch'));
+
+    await expect(
+      loadKeyShareBackup({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+      }),
+    ).rejects.toThrow('Failed to fetch');
+  });
+
   it('throws when getting the server network id fails', async () => {
     fetchSpy.mockResolvedValue({
       ok: false,

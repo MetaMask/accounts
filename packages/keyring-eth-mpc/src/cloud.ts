@@ -13,6 +13,49 @@ export type CheckKeyShareResult = {
 };
 
 /**
+ * Cloud HTTP calls must finish within this window. Keyring methods run under
+ * the controller mutex, so a backend that never responds would block every
+ * keyring operation until the client restarts.
+ */
+const CLOUD_REQUEST_TIMEOUT_MS = 30_000;
+
+/**
+ * Fetch a URL, aborting if the backend does not respond in time.
+ *
+ * @param url - The request URL.
+ * @param init - Fetch options. `signal` is set by this function.
+ * @param errorPrefix - Prefix for the thrown timeout error.
+ * @returns The fetch response.
+ * @throws If the request exceeds `CLOUD_REQUEST_TIMEOUT_MS`.
+ */
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  errorPrefix: string,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, CLOUD_REQUEST_TIMEOUT_MS);
+
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error(
+        `${errorPrefix}: timed out after ${CLOUD_REQUEST_TIMEOUT_MS}ms`,
+      );
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
  * Parse a fetch response as JSON, throwing on non-OK status.
  *
  * @param response - The fetch response.
@@ -47,12 +90,16 @@ async function getJson<Result>(
   token: string,
   errorPrefix: string,
 ): Promise<Result> {
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const response = await fetchWithTimeout(
+    url,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+    errorPrefix,
+  );
   return parseJsonResponse(response, errorPrefix);
 }
 
@@ -71,14 +118,18 @@ async function postJson<Result>(
   body: Record<string, unknown>,
   errorPrefix: string,
 ): Promise<Result> {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+  const response = await fetchWithTimeout(
+    url,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
     },
-    body: JSON.stringify(body),
-  });
+    errorPrefix,
+  );
   return parseJsonResponse(response, errorPrefix);
 }
 
