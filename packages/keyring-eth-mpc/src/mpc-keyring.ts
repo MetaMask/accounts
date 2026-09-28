@@ -75,6 +75,7 @@ const STATUS_DATA_PERSISTED_PAYLOAD = 'data persisted';
 const STATUS_SIGNING_COMPLETED_PAYLOAD = 'signing completed';
 const CLIENT_SHARE_INDEX = 0;
 const SERVER_SHARE_INDEX = 1;
+const SIGNING_THRESHOLD = 2;
 const INITIAL_SHARE_EPOCH = 1;
 
 /**
@@ -581,7 +582,7 @@ export class MPCKeyring implements Keyring {
       [keyShare, tssSetup] = await Promise.all([
         this.#dkm.createKey({
           custodians,
-          threshold: 2,
+          threshold: SIGNING_THRESHOLD,
           networkSession: createKeySession,
         }),
         this.#tss.setup({
