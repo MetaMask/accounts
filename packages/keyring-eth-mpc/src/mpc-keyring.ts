@@ -710,6 +710,9 @@ export class MPCKeyring implements Keyring {
           });
           ethSignature = toEthSig(signature, hash, keyShare.publicKey);
         } catch (error) {
+          // Any error drops the cached TSS setup. A failed sign may have
+          // consumed it, including a transport failure, so the next sign
+          // rebuilds setup with the peer instead of reusing it.
           this.#applyKeyState({ ...state, tssSetup: null });
           throw error;
         }
