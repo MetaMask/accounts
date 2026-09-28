@@ -327,6 +327,14 @@ describe('MpcKeyring', () => {
     );
   });
 
+  it('throws on invalid initialized state', async () => {
+    const keyring = makeKeyring();
+
+    await expect(
+      keyring.deserialize(makeSerializedState({ shareEpoch: 0 }) as never),
+    ).rejects.toThrow('Invalid state');
+  });
+
   it('throws on invalid setup params in deserialize', async () => {
     const keyring = makeKeyring();
 

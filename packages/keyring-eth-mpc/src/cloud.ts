@@ -1,4 +1,15 @@
 import type { PartyId } from '@metamask/mfa-wallet-interface';
+import type { Infer, Struct } from '@metamask/superstruct';
+import {
+  exactOptional,
+  integer,
+  is,
+  min,
+  nonempty,
+  sensitive,
+  string,
+  type,
+} from '@metamask/superstruct';
 import { base64ToBytes, bytesToBase64 } from '@metamask/utils';
 
 export type LoadKeyShareBackupResult = {
@@ -6,11 +17,45 @@ export type LoadKeyShareBackupResult = {
   epoch: number;
 };
 
-export type CheckKeyShareResult = {
-  latestShareEpoch?: number;
-  latestBackupEpoch?: number;
-  activeEpoch?: number;
-};
+const shareEpochStruct = min(integer(), 1);
+
+const NetIdResponseStruct = type({
+  netId: nonempty(string()),
+});
+
+const CheckKeyShareResponseStruct = type({
+  latestShareEpoch: exactOptional(shareEpochStruct),
+  latestBackupEpoch: exactOptional(shareEpochStruct),
+  activeEpoch: exactOptional(shareEpochStruct),
+});
+
+export type CheckKeyShareResult = Infer<typeof CheckKeyShareResponseStruct>;
+
+const LoadKeyShareBackupResponseStruct = type({
+  encryptedKeyShare: sensitive(nonempty(string())),
+  epoch: shareEpochStruct,
+});
+
+/**
+ * Accept `value` when it matches `struct`.
+ *
+ * Failures use a fixed message so the response body is not included.
+ *
+ * @param value - Parsed JSON body.
+ * @param struct - Expected response shape.
+ * @param errorPrefix - Prefix for the thrown error message.
+ * @returns The validated value.
+ */
+function readStruct<Schema>(
+  value: unknown,
+  struct: Struct<Schema>,
+  errorPrefix: string,
+): Schema {
+  if (!is(value, struct)) {
+    throw new Error(`${errorPrefix}: bad response format`);
+  }
+  return value;
+}
 
 /**
  * Cloud HTTP calls must finish within this window. Keyring methods run under
@@ -145,10 +190,14 @@ export async function getNetId(opts: {
   baseURL: string;
   token: string;
 }): Promise<PartyId> {
-  const data = await postJson<{ netId: string }>(
-    `${opts.baseURL}/net-id`,
-    opts.token,
-    {},
+  const data = readStruct(
+    await postJson(
+      `${opts.baseURL}/net-id`,
+      opts.token,
+      {},
+      'Failed to get server network id',
+    ),
+    NetIdResponseStruct,
     'Failed to get server network id',
   );
   return data.netId;
@@ -305,10 +354,14 @@ export async function checkKeyShare(opts: {
   baseURL: string;
   token: string;
 }): Promise<CheckKeyShareResult> {
-  return await postJson<CheckKeyShareResult>(
-    `${opts.baseURL}/check-key-share`,
-    opts.token,
-    {},
+  return readStruct(
+    await postJson(
+      `${opts.baseURL}/check-key-share`,
+      opts.token,
+      {},
+      'Failed to check key share',
+    ),
+    CheckKeyShareResponseStruct,
     'Failed to check key share',
   );
 }
@@ -348,12 +401,13 @@ export async function loadKeyShareBackup(opts: {
   baseURL: string;
   token: string;
 }): Promise<LoadKeyShareBackupResult> {
-  const data = await getJson<{
-    encryptedKeyShare: string;
-    epoch: number;
-  }>(
-    `${opts.baseURL}/load-key-share-backup`,
-    opts.token,
+  const data = readStruct(
+    await getJson(
+      `${opts.baseURL}/load-key-share-backup`,
+      opts.token,
+      'Failed to load key share backup',
+    ),
+    LoadKeyShareBackupResponseStruct,
     'Failed to load key share backup',
   );
   return {

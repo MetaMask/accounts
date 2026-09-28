@@ -29,7 +29,17 @@ import {
   MfaNetworkManager,
   createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
-import { bytesToHex, hexToBytes } from '@metamask/utils';
+import {
+  enums,
+  integer,
+  is,
+  min,
+  nonempty,
+  nullable,
+  string,
+  type,
+} from '@metamask/superstruct';
+import { bytesToHex, hexToBytes, JsonStruct } from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
 import type { CheckKeyShareResult } from './cloud';
@@ -60,10 +70,7 @@ import {
   generateSessionNonce,
   getSignedTypedDataHash,
   parseEthSig,
-  parseServerNetId,
-  parseShareEpoch,
   parseSignedTypedDataVersion,
-  parseTssSetup,
   publicKeyToAddressHex,
   toEthSig,
 } from './util';
@@ -77,6 +84,37 @@ const CLIENT_SHARE_INDEX = 0;
 const SERVER_SHARE_INDEX = 1;
 const SIGNING_THRESHOLD = 2;
 const INITIAL_SHARE_EPOCH = 1;
+
+const SetupParamsStruct = type({
+  mode: enums(['create', 'import'] as const),
+});
+
+const InitializedStorageStruct = type({
+  netCreds: JsonStruct,
+  keyShare: JsonStruct,
+  serverNetId: nonempty(string()),
+  shareEpoch: min(integer(), 1),
+  tssSetup: nullable(string()),
+});
+
+/**
+ * Whether `state` carries the initialized-keyring fields.
+ *
+ * A payload with these fields that fails {@link InitializedStorageStruct}
+ * is rejected, instead of being treated as missing state.
+ *
+ * @param state - Candidate persisted state.
+ * @returns True when every initialized field is present.
+ */
+function hasInitializedFields(state: object): boolean {
+  return (
+    'netCreds' in state &&
+    'keyShare' in state &&
+    'serverNetId' in state &&
+    'shareEpoch' in state &&
+    'tssSetup' in state
+  );
+}
 
 /**
  * Wait for a backend `status` message and assert it matches `expectedStatus`.
@@ -255,32 +293,33 @@ export class MpcKeyring implements Keyring {
     if (!state || typeof state !== 'object') {
       throw new Error('Invalid state');
     }
-    const stateObj = state as Record<string, Json>;
 
-    if (
-      'netCreds' in stateObj &&
-      'keyShare' in stateObj &&
-      'serverNetId' in stateObj &&
-      'shareEpoch' in stateObj &&
-      'tssSetup' in stateObj
-    ) {
+    if (is(state, InitializedStorageStruct)) {
       this.#state = {
         status: 'initialized',
-        netCreds: this.#serializer.networkIdentity.fromJson(stateObj.netCreds),
-        keyShare: this.#serializer.thresholdKey.fromJson(stateObj.keyShare),
-        serverNetId: parseServerNetId(stateObj.serverNetId),
-        shareEpoch: parseShareEpoch(stateObj.shareEpoch),
-        tssSetup: parseTssSetup(stateObj.tssSetup),
+        netCreds: this.#serializer.networkIdentity.fromJson(state.netCreds),
+        keyShare: this.#serializer.thresholdKey.fromJson(state.keyShare),
+        serverNetId: state.serverNetId,
+        shareEpoch: state.shareEpoch,
+        tssSetup: state.tssSetup === null ? null : hexToBytes(state.tssSetup),
       };
       return;
     }
 
-    const setup = this.#parseSetupParams(stateObj);
-    if (setup) {
+    if (is(state, SetupParamsStruct)) {
       this.#state = {
         status: 'uninitialized',
-        setup,
+        setup: { mode: state.mode },
       };
+      return;
+    }
+
+    if (hasInitializedFields(state)) {
+      throw new Error('Invalid state');
+    }
+
+    if ('mode' in state) {
+      throw new Error("Invalid setup mode: expected 'create' or 'import'");
     }
   }
 
@@ -825,19 +864,6 @@ export class MpcKeyring implements Keyring {
     } finally {
       release();
     }
-  }
-
-  #parseSetupParams(
-    state: Record<string, Json>,
-  ): MpcKeyringSetupParams | undefined {
-    if (!('mode' in state)) {
-      return undefined;
-    }
-    const { mode } = state;
-    if (mode === 'create' || mode === 'import') {
-      return { mode };
-    }
-    throw new Error("Invalid setup mode: expected 'create' or 'import'");
   }
 
   #applyKeyState(state: MpcKeyringState): void {

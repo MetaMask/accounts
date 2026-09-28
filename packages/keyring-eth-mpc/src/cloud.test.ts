@@ -103,6 +103,17 @@ describe('cloud helpers', () => {
     ).rejects.toThrow('Failed to fetch');
   });
 
+  it('rejects a server network id response with the wrong shape', async () => {
+    okJson({ netId: '' });
+
+    await expect(
+      getNetId({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+      }),
+    ).rejects.toThrow(/^Failed to get server network id: bad response format$/u);
+  });
+
   it('throws when getting the server network id fails', async () => {
     fetchSpy.mockResolvedValue({
       ok: false,
@@ -332,6 +343,17 @@ describe('cloud helpers', () => {
     });
   });
 
+  it('rejects key share epoch metadata with the wrong shape', async () => {
+    okJson({ activeEpoch: '1' });
+
+    await expect(
+      checkKeyShare({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+      }),
+    ).rejects.toThrow(/^Failed to check key share: bad response format$/u);
+  });
+
   it('throws when checking key share fails', async () => {
     fetchSpy.mockResolvedValue({
       ok: false,
@@ -404,6 +426,17 @@ describe('cloud helpers', () => {
         headers: { Authorization: 'Bearer token-1' },
       }),
     );
+  });
+
+  it('rejects a key share backup response without including the body', async () => {
+    okJson({ encryptedKeyShare: 'secret-ciphertext', epoch: 'nope' });
+
+    await expect(
+      loadKeyShareBackup({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+      }),
+    ).rejects.toThrow(/^Failed to load key share backup: bad response format$/u);
   });
 
   it('throws when loading a key share backup fails', async () => {

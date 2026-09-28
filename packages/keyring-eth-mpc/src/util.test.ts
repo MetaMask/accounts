@@ -16,10 +16,7 @@ import {
   getSignedTypedDataHash,
   normalizeAddress,
   parseEthSig,
-  parseServerNetId,
-  parseShareEpoch,
   parseSignedTypedDataVersion,
-  parseTssSetup,
   publicKeyToAddressHex,
   publicToAddressHex,
   toEthSig,
@@ -256,32 +253,5 @@ describe('util', () => {
     await expect(
       decryptBytes(new Uint8Array(15), new Uint8Array(20)),
     ).rejects.toThrow('Invalid backup encryption key length');
-  });
-
-  it('parses and validates serialized keyring fields', () => {
-    expect(parseServerNetId('server-1')).toBe('server-1');
-    expect(() => parseServerNetId(1 as never)).toThrow(
-      'Invalid server network id: expected a string',
-    );
-    expect(() => parseServerNetId('')).toThrow(
-      'Invalid server network id: expected a non-empty string',
-    );
-
-    expect(parseShareEpoch(3)).toBe(3);
-    expect(() => parseShareEpoch('1' as never)).toThrow(
-      'Invalid share epoch: expected an integer',
-    );
-    expect(() => parseShareEpoch(1.5)).toThrow(
-      'Invalid share epoch: expected an integer',
-    );
-    expect(() => parseShareEpoch(0)).toThrow(
-      'Invalid share epoch: expected a positive integer',
-    );
-
-    expect(parseTssSetup('0x1234')).toStrictEqual(new Uint8Array([0x12, 0x34]));
-    expect(parseTssSetup(null)).toBeNull();
-    expect(() => parseTssSetup(123 as never)).toThrow(
-      'Invalid tss setup: expected a hex string or null',
-    );
   });
 });

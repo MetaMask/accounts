@@ -17,7 +17,7 @@ import {
   typedSignatureHash,
 } from '@metamask/eth-sig-util';
 import type { RandomNumberGenerator } from '@metamask/mfa-wallet-interface';
-import type { Hex, Json } from '@metamask/utils';
+import type { Hex } from '@metamask/utils';
 import { add0x, assert, bytesToHex, hexToBytes } from '@metamask/utils';
 
 const SESSION_NONCE_BYTE_LENGTH = 32;
@@ -272,65 +272,6 @@ export function getSignedTypedDataHash<
     version,
   );
   return new Uint8Array(hash);
-}
-
-/**
- * Parse a non-empty string field from JSON.
- *
- * @param value - The value to parse.
- * @param fieldName - Field name for error messages.
- * @returns The parsed string.
- */
-function parseNonEmptyString(value: Json, fieldName: string): string {
-  if (typeof value !== 'string') {
-    throw new Error(`Invalid ${fieldName}: expected a string`);
-  }
-  if (value.length < 1) {
-    throw new Error(`Invalid ${fieldName}: expected a non-empty string`);
-  }
-  return value;
-}
-
-/**
- * Parse a server network id from a JSON value.
- *
- * @param serverNetId - The server network id to parse.
- * @returns The parsed server network id.
- */
-export function parseServerNetId(serverNetId: Json): string {
-  return parseNonEmptyString(serverNetId, 'server network id');
-}
-
-/**
- * Parse a share epoch from a JSON value.
- *
- * @param shareEpoch - The share epoch to parse.
- * @returns The parsed share epoch.
- */
-export function parseShareEpoch(shareEpoch: Json): number {
-  if (typeof shareEpoch !== 'number' || !Number.isInteger(shareEpoch)) {
-    throw new Error('Invalid share epoch: expected an integer');
-  }
-  if (shareEpoch < 1) {
-    throw new Error('Invalid share epoch: expected a positive integer');
-  }
-  return shareEpoch;
-}
-
-/**
- * Parse TSS setup from a JSON value.
- *
- * @param tssSetup - Hex-encoded setup, or `null` when unset.
- * @returns The parsed setup bytes, or `null`.
- */
-export function parseTssSetup(tssSetup: Json): Uint8Array | null {
-  if (tssSetup === null) {
-    return null;
-  }
-  if (typeof tssSetup !== 'string') {
-    throw new Error('Invalid tss setup: expected a hex string or null');
-  }
-  return hexToBytes(tssSetup);
 }
 
 /**

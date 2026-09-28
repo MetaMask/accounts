@@ -61,7 +61,8 @@
     "@metamask/mfa-wallet-dkls23-lib": "^0.0.0",
     "@metamask/mfa-wallet-e2ee": "^0.0.0",
     "@metamask/mfa-wallet-network": "^0.0.0",
-    "@metamask/mfa-wallet-util": "^0.0.0"
+    "@metamask/mfa-wallet-util": "^0.0.0",
+    "@metamask/superstruct": "^3.4.1"
   },
   "devDependencies": {
     "@ethereumjs/tx": "^5.4.0",
