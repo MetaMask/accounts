@@ -81,6 +81,8 @@ linkStyle default opacity:0.5
   eth_money_keyring --> keyring_api;
   eth_money_keyring --> keyring_sdk;
   eth_money_keyring --> keyring_utils;
+  eth_mpc_keyring --> keyring_api;
+  eth_mpc_keyring --> keyring_sdk;
   eth_mpc_keyring --> keyring_utils;
   eth_qr_keyring --> keyring_api;
   eth_qr_keyring --> keyring_sdk;

@@ -54,4 +54,10 @@ export enum KeyringType {
    * without any signing capability.
    */
   WatchOnly = 'watch-only',
+
+  /**
+   * Represents a keyring that uses Multi-Party Computation (MPC) for key
+   * management and signing.
+   */
+  Mpc = 'mpc',
 }
