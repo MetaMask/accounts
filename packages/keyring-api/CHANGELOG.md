@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Includes an optional `accountType` field, matching `private-key:import`, since the account type cannot always be detected from the address alone.
   - Includes an optional `scopes` field, since the scope cannot always be detected from the address alone (e.g. an EVM address is valid on every EVM chain). When omitted, the keyring decides the scopes.
 - Add `address` capability to `KeyringCapabilities`, declaring whether a keyring supports importing watch-only accounts by address ([#643](https://github.com/MetaMask/accounts/pull/643))
-- Add `KeyringType.WatchOnly` keyring type ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `KeyringType.WatchOnly` keyring type ([#644](https://github.com/MetaMask/accounts/pull/644))
 
 ## [24.1.0]
 
