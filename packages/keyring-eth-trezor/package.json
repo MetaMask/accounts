@@ -80,6 +80,7 @@
     "@types/node": "^22.13.14",
     "@types/sinon": "^17.0.3",
     "@types/w3c-web-usb": "^1.0.6",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "deepmerge": "^4.2.2",
     "depcheck": "^1.4.7",
     "ethereumjs-tx": "^1.3.7",
@@ -87,10 +88,10 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-it-up": "^3.1.0",
     "sinon": "^19.0.2",
-    "ts-jest": "^29.0.5",
+    "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
-    "typescript": "^7.0.2"
+    "typescript": "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   },
   "engines": {
     "node": ">=22"

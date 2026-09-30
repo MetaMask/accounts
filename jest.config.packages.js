@@ -6,17 +6,21 @@
 /** @type {import('@jest/types').Config.InitialOptions} */
 module.exports = {
   transform: {
-    // ts-jest doesn't support TypeScript 7 (new native Go API); use an aliased
-    // TypeScript 5 package for test transpilation. Override module settings so
-    // ts-jest compiles to CommonJS for tests without affecting the ESM dist.
+    // Override module settings so ts-jest compiles to CommonJS for tests
+    // without affecting the ESM-only dist. ts-jest runs on the default
+    // `typescript` package (the JS-based TypeScript 6 compiler); builds use
+    // the TypeScript 7 native compiler, which has no JavaScript API.
     '^.+\\.tsx?$': [
       'ts-jest',
       {
-        compiler: 'typescript-for-ts-jest',
         tsconfig: {
           module: 'CommonJS',
           moduleResolution: 'Node16',
           verbatimModuleSyntax: false,
+          // TypeScript 6 no longer auto-includes packages from
+          // `node_modules/@types`, so the ambient types used by test files
+          // must be listed explicitly.
+          types: ['jest', 'node', 'web'],
         },
       },
     ],

@@ -54,6 +54,7 @@
     "@types/semver": "^7",
     "@typescript-eslint/eslint-plugin": "^8.48.0",
     "@typescript-eslint/parser": "^8.48.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@yarnpkg/types": "^4.0.0",
     "depcheck": "^1.4.7",
     "eslint": "^9.39.1",
@@ -75,16 +76,16 @@
     "prettier-plugin-packagejson": "^2.5.2",
     "rimraf": "^5.0.7",
     "semver": "^7.6.3",
-    "ts-jest": "^29.0.5",
+    "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
-    "typescript": "^7.0.2",
-    "typescript-eslint": "^8.48.0",
-    "typescript-for-ts-jest": "npm:typescript@~5.4.5"
+    "typescript": "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch",
+    "typescript-eslint": "^8.48.0"
   },
   "resolutions": {
     "@types/node": "^22.13.14",
     "@types/web": "^0.0.69",
     "@typescript/lib-dom": "npm:@types/web@^0.0.69",
+    "@typescript/old": "patch:typescript@npm%3A6.0.3#./.yarn/patches/typescript-npm-6.0.3-585eecd158.patch",
     "axios@1.7.3": "^1.7.7",
     "eslint-import-resolver-typescript": "<=3.7.0",
     "eslint-plugin-import-x": "<=4.6.1",
