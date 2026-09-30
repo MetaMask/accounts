@@ -48,4 +48,10 @@ export enum KeyringType {
    * Represents keyring for money accounts.
    */
   Money = 'money',
+
+  /**
+   * Represents a watch-only keyring that holds accounts imported by address,
+   * without any signing capability.
+   */
+  WatchOnly = 'watch-only',
 }
