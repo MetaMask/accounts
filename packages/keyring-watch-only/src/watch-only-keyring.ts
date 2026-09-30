@@ -1,11 +1,13 @@
 import {
   AccountCreationType,
+  CaipChainIdStruct,
   EthAccountType,
   EthScope,
   isEvmAccountType,
   KeyringAccountTypeStruct,
 } from '@metamask/keyring-api';
 import type {
+  CaipChainId,
   KeyringAccount,
   KeyringAccountType,
   KeyringRequest,
@@ -23,8 +25,9 @@ import {
   generateEthAccountId,
   KeyringAccountRegistry,
 } from '@metamask/keyring-sdk';
+import { isScopeEqualToAny } from '@metamask/keyring-utils';
 import type { AccountId } from '@metamask/keyring-utils';
-import { array, assert, object, string } from '@metamask/superstruct';
+import { array, assert, nonempty, object, string } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 import { add0x, getChecksumAddress, isValidHexAddress } from '@metamask/utils';
 import type { Json } from '@metamask/utils';
@@ -47,8 +50,8 @@ const WATCH_ONLY_KEYRING_CAPABILITIES: KeyringCapabilities = {
 /**
  * Struct for a serialized watch-only account state entry.
  *
- * The entry is self-describing: the account type is always stored, so
- * persisted state never relies on implicit defaults.
+ * The entry is self-describing: the account type and scopes are always
+ * stored, so persisted state never relies on implicit defaults.
  */
 const WatchOnlyAccountStateStruct = object({
   /**
@@ -60,6 +63,12 @@ const WatchOnlyAccountStateStruct = object({
    * The account address.
    */
   address: string(),
+
+  /**
+   * The account scopes (CAIP-2 chain IDs), matching
+   * {@link KeyringAccount.scopes}.
+   */
+  scopes: nonempty(array(CaipChainIdStruct)),
 });
 
 /**
@@ -80,8 +89,8 @@ const WatchOnlyKeyringStateStruct = object({
 /**
  * Serialized state of the WatchOnlyKeyring.
  *
- * Only the source of truth (the imported addresses) is persisted; account
- * objects are rebuilt from it on `deserialize`.
+ * Only the source of truth (the imported addresses and their scopes) is
+ * persisted; account objects are rebuilt from it on `deserialize`.
  */
 export type WatchOnlyKeyringState = Infer<typeof WatchOnlyKeyringStateStruct>;
 
@@ -126,6 +135,42 @@ export class WatchOnlyKeyring implements Keyring {
   readonly #lock = new Mutex();
 
   /**
+   * Resolve the scopes of an imported account.
+   *
+   * When no scopes are provided, the keyring's own scopes are used: the scope
+   * cannot always be detected from the address alone (an EVM address is valid
+   * on every EVM chain). Provided scopes must be non-empty and supported by
+   * the keyring, where the special `eip155:0` scope (any EVM chain) matches
+   * any `eip155:*` chain ID.
+   *
+   * @param scopes - The scopes to resolve, if any.
+   * @returns The resolved scopes.
+   * @throws If the provided scopes are empty or unsupported by the keyring.
+   */
+  #resolveScopes(scopes: readonly CaipChainId[] | undefined): CaipChainId[] {
+    if (scopes === undefined) {
+      return [...this.capabilities.scopes];
+    }
+
+    if (scopes.length === 0) {
+      throw new Error('Scopes must not be empty');
+    }
+
+    const supportedScopes = this.capabilities.scopes;
+    const unsupportedScopes = scopes.filter(
+      (scope) => !isScopeEqualToAny(scope, supportedScopes),
+    );
+
+    if (unsupportedScopes.length > 0) {
+      throw new Error(
+        `Unsupported scopes for WatchOnlyKeyring: ${unsupportedScopes.join(', ')}. Supported scopes: ${supportedScopes.join(', ')}.`,
+      );
+    }
+
+    return [...scopes];
+  }
+
+  /**
    * Get or create the account for the given address.
    *
    * The address is validated as an EVM address and normalized to its EIP-55
@@ -134,13 +179,15 @@ export class WatchOnlyKeyring implements Keyring {
    *
    * @param address - The address to import.
    * @param accountType - The account type to use, defaulting to `eip155:eoa`.
+   * @param scopes - The scopes to use, defaulting to the keyring's scopes.
    * @returns The account for the given address.
-   * @throws If the address is not a valid EVM address or the account type is
-   * not an EVM account type.
+   * @throws If the address is not a valid EVM address, the account type is
+   * not an EVM account type, or the scopes are unsupported.
    */
   #getOrCreateAccount(
     address: string,
     accountType: KeyringAccountType | undefined,
+    scopes: readonly CaipChainId[] | undefined,
   ): KeyringAccount {
     const hexAddress = add0x(address);
 
@@ -171,7 +218,7 @@ export class WatchOnlyKeyring implements Keyring {
       id,
       type: resolvedAccountType,
       address: checksumAddress,
-      scopes: [...this.capabilities.scopes],
+      scopes: this.#resolveScopes(scopes),
       methods: [],
       options: {},
     };
@@ -217,7 +264,8 @@ export class WatchOnlyKeyring implements Keyring {
    * @param options - Options describing how to create the account.
    * @returns A promise that resolves to an array with the created account.
    * @throws If the creation options are unsupported, the address is not a
-   * valid EVM address, or the account type is not an EVM account type.
+   * valid EVM address, the account type is not an EVM account type, or the
+   * scopes are unsupported.
    */
   async createAccounts(
     options: CreateAccountOptions,
@@ -226,10 +274,10 @@ export class WatchOnlyKeyring implements Keyring {
       `${AccountCreationType.AddressImport}`,
     ] as const);
 
-    const { address, accountType } = options;
+    const { address, accountType, scopes } = options;
 
     return this.#withLock(async () => {
-      return [this.#getOrCreateAccount(address, accountType)];
+      return [this.#getOrCreateAccount(address, accountType, scopes)];
     });
   }
 
@@ -263,6 +311,7 @@ export class WatchOnlyKeyring implements Keyring {
       accounts: this.#registry.values().map((account) => ({
         type: account.type,
         address: account.address,
+        scopes: account.scopes,
       })),
     };
 
@@ -276,8 +325,8 @@ export class WatchOnlyKeyring implements Keyring {
    *
    * @param state - A JSON object representing a serialized keyring state.
    * @returns A promise that resolves when the keyring state has been restored.
-   * @throws If the state is invalid, contains an invalid EVM address, or
-   * contains a non-EVM account type.
+   * @throws If the state is invalid, contains an invalid EVM address, a
+   * non-EVM account type, or unsupported scopes.
    */
   async deserialize(state: Json): Promise<void> {
     return this.#withLock(async () => {
@@ -285,8 +334,8 @@ export class WatchOnlyKeyring implements Keyring {
 
       this.#registry.clear();
 
-      for (const { type, address } of state.accounts) {
-        this.#getOrCreateAccount(address, type);
+      for (const { type, address, scopes } of state.accounts) {
+        this.#getOrCreateAccount(address, type, scopes);
       }
     });
   }

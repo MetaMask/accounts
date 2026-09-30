@@ -29,6 +29,9 @@ import { WatchOnlyKeyring } from '@metamask/watch-only-keyring';
 const keyring = new WatchOnlyKeyring();
 
 // Import an address. `accountType` is optional and defaults to `eip155:eoa`.
+// `scopes` is optional and defaults to the keyring's scopes (`['eip155:0']`,
+// i.e. any EVM chain), since the scope cannot be detected from an EVM
+// address. Specific EVM scopes (e.g. `['eip155:1']`) are also accepted.
 const [account] = await keyring.createAccounts({
   type: 'address:import',
   address: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',

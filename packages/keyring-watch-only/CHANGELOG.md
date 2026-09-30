@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of `@metamask/watch-only-keyring` ([#644](https://github.com/MetaMask/accounts/pull/644))
   - A watch-only v2 `Keyring` that holds accounts imported by address, without any signing capability.
-  - Supports creating accounts via the `address:import` option, with an optional `accountType` (defaulting to `eip155:eoa`).
+  - Supports creating accounts via the `address:import` option, with an optional `accountType` (defaulting to `eip155:eoa`) and optional `scopes` (defaulting to the keyring's scopes, since the scope cannot always be detected from the address alone).
   - Includes `WatchOnlyKeyringV1Adapter`, which adapts the keyring to the legacy v1 keyring API for `KeyringController` compatibility, adding address-based account removal.
   - Includes synchronous `lookupAccount` and `lookupByAddress` methods for `AccountsController` integration.
 

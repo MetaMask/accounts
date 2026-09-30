@@ -1,5 +1,6 @@
 import {
   AccountCreationType,
+  BtcScope,
   EthAccountType,
   EthScope,
 } from '@metamask/keyring-api';
@@ -22,11 +23,13 @@ const TEST_ADDRESS_2 = '0xab5801a7d398351b8be11c439e05c5b3259aec9b';
 function createAddressImportOptions(
   address: string,
   accountType?: string,
+  scopes?: string[],
 ): CreateAccountOptions {
   return {
     type: AccountCreationType.AddressImport,
     address,
     ...(accountType ? { accountType } : {}),
+    ...(scopes ? { scopes } : {}),
   } as CreateAccountOptions;
 }
 
@@ -157,6 +160,43 @@ describe('WatchOnlyKeyring', () => {
       expect(account.type).toBe(EthAccountType.Erc4337);
     });
 
+    it('uses the provided scopes when supplied', async () => {
+      const accounts = await keyring.createAccounts(
+        createAddressImportOptions(TEST_ADDRESS_1, undefined, [EthScope.Eoa]),
+      );
+
+      const account = accounts[0] as KeyringAccount;
+      expect(account.scopes).toStrictEqual([EthScope.Eoa]);
+    });
+
+    it('accepts specific EVM scopes when the keyring supports any EVM scope', async () => {
+      const accounts = await keyring.createAccounts(
+        createAddressImportOptions(TEST_ADDRESS_1, undefined, [
+          EthScope.Mainnet,
+          EthScope.Testnet,
+        ]),
+      );
+
+      const account = accounts[0] as KeyringAccount;
+      expect(account.scopes).toStrictEqual([
+        EthScope.Mainnet,
+        EthScope.Testnet,
+      ]);
+    });
+
+    it('returns the existing account when re-importing with different scopes', async () => {
+      const [firstAccount] = await keyring.createAccounts(
+        createAddressImportOptions(TEST_ADDRESS_1),
+      );
+      const [secondAccount] = await keyring.createAccounts(
+        createAddressImportOptions(TEST_ADDRESS_1, undefined, [
+          EthScope.Mainnet,
+        ]),
+      );
+
+      expect(secondAccount).toStrictEqual(firstAccount);
+    });
+
     it('generates deterministic account IDs', async () => {
       const [account] = await keyring.createAccounts(
         createAddressImportOptions(TEST_ADDRESS_1),
@@ -250,6 +290,26 @@ describe('WatchOnlyKeyring', () => {
       ).rejects.toThrow(
         "Unsupported account type for WatchOnlyKeyring: bip122:p2pkh. Only 'eip155:eoa' and 'eip155:erc4337' are supported.",
       );
+    });
+
+    it('throws for unsupported scopes', async () => {
+      await expect(
+        keyring.createAccounts(
+          createAddressImportOptions(TEST_ADDRESS_1, undefined, [
+            BtcScope.Mainnet,
+          ]),
+        ),
+      ).rejects.toThrow(
+        `Unsupported scopes for WatchOnlyKeyring: ${BtcScope.Mainnet}. Supported scopes: ${EthScope.Eoa}.`,
+      );
+    });
+
+    it('throws for empty scopes', async () => {
+      await expect(
+        keyring.createAccounts(
+          createAddressImportOptions(TEST_ADDRESS_1, undefined, []),
+        ),
+      ).rejects.toThrow('Scopes must not be empty');
     });
   });
 
@@ -372,10 +432,12 @@ describe('WatchOnlyKeyring', () => {
           {
             type: EthAccountType.Eoa,
             address: TEST_ADDRESS_1_CHECKSUMMED,
+            scopes: [EthScope.Eoa],
           },
           {
             type: EthAccountType.Erc4337,
             address: getChecksumAddress(TEST_ADDRESS_2),
+            scopes: [EthScope.Eoa],
           },
         ],
       });
@@ -386,7 +448,11 @@ describe('WatchOnlyKeyring', () => {
     it('restores accounts from a serialized state', async () => {
       await keyring.deserialize({
         accounts: [
-          { type: EthAccountType.Eoa, address: TEST_ADDRESS_1_CHECKSUMMED },
+          {
+            type: EthAccountType.Eoa,
+            address: TEST_ADDRESS_1_CHECKSUMMED,
+            scopes: [EthScope.Eoa],
+          },
         ],
       });
 
@@ -395,11 +461,18 @@ describe('WatchOnlyKeyring', () => {
       expect(accounts).toHaveLength(1);
       expect(accounts[0]?.address).toBe(TEST_ADDRESS_1_CHECKSUMMED);
       expect(accounts[0]?.type).toBe(EthAccountType.Eoa);
+      expect(accounts[0]?.scopes).toStrictEqual([EthScope.Eoa]);
     });
 
     it('normalizes addresses from a serialized state', async () => {
       await keyring.deserialize({
-        accounts: [{ type: EthAccountType.Eoa, address: TEST_ADDRESS_1 }],
+        accounts: [
+          {
+            type: EthAccountType.Eoa,
+            address: TEST_ADDRESS_1,
+            scopes: [EthScope.Eoa],
+          },
+        ],
       });
 
       const accounts = await keyring.getAccounts();
@@ -413,6 +486,7 @@ describe('WatchOnlyKeyring', () => {
           {
             type: EthAccountType.Erc4337,
             address: TEST_ADDRESS_1_CHECKSUMMED,
+            scopes: [EthScope.Eoa],
           },
         ],
       });
@@ -420,6 +494,22 @@ describe('WatchOnlyKeyring', () => {
       const accounts = await keyring.getAccounts();
 
       expect(accounts[0]?.type).toBe(EthAccountType.Erc4337);
+    });
+
+    it('restores specific EVM scopes from a serialized state', async () => {
+      await keyring.deserialize({
+        accounts: [
+          {
+            type: EthAccountType.Eoa,
+            address: TEST_ADDRESS_1_CHECKSUMMED,
+            scopes: [EthScope.Mainnet],
+          },
+        ],
+      });
+
+      const accounts = await keyring.getAccounts();
+
+      expect(accounts[0]?.scopes).toStrictEqual([EthScope.Mainnet]);
     });
 
     it('round-trips through serialize', async () => {
@@ -442,7 +532,13 @@ describe('WatchOnlyKeyring', () => {
       await keyring.createAccounts(createAddressImportOptions(TEST_ADDRESS_1));
 
       await keyring.deserialize({
-        accounts: [{ type: EthAccountType.Eoa, address: TEST_ADDRESS_2 }],
+        accounts: [
+          {
+            type: EthAccountType.Eoa,
+            address: TEST_ADDRESS_2,
+            scopes: [EthScope.Eoa],
+          },
+        ],
       });
 
       const accounts = await keyring.getAccounts();
@@ -460,8 +556,16 @@ describe('WatchOnlyKeyring', () => {
     it('de-duplicates repeated addresses', async () => {
       await keyring.deserialize({
         accounts: [
-          { type: EthAccountType.Eoa, address: TEST_ADDRESS_1 },
-          { type: EthAccountType.Eoa, address: TEST_ADDRESS_1_CHECKSUMMED },
+          {
+            type: EthAccountType.Eoa,
+            address: TEST_ADDRESS_1,
+            scopes: [EthScope.Eoa],
+          },
+          {
+            type: EthAccountType.Eoa,
+            address: TEST_ADDRESS_1_CHECKSUMMED,
+            scopes: [EthScope.Eoa],
+          },
         ],
       });
 
@@ -483,10 +587,26 @@ describe('WatchOnlyKeyring', () => {
       ).rejects.toThrow(/At path: accounts\.0\.type/u);
     });
 
+    it('throws for a state entry missing scopes', async () => {
+      await expect(
+        keyring.deserialize({
+          accounts: [
+            { type: EthAccountType.Eoa, address: TEST_ADDRESS_1_CHECKSUMMED },
+          ],
+        }),
+      ).rejects.toThrow(/At path: accounts\.0\.scopes/u);
+    });
+
     it('throws for an invalid address in the state', async () => {
       await expect(
         keyring.deserialize({
-          accounts: [{ type: EthAccountType.Eoa, address: 'not-an-address' }],
+          accounts: [
+            {
+              type: EthAccountType.Eoa,
+              address: 'not-an-address',
+              scopes: [EthScope.Eoa],
+            },
+          ],
         }),
       ).rejects.toThrow('Invalid EVM address: not-an-address');
     });
@@ -498,11 +618,28 @@ describe('WatchOnlyKeyring', () => {
             {
               type: 'bip122:p2pkh',
               address: TEST_ADDRESS_1_CHECKSUMMED,
+              scopes: [EthScope.Eoa],
             },
           ],
         }),
       ).rejects.toThrow(
         "Unsupported account type for WatchOnlyKeyring: bip122:p2pkh. Only 'eip155:eoa' and 'eip155:erc4337' are supported.",
+      );
+    });
+
+    it('throws for unsupported scopes in the state', async () => {
+      await expect(
+        keyring.deserialize({
+          accounts: [
+            {
+              type: EthAccountType.Eoa,
+              address: TEST_ADDRESS_1_CHECKSUMMED,
+              scopes: [BtcScope.Mainnet],
+            },
+          ],
+        }),
+      ).rejects.toThrow(
+        `Unsupported scopes for WatchOnlyKeyring: ${BtcScope.Mainnet}. Supported scopes: ${EthScope.Eoa}.`,
       );
     });
   });
