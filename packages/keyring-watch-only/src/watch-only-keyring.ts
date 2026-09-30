@@ -199,7 +199,7 @@ export class WatchOnlyKeyring implements Keyring {
    * @throws If no account matches the given ID.
    */
   async getAccount(accountId: AccountId): Promise<KeyringAccount> {
-    const account = this.#registry.get(accountId);
+    const account = this.lookupAccount(accountId);
 
     if (!account) {
       throw new Error(`Account not found for id: ${accountId}`);
@@ -301,11 +301,49 @@ export class WatchOnlyKeyring implements Keyring {
    * @returns This method always throws.
    * @throws Always, since watch-only accounts cannot handle requests.
    */
-
   async submitRequest(_request: KeyringRequest): Promise<Json> {
     throw new Error(
       'WatchOnlyKeyring cannot handle requests: watch-only accounts have no signing capability',
     );
+  }
+
+  // ──────────────────────────────────────────────
+  // Synchronous lookup API
+  // ──────────────────────────────────────────────
+
+  /**
+   * Get an account by its ID, synchronously.
+   *
+   * @param accountId - The account ID to look up.
+   * @returns The account, or `undefined` if not found.
+   */
+  lookupAccount(accountId: AccountId): KeyringAccount | undefined {
+    return this.#registry.get(accountId);
+  }
+
+  /**
+   * Get an account by its address (case-insensitive), synchronously.
+   *
+   * Performs an O(1) exact lookup first; falls back to a linear scan to
+   * handle addresses passed with a different casing (e.g. lowercase vs
+   * EIP-55 checksummed). All addresses held by the keyring are valid EVM
+   * addresses, so the fallback comparison is safe.
+   *
+   * @param address - The address to look up.
+   * @returns The account, or `undefined` if not found.
+   */
+  lookupByAddress(address: string): KeyringAccount | undefined {
+    const accountId = this.#registry.getAccountId(address);
+
+    if (accountId !== undefined) {
+      return this.#registry.get(accountId);
+    }
+
+    return this.#registry
+      .values()
+      .find(
+        (account) => account.address.toLowerCase() === address.toLowerCase(),
+      );
   }
 
   /**

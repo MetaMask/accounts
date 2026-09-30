@@ -273,6 +273,56 @@ describe('WatchOnlyKeyring', () => {
     });
   });
 
+  describe('lookupAccount', () => {
+    it('returns the account matching the given ID', async () => {
+      const [createdAccount] = await keyring.createAccounts(
+        createAddressImportOptions(TEST_ADDRESS_1),
+      );
+
+      expect(keyring.lookupAccount(createdAccount?.id as string)).toStrictEqual(
+        createdAccount,
+      );
+    });
+
+    it('returns undefined when no account matches the given ID', async () => {
+      expect(
+        keyring.lookupAccount('00000000-0000-0000-0000-000000000000'),
+      ).toBeUndefined();
+    });
+  });
+
+  describe('lookupByAddress', () => {
+    it('returns the account matching the given address', async () => {
+      const [createdAccount] = await keyring.createAccounts(
+        createAddressImportOptions(TEST_ADDRESS_1),
+      );
+
+      expect(keyring.lookupByAddress(TEST_ADDRESS_1_CHECKSUMMED)).toStrictEqual(
+        createdAccount,
+      );
+    });
+
+    it('matches the address case-insensitively', async () => {
+      const [createdAccount] = await keyring.createAccounts(
+        createAddressImportOptions(TEST_ADDRESS_1),
+      );
+
+      expect(keyring.lookupByAddress(TEST_ADDRESS_1)).toStrictEqual(
+        createdAccount,
+      );
+    });
+
+    it('returns undefined when no account matches the given address', async () => {
+      await keyring.createAccounts(createAddressImportOptions(TEST_ADDRESS_1));
+
+      expect(keyring.lookupByAddress(TEST_ADDRESS_2)).toBeUndefined();
+    });
+
+    it('returns undefined when the keyring holds no accounts', () => {
+      expect(keyring.lookupByAddress(TEST_ADDRESS_1)).toBeUndefined();
+    });
+  });
+
   describe('deleteAccount', () => {
     it('deletes the account matching the given ID', async () => {
       const [createdAccount] = await keyring.createAccounts(

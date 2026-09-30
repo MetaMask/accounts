@@ -27,6 +27,10 @@ type SetupResult = {
       ReturnType<WatchOnlyKeyring['deleteAccount']>,
       Parameters<WatchOnlyKeyring['deleteAccount']>
     >;
+    lookupByAddress: jest.SpyInstance<
+      ReturnType<WatchOnlyKeyring['lookupByAddress']>,
+      Parameters<WatchOnlyKeyring['lookupByAddress']>
+    >;
   };
 };
 
@@ -43,11 +47,12 @@ async function setup({
   }
 
   const deleteAccount = jest.spyOn(inner, 'deleteAccount');
+  const lookupByAddress = jest.spyOn(inner, 'lookupByAddress');
 
   return {
     adapter: new WatchOnlyKeyringV1Adapter(inner),
     inner,
-    mocks: { deleteAccount },
+    mocks: { deleteAccount, lookupByAddress },
   };
 }
 
@@ -118,14 +123,13 @@ describe('WatchOnlyKeyringV1Adapter', () => {
     it('removes an account by resolving its address and deleting its account ID', async () => {
       const { adapter, inner, mocks } = await setup();
 
+      const account = inner.lookupByAddress(TEST_ADDRESS_1);
+
       await adapter.removeAccount(TEST_ADDRESS_1);
 
-      const accounts = await inner.getAccounts();
-      expect(accounts).toStrictEqual([]);
-      expect(mocks.deleteAccount).toHaveBeenCalledTimes(1);
-
-      const deletedAccountId = mocks.deleteAccount.mock.calls[0]?.[0];
-      expect(deletedAccountId).toBeDefined();
+      expect(mocks.lookupByAddress).toHaveBeenCalledWith(TEST_ADDRESS_1);
+      expect(mocks.deleteAccount).toHaveBeenCalledWith(account?.id);
+      expect(await inner.getAccounts()).toStrictEqual([]);
     });
 
     it('matches the address case-insensitively', async () => {

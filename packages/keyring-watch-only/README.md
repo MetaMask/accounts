@@ -58,6 +58,19 @@ keyring.capabilities;
 // }
 ```
 
+### Synchronous account lookup
+
+The `AccountsController` needs synchronous access to accounts. The keyring
+exposes two sync lookup methods alongside the async `Keyring` API:
+
+```ts
+keyring.lookupAccount(account.id);
+// → the account, or undefined
+
+keyring.lookupByAddress('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045');
+// → the account, or undefined (address matching is case-insensitive)
+```
+
 ### Legacy v1 adapter
 
 `KeyringController` interacts with keyrings through the legacy v1 interface.

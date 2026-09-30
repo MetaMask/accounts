@@ -1,7 +1,6 @@
 import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import { EthKeyringV1Adapter } from '@metamask/keyring-sdk/v2';
-import { add0x } from '@metamask/utils';
 
 import type { WatchOnlyKeyring } from './watch-only-keyring';
 
@@ -53,13 +52,7 @@ export class WatchOnlyKeyringV1Adapter extends EthKeyringV1Adapter<WatchOnlyKeyr
    * @throws If no account matches the given address.
    */
   async removeAccount(address: string): Promise<void> {
-    const normalizedAddress = add0x(address).toLowerCase();
-
-    const accounts = await this.inner.getAccounts();
-    const account = accounts.find(
-      (candidate) =>
-        add0x(candidate.address).toLowerCase() === normalizedAddress,
-    );
+    const account = this.inner.lookupByAddress(address);
 
     if (!account) {
       throw new Error(`Account '${address}' not found`);
