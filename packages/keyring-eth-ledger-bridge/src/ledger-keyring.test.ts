@@ -682,9 +682,7 @@ describe('LedgerKeyring', function () {
           );
 
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
-          expect(
-            returnedTx.toJSON(),
-          ).toStrictEqual(signedNewFakeTx.toJSON());
+          expect(returnedTx.toJSON()).toStrictEqual(signedNewFakeTx.toJSON());
         });
 
         it('passes correctly encoded EIP1559 transaction to ledger and return signed tx', async function () {
@@ -731,9 +729,9 @@ describe('LedgerKeyring', function () {
           );
 
           expect(keyring.bridge.deviceSignTransaction).toHaveBeenCalled();
-          expect(
-            returnedTx.toJSON(),
-          ).toStrictEqual(signedFakeTypeTwoTx.toJSON());
+          expect(returnedTx.toJSON()).toStrictEqual(
+            signedFakeTypeTwoTx.toJSON(),
+          );
         });
       });
 
@@ -1128,7 +1126,7 @@ describe('LedgerKeyring', function () {
             { name: 'wallets', type: 'address[]' },
           ],
         },
-      };
+      } as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>;
 
       beforeEach(async function () {
         jest

@@ -1625,16 +1625,17 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
     "@types/uuid": "npm:^9.0.8"
+    "@typescript/native": "npm:typescript@^7.0.2"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     rimraf: "npm:^5.0.7"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
@@ -1658,6 +1659,7 @@ __metadata:
     "@types/semver": "npm:^7"
     "@typescript-eslint/eslint-plugin": "npm:^8.48.0"
     "@typescript-eslint/parser": "npm:^8.48.0"
+    "@typescript/native": "npm:typescript@^7.0.2"
     "@yarnpkg/types": "npm:^4.0.0"
     depcheck: "npm:^1.4.7"
     eslint: "npm:^9.39.1"
@@ -1679,11 +1681,10 @@ __metadata:
     prettier-plugin-packagejson: "npm:^2.5.2"
     rimraf: "npm:^5.0.7"
     semver: "npm:^7.6.3"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
     typescript-eslint: "npm:^8.48.0"
-    typescript-for-ts-jest: "npm:typescript@~5.4.5"
   languageName: unknown
   linkType: soft
 
@@ -1915,10 +1916,11 @@ __metadata:
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
     "@types/jest": "npm:^29.5.12"
+    "@typescript/native": "npm:typescript@^7.0.2"
     deepmerge: "npm:^4.2.2"
     ethereum-cryptography: "npm:^2.2.1"
     jest: "npm:^29.5.0"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   languageName: unknown
   linkType: soft
 
@@ -1953,6 +1955,7 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/web": "npm:^0.0.69"
     "@types/ws": "npm:^8.18.1"
+    "@typescript/native": "npm:typescript@^7.0.2"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     ethereum-cryptography: "npm:^2.2.1"
@@ -1961,11 +1964,11 @@ __metadata:
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     rxjs: "npm:^7.8.2"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   languageName: unknown
   linkType: soft
 
@@ -1985,10 +1988,11 @@ __metadata:
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
     "@types/jest": "npm:^29.5.12"
+    "@typescript/native": "npm:typescript@^7.0.2"
     async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     jest: "npm:^29.5.0"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   languageName: unknown
   linkType: soft
 
@@ -2035,15 +2039,16 @@ __metadata:
     "@types/hdkey": "npm:^2.0.1"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
+    "@typescript/native": "npm:typescript@^7.0.2"
     async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     hdkey: "npm:^2.1.0"
     jest: "npm:^29.5.0"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
@@ -2104,16 +2109,17 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
     "@types/randombytes": "npm:^2.0.0"
+    "@typescript/native": "npm:typescript@^7.0.2"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     ethereum-cryptography: "npm:^2.2.1"
     ethereumjs-tx: "npm:^1.3.7"
     jest: "npm:^29.5.0"
     randombytes: "npm:^2.1.0"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   languageName: unknown
   linkType: soft
 
@@ -2141,16 +2147,17 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
     "@types/uuid": "npm:^9.0.8"
+    "@typescript/native": "npm:typescript@^7.0.2"
     async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
     uuid: "npm:^9.0.1"
   peerDependencies:
     "@metamask/keyring-api": ^24.0.0
@@ -2182,6 +2189,7 @@ __metadata:
     "@types/node": "npm:^22.13.14"
     "@types/sinon": "npm:^17.0.3"
     "@types/w3c-web-usb": "npm:^1.0.6"
+    "@typescript/native": "npm:typescript@^7.0.2"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     ethereumjs-tx: "npm:^1.3.7"
@@ -2190,11 +2198,11 @@ __metadata:
     jest-environment-jsdom: "npm:^29.7.0"
     jest-it-up: "npm:^3.1.0"
     sinon: "npm:^19.0.2"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tslib: "npm:^2.6.2"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   languageName: unknown
   linkType: soft
 
@@ -2219,16 +2227,17 @@ __metadata:
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
+    "@typescript/native": "npm:typescript@^7.0.2"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     rimraf: "npm:^5.0.7"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   languageName: unknown
   linkType: soft
 
@@ -2285,16 +2294,17 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
     "@types/webextension-polyfill": "npm:^0.12.1"
+    "@typescript/native": "npm:typescript@^7.0.2"
     bitcoin-address-validation: "npm:^2.2.3"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   languageName: unknown
   linkType: soft
 
@@ -2310,16 +2320,17 @@ __metadata:
     "@metamask/superstruct": "npm:^3.4.1"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
+    "@typescript/native": "npm:typescript@^7.0.2"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     rimraf: "npm:^5.0.7"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   languageName: unknown
   linkType: soft
 
@@ -2341,16 +2352,17 @@ __metadata:
     "@metamask/utils": "npm:^11.11.0"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
+    "@typescript/native": "npm:typescript@^7.0.2"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     rimraf: "npm:^5.0.7"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   languageName: unknown
   linkType: soft
 
@@ -2372,6 +2384,7 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
     "@types/uuid": "npm:^9.0.8"
+    "@typescript/native": "npm:typescript@^7.0.2"
     async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
@@ -2379,11 +2392,11 @@ __metadata:
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     rimraf: "npm:^5.0.7"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
@@ -2403,16 +2416,17 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
     "@types/uuid": "npm:^9.0.8"
+    "@typescript/native": "npm:typescript@^7.0.2"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     rimraf: "npm:^5.0.7"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
     uuid: "npm:^9.0.1"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
@@ -2435,16 +2449,17 @@ __metadata:
     "@metamask/utils": "npm:^11.11.0"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
+    "@typescript/native": "npm:typescript@^7.0.2"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     rimraf: "npm:^5.0.7"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
     "@metamask/keyring-api": ^24.0.0
@@ -2464,17 +2479,18 @@ __metadata:
     "@metamask/utils": "npm:^11.11.0"
     "@types/jest": "npm:^29.5.12"
     "@types/node": "npm:^22.13.14"
+    "@typescript/native": "npm:typescript@^7.0.2"
     bitcoin-address-validation: "npm:^2.2.3"
     deepmerge: "npm:^4.2.2"
     depcheck: "npm:^1.4.7"
     jest: "npm:^29.5.0"
     jest-it-up: "npm:^3.1.0"
     rimraf: "npm:^5.0.7"
-    ts-jest: "npm:^29.0.5"
+    ts-jest: "npm:^29.4.12"
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:^7.0.2"
+    typescript: "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   languageName: unknown
   linkType: soft
 
@@ -5060,6 +5076,77 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@typescript/native@npm:typescript@^7.0.2":
+  version: 7.0.2
+  resolution: "typescript@npm:7.0.2"
+  dependencies:
+    "@typescript/typescript-aix-ppc64": "npm:7.0.2"
+    "@typescript/typescript-darwin-arm64": "npm:7.0.2"
+    "@typescript/typescript-darwin-x64": "npm:7.0.2"
+    "@typescript/typescript-freebsd-arm64": "npm:7.0.2"
+    "@typescript/typescript-freebsd-x64": "npm:7.0.2"
+    "@typescript/typescript-linux-arm": "npm:7.0.2"
+    "@typescript/typescript-linux-arm64": "npm:7.0.2"
+    "@typescript/typescript-linux-loong64": "npm:7.0.2"
+    "@typescript/typescript-linux-mips64el": "npm:7.0.2"
+    "@typescript/typescript-linux-ppc64": "npm:7.0.2"
+    "@typescript/typescript-linux-riscv64": "npm:7.0.2"
+    "@typescript/typescript-linux-s390x": "npm:7.0.2"
+    "@typescript/typescript-linux-x64": "npm:7.0.2"
+    "@typescript/typescript-netbsd-arm64": "npm:7.0.2"
+    "@typescript/typescript-netbsd-x64": "npm:7.0.2"
+    "@typescript/typescript-openbsd-arm64": "npm:7.0.2"
+    "@typescript/typescript-openbsd-x64": "npm:7.0.2"
+    "@typescript/typescript-sunos-x64": "npm:7.0.2"
+    "@typescript/typescript-win32-arm64": "npm:7.0.2"
+    "@typescript/typescript-win32-x64": "npm:7.0.2"
+  dependenciesMeta:
+    "@typescript/typescript-aix-ppc64":
+      optional: true
+    "@typescript/typescript-darwin-arm64":
+      optional: true
+    "@typescript/typescript-darwin-x64":
+      optional: true
+    "@typescript/typescript-freebsd-arm64":
+      optional: true
+    "@typescript/typescript-freebsd-x64":
+      optional: true
+    "@typescript/typescript-linux-arm":
+      optional: true
+    "@typescript/typescript-linux-arm64":
+      optional: true
+    "@typescript/typescript-linux-loong64":
+      optional: true
+    "@typescript/typescript-linux-mips64el":
+      optional: true
+    "@typescript/typescript-linux-ppc64":
+      optional: true
+    "@typescript/typescript-linux-riscv64":
+      optional: true
+    "@typescript/typescript-linux-s390x":
+      optional: true
+    "@typescript/typescript-linux-x64":
+      optional: true
+    "@typescript/typescript-netbsd-arm64":
+      optional: true
+    "@typescript/typescript-netbsd-x64":
+      optional: true
+    "@typescript/typescript-openbsd-arm64":
+      optional: true
+    "@typescript/typescript-openbsd-x64":
+      optional: true
+    "@typescript/typescript-sunos-x64":
+      optional: true
+    "@typescript/typescript-win32-arm64":
+      optional: true
+    "@typescript/typescript-win32-x64":
+      optional: true
+  bin:
+    tsc: bin/tsc
+  checksum: 10/b0179005349b43dc1febb35c4e79162cdf89b84eae60f6deac142429109041e07582e69a6aacf5a897e085869686d4512ea444a10acf5b5aa2b60910f82a19ca
+  languageName: node
+  linkType: hard
+
 "@typescript/typescript-aix-ppc64@npm:7.0.2":
   version: 7.0.2
   resolution: "@typescript/typescript-aix-ppc64@npm:7.0.2"
@@ -5625,13 +5712,6 @@ __metadata:
   dependencies:
     tslib: "npm:^2.4.0"
   checksum: 10/4c6bfce1cc9cd43f723c4d96403ac5f4757f885c953b839cde6956ec8817ff39623b82d67614de10c7933e21626925882fb9bac367db7d15d7cb4f84228722c9
-  languageName: node
-  linkType: hard
-
-"async@npm:^3.2.3":
-  version: 3.2.6
-  resolution: "async@npm:3.2.6"
-  checksum: 10/cb6e0561a3c01c4b56a799cc8bab6ea5fef45f069ab32500b6e19508db270ef2dffa55e5aed5865c5526e9907b1f8be61b27530823b411ffafb5e1538c86c368
   languageName: node
   linkType: hard
 
@@ -6330,7 +6410,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^4.0.0, chalk@npm:^4.0.2, chalk@npm:^4.1.0, chalk@npm:^4.1.2":
+"chalk@npm:^4.0.0, chalk@npm:^4.1.0, chalk@npm:^4.1.2":
   version: 4.1.2
   resolution: "chalk@npm:4.1.2"
   dependencies:
@@ -7079,17 +7159,6 @@ __metadata:
   dependencies:
     keccak: "npm:^3.0.3"
   checksum: 10/512d319e4f91ab0c33b514f371206956521dcdcdd23e8eb4d6f9c21e3be9f72287c0b82feb854d3a1eec91805804d13c31e7a1a7dafd37f69eb9994a9c6c8f32
-  languageName: node
-  linkType: hard
-
-"ejs@npm:^3.1.10":
-  version: 3.1.10
-  resolution: "ejs@npm:3.1.10"
-  dependencies:
-    jake: "npm:^10.8.5"
-  bin:
-    ejs: bin/cli.js
-  checksum: 10/a9cb7d7cd13b7b1cd0be5c4788e44dd10d92f7285d2f65b942f33e127230c054f99a42db4d99f766d8dbc6c57e94799593ee66a14efd7c8dd70c4812bf6aa384
   languageName: node
   linkType: hard
 
@@ -8116,15 +8185,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"filelist@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "filelist@npm:1.0.4"
-  dependencies:
-    minimatch: "npm:^5.0.1"
-  checksum: 10/4b436fa944b1508b95cffdfc8176ae6947b92825483639ef1b9a89b27d82f3f8aa22b21eed471993f92709b431670d4e015b39c087d435a61e1bb04564cf51de
-  languageName: node
-  linkType: hard
-
 "fill-range@npm:^7.1.1":
   version: 7.1.1
   resolution: "fill-range@npm:7.1.1"
@@ -8575,6 +8635,24 @@ __metadata:
   version: 4.2.11
   resolution: "graceful-fs@npm:4.2.11"
   checksum: 10/bf152d0ed1dc159239db1ba1f74fdbc40cb02f626770dcd5815c427ce0688c2635a06ed69af364396da4636d0408fcf7d4afdf7881724c3307e46aff30ca49e2
+  languageName: node
+  linkType: hard
+
+"handlebars@npm:^4.7.9":
+  version: 4.7.9
+  resolution: "handlebars@npm:4.7.9"
+  dependencies:
+    minimist: "npm:^1.2.5"
+    neo-async: "npm:^2.6.2"
+    source-map: "npm:^0.6.1"
+    uglify-js: "npm:^3.1.4"
+    wordwrap: "npm:^1.0.0"
+  dependenciesMeta:
+    uglify-js:
+      optional: true
+  bin:
+    handlebars: bin/handlebars
+  checksum: 10/e755433d652e8a15fc02f83d7478e652359e7a4d354c4328818853ed4f8a39d4a09e1d22dad3c7213c5240864a65b3c840970b8b181745575dd957dd258f2b8d
   languageName: node
   linkType: hard
 
@@ -9324,20 +9402,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jake@npm:^10.8.5":
-  version: 10.9.2
-  resolution: "jake@npm:10.9.2"
-  dependencies:
-    async: "npm:^3.2.3"
-    chalk: "npm:^4.0.2"
-    filelist: "npm:^1.0.4"
-    minimatch: "npm:^3.1.2"
-  bin:
-    jake: bin/cli.js
-  checksum: 10/3be324708f99f031e0aec49ef8fd872eb4583cbe8a29a0c875f554f6ac638ee4ea5aa759bb63723fd54f77ca6d7db851eaa78353301734ed3700db9cb109a0cd
-  languageName: node
-  linkType: hard
-
 "jest-changed-files@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-changed-files@npm:29.7.0"
@@ -9760,7 +9824,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-util@npm:^29.0.0, jest-util@npm:^29.7.0":
+"jest-util@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest-util@npm:29.7.0"
   dependencies:
@@ -10475,7 +10539,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^3.0.4, minimatch@npm:^3.1.1, minimatch@npm:^3.1.2, minimatch@npm:^3.1.5":
+"minimatch@npm:^3.0.4, minimatch@npm:^3.1.1, minimatch@npm:^3.1.5":
   version: 3.1.5
   resolution: "minimatch@npm:3.1.5"
   dependencies:
@@ -10519,6 +10583,13 @@ __metadata:
     is-plain-obj: "npm:^1.1.0"
     kind-of: "npm:^6.0.3"
   checksum: 10/8c040b3068811e79de1140ca2b708d3e203c8003eb9a414c1ab3cd467fc5f17c9ca02a5aef23bedc51a7f8bfbe77f87e9a7e31ec81fba304cda675b019496f4e
+  languageName: node
+  linkType: hard
+
+"minimist@npm:^1.2.5":
+  version: 1.2.8
+  resolution: "minimist@npm:1.2.8"
+  checksum: 10/908491b6cc15a6c440ba5b22780a0ba89b9810e1aea684e253e43c4e3b8d56ec1dcdd7ea96dde119c29df59c936cde16062159eae4225c691e19c70b432b6e6f
   languageName: node
   linkType: hard
 
@@ -10697,6 +10768,13 @@ __metadata:
   version: 0.6.3
   resolution: "negotiator@npm:0.6.3"
   checksum: 10/2723fb822a17ad55c93a588a4bc44d53b22855bf4be5499916ca0cab1e7165409d0b288ba2577d7b029f10ce18cf2ed8e703e5af31c984e1e2304277ef979837
+  languageName: node
+  linkType: hard
+
+"neo-async@npm:^2.6.2":
+  version: 2.6.2
+  resolution: "neo-async@npm:2.6.2"
+  checksum: 10/1a7948fea86f2b33ec766bc899c88796a51ba76a4afc9026764aedc6e7cde692a09067031e4a1bf6db4f978ccd99e7f5b6c03fe47ad9865c3d4f99050d67e002
   languageName: node
   linkType: hard
 
@@ -12128,6 +12206,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"semver@npm:^7.8.5":
+  version: 7.8.5
+  resolution: "semver@npm:7.8.5"
+  bin:
+    semver: bin/semver.js
+  checksum: 10/9b01d2ff11e6e4a4539b7ca3c5f280c8704cb397a28504469f2ed4f00ad2194748d756647362a9712fff30984d15772ab7f083108c2fb508e2096ae9e708f22c
+  languageName: node
+  linkType: hard
+
 "send@npm:~0.19.0, send@npm:~0.19.1":
   version: 0.19.2
   resolution: "send@npm:0.19.2"
@@ -12933,26 +13020,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^29.0.5":
-  version: 29.2.5
-  resolution: "ts-jest@npm:29.2.5"
+"ts-jest@npm:^29.4.12":
+  version: 29.4.14
+  resolution: "ts-jest@npm:29.4.14"
   dependencies:
     bs-logger: "npm:^0.2.6"
-    ejs: "npm:^3.1.10"
     fast-json-stable-stringify: "npm:^2.1.0"
-    jest-util: "npm:^29.0.0"
+    handlebars: "npm:^4.7.9"
     json5: "npm:^2.2.3"
     lodash.memoize: "npm:^4.1.2"
     make-error: "npm:^1.3.6"
-    semver: "npm:^7.6.3"
+    semver: "npm:^7.8.5"
+    type-fest: "npm:^4.41.0"
     yargs-parser: "npm:^21.1.1"
   peerDependencies:
-    "@babel/core": ">=7.0.0-beta.0 <8"
-    "@jest/transform": ^29.0.0
-    "@jest/types": ^29.0.0
-    babel-jest: ^29.0.0
-    jest: ^29.0.0
-    typescript: ">=4.3 <6"
+    "@babel/core": ">=7.0.0-beta.0 <9"
+    "@jest/transform": ^29.0.0 || ^30.0.0
+    "@jest/types": ^29.0.0 || ^30.0.0
+    babel-jest: ^29.0.0 || ^30.0.0
+    jest: ^29.0.0 || ^30.0.0
+    jest-util: ^29.0.0 || ^30.0.0
+    typescript: ">=4.3 <7"
   peerDependenciesMeta:
     "@babel/core":
       optional: true
@@ -12964,9 +13052,11 @@ __metadata:
       optional: true
     esbuild:
       optional: true
+    jest-util:
+      optional: true
   bin:
     ts-jest: cli.js
-  checksum: 10/f89e562816861ec4510840a6b439be6145f688b999679328de8080dc8e66481325fc5879519b662163e33b7578f35243071c38beb761af34e5fe58e3e326a958
+  checksum: 10/d93f8829cb9842fe5bcfe302c12d45d284afdc8467fc9906bf4b07c9c860a9fc4f97d58b42435ad48b83b754a24c4b7460c65c7de01b1a0974186e512e551759
   languageName: node
   linkType: hard
 
@@ -13118,6 +13208,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"type-fest@npm:^4.41.0":
+  version: 4.41.0
+  resolution: "type-fest@npm:4.41.0"
+  checksum: 10/617ace794ac0893c2986912d28b3065ad1afb484cad59297835a0807dc63286c39e8675d65f7de08fafa339afcb8fe06a36e9a188b9857756ae1e92ee8bda212
+  languageName: node
+  linkType: hard
+
 "type-is@npm:~1.6.18":
   version: 1.6.18
   resolution: "type-is@npm:1.6.18"
@@ -13184,155 +13281,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript-for-ts-jest@npm:typescript@~5.4.5":
-  version: 5.4.5
-  resolution: "typescript@npm:5.4.5"
+"typescript@npm:6.0.3":
+  version: 6.0.3
+  resolution: "typescript@npm:6.0.3"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10/d04a9e27e6d83861f2126665aa8d84847e8ebabcea9125b9ebc30370b98cb38b5dff2508d74e2326a744938191a83a69aa9fddab41f193ffa43eabfdf3f190a5
+  checksum: 10/0ef2357a4cffd916b52b683a021cdab0f81eea4e9aa35f2d254581c9a5106da02224e3392e1b0ed42b7a48f80c966e5f52b8e1a27941fa0523c1705a9c2e0330
   languageName: node
   linkType: hard
 
-"typescript@npm:^7.0.2":
-  version: 7.0.2
-  resolution: "typescript@npm:7.0.2"
-  dependencies:
-    "@typescript/typescript-aix-ppc64": "npm:7.0.2"
-    "@typescript/typescript-darwin-arm64": "npm:7.0.2"
-    "@typescript/typescript-darwin-x64": "npm:7.0.2"
-    "@typescript/typescript-freebsd-arm64": "npm:7.0.2"
-    "@typescript/typescript-freebsd-x64": "npm:7.0.2"
-    "@typescript/typescript-linux-arm": "npm:7.0.2"
-    "@typescript/typescript-linux-arm64": "npm:7.0.2"
-    "@typescript/typescript-linux-loong64": "npm:7.0.2"
-    "@typescript/typescript-linux-mips64el": "npm:7.0.2"
-    "@typescript/typescript-linux-ppc64": "npm:7.0.2"
-    "@typescript/typescript-linux-riscv64": "npm:7.0.2"
-    "@typescript/typescript-linux-s390x": "npm:7.0.2"
-    "@typescript/typescript-linux-x64": "npm:7.0.2"
-    "@typescript/typescript-netbsd-arm64": "npm:7.0.2"
-    "@typescript/typescript-netbsd-x64": "npm:7.0.2"
-    "@typescript/typescript-openbsd-arm64": "npm:7.0.2"
-    "@typescript/typescript-openbsd-x64": "npm:7.0.2"
-    "@typescript/typescript-sunos-x64": "npm:7.0.2"
-    "@typescript/typescript-win32-arm64": "npm:7.0.2"
-    "@typescript/typescript-win32-x64": "npm:7.0.2"
-  dependenciesMeta:
-    "@typescript/typescript-aix-ppc64":
-      optional: true
-    "@typescript/typescript-darwin-arm64":
-      optional: true
-    "@typescript/typescript-darwin-x64":
-      optional: true
-    "@typescript/typescript-freebsd-arm64":
-      optional: true
-    "@typescript/typescript-freebsd-x64":
-      optional: true
-    "@typescript/typescript-linux-arm":
-      optional: true
-    "@typescript/typescript-linux-arm64":
-      optional: true
-    "@typescript/typescript-linux-loong64":
-      optional: true
-    "@typescript/typescript-linux-mips64el":
-      optional: true
-    "@typescript/typescript-linux-ppc64":
-      optional: true
-    "@typescript/typescript-linux-riscv64":
-      optional: true
-    "@typescript/typescript-linux-s390x":
-      optional: true
-    "@typescript/typescript-linux-x64":
-      optional: true
-    "@typescript/typescript-netbsd-arm64":
-      optional: true
-    "@typescript/typescript-netbsd-x64":
-      optional: true
-    "@typescript/typescript-openbsd-arm64":
-      optional: true
-    "@typescript/typescript-openbsd-x64":
-      optional: true
-    "@typescript/typescript-sunos-x64":
-      optional: true
-    "@typescript/typescript-win32-arm64":
-      optional: true
-    "@typescript/typescript-win32-x64":
-      optional: true
+"typescript@patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch":
+  version: 6.0.3
+  resolution: "typescript@patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch::version=6.0.3&hash=ad880d"
   bin:
     tsc: bin/tsc
-  checksum: 10/b0179005349b43dc1febb35c4e79162cdf89b84eae60f6deac142429109041e07582e69a6aacf5a897e085869686d4512ea444a10acf5b5aa2b60910f82a19ca
+    tsserver: bin/tsserver
+  checksum: 10/760b5e904b934ba06db495d2b5369b5a8d161d4f6a9645b6efe457f8fcf556d8854504fb2a76085f3645517db6ed9ee324e5c7c2df9387383040bc901df4d793
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^7.0.2#optional!builtin<compat/typescript>":
-  version: 7.0.2
-  resolution: "typescript@patch:typescript@npm%3A7.0.2#optional!builtin<compat/typescript>::version=7.0.2&hash=3bafbf"
-  dependencies:
-    "@typescript/typescript-aix-ppc64": "npm:7.0.2"
-    "@typescript/typescript-darwin-arm64": "npm:7.0.2"
-    "@typescript/typescript-darwin-x64": "npm:7.0.2"
-    "@typescript/typescript-freebsd-arm64": "npm:7.0.2"
-    "@typescript/typescript-freebsd-x64": "npm:7.0.2"
-    "@typescript/typescript-linux-arm": "npm:7.0.2"
-    "@typescript/typescript-linux-arm64": "npm:7.0.2"
-    "@typescript/typescript-linux-loong64": "npm:7.0.2"
-    "@typescript/typescript-linux-mips64el": "npm:7.0.2"
-    "@typescript/typescript-linux-ppc64": "npm:7.0.2"
-    "@typescript/typescript-linux-riscv64": "npm:7.0.2"
-    "@typescript/typescript-linux-s390x": "npm:7.0.2"
-    "@typescript/typescript-linux-x64": "npm:7.0.2"
-    "@typescript/typescript-netbsd-arm64": "npm:7.0.2"
-    "@typescript/typescript-netbsd-x64": "npm:7.0.2"
-    "@typescript/typescript-openbsd-arm64": "npm:7.0.2"
-    "@typescript/typescript-openbsd-x64": "npm:7.0.2"
-    "@typescript/typescript-sunos-x64": "npm:7.0.2"
-    "@typescript/typescript-win32-arm64": "npm:7.0.2"
-    "@typescript/typescript-win32-x64": "npm:7.0.2"
-  dependenciesMeta:
-    "@typescript/typescript-aix-ppc64":
-      optional: true
-    "@typescript/typescript-darwin-arm64":
-      optional: true
-    "@typescript/typescript-darwin-x64":
-      optional: true
-    "@typescript/typescript-freebsd-arm64":
-      optional: true
-    "@typescript/typescript-freebsd-x64":
-      optional: true
-    "@typescript/typescript-linux-arm":
-      optional: true
-    "@typescript/typescript-linux-arm64":
-      optional: true
-    "@typescript/typescript-linux-loong64":
-      optional: true
-    "@typescript/typescript-linux-mips64el":
-      optional: true
-    "@typescript/typescript-linux-ppc64":
-      optional: true
-    "@typescript/typescript-linux-riscv64":
-      optional: true
-    "@typescript/typescript-linux-s390x":
-      optional: true
-    "@typescript/typescript-linux-x64":
-      optional: true
-    "@typescript/typescript-netbsd-arm64":
-      optional: true
-    "@typescript/typescript-netbsd-x64":
-      optional: true
-    "@typescript/typescript-openbsd-arm64":
-      optional: true
-    "@typescript/typescript-openbsd-x64":
-      optional: true
-    "@typescript/typescript-sunos-x64":
-      optional: true
-    "@typescript/typescript-win32-arm64":
-      optional: true
-    "@typescript/typescript-win32-x64":
-      optional: true
+"typescript@patch:typescript@patch%3Atypescript@npm%253A6.0.3%23~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch#optional!builtin<compat/typescript>":
+  version: 6.0.3
+  resolution: "typescript@patch:typescript@patch%3Atypescript@npm%253A6.0.3%23~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch%3A%3Aversion=6.0.3&hash=ad880d#optional!builtin<compat/typescript>::version=6.0.3&hash=5786d5"
   bin:
     tsc: bin/tsc
-  checksum: 10/6d7f3d34ca7fbd3eb4999f06db29340d3dcedd7d40ed71654ea53ecd0f28a330edf0f55a0acf541bf294a2f024f11242075c1a83aed4bd99776fe99af45b994b
+    tsserver: bin/tsserver
+  checksum: 10/e4437047a079553dff28df95a6470d1290dbffcdb09fee60cfa8c95efd15b220976dd2c0e8414883a774d4e43890615c9a98ad5e2df32fed80d1b3d85ecee5dd
   languageName: node
   linkType: hard
 
@@ -13355,6 +13330,15 @@ __metadata:
   bin:
     ua-parser-js: script/cli.js
   checksum: 10/f181f1c976d67a2a8cdd396f8c5cecc8bfe4ada7183e7ef06a81a09aa9dc98480048380240f6374189cf2ab7e6275b711f9732e26b7ed2a14f3e4fe3576b8842
+  languageName: node
+  linkType: hard
+
+"uglify-js@npm:^3.1.4":
+  version: 3.19.3
+  resolution: "uglify-js@npm:3.19.3"
+  bin:
+    uglifyjs: bin/uglifyjs
+  checksum: 10/6b9639c1985d24580b01bb0ab68e78de310d38eeba7db45bec7850ab4093d8ee464d80ccfaceda9c68d1c366efbee28573b52f95e69ac792354c145acd380b11
   languageName: node
   linkType: hard
 
@@ -13777,6 +13761,13 @@ __metadata:
   dependencies:
     bs58check: "npm:^4.0.0"
   checksum: 10/3af0d4e9f1d1b35672b860470b6545f34f77b4a804e06ccae2f06f43c96a31fba859cf64889344eded621433eb609fc4c95aa28d62c02057372232b85231e414
+  languageName: node
+  linkType: hard
+
+"wordwrap@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "wordwrap@npm:1.0.0"
+  checksum: 10/497d40beb2bdb08e6d38754faa17ce20b0bf1306327f80cb777927edb23f461ee1f6bc659b3c3c93f26b08e1cf4b46acc5bae8fda1f0be3b5ab9a1a0211034cd
   languageName: node
   linkType: hard
 

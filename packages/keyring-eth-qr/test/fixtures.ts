@@ -17,6 +17,7 @@ import {
   CryptoOutput,
   ScriptExpressions,
 } from '@keystonehq/bc-ur-registry-eth';
+import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 
 import { DeviceMode } from '../src/device.js';
 
@@ -199,4 +200,4 @@ export const TYPED_MESSAGE = {
       { name: 'wallets', type: 'address[]' },
     ],
   },
-};
+} as unknown as TypedMessage<MessageTypes>;
