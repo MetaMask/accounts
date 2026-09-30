@@ -101,6 +101,19 @@ describe('CreateAccountOptionsStruct', () => {
         assert(validAddressImport, CreateAccountOptionsStruct),
       ).not.toThrow();
     });
+
+    it('validates AddressImport type with scopes correctly', () => {
+      const validAddressImport = {
+        type: AccountCreationType.AddressImport,
+        address: '0x0123456789012345678901234567890123456789',
+        scopes: ['eip155:1', 'eip155:137'],
+      };
+
+      expect(is(validAddressImport, CreateAccountOptionsStruct)).toBe(true);
+      expect(() =>
+        assert(validAddressImport, CreateAccountOptionsStruct),
+      ).not.toThrow();
+    });
   });
 
   describe('invalid account creation types', () => {
@@ -215,6 +228,32 @@ describe('CreateAccountOptionsStruct', () => {
       expect(() =>
         assert(invalidAccountType, CreateAccountOptionsStruct),
       ).toThrow(/accountType/u);
+    });
+
+    it('rejects AddressImport type with empty scopes', () => {
+      const emptyScopes = {
+        type: AccountCreationType.AddressImport,
+        address: '0x0123456789012345678901234567890123456789',
+        scopes: [],
+      };
+
+      expect(is(emptyScopes, CreateAccountOptionsStruct)).toBe(false);
+      expect(() => assert(emptyScopes, CreateAccountOptionsStruct)).toThrow(
+        /scopes/u,
+      );
+    });
+
+    it('rejects AddressImport type with invalid scopes', () => {
+      const invalidScopes = {
+        type: AccountCreationType.AddressImport,
+        address: '0x0123456789012345678901234567890123456789',
+        scopes: ['not-a-scope'],
+      };
+
+      expect(is(invalidScopes, CreateAccountOptionsStruct)).toBe(false);
+      expect(() => assert(invalidScopes, CreateAccountOptionsStruct)).toThrow(
+        /scopes/u,
+      );
     });
 
     it('rejects wrong fields for type (Bip44DerivePath type with groupIndex instead of derivationPath)', () => {

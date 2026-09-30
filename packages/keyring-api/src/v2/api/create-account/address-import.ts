@@ -1,7 +1,15 @@
-import { exactOptional, literal, object, string } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
+import {
+  array,
+  exactOptional,
+  literal,
+  nonempty,
+  object,
+  string,
+} from '@metamask/superstruct';
 
 import { KeyringAccountTypeStruct } from '../../../api/account';
+import { CaipChainIdStruct } from '../../../api/caip';
 
 /**
  * Struct for {@link CreateAccountAddressImportOptions}.
@@ -24,6 +32,16 @@ export const CreateAccountAddressImportOptionsStruct = object({
    * defaulting to the chain's standard account type.
    */
   accountType: exactOptional(KeyringAccountTypeStruct),
+  /**
+   * The scopes (CAIP-2 chain IDs) of the imported account.
+   *
+   * This is needed because the scope cannot always be detected from the
+   * address alone (e.g., an EVM address is valid on every EVM chain, and
+   * Solana or TRON addresses do not encode a network). When omitted, the
+   * keyring decides the scopes: it infers them from the address where
+   * possible, and falls back to its own default policy otherwise.
+   */
+  scopes: exactOptional(nonempty(array(CaipChainIdStruct))),
 });
 
 /**

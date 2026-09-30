@@ -177,6 +177,25 @@ expectAssignable<CreateAccountAddressImportOptions>({
   accountType: 'eip155:erc4337',
 });
 
+expectAssignable<CreateAccountAddressImportOptions>({
+  type: AccountCreationType.AddressImport,
+  address: '0x0123456789012345678901234567890123456789',
+  scopes: ['eip155:1', 'eip155:137'],
+});
+
+expectNotAssignable<CreateAccountAddressImportOptions>({
+  type: AccountCreationType.AddressImport,
+  address: '0x0123456789012345678901234567890123456789',
+  // Empty scopes are not allowed
+  scopes: [],
+});
+
+expectNotAssignable<CreateAccountAddressImportOptions>({
+  type: AccountCreationType.AddressImport,
+  address: '0x0123456789012345678901234567890123456789',
+  scopes: 'eip155:1',
+});
+
 expectNotAssignable<CreateAccountAddressImportOptions>({
   type: AccountCreationType.AddressImport,
   // missing address
