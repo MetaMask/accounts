@@ -13,7 +13,7 @@ import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
 import type { MpcKeyring as MpcKeyringV1 } from '../types';
-import { MpcKeyring } from './mpc-keyring';
+import { MPC_KEYRING_METHODS, MpcKeyring } from './mpc-keyring';
 import type { MpcCreateAccountOptions } from './mpc-keyring';
 
 const MOCK_ADDRESS = '0x1111111111111111111111111111111111111111' as Hex;
@@ -22,14 +22,7 @@ const OTHER_ADDRESS = '0x2222222222222222222222222222222222222222' as Hex;
 /**
  * Expected methods supported by MPC keyring accounts.
  */
-const EXPECTED_METHODS = [
-  EthMethod.SignTransaction,
-  EthMethod.PersonalSign,
-  EthMethod.SignTypedDataV1,
-  EthMethod.SignTypedDataV3,
-  EthMethod.SignTypedDataV4,
-  EthKeyringMethod.SignEip7702Authorization,
-];
+const EXPECTED_METHODS = MPC_KEYRING_METHODS;
 
 /**
  * The legacy MPC keyring methods that the V2 wrapper delegates to, mocked
@@ -298,7 +291,7 @@ describe('MpcKeyring (v2 wrapper)', () => {
       } as unknown as MpcCreateAccountOptions;
 
       await expect(wrapper.createAccounts(invalidOptions)).rejects.toThrow(
-        "MpcKeyring: invalid mode: bogus. Expected 'create' or 'import'.",
+        'MpcKeyring: invalid mode: bogus',
       );
       expect(inner.init).not.toHaveBeenCalled();
     });

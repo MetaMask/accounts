@@ -9,19 +9,16 @@ import { KeyringType } from '@metamask/keyring-api/v2';
 import type { KeyringCapabilities, Keyring } from '@metamask/keyring-api/v2';
 import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
-import { assert } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
-import type {
-  MpcKeyring as MpcKeyringV1,
-  MpcKeyringSetupParams,
-} from '../types';
+import { MpcKeyringSetupMode } from '../types';
+import type { MpcKeyring as MpcKeyringV1 } from '../types';
 
 /**
  * Methods supported by MPC keyring EOA accounts.
  * MPC keyrings support signing methods, but not encryption or app keys.
  */
-const MPC_KEYRING_METHODS = [
+export const MPC_KEYRING_METHODS = [
   EthMethod.SignTransaction,
   EthMethod.PersonalSign,
   EthMethod.SignTypedDataV1,
@@ -52,7 +49,7 @@ export type MpcCreateAccountOptions = {
   /**
    * The MPC setup mode.
    */
-  mode?: MpcKeyringSetupParams['mode'];
+  mode?: MpcKeyringSetupMode;
 };
 
 /**
@@ -92,7 +89,9 @@ export class MpcKeyring
   async getAccounts(): Promise<KeyringAccount[]> {
     const addresses = await this.inner.getAccounts();
 
-    assert(addresses.length <= 1, 'MpcKeyring: supports at most one account');
+    if (addresses.length > 1) {
+      throw new Error('MpcKeyring: supports at most one account');
+    }
 
     const [address] = addresses;
     if (address) {
@@ -155,17 +154,17 @@ export class MpcKeyring
         throw new Error(
           `MpcKeyring: unsupported account creation type: ${String(
             options.type,
-          )}. Use { type: 'custom', mode: 'create' | 'import' }.`,
+          )}`,
         );
       }
 
       const { mode } = options;
-      if (mode !== undefined && mode !== 'create' && mode !== 'import') {
-        throw new Error(
-          `MpcKeyring: invalid mode: ${String(
-            mode,
-          )}. Expected 'create' or 'import'.`,
-        );
+      if (
+        mode !== undefined &&
+        mode !== MpcKeyringSetupMode.Create &&
+        mode !== MpcKeyringSetupMode.Import
+      ) {
+        throw new Error(`MpcKeyring: invalid mode: ${String(mode)}`);
       }
 
       const accounts = await this.getAccounts();
