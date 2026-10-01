@@ -2,6 +2,7 @@ import { expectAssignable, expectNotAssignable } from 'tsd';
 
 import { AccountCreationType } from './create-account';
 import type {
+  CreateAccountAddressImportOptions,
   CreateAccountBip44DiscoverOptions,
   CreateAccountBip44DeriveIndexOptions,
   CreateAccountBip44DerivePathOptions,
@@ -35,6 +36,7 @@ expectAssignable<AccountCreationType>(AccountCreationType.Bip44DerivePath);
 expectAssignable<AccountCreationType>(AccountCreationType.Bip44DeriveIndex);
 expectAssignable<AccountCreationType>(AccountCreationType.Bip44Discover);
 expectAssignable<AccountCreationType>(AccountCreationType.PrivateKeyImport);
+expectAssignable<AccountCreationType>(AccountCreationType.AddressImport);
 expectAssignable<AccountCreationType>(AccountCreationType.Custom);
 
 // Test AccountExportType enum
@@ -93,6 +95,21 @@ expectAssignable<KeyringCapabilities>({
   },
 });
 
+expectAssignable<KeyringCapabilities>({
+  scopes: ['eip155:1'],
+  address: {
+    import: true,
+  },
+});
+
+expectNotAssignable<KeyringCapabilities>({
+  scopes: ['eip155:1'],
+  address: {
+    import: true,
+    export: true,
+  },
+});
+
 expectNotAssignable<KeyringCapabilities>({
   scopes: ['eip155:1'],
   custom: {
@@ -148,6 +165,42 @@ expectAssignable<CreateAccountPrivateKeyOptions>({
   encoding: 'base32',
 });
 
+// Test CreateAccountAddressImportOptions
+expectAssignable<CreateAccountAddressImportOptions>({
+  type: AccountCreationType.AddressImport,
+  address: '0x0123456789012345678901234567890123456789',
+});
+
+expectAssignable<CreateAccountAddressImportOptions>({
+  type: AccountCreationType.AddressImport,
+  address: '0x0123456789012345678901234567890123456789',
+  accountType: 'eip155:erc4337',
+});
+
+expectAssignable<CreateAccountAddressImportOptions>({
+  type: AccountCreationType.AddressImport,
+  address: '0x0123456789012345678901234567890123456789',
+  scopes: ['eip155:1', 'eip155:137'],
+});
+
+expectNotAssignable<CreateAccountAddressImportOptions>({
+  type: AccountCreationType.AddressImport,
+  address: '0x0123456789012345678901234567890123456789',
+  // Empty scopes are not allowed
+  scopes: [],
+});
+
+expectNotAssignable<CreateAccountAddressImportOptions>({
+  type: AccountCreationType.AddressImport,
+  address: '0x0123456789012345678901234567890123456789',
+  scopes: 'eip155:1',
+});
+
+expectNotAssignable<CreateAccountAddressImportOptions>({
+  type: AccountCreationType.AddressImport,
+  // missing address
+});
+
 // Test CreateAccountCustomOptions
 expectAssignable<CreateAccountCustomOptions>({
   type: AccountCreationType.Custom,
@@ -170,6 +223,11 @@ expectAssignable<CreateAccountOptions>({
   type: AccountCreationType.PrivateKeyImport,
   privateKey: '0x1234567890abcdef',
   encoding: 'hexadecimal',
+});
+
+expectAssignable<CreateAccountOptions>({
+  type: AccountCreationType.AddressImport,
+  address: '0x0123456789012345678901234567890123456789',
 });
 
 expectAssignable<CreateAccountOptions>({
