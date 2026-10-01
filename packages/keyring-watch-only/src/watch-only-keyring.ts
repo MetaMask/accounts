@@ -212,6 +212,24 @@ export class WatchOnlyKeyring implements Keyring {
 
     const existingAccount = this.#registry.get(id);
     if (existingAccount) {
+      if (existingAccount.type !== resolvedAccountType) {
+        throw new Error(
+          'Account already exists with a different type.',
+        );
+      }
+
+      // Every requested scope must be covered by the existing account's scopes.
+      // `isScopeEqualToAny` handles the `eip155:0` wildcard: an existing
+      // account with `eip155:0` covers any `eip155:<N>` request.
+      const hasIncompatibleScopes = resolvedScopes.some(
+        (scope) => !isScopeEqualToAny(scope, existingAccount.scopes),
+      );
+      if (hasIncompatibleScopes) {
+        throw new Error(
+          'Account already exists with incompatible scopes.',
+        );
+      }
+
       return existingAccount;
     }
 

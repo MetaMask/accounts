@@ -184,10 +184,12 @@ describe('WatchOnlyKeyring', () => {
       ]);
     });
 
-    it('returns the existing account when re-importing with different scopes', async () => {
+    it('returns the existing account when re-importing with a scope covered by the existing account', async () => {
       const [firstAccount] = await keyring.createAccounts(
         createAddressImportOptions(TEST_ADDRESS_1),
       );
+      // `eip155:0` (EthScope.Eoa) covers any `eip155:*` scope, so re-importing
+      // with `eip155:1` (EthScope.Mainnet) should return the existing account.
       const [secondAccount] = await keyring.createAccounts(
         createAddressImportOptions(TEST_ADDRESS_1, undefined, [
           EthScope.Mainnet,
@@ -195,6 +197,34 @@ describe('WatchOnlyKeyring', () => {
       );
 
       expect(secondAccount).toStrictEqual(firstAccount);
+    });
+
+    it('throws when re-importing an address with a different account type', async () => {
+      await keyring.createAccounts(
+        createAddressImportOptions(TEST_ADDRESS_1, EthAccountType.Eoa),
+      );
+
+      await expect(
+        keyring.createAccounts(
+          createAddressImportOptions(TEST_ADDRESS_1, EthAccountType.Erc4337),
+        ),
+      ).rejects.toThrow('Account already exists with a different type.');
+    });
+
+    it('throws when re-importing an address with incompatible scopes', async () => {
+      await keyring.createAccounts(
+        createAddressImportOptions(TEST_ADDRESS_1, undefined, [
+          EthScope.Mainnet,
+        ]),
+      );
+      // `eip155:1` (EthScope.Mainnet) does not cover `eip155:5` (EthScope.Testnet).
+      await expect(
+        keyring.createAccounts(
+          createAddressImportOptions(TEST_ADDRESS_1, undefined, [
+            EthScope.Testnet,
+          ]),
+        ),
+      ).rejects.toThrow('Account already exists with incompatible scopes.');
     });
 
     it('generates deterministic account IDs', async () => {
