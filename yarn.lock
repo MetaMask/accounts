@@ -1986,6 +1986,31 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@metamask/eth-mpc-keyring@workspace:packages/keyring-eth-mpc":
+  version: 0.0.0-use.local
+  resolution: "@metamask/eth-mpc-keyring@workspace:packages/keyring-eth-mpc"
+  dependencies:
+    "@ethereumjs/tx": "npm:^5.4.0"
+    "@ethereumjs/util": "npm:^9.1.0"
+    "@lavamoat/allow-scripts": "npm:^3.2.1"
+    "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/auto-changelog": "npm:^6.1.0"
+    "@metamask/eth-sig-util": "npm:^9.0.0"
+    "@metamask/keyring-utils": "npm:^5.0.0"
+    "@metamask/mfa-wallet-cl24": "npm:^0.0.0"
+    "@metamask/mfa-wallet-dkls23": "npm:^0.0.0"
+    "@metamask/mfa-wallet-interface": "npm:^0.0.0"
+    "@metamask/mfa-wallet-network": "npm:^0.0.0"
+    "@metamask/superstruct": "npm:^3.4.1"
+    "@metamask/utils": "npm:^11.11.0"
+    "@ts-bridge/cli": "npm:^0.6.3"
+    "@types/jest": "npm:^29.5.12"
+    deepmerge: "npm:^4.2.2"
+    jest: "npm:^29.5.0"
+    typescript: "npm:~5.3.3"
+  languageName: unknown
+  linkType: soft
+
 "@metamask/eth-qr-keyring@workspace:packages/keyring-eth-qr":
   version: 0.0.0-use.local
   resolution: "@metamask/eth-qr-keyring@workspace:packages/keyring-eth-qr"
@@ -2476,6 +2501,66 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask/mfa-wallet-cl24@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-cl24@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-0.0.0.tgz::hash=c5c65e&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  dependencies:
+    "@msgpack/msgpack": "npm:^3.1.2"
+    "@noble/curves": "npm:^1.9.2"
+    "@noble/hashes": "npm:^1.8.0"
+  checksum: 10/fa8f8f149546fcd3372eda3fa691698fe372d0208e3b64c3518a863054deb078d0b865516db807daecd310e177067777474953e9a2a8370255668e261b61c085
+  languageName: node
+  linkType: hard
+
+"@metamask/mfa-wallet-dkls23@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls23-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-dkls23@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls23-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls23-0.0.0.tgz::hash=d7e4c4&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  dependencies:
+    "@metamask/mpc-interface": "npm:^0.1.0"
+    "@noble/curves": "npm:^1.9.2"
+  checksum: 10/903676420e9564880108723970cf738a940b8dea5cd40ac9481c39b75148121069fb33d44349843f1b604e7ac3baecdaaf1103f38b5cb6f368331981ac058173
+  languageName: node
+  linkType: hard
+
+"@metamask/mfa-wallet-e2ee@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-e2ee@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz::hash=74f676&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  dependencies:
+    "@metamask/mfa-wallet-interface": "npm:^0.0.0"
+    "@msgpack/msgpack": "npm:^3.1.2"
+    "@noble/ciphers": "npm:^1.3.0"
+    "@noble/curves": "npm:^1.9.2"
+    "@noble/hashes": "npm:^1.8.0"
+  checksum: 10/5caaad16babe2d7e0e092b7c6631178283734f94cbd2976acdaec08e23b1184daf091dbf927a7baf4a1c49d14ea97d3d50843146de6d332e300328ad2426b5f9
+  languageName: node
+  linkType: hard
+
+"@metamask/mfa-wallet-interface@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-interface@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz::hash=3a12d6&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  checksum: 10/99bee43e3c3cde5f9e53986c6dc9fe96414459abf5728f9171da5f5294fb94bd96832b05b0550e14eaa0008c6eb110829554646788e13e00bacc57cb27ca56b5
+  languageName: node
+  linkType: hard
+
+"@metamask/mfa-wallet-network@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-network@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz::hash=afa316&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  dependencies:
+    "@metamask/mfa-wallet-e2ee": "npm:^0.0.0"
+    "@metamask/mfa-wallet-interface": "npm:^0.0.0"
+    "@noble/hashes": "npm:^1.8.0"
+    centrifuge: "npm:^5.7.2"
+  checksum: 10/6c09ee78cf98b66eb2aeb82ff47f682baa6cd2bf36b495ffbf537091f633401a90b9f793533fbadb947bb1e59cfac081ff10f36304f73f9fe460f3a31099b4de
+  languageName: node
+  linkType: hard
+
+"@metamask/mpc-interface@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@metamask/mpc-interface@npm:0.1.0"
+  checksum: 10/a08be84ecc0216de39f89e4a7a21195891e904071f42a66a8d7382980e58754a242b1df32bbce827ecc292e5eedbf614f5fd52b4c8ba2c02b5e1e537e976608b
+  languageName: node
+  linkType: hard
+
 "@metamask/number-to-bn@npm:^1.7.1":
   version: 1.7.1
   resolution: "@metamask/number-to-bn@npm:1.7.1"
@@ -2841,6 +2926,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@msgpack/msgpack@npm:^3.1.2":
+  version: 3.1.3
+  resolution: "@msgpack/msgpack@npm:3.1.3"
+  checksum: 10/cf597b7ed1fcedc2101b145885e7da591c5ed8aeba3a2579b99da8dd15ef13595c807f64f052da0a0dd74704097f6299fc2e2fb4165029a60a1d1df3843c03ce
+  languageName: node
+  linkType: hard
+
 "@ngraveio/bc-ur@npm:^1.1.5":
   version: 1.1.13
   resolution: "@ngraveio/bc-ur@npm:1.1.13"
@@ -2856,7 +2948,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/ciphers@npm:1.3.0":
+"@noble/ciphers@npm:1.3.0, @noble/ciphers@npm:^1.3.0":
   version: 1.3.0
   resolution: "@noble/ciphers@npm:1.3.0"
   checksum: 10/051660051e3e9e2ca5fb9dece2885532b56b7e62946f89afa7284a0fb8bc02e2bd1c06554dba68162ff42d295b54026456084198610f63c296873b2f1cd7a586
@@ -2890,12 +2982,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:^1.0.0, @noble/curves@npm:^1.2.0, @noble/curves@npm:^1.8.1, @noble/curves@npm:~1.9.0":
-  version: 1.9.2
-  resolution: "@noble/curves@npm:1.9.2"
+"@noble/curves@npm:^1.0.0, @noble/curves@npm:^1.2.0, @noble/curves@npm:^1.8.1, @noble/curves@npm:^1.9.2, @noble/curves@npm:~1.9.0":
+  version: 1.9.7
+  resolution: "@noble/curves@npm:1.9.7"
   dependencies:
     "@noble/hashes": "npm:1.8.0"
-  checksum: 10/f60f00ad86296054566b67be08fd659999bb64b692bfbf11dbe3be1f422ad4d826bf5ebb2015ce2e246538eab2b677707e0a46ffa8323a6fae7a9a30ec1fe318
+  checksum: 10/3cfe2735ea94972988ca9e217e0ebb2044372a7160b2079bf885da789492a6291fc8bf76ca3d8bf8dee477847ee2d6fac267d1e6c4f555054059f5e8c4865d44
   languageName: node
   linkType: hard
 
@@ -3358,27 +3450,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@protobufjs/codegen@npm:^2.0.4":
-  version: 2.0.4
-  resolution: "@protobufjs/codegen@npm:2.0.4"
-  checksum: 10/c6ee5fa172a8464f5253174d3c2353ea520c2573ad7b6476983d9b1346f4d8f2b44aa29feb17a949b83c1816bc35286a5ea265ed9d8fdd2865acfa09668c0447
+"@protobufjs/codegen@npm:^2.0.4, @protobufjs/codegen@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "@protobufjs/codegen@npm:2.0.5"
+  checksum: 10/290335fa114f26202abc0695f279d53e2fd516b01cfd8298923591e0bda011295ff40e3582a1cda0a0f27cbc5039a0292082d5ad08872bb5d6243a614ac15c88
   languageName: node
   linkType: hard
 
-"@protobufjs/eventemitter@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@protobufjs/eventemitter@npm:1.1.0"
-  checksum: 10/03af3e99f17ad421283d054c88a06a30a615922a817741b43ca1b13e7c6b37820a37f6eba9980fb5150c54dba6e26cb6f7b64a6f7d8afa83596fafb3afa218c3
+"@protobufjs/eventemitter@npm:^1.1.0, @protobufjs/eventemitter@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@protobufjs/eventemitter@npm:1.1.1"
+  checksum: 10/a54dc1aff4475ffad4fdf3235c71a553f5e40e3b4cf6a2e217151895a61cb4eb0be20d63791db22441ca25e594671f1021977133f9939540750231ff7d8e9dd6
   languageName: node
   linkType: hard
 
-"@protobufjs/fetch@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@protobufjs/fetch@npm:1.1.0"
+"@protobufjs/fetch@npm:^1.1.0, @protobufjs/fetch@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@protobufjs/fetch@npm:1.1.1"
   dependencies:
     "@protobufjs/aspromise": "npm:^1.1.1"
-    "@protobufjs/inquire": "npm:^1.1.0"
-  checksum: 10/67ae40572ad536e4ef94269199f252c024b66e3059850906bdaee161ca1d75c73d04d35cd56f147a8a5a079f5808e342b99e61942c1dae15604ff0600b09a958
+  checksum: 10/427cf2da8c69b494b0df3b2fb1f43c97f0f71ca2c8ef8232dac7e44f2527ad0cc9cecb243eda14a918e86018bfa6d54d92252240d2b37ed205b13adb5506fa1d
   languageName: node
   linkType: hard
 
@@ -3410,10 +3501,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@protobufjs/utf8@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@protobufjs/utf8@npm:1.1.0"
-  checksum: 10/131e289c57534c1d73a0e55782d6751dd821db1583cb2f7f7e017c9d6747addaebe79f28120b2e0185395d990aad347fb14ffa73ef4096fa38508d61a0e64602
+"@protobufjs/utf8@npm:^1.1.0, @protobufjs/utf8@npm:^1.1.1":
+  version: 1.1.2
+  resolution: "@protobufjs/utf8@npm:1.1.2"
+  checksum: 10/ff759348d60e8f65137d3a7a16e00cf69abd9a6dede75e50ec377c6aebb4ac400a4a70af2e77eb2bf75e2accf30abbea81803e9403004b1922ea70776bfdc3aa
   languageName: node
   linkType: hard
 
@@ -6201,6 +6292,16 @@ __metadata:
   version: 1.0.4
   resolution: "cbor-sync@npm:1.0.4"
   checksum: 10/bdad5fbf442b5b2478ba59433cab145ad823f963f674ec42f3b730689e679327ec8a6dfab97724b63295badac915574139984e702475ff8025d7cb175e50e9ae
+  languageName: node
+  linkType: hard
+
+"centrifuge@npm:^5.7.2":
+  version: 5.7.4
+  resolution: "centrifuge@npm:5.7.4"
+  dependencies:
+    events: "npm:^3.3.0"
+    protobufjs: "npm:^7.6.0"
+  checksum: 10/ec541393391999b0ba1fb73d5645a9d23fa84cf9edbc3907b36b4d7b17bde2efdd6aa8dc6da74dc18b23c829f9a8d1488e450cad54654ddb18ebdaef5ca8be24
   languageName: node
   linkType: hard
 
@@ -9979,10 +10080,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"long@npm:5.2.5, long@npm:^5.0.0":
+"long@npm:5.2.5":
   version: 5.2.5
   resolution: "long@npm:5.2.5"
   checksum: 10/972589d04a564ef4c066069d5ed06db14cd63de2a08d4f6c989512fa414bc2239479564e3a85de3efd42eb533ce142cdcaa28f12f4ecd051670015d36cbbb10b
+  languageName: node
+  linkType: hard
+
+"long@npm:^5.0.0, long@npm:^5.3.2":
+  version: 5.3.2
+  resolution: "long@npm:5.3.2"
+  checksum: 10/b6b55ddae56fcce2864d37119d6b02fe28f6dd6d9e44fd22705f86a9254b9321bd69e9ffe35263b4846d54aba197c64882adcb8c543f2383c1e41284b321ea64
   languageName: node
   linkType: hard
 
@@ -11358,6 +11466,25 @@ __metadata:
     "@types/node": "npm:>=13.7.0"
     long: "npm:^5.0.0"
   checksum: 10/408423506610f70858d7593632f4a6aa4f05796c90fd632be9b9252457c795acc71aa6d3b54bb7f48a890141728fee4ca3906723ccea6c202ad71f21b3879b8b
+  languageName: node
+  linkType: hard
+
+"protobufjs@npm:^7.6.0":
+  version: 7.6.6
+  resolution: "protobufjs@npm:7.6.6"
+  dependencies:
+    "@protobufjs/aspromise": "npm:^1.1.2"
+    "@protobufjs/base64": "npm:^1.1.2"
+    "@protobufjs/codegen": "npm:^2.0.5"
+    "@protobufjs/eventemitter": "npm:^1.1.1"
+    "@protobufjs/fetch": "npm:^1.1.1"
+    "@protobufjs/float": "npm:^1.0.2"
+    "@protobufjs/path": "npm:^1.1.2"
+    "@protobufjs/pool": "npm:^1.1.0"
+    "@protobufjs/utf8": "npm:^1.1.1"
+    "@types/node": "npm:>=13.7.0"
+    long: "npm:^5.3.2"
+  checksum: 10/a894f38c793a0d741f77a7fbf8595141618e8c1cb3433637d2d0309ea9baca59bd9c44ec95f46ee839d063de5d5ae1bc78ef8d474359866af52ee4ceef7fec4f
   languageName: node
   linkType: hard
 
