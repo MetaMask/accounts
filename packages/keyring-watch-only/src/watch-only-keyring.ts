@@ -198,6 +198,7 @@ export class WatchOnlyKeyring implements Keyring {
     const checksumAddress = getChecksumAddress(hexAddress);
 
     const resolvedAccountType = accountType ?? EthAccountType.Eoa;
+    const resolvedScopes = this.#resolveScopes(scopes);
 
     if (!isEvmAccountType(resolvedAccountType)) {
       throw new Error(
@@ -218,7 +219,7 @@ export class WatchOnlyKeyring implements Keyring {
       id,
       type: resolvedAccountType,
       address: checksumAddress,
-      scopes: this.#resolveScopes(scopes),
+      scopes: resolvedScopes,
       methods: [],
       options: {},
     };
