@@ -13,23 +13,6 @@ or
 
 `npm install @metamask/eth-mpc-keyring`
 
-## V2 Keyring
+## Contributing
 
-This package also provides a V2 keyring that implements the unified `Keyring` interface from `@metamask/keyring-api/v2`. Import it from `@metamask/eth-mpc-keyring/v2`:
-
-```ts
-import type { MpcKeyringV1 } from '@metamask/eth-mpc-keyring';
-import { MpcKeyring } from '@metamask/eth-mpc-keyring/v2';
-
-// Provided by the client: an implementation of the V1 MPC keyring contract.
-const legacyKeyring: MpcKeyringV1 = createMpcKeyringV1();
-
-const keyring = new MpcKeyring({ legacyKeyring });
-
-const [account] = await keyring.createAccounts({
-  type: 'custom',
-  mode: 'create',
-});
-```
-
-The V2 keyring has type `KeyringType.Mpc` (`'mpc'`), declares `custom.createAccounts` in its capabilities, and accepts `{ type: 'custom', mode }` options in `createAccounts`.
+This package is part of a monorepo. Instructions for contributing can be found in the [monorepo README](https://github.com/MetaMask/accounts#readme).
