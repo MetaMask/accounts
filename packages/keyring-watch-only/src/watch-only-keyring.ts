@@ -356,10 +356,6 @@ export class WatchOnlyKeyring implements Keyring {
     );
   }
 
-  // ──────────────────────────────────────────────
-  // Synchronous lookup API
-  // ──────────────────────────────────────────────
-
   /**
    * Get an account by its ID, synchronously.
    *
