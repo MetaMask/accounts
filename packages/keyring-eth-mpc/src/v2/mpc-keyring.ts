@@ -94,18 +94,50 @@ export class MpcKeyring
 
     assert(addresses.length <= 1, 'MpcKeyring: supports at most one account');
 
-    return addresses.map((address) => {
-      // Check if we already have this account in the registry
-      const existingId = this.registry.getAccountId(address);
-      if (existingId) {
-        const cached = this.registry.get(existingId);
-        if (cached) {
-          return cached;
-        }
-      }
+    const [address] = addresses;
+    if (address) {
+      return [this.#getOrCreateAccount(address)];
+    }
+    return [];
+  }
 
-      return this.#createKeyringAccount(address);
-    });
+  /**
+   * Build a valid {@link KeyringAccount} from an address.
+   *
+   * @param address - The account address.
+   * @returns The account.
+   */
+  #toAccount(address: Hex): KeyringAccount {
+    return {
+      id: this.registry.register(address),
+      type: EthAccountType.Eoa,
+      address,
+      scopes: [...this.capabilities.scopes],
+      methods: [...MPC_KEYRING_METHODS],
+      options: {
+        entropy: {
+          type: KeyringAccountEntropyTypeOption.Custom,
+        },
+      },
+    };
+  }
+
+  /**
+   * Get or create the account for the given address.
+   *
+   * @param address - The account address.
+   * @returns The account.
+   */
+  #getOrCreateAccount(address: Hex): KeyringAccount {
+    const account = this.#toAccount(address);
+    const existingAccount = this.registry.get(account.id);
+
+    if (existingAccount) {
+      return existingAccount;
+    }
+
+    this.registry.set(account);
+    return account;
   }
 
   /**
@@ -136,22 +168,19 @@ export class MpcKeyring
         );
       }
 
-      // If the account already exists, creation is idempotent.
-      const existingAccounts = await this.getAccounts();
-      if (existingAccounts.length > 0) {
-        return existingAccounts;
+      const accounts = await this.getAccounts();
+      if (accounts.length > 0) {
+        return accounts;
       }
 
       await this.inner.init(mode);
 
-      const accounts = await this.getAccounts();
-      if (accounts.length === 0) {
-        throw new Error(
-          "MpcKeyring: account creation failed. Provide a 'mode' ('create' or 'import') or deserialize stored setup params first.",
-        );
+      const [createdAccount] = await this.getAccounts();
+      if (!createdAccount) {
+        throw new Error('MpcKeyring: account creation failed');
       }
 
-      return accounts;
+      return [createdAccount];
     });
   }
 
@@ -189,32 +218,5 @@ export class MpcKeyring
    */
   async syncKeyShare(): Promise<void> {
     return this.inner.syncKeyShare();
-  }
-
-  /**
-   * Create a {@link KeyringAccount} for the given address.
-   *
-   * @param address - The account address.
-   * @returns The created account.
-   */
-  #createKeyringAccount(address: Hex): KeyringAccount {
-    const id = this.registry.register(address);
-
-    const account: KeyringAccount = {
-      id,
-      type: EthAccountType.Eoa,
-      address,
-      scopes: [...this.capabilities.scopes],
-      methods: [...MPC_KEYRING_METHODS],
-      options: {
-        entropy: {
-          type: KeyringAccountEntropyTypeOption.Custom,
-        },
-      },
-    };
-
-    this.registry.set(account);
-
-    return account;
   }
 }

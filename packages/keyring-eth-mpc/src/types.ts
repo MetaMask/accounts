@@ -5,12 +5,7 @@ export type MpcKeyringSetupParams = {
 };
 
 /**
- * The V1 MPC keyring contract.
- *
- * The full implementation is not shipped yet: clients provide their own
- * implementation, which the V2 `MpcKeyring` (from
- * `@metamask/eth-mpc-keyring/v2`) adapts to the unified V2 `Keyring`
- * interface.
+ * The MPC keyring contract.
  */
 export type MpcKeyring = EthKeyring & {
   /**
