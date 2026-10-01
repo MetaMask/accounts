@@ -30,6 +30,7 @@ expectAssignable<KeyringType>(KeyringType.Snap);
 expectAssignable<KeyringType>(KeyringType.Ledger);
 expectAssignable<KeyringType>(KeyringType.Lattice);
 expectAssignable<KeyringType>(KeyringType.Trezor);
+expectAssignable<KeyringType>(KeyringType.WatchOnly);
 
 // Test AccountCreationType enum
 expectAssignable<AccountCreationType>(AccountCreationType.Bip44DerivePath);
