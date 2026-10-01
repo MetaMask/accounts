@@ -14,14 +14,15 @@ export type { LedgerHwAppEth } from './ledger-hw-app-eth.js';
 // In native ESM, .default = module.exports = { default: Eth }, so we need
 // one extra level. Check by type: a function means we already have the class.
 // ---------------------------------------------------------------------------
-const rawLedgerHwAppEthDefault: unknown =
-  (LedgerHwAppEthModule as unknown as { default: unknown }).default;
+const rawLedgerHwAppEthDefault: unknown = (
+  LedgerHwAppEthModule as unknown as { default: unknown }
+).default;
 /* istanbul ignore next: only one branch is reachable per module system */
 const LedgerHwAppEthBase = (
   typeof rawLedgerHwAppEthDefault === 'function'
     ? rawLedgerHwAppEthDefault
     : (rawLedgerHwAppEthDefault as { default: unknown }).default
-) as unknown as abstract new (transport: LedgerHwAppEth['transport']) => LedgerHwAppEth;
+) as abstract new (transport: LedgerHwAppEth['transport']) => LedgerHwAppEth;
 
 export class MetaMaskLedgerHwAppEth
   extends LedgerHwAppEthBase

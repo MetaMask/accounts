@@ -1,6 +1,6 @@
 import { Common, Chain, Hardfork } from '@ethereumjs/common';
 import { RLP } from '@ethereumjs/rlp';
-import { TransactionFactory, TypedTransaction } from '@ethereumjs/tx';
+import { TransactionFactory } from '@ethereumjs/tx';
 import * as ethUtil from '@ethereumjs/util';
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 import * as sigUtil from '@metamask/eth-sig-util';

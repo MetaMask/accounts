@@ -1,7 +1,5 @@
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 
-import type { Transport } from './ledger-hw-transport.js';
-
 import { ERC20_WRITE_SELECTORS, NFT_ONLY_SELECTORS } from './constants.js';
 import {
   AppConfigurationResponse,
@@ -19,6 +17,7 @@ import {
   LedgerSignTypedDataResponse,
 } from './ledger-bridge.js';
 import { MetaMaskLedgerHwAppEth } from './ledger-hw-app.js';
+import type { Transport } from './ledger-hw-transport.js';
 import { TransportMiddleware } from './ledger-transport-middleware.js';
 import { LedgerMobileBridgeOptions } from './type.js';
 import { getTransactionSelector } from './utils.js';

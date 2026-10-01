@@ -586,7 +586,9 @@ export class HdKeyring implements Keyring {
       const { privateKey } = walletData.hdKey;
       assert(privateKey, 'Expected private key to be set');
       const appKeyOriginBytes = new TextEncoder().encode(withAppKeyOrigin);
-      const appKeyPrivateKey = keccak256(concatBytes([new Uint8Array(privateKey), appKeyOriginBytes]));
+      const appKeyPrivateKey = keccak256(
+        concatBytes([new Uint8Array(privateKey), appKeyOriginBytes]),
+      );
       const appKeyPublicKey = privateToPublic(appKeyPrivateKey);
       return { privateKey: appKeyPrivateKey, publicKey: appKeyPublicKey };
     }

@@ -11,7 +11,6 @@ import type {
   DeviceActionState,
   DeviceManagementKit,
 } from '@ledgerhq/device-management-kit';
-import type { Transport } from '../ledger-hw-transport.js';
 import type { Signature } from '@ledgerhq/device-signer-kit-ethereum';
 import { getDmkErrorFromTag } from '@metamask/hw-wallet-sdk';
 import type { Observable } from 'rxjs';
@@ -49,6 +48,7 @@ import {
   LedgerSignTypedDataParams,
   LedgerSignTypedDataResponse,
 } from '../ledger-bridge.js';
+import type { Transport } from '../ledger-hw-transport.js';
 import {
   isDeviceExchangeError,
   translateDmkError,

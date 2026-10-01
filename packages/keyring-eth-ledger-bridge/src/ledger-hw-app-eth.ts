@@ -31,16 +31,16 @@ type EIP712Message = {
 type LedgerEthTransactionResolution = {
   erc20Tokens: string[];
   nfts: string[];
-  externalPlugin: Array<{ payload: string; signature: string }>;
+  externalPlugin: { payload: string; signature: string }[];
   plugin: string[];
-  domains: Array<{ registry: string; address: string }>;
+  domains: { registry: string; address: string }[];
 };
 
 type ResolutionConfig = {
   nft?: boolean;
   externalPlugins?: boolean;
   erc20?: boolean;
-  domains?: Array<{ registry: string; address: string }>;
+  domains?: { registry: string; address: string }[];
   uniswapV3?: boolean;
 };
 

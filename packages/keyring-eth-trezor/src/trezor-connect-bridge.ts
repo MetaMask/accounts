@@ -13,6 +13,8 @@ import type {
   EthereumSignTypedHash,
 } from '@trezor/connect-web';
 
+import type { TrezorBridge, ExtendedPublicKey } from './trezor-bridge.js';
+
 // @trezor/connect-web is CJS with __esModule:true; module.exports is { default: singleton, DEVICE_EVENT, ... }.
 // In CJS (ts-jest), __importStar passes module.exports through as-is, so TrezorConnectModule
 // IS module.exports and .default is the singleton.
@@ -20,12 +22,14 @@ import type {
 // level deeper at .default.default. Detect ESM by checking if .default.default is truthy.
 /* istanbul ignore next: only one branch is reachable per module system */
 const rawTrezorModule = TrezorConnectModule as unknown as { default: unknown };
-const rawTrezorDefault = rawTrezorModule.default as typeof TrezorConnectModule | undefined;
-const trezorConnectExports = rawTrezorDefault?.default ? rawTrezorDefault : rawTrezorModule;
+const rawTrezorDefault = rawTrezorModule.default as
+  | typeof TrezorConnectModule
+  | undefined;
+const trezorConnectExports = rawTrezorDefault?.default
+  ? rawTrezorDefault
+  : rawTrezorModule;
 const TrezorConnect = trezorConnectExports.default as TrezorConnectType;
 const { DEVICE_EVENT, DEVICE } = TrezorConnectModule;
-
-import type { TrezorBridge, ExtendedPublicKey } from './trezor-bridge.js';
 
 export class TrezorConnectBridge implements TrezorBridge {
   model?: string;

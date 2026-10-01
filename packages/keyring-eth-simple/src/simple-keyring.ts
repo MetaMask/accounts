@@ -266,7 +266,9 @@ export default class SimpleKeyring implements Keyring {
     if (opts.withAppKeyOrigin) {
       const { privateKey } = wallet;
       const appKeyOriginBytes = new TextEncoder().encode(opts.withAppKeyOrigin);
-      const appKeyPrivateKey = keccak256(concatBytes([privateKey, appKeyOriginBytes]));
+      const appKeyPrivateKey = keccak256(
+        concatBytes([privateKey, appKeyOriginBytes]),
+      );
       const appKeyPublicKey = privateToPublic(appKeyPrivateKey);
       wallet = { privateKey: appKeyPrivateKey, publicKey: appKeyPublicKey };
     }

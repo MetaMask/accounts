@@ -96,6 +96,7 @@
     "jest-it-up": "^3.1.0",
     "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
+    "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
     "typescript": "patch:typescript@npm%3A6.0.3#~/.yarn/patches/typescript-npm-6.0.3-585eecd158.patch"
   },
