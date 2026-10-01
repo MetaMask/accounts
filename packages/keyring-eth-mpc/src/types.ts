@@ -12,7 +12,7 @@ export type MpcKeyringSetupParams = {
  * `@metamask/eth-mpc-keyring/v2`) adapts to the unified V2 `Keyring`
  * interface.
  */
-export type MpcKeyringV1 = EthKeyring & {
+export type MpcKeyring = EthKeyring & {
   /**
    * Run key generation or import.
    *

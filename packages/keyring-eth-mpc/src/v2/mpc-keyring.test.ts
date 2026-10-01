@@ -12,7 +12,7 @@ import { EthKeyringMethod } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import type { MpcKeyringV1 } from '../types';
+import type { MpcKeyring as MpcKeyringV1 } from '../types';
 import { MpcKeyring } from './mpc-keyring';
 import type { MpcCreateAccountOptions } from './mpc-keyring';
 

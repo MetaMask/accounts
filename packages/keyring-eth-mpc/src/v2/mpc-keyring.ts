@@ -12,7 +12,10 @@ import type { AccountId } from '@metamask/keyring-utils';
 import { assert } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
-import type { MpcKeyringSetupParams, MpcKeyringV1 } from '../types';
+import type {
+  MpcKeyring as MpcKeyringV1,
+  MpcKeyringSetupParams,
+} from '../types';
 
 /**
  * Methods supported by MPC keyring EOA accounts.

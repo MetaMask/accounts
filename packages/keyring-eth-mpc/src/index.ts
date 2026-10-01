@@ -1,1 +1,1 @@
-export type { MpcKeyringSetupParams, MpcKeyringV1 } from './types';
+export type { MpcKeyringSetupParams, MpcKeyring } from './types';
