@@ -13,7 +13,7 @@ import type {
   EthereumSignTypedHash,
 } from '@trezor/connect-web';
 
-import type { TrezorBridge, ExtendedPublicKey } from './trezor-bridge';
+import type { TrezorBridge, ExtendedPublicKey } from './trezor-bridge.js';
 
 // @trezor/connect-web is CJS with __esModule:true; module.exports is { default: singleton, DEVICE_EVENT, ... }.
 // In CJS (ts-jest), __importStar passes module.exports through as-is, so TrezorConnectModule
