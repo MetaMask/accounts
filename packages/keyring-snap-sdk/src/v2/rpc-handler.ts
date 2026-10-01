@@ -24,8 +24,8 @@ import { JsonRpcRequestStruct } from '@metamask/keyring-utils';
 import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 
-import { isSnapError } from '../errors';
-import { MethodNotSupportedError } from '../rpc-handler';
+import { isSnapError } from '../errors.js';
+import { MethodNotSupportedError } from '../rpc-handler.js';
 
 // ESLint does not like our custom error classes in this repo for some reason, they do extend Error, so unsure why.
 /* eslint-disable @typescript-eslint/only-throw-error */

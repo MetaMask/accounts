@@ -1,6 +1,6 @@
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import { CaseInsensitiveMap } from './CaseInsensitiveMap';
+import { CaseInsensitiveMap } from './CaseInsensitiveMap.js';
 
 /**
  * Error thrown when an invalid Snap ID is encountered.

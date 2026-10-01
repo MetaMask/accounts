@@ -16,11 +16,11 @@ import { EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId, EthKeyring } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import type { TrezorBridge } from '../trezor-bridge';
+import type { TrezorBridge } from '../trezor-bridge.js';
 import type {
   AccountPage,
   TrezorKeyring as LegacyTrezorKeyring,
-} from '../trezor-keyring';
+} from '../trezor-keyring.js';
 
 /**
  * Methods supported by Trezor keyring EOA accounts.

@@ -19,7 +19,7 @@ import {
   SERIALIZED_KEYSTONE_KEYRING,
   TRANSACTION,
   TYPED_MESSAGE,
-} from '../test/fixtures';
+} from '../test/fixtures.js';
 
 /**
  * Get the xpub from a keyring.

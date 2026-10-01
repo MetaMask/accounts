@@ -1,7 +1,7 @@
 import { literal, number, object, string } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 
-import { DerivationPathStruct } from '../../../api/derivation';
+import { DerivationPathStruct } from '../../../api/derivation.js';
 
 /**
  * Struct for {@link CreateAccountBip44DerivePathOptions}.

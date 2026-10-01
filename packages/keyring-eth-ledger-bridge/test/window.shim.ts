@@ -2,7 +2,7 @@
 let windowShim: any;
 
 try {
-  windowShim = window || {
+  windowShim = window ?? {
     addEventListener: (): false => {
       return false;
     },

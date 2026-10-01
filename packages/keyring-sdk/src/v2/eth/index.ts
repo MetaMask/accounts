@@ -1,2 +1,2 @@
-export * from './eth-keyring-v1-adapter';
-export * from './eth-keyring-wrapper';
+export * from './eth-keyring-v1-adapter.js';
+export * from './eth-keyring-wrapper.js';

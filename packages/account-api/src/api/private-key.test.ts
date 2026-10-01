@@ -9,9 +9,12 @@ import {
   KeyringAccountEntropyTypeOption,
 } from '@metamask/keyring-api';
 
-import { MOCK_HD_ACCOUNT_1 } from '../mocks';
-import type { PrivateKeyAccount } from './private-key';
-import { isPrivateKeyAccount, assertIsPrivateKeyAccount } from './private-key';
+import { MOCK_HD_ACCOUNT_1 } from '../mocks/index.js';
+import type { PrivateKeyAccount } from './private-key.js';
+import {
+  isPrivateKeyAccount,
+  assertIsPrivateKeyAccount,
+} from './private-key.js';
 
 const MOCK_PRIVATE_KEY_ACCOUNT: PrivateKeyAccount<KeyringAccount> = {
   id: 'mock-pk-id-1',

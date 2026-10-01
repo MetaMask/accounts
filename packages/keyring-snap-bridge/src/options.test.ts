@@ -1,5 +1,5 @@
-import type { SnapKeyringInternalOptions } from './options';
-import { getDefaultInternalOptions, getInternalOptionsOf } from './options';
+import type { SnapKeyringInternalOptions } from './options.js';
+import { getDefaultInternalOptions, getInternalOptionsOf } from './options.js';
 
 describe('options', () => {
   const defaults = getDefaultInternalOptions();

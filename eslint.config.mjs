@@ -29,6 +29,19 @@ const config = createConfig([
 
   {
     rules: {
+      // NOTE: This diverges from `@metamask/eslint-config` (and `core`), which
+      // sets `noUselessIndex: true`. All packages are ESM-only, where explicit
+      // `index.js` segments are required — Node ESM does not support directory
+      // imports.
+      'import-x/no-useless-path-segments': [
+        'error',
+        { commonjs: true, noUselessIndex: false },
+      ],
+    },
+  },
+
+  {
+    rules: {
       'no-restricted-imports': [
         'error',
         {

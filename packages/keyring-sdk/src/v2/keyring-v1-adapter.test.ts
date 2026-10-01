@@ -9,7 +9,7 @@ import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import type { Json } from '@metamask/utils';
 
-import { KeyringV1Adapter } from './keyring-v1-adapter';
+import { KeyringV1Adapter } from './keyring-v1-adapter.js';
 
 const MOCK_TYPE = `${KeyringType.Hd}` as const;
 

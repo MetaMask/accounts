@@ -1,12 +1,12 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 
-import type { Bip44Account } from '../bip44';
-import type { AccountGroup, AccountGroupType } from '../group';
-import type { AccountWalletType } from '../wallet';
+import type { Bip44Account } from '../bip44.js';
+import type { AccountGroup, AccountGroupType } from '../group.js';
+import type { AccountWalletType } from '../wallet.js';
 import type {
   MultichainAccountWallet,
   MultichainAccountWalletId,
-} from './wallet';
+} from './wallet.js';
 
 /**
  * Multichain account ID.

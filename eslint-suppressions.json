@@ -21,12 +21,7 @@
   },
   "packages/keyring-eth-hd/src/hd-keyring.ts": {
     "no-restricted-globals": {
-      "count": 18
-    }
-  },
-  "packages/keyring-eth-hd/src/v2/hd-keyring.test.ts": {
-    "@typescript-eslint/no-base-to-string": {
-      "count": 1
+      "count": 11
     }
   },
   "packages/keyring-eth-ledger-bridge/src/ledger-bridge.ts": {
@@ -39,7 +34,20 @@
       "count": 1
     }
   },
+  "packages/keyring-eth-ledger-bridge/src/ledger-hw-app-eth.ts": {
+    "@typescript-eslint/naming-convention": {
+      "count": 1
+    },
+    "import-x/no-nodejs-modules": {
+      "count": 1
+    }
+  },
   "packages/keyring-eth-ledger-bridge/src/ledger-hw-app.ts": {
+    "import-x/no-nodejs-modules": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-hw-transport.ts": {
     "import-x/no-nodejs-modules": {
       "count": 1
     }
@@ -47,9 +55,6 @@
   "packages/keyring-eth-ledger-bridge/src/ledger-iframe-bridge.test.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
-    },
-    "jest/unbound-method": {
-      "count": 17
     }
   },
   "packages/keyring-eth-ledger-bridge/src/ledger-iframe-bridge.ts": {
@@ -114,7 +119,7 @@
   },
   "packages/keyring-eth-simple/src/simple-keyring.ts": {
     "no-restricted-globals": {
-      "count": 11
+      "count": 12
     }
   },
   "packages/keyring-eth-trezor/src/trezor-bridge.ts": {
@@ -127,7 +132,7 @@
   },
   "packages/keyring-eth-trezor/src/trezor-connect-bridge.test.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 3
+      "count": 6
     },
     "id-denylist": {
       "count": 4
@@ -179,6 +184,9 @@
   },
   "packages/keyring-snap-bridge/src/SnapKeyring.test.ts": {
     "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     }
   },

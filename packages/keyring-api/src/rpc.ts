@@ -30,7 +30,7 @@ import type {
   Pagination,
   ResolvedAccountAddress,
   Transaction,
-} from './api';
+} from './api/index.js';
 import {
   CaipAssetTypeStruct,
   CaipAssetTypeOrIdStruct,
@@ -44,9 +44,9 @@ import {
   PaginationStruct,
   CaipAccountIdStruct,
   DiscoveredAccountStruct,
-} from './api';
-import type { CreateAccountOptions } from './v2/api/create-account';
-import { CreateAccountOptionsStruct } from './v2/api/create-account';
+} from './api/index.js';
+import type { CreateAccountOptions } from './v2/api/create-account/index.js';
+import { CreateAccountOptionsStruct } from './v2/api/create-account/index.js';
 
 /**
  * Keyring RPC methods used by the API.
