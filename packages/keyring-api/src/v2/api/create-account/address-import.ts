@@ -8,8 +8,8 @@ import {
   string,
 } from '@metamask/superstruct';
 
-import { KeyringAccountTypeStruct } from '../../../api/account';
-import { CaipChainIdStruct } from '../../../api/caip';
+import { KeyringAccountTypeStruct } from '../../../api/account.js';
+import { CaipChainIdStruct } from '../../../api/caip.js';
 
 /**
  * Struct for {@link CreateAccountAddressImportOptions}.
