@@ -144,7 +144,7 @@ describe('WatchOnlyKeyringV1Adapter', () => {
       const { adapter, mocks } = await setup({ addresses: [] });
 
       await expect(adapter.removeAccount(TEST_ADDRESS_1)).rejects.toThrow(
-        `Account '${TEST_ADDRESS_1}' not found`,
+        'Account not found',
       );
       expect(mocks.deleteAccount).not.toHaveBeenCalled();
     });

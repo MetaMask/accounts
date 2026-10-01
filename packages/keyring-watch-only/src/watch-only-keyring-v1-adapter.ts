@@ -55,7 +55,7 @@ export class WatchOnlyKeyringV1Adapter extends EthKeyringV1Adapter<WatchOnlyKeyr
     const account = this.inner.lookupByAddress(address);
 
     if (!account) {
-      throw new Error(`Account '${address}' not found`);
+      throw new Error('Account not found');
     }
 
     await this.inner.deleteAccount(account.id);
