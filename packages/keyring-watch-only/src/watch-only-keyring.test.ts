@@ -558,6 +558,30 @@ describe('WatchOnlyKeyring', () => {
       );
     });
 
+    it('leaves the existing state intact when deserialization fails mid-batch', async () => {
+      await keyring.createAccounts(createAddressImportOptions(TEST_ADDRESS_1));
+      const originalAccounts = await keyring.getAccounts();
+
+      await expect(
+        keyring.deserialize({
+          accounts: [
+            {
+              type: EthAccountType.Eoa,
+              address: TEST_ADDRESS_2,
+              scopes: [EthScope.Eoa],
+            },
+            {
+              type: EthAccountType.Eoa,
+              address: 'not-an-address',
+              scopes: [EthScope.Eoa],
+            },
+          ],
+        }),
+      ).rejects.toThrow('Invalid EVM address: not-an-address');
+
+      expect(await keyring.getAccounts()).toStrictEqual(originalAccounts);
+    });
+
     it('replaces any existing state', async () => {
       await keyring.createAccounts(createAddressImportOptions(TEST_ADDRESS_1));
 

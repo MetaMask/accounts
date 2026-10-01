@@ -171,20 +171,19 @@ export class WatchOnlyKeyring implements Keyring {
   }
 
   /**
-   * Get or create the account for the given address.
-   *
-   * The address is validated as an EVM address and normalized to its EIP-55
-   * checksum representation. Creating an account for an already-held address
-   * returns the existing account (idempotency).
+   * Build a valid {@link KeyringAccount} from raw inputs without touching the
+   * registry. The address is validated and normalized; type and scopes are
+   * resolved to their defaults when absent. The account ID is derived
+   * deterministically from the checksummed address via {@link generateEthAccountId}.
    *
    * @param address - The address to import.
    * @param accountType - The account type to use, defaulting to `eip155:eoa`.
    * @param scopes - The scopes to use, defaulting to the keyring's scopes.
-   * @returns The account for the given address.
+   * @returns A fully-formed KeyringAccount ready to be stored.
    * @throws If the address is not a valid EVM address, the account type is
    * not an EVM account type, or the scopes are unsupported.
    */
-  #getOrCreateAccount(
+  #toAccount(
     address: string,
     accountType: KeyringAccountType | undefined,
     scopes: readonly CaipChainId[] | undefined,
@@ -196,7 +195,6 @@ export class WatchOnlyKeyring implements Keyring {
     }
 
     const checksumAddress = getChecksumAddress(hexAddress);
-
     const resolvedAccountType = accountType ?? EthAccountType.Eoa;
     const resolvedScopes = this.#resolveScopes(scopes);
 
@@ -206,44 +204,58 @@ export class WatchOnlyKeyring implements Keyring {
       );
     }
 
-    // Registering an already-held address is idempotent: `register` returns
-    // the existing account ID.
-    const id = this.#registry.register(checksumAddress);
-
-    const existingAccount = this.#registry.get(id);
-    if (existingAccount) {
-      if (existingAccount.type !== resolvedAccountType) {
-        throw new Error(
-          'Account already exists with a different type.',
-        );
-      }
-
-      // Every requested scope must be covered by the existing account's scopes.
-      // `isScopeEqualToAny` handles the `eip155:0` wildcard: an existing
-      // account with `eip155:0` covers any `eip155:<N>` request.
-      const hasIncompatibleScopes = resolvedScopes.some(
-        (scope) => !isScopeEqualToAny(scope, existingAccount.scopes),
-      );
-      if (hasIncompatibleScopes) {
-        throw new Error(
-          'Account already exists with incompatible scopes.',
-        );
-      }
-
-      return existingAccount;
-    }
-
-    const account: KeyringAccount = {
-      id,
+    return {
+      // NOTE: The registry also uses this function to generate ID here.
+      id: generateEthAccountId(checksumAddress),
       type: resolvedAccountType,
       address: checksumAddress,
       scopes: resolvedScopes,
       methods: [],
       options: {},
     };
+  }
+
+  /**
+   * Get or create the account for the given address.
+   *
+   * Creating an account for an already-held address returns the existing
+   * account (idempotency), provided the type and scopes are compatible.
+   *
+   * @param address - The address to import.
+   * @param accountType - The account type to use, defaulting to `eip155:eoa`.
+   * @param scopes - The scopes to use, defaulting to the keyring's scopes.
+   * @returns The account for the given address.
+   * @throws If the address is not a valid EVM address, the account type is
+   * not an EVM account type, the scopes are unsupported, or the address is
+   * already registered with an incompatible type or scopes.
+   */
+  #getOrCreateAccount(
+    address: string,
+    accountType: KeyringAccountType | undefined,
+    scopes: readonly CaipChainId[] | undefined,
+  ): KeyringAccount {
+    const account = this.#toAccount(address, accountType, scopes);
+
+    const existingAccount = this.#registry.get(account.id);
+    if (existingAccount) {
+      if (existingAccount.type !== account.type) {
+        throw new Error('Account already exists with a different type.');
+      }
+
+      // Every requested scope must be covered by the existing account's scopes.
+      // `isScopeEqualToAny` handles the `eip155:0` wildcard: an existing
+      // account with `eip155:0` covers any `eip155:<N>` request.
+      const hasIncompatibleScopes = account.scopes.some(
+        (scope) => !isScopeEqualToAny(scope, existingAccount.scopes),
+      );
+      if (hasIncompatibleScopes) {
+        throw new Error('Account already exists with incompatible scopes.');
+      }
+
+      return existingAccount;
+    }
 
     this.#registry.set(account);
-
     return account;
   }
 
@@ -351,10 +363,15 @@ export class WatchOnlyKeyring implements Keyring {
     return this.#withLock(async () => {
       assert(state, WatchOnlyKeyringStateStruct);
 
-      this.#registry.clear();
+      // Validate and build all accounts before mutating the registry so that
+      // a single invalid entry does not leave the keyring in a partial state.
+      const accounts = state.accounts.map(({ type, address, scopes }) =>
+        this.#toAccount(address, type, scopes),
+      );
 
-      for (const { type, address, scopes } of state.accounts) {
-        this.#getOrCreateAccount(address, type, scopes);
+      this.#registry.clear();
+      for (const account of accounts) {
+        this.#registry.set(account);
       }
     });
   }
