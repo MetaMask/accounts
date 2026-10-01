@@ -47,6 +47,7 @@ jobs:
             keyring-eth-ledger-bridge
             keyring-eth-simple
             keyring-eth-trezor
+            keyring-eth-mpc
             keyring-internal-api
             keyring-internal-snap-client
             keyring-sdk
