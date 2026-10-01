@@ -208,7 +208,9 @@ describe('WatchOnlyKeyring', () => {
         keyring.createAccounts(
           createAddressImportOptions(TEST_ADDRESS_1, EthAccountType.Erc4337),
         ),
-      ).rejects.toThrow('Account already exists with a different type.');
+      ).rejects.toThrow(
+        `Account already exists with type '${EthAccountType.Eoa}', got '${EthAccountType.Erc4337}'.`,
+      );
     });
 
     it('throws when re-importing an address with incompatible scopes', async () => {
@@ -224,7 +226,9 @@ describe('WatchOnlyKeyring', () => {
             EthScope.Testnet,
           ]),
         ),
-      ).rejects.toThrow('Account already exists with incompatible scopes.');
+      ).rejects.toThrow(
+        `Account already exists with scopes [${EthScope.Mainnet}], got [${EthScope.Testnet}].`,
+      );
     });
 
     it('generates deterministic account IDs', async () => {
