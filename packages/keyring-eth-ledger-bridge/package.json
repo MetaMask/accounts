@@ -107,13 +107,6 @@
       "moduleResolution": "Node"
     }
   },
-  "tsd": {
-    "compilerOptions": {
-      "composite": "false",
-      "module": "CommonJS",
-      "moduleResolution": "Node"
-    }
-  },
   "engines": {
     "node": ">=22"
   },
