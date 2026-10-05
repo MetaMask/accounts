@@ -75,8 +75,7 @@
     "compilerOptions": {
       "composite": "false"
     },
-    "directory": "src",
-    "typings": "./dist/index.d.ts"
+    "directory": "src"
   },
   "engines": {
     "node": ">=22"

@@ -16,18 +16,21 @@ package_test_files=($(find "${package_test_dir}" -name "*.test-d.ts"))
 if [ "${#package_test_files[@]}" -gt 0 ]; then
   tsd_bin="$(dirname "$0")/../node_modules/.bin/tsd"
 
-  # Read optional typings path from tsd.typings in package.json (needed when
-  # the top-level "types" field was removed for ESM-only packages).
-  typings_arg=""
-  if [ -f "package.json" ]; then
-    typings_path="$(node -e "try{const p=require('./package.json');const t=p.tsd&&p.tsd.typings;if(t)process.stdout.write(t)}catch(e){}")"
-    if [ -n "$typings_path" ]; then
-      typings_arg="--typings ${typings_path}"
-    fi
+  # The typings path only needs to be passed explicitly when tsd cannot
+  # discover it natively from the top-level "types" field of package.json
+  # (that field is absent in ESM-only packages). It can be provided as the
+  # optional second argument, and is otherwise auto-detected from the
+  # ESM-only build output.
+  typings_args=()
+  if [[ $# -ge 2 ]]; then
+    typings_args=(--typings "$2")
+  elif [[ -f "dist/index.d.ts" ]]; then
+    typings_args=(--typings "dist/index.d.ts")
   fi
 
-  # shellcheck disable=SC2086
-  "$tsd_bin" $typings_arg --files "${package_test_dir}/**/*.test-d.ts"
+  # NOTE: the conditional expansion keeps this working under `set -u` with
+  # bash 3.2 (macOS), where expanding an empty array is an unbound variable.
+  "$tsd_bin" ${typings_args[@]+"${typings_args[@]}"} --files "${package_test_dir}/**/*.test-d.ts"
 else
   echo "Nothing to test with tsd."
 fi
