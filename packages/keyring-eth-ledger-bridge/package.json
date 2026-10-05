@@ -118,8 +118,7 @@
       "composite": "false",
       "module": "CommonJS",
       "moduleResolution": "Node"
-    },
-    "typings": "./dist/index.d.ts"
+    }
   },
   "engines": {
     "node": ">=22"
