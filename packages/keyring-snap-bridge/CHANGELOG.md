@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/eth-sig-util` from `^8.2.0` to `^9.0.0` ([#626](https://github.com/MetaMask/accounts/pull/626))
+- Bump `@metamask/snaps-sdk` from `^11.0.0` to `^11.2.0` ([#596](https://github.com/MetaMask/accounts/pull/596))
 
 ## [24.1.0]
 
