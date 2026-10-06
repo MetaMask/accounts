@@ -39,7 +39,20 @@
       "count": 1
     }
   },
+  "packages/keyring-eth-ledger-bridge/src/ledger-hw-app-eth.ts": {
+    "@typescript-eslint/naming-convention": {
+      "count": 1
+    },
+    "import-x/no-nodejs-modules": {
+      "count": 1
+    }
+  },
   "packages/keyring-eth-ledger-bridge/src/ledger-hw-app.ts": {
+    "import-x/no-nodejs-modules": {
+      "count": 1
+    }
+  },
+  "packages/keyring-eth-ledger-bridge/src/ledger-hw-transport.ts": {
     "import-x/no-nodejs-modules": {
       "count": 1
     }
@@ -126,9 +139,6 @@
     }
   },
   "packages/keyring-eth-trezor/src/trezor-connect-bridge.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 3
-    },
     "id-denylist": {
       "count": 4
     }

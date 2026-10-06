@@ -109,8 +109,16 @@
     "jest-it-up": "^3.1.0",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
+    "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
     "typescript": "~5.3.3"
+  },
+  "tsd": {
+    "compilerOptions": {
+      "composite": "false",
+      "module": "CommonJS",
+      "moduleResolution": "Node"
+    }
   },
   "engines": {
     "node": ">=22"

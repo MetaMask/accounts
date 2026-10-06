@@ -1,6 +1,7 @@
-import type Transport from '@ledgerhq/hw-transport';
-
 import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
+import type { Transport } from './ledger-hw-transport';
+
+export type { Transport };
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 export interface TransportMiddleware {
