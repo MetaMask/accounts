@@ -1,6 +1,6 @@
 import { assert } from '@metamask/superstruct';
 
-import { EthAccountType, KeyringAccountStruct } from './account';
+import { EthAccountType, KeyringAccountStruct } from './account.js';
 
 const supportedKeyringAccountTypes = Object.keys(
   KeyringAccountStruct.schema.type.schema,

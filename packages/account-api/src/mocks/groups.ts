@@ -3,7 +3,7 @@ import {
   MOCK_KEYRING_WALLET_ID,
   MOCK_SNAP_LOCAL_WALLET_ID,
   MOCK_SNAP_NPM_WALLET_ID,
-} from './wallets';
+} from './wallets.js';
 
 export const MOCK_ENTROPY_GROUP_ID = `${MOCK_ENTROPY_WALLET_ID}/0`;
 export const MOCK_SNAP_LOCAL_GROUP_ID = `${MOCK_SNAP_LOCAL_WALLET_ID}/0x123`;

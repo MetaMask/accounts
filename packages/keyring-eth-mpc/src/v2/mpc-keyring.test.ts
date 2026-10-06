@@ -12,9 +12,9 @@ import { EthKeyringMethod } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import type { MpcKeyring as MpcKeyringV1 } from '../types';
-import { MPC_KEYRING_METHODS, MpcKeyring } from './mpc-keyring';
-import type { MpcCreateAccountOptions } from './mpc-keyring';
+import type { MpcKeyring as MpcKeyringV1 } from '../types.js';
+import { MPC_KEYRING_METHODS, MpcKeyring } from './mpc-keyring.js';
+import type { MpcCreateAccountOptions } from './mpc-keyring.js';
 
 const MOCK_ADDRESS = '0x1111111111111111111111111111111111111111' as Hex;
 const OTHER_ADDRESS = '0x2222222222222222222222222222222222222222' as Hex;

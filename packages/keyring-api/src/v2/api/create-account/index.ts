@@ -1,20 +1,20 @@
 import { selectiveUnion } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 
-import { CreateAccountAddressImportOptionsStruct } from './address-import';
+import { CreateAccountAddressImportOptionsStruct } from './address-import.js';
 import {
   CreateAccountBip44DiscoverOptionsStruct,
   CreateAccountBip44DeriveIndexOptionsStruct,
   CreateAccountBip44DeriveIndexRangeOptionsStruct,
   CreateAccountBip44DerivePathOptionsStruct,
-} from './bip44';
-import { CreateAccountCustomOptionsStruct } from './custom';
-import { CreateAccountPrivateKeyOptionsStruct } from './private-key';
+} from './bip44.js';
+import { CreateAccountCustomOptionsStruct } from './custom.js';
+import { CreateAccountPrivateKeyOptionsStruct } from './private-key.js';
 
-export * from './address-import';
-export * from './bip44';
-export * from './custom';
-export * from './private-key';
+export * from './address-import.js';
+export * from './bip44.js';
+export * from './custom.js';
+export * from './private-key.js';
 
 /**
  * Enum representing the different ways an account can be created.
@@ -136,7 +136,7 @@ export function assertCreateAccountOptionIsSupported<
   options: Options,
   supportedTypes: readonly `${Type}`[],
   // Use intersection to avoid widening `type` beyond `Options['type']`.
-): asserts options is Options & { type: `${Type}` & `${Options['type']}` } {
+): asserts options is Options & { type: Type & Options['type'] } {
   const { type } = options;
   const types: readonly CreateAccountOptions['type'][] = supportedTypes;
 

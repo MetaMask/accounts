@@ -1,1 +1,1 @@
-export type * from './EthKeyring';
+export type * from './EthKeyring.js';

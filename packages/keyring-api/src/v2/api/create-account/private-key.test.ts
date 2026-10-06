@@ -1,7 +1,7 @@
 import type { StructError } from '@metamask/superstruct';
 import { assert, object, string } from '@metamask/superstruct';
 
-import { CreateAccountPrivateKeyOptionsStruct } from './private-key';
+import { CreateAccountPrivateKeyOptionsStruct } from './private-key.js';
 
 const SENSITIVE_REDACTED = '***';
 

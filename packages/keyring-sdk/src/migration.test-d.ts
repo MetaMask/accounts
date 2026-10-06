@@ -1,8 +1,12 @@
 import { object, number, string } from '@metamask/superstruct';
 import { expectType } from 'tsd';
 
-import { createMigrations } from './migration';
-import type { JsonObject, MigrationChain, MigrationResult } from './migration';
+import { createMigrations } from './migration.js';
+import type {
+  JsonObject,
+  MigrationChain,
+  MigrationResult,
+} from './migration.js';
 
 // `createMigrations()` starts an empty chain typed to accept `JsonObject`.
 expectType<MigrationChain<JsonObject>>(createMigrations());

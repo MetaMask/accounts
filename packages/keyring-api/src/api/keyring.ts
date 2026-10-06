@@ -1,19 +1,19 @@
 import type { AccountId, JsonRpcRequest } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
-import type { CreateAccountOptions } from '../v2/api';
-import type { KeyringAccount } from './account';
-import type { ResolvedAccountAddress } from './address';
-import type { Balance } from './balance';
-import type { CaipChainId, CaipAssetType, CaipAssetTypeOrId } from './caip';
-import type { DiscoveredAccount } from './discovery';
-import type { EntropySourceId } from './entropy';
-import type { KeyringAccountData } from './export';
-import type { MetaMaskOptions } from './options';
-import type { Paginated, Pagination } from './pagination';
-import type { KeyringRequest } from './request';
-import type { KeyringResponse } from './response';
-import type { Transaction } from './transaction';
+import type { CreateAccountOptions } from '../v2/api/index.js';
+import type { KeyringAccount } from './account.js';
+import type { ResolvedAccountAddress } from './address.js';
+import type { Balance } from './balance.js';
+import type { CaipChainId, CaipAssetType, CaipAssetTypeOrId } from './caip.js';
+import type { DiscoveredAccount } from './discovery.js';
+import type { EntropySourceId } from './entropy.js';
+import type { KeyringAccountData } from './export.js';
+import type { MetaMaskOptions } from './options.js';
+import type { Paginated, Pagination } from './pagination.js';
+import type { KeyringRequest } from './request.js';
+import type { KeyringResponse } from './response.js';
+import type { Transaction } from './transaction.js';
 
 /**
  * Keyring interface.

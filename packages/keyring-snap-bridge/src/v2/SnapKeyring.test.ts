@@ -10,10 +10,14 @@ import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-clien
 import type { SnapId } from '@metamask/snaps-sdk';
 import { v4 as uuid } from 'uuid';
 
-import type { SnapKeyringMessenger } from '../SnapKeyringMessenger';
-import { SnapKeyringV1 } from '../SnapKeyringV1';
-import type { SnapKeyringCallbacks } from './SnapKeyring';
-import { EMPTY_CAPABILITIES, isSnapKeyring, SnapKeyring } from './SnapKeyring';
+import type { SnapKeyringMessenger } from '../SnapKeyringMessenger.js';
+import { SnapKeyringV1 } from '../SnapKeyringV1.js';
+import type { SnapKeyringCallbacks } from './SnapKeyring.js';
+import {
+  EMPTY_CAPABILITIES,
+  isSnapKeyring,
+  SnapKeyring,
+} from './SnapKeyring.js';
 
 const SNAP_ID = 'npm:@metamask/test-snap' as SnapId;
 

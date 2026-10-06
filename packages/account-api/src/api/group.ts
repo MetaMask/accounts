@@ -1,13 +1,13 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 
 // Circular import are allowed when using `import type`.
-import type { AccountSelector } from './selector';
+import type { AccountSelector } from './selector.js';
 import type {
   AccountWallet,
   AccountWalletId,
   AccountWalletIdOf,
   AccountWalletType,
-} from './wallet';
+} from './wallet.js';
 
 /**
  * Default account group unique ID.

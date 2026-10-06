@@ -11,14 +11,14 @@ import {
 } from '@metamask/superstruct';
 import { JsonStruct } from '@metamask/utils';
 
-import { KeyringAccountStruct } from '../../api/account';
-import { KeyringRequestStruct } from '../../api/request';
-import { CreateAccountOptionsStruct } from './create-account';
+import { KeyringAccountStruct } from '../../api/account.js';
+import { KeyringRequestStruct } from '../../api/request.js';
+import { CreateAccountOptionsStruct } from './create-account/index.js';
 import {
   ExportAccountOptionsStruct,
   PrivateKeyExportedAccountStruct,
-} from './export-account';
-import type { Keyring } from './keyring';
+} from './export-account/index.js';
+import type { Keyring } from './keyring.js';
 
 /**
  * Keyring interface for keyring methods that can be invoked through

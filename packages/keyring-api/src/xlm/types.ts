@@ -6,7 +6,7 @@ import {
   CaipChainIdStruct,
   KeyringAccountStruct,
   XlmAccountType,
-} from '../api';
+} from '../api/index.js';
 
 /**
  * Stellar account addresses use strkey encoding: non-muxed accounts start with `G`

@@ -1,4 +1,4 @@
-import { TrezorKeyring } from './trezor-keyring';
+import { TrezorKeyring } from './trezor-keyring.js';
 
 const oneKeyKeyringType = 'OneKey Hardware';
 

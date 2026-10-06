@@ -1,1 +1,1 @@
-export * from './KeyringInternalSnapClient';
+export * from './KeyringInternalSnapClient.js';

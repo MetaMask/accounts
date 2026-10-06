@@ -1,1 +1,1 @@
-export * from './KeyringClient';
+export * from './KeyringClient.js';

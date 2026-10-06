@@ -1,6 +1,6 @@
 import { keccak256 } from 'ethereum-cryptography/keccak';
 
-import { ERC20_WRITE_SELECTORS, NFT_ONLY_SELECTORS } from './constants';
+import { ERC20_WRITE_SELECTORS, NFT_ONLY_SELECTORS } from './constants.js';
 
 /**
  * Computes the four-byte function selector for a canonical Solidity signature.

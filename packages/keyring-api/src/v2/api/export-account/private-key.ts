@@ -1,7 +1,7 @@
 import { object, sensitive, literal, string } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 
-import { PrivateKeyEncodingStruct } from '../private-key';
+import { PrivateKeyEncodingStruct } from '../private-key.js';
 
 /**
  * Struct for {@link PrivateKeyExportedAccount}.

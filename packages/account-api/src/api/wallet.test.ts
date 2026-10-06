@@ -7,14 +7,14 @@ import {
   MOCK_SNAP_2,
   MOCK_SNAP_LOCAL_WALLET_ID,
   MOCK_SNAP_NPM_WALLET_ID,
-} from '../mocks';
+} from '../mocks/index.js';
 import {
   AccountWalletType,
   stripAccountWalletType,
   parseAccountWalletId,
   toAccountWalletId,
   isAccountWalletId,
-} from './wallet';
+} from './wallet.js';
 
 const MOCK_INVALID_WALLET_IDS = [
   'invalid-id',

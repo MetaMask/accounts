@@ -52,29 +52,29 @@ import {
 } from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
-import { normalizeAccount, transformAccount } from './account';
-import { normalizeAccountAddress } from './account';
+import { normalizeAccount, transformAccount } from './account.js';
+import { normalizeAccountAddress } from './account.js';
 import {
   AccountCreatedEventStruct,
   AccountUpdatedEventStruct,
   AccountDeletedEventStruct,
   RequestApprovedEventStruct,
   RequestRejectedEventStruct,
-} from './events';
-import { projectLogger as log } from './logger';
-import { getInternalOptionsOf } from './options';
-import type { SnapKeyringInternalOptions } from './options';
+} from './events.js';
+import { projectLogger as log } from './logger.js';
+import { getInternalOptionsOf } from './options.js';
+import type { SnapKeyringInternalOptions } from './options.js';
 import {
   PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN,
   PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA,
-} from './platform-versions';
+} from './platform-versions.js';
 import type {
   SnapKeyringEvents,
   SnapKeyringMessenger,
-} from './SnapKeyringMessenger';
-import type { SnapMessage } from './types';
-import { SnapMessageStruct } from './types';
-import { equalsIgnoreCase, sanitizeUrl, throwError, toJson } from './util';
+} from './SnapKeyringMessenger.js';
+import type { SnapMessage } from './types.js';
+import { SnapMessageStruct } from './types.js';
+import { equalsIgnoreCase, sanitizeUrl, throwError, toJson } from './util.js';
 
 // TODO: to be removed when this is added to the keyring-api
 export type AccountMethod = EthMethod | BtcMethod;
