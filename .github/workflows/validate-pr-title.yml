@@ -47,6 +47,7 @@ jobs:
             keyring-eth-ledger-bridge
             keyring-eth-simple
             keyring-eth-trezor
+            keyring-eth-mpc
             keyring-internal-api
             keyring-internal-snap-client
             keyring-sdk
@@ -54,6 +55,7 @@ jobs:
             keyring-snap-client
             keyring-snap-sdk
             keyring-utils
+            keyring-watch-only
             account-api
             account-api/mocks
           subjectPattern: '^(?![A-Z]).+$'

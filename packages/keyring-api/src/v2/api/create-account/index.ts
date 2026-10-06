@@ -1,6 +1,7 @@
 import { selectiveUnion } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 
+import { CreateAccountAddressImportOptionsStruct } from './address-import';
 import {
   CreateAccountBip44DiscoverOptionsStruct,
   CreateAccountBip44DeriveIndexOptionsStruct,
@@ -10,6 +11,7 @@ import {
 import { CreateAccountCustomOptionsStruct } from './custom';
 import { CreateAccountPrivateKeyOptionsStruct } from './private-key';
 
+export * from './address-import';
 export * from './bip44';
 export * from './custom';
 export * from './private-key';
@@ -56,6 +58,11 @@ export enum AccountCreationType {
   PrivateKeyImport = 'private-key:import',
 
   /**
+   * Represents a watch-only account imported from an address.
+   */
+  AddressImport = 'address:import',
+
+  /**
    * Represents an account created using a custom, keyring-specific method.
    *
    * This is used by keyrings that have non-standard account creation flows
@@ -80,6 +87,8 @@ export const CreateAccountOptionsStruct = selectiveUnion((value: any) => {
       return CreateAccountBip44DiscoverOptionsStruct;
     case AccountCreationType.PrivateKeyImport:
       return CreateAccountPrivateKeyOptionsStruct;
+    case AccountCreationType.AddressImport:
+      return CreateAccountAddressImportOptionsStruct;
     case AccountCreationType.Custom:
       return CreateAccountCustomOptionsStruct;
     default:

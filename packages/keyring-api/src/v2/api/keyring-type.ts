@@ -48,4 +48,16 @@ export enum KeyringType {
    * Represents keyring for money accounts.
    */
   Money = 'money',
+
+  /**
+   * Represents a watch-only keyring that holds accounts imported by address,
+   * without any signing capability.
+   */
+  WatchOnly = 'watch-only',
+
+  /**
+   * Represents a keyring that uses Multi-Party Computation (MPC) for key
+   * management and signing.
+   */
+  Mpc = 'mpc',
 }
