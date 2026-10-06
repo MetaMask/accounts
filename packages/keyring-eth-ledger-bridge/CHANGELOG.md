@@ -9,7 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Bump `@metamask/eth-sig-util` from `^8.2.0` to `^9.0.0` ([#626](https://github.com/MetaMask/accounts/pull/626))
+
+## [13.1.0]
+
+### Changed
+
 - Bump `@metamask/keyring-api` from `^24.0.0` to `^24.1.0` ([#620](https://github.com/MetaMask/accounts/pull/620))
+
+### Fixed
+
+- Fix Ledger Gen5 EIP-712 signing for payloads that omit the `EIP712Domain` type by deriving it from the `domain` object keys before sending to the device and before signature verification ([#624](https://github.com/MetaMask/accounts/pull/624))
 
 ## [13.0.2]
 
@@ -512,7 +522,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.1.0...HEAD
+[13.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.0.2...@metamask/eth-ledger-bridge-keyring@13.1.0
 [13.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.0.1...@metamask/eth-ledger-bridge-keyring@13.0.2
 [13.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.0.0...@metamask/eth-ledger-bridge-keyring@13.0.1
 [13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@12.4.0...@metamask/eth-ledger-bridge-keyring@13.0.0
