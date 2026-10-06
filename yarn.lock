@@ -2000,6 +2000,7 @@ __metadata:
   resolution: "@metamask/eth-mpc-keyring@workspace:packages/keyring-eth-mpc"
   dependencies:
     "@ethereumjs/tx": "npm:^5.4.0"
+    "@ethereumjs/util": "npm:^9.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
@@ -2007,6 +2008,11 @@ __metadata:
     "@metamask/keyring-api": "npm:^24.1.0"
     "@metamask/keyring-sdk": "npm:^3.1.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
+    "@metamask/mfa-wallet-cl24": "npm:^0.0.0"
+    "@metamask/mfa-wallet-dkls23": "npm:^0.0.0"
+    "@metamask/mfa-wallet-interface": "npm:^0.0.0"
+    "@metamask/mfa-wallet-network": "npm:^0.0.0"
+    "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
     "@ts-bridge/cli": "npm:^0.6.3"
     "@types/jest": "npm:^29.5.12"
@@ -2517,6 +2523,66 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask/mfa-wallet-cl24@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-cl24@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-cl24-0.0.0.tgz::hash=c5c65e&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  dependencies:
+    "@msgpack/msgpack": "npm:^3.1.2"
+    "@noble/curves": "npm:^1.9.2"
+    "@noble/hashes": "npm:^1.8.0"
+  checksum: 10/fa8f8f149546fcd3372eda3fa691698fe372d0208e3b64c3518a863054deb078d0b865516db807daecd310e177067777474953e9a2a8370255668e261b61c085
+  languageName: node
+  linkType: hard
+
+"@metamask/mfa-wallet-dkls23@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls23-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-dkls23@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls23-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-dkls23-0.0.0.tgz::hash=d7e4c4&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  dependencies:
+    "@metamask/mpc-interface": "npm:^0.1.0"
+    "@noble/curves": "npm:^1.9.2"
+  checksum: 10/903676420e9564880108723970cf738a940b8dea5cd40ac9481c39b75148121069fb33d44349843f1b604e7ac3baecdaaf1103f38b5cb6f368331981ac058173
+  languageName: node
+  linkType: hard
+
+"@metamask/mfa-wallet-e2ee@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-e2ee@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-e2ee-0.0.0.tgz::hash=74f676&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  dependencies:
+    "@metamask/mfa-wallet-interface": "npm:^0.0.0"
+    "@msgpack/msgpack": "npm:^3.1.2"
+    "@noble/ciphers": "npm:^1.3.0"
+    "@noble/curves": "npm:^1.9.2"
+    "@noble/hashes": "npm:^1.8.0"
+  checksum: 10/5caaad16babe2d7e0e092b7c6631178283734f94cbd2976acdaec08e23b1184daf091dbf927a7baf4a1c49d14ea97d3d50843146de6d332e300328ad2426b5f9
+  languageName: node
+  linkType: hard
+
+"@metamask/mfa-wallet-interface@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-interface@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-interface-0.0.0.tgz::hash=3a12d6&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  checksum: 10/99bee43e3c3cde5f9e53986c6dc9fe96414459abf5728f9171da5f5294fb94bd96832b05b0550e14eaa0008c6eb110829554646788e13e00bacc57cb27ca56b5
+  languageName: node
+  linkType: hard
+
+"@metamask/mfa-wallet-network@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz::locator=%40metamask%2Faccounts-monorepo%40workspace%3A.":
+  version: 0.0.0
+  resolution: "@metamask/mfa-wallet-network@file:./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz#./packages/keyring-eth-mpc/metamask-mfa-wallet-network-0.0.0.tgz::hash=afa316&locator=%40metamask%2Faccounts-monorepo%40workspace%3A."
+  dependencies:
+    "@metamask/mfa-wallet-e2ee": "npm:^0.0.0"
+    "@metamask/mfa-wallet-interface": "npm:^0.0.0"
+    "@noble/hashes": "npm:^1.8.0"
+    centrifuge: "npm:^5.7.2"
+  checksum: 10/6c09ee78cf98b66eb2aeb82ff47f682baa6cd2bf36b495ffbf537091f633401a90b9f793533fbadb947bb1e59cfac081ff10f36304f73f9fe460f3a31099b4de
+  languageName: node
+  linkType: hard
+
+"@metamask/mpc-interface@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@metamask/mpc-interface@npm:0.1.0"
+  checksum: 10/a08be84ecc0216de39f89e4a7a21195891e904071f42a66a8d7382980e58754a242b1df32bbce827ecc292e5eedbf614f5fd52b4c8ba2c02b5e1e537e976608b
+  languageName: node
+  linkType: hard
+
 "@metamask/number-to-bn@npm:^1.7.1":
   version: 1.7.1
   resolution: "@metamask/number-to-bn@npm:1.7.1"
@@ -2883,6 +2949,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@msgpack/msgpack@npm:^3.1.2":
+  version: 3.1.3
+  resolution: "@msgpack/msgpack@npm:3.1.3"
+  checksum: 10/cf597b7ed1fcedc2101b145885e7da591c5ed8aeba3a2579b99da8dd15ef13595c807f64f052da0a0dd74704097f6299fc2e2fb4165029a60a1d1df3843c03ce
+  languageName: node
+  linkType: hard
+
 "@ngraveio/bc-ur@npm:^1.1.5":
   version: 1.1.13
   resolution: "@ngraveio/bc-ur@npm:1.1.13"
@@ -2898,7 +2971,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/ciphers@npm:1.3.0":
+"@noble/ciphers@npm:1.3.0, @noble/ciphers@npm:^1.3.0":
   version: 1.3.0
   resolution: "@noble/ciphers@npm:1.3.0"
   checksum: 10/051660051e3e9e2ca5fb9dece2885532b56b7e62946f89afa7284a0fb8bc02e2bd1c06554dba68162ff42d295b54026456084198610f63c296873b2f1cd7a586
@@ -2932,12 +3005,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:^1.0.0, @noble/curves@npm:^1.2.0, @noble/curves@npm:^1.8.1, @noble/curves@npm:~1.9.0":
-  version: 1.9.2
-  resolution: "@noble/curves@npm:1.9.2"
+"@noble/curves@npm:^1.0.0, @noble/curves@npm:^1.2.0, @noble/curves@npm:^1.8.1, @noble/curves@npm:^1.9.2, @noble/curves@npm:~1.9.0":
+  version: 1.9.7
+  resolution: "@noble/curves@npm:1.9.7"
   dependencies:
     "@noble/hashes": "npm:1.8.0"
-  checksum: 10/f60f00ad86296054566b67be08fd659999bb64b692bfbf11dbe3be1f422ad4d826bf5ebb2015ce2e246538eab2b677707e0a46ffa8323a6fae7a9a30ec1fe318
+  checksum: 10/3cfe2735ea94972988ca9e217e0ebb2044372a7160b2079bf885da789492a6291fc8bf76ca3d8bf8dee477847ee2d6fac267d1e6c4f555054059f5e8c4865d44
   languageName: node
   linkType: hard
 
@@ -6235,6 +6308,16 @@ __metadata:
   version: 1.0.4
   resolution: "cbor-sync@npm:1.0.4"
   checksum: 10/bdad5fbf442b5b2478ba59433cab145ad823f963f674ec42f3b730689e679327ec8a6dfab97724b63295badac915574139984e702475ff8025d7cb175e50e9ae
+  languageName: node
+  linkType: hard
+
+"centrifuge@npm:^5.7.2":
+  version: 5.7.4
+  resolution: "centrifuge@npm:5.7.4"
+  dependencies:
+    events: "npm:^3.3.0"
+    protobufjs: "npm:^7.6.0"
+  checksum: 10/ec541393391999b0ba1fb73d5645a9d23fa84cf9edbc3907b36b4d7b17bde2efdd6aa8dc6da74dc18b23c829f9a8d1488e450cad54654ddb18ebdaef5ca8be24
   languageName: node
   linkType: hard
 
@@ -11422,7 +11505,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"protobufjs@npm:^7.6.5":
+"protobufjs@npm:^7.6.0, protobufjs@npm:^7.6.5":
   version: 7.6.6
   resolution: "protobufjs@npm:7.6.6"
   dependencies:

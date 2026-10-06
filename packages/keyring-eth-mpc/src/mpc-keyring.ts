@@ -1,0 +1,891 @@
+import type { TypedTransaction } from '@ethereumjs/tx';
+import { hashPersonalMessage } from '@ethereumjs/util';
+import type {
+  TypedDataV1,
+  TypedMessage,
+  SignTypedDataVersion,
+  MessageTypes,
+  EIP7702Authorization,
+} from '@metamask/eth-sig-util';
+import { hashEIP7702Authorization } from '@metamask/eth-sig-util';
+import {
+  CL24DKM,
+  CL24ThresholdKeySerializer,
+  dealersFromCL24Key,
+  secp256k1 as secp256k1Curve,
+} from '@metamask/mfa-wallet-cl24';
+import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
+import { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
+import type {
+  PartyId,
+  RandomNumberGenerator,
+  RootNetworkSession,
+  ShareBinding,
+} from '@metamask/mfa-wallet-interface';
+import type { CentrifugeIdentity } from '@metamask/mfa-wallet-network';
+import {
+  CentrifugeIdentitySerializer,
+  CentrifugeNetworkManager,
+  createScopedSessionId,
+} from '@metamask/mfa-wallet-network';
+import {
+  enums,
+  integer,
+  is,
+  min,
+  nonempty,
+  nullable,
+  string,
+  type,
+} from '@metamask/superstruct';
+import { bytesToHex, hexToBytes, JsonStruct } from '@metamask/utils';
+import type { Hex, Json } from '@metamask/utils';
+
+import type { CheckKeyShareResult } from './cloud';
+import {
+  checkKeyShare as checkKeyShareRemote,
+  createKey as startCreateKey,
+  getNetId,
+  loadKeyShareBackup,
+  registerClient,
+  rotateKeyShares as startRotateKeyShares,
+  setActiveEpoch,
+  sign as startSign,
+  storeKeyShareBackup,
+} from './cloud';
+import type {
+  MpcKeyring as MpcKeyringContract,
+  MpcKeyringOpts,
+  MpcKeyringSerializer,
+  MpcKeyringSetupParams,
+  MpcKeyringState,
+  MpcKeyringStorageState,
+  ProfileTokenOpts,
+} from './types';
+import {
+  AES_GCM_IV_LENGTH,
+  decryptBytes,
+  encryptBytes,
+  equalAddresses,
+  generateSessionNonce,
+  getSignedTypedDataHash,
+  parseEthSig,
+  parseSignedTypedDataVersion,
+  publicKeyToAddressHex,
+  toEthSig,
+} from './util';
+
+const mpcKeyringType = 'MPC Keyring';
+const TSS_HAVE_SETUP_MESSAGE_TYPE = 'tss-have-setup';
+const STATUS_MESSAGE_TYPE = 'status';
+const STATUS_DATA_PERSISTED_PAYLOAD = 'data persisted';
+const STATUS_SIGNING_COMPLETED_PAYLOAD = 'signing completed';
+const CLIENT_SHARE_INDEX = 0;
+const SERVER_SHARE_INDEX = 1;
+const SIGNING_THRESHOLD = 2;
+const INITIAL_SHARE_EPOCH = 1;
+
+const SetupParamsStruct = type({
+  mode: enums(['create', 'import'] as const),
+});
+
+const InitializedStorageStruct = type({
+  netCreds: JsonStruct,
+  keyShare: JsonStruct,
+  serverNetId: nonempty(string()),
+  shareEpoch: min(integer(), 1),
+  tssSetup: nullable(string()),
+});
+
+/**
+ * Whether `state` carries the initialized-keyring fields.
+ *
+ * A payload with these fields that fails {@link InitializedStorageStruct}
+ * is rejected, instead of being treated as missing state.
+ *
+ * @param state - Candidate persisted state.
+ * @returns True when every initialized field is present.
+ */
+function hasInitializedFields(state: object): boolean {
+  return (
+    'netCreds' in state &&
+    'keyShare' in state &&
+    'serverNetId' in state &&
+    'shareEpoch' in state &&
+    'tssSetup' in state
+  );
+}
+
+/**
+ * Wait for a backend `status` message and assert it matches `expectedStatus`.
+ *
+ * @param networkSession - Root network session shared with the backend.
+ * @param peerNetId - Server network id.
+ * @param expectedStatus - Payload the backend must send for this operation.
+ */
+async function waitForDoneStatus(
+  networkSession: RootNetworkSession,
+  peerNetId: PartyId,
+  expectedStatus: string,
+): Promise<void> {
+  const status = new TextDecoder().decode(
+    await networkSession.receiveMessage(peerNetId, STATUS_MESSAGE_TYPE),
+  );
+  if (status !== expectedStatus) {
+    throw new Error(`Expected status ${expectedStatus}, received ${status}`);
+  }
+}
+
+/**
+ * Assert that the latest share and backup epochs both equal `expectedEpoch`.
+ *
+ * @param check - Backend epoch metadata.
+ * @param expectedEpoch - Epoch that must be ready for activation.
+ */
+function assertEpochReady(
+  check: CheckKeyShareResult,
+  expectedEpoch: number,
+): void {
+  if (
+    check.latestShareEpoch !== expectedEpoch ||
+    check.latestBackupEpoch !== expectedEpoch
+  ) {
+    throw new Error(
+      `Share epoch ${expectedEpoch} is not ready (latestShareEpoch=${String(
+        check.latestShareEpoch,
+      )}, latestBackupEpoch=${String(check.latestBackupEpoch)})`,
+    );
+  }
+}
+
+/**
+ * Party net ids indexed by 0-based share slot.
+ *
+ * @param clientNetId - Client (share 0) network id.
+ * @param serverNetId - Server (share 1) network id.
+ * @returns Net ids in share-slot order.
+ */
+function partyNetIds(clientNetId: PartyId, serverNetId: PartyId): PartyId[] {
+  const netIds: PartyId[] = [];
+  netIds[CLIENT_SHARE_INDEX] = clientNetId;
+  netIds[SERVER_SHARE_INDEX] = serverNetId;
+  return netIds;
+}
+
+/**
+ * Share bindings for the client/server pair.
+ *
+ * @param clientNetId - Client (share 0) network id.
+ * @param serverNetId - Server (share 1) network id.
+ * @returns Bindings with fixed share indexes.
+ */
+function shareBindings(
+  clientNetId: PartyId,
+  serverNetId: PartyId,
+): ShareBinding[] {
+  return [
+    { netId: clientNetId, shareIndex: CLIENT_SHARE_INDEX },
+    { netId: serverNetId, shareIndex: SERVER_SHARE_INDEX },
+  ];
+}
+
+/**
+ * 2-of-2 Ethereum keyring. The client holds one DKLS23 share and signs
+ * with a cloud peer. Shares are stored as encrypted epochs on the backend.
+ *
+ * The controller keyring type is `'MPC Keyring'`.
+ */
+export class MpcKeyring implements MpcKeyringContract {
+  /**
+   * Keyring type registered with the controller.
+   */
+  static type: string = mpcKeyringType;
+
+  readonly type: string = mpcKeyringType;
+
+  readonly #rng: RandomNumberGenerator;
+
+  readonly #networkManager: CentrifugeNetworkManager;
+
+  readonly #tss: Dkls23TssLib;
+
+  readonly #dkm: CL24DKM;
+
+  #state?: MpcKeyringStorageState;
+
+  readonly #cloudURL: string;
+
+  readonly #serializer: MpcKeyringSerializer;
+
+  readonly #getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
+
+  readonly #getBackupEncryptionKey: () => Promise<Uint8Array>;
+
+  #opQueue: Promise<void> = Promise.resolve();
+
+  /**
+   * Create a keyring bound to the given cloud and relayer endpoints.
+   *
+   * The keyring stays uninitialized until {@link MpcKeyring.init} or
+   * {@link MpcKeyring.deserialize}.
+   *
+   * @param opts - Randomness, TSS library, backend URLs, and token callbacks.
+   */
+  constructor(opts: MpcKeyringOpts) {
+    this.#rng = {
+      generateRandomBytes: opts.getRandomBytes,
+    };
+    this.#dkm = new CL24DKM(secp256k1Curve, this.#rng);
+    this.#tss = new Dkls23TssLib(opts.dkls23Lib);
+    this.#cloudURL = opts.cloudURL;
+    this.#serializer = {
+      thresholdKey: new CL24ThresholdKeySerializer(),
+      networkIdentity: new CentrifugeIdentitySerializer(),
+    };
+    this.#networkManager = new CentrifugeNetworkManager({
+      url: opts.relayerURL,
+      randomBytes: {
+        getRandomValues: (array: Uint8Array): Uint8Array => {
+          const bytes = opts.getRandomBytes(array.length);
+          array.set(bytes);
+          return array;
+        },
+      },
+      ...(opts.getTransportToken && {
+        getToken: opts.getTransportToken,
+      }),
+      ...(opts.webSocket === undefined ? {} : { websocket: opts.webSocket }),
+    });
+    this.#getProfileToken = opts.getProfileToken;
+    this.#getBackupEncryptionKey = opts.getBackupEncryptionKey;
+  }
+
+  /**
+   * Return the serialized state of the keyring.
+   *
+   * @returns The serialized state of the keyring.
+   */
+  async serialize(): Promise<Json> {
+    if (!this.#state) {
+      return {};
+    }
+    if (this.#state.status === 'uninitialized') {
+      return this.#state.setup;
+    }
+
+    const { netCreds, keyShare, serverNetId, shareEpoch, tssSetup } =
+      this.#state;
+    return {
+      netCreds: this.#serializer.networkIdentity.toJson(netCreds),
+      keyShare: this.#serializer.thresholdKey.toJson(keyShare),
+      serverNetId,
+      shareEpoch,
+      tssSetup: tssSetup === null ? null : bytesToHex(tssSetup),
+    };
+  }
+
+  /**
+   * Initialize the keyring with the given serialized state.
+   *
+   * @param state - The serialized state of the keyring.
+   */
+  async deserialize(state: Json): Promise<void> {
+    if (!state || typeof state !== 'object') {
+      throw new Error('Invalid state');
+    }
+
+    if (is(state, InitializedStorageStruct)) {
+      this.#state = {
+        status: 'initialized',
+        netCreds: this.#serializer.networkIdentity.fromJson(state.netCreds),
+        keyShare: this.#serializer.thresholdKey.fromJson(state.keyShare),
+        serverNetId: state.serverNetId,
+        shareEpoch: state.shareEpoch,
+        tssSetup: state.tssSetup === null ? null : hexToBytes(state.tssSetup),
+      };
+      return;
+    }
+
+    if (is(state, SetupParamsStruct)) {
+      this.#state = {
+        status: 'uninitialized',
+        setup: { mode: state.mode },
+      };
+      return;
+    }
+
+    if (hasInitializedFields(state)) {
+      throw new Error('Invalid state');
+    }
+
+    if ('mode' in state) {
+      throw new Error("Invalid setup mode: expected 'create' or 'import'");
+    }
+  }
+
+  /**
+   * Run key generation or import. `mode` may be passed directly, or taken
+   * from setup params previously stored via {@link deserialize}.
+   * Serialized with sign, rotate and sync so overlapping `init` calls run
+   * setup once: the second call waits, sees the initialized state and returns.
+   *
+   * @param mode - Create a new key or import from the backend backup.
+   * @returns Resolves when the keyring is initialized.
+   */
+  async init(mode?: MpcKeyringSetupParams['mode']): Promise<void> {
+    return this.#serializeOp(async () => {
+      if (this.#state?.status === 'initialized') {
+        return;
+      }
+
+      const resolvedMode =
+        mode ??
+        (this.#state?.status === 'uninitialized'
+          ? this.#state.setup.mode
+          : undefined);
+      if (resolvedMode === undefined) {
+        return;
+      }
+
+      if (resolvedMode === 'create') {
+        await this.#setupCreate();
+      } else {
+        await this.#setupImport();
+      }
+    });
+  }
+
+  /**
+   * Rotate client and server shares to the next epoch, then activate it.
+   * Clears local TSS setup so it is rebuilt against the new shares.
+   * Serialized with sign and sync so mid-flight state writes cannot race.
+   *
+   * @returns Resolves when rotation and activation complete.
+   */
+  async rotateKeyShares(): Promise<void> {
+    return this.#serializeOp(async () => {
+      const state = this.#assertState();
+      const { netCreds, serverNetId, shareEpoch } = state;
+      let { keyShare } = state;
+      const nextEpoch = shareEpoch + 1;
+
+      const token = await this.#getProfileToken({ twoFactor: true });
+      const nonce = generateSessionNonce(this.#rng);
+      await startRotateKeyShares({
+        baseURL: this.#cloudURL,
+        token,
+        clientNetId: netCreds.partyId,
+        nonce,
+        expectedActiveEpoch: shareEpoch,
+      });
+
+      const netSession = await this.#createNetworkSession(
+        netCreds,
+        serverNetId,
+        nonce,
+      );
+      try {
+        const custodians = partyNetIds(netCreds.partyId, serverNetId);
+        keyShare = await this.#dkm.rotateKeyShares({
+          key: keyShare,
+          dealers: dealersFromCL24Key(keyShare, custodians),
+          custodians,
+          networkSession: netSession.createSubsession('dkg-rotate'),
+        });
+        await waitForDoneStatus(
+          netSession,
+          serverNetId,
+          STATUS_DATA_PERSISTED_PAYLOAD,
+        );
+      } finally {
+        await netSession.disconnect();
+      }
+
+      await storeKeyShareBackup({
+        baseURL: this.#cloudURL,
+        token,
+        epoch: nextEpoch,
+        attemptNonce: nonce,
+        encryptedKeyShare: await this.#encryptKeyShare(keyShare),
+      });
+
+      assertEpochReady(
+        await checkKeyShareRemote({
+          baseURL: this.#cloudURL,
+          token,
+        }),
+        nextEpoch,
+      );
+
+      await setActiveEpoch({
+        baseURL: this.#cloudURL,
+        token,
+        epoch: nextEpoch,
+      });
+
+      this.#applyKeyState({
+        ...state,
+        keyShare,
+        shareEpoch: nextEpoch,
+        tssSetup: null,
+      });
+    });
+  }
+
+  /**
+   * Compare the local share epoch with backend share/backup/active epochs.
+   *
+   * @returns Whether all remote epochs match the local share epoch.
+   */
+  async checkKeyShare(): Promise<boolean> {
+    const { shareEpoch } = this.#assertState();
+    const token = await this.#getProfileToken();
+    const check = await checkKeyShareRemote({
+      baseURL: this.#cloudURL,
+      token,
+    });
+    return (
+      check.latestShareEpoch === shareEpoch &&
+      check.latestBackupEpoch === shareEpoch &&
+      check.activeEpoch === shareEpoch
+    );
+  }
+
+  /**
+   * Refresh `keyShare` and `shareEpoch` from the active-epoch backend backup.
+   * Clears `tssSetup`; `netCreds` and `serverNetId` are unchanged.
+   * Serialized with sign and rotate so mid-flight state writes cannot race.
+   *
+   * @returns Resolves when the local share has been refreshed.
+   */
+  async syncKeyShare(): Promise<void> {
+    return this.#serializeOp(async () => {
+      const state = this.#assertState();
+      const token = await this.#getProfileToken({ twoFactor: true });
+      const { encryptedKeyShare, epoch } = await loadKeyShareBackup({
+        baseURL: this.#cloudURL,
+        token,
+      });
+      const keyShare = await this.#decryptKeyShare(encryptedKeyShare);
+      this.#applyKeyState({
+        ...state,
+        keyShare,
+        shareEpoch: epoch,
+        tssSetup: null,
+      });
+    });
+  }
+
+  /**
+   * Return the single MPC account. The account is created during
+   * {@link MpcKeyring.init}, not by this method.
+   *
+   * @param numberOfAccounts - Must be 1 (the only supported value).
+   * @returns The address of the existing account.
+   * @throws If `numberOfAccounts` is not 1 or the keyring has no account.
+   */
+  async addAccounts(numberOfAccounts = 1): Promise<Hex[]> {
+    if (numberOfAccounts !== 1) {
+      throw new Error('MpcKeyring: supports adding exactly one account');
+    }
+
+    const accounts = await this.getAccounts();
+    const account = accounts[0];
+    if (!account) {
+      throw new Error('MpcKeyring: has no account');
+    }
+
+    return [account];
+  }
+
+  /**
+   * Get the addresses of all accounts in the keyring.
+   *
+   * @returns The addresses of all accounts in the keyring.
+   */
+  async getAccounts(): Promise<Hex[]> {
+    if (!this.#state || this.#state.status !== 'initialized') {
+      return [];
+    }
+
+    return [this.#address()];
+  }
+
+  /**
+   * Get the public address of the account for the given app key origin.
+   *
+   * @param address - The address of the account.
+   * @param origin - The origin of the app requesting the account.
+   * @returns The public address of the account.
+   */
+  async getAppKeyAddress(address: Hex, origin: string): Promise<Hex> {
+    throw new Error(`getAppKeyAddress(${address}, ${origin}): not implemented`);
+  }
+
+  /**
+   * Sign a transaction using the specified account.
+   *
+   * @param address - The address of the account.
+   * @param tx - The transaction to sign.
+   * @param _opts - The options for signing the transaction.
+   * @returns The signed transaction.
+   */
+  async signTransaction(
+    address: Hex,
+    tx: TypedTransaction,
+    _opts = {},
+  ): Promise<TypedTransaction> {
+    const message = tx.getHashedMessageToSign();
+
+    const signature = await this.#signHash(address, message);
+
+    const { r, s, v } = parseEthSig(signature);
+
+    // convertV adapts the message-style recovery id (27|28) to typed-tx
+    // yParity (0|1) or legacy EIP-155 v, matching `TypedTransaction.sign()`.
+    const signedTx = tx.addSignature(v, r, s, true);
+    return signedTx;
+  }
+
+  /**
+   * Sign a personal message using the specified account.
+   * This method is compatible with the `personal_sign` RPC method.
+   *
+   * @param address - The address of the account.
+   * @param msgHex - The message to sign.
+   * @param _opts - The options for signing the message.
+   * @returns The signature of the message.
+   */
+  async signPersonalMessage(
+    address: Hex,
+    msgHex: string,
+    _opts?: Record<string, unknown>,
+  ): Promise<string> {
+    const rawMsg = hexToBytes(msgHex);
+    const msgHash = hashPersonalMessage(rawMsg);
+
+    const signature = await this.#signHash(address, msgHash);
+    return bytesToHex(signature);
+  }
+
+  /**
+   * Sign a typed message using the specified account.
+   * This method is compatible with the `eth_signTypedData` RPC method.
+   *
+   * @param address - The address of the account.
+   * @param data - The typed data to sign.
+   * @param options - The options for signing the message.
+   * @returns The signature of the message.
+   */
+  async signTypedData<
+    Version extends SignTypedDataVersion,
+    Types extends MessageTypes,
+    Options extends { version?: Version },
+  >(
+    address: Hex,
+    data: Version extends 'V1' ? TypedDataV1 : TypedMessage<Types>,
+    options?: Options,
+  ): Promise<string> {
+    const version = parseSignedTypedDataVersion(options);
+
+    const messageHash = getSignedTypedDataHash(data, version);
+
+    const signature = await this.#signHash(address, messageHash);
+    return bytesToHex(signature);
+  }
+
+  /**
+   * Sign an EIP-7702 authorization using the specified account.
+   *
+   * @param address - The address of the account.
+   * @param authorization - The EIP-7702 authorization to sign.
+   * @param _opts - The options for signing the authorization.
+   * @returns The signature of the authorization.
+   */
+  async signEip7702Authorization(
+    address: Hex,
+    authorization: EIP7702Authorization,
+    _opts?: Record<string, unknown>,
+  ): Promise<string> {
+    const messageHash = new Uint8Array(hashEIP7702Authorization(authorization));
+    const signature = await this.#signHash(address, messageHash);
+    return bytesToHex(signature);
+  }
+
+  async #setupCreate(): Promise<void> {
+    const token = await this.#getProfileToken({ twoFactor: true });
+    const netCreds = await this.#networkManager.createIdentity();
+    const serverNetId = await getNetId({
+      baseURL: this.#cloudURL,
+      token,
+    });
+
+    const nonce = generateSessionNonce(this.#rng);
+    await startCreateKey({
+      baseURL: this.#cloudURL,
+      token,
+      clientNetId: netCreds.partyId,
+      nonce,
+    });
+
+    const netSession = await this.#createNetworkSession(
+      netCreds,
+      serverNetId,
+      nonce,
+    );
+    let keyShare: CL24ThresholdKey;
+    let tssSetup: Uint8Array;
+    try {
+      const custodians = partyNetIds(netCreds.partyId, serverNetId);
+      const bindings = shareBindings(netCreds.partyId, serverNetId);
+      const createKeySession = netSession.createSubsession('dkg-create');
+      const tssSetupSession = netSession.createSubsession('tss-setup');
+      [keyShare, tssSetup] = await Promise.all([
+        this.#dkm.createKey({
+          custodians,
+          threshold: SIGNING_THRESHOLD,
+          networkSession: createKeySession,
+        }),
+        this.#tss.setup({
+          signers: bindings,
+          networkSession: tssSetupSession,
+        }),
+      ]);
+      await waitForDoneStatus(
+        netSession,
+        serverNetId,
+        STATUS_DATA_PERSISTED_PAYLOAD,
+      );
+    } finally {
+      await netSession.disconnect();
+    }
+
+    await storeKeyShareBackup({
+      baseURL: this.#cloudURL,
+      token,
+      epoch: INITIAL_SHARE_EPOCH,
+      attemptNonce: nonce,
+      encryptedKeyShare: await this.#encryptKeyShare(keyShare),
+    });
+
+    assertEpochReady(
+      await checkKeyShareRemote({
+        baseURL: this.#cloudURL,
+        token,
+      }),
+      INITIAL_SHARE_EPOCH,
+    );
+
+    await setActiveEpoch({
+      baseURL: this.#cloudURL,
+      token,
+      epoch: INITIAL_SHARE_EPOCH,
+    });
+
+    this.#applyKeyState({
+      keyShare,
+      netCreds,
+      serverNetId,
+      shareEpoch: INITIAL_SHARE_EPOCH,
+      tssSetup,
+    });
+  }
+
+  async #setupImport(): Promise<void> {
+    const token = await this.#getProfileToken({ twoFactor: true });
+    const netCreds = await this.#networkManager.createIdentity();
+    const serverNetId = await getNetId({
+      baseURL: this.#cloudURL,
+      token,
+    });
+
+    const loaded = await loadKeyShareBackup({
+      baseURL: this.#cloudURL,
+      token,
+    });
+    const keyShare = await this.#decryptKeyShare(loaded.encryptedKeyShare);
+
+    await registerClient({
+      baseURL: this.#cloudURL,
+      token,
+      clientNetId: netCreds.partyId,
+    });
+
+    this.#applyKeyState({
+      keyShare,
+      netCreds,
+      serverNetId,
+      shareEpoch: loaded.epoch,
+      tssSetup: null,
+    });
+  }
+
+  async #signHash(address: Hex, hash: Uint8Array): Promise<Uint8Array> {
+    return this.#serializeOp(async () => {
+      const state = this.#assertState();
+      const { keyShare, netCreds, serverNetId, shareEpoch } = state;
+      let { tssSetup } = state;
+
+      const addr = this.#address();
+      if (!equalAddresses(address, addr)) {
+        throw new Error(`account ${address} not found`);
+      }
+
+      const token = await this.#getProfileToken({
+        twoFactor: true,
+        challenge: hash,
+      });
+      const nonce = generateSessionNonce(this.#rng);
+      await startSign({
+        baseURL: this.#cloudURL,
+        token,
+        data: hash,
+        clientNetId: netCreds.partyId,
+        nonce,
+        shareEpoch,
+      });
+
+      const netSession = await this.#createNetworkSession(
+        netCreds,
+        serverNetId,
+        nonce,
+      );
+      const bindings = shareBindings(netCreds.partyId, serverNetId);
+
+      try {
+        tssSetup = await this.#ensureTssSetup(
+          netSession,
+          serverNetId,
+          bindings,
+          tssSetup,
+        );
+        this.#applyKeyState({ ...state, tssSetup });
+
+        let ethSignature: Uint8Array;
+        try {
+          const { signature } = await this.#tss.sign({
+            key: keyShare,
+            signers: bindings,
+            message: hash,
+            networkSession: netSession.createSubsession('tss-sign'),
+            setup: tssSetup,
+          });
+          ethSignature = toEthSig(signature, hash, keyShare.publicKey);
+        } catch (error) {
+          // Any error drops the cached TSS setup. A failed sign may have
+          // consumed it, including a transport failure, so the next sign
+          // rebuilds setup with the peer instead of reusing it.
+          this.#applyKeyState({ ...state, tssSetup: null });
+          throw error;
+        }
+        try {
+          await waitForDoneStatus(
+            netSession,
+            serverNetId,
+            STATUS_SIGNING_COMPLETED_PAYLOAD,
+          );
+        } catch {
+          // Signing does not mutate shares, so a late status failure must not drop the signature.
+        }
+        return ethSignature;
+      } finally {
+        await netSession.disconnect();
+      }
+    });
+  }
+
+  async #ensureTssSetup(
+    netSession: RootNetworkSession,
+    peerNetId: PartyId,
+    bindings: ShareBinding[],
+    storedSetup: Uint8Array | null,
+  ): Promise<Uint8Array> {
+    const haveSetup = storedSetup !== null;
+    netSession.sendMessage(
+      peerNetId,
+      TSS_HAVE_SETUP_MESSAGE_TYPE,
+      new TextEncoder().encode(JSON.stringify({ haveSetup })),
+    );
+    const peerBytes = await netSession.receiveMessage(
+      peerNetId,
+      TSS_HAVE_SETUP_MESSAGE_TYPE,
+    );
+    const peerPayload = JSON.parse(new TextDecoder().decode(peerBytes)) as {
+      haveSetup?: unknown;
+    };
+    const peerHaveSetup = peerPayload.haveSetup === true;
+    if (haveSetup && peerHaveSetup) {
+      return storedSetup;
+    }
+
+    return this.#tss.setup({
+      signers: bindings,
+      networkSession: netSession.createSubsession('tss-setup'),
+    });
+  }
+
+  async #createNetworkSession(
+    netCreds: CentrifugeIdentity,
+    serverNetId: PartyId,
+    nonce: string,
+  ): Promise<RootNetworkSession> {
+    const sessionId = createScopedSessionId(
+      [serverNetId, netCreds.partyId],
+      nonce,
+    );
+    return this.#networkManager.createSession(netCreds, sessionId);
+  }
+
+  async #encryptKeyShare(keyShare: CL24ThresholdKey): Promise<Uint8Array> {
+    const key = await this.#getBackupEncryptionKey();
+    const plaintext = new TextEncoder().encode(
+      JSON.stringify(this.#serializer.thresholdKey.toJson(keyShare)),
+    );
+    const iv = this.#rng.generateRandomBytes(AES_GCM_IV_LENGTH);
+    return encryptBytes(key, plaintext, iv);
+  }
+
+  async #decryptKeyShare(
+    encryptedKeyShare: Uint8Array,
+  ): Promise<CL24ThresholdKey> {
+    const key = await this.#getBackupEncryptionKey();
+    const plaintext = await decryptBytes(key, encryptedKeyShare);
+    return this.#serializer.thresholdKey.fromJson(
+      JSON.parse(new TextDecoder().decode(plaintext)) as Json,
+    );
+  }
+
+  async #serializeOp<Result>(
+    operation: () => Promise<Result>,
+  ): Promise<Result> {
+    const previous = this.#opQueue;
+    let release!: () => void;
+    this.#opQueue = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await previous;
+    try {
+      return await operation();
+    } finally {
+      release();
+    }
+  }
+
+  #applyKeyState(state: MpcKeyringState): void {
+    this.#state = {
+      status: 'initialized',
+      ...state,
+    };
+  }
+
+  #assertState(): MpcKeyringState {
+    if (!this.#state || this.#state.status !== 'initialized') {
+      throw new Error('Keyring not initialized');
+    }
+    return this.#state;
+  }
+
+  #address(): Hex {
+    return publicKeyToAddressHex(this.#assertState().keyShare.publicKey);
+  }
+}

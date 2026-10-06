@@ -1,7 +1,10 @@
 {
   "extends": "../../tsconfig.packages.json",
   "compilerOptions": {
-    "baseUrl": "./"
+    "baseUrl": "./",
+    // NOTE: @msgpack/msgpack uses Uint8Array<ArrayBuffer> which requires TypeScript 5.7+.
+    // skipLibCheck bypasses type-checking of .d.ts files in node_modules.
+    "skipLibCheck": true
   },
   "references": [
     {
