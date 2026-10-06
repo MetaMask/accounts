@@ -1,5 +1,6 @@
 export { MpcKeyring } from './mpc-keyring';
 
+export { MpcKeyringSetupMode } from './types';
 export type {
   MpcKeyringOpts,
   MpcKeyringSerializer,

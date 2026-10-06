@@ -46,6 +46,18 @@ export const KeyringCapabilitiesStruct = object({
     }),
   ),
   /**
+   * Address capabilities supported by this keyring.
+   */
+  address: exactOptional(
+    object({
+      /**
+       * Whether the keyring supports importing watch-only accounts by
+       * address.
+       */
+      import: boolean(),
+    }),
+  ),
+  /**
    * Private key capabilities supported by this keyring.
    */
   privateKey: exactOptional(

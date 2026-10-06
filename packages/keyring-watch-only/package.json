@@ -1,14 +1,13 @@
 {
-  "name": "@metamask/eth-qr-keyring",
-  "version": "3.0.0",
-  "description": "A simple standard interface for a series of Ethereum private keys",
+  "name": "@metamask/watch-only-keyring",
+  "version": "0.1.0",
+  "description": "A watch-only keyring that holds accounts imported by address, without any signing capability",
   "keywords": [
     "ethereum",
     "keyring",
-    "metamask",
-    "qr"
+    "watch-only"
   ],
-  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-eth-qr#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-watch-only#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
@@ -18,8 +17,7 @@
     "url": "https://github.com/MetaMask/accounts.git"
   },
   "files": [
-    "dist/",
-    "v2.js"
+    "dist/"
   ],
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -35,16 +33,6 @@
         "default": "./dist/index.cjs"
       }
     },
-    "./v2": {
-      "import": {
-        "types": "./dist/v2/index.d.mts",
-        "default": "./dist/v2/index.mjs"
-      },
-      "require": {
-        "types": "./dist/v2/index.d.cts",
-        "default": "./dist/v2/index.cjs"
-      }
-    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -54,13 +42,11 @@
   "scripts": {
     "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references",
     "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean",
-    "build:clean": "rimraf dist && yarn build",
+    "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "build:force": "tsc --build tsconfig.build.json --force",
-    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-qr-keyring",
-    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-qr-keyring",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/watch-only-keyring",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/watch-only-keyring",
     "publish:preview": "yarn npm publish --tag preview",
-    "sample": "ts-node src/sample.ts",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
@@ -70,35 +56,21 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "dependencies": {
-    "@ethereumjs/rlp": "^5.0.2",
-    "@ethereumjs/tx": "^5.4.0",
-    "@ethereumjs/util": "^9.1.0",
-    "@keystonehq/bc-ur-registry-eth": "^0.19.1",
-    "@metamask/eth-sig-util": "^9.0.0",
     "@metamask/keyring-api": "^24.1.0",
     "@metamask/keyring-sdk": "^3.1.0",
     "@metamask/keyring-utils": "^5.0.0",
+    "@metamask/superstruct": "^3.4.1",
     "@metamask/utils": "^11.11.0",
-    "async-mutex": "^0.5.0",
-    "hdkey": "^2.1.0",
-    "uuid": "^9.0.1"
+    "async-mutex": "^0.5.0"
   },
   "devDependencies": {
-    "@ethereumjs/common": "^4.4.0",
-    "@keystonehq/metamask-airgapped-keyring": "^0.15.2",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
-    "@metamask/account-api": "^2.1.0",
     "@metamask/auto-changelog": "^6.1.0",
-    "@types/hdkey": "^2.0.1",
+    "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.12.12",
     "deepmerge": "^4.2.2",
-    "depcheck": "^1.4.7",
     "jest": "^29.5.0",
-    "ts-jest": "^29.0.5",
-    "ts-node": "^10.9.2",
-    "typedoc": "^0.25.13",
     "typescript": "~5.3.3"
   },
   "engines": {
@@ -106,14 +78,7 @@
   },
   "lavamoat": {
     "allowScripts": {
-      "keccak": true,
-      "secp256k1": true,
-      "@lavamoat/preinstall-always-fail": false,
-      "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>keccak": false,
-      "ethereumjs-tx>ethereumjs-util>ethereum-cryptography>secp256k1": false,
-      "@keystonehq/ur-decoder>@keystonehq/bc-ur-registry-eth>ethereumjs-util>ethereum-cryptography>keccak": false,
-      "@lavamoat/allow-scripts>@lavamoat/preinstall-always-fail": false,
-      "hdkey>secp256k1": false
+      "@lavamoat/preinstall-always-fail": false
     }
   }
 }

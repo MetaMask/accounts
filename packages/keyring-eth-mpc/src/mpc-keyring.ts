@@ -8,7 +8,6 @@ import type {
   EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { hashEIP7702Authorization } from '@metamask/eth-sig-util';
-import type { Keyring } from '@metamask/keyring-utils';
 import {
   CL24DKM,
   CL24ThresholdKeySerializer,
@@ -55,6 +54,7 @@ import {
   storeKeyShareBackup,
 } from './cloud';
 import type {
+  MpcKeyring as MpcKeyringContract,
   MpcKeyringOpts,
   MpcKeyringSerializer,
   MpcKeyringSetupParams,
@@ -195,7 +195,7 @@ function shareBindings(
  *
  * The controller keyring type is `'MPC Keyring'`.
  */
-export class MpcKeyring implements Keyring {
+export class MpcKeyring implements MpcKeyringContract {
   /**
    * Keyring type registered with the controller.
    */
