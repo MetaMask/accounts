@@ -32,6 +32,13 @@ export enum KeyringAccountEntropyTypeOption {
    * This is an opaque type where the entropy source is managed internally by the keyring.
    */
   Custom = 'custom',
+
+  /**
+   * Indicates that the account was created from an MPC (multi-party
+   * computation) key share. This is an opaque type where the entropy source
+   * is managed internally by the keyring.
+   */
+  Mpc = 'mpc',
 }
 
 /**
@@ -108,6 +115,27 @@ export type KeyringAccountEntropyCustomOptions = Infer<
 >;
 
 /**
+ * Keyring account options struct for MPC (multi-party computation) entropy.
+ *
+ * This is an opaque type where the entropy source is managed internally by the
+ * keyring. The account is derived from an MPC key share, and no additional
+ * entropy metadata is exposed.
+ */
+export const KeyringAccountEntropyMpcOptionsStruct = object({
+  /**
+   * Indicates that the account was created from an MPC key share.
+   */
+  type: literal(`${KeyringAccountEntropyTypeOption.Mpc}`),
+});
+
+/**
+ * Keyring account options for MPC entropy {@link KeyringAccountEntropyMpcOptionsStruct}.
+ */
+export type KeyringAccountEntropyMpcOptions = Infer<
+  typeof KeyringAccountEntropyMpcOptionsStruct
+>;
+
+/**
  * Keyring account entropy options struct.
  */
 export const KeyringAccountEntropyOptionsStruct = selectiveUnion(
@@ -121,6 +149,8 @@ export const KeyringAccountEntropyOptionsStruct = selectiveUnion(
         return KeyringAccountEntropyPrivateKeyOptionsStruct;
       case KeyringAccountEntropyTypeOption.Custom:
         return KeyringAccountEntropyCustomOptionsStruct;
+      case KeyringAccountEntropyTypeOption.Mpc:
+        return KeyringAccountEntropyMpcOptionsStruct;
       case KeyringAccountEntropyTypeOption.Mnemonic:
         return KeyringAccountEntropyMnemonicOptionsStruct;
       default:
@@ -140,8 +170,9 @@ export type KeyringAccountEntropyOptions = Infer<
  * Keyring options struct. This represents various options for a Keyring account object.
  *
  * See {@link KeyringAccountEntropyMnemonicOptionsStruct},
- * {@link KeyringAccountEntropyPrivateKeyOptionsStruct}, and
- * {@link KeyringAccountEntropyCustomOptionsStruct}.
+ * {@link KeyringAccountEntropyPrivateKeyOptionsStruct},
+ * {@link KeyringAccountEntropyCustomOptionsStruct}, and
+ * {@link KeyringAccountEntropyMpcOptionsStruct}.
  *
  * @example
  * ```ts
@@ -170,6 +201,15 @@ export type KeyringAccountEntropyOptions = Infer<
  * {
  *   entropy: {
  *     type: 'custom',
+ *   },
+ * }
+ * ```
+ *
+ * @example
+ * ```ts
+ * {
+ *   entropy: {
+ *     type: 'mpc',
  *   },
  * }
  * ```
