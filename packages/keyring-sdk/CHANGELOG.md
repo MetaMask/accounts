@@ -9,11 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `AtomicKeyring` base class, `AtomicUpdater` type, and `isAtomicKeyring` helper for keyrings that serialize their own operations and commit state through controller-mediated vault writes ([#640](https://github.com/MetaMask/accounts/pull/640))
-  - Atomic keyrings run long-running operations inside their own read-write lock, entirely outside the controller mutex, and persist state through the injected `update` callback.
+- Add `AtomicKeyring` support ([#640](https://github.com/MetaMask/accounts/pull/640))
+  - Atomic keyrings run long-running operations inside their own read-write lock, entirely outside the controller mutex (only the `update` method will be guarded by the `KeyringController`'s vault mutex).
+  - Add `AtomicUpdater` type, callback forwarded by the `KeyringController` during register phase.
+  - Add `isAtomicKeyring` helper to identify atomic keyrings.
 - Add `ReadWriteLock` primitive with parallel readers, exclusive writers ([#640](https://github.com/MetaMask/accounts/pull/640))
-  - The lock is write-preferring by default: a pending writer blocks new readers, so a steady stream of reads cannot starve a long write.
-  - Pass `priority: 'read'` to let new readers join active readers even while a writer is queued, at the cost that continuous reads can starve a queued writer.
+  - Also support priority mode: `'read'` or `'write'`.
 
 ### Changed
 
