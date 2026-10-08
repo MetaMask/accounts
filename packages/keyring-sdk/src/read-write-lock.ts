@@ -153,7 +153,8 @@ export class ReadWriteLock {
       // Writing is exclusive with readers, so we cannot acquire the lock if any reader is active.
       const blockedByReaders = mode === 'write' && this.#isReading();
       // We cannot acquire the lock for reading if there are waiters, unless priority is 'read'.
-      const blockedByWriterPriority = mode === 'read' && this.#priority === 'write' && this.#hasWaiters(); // We might have pending write requests in the queue.
+      const blockedByWriterPriority =
+        mode === 'read' && this.#priority === 'write' && this.#hasWaiters(); // We might have pending write requests in the queue.
 
       const acquire = !(
         blockedByWriter ||
