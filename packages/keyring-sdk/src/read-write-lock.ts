@@ -148,22 +148,18 @@ export class ReadWriteLock {
    */
   async #acquire(mode: LockMode): Promise<void> {
     return new Promise<void>((resolve) => {
-      let acquire = true;
-      if (this.#isWriting()) {
-        // Writing is exclusive, so we cannot acquire the lock if a writer is active.
-        acquire = false;
-      } else if (mode === 'write' && this.#isReading()) {
-        // Writing is exclusive with readers, so we cannot acquire the lock if any reader is active.
-        acquire = false;
-      } else if (
-        mode === 'read' &&
-        // We might have pending write requests in the queue.
-        this.#hasWaiters() &&
-        this.#priority === 'write'
-      ) {
-        // We cannot acquire the lock for reading if there are waiters, unless priority is 'read'.
-        acquire = false;
-      }
+      // Writing is exclusive, so we cannot acquire the lock if a writer is active.
+      const blockedByWriter = this.#isWriting();
+      // Writing is exclusive with readers, so we cannot acquire the lock if any reader is active.
+      const blockedByReaders = mode === 'write' && this.#isReading();
+      // We cannot acquire the lock for reading if there are waiters, unless priority is 'read'.
+      const blockedByWriterPriority = mode === 'read' && this.#priority === 'write' && this.#hasWaiters(); // We might have pending write requests in the queue.
+
+      const acquire = !(
+        blockedByWriter ||
+        blockedByReaders ||
+        blockedByWriterPriority
+      );
 
       if (acquire) {
         this.#grant(mode);
@@ -212,15 +208,12 @@ export class ReadWriteLock {
   #drain(): void {
     let waiter: LockWaiter | undefined = this.#waiters.shift();
     while (waiter !== undefined) {
-      let acquire = true;
+      // Writing is exclusive, so we cannot acquire the lock if a writer is active.
+      const blockedByWriter = this.#isWriting();
+      // Reading blocks a writer, so we cannot acquire the lock for writing if any reader is active.
+      const blockedByReaders = waiter.mode === 'write' && this.#isReading();
 
-      if (this.#isWriting()) {
-        // Writing is exclusive, so the waiter cannot acquire the lock if a writer is active.
-        acquire = false;
-      } else if (waiter.mode === 'write' && this.#isReading()) {
-        // Writing is exclusive with readers, so the waiter cannot acquire the lock if any reader is active.
-        acquire = false;
-      }
+      const acquire = !(blockedByWriter || blockedByReaders);
 
       if (acquire) {
         // Grant the front waiter and continue with the next one, so consecutive queued readers are granted together.
