@@ -49,9 +49,9 @@ export type ReadWriteLockOptions = {
  * when the callback settles, whether it resolves or throws.
  */
 export class ReadWriteLock {
-  #readers: number = 0;
+  #readerCount: number = 0;
 
-  #writer: boolean = false;
+  #writerActive: boolean = false;
 
   readonly #waiters: LockWaiter[] = [];
 
@@ -125,7 +125,7 @@ export class ReadWriteLock {
    * @returns Whether any reader is active.
    */
   #isReading(): boolean {
-    return this.#readers > 0;
+    return this.#readerCount > 0;
   }
 
   /**
@@ -136,7 +136,7 @@ export class ReadWriteLock {
    * @returns Whether a writer is active.
    */
   #isWriting(): boolean {
-    return this.#writer;
+    return this.#writerActive;
   }
 
   /**
@@ -178,9 +178,9 @@ export class ReadWriteLock {
    */
   #grant(mode: LockMode): void {
     if (mode === 'read') {
-      this.#readers += 1;
+      this.#readerCount += 1;
     } else {
-      this.#writer = true;
+      this.#writerActive = true;
     }
   }
 
@@ -191,9 +191,9 @@ export class ReadWriteLock {
    */
   #release(mode: LockMode): void {
     if (mode === 'read') {
-      this.#readers -= 1;
+      this.#readerCount -= 1;
     } else {
-      this.#writer = false;
+      this.#writerActive = false;
     }
     this.#drain();
   }
