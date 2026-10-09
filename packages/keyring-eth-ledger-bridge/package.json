@@ -94,7 +94,7 @@
     "@metamask/account-api": "^2.1.0",
     "@metamask/auto-changelog": "^6.1.0",
     "@metamask/keyring-utils": "^5.0.0",
-    "@metamask/utils": "^11.11.0",
+    "@metamask/utils": "^12.0.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",
