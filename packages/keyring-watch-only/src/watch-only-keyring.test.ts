@@ -209,7 +209,7 @@ describe('WatchOnlyKeyring', () => {
           createAddressImportOptions(TEST_ADDRESS_1, EthAccountType.Erc4337),
         ),
       ).rejects.toThrow(
-        `Account already exists with type '${EthAccountType.Eoa}', got '${EthAccountType.Erc4337}'.`,
+        `Account already exists with type '${EthAccountType.Eoa}', got '${EthAccountType.Erc4337}'`,
       );
     });
 
@@ -227,7 +227,7 @@ describe('WatchOnlyKeyring', () => {
           ]),
         ),
       ).rejects.toThrow(
-        `Account already exists with scopes [${EthScope.Mainnet}], got [${EthScope.Testnet}].`,
+        `Account already exists with scopes [${EthScope.Mainnet}], got [${EthScope.Testnet}]`,
       );
     });
 
@@ -296,13 +296,13 @@ describe('WatchOnlyKeyring', () => {
     it('throws for an invalid address', async () => {
       await expect(
         keyring.createAccounts(createAddressImportOptions('not-an-address')),
-      ).rejects.toThrow('Invalid EVM address: not-an-address');
+      ).rejects.toThrow('Invalid EVM address');
     });
 
     it('throws for an address that is too short', async () => {
       await expect(
         keyring.createAccounts(createAddressImportOptions('0x1234')),
-      ).rejects.toThrow('Invalid EVM address: 0x1234');
+      ).rejects.toThrow('Invalid EVM address');
     });
 
     it('throws for an address with an invalid checksum', async () => {
@@ -313,7 +313,7 @@ describe('WatchOnlyKeyring', () => {
         keyring.createAccounts(
           createAddressImportOptions(invalidChecksumAddress),
         ),
-      ).rejects.toThrow(`Invalid EVM address: ${invalidChecksumAddress}`);
+      ).rejects.toThrow('Invalid EVM address');
     });
 
     it('throws for a non-EVM account type', async () => {
@@ -322,7 +322,7 @@ describe('WatchOnlyKeyring', () => {
           createAddressImportOptions(TEST_ADDRESS_1, 'bip122:p2pkh'),
         ),
       ).rejects.toThrow(
-        "Unsupported account type for WatchOnlyKeyring: bip122:p2pkh. Only 'eip155:eoa' and 'eip155:erc4337' are supported.",
+        "Unsupported account type for WatchOnlyKeyring: bip122:p2pkh. Only 'eip155:eoa' and 'eip155:erc4337' are supported",
       );
     });
 
@@ -334,7 +334,7 @@ describe('WatchOnlyKeyring', () => {
           ]),
         ),
       ).rejects.toThrow(
-        `Unsupported scopes for WatchOnlyKeyring: ${BtcScope.Mainnet}. Supported scopes: ${EthScope.Eoa}.`,
+        `Unsupported scopes for WatchOnlyKeyring: ${BtcScope.Mainnet}. Supported scopes: ${EthScope.Eoa}`,
       );
     });
 
@@ -581,7 +581,7 @@ describe('WatchOnlyKeyring', () => {
             },
           ],
         }),
-      ).rejects.toThrow('Invalid EVM address: not-an-address');
+      ).rejects.toThrow('Invalid EVM address');
 
       expect(await keyring.getAccounts()).toStrictEqual(originalAccounts);
     });
@@ -666,7 +666,7 @@ describe('WatchOnlyKeyring', () => {
             },
           ],
         }),
-      ).rejects.toThrow('Invalid EVM address: not-an-address');
+      ).rejects.toThrow('Invalid EVM address');
     });
 
     it('throws for a non-EVM account type in the state', async () => {
@@ -681,7 +681,7 @@ describe('WatchOnlyKeyring', () => {
           ],
         }),
       ).rejects.toThrow(
-        "Unsupported account type for WatchOnlyKeyring: bip122:p2pkh. Only 'eip155:eoa' and 'eip155:erc4337' are supported.",
+        "Unsupported account type for WatchOnlyKeyring: bip122:p2pkh. Only 'eip155:eoa' and 'eip155:erc4337' are supported",
       );
     });
 
@@ -697,7 +697,7 @@ describe('WatchOnlyKeyring', () => {
           ],
         }),
       ).rejects.toThrow(
-        `Unsupported scopes for WatchOnlyKeyring: ${BtcScope.Mainnet}. Supported scopes: ${EthScope.Eoa}.`,
+        `Unsupported scopes for WatchOnlyKeyring: ${BtcScope.Mainnet}. Supported scopes: ${EthScope.Eoa}`,
       );
     });
   });
