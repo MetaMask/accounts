@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [24.2.0]
 
-### Uncategorized
-
-- revert: release: 129.0.0 (#658) ([#658](https://github.com/MetaMask/accounts/pull/658))
-
 ### Added
 
 - Add `AccountCreationType.AddressImport` (`address:import`) create account option for importing watch-only accounts by address ([#643](https://github.com/MetaMask/accounts/pull/643))
