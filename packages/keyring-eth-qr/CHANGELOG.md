@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- revert: release: 129.0.0 (#658) ([#658](https://github.com/MetaMask/accounts/pull/658))
+- release: 129.0.0 ([#658](https://github.com/MetaMask/accounts/pull/658))
+- release: 128.0.0 ([#633](https://github.com/MetaMask/accounts/pull/633))
+
 ### Changed
 
 - Bump `@metamask/keyring-sdk` from `^3.0.0` to `^3.1.0` ([#614](https://github.com/MetaMask/accounts/pull/614))
