@@ -17,8 +17,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Account are created with `options: { entropy: { type: 'mpc' }}`.
   - Exposes `rotateKeyShares`, `checkKeyShare`, and `syncKeyShare` maintenance operations.
 
-### Changed
-
-- Bump `@metamask/keyring-api` from `^24.1.0` to `^24.2.0` ([#658](https://github.com/MetaMask/accounts/pull/658))
-
 [Unreleased]: https://github.com/MetaMask/accounts/
