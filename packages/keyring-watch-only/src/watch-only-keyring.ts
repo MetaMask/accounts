@@ -163,7 +163,7 @@ export class WatchOnlyKeyring implements Keyring {
 
     if (unsupportedScopes.length > 0) {
       throw new Error(
-        `Unsupported scopes for WatchOnlyKeyring: ${unsupportedScopes.join(', ')}. Supported scopes: ${supportedScopes.join(', ')}.`,
+        `Unsupported scopes for WatchOnlyKeyring: ${unsupportedScopes.join(', ')}. Supported scopes: ${supportedScopes.join(', ')}`,
       );
     }
 
@@ -191,7 +191,7 @@ export class WatchOnlyKeyring implements Keyring {
     const hexAddress = add0x(address);
 
     if (!isValidHexAddress(hexAddress)) {
-      throw new Error(`Invalid EVM address: ${address}`);
+      throw new Error('Invalid EVM address');
     }
 
     const checksumAddress = getChecksumAddress(hexAddress);
@@ -200,7 +200,7 @@ export class WatchOnlyKeyring implements Keyring {
 
     if (!isEvmAccountType(resolvedAccountType)) {
       throw new Error(
-        `Unsupported account type for WatchOnlyKeyring: ${resolvedAccountType}. Only '${EthAccountType.Eoa}' and '${EthAccountType.Erc4337}' are supported.`,
+        `Unsupported account type for WatchOnlyKeyring: ${resolvedAccountType}. Only '${EthAccountType.Eoa}' and '${EthAccountType.Erc4337}' are supported`,
       );
     }
 
@@ -240,7 +240,7 @@ export class WatchOnlyKeyring implements Keyring {
     if (existingAccount) {
       if (existingAccount.type !== account.type) {
         throw new Error(
-          `Account already exists with type '${existingAccount.type}', got '${account.type}'.`,
+          `Account already exists with type '${existingAccount.type}', got '${account.type}'`,
         );
       }
 
@@ -252,7 +252,7 @@ export class WatchOnlyKeyring implements Keyring {
       );
       if (hasIncompatibleScopes) {
         throw new Error(
-          `Account already exists with scopes [${existingAccount.scopes.join(', ')}], got [${account.scopes.join(', ')}].`,
+          `Account already exists with scopes [${existingAccount.scopes.join(', ')}], got [${account.scopes.join(', ')}]`,
         );
       }
 
