@@ -79,7 +79,7 @@
     "@metamask/auto-changelog": "^6.1.0",
     "@metamask/eth-sig-util": "^9.0.0",
     "@metamask/key-tree": "^10.0.2",
-    "@metamask/utils": "^11.11.0",
+    "@metamask/utils": "^12.0.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
     "deepmerge": "^4.2.2",
