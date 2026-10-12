@@ -7,22 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- Encrypt and decrypt key-share backups with `@metamask/cryptography` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-
-### Fixed
-
-- Reject deserialized state that carries initialized key fields and a setup `mode` when the key fields are invalid ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-
 ### Added
 
-- Initial release of `@metamask/eth-mpc-keyring` ([#641](https://github.com/MetaMask/accounts/pull/641)), ([#653](https://github.com/MetaMask/accounts/pull/653)), ([#627](https://github.com/MetaMask/accounts/pull/627))
-  - V1 `MpcKeyring` implementation for create/import, key-share maintenance, and signing.
-  - V2 `MpcKeyring` implements the unified V2 `Keyring` interface with type `KeyringType.Mpc` (available via `/v2` export).
-  - Account creation uses custom options: `{ type: 'custom', mode: 'create' | 'import' }`, and the keyring declares `custom.createAccounts` in its capabilities.
-  - Account are created with `options: { entropy: { type: 'mpc' }}`.
-  - Exposes `rotateKeyShares`, `checkKeyShare`, and `syncKeyShare` maintenance operations.
+- Initial release of `@metamask/eth-mpc-keyring` ([#627](https://github.com/MetaMask/accounts/pull/627))
 
 ### Changed
 
