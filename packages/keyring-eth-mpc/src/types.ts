@@ -1,5 +1,5 @@
 import type { EthKeyring } from '@metamask/keyring-utils';
-import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
+import type { CL24DKM, CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
 import type { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
 import type { CentrifugeIdentity } from '@metamask/mfa-wallet-network';
 import type { Json } from '@metamask/utils';
@@ -9,10 +9,11 @@ export type ProfileTokenOpts = {
   challenge?: Uint8Array;
 };
 
+export type Cl24Lib = ConstructorParameters<typeof CL24DKM>[0];
 export type Dkls23Lib = ConstructorParameters<typeof Dkls23TssLib>[0];
 
 export type MpcKeyringOpts = {
-  getRandomBytes: (size: number) => Uint8Array;
+  cl24Lib: Cl24Lib;
   dkls23Lib: Dkls23Lib;
   cloudURL: string;
   relayerURL: string;

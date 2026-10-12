@@ -58,18 +58,8 @@ jest.mock('@metamask/mfa-wallet-cl24', () => {
   }
 
   return {
-    secp256k1: {},
     CL24DKM: MockCL24DKM,
     CL24ThresholdKeySerializer: MockCL24ThresholdKeySerializer,
-    dealersFromCL24Key: (
-      key: { shareIndexes: number[] },
-      custodians: string[],
-    ) => {
-      if (custodians.length !== key.shareIndexes.length) {
-        throw new Error('Custodians do not match share indexes');
-      }
-      return custodians.map((netId, shareIndex) => ({ netId, shareIndex }));
-    },
   };
 });
 
@@ -153,10 +143,14 @@ const makeThresholdKey = () => {
   return {
     threshold: 2,
     shareIndex: 0,
-    shareIndexes: [1, 2],
     publicKey: new Uint8Array([4, 1, 2, 3]),
     privateKeyShare: new Uint8Array([5, 6, 7]),
-    secretPolynomialCommitment: [new Uint8Array([8])],
+    coefficientCommitments: [new Uint8Array([4, 1, 2, 3]), new Uint8Array([8])],
+    xCoordinates: [1, 2],
+    partyMapping: [
+      { networkId: 'local-user', protocolId: 1 },
+      { networkId: 'cloud-user', protocolId: 2 },
+    ],
   };
 };
 
@@ -196,7 +190,7 @@ const makeKeyring = (
   getBackupEncryptionKey = jest.fn().mockResolvedValue(mockBackupKey),
 ) =>
   new MpcKeyring({
-    getRandomBytes: (size) => new Uint8Array(size).fill(3),
+    cl24Lib: {} as never,
     dkls23Lib: {} as never,
     cloudURL: 'https://cloud.example',
     relayerURL: 'https://relayer.example',
@@ -262,15 +256,12 @@ describe('MpcKeyring', () => {
     expect(keyring.type).toBe('MPC Keyring');
   });
 
-  it('wires network manager options and random byte adapter', () => {
+  it('wires network manager options', () => {
     const transportToken = jest.fn().mockResolvedValue('transport-token');
     const webSocket = { send: jest.fn() };
-    const randomBytes = jest
-      .fn()
-      .mockReturnValueOnce(new Uint8Array([1, 2, 3, 4]));
 
     const keyring = new MpcKeyring({
-      getRandomBytes: randomBytes,
+      cl24Lib: {} as never,
       dkls23Lib: {} as never,
       cloudURL: 'https://cloud.example',
       relayerURL: 'https://relayer.example',
@@ -288,13 +279,6 @@ describe('MpcKeyring', () => {
         websocket: webSocket,
       }),
     );
-
-    const randomBytesAdapter = lastNetworkManagerOptions?.randomBytes as {
-      getRandomValues: (array: Uint8Array) => Uint8Array;
-    };
-    const output = randomBytesAdapter.getRandomValues(new Uint8Array(4));
-    expect(output).toStrictEqual(new Uint8Array([1, 2, 3, 4]));
-    expect(randomBytes).toHaveBeenCalledWith(4);
   });
 
   it('serializes to an empty object before initialization', async () => {

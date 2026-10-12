@@ -60,12 +60,10 @@ describe('util', () => {
     throw new Error(`Could not find signature with v=${targetV.toString()}`);
   };
 
-  it('generates a session nonce from RNG bytes', () => {
-    const bytes = new Uint8Array(32).fill(1);
-    const rng = { generateRandomBytes: jest.fn().mockReturnValue(bytes) };
-
-    expect(generateSessionNonce(rng)).toBe(bytesToHex(bytes));
-    expect(rng.generateRandomBytes).toHaveBeenCalledWith(32);
+  it('generates a random 32-byte hex session nonce', () => {
+    const nonce = generateSessionNonce();
+    expect(nonce).toMatch(/^0x[0-9a-f]{64}$/u);
+    expect(generateSessionNonce()).not.toBe(nonce);
   });
 
   it('converts public keys to address hex', () => {
