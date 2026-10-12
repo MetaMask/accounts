@@ -1,6 +1,6 @@
 import { is } from '@metamask/superstruct';
 
-import { TransactionStruct } from './transaction';
+import { TransactionStruct } from './transaction.js';
 
 describe('TransactionStruct', () => {
   const baseTransaction = {

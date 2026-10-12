@@ -1,4 +1,4 @@
-import { areBothEmpty } from './utils';
+import { areBothEmpty } from './utils.js';
 
 describe('internal utils', () => {
   describe('areBothEmpty', () => {

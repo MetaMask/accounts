@@ -1,6 +1,6 @@
 import { is } from '@metamask/superstruct';
 
-import { JsonRpcRequestStruct } from './JsonRpcRequest';
+import { JsonRpcRequestStruct } from './JsonRpcRequest.js';
 
 describe('JsonRpcRequestStruct', () => {
   it('should be a valid JsonRpcRequest with a numerical ID', () => {

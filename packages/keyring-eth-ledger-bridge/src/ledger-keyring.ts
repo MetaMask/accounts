@@ -25,15 +25,15 @@ import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { withDerivedEip712Domain } from './eip712';
-import { createKeyringStateError } from './errors';
+import { withDerivedEip712Domain } from './eip712.js';
+import { createKeyringStateError } from './errors.js';
 import {
   AppConfigurationResponse,
   GetAppNameAndVersionResponse,
   LedgerBridge,
   LedgerBridgeOptions,
-} from './ledger-bridge';
-import { handleLedgerTransportError } from './ledger-error-handler';
+} from './ledger-bridge.js';
+import { handleLedgerTransportError } from './ledger-error-handler.js';
 
 const pathBase = 'm';
 const hdPathString = `${pathBase}/44'/60'/0'`;
@@ -234,7 +234,7 @@ export class LedgerKeyring implements Keyring {
       // we return the checksummed address of the public key stored in
       // `this.hdk`, which is the root address of the last unlocked path.
       return this.#getChecksumHexAddress(
-        bytesToHex(publicToAddress(this.hdk.publicKey, true)),
+        bytesToHex(publicToAddress(Uint8Array.from(this.hdk.publicKey), true)),
       );
     }
     const path = hdPath ? this.#toLedgerPath(hdPath) : this.hdPath;
@@ -725,7 +725,9 @@ export class LedgerKeyring implements Keyring {
 
   #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = bytesToHex(publicToAddress(dkey.publicKey, true));
+    const address = bytesToHex(
+      publicToAddress(Uint8Array.from(dkey.publicKey), true),
+    );
     return this.#getChecksumHexAddress(address);
   }
 

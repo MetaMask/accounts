@@ -1,6 +1,6 @@
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
-import type { Asset } from './asset';
+import type { Asset } from './asset.js';
 
 expectAssignable<Asset>({
   fungible: true,

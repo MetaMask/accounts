@@ -3,7 +3,28 @@
  * https://jestjs.io/docs/configuration
  */
 
+/** @type {import('@jest/types').Config.InitialOptions} */
 module.exports = {
+  transform: {
+    // Override module settings so ts-jest compiles to CommonJS for tests
+    // without affecting the ESM-only dist. ts-jest runs on the default
+    // `typescript` package (the JS-based TypeScript 6 compiler); builds use
+    // the TypeScript 7 native compiler, which has no JavaScript API.
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        tsconfig: {
+          module: 'CommonJS',
+          moduleResolution: 'Node16',
+          verbatimModuleSyntax: false,
+          // TypeScript 6 no longer auto-includes packages from
+          // `node_modules/@types`, so the ambient types used by test files
+          // must be listed explicitly.
+          types: ['jest', 'node', 'web'],
+        },
+      },
+    ],
+  },
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -86,14 +107,22 @@ module.exports = {
   // Here we ensure that Jest resolves `@metamask/*` imports to the uncompiled source code for packages that live in this repo.
   // NOTE: This must be synchronized with the `paths` option in `tsconfig.packages.json`.
   moduleNameMapper: {
+    // Resolve .js imports to their source .ts counterparts for Jest module resolution
+    '^(\\.{1,2}/.*)\\.js$': '$1',
     '^@metamask/(.+)/v2$': [
       '<rootDir>/../$1/src/v2',
+      // Workspace packages whose dir name differs from the package name are
+      // accessed via the node_modules symlink; resolve to /src so Jest loads
+      // the TypeScript source rather than the ESM-only dist.
+      '<rootDir>/../../node_modules/@metamask/$1/src/v2',
       // Some @metamask/* packages we are referencing aren't in this monorepo,
       // so in that case use their published versions
       '<rootDir>/../../node_modules/@metamask/$1/v2',
     ],
     '^@metamask/(.+)$': [
       '<rootDir>/../$1/src',
+      // See note above for /v2 entries.
+      '<rootDir>/../../node_modules/@metamask/$1/src',
       // Some @metamask/* packages we are referencing aren't in this monorepo,
       // so in that case use their published versions
       '<rootDir>/../../node_modules/@metamask/$1',
@@ -108,9 +137,6 @@ module.exports = {
 
   // An enum that specifies notification mode. Requires { notify: true }
   // notifyMode: "failure-change",
-
-  // A preset that is used as a base for Jest's configuration
-  preset: 'ts-jest',
 
   // Run tests from one or more projects
   // projects: undefined

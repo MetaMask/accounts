@@ -1,6 +1,6 @@
 import Transport from '@ledgerhq/hw-transport';
 
-import { MetaMaskLedgerHwAppEth } from './ledger-hw-app';
+import { MetaMaskLedgerHwAppEth } from './ledger-hw-app.js';
 
 const DEVICE_ID = 'DEVICE_ID';
 

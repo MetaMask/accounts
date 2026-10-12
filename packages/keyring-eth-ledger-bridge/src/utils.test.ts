@@ -3,7 +3,7 @@ import { TransactionFactory } from '@ethereumjs/tx';
 import { bytesToHex } from '@ethereumjs/util';
 import { remove0x } from '@metamask/utils';
 
-import { getTransactionSelector } from './utils';
+import { getTransactionSelector } from './utils.js';
 
 const TRANSFER_SELECTOR = '0xa9059cbb';
 const TRANSFER_FROM_SELECTOR = '0x23b872dd';

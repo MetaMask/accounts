@@ -1,6 +1,6 @@
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
-import type { Transaction } from './transaction';
+import type { Transaction } from './transaction.js';
 
 expectAssignable<Transaction>({
   id: 'f5d8ee39a430901c91a5917b9f2dc19d6d1a0e9cea205b009ca73dd04470b9a6',

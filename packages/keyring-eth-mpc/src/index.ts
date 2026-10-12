@@ -1,2 +1,2 @@
-export { MpcKeyringSetupMode } from './types';
-export type { MpcKeyring } from './types';
+export { MpcKeyringSetupMode } from './types.js';
+export type { MpcKeyring } from './types.js';

@@ -2,4 +2,4 @@ export {
   MpcKeyring,
   type MpcCreateAccountOptions,
   type MpcKeyringOptions,
-} from './mpc-keyring';
+} from './mpc-keyring.js';

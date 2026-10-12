@@ -13,6 +13,6 @@
     { "path": "../keyring-sdk" },
     { "path": "../account-api" }
   ],
-  "include": ["./src"],
+  "include": ["./src", "./test"],
   "exclude": ["./dist/**/*"]
 }

@@ -17,8 +17,9 @@ import {
   CryptoOutput,
   ScriptExpressions,
 } from '@keystonehq/bc-ur-registry-eth';
+import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 
-import { DeviceMode } from '../src/device';
+import { DeviceMode } from '../src/device.js';
 
 export const KNOWN_HDKEY_CBOR =
   'a503582102eae4b876a8696134b868f88cc2f51f715f2dbedb7446b8e6edf3d4541c4eb67b045820d882718b7a42806803eeb17f7483f20620611adb88fc943c898dc5aba94c281906d90130a20186182cf5183cf500f5021ad32e4508081ad32e45080972696d546f6b656e2d4163636f756e74203031';
@@ -199,4 +200,4 @@ export const TYPED_MESSAGE = {
       { name: 'wallets', type: 'address[]' },
     ],
   },
-};
+} as unknown as TypedMessage<MessageTypes>;

@@ -33,7 +33,13 @@ const ALLOWED_INCONSISTENT_DEPENDENCIES = {};
  *
  * @type {string[]}
  */
-const PINNED_VERSION_EXCEPTIONS = [];
+const PINNED_VERSION_EXCEPTIONS = [
+  // The JavaScript-based TypeScript 6 compiler is consumed via the `patch:`
+  // protocol (typescript@6.0.3 with its `tsc`/`tsserver` bins removed, so
+  // that the TypeScript 7 native compiler owns the `tsc` bin). `patch:`
+  // locators cannot be expressed as a `^`-prefixed range.
+  'typescript',
+];
 
 /**
  * Aliases for the Yarn type definitions, to make the code more readable.
@@ -122,22 +128,21 @@ module.exports = defineConfig({
         // All non-root packages must not have side effects.
         expectWorkspaceField(workspace, 'sideEffects', false);
 
-        // All non-root packages must set up ESM- and CommonJS-compatible
-        // exports correctly.
+        // All non-root packages must set up ESM-compatible exports correctly.
         expectCorrectWorkspaceExports(workspace);
 
         // All non-root packages must have the same "build" script.
         expectWorkspaceField(
           workspace,
           'scripts.build',
-          'ts-bridge --project tsconfig.build.json --verbose --clean --no-references',
+          'tsc --project tsconfig.build.json',
         );
 
         // All non-root packages must have the same "build:all" script.
         expectWorkspaceField(
           workspace,
           'scripts.build:all',
-          'ts-bridge --project tsconfig.build.json --verbose --clean',
+          'tsc --build tsconfig.build.json --verbose',
         );
 
         // All non-root packages must have the same "build:docs" script.
@@ -165,10 +170,13 @@ module.exports = defineConfig({
         );
 
         // All non-root packages must have the same "test:source" script.
+        // NOTE: This diverges from `core`, which prefixes these scripts with
+        // `NODE_OPTIONS=--experimental-vm-modules`. That flag is unnecessary
+        // here since ts-jest compiles test files to CommonJS.
         expectWorkspaceField(
           workspace,
           'scripts.test:source',
-          'NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter',
+          'jest --reporters=jest-silent-reporter',
         );
 
         // All non-root packages must have the same "test:types" script.
@@ -182,22 +190,18 @@ module.exports = defineConfig({
         expectWorkspaceField(
           workspace,
           'scripts.test:clean',
-          'NODE_OPTIONS=--experimental-vm-modules jest --clearCache',
+          'jest --clearCache',
         );
 
         // All non-root packages must have the same "test:verbose" script.
         expectWorkspaceField(
           workspace,
           'scripts.test:verbose',
-          'NODE_OPTIONS=--experimental-vm-modules jest --verbose',
+          'jest --verbose',
         );
 
         // All non-root packages must have the same "test:watch" script.
-        expectWorkspaceField(
-          workspace,
-          'scripts.test:watch',
-          'NODE_OPTIONS=--experimental-vm-modules jest --watch',
-        );
+        expectWorkspaceField(workspace, 'scripts.test:watch', 'jest --watch');
       }
 
       if (isChildWorkspace) {
@@ -246,7 +250,7 @@ module.exports = defineConfig({
       if (isChildWorkspace) {
         workspace.unset('packageManager');
       } else {
-        expectWorkspaceField(workspace, 'packageManager', 'yarn@4.16.0');
+        expectYarnPackageManager(workspace);
       }
 
       // All packages must specify a minimum Node.js version of 22.
@@ -548,35 +552,16 @@ async function expectWorkspaceLicense(workspace) {
 function expectCorrectWorkspaceExports(workspace) {
   // All non-root packages must provide the location of the ESM-compatible
   // JavaScript entrypoint and its matching type declaration file.
-  expectWorkspaceField(
-    workspace,
-    'exports["."].import.types',
-    './dist/index.d.mts',
-  );
-  expectWorkspaceField(
-    workspace,
-    'exports["."].import.default',
-    './dist/index.mjs',
-  );
+  expectWorkspaceField(workspace, 'exports["."].types', './dist/index.d.ts');
+  expectWorkspaceField(workspace, 'exports["."].default', './dist/index.js');
 
-  // All non-root package must provide the location of the CommonJS-compatible
-  // entrypoint and its matching type declaration file.
-  expectWorkspaceField(
-    workspace,
-    'exports["."].require.types',
-    './dist/index.d.cts',
-  );
-  expectWorkspaceField(
-    workspace,
-    'exports["."].require.default',
-    './dist/index.cjs',
-  );
-  expectWorkspaceField(workspace, 'main', './dist/index.cjs');
-  expectWorkspaceField(workspace, 'types', './dist/index.d.cts');
+  // Packages should not provide separate CommonJS/ESM exports.
+  expectWorkspaceField(workspace, 'exports["."].require', null);
+  expectWorkspaceField(workspace, 'exports["."].import', null);
 
-  // Types should not be set in the export object directly, but rather in the
-  // `import` and `require` subfields.
-  expectWorkspaceField(workspace, 'exports["."].types', null);
+  // Packages should not provide a "main" or "types" field.
+  expectWorkspaceField(workspace, 'main', null);
+  expectWorkspaceField(workspace, 'types', null);
 
   // All non-root packages must export a `package.json` file.
   expectWorkspaceField(
@@ -584,6 +569,59 @@ function expectCorrectWorkspaceExports(workspace) {
     'exports["./package.json"]',
     './package.json',
   );
+
+  const nonRootExports = Object.keys(workspace.manifest.exports).filter(
+    (key) => key !== '.' && key !== './package.json',
+  );
+
+  for (const key of nonRootExports) {
+    const prefix = `exports["${key}"]`;
+    expectWorkspaceField(workspace, `${prefix}.types`);
+    expectWorkspaceField(workspace, `${prefix}.default`);
+
+    const typesValue = get(workspace.manifest, `${prefix}.types`);
+    if (
+      typesValue &&
+      (typeof typesValue !== 'string' || !typesValue.endsWith('.d.ts'))
+    ) {
+      workspace.error(
+        `Expected package's "${prefix}.types" field to end with ".d.ts", but it was "${typesValue}".`,
+      );
+    }
+
+    const importValue = get(workspace.manifest, `${prefix}.default`);
+    if (
+      importValue &&
+      (typeof importValue !== 'string' || !importValue.endsWith('.js'))
+    ) {
+      workspace.error(
+        `Expected package's "${prefix}.default" field to end with ".js", but it was "${importValue}".`,
+      );
+    }
+  }
+}
+
+/**
+ * Expect that the workspace has a package manager set, and that it is Yarn with
+ * a sha256 hash.
+ *
+ * @param {Workspace} workspace - The workspace to check.
+ */
+function expectYarnPackageManager(workspace) {
+  expectWorkspaceField(workspace, 'packageManager');
+
+  const { packageManager } = workspace.manifest;
+  if (!packageManager.startsWith('yarn@')) {
+    workspace.error(
+      `Expected packageManager to start with "yarn@<version>", but got "${packageManager}".`,
+    );
+  }
+
+  if (!packageManager.includes('sha256')) {
+    workspace.error(
+      `Expected packageManager to include a sha256 hash, but got "${packageManager}".`,
+    );
+  }
 }
 
 /**

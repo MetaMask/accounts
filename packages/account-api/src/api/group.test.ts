@@ -7,7 +7,7 @@ import {
   MOCK_SNAP_2,
   MOCK_SNAP_LOCAL_GROUP_ID,
   MOCK_SNAP_NPM_GROUP_ID,
-} from '../mocks';
+} from '../mocks/index.js';
 import {
   DEFAULT_ACCOUNT_GROUP_UNIQUE_ID,
   isAccountGroupId,
@@ -15,8 +15,8 @@ import {
   stripAccountWalletId,
   toAccountGroupId,
   toDefaultAccountGroupId,
-} from './group';
-import { AccountWalletType, toAccountWalletId } from './wallet';
+} from './group.js';
+import { AccountWalletType, toAccountWalletId } from './wallet.js';
 
 const MOCK_INVALID_GROUP_IDS = [
   'invalid-id',

@@ -1,6 +1,6 @@
 import { is } from '@metamask/superstruct';
 
-import { DerivationPathStruct } from './derivation';
+import { DerivationPathStruct } from './derivation.js';
 
 describe('DerivationPathStruct', () => {
   it.each([

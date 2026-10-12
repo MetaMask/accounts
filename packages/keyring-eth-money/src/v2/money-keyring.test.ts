@@ -16,8 +16,8 @@ import type { Hex, Json } from '@metamask/utils';
 import {
   MoneyKeyring as LegacyMoneyKeyring,
   MONEY_DERIVATION_PATH,
-} from '../money-keyring';
-import { MoneyKeyring } from './money-keyring';
+} from '../money-keyring.js';
+import { MoneyKeyring } from './money-keyring.js';
 
 const TEST_MNEMONIC =
   'finish oppose decorate face calm tragic certain desk hour urge dinosaur mango';
