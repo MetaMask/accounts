@@ -39,6 +39,7 @@ jobs:
         uses: MetaMask/action-checkout-and-setup@v1
         with:
           is-high-risk-environment: true
+          fetch-depth: 0
           node-version: 24.x
       - run: yarn workspaces foreach --all --no-private --parallel run changelog:validate
       - name: Require clean working directory

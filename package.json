@@ -17,6 +17,7 @@
     "build:docs": "yarn foreach build:docs",
     "build:only-clean": "rimraf -g 'packages/*/dist'",
     "build:types": "tsc --build tsconfig.build.json --verbose",
+    "changelog:validate": "yarn workspaces foreach --all --no-private --parallel --interlaced --verbose run changelog:validate",
     "create-release-branch": "create-release-branch --formatter oxfmt",
     "foreach": "yarn workspaces foreach --all --parallel --verbose --exclude '@metamask/accounts-monorepo' run",
     "lint": "yarn lint:eslint && yarn lint:misc --check && yarn constraints && yarn lint:dependencies && yarn lint:readme",
