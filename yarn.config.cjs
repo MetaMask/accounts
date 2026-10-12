@@ -36,6 +36,20 @@ const ALLOWED_INCONSISTENT_DEPENDENCIES = {};
 const PINNED_VERSION_EXCEPTIONS = [];
 
 /**
+ * FIXME: These packages are ESM-only, which is not yet the standard package
+ * format across this monorepo. They deviate from the CommonJS-compatible
+ * (dual-format) package shape enforced by these constraints: ESM-only
+ * `exports` without a CommonJS fallback, a `ts-bridge` build using
+ * `--format module`, and Jest scripts without
+ * `NODE_OPTIONS=--experimental-vm-modules`. The checks they would fail are
+ * skipped until the monorepo-wide ESM migration lands and the constraints
+ * are updated.
+ *
+ * @type {string[]}
+ */
+const ESM_ONLY_PACKAGE_EXCEPTIONS = ['@metamask/eth-mpc-keyring'];
+
+/**
  * Aliases for the Yarn type definitions, to make the code more readable.
  *
  * @typedef {import('@yarnpkg/types').Yarn.Constraints.Yarn} Yarn
@@ -67,6 +81,9 @@ module.exports = defineConfig({
       const isPrivate =
         hasProperty(workspace.manifest, 'private') &&
         workspace.manifest.private === true;
+      const isEsModuleOnlyPackage = ESM_ONLY_PACKAGE_EXCEPTIONS.includes(
+        workspace.manifest.name,
+      );
       const dependenciesByIdentAndType = getDependenciesByIdentAndType(
         Yarn.dependencies({ workspace }),
       );
@@ -124,21 +141,31 @@ module.exports = defineConfig({
 
         // All non-root packages must set up ESM- and CommonJS-compatible
         // exports correctly.
-        expectCorrectWorkspaceExports(workspace);
+        // FIXME: ESM-only packages use a different export shape and are
+        // skipped until the ESM migration lands
+        // (see ESM_ONLY_PACKAGE_EXCEPTIONS).
+        if (!isEsModuleOnlyPackage) {
+          expectCorrectWorkspaceExports(workspace);
+        }
 
         // All non-root packages must have the same "build" script.
-        expectWorkspaceField(
-          workspace,
-          'scripts.build',
-          'ts-bridge --project tsconfig.build.json --verbose --clean --no-references',
-        );
+        // FIXME: ESM-only packages build with `--format module` and are
+        // skipped until the ESM migration lands
+        // (see ESM_ONLY_PACKAGE_EXCEPTIONS).
+        if (!isEsModuleOnlyPackage) {
+          expectWorkspaceField(
+            workspace,
+            'scripts.build',
+            'ts-bridge --project tsconfig.build.json --verbose --clean --no-references',
+          );
 
-        // All non-root packages must have the same "build:all" script.
-        expectWorkspaceField(
-          workspace,
-          'scripts.build:all',
-          'ts-bridge --project tsconfig.build.json --verbose --clean',
-        );
+          // All non-root packages must have the same "build:all" script.
+          expectWorkspaceField(
+            workspace,
+            'scripts.build:all',
+            'ts-bridge --project tsconfig.build.json --verbose --clean',
+          );
+        }
 
         // All non-root packages must have the same "build:docs" script.
         expectWorkspaceField(workspace, 'scripts.build:docs', 'typedoc');
@@ -165,11 +192,16 @@ module.exports = defineConfig({
         );
 
         // All non-root packages must have the same "test:source" script.
-        expectWorkspaceField(
-          workspace,
-          'scripts.test:source',
-          'NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter',
-        );
+        // FIXME: ESM-only packages run Jest without
+        // `NODE_OPTIONS=--experimental-vm-modules` and are skipped until the
+        // ESM migration lands (see ESM_ONLY_PACKAGE_EXCEPTIONS).
+        if (!isEsModuleOnlyPackage) {
+          expectWorkspaceField(
+            workspace,
+            'scripts.test:source',
+            'NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter',
+          );
+        }
 
         // All non-root packages must have the same "test:types" script.
         expectWorkspaceField(
@@ -178,26 +210,30 @@ module.exports = defineConfig({
           '../../scripts/tsd-test.sh ./src',
         );
 
-        // All non-root packages must have the same "test:clean" script.
-        expectWorkspaceField(
-          workspace,
-          'scripts.test:clean',
-          'NODE_OPTIONS=--experimental-vm-modules jest --clearCache',
-        );
+        // FIXME: ESM-only packages are skipped for the same reason as
+        // "test:source" above (see ESM_ONLY_PACKAGE_EXCEPTIONS).
+        if (!isEsModuleOnlyPackage) {
+          // All non-root packages must have the same "test:clean" script.
+          expectWorkspaceField(
+            workspace,
+            'scripts.test:clean',
+            'NODE_OPTIONS=--experimental-vm-modules jest --clearCache',
+          );
 
-        // All non-root packages must have the same "test:verbose" script.
-        expectWorkspaceField(
-          workspace,
-          'scripts.test:verbose',
-          'NODE_OPTIONS=--experimental-vm-modules jest --verbose',
-        );
+          // All non-root packages must have the same "test:verbose" script.
+          expectWorkspaceField(
+            workspace,
+            'scripts.test:verbose',
+            'NODE_OPTIONS=--experimental-vm-modules jest --verbose',
+          );
 
-        // All non-root packages must have the same "test:watch" script.
-        expectWorkspaceField(
-          workspace,
-          'scripts.test:watch',
-          'NODE_OPTIONS=--experimental-vm-modules jest --watch',
-        );
+          // All non-root packages must have the same "test:watch" script.
+          expectWorkspaceField(
+            workspace,
+            'scripts.test:watch',
+            'NODE_OPTIONS=--experimental-vm-modules jest --watch',
+          );
+        }
       }
 
       if (isChildWorkspace) {
