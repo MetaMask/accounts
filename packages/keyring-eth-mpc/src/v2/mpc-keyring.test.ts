@@ -175,7 +175,7 @@ describe('MpcKeyring (v2 wrapper)', () => {
       expect(account?.scopes).toStrictEqual([EthScope.Eoa]);
       expect(account?.methods).toStrictEqual(EXPECTED_METHODS);
       expect(account?.options.entropy?.type).toBe(
-        KeyringAccountEntropyTypeOption.Custom,
+        KeyringAccountEntropyTypeOption.Mpc,
       );
     });
 

@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.1.1]
+
 ### Changed
 
 - Bump `@metamask/messenger` from `^1.1.1` to `^2.0.0` ([#595](https://github.com/MetaMask/accounts/pull/595))
+- Bump `@metamask/keyring-api` from `^24.1.0` to `^24.2.0` ([#660](https://github.com/MetaMask/accounts/pull/660))
+- Bump `@metamask/keyring-internal-api` from `^12.1.0` to `^12.1.1` ([#664](https://github.com/MetaMask/accounts/pull/664))
+- Bump `@metamask/keyring-snap-client` from `^10.0.0` to `^10.0.1` ([#664](https://github.com/MetaMask/accounts/pull/664))
 
 ## [11.1.0]
 
@@ -278,7 +283,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@11.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@11.1.1...HEAD
+[11.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@11.1.0...@metamask/keyring-internal-snap-client@11.1.1
 [11.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@11.0.0...@metamask/keyring-internal-snap-client@11.1.0
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.6...@metamask/keyring-internal-snap-client@11.0.0
 [10.0.6]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-internal-snap-client@10.0.5...@metamask/keyring-internal-snap-client@10.0.6

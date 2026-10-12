@@ -115,7 +115,7 @@ export class MpcKeyring
       methods: [...MPC_KEYRING_METHODS],
       options: {
         entropy: {
-          type: KeyringAccountEntropyTypeOption.Custom,
+          type: KeyringAccountEntropyTypeOption.Mpc,
         },
       },
     };

@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [11.0.1]
+
 ### Changed
 
-- Bump `@metamask/keyring-sdk` from `^3.0.0` to `^3.1.0` ([#614](https://github.com/MetaMask/accounts/pull/614))
-- Bump `@metamask/keyring-api` from `^24.0.0` to `^24.1.0` ([#620](https://github.com/MetaMask/accounts/pull/620))
+- Bump `@metamask/keyring-sdk` from `^3.0.0` to `^4.0.0` ([#614](https://github.com/MetaMask/accounts/pull/614), [#664](https://github.com/MetaMask/accounts/pull/664))
+- Bump `@metamask/keyring-api` from `^24.0.0` to `^24.2.0` ([#620](https://github.com/MetaMask/accounts/pull/620), [#660](https://github.com/MetaMask/accounts/pull/660))
 - Bump `@metamask/eth-sig-util` from `^8.2.0` to `^9.0.0` ([#626](https://github.com/MetaMask/accounts/pull/626))
 
 ## [11.0.0]
@@ -323,7 +325,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#88](https://github.com/metamask/eth-trezor-keyring/pull/88))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@11.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@11.0.1...HEAD
+[11.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@11.0.0...@metamask/eth-trezor-keyring@11.0.1
 [11.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.1.2...@metamask/eth-trezor-keyring@11.0.0
 [10.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.1.1...@metamask/eth-trezor-keyring@10.1.2
 [10.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-trezor-keyring@10.1.0...@metamask/eth-trezor-keyring@10.1.1

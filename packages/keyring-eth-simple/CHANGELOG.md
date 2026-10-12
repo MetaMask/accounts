@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.0.1]
+
 ### Changed
 
-- Bump `@metamask/keyring-sdk` from `^3.0.0` to `^3.1.0` ([#614](https://github.com/MetaMask/accounts/pull/614))
-- Bump `@metamask/keyring-api` from `^24.0.0` to `^24.1.0` ([#620](https://github.com/MetaMask/accounts/pull/620))
+- Bump `@metamask/keyring-sdk` from `^3.0.0` to `^4.0.0` ([#614](https://github.com/MetaMask/accounts/pull/614), [#664](https://github.com/MetaMask/accounts/pull/664))
+- Bump `@metamask/keyring-api` from `^24.0.0` to `^24.2.0` ([#620](https://github.com/MetaMask/accounts/pull/620), [#660](https://github.com/MetaMask/accounts/pull/660))
 - Bump `@metamask/eth-sig-util` from `^8.2.0` to `^9.0.0` ([#626](https://github.com/MetaMask/accounts/pull/626))
 
 ## [13.0.0]
@@ -226,7 +228,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING:** Remove redundant `newGethSignMessage` method ([#72](https://github.com/MetaMask/eth-simple-keyring/pull/72))
   - Consumers can use `signPersonalMessage` method as a replacement for `newGethSignMessage`.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@13.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@13.0.1...HEAD
+[13.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@13.0.0...@metamask/eth-simple-keyring@13.0.1
 [13.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@12.0.2...@metamask/eth-simple-keyring@13.0.0
 [12.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@12.0.1...@metamask/eth-simple-keyring@12.0.2
 [12.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-simple-keyring@12.0.0...@metamask/eth-simple-keyring@12.0.1
