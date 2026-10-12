@@ -10,7 +10,7 @@ import {
   setActiveEpoch,
   sign,
   storeKeyShareBackup,
-} from './cloud';
+} from './cloud.js';
 
 describe('cloud helpers', () => {
   let fetchSpy: jest.SpyInstance;

@@ -3,7 +3,7 @@ import { hashPersonalMessage } from '@ethereumjs/util';
 import { bytesToHex } from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import { MpcKeyring } from './mpc-keyring';
+import { MpcKeyring } from './mpc-keyring.js';
 
 const mockCreateKey = jest.fn();
 const mockRotateKeyShares = jest.fn();

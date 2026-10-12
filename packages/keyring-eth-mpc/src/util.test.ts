@@ -20,7 +20,7 @@ import {
   publicKeyToAddressHex,
   publicToAddressHex,
   toEthSig,
-} from './util';
+} from './util.js';
 
 describe('util', () => {
   const privateKey = hexToBytes(

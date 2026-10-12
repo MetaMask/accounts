@@ -35,7 +35,7 @@ import {
 import { bytesToHex, hexToBytes, JsonStruct } from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import type { CheckKeyShareResult } from './cloud';
+import type { CheckKeyShareResult } from './cloud.js';
 import {
   checkKeyShare as checkKeyShareRemote,
   createKey as startCreateKey,
@@ -46,7 +46,7 @@ import {
   setActiveEpoch,
   sign as startSign,
   storeKeyShareBackup,
-} from './cloud';
+} from './cloud.js';
 import type {
   MpcKeyring as MpcKeyringContract,
   MpcKeyringOpts,
@@ -55,7 +55,7 @@ import type {
   MpcKeyringState,
   MpcKeyringStorageState,
   ProfileTokenOpts,
-} from './types';
+} from './types.js';
 import {
   AES_GCM_IV_LENGTH,
   decryptBytes,
@@ -67,7 +67,7 @@ import {
   parseSignedTypedDataVersion,
   publicKeyToAddressHex,
   toEthSig,
-} from './util';
+} from './util.js';
 
 const mpcKeyringType = 'MPC Keyring';
 const TSS_HAVE_SETUP_MESSAGE_TYPE = 'tss-have-setup';

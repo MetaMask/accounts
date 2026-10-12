@@ -1,10 +1,10 @@
-export { MpcKeyring } from './mpc-keyring';
+export { MpcKeyring } from './mpc-keyring.js';
 
-export { MpcKeyringSetupMode } from './types';
+export { MpcKeyringSetupMode } from './types.js';
 export type {
   MpcKeyringOpts,
   MpcKeyringSerializer,
   MpcKeyringSetupParams,
   MpcKeyringState,
   ProfileTokenOpts,
-} from './types';
+} from './types.js';
