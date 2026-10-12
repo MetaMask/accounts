@@ -18,7 +18,6 @@ import {
   parseEthSig,
   parseSignedTypedDataVersion,
   publicKeyToAddressHex,
-  publicToAddressHex,
   toEthSig,
 } from './util.js';
 
@@ -67,7 +66,6 @@ describe('util', () => {
   });
 
   it('converts public keys to address hex', () => {
-    expect(publicToAddressHex(publicKey)).toBe(address);
     expect(publicKeyToAddressHex(publicKey)).toBe(address);
   });
 

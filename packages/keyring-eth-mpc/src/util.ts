@@ -2,7 +2,6 @@ import {
   bigIntToBytes,
   concatBytes,
   ecrecover,
-  publicToAddress,
   pubToAddress,
 } from '@ethereumjs/util';
 import type {
@@ -111,17 +110,6 @@ const SECP256K1_N = BigInt(
 const SECP256K1_HALF_N = SECP256K1_N / 2n;
 
 /**
- * Convert a public key to an address.
- *
- * @param pubKey - The public key to convert.
- * @returns The address.
- */
-export function publicToAddressHex(pubKey: Uint8Array): Hex {
-  const addrBytes = publicToAddress(pubKey);
-  return bytesToHex(addrBytes);
-}
-
-/**
  * Normalize an address.
  *
  * @param address - The address to normalize.
@@ -191,7 +179,7 @@ export function toEthSig(
   const checkParity = (parity: bigint): boolean => {
     try {
       const candidatePubKey = ecrecover(hash, parity, rBuf, sBuf);
-      return publicToAddressHex(candidatePubKey) === expectedAddr;
+      return publicKeyToAddressHex(candidatePubKey) === expectedAddr;
     } catch {
       return false;
     }
@@ -278,6 +266,8 @@ export function getSignedTypedDataHash<
 
 /**
  * Convert a public key to an address.
+ *
+ * Accepts a raw 64-byte key, or a compressed or uncompressed SEC1 key.
  *
  * @param publicKey - The public key to convert.
  * @returns The address.
