@@ -1,6 +1,6 @@
 {
   "name": "@metamask/watch-only-keyring",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "A watch-only keyring that holds accounts imported by address, without any signing capability",
   "keywords": [
     "ethereum",
