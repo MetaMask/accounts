@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [24.1.1]
+
 ### Changed
 
 - Bump `@metamask/messenger` from `^1.1.1` to `^2.0.0` ([#595](https://github.com/MetaMask/accounts/pull/595))
@@ -821,7 +823,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.1.1...HEAD
+[24.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.1.0...@metamask/eth-snap-keyring@24.1.1
 [24.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.0.0...@metamask/eth-snap-keyring@24.1.0
 [24.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.2...@metamask/eth-snap-keyring@24.0.0
 [23.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.1...@metamask/eth-snap-keyring@23.0.2
