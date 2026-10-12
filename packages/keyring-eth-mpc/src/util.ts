@@ -16,7 +16,6 @@ import {
   TypedDataUtils,
   typedSignatureHash,
 } from '@metamask/eth-sig-util';
-import type { RandomNumberGenerator } from '@metamask/mfa-wallet-interface';
 import type { Hex } from '@metamask/utils';
 import { add0x, assert, bytesToHex, hexToBytes } from '@metamask/utils';
 
@@ -24,13 +23,16 @@ const SESSION_NONCE_BYTE_LENGTH = 32;
 export const AES_GCM_IV_LENGTH = 12;
 
 /**
- * Generate a session nonce: random bytes from the RNG, hex-encoded.
+ * Generate a session nonce: random bytes from the platform RNG, hex-encoded.
  *
- * @param rng - The random number generator.
  * @returns Hex-encoded 32-byte random nonce.
  */
-export function generateSessionNonce(rng: RandomNumberGenerator): Hex {
-  return bytesToHex(rng.generateRandomBytes(SESSION_NONCE_BYTE_LENGTH));
+export function generateSessionNonce(): Hex {
+  return bytesToHex(
+    globalThis.crypto.getRandomValues(
+      new Uint8Array(SESSION_NONCE_BYTE_LENGTH),
+    ),
+  );
 }
 
 /**

@@ -97,6 +97,12 @@ module.exports = {
       // Some @metamask/* packages we are referencing aren't in this monorepo,
       // so in that case use their published versions
       '<rootDir>/../../node_modules/@metamask/$1',
+      // Some published @metamask/* packages are ESM-only and have no `main`
+      // field, so resolving their package directory fails. In that case, use
+      // their ESM entrypoint directly. This is only safe for modules that are
+      // mocked with `jest.mock`, since Jest's CommonJS runtime cannot execute
+      // native ESM.
+      '<rootDir>/../../node_modules/@metamask/$1/dist/index.js',
     ],
   },
 

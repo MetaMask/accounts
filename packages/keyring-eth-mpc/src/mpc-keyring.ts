@@ -8,17 +8,11 @@ import type {
   EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { hashEIP7702Authorization } from '@metamask/eth-sig-util';
-import {
-  CL24DKM,
-  CL24ThresholdKeySerializer,
-  dealersFromCL24Key,
-  secp256k1 as secp256k1Curve,
-} from '@metamask/mfa-wallet-cl24';
+import { CL24DKM, CL24ThresholdKeySerializer } from '@metamask/mfa-wallet-cl24';
 import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
 import { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
 import type {
   PartyId,
-  RandomNumberGenerator,
   RootNetworkSession,
   ShareBinding,
 } from '@metamask/mfa-wallet-interface';
@@ -203,8 +197,6 @@ export class MpcKeyring implements MpcKeyringContract {
 
   readonly type: string = mpcKeyringType;
 
-  readonly #rng: RandomNumberGenerator;
-
   readonly #networkManager: CentrifugeNetworkManager;
 
   readonly #tss: Dkls23TssLib;
@@ -229,13 +221,10 @@ export class MpcKeyring implements MpcKeyringContract {
    * The keyring stays uninitialized until {@link MpcKeyring.init} or
    * {@link MpcKeyring.deserialize}.
    *
-   * @param opts - Randomness, TSS library, backend URLs, and token callbacks.
+   * @param opts - TSS libraries, backend URLs, and token callbacks.
    */
   constructor(opts: MpcKeyringOpts) {
-    this.#rng = {
-      generateRandomBytes: opts.getRandomBytes,
-    };
-    this.#dkm = new CL24DKM(secp256k1Curve, this.#rng);
+    this.#dkm = new CL24DKM(opts.cl24Lib);
     this.#tss = new Dkls23TssLib(opts.dkls23Lib);
     this.#cloudURL = opts.cloudURL;
     this.#serializer = {
@@ -244,13 +233,6 @@ export class MpcKeyring implements MpcKeyringContract {
     };
     this.#networkManager = new CentrifugeNetworkManager({
       url: opts.relayerURL,
-      randomBytes: {
-        getRandomValues: (array: Uint8Array): Uint8Array => {
-          const bytes = opts.getRandomBytes(array.length);
-          array.set(bytes);
-          return array;
-        },
-      },
       ...(opts.getTransportToken && {
         getToken: opts.getTransportToken,
       }),
@@ -370,7 +352,7 @@ export class MpcKeyring implements MpcKeyringContract {
       const nextEpoch = shareEpoch + 1;
 
       const token = await this.#getProfileToken({ twoFactor: true });
-      const nonce = generateSessionNonce(this.#rng);
+      const nonce = generateSessionNonce();
       await startRotateKeyShares({
         baseURL: this.#cloudURL,
         token,
@@ -386,9 +368,10 @@ export class MpcKeyring implements MpcKeyringContract {
       );
       try {
         const custodians = partyNetIds(netCreds.partyId, serverNetId);
+        const bindings = shareBindings(netCreds.partyId, serverNetId);
         keyShare = await this.#dkm.rotateKeyShares({
           key: keyShare,
-          dealers: dealersFromCL24Key(keyShare, custodians),
+          dealers: bindings,
           custodians,
           networkSession: netSession.createSubsession('dkg-rotate'),
         });
@@ -620,7 +603,7 @@ export class MpcKeyring implements MpcKeyringContract {
       token,
     });
 
-    const nonce = generateSessionNonce(this.#rng);
+    const nonce = generateSessionNonce();
     await startCreateKey({
       baseURL: this.#cloudURL,
       token,
@@ -735,7 +718,7 @@ export class MpcKeyring implements MpcKeyringContract {
         twoFactor: true,
         challenge: hash,
       });
-      const nonce = generateSessionNonce(this.#rng);
+      const nonce = generateSessionNonce();
       await startSign({
         baseURL: this.#cloudURL,
         token,
@@ -841,7 +824,9 @@ export class MpcKeyring implements MpcKeyringContract {
     const plaintext = new TextEncoder().encode(
       JSON.stringify(this.#serializer.thresholdKey.toJson(keyShare)),
     );
-    const iv = this.#rng.generateRandomBytes(AES_GCM_IV_LENGTH);
+    const iv = globalThis.crypto.getRandomValues(
+      new Uint8Array(AES_GCM_IV_LENGTH),
+    );
     return encryptBytes(key, plaintext, iv);
   }
 
