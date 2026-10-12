@@ -14,6 +14,12 @@ module.exports = merge(baseConfig, {
   // The display name when running multiple projects
   displayName,
 
+  // Source files use Node16-style `.js` specifiers. Map them back to the
+  // TypeScript sources so Jest can load the modules under test.
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+
   // An array of regexp pattern strings used to skip coverage collection
   coveragePathIgnorePatterns: ['./src/tests'],
 
