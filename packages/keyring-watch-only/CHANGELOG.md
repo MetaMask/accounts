@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.1]
 
+### Changed
+
+- Bump `@metamask/keyring-sdk` from `^3.1.0` to `^4.0.0` ([#664](https://github.com/MetaMask/accounts/pull/664))
+
 ## [0.1.0]
 
 ### Added
