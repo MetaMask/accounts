@@ -20,6 +20,16 @@ module.exports = merge(baseConfig, {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
 
+  // `@metamask/cryptography` is ESM-only. Transform it so Jest's CommonJS
+  // runtime can load the AES-GCM helpers.
+  transformIgnorePatterns: ['/node_modules/(?!@metamask/cryptography/)'],
+  transform: {
+    '/@metamask/cryptography/.+\\.js$': path.join(
+      __dirname,
+      'jest.cryptography-transform.cjs',
+    ),
+  },
+
   // An array of regexp pattern strings used to skip coverage collection
   coveragePathIgnorePatterns: ['./src/tests'],
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Encrypt and decrypt key-share backups with `@metamask/cryptography` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ### Fixed
 
 - Reject deserialized state that carries initialized key fields and a setup `mode` when the key fields are invalid ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))

@@ -4,6 +4,7 @@ import {
   ecrecover,
   pubToAddress,
 } from '@ethereumjs/util';
+import { decrypt, encrypt, IV_LENGTH } from '@metamask/cryptography/aes-gcm';
 import type {
   MessageTypes,
   TypedDataV1,
@@ -19,7 +20,7 @@ import type { Hex } from '@metamask/utils';
 import { add0x, assert, bytesToHex, hexToBytes } from '@metamask/utils';
 
 const SESSION_NONCE_BYTE_LENGTH = 32;
-export const AES_GCM_IV_LENGTH = 12;
+export const AES_GCM_IV_LENGTH = IV_LENGTH;
 
 /**
  * Generate a session nonce: random bytes from the platform RNG, hex-encoded.
@@ -54,19 +55,8 @@ export async function encryptBytes(
     throw new Error('Invalid backup encryption key length');
   }
 
-  const cryptoKey = await globalThis.crypto.subtle.importKey(
-    'raw',
-    key,
-    'AES-GCM',
-    false,
-    ['encrypt'],
-  );
-  const ciphertext = await globalThis.crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
-    cryptoKey,
-    plaintext,
-  );
-  return concatBytes(iv, new Uint8Array(ciphertext));
+  const { ciphertext } = await encrypt(key, plaintext, { unsafeIv: iv });
+  return concatBytes(iv, ciphertext);
 }
 
 /**
@@ -89,19 +79,7 @@ export async function decryptBytes(
 
   const iv = payload.slice(0, AES_GCM_IV_LENGTH);
   const ciphertext = payload.slice(AES_GCM_IV_LENGTH);
-  const cryptoKey = await globalThis.crypto.subtle.importKey(
-    'raw',
-    key,
-    'AES-GCM',
-    false,
-    ['decrypt'],
-  );
-  const plaintext = await globalThis.crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv },
-    cryptoKey,
-    ciphertext,
-  );
-  return new Uint8Array(plaintext);
+  return decrypt(key, iv, ciphertext);
 }
 
 const SECP256K1_N = BigInt(
