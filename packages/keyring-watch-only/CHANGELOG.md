@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1]
+
+### Changed
+
+- Bump `@metamask/keyring-sdk` from `^3.1.0` to `^4.0.0` ([#664](https://github.com/MetaMask/accounts/pull/664))
+
 ## [0.1.0]
 
 ### Added
@@ -21,5 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/keyring-api` from `^24.1.0` to `^24.2.0` ([#660](https://github.com/MetaMask/accounts/pull/660))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/watch-only-keyring@0.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/watch-only-keyring@0.1.1...HEAD
+[0.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/watch-only-keyring@0.1.0...@metamask/watch-only-keyring@0.1.1
 [0.1.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/watch-only-keyring@0.1.0
