@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Reject deserialized state that carries initialized key fields and a setup `mode` when the key fields are invalid ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ### Added
 
 - Initial release of `@metamask/eth-mpc-keyring` ([#641](https://github.com/MetaMask/accounts/pull/641)), ([#653](https://github.com/MetaMask/accounts/pull/653)), ([#627](https://github.com/MetaMask/accounts/pull/627))

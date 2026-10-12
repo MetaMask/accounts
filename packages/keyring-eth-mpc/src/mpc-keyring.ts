@@ -288,16 +288,18 @@ export class MpcKeyring implements MpcKeyringContract {
       return;
     }
 
+    // `type()` ignores unknown keys, so a payload can match `mode` and still
+    // carry initialized fields. Reject that before treating it as setup.
+    if (hasInitializedFields(state)) {
+      throw new Error('Invalid state');
+    }
+
     if (is(state, SetupParamsStruct)) {
       this.#state = {
         status: 'uninitialized',
         setup: { mode: state.mode },
       };
       return;
-    }
-
-    if (hasInitializedFields(state)) {
-      throw new Error('Invalid state');
     }
 
     if ('mode' in state) {
