@@ -3,7 +3,7 @@ import { hashPersonalMessage } from '@ethereumjs/util';
 import { bytesToHex } from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import { MpcKeyring } from './mpc-keyring.js';
+import { MpcMoneyKeyring } from './mpc-money-keyring.js';
 
 const mockCreateKey = jest.fn();
 const mockRotateKeyShares = jest.fn();
@@ -189,7 +189,7 @@ const makeKeyring = (
   getProfileToken = jest.fn().mockResolvedValue('token'),
   getBackupEncryptionKey = jest.fn().mockResolvedValue(mockBackupKey),
 ) =>
-  new MpcKeyring({
+  new MpcMoneyKeyring({
     cl24Lib: {} as never,
     dkls23Lib: {} as never,
     cloudURL: 'https://cloud.example',
@@ -199,13 +199,13 @@ const makeKeyring = (
   });
 
 const deserializeState = async (
-  keyring: MpcKeyring,
+  keyring: MpcMoneyKeyring,
   state = makeSerializedState(),
 ) => {
   await keyring.deserialize(state as unknown as Json);
 };
 
-describe('MpcKeyring', () => {
+describe('MpcMoneyKeyring', () => {
   beforeEach(() => {
     lastNetworkManagerOptions = undefined;
 
@@ -252,15 +252,15 @@ describe('MpcKeyring', () => {
 
   it('exposes the expected type constant', () => {
     const keyring = makeKeyring();
-    expect(MpcKeyring.type).toBe('MPC Keyring');
-    expect(keyring.type).toBe('MPC Keyring');
+    expect(MpcMoneyKeyring.type).toBe('MPC Money Keyring');
+    expect(keyring.type).toBe('MPC Money Keyring');
   });
 
   it('wires network manager options', () => {
     const transportToken = jest.fn().mockResolvedValue('transport-token');
     const webSocket = { send: jest.fn() };
 
-    const keyring = new MpcKeyring({
+    const keyring = new MpcMoneyKeyring({
       cl24Lib: {} as never,
       dkls23Lib: {} as never,
       cloudURL: 'https://cloud.example',
@@ -270,7 +270,7 @@ describe('MpcKeyring', () => {
       getTransportToken: transportToken,
       webSocket,
     });
-    expect(keyring.type).toBe('MPC Keyring');
+    expect(keyring.type).toBe('MPC Money Keyring');
 
     expect(lastNetworkManagerOptions).toStrictEqual(
       expect.objectContaining({
@@ -961,7 +961,7 @@ describe('MpcKeyring', () => {
       const keyring = makeKeyring();
 
       await expect(keyring.addAccounts()).rejects.toThrow(
-        'MpcKeyring: has no account',
+        'MpcMoneyKeyring: has no account',
       );
     });
 
@@ -970,7 +970,7 @@ describe('MpcKeyring', () => {
       await deserializeState(keyring);
 
       await expect(keyring.addAccounts(2)).rejects.toThrow(
-        'MpcKeyring: supports adding exactly one account',
+        'MpcMoneyKeyring: supports adding exactly one account',
       );
     });
 
