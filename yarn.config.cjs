@@ -33,7 +33,10 @@ const ALLOWED_INCONSISTENT_DEPENDENCIES = {};
  *
  * @type {string[]}
  */
-const PINNED_VERSION_EXCEPTIONS = [];
+const PINNED_VERSION_EXCEPTIONS = [
+  // File link to the local core checkout until the package is published.
+  '@metamask/money-account-mfa-whitelist',
+];
 
 /**
  * FIXME: These packages are ESM-only, which is not yet the standard package

@@ -2,12 +2,22 @@ import type { EthKeyring } from '@metamask/keyring-utils';
 import type { CL24DKM, CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
 import type { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
 import type { CentrifugeIdentity } from '@metamask/mfa-wallet-network';
+import type { MfaWhitelistConfig } from '@metamask/money-account-mfa-whitelist';
 import type { Json } from '@metamask/utils';
 
 export type ProfileTokenOpts = {
   twoFactor?: boolean;
   challenge?: Uint8Array;
 };
+
+/**
+ * `/sign` response code when the backend still requires MFA.
+ *
+ * The keyring prompts for a 2FA token and retries once when it receives this
+ * after trying to sign without MFA. A second response, or this response to a
+ * token that already has 2FA, is an error.
+ */
+export const MFA_REQUIRED_CODE = 'mfa_required' as const;
 
 export type Cl24Lib = ConstructorParameters<typeof CL24DKM>[0];
 export type Dkls23Lib = ConstructorParameters<typeof Dkls23TssLib>[0];
@@ -19,6 +29,14 @@ export type MpcMoneyKeyringOpts = {
   relayerURL: string;
   getTransportToken?: () => Promise<string>;
   getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
+  /**
+   * Pinned whitelist configuration for the current signature.
+   *
+   * When this is omitted or throws, every signature requires MFA.
+   */
+  getMfaWhitelistConfig?: () =>
+    | MfaWhitelistConfig
+    | Promise<MfaWhitelistConfig>;
   getBackupEncryptionKey: () => Promise<Uint8Array>;
   webSocket?: unknown;
 };
