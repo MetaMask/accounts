@@ -571,7 +571,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   }
 
   async #setupCreate(): Promise<void> {
-    const token = await this.#getProfileToken({ twoFactor: true });
+    const token = await this.#getProfileToken();
     const netCreds = await this.#networkManager.createIdentity();
     const serverNetId = await getNetId({
       baseURL: this.#cloudURL,

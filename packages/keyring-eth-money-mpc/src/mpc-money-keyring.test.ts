@@ -360,7 +360,7 @@ describe('MpcMoneyKeyring', () => {
     expect(await keyring.serialize()).toStrictEqual({ mode: 'create' });
     await keyring.init();
 
-    expect(getProfileToken).toHaveBeenCalledWith({ twoFactor: true });
+    expect(getProfileToken).toHaveBeenCalledWith();
     expect(mockGetNetId).toHaveBeenCalledWith({
       baseURL: 'https://cloud.example',
       token: 'token',
