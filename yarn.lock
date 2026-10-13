@@ -2041,7 +2041,7 @@ __metadata:
     "@metamask/mfa-wallet-dkls23": "npm:^0.1.0"
     "@metamask/mfa-wallet-interface": "npm:^0.1.0"
     "@metamask/mfa-wallet-network": "npm:^0.1.0"
-    "@metamask/money-account-mfa-whitelist": "file:../../../../core/packages/money-account-mfa-whitelist"
+    "@metamask/money-account-mfa-whitelist": "npm:@metamask-previews/money-account-mfa-whitelist@0.0.0-preview-6ccf7a055"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
     "@ts-bridge/cli": "npm:^0.6.3"
@@ -2591,15 +2591,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/money-account-mfa-whitelist@file:../../../../core/packages/money-account-mfa-whitelist::locator=%40metamask%2Feth-money-mpc-keyring%40workspace%3Apackages%2Fkeyring-eth-money-mpc":
-  version: 0.0.0
-  resolution: "@metamask/money-account-mfa-whitelist@file:../../../../core/packages/money-account-mfa-whitelist#../../../../core/packages/money-account-mfa-whitelist::hash=cc59ba&locator=%40metamask%2Feth-money-mpc-keyring%40workspace%3Apackages%2Fkeyring-eth-money-mpc"
+"@metamask/money-account-mfa-whitelist@npm:@metamask-previews/money-account-mfa-whitelist@0.0.0-preview-6ccf7a055":
+  version: 0.0.0-preview-6ccf7a055
+  resolution: "@metamask-previews/money-account-mfa-whitelist@npm:0.0.0-preview-6ccf7a055"
   dependencies:
     "@metamask/abi-utils": "npm:^2.0.4"
     "@metamask/delegation-core": "npm:^2.2.1"
     "@metamask/utils": "npm:^12.0.0"
     "@noble/hashes": "npm:^1.8.0"
-  checksum: 10/d3e4e71aa9afca4b9e43981cee35e5cba0c54099e7e76b53201cd4cca81f7c13bbc54f743b838f605a8d61f5533d1b702fd17c7b13b2a337d3566f3b6e8ee4aa
+  checksum: 10/f9d944284313c4f0d384abf1a3f6bdab022d1e8cbf4d5b4b3c96fde02527c3e219b401b66ae0247bce64a624a4fc6d350467b3daa7785b61e055a4148e165378
   languageName: node
   linkType: hard
 
