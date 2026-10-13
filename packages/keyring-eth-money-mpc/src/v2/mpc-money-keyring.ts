@@ -11,8 +11,8 @@ import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 
-import { MpcMoneyKeyringSetupMode } from '../types';
-import type { MpcMoneyKeyring as MpcMoneyKeyringV1 } from '../types';
+import { MpcMoneyKeyringSetupMode } from '../types.js';
+import type { MpcMoneyKeyring as MpcMoneyKeyringV1 } from '../types.js';
 
 /**
  * Methods supported by MPC money keyring EOA accounts.
