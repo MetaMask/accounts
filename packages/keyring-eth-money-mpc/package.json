@@ -1,12 +1,12 @@
 {
-  "name": "@metamask/eth-mpc-keyring",
+  "name": "@metamask/eth-money-mpc-keyring",
   "version": "0.0.0",
-  "description": "A Keyring for Ethereum accounts that uses Multi-Party Computation (MPC) for key management and signing",
+  "description": "A Keyring for Ethereum money accounts that uses Multi-Party Computation (MPC) for key management and signing",
   "keywords": [
     "ethereum",
     "keyring"
   ],
-  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-eth-mpc#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-eth-money-mpc#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
@@ -39,8 +39,8 @@
     "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references --format module",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-mpc-keyring",
-    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-mpc-keyring",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-money-mpc-keyring",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-money-mpc-keyring",
     "publish:preview": "yarn npm publish --tag preview",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",

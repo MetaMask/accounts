@@ -12,7 +12,7 @@ export type ProfileTokenOpts = {
 export type Cl24Lib = ConstructorParameters<typeof CL24DKM>[0];
 export type Dkls23Lib = ConstructorParameters<typeof Dkls23TssLib>[0];
 
-export type MpcKeyringOpts = {
+export type MpcMoneyKeyringOpts = {
   cl24Lib: Cl24Lib;
   dkls23Lib: Dkls23Lib;
   cloudURL: string;
@@ -23,7 +23,7 @@ export type MpcKeyringOpts = {
   webSocket?: unknown;
 };
 
-export type MpcKeyringState = {
+export type MpcMoneyKeyringState = {
   keyShare: CL24ThresholdKey;
   shareEpoch: number;
   netCreds: CentrifugeIdentity;
@@ -31,17 +31,17 @@ export type MpcKeyringState = {
   tssSetup: Uint8Array | null;
 };
 
-/** The MPC keyring setup modes. */
-export const MpcKeyringSetupMode = {
+/** The MPC money keyring setup modes. */
+export const MpcMoneyKeyringSetupMode = {
   Create: 'create',
   Import: 'import',
 } as const;
 
-export type MpcKeyringSetupMode =
-  `${(typeof MpcKeyringSetupMode)[keyof typeof MpcKeyringSetupMode]}`;
+export type MpcMoneyKeyringSetupMode =
+  `${(typeof MpcMoneyKeyringSetupMode)[keyof typeof MpcMoneyKeyringSetupMode]}`;
 
-export type MpcKeyringSetupParams = {
-  mode: MpcKeyringSetupMode;
+export type MpcMoneyKeyringSetupParams = {
+  mode: MpcMoneyKeyringSetupMode;
 };
 
 type JsonSerializer<Value> = {
@@ -49,35 +49,35 @@ type JsonSerializer<Value> = {
   fromJson: (value: Json) => Value;
 };
 
-export type MpcKeyringInitializedState = {
+export type MpcMoneyKeyringInitializedState = {
   status: 'initialized';
-} & MpcKeyringState;
+} & MpcMoneyKeyringState;
 
-export type MpcKeyringUninitializedState = {
+export type MpcMoneyKeyringUninitializedState = {
   status: 'uninitialized';
-  setup: MpcKeyringSetupParams;
+  setup: MpcMoneyKeyringSetupParams;
 };
 
-export type MpcKeyringStorageState =
-  | MpcKeyringInitializedState
-  | MpcKeyringUninitializedState;
+export type MpcMoneyKeyringStorageState =
+  | MpcMoneyKeyringInitializedState
+  | MpcMoneyKeyringUninitializedState;
 
-export type MpcKeyringSerializer = {
+export type MpcMoneyKeyringSerializer = {
   thresholdKey: JsonSerializer<CL24ThresholdKey>;
   networkIdentity: JsonSerializer<CentrifugeIdentity>;
 };
 
 /**
- * The MPC keyring contract implemented by the V1 keyring class and consumed
+ * The MPC money keyring contract implemented by the V1 keyring class and consumed
  * by the V2 adapter.
  */
-export type MpcKeyring = EthKeyring & {
+export type MpcMoneyKeyring = EthKeyring & {
   /**
    * Run key generation or import.
    *
    * @param mode - The MPC setup mode.
    */
-  init(mode?: MpcKeyringSetupMode): Promise<void>;
+  init(mode?: MpcMoneyKeyringSetupMode): Promise<void>;
 
   /**
    * Rotate the MPC key shares.

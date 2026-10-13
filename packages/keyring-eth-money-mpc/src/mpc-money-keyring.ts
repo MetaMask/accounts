@@ -48,12 +48,12 @@ import {
   storeKeyShareBackup,
 } from './cloud.js';
 import type {
-  MpcKeyring as MpcKeyringContract,
-  MpcKeyringOpts,
-  MpcKeyringSerializer,
-  MpcKeyringSetupParams,
-  MpcKeyringState,
-  MpcKeyringStorageState,
+  MpcMoneyKeyring as MpcMoneyKeyringContract,
+  MpcMoneyKeyringOpts,
+  MpcMoneyKeyringSerializer,
+  MpcMoneyKeyringSetupParams,
+  MpcMoneyKeyringState,
+  MpcMoneyKeyringStorageState,
   ProfileTokenOpts,
 } from './types.js';
 import {
@@ -69,7 +69,7 @@ import {
   toEthSig,
 } from './util.js';
 
-const mpcKeyringType = 'MPC Keyring';
+const mpcMoneyKeyringType = 'MPC Money Keyring';
 const TSS_HAVE_SETUP_MESSAGE_TYPE = 'tss-have-setup';
 const STATUS_MESSAGE_TYPE = 'status';
 const STATUS_DATA_PERSISTED_PAYLOAD = 'data persisted';
@@ -184,18 +184,18 @@ function shareBindings(
 }
 
 /**
- * 2-of-2 Ethereum keyring. The client holds one DKLS23 share and signs
+ * 2-of-2 Ethereum money keyring. The client holds one DKLS23 share and signs
  * with a cloud peer. Shares are stored as encrypted epochs on the backend.
  *
- * The controller keyring type is `'MPC Keyring'`.
+ * The controller keyring type is `'MPC Money Keyring'`.
  */
-export class MpcKeyring implements MpcKeyringContract {
+export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   /**
    * Keyring type registered with the controller.
    */
-  static type: string = mpcKeyringType;
+  static type: string = mpcMoneyKeyringType;
 
-  readonly type: string = mpcKeyringType;
+  readonly type: string = mpcMoneyKeyringType;
 
   readonly #networkManager: CentrifugeNetworkManager;
 
@@ -203,11 +203,11 @@ export class MpcKeyring implements MpcKeyringContract {
 
   readonly #dkm: CL24DKM;
 
-  #state?: MpcKeyringStorageState;
+  #state?: MpcMoneyKeyringStorageState;
 
   readonly #cloudURL: string;
 
-  readonly #serializer: MpcKeyringSerializer;
+  readonly #serializer: MpcMoneyKeyringSerializer;
 
   readonly #getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
 
@@ -218,12 +218,12 @@ export class MpcKeyring implements MpcKeyringContract {
   /**
    * Create a keyring bound to the given cloud and relayer endpoints.
    *
-   * The keyring stays uninitialized until {@link MpcKeyring.init} or
-   * {@link MpcKeyring.deserialize}.
+   * The keyring stays uninitialized until {@link MpcMoneyKeyring.init} or
+   * {@link MpcMoneyKeyring.deserialize}.
    *
    * @param opts - TSS libraries, backend URLs, and token callbacks.
    */
-  constructor(opts: MpcKeyringOpts) {
+  constructor(opts: MpcMoneyKeyringOpts) {
     this.#dkm = new CL24DKM(opts.cl24Lib);
     this.#tss = new Dkls23TssLib(opts.dkls23Lib);
     this.#cloudURL = opts.cloudURL;
@@ -316,7 +316,7 @@ export class MpcKeyring implements MpcKeyringContract {
    * @param mode - Create a new key or import from the backend backup.
    * @returns Resolves when the keyring is initialized.
    */
-  async init(mode?: MpcKeyringSetupParams['mode']): Promise<void> {
+  async init(mode?: MpcMoneyKeyringSetupParams['mode']): Promise<void> {
     return this.#serializeOp(async () => {
       if (this.#state?.status === 'initialized') {
         return;
@@ -463,7 +463,7 @@ export class MpcKeyring implements MpcKeyringContract {
 
   /**
    * Return the single MPC account. The account is created during
-   * {@link MpcKeyring.init}, not by this method.
+   * {@link MpcMoneyKeyring.init}, not by this method.
    *
    * @param numberOfAccounts - Must be 1 (the only supported value).
    * @returns The address of the existing account.
@@ -471,13 +471,13 @@ export class MpcKeyring implements MpcKeyringContract {
    */
   async addAccounts(numberOfAccounts = 1): Promise<Hex[]> {
     if (numberOfAccounts !== 1) {
-      throw new Error('MpcKeyring: supports adding exactly one account');
+      throw new Error('MpcMoneyKeyring: supports adding exactly one account');
     }
 
     const accounts = await this.getAccounts();
     const account = accounts[0];
     if (!account) {
-      throw new Error('MpcKeyring: has no account');
+      throw new Error('MpcMoneyKeyring: has no account');
     }
 
     return [account];
@@ -858,14 +858,14 @@ export class MpcKeyring implements MpcKeyringContract {
     }
   }
 
-  #applyKeyState(state: MpcKeyringState): void {
+  #applyKeyState(state: MpcMoneyKeyringState): void {
     this.#state = {
       status: 'initialized',
       ...state,
     };
   }
 
-  #assertState(): MpcKeyringState {
+  #assertState(): MpcMoneyKeyringState {
     if (!this.#state || this.#state.status !== 'initialized') {
       throw new Error('Keyring not initialized');
     }

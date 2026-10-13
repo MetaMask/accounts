@@ -47,7 +47,7 @@ const PINNED_VERSION_EXCEPTIONS = [];
  *
  * @type {string[]}
  */
-const ESM_ONLY_PACKAGE_EXCEPTIONS = ['@metamask/eth-mpc-keyring'];
+const ESM_ONLY_PACKAGE_EXCEPTIONS = ['@metamask/eth-money-mpc-keyring'];
 
 /**
  * Aliases for the Yarn type definitions, to make the code more readable.
