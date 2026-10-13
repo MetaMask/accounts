@@ -65,7 +65,6 @@
     "@metamask/utils": "^11.11.0"
   },
   "devDependencies": {
-    "@ethereumjs/tx": "^5.4.0",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^6.1.0",

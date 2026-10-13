@@ -1,4 +1,3 @@
-import type { TypedTxData } from '@ethereumjs/tx';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
   EthAccountType,
@@ -39,7 +38,6 @@ type MockMpcMoneyKeyringV1 = {
   deserialize: jest.Mock;
   addAccounts: jest.Mock;
   getAppKeyAddress: jest.Mock;
-  signTransaction: jest.Mock;
   signPersonalMessage: jest.Mock;
   signTypedData: jest.Mock;
   signEip7702Authorization: jest.Mock;
@@ -63,7 +61,6 @@ function createInner(): MockMpcMoneyKeyringV1 {
     deserialize: jest.fn().mockResolvedValue(undefined),
     addAccounts: jest.fn(),
     getAppKeyAddress: jest.fn(),
-    signTransaction: jest.fn(),
     signPersonalMessage: jest.fn(),
     signTypedData: jest.fn(),
     signEip7702Authorization: jest.fn(),
@@ -448,30 +445,17 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
       );
     });
 
-    it('signs a transaction via the inner keyring', async () => {
+    it('rejects transaction signing', async () => {
       const { wrapper, inner, accountId } = await createWrapperWithAccount();
-      const signedTx = { serialized: '0xdeadbeef' };
-      inner.signTransaction.mockResolvedValue(signedTx);
 
-      const txParams: TypedTxData = {
-        nonce: '0x00',
-        gasPrice: '0x09184e72a000',
-        gasLimit: '0x2710',
-        to: '0x0000000000000000000000000000000000000001',
-        value: '0x1000',
-      };
-
-      const result = await wrapper.submitRequest(
-        createMockRequest(accountId, EthMethod.SignTransaction, [
-          txParams as unknown as Json,
-        ]),
+      await expect(
+        wrapper.submitRequest(
+          createMockRequest(accountId, EthMethod.SignTransaction),
+        ),
+      ).rejects.toThrow(
+        `Account ${accountId} cannot handle method: ${EthMethod.SignTransaction}`,
       );
-
-      expect(result).toStrictEqual(signedTx);
-      expect(inner.signTransaction).toHaveBeenCalledWith(
-        MOCK_ADDRESS,
-        expect.anything(),
-      );
+      expect(inner.signPersonalMessage).not.toHaveBeenCalled();
     });
 
     it('signs an EIP-7702 authorization via the inner keyring', async () => {

@@ -1,4 +1,3 @@
-import type { TypedTransaction } from '@ethereumjs/tx';
 import { hashPersonalMessage } from '@ethereumjs/util';
 import type {
   TypedDataV1,
@@ -63,7 +62,6 @@ import {
   equalAddresses,
   generateSessionNonce,
   getSignedTypedDataHash,
-  parseEthSig,
   parseSignedTypedDataVersion,
   publicKeyToAddressHex,
   toEthSig,
@@ -505,31 +503,6 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    */
   async getAppKeyAddress(address: Hex, origin: string): Promise<Hex> {
     throw new Error(`getAppKeyAddress(${address}, ${origin}): not implemented`);
-  }
-
-  /**
-   * Sign a transaction using the specified account.
-   *
-   * @param address - The address of the account.
-   * @param tx - The transaction to sign.
-   * @param _opts - The options for signing the transaction.
-   * @returns The signed transaction.
-   */
-  async signTransaction(
-    address: Hex,
-    tx: TypedTransaction,
-    _opts = {},
-  ): Promise<TypedTransaction> {
-    const message = tx.getHashedMessageToSign();
-
-    const signature = await this.#signHash(address, message);
-
-    const { r, s, v } = parseEthSig(signature);
-
-    // convertV adapts the message-style recovery id (27|28) to typed-tx
-    // yParity (0|1) or legacy EIP-155 v, matching `TypedTransaction.sign()`.
-    const signedTx = tx.addSignature(v, r, s, true);
-    return signedTx;
   }
 
   /**

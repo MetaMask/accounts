@@ -639,7 +639,7 @@ describe('MpcMoneyKeyring', () => {
     });
   });
 
-  it('signs personal messages and transactions through the MPC flow', async () => {
+  it('signs personal messages through the MPC flow', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(getProfileToken);
     await deserializeState(keyring);
@@ -676,21 +676,6 @@ describe('MpcMoneyKeyring', () => {
     expect(signSession.receiveMessage).toHaveBeenCalledWith(
       'cloud-user',
       'status',
-    );
-
-    const tx = {
-      getHashedMessageToSign: jest.fn().mockReturnValue(new Uint8Array([1, 2])),
-      addSignature: jest.fn().mockReturnValue('signed-tx'),
-    };
-
-    expect(await keyring.signTransaction(mockDerivedAddress, tx as never)).toBe(
-      'signed-tx',
-    );
-    expect(tx.addSignature).toHaveBeenCalledWith(
-      27n,
-      expect.any(Uint8Array),
-      expect.any(Uint8Array),
-      true,
     );
   });
 

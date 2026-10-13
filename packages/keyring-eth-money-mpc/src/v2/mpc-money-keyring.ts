@@ -16,10 +16,10 @@ import type { MpcMoneyKeyring as MpcMoneyKeyringV1 } from '../types';
 
 /**
  * Methods supported by MPC money keyring EOA accounts.
- * MPC money keyrings support signing methods, but not encryption or app keys.
+ * MPC money keyrings support message signing, but not transactions,
+ * encryption, or app keys.
  */
 export const MPC_MONEY_KEYRING_METHODS = [
-  EthMethod.SignTransaction,
   EthMethod.PersonalSign,
   EthMethod.SignTypedDataV1,
   EthMethod.SignTypedDataV3,

@@ -2007,7 +2007,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@metamask/eth-money-mpc-keyring@workspace:packages/keyring-eth-money-mpc"
   dependencies:
-    "@ethereumjs/tx": "npm:^5.4.0"
     "@ethereumjs/util": "npm:^9.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"

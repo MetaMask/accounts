@@ -15,7 +15,6 @@ import {
   generateSessionNonce,
   getSignedTypedDataHash,
   normalizeAddress,
-  parseEthSig,
   parseSignedTypedDataVersion,
   publicKeyToAddressHex,
   toEthSig,
@@ -117,8 +116,7 @@ describe('util', () => {
     compactSignature.set(toBytes32(highS), 32);
 
     const ethSignature = toEthSig(compactSignature, hash, publicKey);
-    const parsed = parseEthSig(ethSignature);
-    const normalizedS = BigInt(bytesToHex(parsed.s));
+    const normalizedS = BigInt(bytesToHex(ethSignature.slice(32, 64)));
 
     expect(ethSignature).toHaveLength(65);
     expect(normalizedS).toBeLessThanOrEqual(SECP256K1_HALF_N);
@@ -131,8 +129,7 @@ describe('util', () => {
     compactSignature.set(toBytes32(SECP256K1_N - 1n), 32);
 
     const ethSignature = toEthSig(compactSignature, hash, publicKey);
-    const parsed = parseEthSig(ethSignature);
-    expect(parsed.s).toStrictEqual(toBytes32(1n));
+    expect(ethSignature.slice(32, 64)).toStrictEqual(toBytes32(1n));
   });
 
   it('falls back to parity=1 if public key recovery throws', () => {
@@ -147,29 +144,6 @@ describe('util', () => {
     expect(() =>
       toEthSig(new Uint8Array(63), new Uint8Array(32), new Uint8Array([4])),
     ).toThrow('Invalid signature length');
-  });
-
-  it('parses ethereum signatures and validates edge cases', () => {
-    const signature = new Uint8Array(65).fill(1);
-    signature[64] = 28;
-    const parsed = parseEthSig(signature);
-    expect(parsed.v).toBe(28n);
-    expect(parsed.r).toHaveLength(32);
-    expect(parsed.s).toHaveLength(32);
-
-    expect(() => parseEthSig(new Uint8Array(64))).toThrow(
-      'Invalid signature length',
-    );
-
-    const malformedSignature = {
-      length: 65,
-      64: undefined,
-      slice: jest.fn().mockReturnValue(new Uint8Array(32)),
-    } as unknown as Uint8Array;
-
-    expect(() => parseEthSig(malformedSignature)).toThrow(
-      'Invalid signature v value',
-    );
   });
 
   it('parses signed typed data versions with sane defaults', () => {

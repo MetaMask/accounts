@@ -173,34 +173,6 @@ export function toEthSig(
 }
 
 /**
- * Parse an extended ECDSA signature.
- *
- * @param signature - The signature to parse.
- * @returns The parsed signature.
- */
-export function parseEthSig(signature: Uint8Array): {
-  r: Uint8Array;
-  s: Uint8Array;
-  v: bigint;
-} {
-  if (signature.length !== 65) {
-    throw new Error('Invalid signature length');
-  }
-
-  const rBuf = signature.slice(0, 32);
-  const sBuf = signature.slice(32, 64);
-  const vByte = signature[64];
-
-  // This check is technically redundant because length is 65, but satisfies TS
-  if (vByte === undefined) {
-    throw new Error('Invalid signature v value');
-  }
-  const vInt = BigInt(vByte);
-
-  return { r: rBuf, s: sBuf, v: vInt };
-}
-
-/**
  * Parse the version of a signed typed data object.
  *
  * @param opts - The options object.
