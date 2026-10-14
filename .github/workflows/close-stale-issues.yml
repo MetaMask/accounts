@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Close stale issues and PRs
-        uses: actions/stale@v9
+        uses: actions/stale@5bef64f19d7facfb25b37b414482c7164d639639 # v9.1.0
         with:
           stale-issue-message: This issue is marked as stale because it has been open for 60 days with no activity. Please remove the stale label or leave a comment, or it will be closed in 14 days.
           close-issue-message: This issue was closed due to no follow-up activity in the last 14 days. If you believe it was closed in error, please reopen it and provide evidence that it is still relevant. Thank you for your contributions.
