@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `KeyringType.MpcMoney` keyring type ([#671](https://github.com/MetaMask/accounts/pull/671))
+
 ## [24.2.0]
 
 ### Added
