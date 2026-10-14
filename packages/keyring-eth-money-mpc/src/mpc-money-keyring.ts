@@ -182,6 +182,35 @@ function shareBindings(
 }
 
 /**
+ * Point the client share at a network id, keeping its protocol id.
+ *
+ * The stored mapping names whichever client last wrote the share. This device
+ * replaces that slot with its own network id. The server does the same for
+ * the client it is about to talk to.
+ *
+ * @param keyShare - The CL24 key share to rebind.
+ * @param clientNetId - Network id of the local client.
+ * @returns The key share, with the client party updated when the id differs.
+ */
+function withClientNetId(
+  keyShare: CL24ThresholdKey,
+  clientNetId: PartyId,
+): CL24ThresholdKey {
+  const clientParty = keyShare.partyMapping[CLIENT_SHARE_INDEX];
+  if (clientParty === undefined) {
+    throw new Error('Key share is missing the client party');
+  }
+  if (clientParty.networkId === clientNetId) {
+    return keyShare;
+  }
+
+  const partyMapping = keyShare.partyMapping.map((entry, index) =>
+    index === CLIENT_SHARE_INDEX ? { ...entry, networkId: clientNetId } : entry,
+  );
+  return { ...keyShare, partyMapping };
+}
+
+/**
  * 2-of-2 Ethereum money keyring. The client holds one DKLS23 share and signs
  * with a cloud peer. Shares are stored as encrypted epochs on the backend.
  *
@@ -449,7 +478,10 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         baseURL: this.#cloudURL,
         token,
       });
-      const keyShare = await this.#decryptKeyShare(encryptedKeyShare);
+      const keyShare = withClientNetId(
+        await this.#decryptKeyShare(encryptedKeyShare),
+        state.netCreds.partyId,
+      );
       this.#applyKeyState({
         ...state,
         keyShare,
@@ -661,7 +693,10 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       baseURL: this.#cloudURL,
       token,
     });
-    const keyShare = await this.#decryptKeyShare(loaded.encryptedKeyShare);
+    const keyShare = withClientNetId(
+      await this.#decryptKeyShare(loaded.encryptedKeyShare),
+      netCreds.partyId,
+    );
 
     await registerClient({
       baseURL: this.#cloudURL,
