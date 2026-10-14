@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-money-mpc-keyring",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A Keyring for Ethereum money accounts that uses Multi-Party Computation (MPC) for key management and signing",
   "keywords": [
     "ethereum",
@@ -54,7 +54,7 @@
     "@ethereumjs/util": "^9.1.0",
     "@metamask/cryptography": "^1.1.2",
     "@metamask/eth-sig-util": "^9.0.0",
-    "@metamask/keyring-api": "^24.2.0",
+    "@metamask/keyring-api": "^24.3.0",
     "@metamask/keyring-sdk": "^4.0.0",
     "@metamask/keyring-utils": "^5.0.0",
     "@metamask/mfa-wallet-cl24": "^0.1.0",
