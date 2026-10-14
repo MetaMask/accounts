@@ -75,7 +75,7 @@ export class MpcMoneyKeyring
 {
   constructor(options: MpcMoneyKeyringOptions) {
     super({
-      type: KeyringType.Mpc,
+      type: KeyringType.MpcMoney,
       inner: options.legacyKeyring,
       capabilities: mpcMoneyKeyringCapabilities,
     });
