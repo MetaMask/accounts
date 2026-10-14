@@ -1,0 +1,98 @@
+import type { EthKeyring } from '@metamask/keyring-utils';
+import type { CL24DKM, CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
+import type { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
+import type { CentrifugeIdentity } from '@metamask/mfa-wallet-network';
+import type { Json } from '@metamask/utils';
+
+export type ProfileTokenOpts = {
+  twoFactor?: boolean;
+  challenge?: Uint8Array;
+};
+
+export type Cl24Lib = ConstructorParameters<typeof CL24DKM>[0];
+export type Dkls23Lib = ConstructorParameters<typeof Dkls23TssLib>[0];
+
+export type MpcMoneyKeyringOpts = {
+  cl24Lib: Cl24Lib;
+  dkls23Lib: Dkls23Lib;
+  cloudURL: string;
+  relayerURL: string;
+  getTransportToken?: () => Promise<string>;
+  getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
+  getBackupEncryptionKey: () => Promise<Uint8Array>;
+  webSocket?: unknown;
+};
+
+export type MpcMoneyKeyringState = {
+  keyShare: CL24ThresholdKey;
+  shareEpoch: number;
+  netCreds: CentrifugeIdentity;
+  serverNetId: string;
+  tssSetup: Uint8Array | null;
+};
+
+/** The MPC money keyring setup modes. */
+export const MpcMoneyKeyringSetupMode = {
+  Create: 'create',
+  Import: 'import',
+} as const;
+
+export type MpcMoneyKeyringSetupMode =
+  `${(typeof MpcMoneyKeyringSetupMode)[keyof typeof MpcMoneyKeyringSetupMode]}`;
+
+export type MpcMoneyKeyringSetupParams = {
+  mode: MpcMoneyKeyringSetupMode;
+};
+
+type JsonSerializer<Value> = {
+  toJson: (value: Value) => Json;
+  fromJson: (value: Json) => Value;
+};
+
+export type MpcMoneyKeyringInitializedState = {
+  status: 'initialized';
+} & MpcMoneyKeyringState;
+
+export type MpcMoneyKeyringUninitializedState = {
+  status: 'uninitialized';
+  setup: MpcMoneyKeyringSetupParams;
+};
+
+export type MpcMoneyKeyringStorageState =
+  | MpcMoneyKeyringInitializedState
+  | MpcMoneyKeyringUninitializedState;
+
+export type MpcMoneyKeyringSerializer = {
+  thresholdKey: JsonSerializer<CL24ThresholdKey>;
+  networkIdentity: JsonSerializer<CentrifugeIdentity>;
+};
+
+/**
+ * The MPC money keyring contract implemented by the V1 keyring class and consumed
+ * by the V2 adapter.
+ */
+export type MpcMoneyKeyring = EthKeyring & {
+  /**
+   * Run key generation or import.
+   *
+   * @param mode - The MPC setup mode.
+   */
+  init(mode?: MpcMoneyKeyringSetupMode): Promise<void>;
+
+  /**
+   * Rotate the MPC key shares.
+   */
+  rotateKeyShares(): Promise<void>;
+
+  /**
+   * Check the MPC key share state.
+   *
+   * @returns Whether the key share is up to date.
+   */
+  checkKeyShare(): Promise<boolean>;
+
+  /**
+   * Synchronize the MPC key share.
+   */
+  syncKeyShare(): Promise<void>;
+};

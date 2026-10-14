@@ -11,15 +11,15 @@ import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 
-import { MpcKeyringSetupMode } from '../types';
-import type { MpcKeyring as MpcKeyringV1 } from '../types';
+import { MpcMoneyKeyringSetupMode } from '../types.js';
+import type { MpcMoneyKeyring as MpcMoneyKeyringV1 } from '../types.js';
 
 /**
- * Methods supported by MPC keyring EOA accounts.
- * MPC keyrings support signing methods, but not encryption or app keys.
+ * Methods supported by MPC money keyring EOA accounts.
+ * MPC money keyrings support message signing, but not transactions,
+ * encryption, or app keys.
  */
-export const MPC_KEYRING_METHODS = [
-  EthMethod.SignTransaction,
+export const MPC_MONEY_KEYRING_METHODS = [
   EthMethod.PersonalSign,
   EthMethod.SignTypedDataV1,
   EthMethod.SignTypedDataV3,
@@ -28,9 +28,9 @@ export const MPC_KEYRING_METHODS = [
 ];
 
 /**
- * Capabilities for the MPC keyring.
+ * Capabilities for the MPC money keyring.
  */
-const mpcKeyringCapabilities: KeyringCapabilities = {
+const mpcMoneyKeyringCapabilities: KeyringCapabilities = {
   scopes: [EthScope.Eoa],
   custom: {
     createAccounts: true,
@@ -38,9 +38,9 @@ const mpcKeyringCapabilities: KeyringCapabilities = {
 };
 
 /**
- * Options for creating an account in the MPC keyring.
+ * Options for creating an account in the MPC money keyring.
  */
-export type MpcCreateAccountOptions = {
+export type MpcMoneyCreateAccountOptions = {
   /**
    * The type of the options.
    */
@@ -49,35 +49,35 @@ export type MpcCreateAccountOptions = {
   /**
    * The MPC setup mode.
    */
-  mode?: MpcKeyringSetupMode;
+  mode?: MpcMoneyKeyringSetupMode;
 };
 
 /**
- * Options for constructing the V2 {@link MpcKeyring}.
+ * Options for constructing the V2 {@link MpcMoneyKeyring}.
  */
-export type MpcKeyringOptions = {
+export type MpcMoneyKeyringOptions = {
   /**
    * The underlying "old" keyring instance that this wrapper adapts.
    */
-  legacyKeyring: MpcKeyringV1;
+  legacyKeyring: MpcMoneyKeyringV1;
 };
 
 /**
- * Concrete {@link Keyring} adapter for a {@link MpcKeyringV1}
+ * Concrete {@link Keyring} adapter for a {@link MpcMoneyKeyringV1}
  * implementation.
  *
  * This wrapper exposes the accounts and signing capabilities of the legacy
- * MPC keyring via the unified V2 interface.
+ * MPC money keyring via the unified V2 interface.
  */
-export class MpcKeyring
-  extends EthKeyringWrapper<MpcKeyringV1>
+export class MpcMoneyKeyring
+  extends EthKeyringWrapper<MpcMoneyKeyringV1>
   implements Keyring
 {
-  constructor(options: MpcKeyringOptions) {
+  constructor(options: MpcMoneyKeyringOptions) {
     super({
       type: KeyringType.Mpc,
       inner: options.legacyKeyring,
-      capabilities: mpcKeyringCapabilities,
+      capabilities: mpcMoneyKeyringCapabilities,
     });
   }
 
@@ -90,7 +90,7 @@ export class MpcKeyring
     const addresses = await this.inner.getAccounts();
 
     if (addresses.length > 1) {
-      throw new Error('MpcKeyring: supports at most one account');
+      throw new Error('MpcMoneyKeyring: supports at most one account');
     }
 
     const [address] = addresses;
@@ -112,7 +112,7 @@ export class MpcKeyring
       type: EthAccountType.Eoa,
       address,
       scopes: [...this.capabilities.scopes],
-      methods: [...MPC_KEYRING_METHODS],
+      methods: [...MPC_MONEY_KEYRING_METHODS],
       options: {
         entropy: {
           type: KeyringAccountEntropyTypeOption.Mpc,
@@ -147,12 +147,12 @@ export class MpcKeyring
    * account.
    */
   async createAccounts(
-    options: MpcCreateAccountOptions,
+    options: MpcMoneyCreateAccountOptions,
   ): Promise<KeyringAccount[]> {
     return this.withLock(async () => {
       if (options.type !== 'custom') {
         throw new Error(
-          `MpcKeyring: unsupported account creation type: ${String(
+          `MpcMoneyKeyring: unsupported account creation type: ${String(
             options.type,
           )}`,
         );
@@ -161,10 +161,10 @@ export class MpcKeyring
       const { mode } = options;
       if (
         mode !== undefined &&
-        mode !== MpcKeyringSetupMode.Create &&
-        mode !== MpcKeyringSetupMode.Import
+        mode !== MpcMoneyKeyringSetupMode.Create &&
+        mode !== MpcMoneyKeyringSetupMode.Import
       ) {
-        throw new Error(`MpcKeyring: invalid mode: ${String(mode)}`);
+        throw new Error(`MpcMoneyKeyring: invalid mode: ${String(mode)}`);
       }
 
       const accounts = await this.getAccounts();
@@ -176,7 +176,7 @@ export class MpcKeyring
 
       const [createdAccount] = await this.getAccounts();
       if (!createdAccount) {
-        throw new Error('MpcKeyring: account creation failed');
+        throw new Error('MpcMoneyKeyring: account creation failed');
       }
 
       return [createdAccount];
@@ -189,7 +189,7 @@ export class MpcKeyring
    * @param _accountId - The account ID to delete.
    */
   async deleteAccount(_accountId: AccountId): Promise<void> {
-    throw new Error('MpcKeyring: deleting accounts is not supported');
+    throw new Error('MpcMoneyKeyring: deleting accounts is not supported');
   }
 
   /**

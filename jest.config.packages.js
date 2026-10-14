@@ -86,6 +86,10 @@ module.exports = {
   // Here we ensure that Jest resolves `@metamask/*` imports to the uncompiled source code for packages that live in this repo.
   // NOTE: This must be synchronized with the `paths` option in `tsconfig.packages.json`.
   moduleNameMapper: {
+    // Listed before the `@metamask/*` wildcard so the AES-GCM subpath is not
+    // rewritten to a workspace source directory.
+    '^@metamask/cryptography/aes-gcm$':
+      '<rootDir>/../../node_modules/@metamask/cryptography/dist/aes-gcm.js',
     '^@metamask/(.+)/v2$': [
       '<rootDir>/../$1/src/v2',
       // Some @metamask/* packages we are referencing aren't in this monorepo,
@@ -97,6 +101,12 @@ module.exports = {
       // Some @metamask/* packages we are referencing aren't in this monorepo,
       // so in that case use their published versions
       '<rootDir>/../../node_modules/@metamask/$1',
+      // Some published @metamask/* packages are ESM-only and have no `main`
+      // field, so resolving their package directory fails. In that case, use
+      // their ESM entrypoint directly. This is only safe for modules that are
+      // mocked with `jest.mock`, since Jest's CommonJS runtime cannot execute
+      // native ESM.
+      '<rootDir>/../../node_modules/@metamask/$1/dist/index.js',
     ],
   },
 

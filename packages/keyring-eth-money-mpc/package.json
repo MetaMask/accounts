@@ -1,0 +1,86 @@
+{
+  "name": "@metamask/eth-money-mpc-keyring",
+  "version": "0.0.0",
+  "description": "A Keyring for Ethereum money accounts that uses Multi-Party Computation (MPC) for key management and signing",
+  "keywords": [
+    "ethereum",
+    "keyring"
+  ],
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-eth-money-mpc#readme",
+  "bugs": {
+    "url": "https://github.com/MetaMask/accounts/issues"
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/accounts.git"
+  },
+  "files": [
+    "dist/"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "./v2": {
+      "types": "./dist/v2/index.d.mts",
+      "default": "./dist/v2/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "ts-bridge --project tsconfig.build.json --verbose --clean --no-references --format module",
+    "build:clean": "yarn build --clean",
+    "build:docs": "typedoc",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-money-mpc-keyring",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-money-mpc-keyring",
+    "test": "yarn test:source && yarn test:types",
+    "test:clean": "jest --clearCache",
+    "build:all": "ts-bridge --project tsconfig.build.json --verbose --clean --format module",
+    "since-latest-release": "../../scripts/since-latest-release.sh",
+    "test:source": "jest --reporters=jest-silent-reporter",
+    "test:types": "../../scripts/tsd-test.sh ./src",
+    "test:verbose": "jest --verbose",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@ethereumjs/util": "^9.1.0",
+    "@metamask/cryptography": "^1.1.2",
+    "@metamask/eth-sig-util": "^9.0.0",
+    "@metamask/keyring-api": "^24.2.0",
+    "@metamask/keyring-sdk": "^4.0.0",
+    "@metamask/keyring-utils": "^5.0.0",
+    "@metamask/mfa-wallet-cl24": "^0.1.0",
+    "@metamask/mfa-wallet-dkls23": "^0.1.0",
+    "@metamask/mfa-wallet-network": "^0.1.0",
+    "@metamask/superstruct": "^3.4.1",
+    "@metamask/utils": "^11.11.0"
+  },
+  "devDependencies": {
+    "@lavamoat/allow-scripts": "^3.2.1",
+    "@lavamoat/preinstall-always-fail": "^2.1.0",
+    "@metamask/auto-changelog": "^6.1.0",
+    "@metamask/mfa-wallet-interface": "^0.1.0",
+    "@ts-bridge/cli": "^0.6.3",
+    "@types/jest": "^29.5.12",
+    "deepmerge": "^4.2.2",
+    "jest": "^29.5.0",
+    "typescript": "~5.3.3"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "@lavamoat/preinstall-always-fail": false,
+      "@metamask/mfa-wallet-network>centrifuge>protobufjs": false
+    }
+  }
+}
