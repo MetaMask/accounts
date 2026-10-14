@@ -142,8 +142,8 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
     it('creates a wrapper with the correct type and capabilities', () => {
       const { wrapper } = setup();
 
-      expect(wrapper.type).toBe(KeyringType.Mpc);
-      expect(wrapper.type).toBe('mpc');
+      expect(wrapper.type).toBe(KeyringType.MpcMoney);
+      expect(wrapper.type).toBe('mpc-money');
       expect(wrapper.capabilities).toStrictEqual({
         scopes: [EthScope.Eoa],
         custom: {
