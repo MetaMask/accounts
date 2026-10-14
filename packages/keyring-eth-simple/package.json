@@ -56,7 +56,6 @@
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-simple-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-simple-keyring",
-    "publish:preview": "yarn npm publish --tag preview",
     "sample": "ts-node src/sample.ts",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",

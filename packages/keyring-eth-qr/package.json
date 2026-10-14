@@ -59,7 +59,6 @@
     "build:force": "tsc --build tsconfig.build.json --force",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-qr-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-qr-keyring",
-    "publish:preview": "yarn npm publish --tag preview",
     "sample": "ts-node src/sample.ts",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
