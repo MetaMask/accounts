@@ -13,5 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of `@metamask/eth-money-mpc-keyring` ([#627](https://github.com/MetaMask/accounts/pull/627), [#673](https://github.com/MetaMask/accounts/pull/673))
 
+### Changed
+
+- Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
+
 [Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.1.0...HEAD
 [0.1.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-money-mpc-keyring@0.1.0
