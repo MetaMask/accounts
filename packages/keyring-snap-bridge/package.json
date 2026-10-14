@@ -57,7 +57,6 @@
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-snap-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-snap-keyring",
-    "publish:preview": "yarn npm publish --tag preview",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
