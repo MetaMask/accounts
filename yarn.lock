@@ -2041,7 +2041,7 @@ __metadata:
     "@metamask/mfa-wallet-dkls23": "npm:^0.1.0"
     "@metamask/mfa-wallet-interface": "npm:^0.1.0"
     "@metamask/mfa-wallet-network": "npm:^0.1.0"
-    "@metamask/money-account-mfa-whitelist": "npm:@metamask-previews/money-account-mfa-whitelist@0.0.0-preview-6ccf7a055"
+    "@metamask/money-account-mfa-whitelist": "npm:^0.1.0"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
     "@ts-bridge/cli": "npm:^0.6.3"
@@ -2591,15 +2591,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/money-account-mfa-whitelist@npm:@metamask-previews/money-account-mfa-whitelist@0.0.0-preview-6ccf7a055":
-  version: 0.0.0-preview-6ccf7a055
-  resolution: "@metamask-previews/money-account-mfa-whitelist@npm:0.0.0-preview-6ccf7a055"
+"@metamask/money-account-mfa-whitelist@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@metamask/money-account-mfa-whitelist@npm:0.1.0"
   dependencies:
     "@metamask/abi-utils": "npm:^2.0.4"
     "@metamask/delegation-core": "npm:^2.2.1"
     "@metamask/utils": "npm:^12.0.0"
     "@noble/hashes": "npm:^1.8.0"
-  checksum: 10/f9d944284313c4f0d384abf1a3f6bdab022d1e8cbf4d5b4b3c96fde02527c3e219b401b66ae0247bce64a624a4fc6d350467b3daa7785b61e055a4148e165378
+  checksum: 10/73cbe3e723b0aff74b649b693fd95fd81da053f930ab882fc92a889d73faf876808bf84732ff989a23589f1495c1ab90da38084028b3ebd9d271e467a90e23cb
   languageName: node
   linkType: hard
 
