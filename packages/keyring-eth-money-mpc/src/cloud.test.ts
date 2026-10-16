@@ -198,14 +198,16 @@ describe('cloud helpers', () => {
     okEmpty();
     const data = new Uint8Array([104, 105]); // "hi"
 
-    await sign({
-      baseURL: 'https://cloud.example',
-      token: 'token-1',
-      clientNetId: 'local-1',
-      nonce: '0xnonce',
-      data,
-      shareEpoch: 1,
-    });
+    expect(
+      await sign({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+        clientNetId: 'local-1',
+        nonce: '0xnonce',
+        data,
+        shareEpoch: 1,
+      }),
+    ).toBe('ok');
 
     const init = fetchSpy.mock.calls[0]?.[1] as {
       body: string;
@@ -220,6 +222,88 @@ describe('cloud helpers', () => {
     expect(body.data).toBe('aGk=');
     expect(body.shareEpoch).toBe(1);
     expect(body.token).toBeUndefined();
+    expect(body).not.toHaveProperty('request');
+  });
+
+  it('sends the signature request with the hash', async () => {
+    okEmpty();
+    const request = {
+      method: 'signPersonalMessage' as const,
+      address: '0x1111111111111111111111111111111111111111' as const,
+      message: '0x68656c6c6f' as const,
+    };
+
+    await sign({
+      baseURL: 'https://cloud.example',
+      token: 'token-1',
+      clientNetId: 'local-1',
+      nonce: '0xnonce',
+      data: new Uint8Array([1]),
+      shareEpoch: 1,
+      request,
+    });
+
+    const body = JSON.parse(
+      (fetchSpy.mock.calls[0]?.[1] as { body: string }).body,
+    ) as { request: unknown };
+    expect(body.request).toStrictEqual(request);
+  });
+
+  it('returns mfa_required when the backend requires MFA', async () => {
+    fetchSpy.mockResolvedValue({
+      ok: false,
+      statusText: 'Forbidden',
+      text: jest
+        .fn()
+        .mockResolvedValue(
+          JSON.stringify({ code: 'mfa_required', reason: 'stale config' }),
+        ),
+    } as never);
+
+    expect(
+      await sign({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+        clientNetId: 'local-1',
+        nonce: '0xnonce',
+        data: new Uint8Array([1]),
+        shareEpoch: 1,
+      }),
+    ).toBe('mfa_required');
+  });
+
+  it('returns mfa_required from a successful response body', async () => {
+    okJson({ code: 'mfa_required' });
+
+    expect(
+      await sign({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+        clientNetId: 'local-1',
+        nonce: '0xnonce',
+        data: new Uint8Array([1]),
+        shareEpoch: 1,
+      }),
+    ).toBe('mfa_required');
+  });
+
+  it('throws when a sign error body is not mfa_required', async () => {
+    fetchSpy.mockResolvedValue({
+      ok: false,
+      statusText: 'Forbidden',
+      text: jest.fn().mockResolvedValue(JSON.stringify({ code: 'forbidden' })),
+    } as never);
+
+    await expect(
+      sign({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+        clientNetId: 'local-1',
+        nonce: '0xnonce',
+        data: new Uint8Array([1]),
+        shareEpoch: 1,
+      }),
+    ).rejects.toThrow('Failed to initialize cloud sign session: Forbidden');
   });
 
   it('throws when cloud sign initialization fails', async () => {
