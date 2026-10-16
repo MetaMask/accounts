@@ -736,17 +736,17 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   /**
    * Whether signing `request` requires MFA.
    *
-   * A missing request, missing configuration, or a thrown check requires MFA.
+   * Missing configuration, or a thrown check, requires MFA.
    *
-   * @param request - The signature request, when this operation has one.
+   * @param request - The signature request the hash was computed from.
    * @param hash - The hash the keyring will sign.
    * @returns Whether the profile token must include 2FA.
    */
   async #mfaRequired(
-    request: MoneyAccountSignatureRequest | undefined,
+    request: MoneyAccountSignatureRequest,
     hash: Uint8Array,
   ): Promise<boolean> {
-    if (request === undefined || this.#getMfaWhitelistConfig === undefined) {
+    if (this.#getMfaWhitelistConfig === undefined) {
       return true;
     }
 
@@ -765,7 +765,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   async #signHash(
     address: Hex,
     hash: Uint8Array,
-    request: MoneyAccountSignatureRequest | undefined,
+    request: MoneyAccountSignatureRequest,
   ): Promise<Uint8Array> {
     return this.#serializeOp(async () => {
       const state = this.#assertState();
@@ -790,7 +790,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         clientNetId: netCreds.partyId,
         nonce,
         shareEpoch,
-        ...(request === undefined ? {} : { request }),
+        request,
       });
       if (signResult === MFA_REQUIRED_CODE) {
         if (mfaRequired) {
