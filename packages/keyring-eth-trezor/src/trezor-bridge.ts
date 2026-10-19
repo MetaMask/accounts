@@ -8,7 +8,7 @@ import type {
   EthereumSignMessage,
   EthereumSignTransaction,
   EthereumSignTypedDataTypes,
-  EthereumSignTypedHash,
+  EthereumSignTypedData,
 } from '@trezor/connect-web' with { 'resolution-mode': 'import' };
 
 // TrezorConnect.ethereumGetPublicKey has two overloads
@@ -37,6 +37,6 @@ export interface TrezorBridge {
   ): Response<PROTO.MessageSignature>;
 
   ethereumSignTypedData<T extends EthereumSignTypedDataTypes>(
-    params: Params<EthereumSignTypedHash<T>>,
+    params: Params<EthereumSignTypedData<T>>,
   ): Response<PROTO.EthereumTypedDataSignature>;
 }

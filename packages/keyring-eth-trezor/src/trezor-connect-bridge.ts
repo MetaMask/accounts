@@ -8,7 +8,7 @@ import type {
   Params,
   EthereumSignMessage,
   EthereumSignTypedDataTypes,
-  EthereumSignTypedHash,
+  EthereumSignTypedData,
   TrezorConnectPublicAPI,
 } from '@trezor/connect-web' with { 'resolution-mode': 'import' };
 
@@ -78,7 +78,7 @@ export class TrezorConnectBridge implements TrezorBridge {
   }
 
   async ethereumSignTypedData<T extends EthereumSignTypedDataTypes>(
-    params: Params<EthereumSignTypedHash<T>>,
+    params: Params<EthereumSignTypedData<T>>,
   ): Response<PROTO.EthereumTypedDataSignature> {
     const TrezorConnect = await loadTrezorConnect();
     return TrezorConnect.ethereumSignTypedData(params);

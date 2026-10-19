@@ -166,8 +166,6 @@ describe('TrezorConnectBridge', function () {
           message: {},
         },
         metamask_v4_compat: true,
-        domain_separator_hash: '',
-        message_hash: '',
       };
       await bridge.ethereumSignTypedData(params);
 
