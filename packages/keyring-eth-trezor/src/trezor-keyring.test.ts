@@ -144,7 +144,6 @@ describe('TrezorKeyring', function () {
       expect(initStub.calledOnce).toBe(true);
       assert.calledWithExactly(initStub, {
         manifest: TREZOR_CONNECT_MANIFEST,
-        lazyLoad: true,
       });
     });
   });
@@ -199,9 +198,9 @@ describe('TrezorKeyring', function () {
       }).not.toThrow();
     });
 
-    it('should call TrezorConnect.getPublicKey if we dont have a public key', async function () {
-      const getPublicKeyStub = stub().resolves();
-      bridge.getPublicKey = getPublicKeyStub;
+    it('should call TrezorConnect.ethereumGetPublicKey if we dont have a public key', async function () {
+      const ethereumGetPublicKeyStub = stub().resolves();
+      bridge.ethereumGetPublicKey = ethereumGetPublicKeyStub;
 
       keyring.hdk = new HDKey();
       try {
@@ -211,10 +210,9 @@ describe('TrezorKeyring', function () {
         // we want to ignore warnings due to stub data
       }
 
-      expect(getPublicKeyStub.calledOnce).toBe(true);
-      assert.calledWithExactly(getPublicKeyStub, {
+      expect(ethereumGetPublicKeyStub.calledOnce).toBe(true);
+      assert.calledWithExactly(ethereumGetPublicKeyStub, {
         path: `m/44'/60'/0'/0`,
-        coin: 'ETH',
       });
     });
   });
@@ -555,7 +553,7 @@ describe('TrezorKeyring', function () {
     it('converts message-only failures to ErrorCode.Unknown', async function () {
       const ethereumSignTransactionStub = stub().resolves({
         success: false,
-        payload: { error: 'Trezor device disconnected' },
+        error: { message: 'Trezor device disconnected' },
       });
       bridge.ethereumSignTransaction = ethereumSignTransactionStub;
 
@@ -604,7 +602,7 @@ describe('TrezorKeyring', function () {
     it('converts user cancellation failures to ErrorCode.UserCancelled', async function () {
       const ethereumSignMessageStub = stub().resolves({
         success: false,
-        payload: { error: 'User cancelled action' },
+        error: { message: 'User cancelled action' },
       });
       bridge.ethereumSignMessage = ethereumSignMessageStub;
 
@@ -622,7 +620,7 @@ describe('TrezorKeyring', function () {
     it('converts message-only failures to ErrorCode.Unknown', async function () {
       const ethereumSignMessageStub = stub().resolves({
         success: false,
-        payload: { error: 'Trezor device disconnected' },
+        error: { message: 'Trezor device disconnected' },
       });
       bridge.ethereumSignMessage = ethereumSignMessageStub;
 
@@ -715,7 +713,7 @@ describe('TrezorKeyring', function () {
     it('converts unknown typed-data signing failures to ErrorCode.Unknown', async function () {
       const ethereumSignTypedDataStub = stub().resolves({
         success: false,
-        payload: { error: 'Unexpected bridge failure' },
+        error: { message: 'Unexpected bridge failure' },
       });
       bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
 
@@ -904,7 +902,7 @@ describe('TrezorKeyring', function () {
     it('converts non-address errors to HardwareWalletError', async function () {
       const ethereumSignMessageStub = stub().resolves({
         success: false,
-        payload: { error: 'Device disconnected' },
+        error: { message: 'Device disconnected' },
       });
       bridge.ethereumSignMessage = ethereumSignMessageStub;
 
@@ -961,7 +959,7 @@ describe('TrezorKeyring', function () {
     it('converts non-address errors to HardwareWalletError', async function () {
       const ethereumSignTypedDataStub = stub().resolves({
         success: false,
-        payload: { error: 'Device disconnected' },
+        error: { message: 'Device disconnected' },
       });
       bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
 
@@ -981,12 +979,12 @@ describe('TrezorKeyring', function () {
   });
 
   describe('unlock error handling', function () {
-    it('handles unsuccessful response from getPublicKey', async function () {
-      const getPublicKeyStub = stub().resolves({
+    it('handles unsuccessful response from ethereumGetPublicKey', async function () {
+      const ethereumGetPublicKeyStub = stub().resolves({
         success: false,
-        payload: { error: 'Device not connected' },
+        error: { message: 'Device not connected' },
       });
-      bridge.getPublicKey = getPublicKeyStub;
+      bridge.ethereumGetPublicKey = ethereumGetPublicKeyStub;
 
       keyring.hdk = new HDKey();
 
@@ -994,8 +992,10 @@ describe('TrezorKeyring', function () {
     });
 
     it('converts unlock errors to HardwareWalletError', async function () {
-      const getPublicKeyStub = stub().rejects(new Error('Transport error'));
-      bridge.getPublicKey = getPublicKeyStub;
+      const ethereumGetPublicKeyStub = stub().rejects(
+        new Error('Transport error'),
+      );
+      bridge.ethereumGetPublicKey = ethereumGetPublicKeyStub;
 
       keyring.hdk = new HDKey();
 
@@ -1007,7 +1007,7 @@ describe('TrezorKeyring', function () {
     it('throws HardwareWalletError on bridge failure', async function () {
       const ethereumSignTransactionStub = stub().resolves({
         success: false,
-        payload: { error: 'Device disconnected' },
+        error: { message: 'Device disconnected' },
       });
       bridge.ethereumSignTransaction = ethereumSignTransactionStub;
 

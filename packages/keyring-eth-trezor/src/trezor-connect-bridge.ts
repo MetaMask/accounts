@@ -1,37 +1,37 @@
-import * as TrezorConnectModule from '@trezor/connect-web';
 import type {
-  TrezorConnect as TrezorConnectType,
+  ConnectDynamicSettings,
   EthereumSignedTx,
   PROTO,
   Response,
   Manifest,
-  ConnectSettings,
   EthereumSignTransaction,
   Params,
   EthereumSignMessage,
   EthereumSignTypedDataTypes,
   EthereumSignTypedHash,
-} from '@trezor/connect-web';
+  TrezorConnectPublicAPI,
+} from '@trezor/connect-web' with { 'resolution-mode': 'import' };
 
 import type { TrezorBridge, ExtendedPublicKey } from './trezor-bridge';
 
-// @trezor/connect-web is CJS with __esModule:true; module.exports is { default: singleton, DEVICE_EVENT, ... }.
-// In CJS (ts-jest), __importStar passes module.exports through as-is, so TrezorConnectModule
-// IS module.exports and .default is the singleton.
-// In native ESM, TrezorConnectModule.default = module.exports, so the singleton is one
-// level deeper at .default.default. Detect ESM by checking if .default.default is truthy.
-/* istanbul ignore next: only one branch is reachable per module system */
-const rawTrezorModule = TrezorConnectModule as unknown as { default: unknown };
-const rawTrezorDefault = rawTrezorModule.default as
-  | typeof TrezorConnectModule
-  | undefined;
-const trezorConnectExports = rawTrezorDefault?.default
-  ? rawTrezorDefault
-  : rawTrezorModule;
-const TrezorConnect = trezorConnectExports.default as TrezorConnectType;
-const { DEVICE_EVENT, DEVICE } = TrezorConnectModule;
+type TrezorConnect = TrezorConnectPublicAPI<ConnectDynamicSettings>;
+
+/**
+ * Loads the Trezor Connect singleton.
+ *
+ * `@trezor/connect-web` is ESM-only since v10, so it is loaded with a dynamic
+ * `import()`, which works from both the CJS and the ESM build of this package.
+ *
+ * @returns The Trezor Connect singleton.
+ */
+async function loadTrezorConnect(): Promise<TrezorConnect> {
+  const { default: TrezorConnect } = await import('@trezor/connect-web');
+  return TrezorConnect;
+}
 
 export class TrezorConnectBridge implements TrezorBridge {
+  // Connect 10 no longer emits device events to third-party integrations, so the
+  // model cannot be detected here.
   model?: string;
 
   trezorConnectInitiated = false;
@@ -39,53 +39,48 @@ export class TrezorConnectBridge implements TrezorBridge {
   async init(
     settings: {
       manifest: Manifest;
-    } & Partial<ConnectSettings>,
+    } & ConnectDynamicSettings,
   ): Promise<void> {
-    TrezorConnect.on(DEVICE_EVENT, (event) => {
-      if (event.type !== DEVICE.CONNECT) {
-        return;
-      }
-      this.model = event.payload.features?.model;
-    });
-
     if (this.trezorConnectInitiated) {
       return;
     }
 
+    const TrezorConnect = await loadTrezorConnect();
     await TrezorConnect.init(settings);
     this.trezorConnectInitiated = true;
   }
 
   async dispose(): Promise<void> {
-    // This removes the Trezor Connect iframe from the DOM
-    // This method is not well documented, but the code it calls can be seen
-    // here: https://github.com/trezor/connect/blob/dec4a56af8a65a6059fb5f63fa3c6690d2c37e00/src/js/iframe/builder.js#L181
+    // Closes the connection to Trezor Suite (desktop WebSocket or web popup).
+    const TrezorConnect = await loadTrezorConnect();
     TrezorConnect.dispose();
-    return Promise.resolve();
   }
 
-  getPublicKey(params: {
+  async ethereumGetPublicKey(params: {
     path: string;
-    coin: string;
   }): Response<ExtendedPublicKey> {
-    return TrezorConnect.getPublicKey(params);
+    const TrezorConnect = await loadTrezorConnect();
+    return TrezorConnect.ethereumGetPublicKey(params);
   }
 
-  ethereumSignTransaction(
+  async ethereumSignTransaction(
     params: Params<EthereumSignTransaction>,
   ): Response<EthereumSignedTx> {
+    const TrezorConnect = await loadTrezorConnect();
     return TrezorConnect.ethereumSignTransaction(params);
   }
 
-  ethereumSignMessage(
+  async ethereumSignMessage(
     params: Params<EthereumSignMessage>,
   ): Response<PROTO.MessageSignature> {
+    const TrezorConnect = await loadTrezorConnect();
     return TrezorConnect.ethereumSignMessage(params);
   }
 
-  ethereumSignTypedData<T extends EthereumSignTypedDataTypes>(
+  async ethereumSignTypedData<T extends EthereumSignTypedDataTypes>(
     params: Params<EthereumSignTypedHash<T>>,
   ): Response<PROTO.EthereumTypedDataSignature> {
+    const TrezorConnect = await loadTrezorConnect();
     return TrezorConnect.ethereumSignTypedData(params);
   }
 }

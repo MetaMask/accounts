@@ -19,7 +19,7 @@ import type {
   EthereumTransactionEIP1559,
   EthereumSignedTx,
   EthereumTransaction,
-} from '@trezor/connect-web';
+} from '@trezor/connect-web' with { 'resolution-mode': 'import' };
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
@@ -146,7 +146,6 @@ export class TrezorKeyring implements Keyring {
   async init(): Promise<void> {
     return this.bridge.init({
       manifest: TREZOR_CONNECT_MANIFEST,
-      lazyLoad: true,
     });
   }
 
@@ -183,12 +182,11 @@ export class TrezorKeyring implements Keyring {
     }
 
     try {
-      const response = await this.bridge.getPublicKey({
+      const response = await this.bridge.ethereumGetPublicKey({
         path: this.hdPath,
-        coin: 'ETH',
       });
       if (!response.success) {
-        throw createErrorFromTrezorResponse(response.payload);
+        throw createErrorFromTrezorResponse(response.error);
       }
 
       this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex');
@@ -412,7 +410,7 @@ export class TrezorKeyring implements Keyring {
 
         return newOrMutatedTx;
       }
-      throw createErrorFromTrezorResponse(response.payload);
+      throw createErrorFromTrezorResponse(response.error);
     } catch (error) {
       // Re-throw address validation errors as plain Errors, not hardware errors
       if (isAddressValidationError(error)) {
@@ -446,7 +444,7 @@ export class TrezorKeyring implements Keyring {
       });
 
       if (!response.success) {
-        throw createErrorFromTrezorResponse(response.payload);
+        throw createErrorFromTrezorResponse(response.error);
       }
 
       if (response.payload.address !== getChecksumAddress(withAccount)) {
@@ -516,7 +514,7 @@ export class TrezorKeyring implements Keyring {
       });
 
       if (!response.success) {
-        throw createErrorFromTrezorResponse(response.payload);
+        throw createErrorFromTrezorResponse(response.error);
       }
 
       if (getChecksumAddress(address) !== response.payload.address) {
