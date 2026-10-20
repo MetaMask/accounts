@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `MpcAccount<Account>` type helper + `isMpcAccount` helper ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `MpcAccount<Account>` type helper + `isMpcAccount` helper ([#677](https://github.com/MetaMask/accounts/pull/677))
 
 ### Changed
 
