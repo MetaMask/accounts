@@ -1,3 +1,4 @@
+import type { MpcAccount } from '@metamask/account-api';
 import {
   EthAccountType,
   EthMethod,
@@ -70,7 +71,7 @@ export type MpcMoneyKeyringOptions = {
  * MPC money keyring via the unified V2 interface.
  */
 export class MpcMoneyKeyring
-  extends EthKeyringWrapper<MpcMoneyKeyringV1>
+  extends EthKeyringWrapper<MpcMoneyKeyringV1, MpcAccount<KeyringAccount>>
   implements Keyring
 {
   constructor(options: MpcMoneyKeyringOptions) {
@@ -86,7 +87,7 @@ export class MpcMoneyKeyring
    *
    * @returns The list of managed accounts.
    */
-  async getAccounts(): Promise<KeyringAccount[]> {
+  async getAccounts(): Promise<MpcAccount<KeyringAccount>[]> {
     const addresses = await this.inner.getAccounts();
 
     if (addresses.length > 1) {
@@ -101,12 +102,12 @@ export class MpcMoneyKeyring
   }
 
   /**
-   * Build a valid {@link KeyringAccount} from an address.
+   * Build a valid {@link MpcAccount} from an address.
    *
    * @param address - The account address.
    * @returns The account.
    */
-  #toAccount(address: Hex): KeyringAccount {
+  #toAccount(address: Hex): MpcAccount<KeyringAccount> {
     return {
       id: this.registry.register(address),
       type: EthAccountType.Eoa,
@@ -128,7 +129,7 @@ export class MpcMoneyKeyring
    * @param address - The account address.
    * @returns The account.
    */
-  #getOrCreateAccount(address: Hex): KeyringAccount {
+  #getOrCreateAccount(address: Hex): MpcAccount<KeyringAccount> {
     const account = this.#toAccount(address);
     const existingAccount = this.registry.get(account.id);
 
@@ -149,7 +150,7 @@ export class MpcMoneyKeyring
    */
   async createAccounts(
     options: MpcMoneyCreateAccountOptions,
-  ): Promise<KeyringAccount[]> {
+  ): Promise<MpcAccount<KeyringAccount>[]> {
     return this.withLock(async () => {
       if (options.type !== 'custom') {
         throw new Error(

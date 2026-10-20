@@ -2010,6 +2010,7 @@ __metadata:
     "@ethereumjs/util": "npm:^9.1.0"
     "@lavamoat/allow-scripts": "npm:^3.2.1"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.0"
+    "@metamask/account-api": "npm:^2.1.1"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/cryptography": "npm:^1.1.2"
     "@metamask/eth-sig-util": "npm:^9.0.0"
