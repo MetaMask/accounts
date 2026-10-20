@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Mark accounts as non-exportable by setting the `exportable` account option to `false` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
 
 ## [4.0.1]
