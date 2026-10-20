@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Mark accounts as non-exportable by setting the `exportable` account option to `false` ([#676](https://github.com/MetaMask/accounts/pull/676))
+- Use `MpcAccount<KeyringAccount>` for the accounts returned by the V2 `MpcMoneyKeyring`, giving narrowed typings for the `'mpc'` entropy option ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 
 ## [0.1.0]
 
