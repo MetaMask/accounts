@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.2]
+
 ### Uncategorized
 
 - ci: re-align preview-builds with core monorepo ([#665](https://github.com/MetaMask/accounts/pull/665))
@@ -118,7 +120,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Uses derivation path `"m/44'/4392018'/0'/0"`.
   - Enforces that at most one Money account can exist.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.2...HEAD
+[4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.1...@metamask/eth-money-keyring@4.0.2
 [4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.0...@metamask/eth-money-keyring@4.0.1
 [4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@3.0.1...@metamask/eth-money-keyring@4.0.0
 [3.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@3.0.0...@metamask/eth-money-keyring@3.0.1
