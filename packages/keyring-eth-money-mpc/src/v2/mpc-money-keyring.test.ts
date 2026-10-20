@@ -177,6 +177,7 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
       expect(account?.options.entropy?.type).toBe(
         KeyringAccountEntropyTypeOption.Mpc,
       );
+      expect(account?.options.exportable).toBe(false);
     });
 
     it('returns the same account on repeated calls', async () => {

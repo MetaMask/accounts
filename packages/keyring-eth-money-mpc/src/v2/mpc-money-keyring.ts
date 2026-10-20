@@ -117,6 +117,7 @@ export class MpcMoneyKeyring
         entropy: {
           type: KeyringAccountEntropyTypeOption.Mpc,
         },
+        exportable: false,
       },
     };
   }
