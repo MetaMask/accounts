@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.0]
 
-### Uncategorized
-
-- ci: re-align preview-builds with core monorepo ([#665](https://github.com/MetaMask/accounts/pull/665))
-
 ### Added
 
 - Add `MpcAccount<Account>` type helper + `isMpcAccount` helper ([#677](https://github.com/MetaMask/accounts/pull/677))

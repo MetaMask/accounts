@@ -9,10 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.0.2]
 
-### Uncategorized
-
-- ci: re-align preview-builds with core monorepo ([#665](https://github.com/MetaMask/accounts/pull/665))
-
 ### Changed
 
 - Mark accounts as non-exportable by setting the `exportable` account option to `false` ([#676](https://github.com/MetaMask/accounts/pull/676))
