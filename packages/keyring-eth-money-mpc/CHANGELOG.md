@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Replace `init` with an explicit `setup` method that runs key generation or import. ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - When the `mode` parameter is omitted, it is inferred from the backend.
+  - `deserialize` no longer accepts `{ mode }` setup params
+  - `serialize` no longer includes `{ mode }`, the keyring state is either empty (`{}`) or initialized.
+
 ## [0.1.1]
 
 ### Changed

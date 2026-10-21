@@ -48,7 +48,9 @@ export type MpcMoneyCreateAccountOptions = {
   type: 'custom';
 
   /**
-   * The MPC setup mode.
+   * The MPC setup mode. Defaults to inferring the mode from the backend:
+   * `import` when a key share or backup exists for the profile, `create`
+   * otherwise.
    */
   mode?: MpcMoneyKeyringSetupMode;
 };
@@ -174,7 +176,7 @@ export class MpcMoneyKeyring
         return accounts;
       }
 
-      await this.inner.init(mode);
+      await this.inner.setup(mode);
 
       const [createdAccount] = await this.getAccounts();
       if (!createdAccount) {

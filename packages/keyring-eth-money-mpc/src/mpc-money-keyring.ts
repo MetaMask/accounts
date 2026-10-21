@@ -22,7 +22,6 @@ import {
   createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
 import {
-  enums,
   integer,
   is,
   min,
@@ -48,13 +47,14 @@ import {
 } from './cloud.js';
 import type {
   MpcMoneyKeyring as MpcMoneyKeyringContract,
+  MpcMoneyKeyringInitializedState,
   MpcMoneyKeyringOpts,
   MpcMoneyKeyringSerializer,
-  MpcMoneyKeyringSetupParams,
+  MpcMoneyKeyringSetupMode,
   MpcMoneyKeyringState,
-  MpcMoneyKeyringStorageState,
   ProfileTokenOpts,
 } from './types.js';
+import { MpcMoneyKeyringSetupMode as SetupMode } from './types.js';
 import {
   AES_GCM_IV_LENGTH,
   decryptBytes,
@@ -76,10 +76,6 @@ const CLIENT_SHARE_INDEX = 0;
 const SERVER_SHARE_INDEX = 1;
 const SIGNING_THRESHOLD = 2;
 const INITIAL_SHARE_EPOCH = 1;
-
-const SetupParamsStruct = type({
-  mode: enums(['create', 'import'] as const),
-});
 
 const InitializedStorageStruct = type({
   netCreds: JsonStruct,
@@ -230,7 +226,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   readonly #dkm: CL24DKM;
 
-  #state?: MpcMoneyKeyringStorageState;
+  #state?: MpcMoneyKeyringInitializedState;
 
   readonly #cloudURL: string;
 
@@ -245,7 +241,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   /**
    * Create a keyring bound to the given cloud and relayer endpoints.
    *
-   * The keyring stays uninitialized until {@link MpcMoneyKeyring.init} or
+   * The keyring stays uninitialized until {@link MpcMoneyKeyring.setup} or
    * {@link MpcMoneyKeyring.deserialize}.
    *
    * @param opts - TSS libraries, backend URLs, and token callbacks.
@@ -277,9 +273,6 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   async serialize(): Promise<Json> {
     if (!this.#state) {
       return {};
-    }
-    if (this.#state.status === 'uninitialized') {
-      return this.#state.setup;
     }
 
     const { netCreds, keyShare, serverNetId, shareEpoch, tssSetup } =
@@ -315,55 +308,69 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       return;
     }
 
-    // `type()` ignores unknown keys, so a payload can match `mode` and still
-    // carry initialized fields. Reject that before treating it as setup.
+    // `type()` ignores unknown keys, so a payload can carry initialized fields
+    // and still not match. Reject that instead of treating it as fresh state.
     if (hasInitializedFields(state)) {
       throw new Error('Invalid state');
-    }
-
-    if (is(state, SetupParamsStruct)) {
-      this.#state = {
-        status: 'uninitialized',
-        setup: { mode: state.mode },
-      };
-      return;
-    }
-
-    if ('mode' in state) {
-      throw new Error("Invalid setup mode: expected 'create' or 'import'");
     }
   }
 
   /**
-   * Run key generation or import. `mode` may be passed directly, or taken
-   * from setup params previously stored via {@link deserialize}.
-   * Serialized with sign, rotate and sync so overlapping `init` calls run
+   * Run key generation or import. `mode` may be passed directly, or inferred
+   * from the backend when omitted: import when a key share or backup exists
+   * for the profile, create otherwise.
+   *
+   * Serialized with sign, rotate and sync so overlapping `setup` calls run
    * setup once: the second call waits, sees the initialized state and returns.
+   *
+   * NOTE: This is deliberately not named `init`: the keyring controller
+   * invokes `init` automatically at keyring construction, which would run
+   * this network setup under the controller lock. Setup must be run
+   * explicitly by the consumer.
    *
    * @param mode - Create a new key or import from the backend backup.
    * @returns Resolves when the keyring is initialized.
    */
-  async init(mode?: MpcMoneyKeyringSetupParams['mode']): Promise<void> {
+  async setup(mode?: MpcMoneyKeyringSetupMode): Promise<void> {
     return this.#serializeOp(async () => {
       if (this.#state?.status === 'initialized') {
         return;
       }
 
-      const resolvedMode =
-        mode ??
-        (this.#state?.status === 'uninitialized'
-          ? this.#state.setup.mode
-          : undefined);
-      if (resolvedMode === undefined) {
-        return;
-      }
+      const resolvedMode = mode ?? (await this.#getMode());
 
-      if (resolvedMode === 'create') {
+      if (resolvedMode === SetupMode.Create) {
         await this.#setupCreate();
       } else {
         await this.#setupImport();
       }
     });
+  }
+
+  /**
+   * Get the setup mode from the backend.
+   *
+   * A single `check-key-share` query (1FA) determines whether the profile
+   * already has key state: any share, backup, or active epoch means the only
+   * valid mode is import — the backend rejects creating over an existing
+   * share — and no key state at all means create.
+   *
+   * @returns The inferred setup mode.
+   */
+  async #getMode(): Promise<MpcMoneyKeyringSetupMode> {
+    const token = await this.#getProfileToken();
+    const { latestShareEpoch, latestBackupEpoch, activeEpoch } =
+      await checkKeyShareRemote({
+        baseURL: this.#cloudURL,
+        token,
+      });
+
+    const hasBackupShare =
+      latestShareEpoch !== undefined ||
+      latestBackupEpoch !== undefined ||
+      activeEpoch !== undefined;
+
+    return hasBackupShare ? SetupMode.Import : SetupMode.Create;
   }
 
   /**
@@ -493,7 +500,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   /**
    * Return the single MPC account. The account is created during
-   * {@link MpcMoneyKeyring.init}, not by this method.
+   * {@link MpcMoneyKeyring.setup}, not by this method.
    *
    * @param numberOfAccounts - Must be 1 (the only supported value).
    * @returns The address of the existing account.

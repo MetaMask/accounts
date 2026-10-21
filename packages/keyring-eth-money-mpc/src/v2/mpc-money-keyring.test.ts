@@ -33,7 +33,7 @@ const EXPECTED_METHODS = MPC_MONEY_KEYRING_METHODS;
 type MockMpcMoneyKeyringV1 = {
   type: string;
   getAccounts: jest.Mock;
-  init: jest.Mock;
+  setup: jest.Mock;
   serialize: jest.Mock;
   deserialize: jest.Mock;
   addAccounts: jest.Mock;
@@ -56,7 +56,7 @@ function createInner(): MockMpcMoneyKeyringV1 {
   return {
     type: 'MPC Money Keyring',
     getAccounts: jest.fn().mockResolvedValue([] as Hex[]),
-    init: jest.fn().mockResolvedValue(undefined),
+    setup: jest.fn().mockResolvedValue(undefined),
     serialize: jest.fn().mockResolvedValue({}),
     deserialize: jest.fn().mockResolvedValue(undefined),
     addAccounts: jest.fn(),
@@ -212,7 +212,7 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
         mode: 'create',
       });
 
-      expect(inner.init).toHaveBeenCalledWith('create');
+      expect(inner.setup).toHaveBeenCalledWith('create');
       expect(accounts).toHaveLength(1);
       expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
     });
@@ -228,12 +228,12 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
         mode: 'import',
       });
 
-      expect(inner.init).toHaveBeenCalledWith('import');
+      expect(inner.setup).toHaveBeenCalledWith('import');
       expect(accounts).toHaveLength(1);
       expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
     });
 
-    it('falls back to the setup params stored via deserialize when mode is omitted', async () => {
+    it('delegates mode inference to the inner keyring when mode is omitted', async () => {
       const { wrapper, inner } = setup();
       inner.getAccounts
         .mockResolvedValueOnce([])
@@ -241,7 +241,7 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
 
       const accounts = await wrapper.createAccounts({ type: 'custom' });
 
-      expect(inner.init).toHaveBeenCalledWith(undefined);
+      expect(inner.setup).toHaveBeenCalledWith(undefined);
       expect(accounts).toHaveLength(1);
     });
 
@@ -253,7 +253,7 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
         mode: 'create',
       });
 
-      expect(inner.init).not.toHaveBeenCalled();
+      expect(inner.setup).not.toHaveBeenCalled();
       expect(accounts).toHaveLength(1);
       expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
     });
@@ -265,7 +265,7 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
         wrapper.createAccounts({ type: 'custom', mode: 'create' }),
       ).rejects.toThrow('MpcMoneyKeyring: account creation failed');
 
-      expect(inner.init).toHaveBeenCalledWith('create');
+      expect(inner.setup).toHaveBeenCalledWith('create');
     });
 
     it('rejects unsupported account creation types', async () => {
@@ -280,7 +280,7 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
       await expect(wrapper.createAccounts(invalidOptions)).rejects.toThrow(
         'MpcMoneyKeyring: unsupported account creation type: bip44:derive-index',
       );
-      expect(inner.init).not.toHaveBeenCalled();
+      expect(inner.setup).not.toHaveBeenCalled();
     });
 
     it('rejects an invalid mode', async () => {
@@ -294,7 +294,7 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
       await expect(wrapper.createAccounts(invalidOptions)).rejects.toThrow(
         'MpcMoneyKeyring: invalid mode: bogus',
       );
-      expect(inner.init).not.toHaveBeenCalled();
+      expect(inner.setup).not.toHaveBeenCalled();
     });
   });
 
