@@ -12,7 +12,6 @@ import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 
-import { MpcMoneyKeyringSetupMode } from '../types.js';
 import type { MpcMoneyKeyring as MpcMoneyKeyringV1 } from '../types.js';
 
 /**
@@ -46,11 +45,6 @@ export type MpcMoneyCreateAccountOptions = {
    * The type of the options.
    */
   type: 'custom';
-
-  /**
-   * The MPC setup mode.
-   */
-  mode?: MpcMoneyKeyringSetupMode;
 };
 
 /**
@@ -160,21 +154,12 @@ export class MpcMoneyKeyring
         );
       }
 
-      const { mode } = options;
-      if (
-        mode !== undefined &&
-        mode !== MpcMoneyKeyringSetupMode.Create &&
-        mode !== MpcMoneyKeyringSetupMode.Import
-      ) {
-        throw new Error(`MpcMoneyKeyring: invalid mode: ${String(mode)}`);
-      }
-
       const accounts = await this.getAccounts();
       if (accounts.length > 0) {
         return accounts;
       }
 
-      await this.inner.init(mode);
+      await this.inner.setup();
 
       const [createdAccount] = await this.getAccounts();
       if (!createdAccount) {

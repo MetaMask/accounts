@@ -33,7 +33,7 @@ const EXPECTED_METHODS = MPC_MONEY_KEYRING_METHODS;
 type MockMpcMoneyKeyringV1 = {
   type: string;
   getAccounts: jest.Mock;
-  init: jest.Mock;
+  setup: jest.Mock;
   serialize: jest.Mock;
   deserialize: jest.Mock;
   addAccounts: jest.Mock;
@@ -56,7 +56,7 @@ function createInner(): MockMpcMoneyKeyringV1 {
   return {
     type: 'MPC Money Keyring',
     getAccounts: jest.fn().mockResolvedValue([] as Hex[]),
-    init: jest.fn().mockResolvedValue(undefined),
+    setup: jest.fn().mockResolvedValue(undefined),
     serialize: jest.fn().mockResolvedValue({}),
     deserialize: jest.fn().mockResolvedValue(undefined),
     addAccounts: jest.fn(),
@@ -201,39 +201,7 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
   });
 
   describe('createAccounts', () => {
-    it('runs the create ceremony via the inner keyring', async () => {
-      const { wrapper, inner } = setup();
-      inner.getAccounts
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([MOCK_ADDRESS]);
-
-      const accounts = await wrapper.createAccounts({
-        type: 'custom',
-        mode: 'create',
-      });
-
-      expect(inner.init).toHaveBeenCalledWith('create');
-      expect(accounts).toHaveLength(1);
-      expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
-    });
-
-    it('runs the backup import flow via the inner keyring', async () => {
-      const { wrapper, inner } = setup();
-      inner.getAccounts
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([MOCK_ADDRESS]);
-
-      const accounts = await wrapper.createAccounts({
-        type: 'custom',
-        mode: 'import',
-      });
-
-      expect(inner.init).toHaveBeenCalledWith('import');
-      expect(accounts).toHaveLength(1);
-      expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
-    });
-
-    it('falls back to the setup params stored via deserialize when mode is omitted', async () => {
+    it('runs setup via the inner keyring', async () => {
       const { wrapper, inner } = setup();
       inner.getAccounts
         .mockResolvedValueOnce([])
@@ -241,19 +209,17 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
 
       const accounts = await wrapper.createAccounts({ type: 'custom' });
 
-      expect(inner.init).toHaveBeenCalledWith(undefined);
+      expect(inner.setup).toHaveBeenCalledWith();
       expect(accounts).toHaveLength(1);
+      expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
     });
 
     it('is idempotent when the account already exists', async () => {
       const { wrapper, inner } = setup({ accounts: [MOCK_ADDRESS] });
 
-      const accounts = await wrapper.createAccounts({
-        type: 'custom',
-        mode: 'create',
-      });
+      const accounts = await wrapper.createAccounts({ type: 'custom' });
 
-      expect(inner.init).not.toHaveBeenCalled();
+      expect(inner.setup).not.toHaveBeenCalled();
       expect(accounts).toHaveLength(1);
       expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
     });
@@ -261,11 +227,11 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
     it('throws when the inner keyring does not produce an account', async () => {
       const { wrapper, inner } = setup();
 
-      await expect(
-        wrapper.createAccounts({ type: 'custom', mode: 'create' }),
-      ).rejects.toThrow('MpcMoneyKeyring: account creation failed');
+      await expect(wrapper.createAccounts({ type: 'custom' })).rejects.toThrow(
+        'MpcMoneyKeyring: account creation failed',
+      );
 
-      expect(inner.init).toHaveBeenCalledWith('create');
+      expect(inner.setup).toHaveBeenCalledWith();
     });
 
     it('rejects unsupported account creation types', async () => {
@@ -280,21 +246,7 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
       await expect(wrapper.createAccounts(invalidOptions)).rejects.toThrow(
         'MpcMoneyKeyring: unsupported account creation type: bip44:derive-index',
       );
-      expect(inner.init).not.toHaveBeenCalled();
-    });
-
-    it('rejects an invalid mode', async () => {
-      const { wrapper, inner } = setup();
-
-      const invalidOptions = {
-        type: 'custom',
-        mode: 'bogus',
-      } as unknown as MpcMoneyCreateAccountOptions;
-
-      await expect(wrapper.createAccounts(invalidOptions)).rejects.toThrow(
-        'MpcMoneyKeyring: invalid mode: bogus',
-      );
-      expect(inner.init).not.toHaveBeenCalled();
+      expect(inner.setup).not.toHaveBeenCalled();
     });
   });
 
