@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { hashPersonalMessage } from '@ethereumjs/util';
+import type { MfaWhitelistConfig } from '@metamask/money-account-mfa-whitelist';
 import { bytesToHex } from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
 import { MpcMoneyKeyring } from './mpc-money-keyring.js';
+import { MFA_REQUIRED_CODE } from './types.js';
 
 const mockCreateKey = jest.fn();
 const mockRotateKeyShares = jest.fn();
@@ -25,6 +27,7 @@ const mockStoreKeyShareBackup = jest.fn();
 const mockCheckKeyShare = jest.fn();
 const mockSetActiveEpoch = jest.fn();
 const mockLoadKeyShareBackup = jest.fn();
+const mockGetMfaRequirement = jest.fn();
 let lastNetworkManagerOptions: Record<string, unknown> | undefined;
 
 const mockDerivedAddress = '0x1111111111111111111111111111111111111111' as Hex;
@@ -110,6 +113,10 @@ jest.mock('@metamask/mfa-wallet-dkls23', () => {
   return { Dkls23TssLib: MockDkls23TssLib };
 });
 
+jest.mock('@metamask/money-account-mfa-whitelist', () => ({
+  getMfaRequirement: (...args: unknown[]) => mockGetMfaRequirement(...args),
+}));
+
 jest.mock('./cloud', () => ({
   getNetId: (...args: unknown[]) => mockGetNetId(...args),
   createKey: (...args: unknown[]) => mockStartCreateKey(...args),
@@ -185,9 +192,14 @@ const makeRootSession = (statusPayload = 'data persisted') => {
   return session;
 };
 
+const mockWhitelistConfig = {
+  chainId: '0x8f',
+} as unknown as MfaWhitelistConfig;
+
 const makeKeyring = (
   getProfileToken = jest.fn().mockResolvedValue('token'),
   getBackupEncryptionKey = jest.fn().mockResolvedValue(mockBackupKey),
+  getMfaWhitelistConfig?: () => Promise<MfaWhitelistConfig>,
 ) =>
   new MpcMoneyKeyring({
     cl24Lib: {} as never,
@@ -196,6 +208,7 @@ const makeKeyring = (
     relayerURL: 'https://relayer.example',
     getProfileToken,
     getBackupEncryptionKey,
+    ...(getMfaWhitelistConfig === undefined ? {} : { getMfaWhitelistConfig }),
   });
 
 const deserializeState = async (
@@ -233,7 +246,11 @@ describe('MpcMoneyKeyring', () => {
     mockGetNetId.mockResolvedValue('cloud-user');
     mockStartCreateKey.mockResolvedValue(undefined);
     mockRegisterClient.mockResolvedValue(undefined);
-    mockStartSign.mockResolvedValue(undefined);
+    mockStartSign.mockResolvedValue('ok');
+    mockGetMfaRequirement.mockReturnValue({
+      mfaRequired: true,
+      reason: 'test',
+    });
     mockStartRotateKeyShares.mockResolvedValue(undefined);
     mockStoreKeyShareBackup.mockResolvedValue(undefined);
     mockCheckKeyShare.mockResolvedValue({
@@ -455,6 +472,35 @@ describe('MpcMoneyKeyring', () => {
     await expect(keyring.setup()).rejects.toThrow('Share epoch 1 is not ready');
     expect(mockSetActiveEpoch).not.toHaveBeenCalled();
     expect(await keyring.serialize()).toStrictEqual({});
+  });
+
+  it('creates a key when the backend has only a pending share or backup', async () => {
+    const keyring = makeKeyring();
+    const rootSession = makeRootSession();
+    mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
+    mockCreateSession.mockResolvedValueOnce(rootSession);
+    mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+    mockCheckKeyShare
+      .mockResolvedValueOnce({
+        latestShareEpoch: 1,
+        latestBackupEpoch: 1,
+        activeEpoch: undefined,
+      })
+      .mockResolvedValueOnce({
+        latestShareEpoch: mockShareEpoch,
+        latestBackupEpoch: mockShareEpoch,
+        activeEpoch: mockShareEpoch,
+      });
+
+    await keyring.setup();
+
+    expect(mockLoadKeyShareBackup).not.toHaveBeenCalled();
+    expect(mockStartCreateKey).toHaveBeenCalledTimes(1);
+    expect(mockSetActiveEpoch).toHaveBeenCalledWith({
+      baseURL: 'https://cloud.example',
+      token: 'token',
+      epoch: 1,
+    });
   });
 
   it('imports a key from the backend backup when the backend has key state', async () => {
@@ -737,16 +783,23 @@ describe('MpcMoneyKeyring', () => {
       messageHex,
     );
     expect(signatureHex).toBe(bytesToHex(mockEthSignature));
+    const messageHash = hashPersonalMessage(new TextEncoder().encode('hello'));
     expect(getProfileToken).toHaveBeenCalledWith({
       twoFactor: true,
-      challenge: hashPersonalMessage(new TextEncoder().encode('hello')),
+      challenge: messageHash,
     });
+    expect(mockGetMfaRequirement).not.toHaveBeenCalled();
     expect(mockStartSign).toHaveBeenCalledWith(
       expect.objectContaining({
         clientNetId: 'local-user',
         token: 'token',
-        data: hashPersonalMessage(new TextEncoder().encode('hello')),
+        data: messageHash,
         shareEpoch: 1,
+        request: {
+          method: 'signPersonalMessage',
+          address: mockDerivedAddress,
+          message: messageHex,
+        },
       }),
     );
     expect(mockDklsSetup).not.toHaveBeenCalled();
@@ -826,6 +879,11 @@ describe('MpcMoneyKeyring', () => {
         token: 'token',
         data: expectedHash,
         shareEpoch: 1,
+        request: {
+          method: 'signEip7702Authorization',
+          address: mockDerivedAddress,
+          authorization,
+        },
       }),
     );
     expect(mockDklsSign).toHaveBeenCalledWith(
@@ -834,6 +892,211 @@ describe('MpcMoneyKeyring', () => {
         networkSession: { label: 'tss-sign' },
       }),
     );
+  });
+
+  it('skips MFA for a whitelisted signature request', async () => {
+    const getProfileToken = jest.fn().mockResolvedValue('token');
+    const getMfaWhitelistConfig = jest
+      .fn()
+      .mockResolvedValue(mockWhitelistConfig);
+    const keyring = makeKeyring(
+      getProfileToken,
+      undefined,
+      getMfaWhitelistConfig,
+    );
+    await deserializeState(keyring);
+    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
+    mockGetMfaRequirement.mockReturnValue({
+      mfaRequired: false,
+      rule: 'chomp-authentication',
+    });
+
+    const messageHex = '0x68656c6c6f';
+    const messageHash = hashPersonalMessage(new TextEncoder().encode('hello'));
+    expect(
+      await keyring.signPersonalMessage(mockDerivedAddress, messageHex),
+    ).toBe(bytesToHex(mockEthSignature));
+
+    expect(mockGetMfaRequirement).toHaveBeenCalledWith(
+      {
+        method: 'signPersonalMessage',
+        address: mockDerivedAddress,
+        message: messageHex,
+      },
+      {
+        address: mockDerivedAddress,
+        hash: bytesToHex(messageHash),
+        config: mockWhitelistConfig,
+      },
+    );
+    expect(getProfileToken).toHaveBeenCalledTimes(1);
+    expect(getProfileToken).toHaveBeenCalledWith();
+    expect(mockStartSign).toHaveBeenCalledTimes(1);
+    expect(mockStartSign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        token: 'token',
+        request: {
+          method: 'signPersonalMessage',
+          address: mockDerivedAddress,
+          message: messageHex,
+        },
+      }),
+    );
+  });
+
+  it('prompts for MFA when the backend returns mfa_required', async () => {
+    const getProfileToken = jest
+      .fn()
+      .mockResolvedValueOnce('session-token')
+      .mockResolvedValueOnce('mfa-token');
+    const keyring = makeKeyring(
+      getProfileToken,
+      undefined,
+      jest.fn().mockResolvedValue(mockWhitelistConfig),
+    );
+    await deserializeState(keyring);
+    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
+    mockGetMfaRequirement.mockReturnValue({
+      mfaRequired: false,
+      rule: 'chomp-authentication',
+    });
+    mockStartSign
+      .mockResolvedValueOnce(MFA_REQUIRED_CODE)
+      .mockResolvedValueOnce('ok');
+    const mockedUtil = jest.requireMock('./util');
+    mockedUtil.generateSessionNonce
+      .mockReturnValueOnce('0x1111')
+      .mockReturnValueOnce('0x2222');
+
+    const messageHash = hashPersonalMessage(new TextEncoder().encode('hello'));
+    expect(
+      await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
+    ).toBe(bytesToHex(mockEthSignature));
+
+    expect(getProfileToken).toHaveBeenNthCalledWith(1);
+    expect(getProfileToken).toHaveBeenNthCalledWith(2, {
+      twoFactor: true,
+      challenge: messageHash,
+    });
+    expect(mockStartSign).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        token: 'session-token',
+        nonce: '0x1111',
+        request: expect.objectContaining({ method: 'signPersonalMessage' }),
+      }),
+    );
+    expect(mockStartSign).toHaveBeenNthCalledWith(
+      2,
+      expect.not.objectContaining({
+        request: expect.anything(),
+      }),
+    );
+    expect(mockStartSign).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        token: 'mfa-token',
+        nonce: '0x2222',
+      }),
+    );
+    expect(mockCreateSession).toHaveBeenCalledWith(
+      expect.anything(),
+      'session:cloud-user|local-user:0x2222',
+    );
+  });
+
+  it('requires MFA when whitelist configuration throws', async () => {
+    const getProfileToken = jest.fn().mockResolvedValue('token');
+    const keyring = makeKeyring(
+      getProfileToken,
+      undefined,
+      jest.fn().mockRejectedValue(new Error('config unavailable')),
+    );
+    await deserializeState(keyring);
+    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
+
+    await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f');
+
+    expect(mockGetMfaRequirement).not.toHaveBeenCalled();
+    expect(getProfileToken).toHaveBeenCalledWith({
+      twoFactor: true,
+      challenge: hashPersonalMessage(new TextEncoder().encode('hello')),
+    });
+  });
+
+  it('requires MFA when the whitelist check throws', async () => {
+    const getProfileToken = jest.fn().mockResolvedValue('token');
+    const keyring = makeKeyring(
+      getProfileToken,
+      undefined,
+      jest.fn().mockResolvedValue(mockWhitelistConfig),
+    );
+    await deserializeState(keyring);
+    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
+    mockGetMfaRequirement.mockImplementation(() => {
+      throw new Error('whitelist failed');
+    });
+
+    await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f');
+
+    expect(getProfileToken).toHaveBeenCalledWith({
+      twoFactor: true,
+      challenge: hashPersonalMessage(new TextEncoder().encode('hello')),
+    });
+  });
+
+  it('retries with a fresh 2FA token when the backend requires MFA for a 2FA token', async () => {
+    const getProfileToken = jest
+      .fn()
+      .mockResolvedValueOnce('session-token')
+      .mockResolvedValueOnce('mfa-token');
+    const keyring = makeKeyring(getProfileToken);
+    await deserializeState(keyring);
+    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
+    mockStartSign
+      .mockResolvedValueOnce(MFA_REQUIRED_CODE)
+      .mockResolvedValueOnce('ok');
+
+    const messageHash = hashPersonalMessage(new TextEncoder().encode('hello'));
+    expect(
+      await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
+    ).toBe(bytesToHex(mockEthSignature));
+
+    expect(getProfileToken).toHaveBeenNthCalledWith(1, {
+      twoFactor: true,
+      challenge: messageHash,
+    });
+    expect(getProfileToken).toHaveBeenNthCalledWith(2, {
+      twoFactor: true,
+      challenge: messageHash,
+    });
+    expect(mockStartSign).toHaveBeenCalledTimes(2);
+  });
+
+  it('throws when the MFA retry still returns mfa_required', async () => {
+    const getProfileToken = jest.fn().mockResolvedValue('token');
+    const keyring = makeKeyring(
+      getProfileToken,
+      undefined,
+      jest.fn().mockResolvedValue(mockWhitelistConfig),
+    );
+    await deserializeState(keyring);
+    mockGetMfaRequirement.mockReturnValue({
+      mfaRequired: false,
+      rule: 'chomp-authentication',
+    });
+    mockStartSign.mockResolvedValue(MFA_REQUIRED_CODE);
+
+    await expect(
+      keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
+    ).rejects.toThrow('MFA required');
+
+    expect(getProfileToken).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ twoFactor: true }),
+    );
+    expect(mockStartSign).toHaveBeenCalledTimes(2);
+    expect(mockCreateSession).not.toHaveBeenCalled();
   });
 
   it('runs TSS setup when the peer has discarded setup', async () => {
