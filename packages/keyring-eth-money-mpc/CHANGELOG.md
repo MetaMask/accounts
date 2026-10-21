@@ -10,11 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Replace `init` with an explicit `setup` method that runs key generation or import, inferring the mode from the backend ([#679](https://github.com/MetaMask/accounts/pull/679))
-  - The mode is inferred on every `setup` call: `import` when a key share or backup exists for the profile, `create` otherwise.
+  - The mode is inferred on every `setup` call: `import` when an active epoch exists for the profile, `create` otherwise.
   - The V2 `createAccounts` no longer accepts a `mode` option.
   - Remove the `MpcMoneyKeyringSetupMode` export.
   - `deserialize` no longer accepts `{ mode }` setup params.
   - `serialize` no longer includes `{ mode }`; the keyring state is either empty (`{}`) or initialized.
+- Create during `setup` when the backend has only a pending share or backup ([#681](https://github.com/MetaMask/accounts/pull/681))
 
 ## [0.1.1]
 

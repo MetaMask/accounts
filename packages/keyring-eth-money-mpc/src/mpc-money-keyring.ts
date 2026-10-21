@@ -315,8 +315,8 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   /**
    * Run key generation or import, inferring the mode from the backend:
-   * import when a key share or backup exists for the profile, create
-   * otherwise.
+   * import when an active epoch exists for the profile, create otherwise.
+   * A pending share or backup is replaced by create.
    *
    * Serialized with sign, rotate and sync so overlapping `setup` calls run
    * setup once: the second call waits, sees the initialized state and returns.
@@ -343,28 +343,23 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   }
 
   /**
-   * Check whether the backend has key state for the profile.
+   * Check whether the backend has an activated key for the profile.
    *
-   * A single `check-key-share` query (1FA) determines whether the profile
-   * already has key state: any share, backup, or active epoch means the only
-   * valid mode is import — the backend rejects creating over an existing
-   * share — and no key state at all means create.
+   * A single `check-key-share` query (1FA) is enough. Only `activeEpoch`
+   * selects import, because that is the backup `load-key-share-backup` can
+   * read. A pending share or backup has no active epoch. Create replaces it,
+   * which recovers a setup that crashed before activation.
    *
-   * @returns Whether the backend has key state for the profile.
+   * @returns Whether the backend has an activated key for the profile.
    */
   async #hasBackendKeyState(): Promise<boolean> {
     const token = await this.#getProfileToken();
-    const { latestShareEpoch, latestBackupEpoch, activeEpoch } =
-      await checkKeyShareRemote({
-        baseURL: this.#cloudURL,
-        token,
-      });
+    const { activeEpoch } = await checkKeyShareRemote({
+      baseURL: this.#cloudURL,
+      token,
+    });
 
-    return (
-      latestShareEpoch !== undefined ||
-      latestBackupEpoch !== undefined ||
-      activeEpoch !== undefined
-    );
+    return activeEpoch !== undefined;
   }
 
   /**

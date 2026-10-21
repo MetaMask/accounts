@@ -457,6 +457,35 @@ describe('MpcMoneyKeyring', () => {
     expect(await keyring.serialize()).toStrictEqual({});
   });
 
+  it('creates a key when the backend has only a pending share or backup', async () => {
+    const keyring = makeKeyring();
+    const rootSession = makeRootSession();
+    mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
+    mockCreateSession.mockResolvedValueOnce(rootSession);
+    mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+    mockCheckKeyShare
+      .mockResolvedValueOnce({
+        latestShareEpoch: 1,
+        latestBackupEpoch: 1,
+        activeEpoch: undefined,
+      })
+      .mockResolvedValueOnce({
+        latestShareEpoch: mockShareEpoch,
+        latestBackupEpoch: mockShareEpoch,
+        activeEpoch: mockShareEpoch,
+      });
+
+    await keyring.setup();
+
+    expect(mockLoadKeyShareBackup).not.toHaveBeenCalled();
+    expect(mockStartCreateKey).toHaveBeenCalledTimes(1);
+    expect(mockSetActiveEpoch).toHaveBeenCalledWith({
+      baseURL: 'https://cloud.example',
+      token: 'token',
+      epoch: 1,
+    });
+  });
+
   it('imports a key from the backend backup when the backend has key state', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(getProfileToken);
