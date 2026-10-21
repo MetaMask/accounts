@@ -199,9 +199,7 @@ const mockWhitelistConfig = {
 const makeKeyring = (
   getProfileToken = jest.fn().mockResolvedValue('token'),
   getBackupEncryptionKey = jest.fn().mockResolvedValue(mockBackupKey),
-  getMfaWhitelistConfig?: () =>
-    | MfaWhitelistConfig
-    | Promise<MfaWhitelistConfig>,
+  getMfaWhitelistConfig?: () => Promise<MfaWhitelistConfig>,
 ) =>
   new MpcMoneyKeyring({
     cl24Lib: {} as never,
@@ -900,7 +898,7 @@ describe('MpcMoneyKeyring', () => {
     const keyring = makeKeyring(
       getProfileToken,
       undefined,
-      jest.fn().mockReturnValue(mockWhitelistConfig),
+      jest.fn().mockResolvedValue(mockWhitelistConfig),
     );
     await deserializeState(keyring);
     mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
@@ -980,7 +978,7 @@ describe('MpcMoneyKeyring', () => {
     const keyring = makeKeyring(
       getProfileToken,
       undefined,
-      jest.fn().mockReturnValue(mockWhitelistConfig),
+      jest.fn().mockResolvedValue(mockWhitelistConfig),
     );
     await deserializeState(keyring);
     mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
@@ -1029,7 +1027,7 @@ describe('MpcMoneyKeyring', () => {
     const keyring = makeKeyring(
       getProfileToken,
       undefined,
-      jest.fn().mockReturnValue(mockWhitelistConfig),
+      jest.fn().mockResolvedValue(mockWhitelistConfig),
     );
     await deserializeState(keyring);
     mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));

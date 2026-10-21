@@ -34,9 +34,7 @@ export type MpcMoneyKeyringOpts = {
    *
    * When this is omitted or throws, every signature requires MFA.
    */
-  getMfaWhitelistConfig?: () =>
-    | MfaWhitelistConfig
-    | Promise<MfaWhitelistConfig>;
+  getMfaWhitelistConfig?: () => Promise<MfaWhitelistConfig>;
   getBackupEncryptionKey: () => Promise<Uint8Array>;
   webSocket?: unknown;
 };
