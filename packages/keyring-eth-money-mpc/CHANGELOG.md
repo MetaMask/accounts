@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Remove the `MpcMoneyKeyringSetupMode` export.
   - `deserialize` no longer accepts `{ mode }` setup params.
   - `serialize` no longer includes `{ mode }`; the keyring state is either empty (`{}`) or initialized.
-- Create during `setup` when the backend has only a pending share or backup ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Create during `setup` when the backend has only a pending share or backup ([#681](https://github.com/MetaMask/accounts/pull/681))
 
 ## [0.1.1]
 
