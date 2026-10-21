@@ -742,7 +742,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    * @param hash - The hash the keyring will sign.
    * @returns Whether the profile token must include 2FA.
    */
-  async #mfaRequired(
+  async #isMfaRequired(
     request: MoneyAccountSignatureRequest,
     hash: Uint8Array,
   ): Promise<boolean> {
@@ -777,7 +777,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         throw new Error(`account ${address} not found`);
       }
 
-      const mfaRequired = await this.#mfaRequired(request, hash);
+      const mfaRequired = await this.#isMfaRequired(request, hash);
       let token = await this.#getProfileToken({
         twoFactor: mfaRequired,
         challenge: hash,
