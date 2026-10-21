@@ -7,19 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0]
+
 ### Added
 
 - Skip MFA for whitelisted signature requests, and retry with a 2FA token when the backend returns `mfa_required` ([#670](https://github.com/MetaMask/accounts/pull/670))
 
 ### Changed
 
-- Replace `init` with an explicit `setup` method that runs key generation or import, inferring the mode from the backend ([#679](https://github.com/MetaMask/accounts/pull/679))
+- Replace `init` with an explicit `setup` method that runs key generation or import, inferring the mode from the backend ([#679](https://github.com/MetaMask/accounts/pull/679)), ([#681](https://github.com/MetaMask/accounts/pull/681))
   - The mode is inferred on every `setup` call: `import` when an active epoch exists for the profile, `create` otherwise.
+  - Use mode `create` if the backend has only pending share or backup.
   - The V2 `createAccounts` no longer accepts a `mode` option.
   - Remove the `MpcMoneyKeyringSetupMode` export.
   - `deserialize` no longer accepts `{ mode }` setup params.
   - `serialize` no longer includes `{ mode }`; the keyring state is either empty (`{}`) or initialized.
-- Create during `setup` when the backend has only a pending share or backup ([#681](https://github.com/MetaMask/accounts/pull/681))
 
 ## [0.1.1]
 
@@ -39,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.2.0...HEAD
+[0.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.1.1...@metamask/eth-money-mpc-keyring@0.2.0
 [0.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.1.0...@metamask/eth-money-mpc-keyring@0.1.1
 [0.1.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-money-mpc-keyring@0.1.0
