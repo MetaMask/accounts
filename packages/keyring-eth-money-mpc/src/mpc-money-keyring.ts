@@ -21,6 +21,8 @@ import {
   CentrifugeNetworkManager,
   createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
+import { getMfaRequirement } from '@metamask/money-account-mfa-whitelist';
+import type { MoneyAccountSignatureRequest } from '@metamask/money-account-mfa-whitelist';
 import {
   integer,
   is,
@@ -45,6 +47,7 @@ import {
   sign as startSign,
   storeKeyShareBackup,
 } from './cloud.js';
+import { MFA_REQUIRED_CODE } from './types.js';
 import type {
   MpcMoneyKeyring as MpcMoneyKeyringContract,
   MpcMoneyKeyringInitializedState,
@@ -232,6 +235,8 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   readonly #getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
 
+  readonly #getMfaWhitelistConfig: MpcMoneyKeyringOpts['getMfaWhitelistConfig'];
+
   readonly #getBackupEncryptionKey: () => Promise<Uint8Array>;
 
   #opQueue: Promise<void> = Promise.resolve();
@@ -260,6 +265,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       ...(opts.webSocket === undefined ? {} : { websocket: opts.webSocket }),
     });
     this.#getProfileToken = opts.getProfileToken;
+    this.#getMfaWhitelistConfig = opts.getMfaWhitelistConfig;
     this.#getBackupEncryptionKey = opts.getBackupEncryptionKey;
   }
 
@@ -550,7 +556,11 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     const rawMsg = hexToBytes(msgHex);
     const msgHash = hashPersonalMessage(rawMsg);
 
-    const signature = await this.#signHash(address, msgHash);
+    const signature = await this.#signHash(address, msgHash, {
+      method: 'signPersonalMessage',
+      address,
+      message: msgHex as Hex,
+    });
     return bytesToHex(signature);
   }
 
@@ -576,7 +586,12 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
     const messageHash = getSignedTypedDataHash(data, version);
 
-    const signature = await this.#signHash(address, messageHash);
+    const signature = await this.#signHash(address, messageHash, {
+      method: 'signTypedData',
+      address,
+      version,
+      data,
+    });
     return bytesToHex(signature);
   }
 
@@ -594,7 +609,12 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     _opts?: Record<string, unknown>,
   ): Promise<string> {
     const messageHash = new Uint8Array(hashEIP7702Authorization(authorization));
-    const signature = await this.#signHash(address, messageHash);
+    const [chainId, contractAddress, nonce] = authorization;
+    const signature = await this.#signHash(address, messageHash, {
+      method: 'signEip7702Authorization',
+      address,
+      authorization: [chainId, contractAddress as Hex, nonce],
+    });
     return bytesToHex(signature);
   }
 
@@ -709,7 +729,40 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     });
   }
 
-  async #signHash(address: Hex, hash: Uint8Array): Promise<Uint8Array> {
+  /**
+   * Whether signing `request` requires MFA.
+   *
+   * Missing configuration, or a thrown check, requires MFA.
+   *
+   * @param request - The signature request the hash was computed from.
+   * @param hash - The hash the keyring will sign.
+   * @returns Whether the profile token must include 2FA.
+   */
+  async #isMfaRequired(
+    request: MoneyAccountSignatureRequest,
+    hash: Uint8Array,
+  ): Promise<boolean> {
+    if (this.#getMfaWhitelistConfig === undefined) {
+      return true;
+    }
+
+    try {
+      const config = await this.#getMfaWhitelistConfig();
+      return getMfaRequirement(request, {
+        address: this.#address(),
+        hash: bytesToHex(hash),
+        config,
+      }).mfaRequired;
+    } catch {
+      return true;
+    }
+  }
+
+  async #signHash(
+    address: Hex,
+    hash: Uint8Array,
+    request: MoneyAccountSignatureRequest,
+  ): Promise<Uint8Array> {
     return this.#serializeOp(async () => {
       const state = this.#assertState();
       const { keyShare, netCreds, serverNetId, shareEpoch } = state;
@@ -720,19 +773,38 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         throw new Error(`account ${address} not found`);
       }
 
-      const token = await this.#getProfileToken({
-        twoFactor: true,
-        challenge: hash,
-      });
-      const nonce = generateSessionNonce();
-      await startSign({
+      const mfaRequired = await this.#isMfaRequired(request, hash);
+      let token = mfaRequired
+        ? await this.#getProfileToken({ twoFactor: true, challenge: hash })
+        : await this.#getProfileToken();
+      let nonce = generateSessionNonce();
+      let signResult = await startSign({
         baseURL: this.#cloudURL,
         token,
         data: hash,
         clientNetId: netCreds.partyId,
         nonce,
         shareEpoch,
+        request,
       });
+      if (signResult === MFA_REQUIRED_CODE) {
+        token = await this.#getProfileToken({
+          twoFactor: true,
+          challenge: hash,
+        });
+        nonce = generateSessionNonce();
+        signResult = await startSign({
+          baseURL: this.#cloudURL,
+          token,
+          data: hash,
+          clientNetId: netCreds.partyId,
+          nonce,
+          shareEpoch,
+        });
+        if (signResult === MFA_REQUIRED_CODE) {
+          throw new Error('MFA required');
+        }
+      }
 
       const netSession = await this.#createNetworkSession(
         netCreds,

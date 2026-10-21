@@ -1,9 +1,11 @@
 import type { PartyId } from '@metamask/mfa-wallet-interface';
+import type { MoneyAccountSignatureRequest } from '@metamask/money-account-mfa-whitelist';
 import type { Infer, Struct } from '@metamask/superstruct';
 import {
   exactOptional,
   integer,
   is,
+  literal,
   min,
   nonempty,
   sensitive,
@@ -11,6 +13,8 @@ import {
   type,
 } from '@metamask/superstruct';
 import { base64ToBytes, bytesToBase64 } from '@metamask/utils';
+
+import { MFA_REQUIRED_CODE } from './types.js';
 
 export type LoadKeyShareBackupResult = {
   encryptedKeyShare: Uint8Array;
@@ -252,16 +256,47 @@ export async function registerClient(opts: {
   );
 }
 
+const signErrorPrefix = 'Failed to initialize cloud sign session';
+
+const MfaRequiredBodyStruct = type({
+  code: literal(MFA_REQUIRED_CODE),
+});
+
+export type SignResult = 'ok' | typeof MFA_REQUIRED_CODE;
+
+/**
+ * Read a JSON body, or `undefined` when the body is empty or not JSON.
+ *
+ * @param response - The fetch response.
+ * @returns The parsed body, or `undefined`.
+ */
+async function readJsonBody(response: Response): Promise<unknown> {
+  try {
+    const text = await response.text();
+    if (text.length === 0) {
+      return undefined;
+    }
+    return JSON.parse(text) as unknown;
+  } catch {
+    return undefined;
+  }
+}
+
 /**
  * Start a backend signing session for the active share epoch.
  *
+ * A response body of `{ "code": "mfa_required" }` means the backend still
+ * requires MFA. Every other non-OK response is an error.
+ *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
- * @param opts.token - Profile token with 2FA and challenge.
+ * @param opts.token - Profile token. 2FA is included when the client requires MFA.
  * @param opts.data - Message hash to sign.
  * @param opts.clientNetId - Client network id.
  * @param opts.nonce - Client session nonce.
  * @param opts.shareEpoch - Local share epoch (must equal backend activeEpoch).
+ * @param opts.request - Signature request the hash was computed from.
+ * @returns `ok` when the session starts, or `mfa_required` when the backend requires MFA.
  */
 export async function sign(opts: {
   baseURL: string;
@@ -270,18 +305,35 @@ export async function sign(opts: {
   clientNetId: PartyId;
   nonce: string;
   shareEpoch: number;
-}): Promise<void> {
-  await postJson(
+  request?: MoneyAccountSignatureRequest;
+}): Promise<SignResult> {
+  const response = await fetchWithTimeout(
     `${opts.baseURL}/sign`,
-    opts.token,
     {
-      data: bytesToBase64(opts.data),
-      clientNetId: opts.clientNetId,
-      nonce: opts.nonce,
-      shareEpoch: opts.shareEpoch,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${opts.token}`,
+      },
+      body: JSON.stringify({
+        data: bytesToBase64(opts.data),
+        clientNetId: opts.clientNetId,
+        nonce: opts.nonce,
+        shareEpoch: opts.shareEpoch,
+        ...(opts.request === undefined ? {} : { request: opts.request }),
+      }),
     },
-    'Failed to initialize cloud sign session',
+    signErrorPrefix,
   );
+
+  const body = await readJsonBody(response);
+  if (is(body, MfaRequiredBodyStruct)) {
+    return MFA_REQUIRED_CODE;
+  }
+  if (!response.ok) {
+    throw new Error(`${signErrorPrefix}: ${response.statusText}`);
+  }
+  return 'ok';
 }
 
 /**
