@@ -50,11 +50,9 @@ import type {
   MpcMoneyKeyringInitializedState,
   MpcMoneyKeyringOpts,
   MpcMoneyKeyringSerializer,
-  MpcMoneyKeyringSetupMode,
   MpcMoneyKeyringState,
   ProfileTokenOpts,
 } from './types.js';
-import { MpcMoneyKeyringSetupMode as SetupMode } from './types.js';
 import {
   AES_GCM_IV_LENGTH,
   decryptBytes,
@@ -316,9 +314,9 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   }
 
   /**
-   * Run key generation or import. `mode` may be passed directly, or inferred
-   * from the backend when omitted: import when a key share or backup exists
-   * for the profile, create otherwise.
+   * Run key generation or import, inferring the mode from the backend:
+   * import when a key share or backup exists for the profile, create
+   * otherwise.
    *
    * Serialized with sign, rotate and sync so overlapping `setup` calls run
    * setup once: the second call waits, sees the initialized state and returns.
@@ -328,36 +326,33 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    * this network setup under the controller lock. Setup must be run
    * explicitly by the consumer.
    *
-   * @param mode - Create a new key or import from the backend backup.
    * @returns Resolves when the keyring is initialized.
    */
-  async setup(mode?: MpcMoneyKeyringSetupMode): Promise<void> {
+  async setup(): Promise<void> {
     return this.#serializeOp(async () => {
       if (this.#state?.status === 'initialized') {
         return;
       }
 
-      const resolvedMode = mode ?? (await this.#getMode());
-
-      if (resolvedMode === SetupMode.Create) {
-        await this.#setupCreate();
-      } else {
+      if (await this.#hasBackendKeyState()) {
         await this.#setupImport();
+      } else {
+        await this.#setupCreate();
       }
     });
   }
 
   /**
-   * Get the setup mode from the backend.
+   * Check whether the backend has key state for the profile.
    *
    * A single `check-key-share` query (1FA) determines whether the profile
    * already has key state: any share, backup, or active epoch means the only
    * valid mode is import — the backend rejects creating over an existing
    * share — and no key state at all means create.
    *
-   * @returns The inferred setup mode.
+   * @returns Whether the backend has key state for the profile.
    */
-  async #getMode(): Promise<MpcMoneyKeyringSetupMode> {
+  async #hasBackendKeyState(): Promise<boolean> {
     const token = await this.#getProfileToken();
     const { latestShareEpoch, latestBackupEpoch, activeEpoch } =
       await checkKeyShareRemote({
@@ -365,12 +360,11 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         token,
       });
 
-    const hasBackupShare =
+    return (
       latestShareEpoch !== undefined ||
       latestBackupEpoch !== undefined ||
-      activeEpoch !== undefined;
-
-    return hasBackupShare ? SetupMode.Import : SetupMode.Create;
+      activeEpoch !== undefined
+    );
   }
 
   /**
