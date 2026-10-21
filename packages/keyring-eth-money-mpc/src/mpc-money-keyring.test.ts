@@ -346,14 +346,14 @@ describe('MpcMoneyKeyring', () => {
     ).rejects.toThrow('Invalid state');
   });
 
-  it('throws on invalid setup params in deserialize', async () => {
+  it('leaves the keyring fresh when deserializing setup params', async () => {
     const keyring = makeKeyring();
 
-    await expect(
-      keyring.deserialize({
-        mode: 'join',
-      } as never),
-    ).rejects.toThrow("Invalid setup mode: expected 'create' or 'import'");
+    await keyring.deserialize({ mode: 'create' } as never);
+
+    expect(await keyring.serialize()).toStrictEqual({});
+    expect(await keyring.getAccounts()).toStrictEqual([]);
+    expect(mockCheckKeyShare).not.toHaveBeenCalled();
   });
 
   it('does not initialize from incomplete serialized state', async () => {
@@ -364,7 +364,7 @@ describe('MpcMoneyKeyring', () => {
     );
   });
 
-  it('creates a key via deserialize(init args) + init(create mode)', async () => {
+  it('creates a key via setup when the backend has no key state', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(getProfileToken);
     const rootSession = makeRootSession();
@@ -372,10 +372,21 @@ describe('MpcMoneyKeyring', () => {
     mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
     mockCreateSession.mockResolvedValueOnce(rootSession);
     mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+    // The first query is the mode inference: no key state for the profile.
+    mockCheckKeyShare
+      .mockResolvedValueOnce({
+        latestShareEpoch: undefined,
+        latestBackupEpoch: undefined,
+        activeEpoch: undefined,
+      })
+      // The second query is the create-path epoch check.
+      .mockResolvedValueOnce({
+        latestShareEpoch: mockShareEpoch,
+        latestBackupEpoch: mockShareEpoch,
+        activeEpoch: mockShareEpoch,
+      });
 
-    await keyring.deserialize({ mode: 'create' });
-    expect(await keyring.serialize()).toStrictEqual({ mode: 'create' });
-    await keyring.init();
+    await keyring.setup();
 
     expect(getProfileToken).toHaveBeenCalledWith();
     expect(mockGetNetId).toHaveBeenCalledWith({
@@ -418,10 +429,12 @@ describe('MpcMoneyKeyring', () => {
         attemptNonce: mockSessionNonce,
       }),
     );
+    expect(mockCheckKeyShare).toHaveBeenCalledTimes(2);
     expect(mockCheckKeyShare).toHaveBeenCalledWith({
       baseURL: 'https://cloud.example',
       token: 'token',
     });
+    expect(mockLoadKeyShareBackup).not.toHaveBeenCalled();
     expect(mockSetActiveEpoch).toHaveBeenCalledWith({
       baseURL: 'https://cloud.example',
       token: 'token',
@@ -442,29 +455,40 @@ describe('MpcMoneyKeyring', () => {
     mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
     mockCreateSession.mockResolvedValueOnce(rootSession);
     mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
-    mockCheckKeyShare.mockResolvedValueOnce({
-      latestShareEpoch: 1,
-      latestBackupEpoch: undefined,
-      activeEpoch: undefined,
-    });
+    mockCheckKeyShare
+      // The first query is the mode inference: no key state for the profile.
+      .mockResolvedValueOnce({
+        latestShareEpoch: undefined,
+        latestBackupEpoch: undefined,
+        activeEpoch: undefined,
+      })
+      // The second query is the create-path epoch check: not ready.
+      .mockResolvedValueOnce({
+        latestShareEpoch: 1,
+        latestBackupEpoch: undefined,
+        activeEpoch: undefined,
+      });
 
-    await expect(keyring.init('create')).rejects.toThrow(
-      'Share epoch 1 is not ready',
-    );
+    await expect(keyring.setup()).rejects.toThrow('Share epoch 1 is not ready');
     expect(mockSetActiveEpoch).not.toHaveBeenCalled();
     expect(await keyring.serialize()).toStrictEqual({});
   });
 
-  it('imports a key from the backend backup', async () => {
+  it('imports a key from the backend backup when the backend has key state', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(getProfileToken);
     mockCreateIdentity.mockResolvedValueOnce({ partyId: 'imported-user' });
     mockThresholdKeyFromJson.mockReturnValueOnce(makeThresholdKey());
+    mockCheckKeyShare.mockResolvedValueOnce({
+      latestShareEpoch: mockShareEpoch,
+      latestBackupEpoch: mockShareEpoch,
+      activeEpoch: mockShareEpoch,
+    });
 
-    await keyring.deserialize({ mode: 'import' });
-    expect(await keyring.serialize()).toStrictEqual({ mode: 'import' });
-    await keyring.init();
+    await keyring.setup();
 
+    expect(mockCheckKeyShare).toHaveBeenCalledTimes(1);
+    expect(mockStartCreateKey).not.toHaveBeenCalled();
     expect(mockLoadKeyShareBackup).toHaveBeenCalledWith({
       baseURL: 'https://cloud.example',
       token: 'token',
@@ -475,6 +499,7 @@ describe('MpcMoneyKeyring', () => {
       clientNetId: 'imported-user',
     });
     expect(mockDklsSetup).not.toHaveBeenCalled();
+    expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
     const importedKey = {
       ...makeThresholdKey(),
       partyMapping: [
@@ -499,48 +524,45 @@ describe('MpcMoneyKeyring', () => {
       partyMapping: [],
     });
 
-    await keyring.deserialize({ mode: 'import' });
-    await expect(keyring.init()).rejects.toThrow(
+    await expect(keyring.setup()).rejects.toThrow(
       'Key share is missing the client party',
     );
   });
 
-  it('init is a no-op when already initialized', async () => {
+  it('setup is a no-op when already initialized', async () => {
     const keyring = makeKeyring();
     await deserializeState(keyring);
 
-    expect(await keyring.init()).toBeUndefined();
+    expect(await keyring.setup()).toBeUndefined();
+    expect(mockCheckKeyShare).not.toHaveBeenCalled();
     expect(mockStartCreateKey).not.toHaveBeenCalled();
     expect(mockLoadKeyShareBackup).not.toHaveBeenCalled();
   });
 
-  it('init is a no-op without setup params or mode', async () => {
-    const keyring = makeKeyring();
-    expect(await keyring.init()).toBeUndefined();
-    expect(mockStartCreateKey).not.toHaveBeenCalled();
-  });
-
-  it('init can take create mode without prior deserialize', async () => {
+  it('runs setup once when called concurrently', async () => {
     const keyring = makeKeyring();
     const rootSession = makeRootSession();
     mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
     mockCreateSession.mockResolvedValueOnce(rootSession);
     mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+    mockCheckKeyShare
+      // The first query is the mode inference: no key state for the profile.
+      .mockResolvedValueOnce({
+        latestShareEpoch: undefined,
+        latestBackupEpoch: undefined,
+        activeEpoch: undefined,
+      })
+      // The second query is the create-path epoch check.
+      .mockResolvedValueOnce({
+        latestShareEpoch: mockShareEpoch,
+        latestBackupEpoch: mockShareEpoch,
+        activeEpoch: mockShareEpoch,
+      });
 
-    await keyring.init('create');
-    expect(mockStartCreateKey).toHaveBeenCalledTimes(1);
-    expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
-  });
+    await Promise.all([keyring.setup(), keyring.setup()]);
 
-  it('runs setup once when init is called concurrently', async () => {
-    const keyring = makeKeyring();
-    const rootSession = makeRootSession();
-    mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
-    mockCreateSession.mockResolvedValueOnce(rootSession);
-    mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
-
-    await Promise.all([keyring.init('create'), keyring.init('create')]);
-
+    // Only the first call runs: one inference query plus one epoch check.
+    expect(mockCheckKeyShare).toHaveBeenCalledTimes(2);
     expect(mockCreateIdentity).toHaveBeenCalledTimes(1);
     expect(mockStartCreateKey).toHaveBeenCalledTimes(1);
     expect(mockCreateKey).toHaveBeenCalledTimes(1);
@@ -561,8 +583,14 @@ describe('MpcMoneyKeyring', () => {
     mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
     mockCreateSession.mockResolvedValueOnce(rootSession);
     mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+    // The first query is the mode inference: no key state for the profile.
+    mockCheckKeyShare.mockResolvedValueOnce({
+      latestShareEpoch: undefined,
+      latestBackupEpoch: undefined,
+      activeEpoch: undefined,
+    });
 
-    await expect(keyring.init('create')).rejects.toThrow(
+    await expect(keyring.setup()).rejects.toThrow(
       'Expected status data persisted, received running',
     );
     expect(mockStoreKeyShareBackup).not.toHaveBeenCalled();

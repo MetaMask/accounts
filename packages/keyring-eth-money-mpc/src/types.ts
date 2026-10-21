@@ -47,19 +47,6 @@ export type MpcMoneyKeyringState = {
   tssSetup: Uint8Array | null;
 };
 
-/** The MPC money keyring setup modes. */
-export const MpcMoneyKeyringSetupMode = {
-  Create: 'create',
-  Import: 'import',
-} as const;
-
-export type MpcMoneyKeyringSetupMode =
-  `${(typeof MpcMoneyKeyringSetupMode)[keyof typeof MpcMoneyKeyringSetupMode]}`;
-
-export type MpcMoneyKeyringSetupParams = {
-  mode: MpcMoneyKeyringSetupMode;
-};
-
 type JsonSerializer<Value> = {
   toJson: (value: Value) => Json;
   fromJson: (value: Json) => Value;
@@ -68,15 +55,6 @@ type JsonSerializer<Value> = {
 export type MpcMoneyKeyringInitializedState = {
   status: 'initialized';
 } & MpcMoneyKeyringState;
-
-export type MpcMoneyKeyringUninitializedState = {
-  status: 'uninitialized';
-  setup: MpcMoneyKeyringSetupParams;
-};
-
-export type MpcMoneyKeyringStorageState =
-  | MpcMoneyKeyringInitializedState
-  | MpcMoneyKeyringUninitializedState;
 
 export type MpcMoneyKeyringSerializer = {
   thresholdKey: JsonSerializer<CL24ThresholdKey>;
@@ -91,9 +69,10 @@ export type MpcMoneyKeyring = EthKeyring & {
   /**
    * Run key generation or import.
    *
-   * @param mode - The MPC setup mode.
+   * The mode is inferred from the backend: import when a key share or
+   * backup exists for the profile, create otherwise.
    */
-  init(mode?: MpcMoneyKeyringSetupMode): Promise<void>;
+  setup(): Promise<void>;
 
   /**
    * Rotate the MPC key shares.

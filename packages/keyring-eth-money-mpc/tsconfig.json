@@ -8,6 +8,9 @@
   },
   "references": [
     {
+      "path": "../account-api"
+    },
+    {
       "path": "../keyring-utils"
     },
     {

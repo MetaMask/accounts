@@ -10,6 +10,9 @@
   },
   "references": [
     {
+      "path": "../account-api/tsconfig.build.json"
+    },
+    {
       "path": "../keyring-utils/tsconfig.build.json"
     },
     {
