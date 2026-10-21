@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Skip MFA for whitelisted signature requests, and retry with a 2FA token when the backend returns `mfa_required` ([#670](https://github.com/MetaMask/accounts/pull/670))
 
+### Changed
+
+- Continue signing when the backend still returns `mfa_required` after a 2FA token ([#670](https://github.com/MetaMask/accounts/pull/670))
+
 ## [0.1.0]
 
 ### Added

@@ -996,22 +996,35 @@ describe('MpcMoneyKeyring', () => {
     });
   });
 
-  it('throws when the backend requires MFA for a 2FA token', async () => {
-    const getProfileToken = jest.fn().mockResolvedValue('token');
+  it('retries with a fresh 2FA token when the backend requires MFA for a 2FA token', async () => {
+    const getProfileToken = jest
+      .fn()
+      .mockResolvedValueOnce('session-token')
+      .mockResolvedValueOnce('mfa-token');
     const keyring = makeKeyring(getProfileToken);
     await deserializeState(keyring);
-    mockStartSign.mockResolvedValue(MFA_REQUIRED_CODE);
+    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
+    mockStartSign
+      .mockResolvedValueOnce(MFA_REQUIRED_CODE)
+      .mockResolvedValueOnce('ok');
 
-    await expect(
-      keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
-    ).rejects.toThrow('MFA required');
+    const messageHash = hashPersonalMessage(new TextEncoder().encode('hello'));
+    expect(
+      await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
+    ).toBe(bytesToHex(mockEthSignature));
 
-    expect(getProfileToken).toHaveBeenCalledTimes(1);
-    expect(mockStartSign).toHaveBeenCalledTimes(1);
-    expect(mockCreateSession).not.toHaveBeenCalled();
+    expect(getProfileToken).toHaveBeenNthCalledWith(1, {
+      twoFactor: true,
+      challenge: messageHash,
+    });
+    expect(getProfileToken).toHaveBeenNthCalledWith(2, {
+      twoFactor: true,
+      challenge: messageHash,
+    });
+    expect(mockStartSign).toHaveBeenCalledTimes(2);
   });
 
-  it('throws when the MFA retry is still rejected', async () => {
+  it('continues signing when the MFA retry still returns mfa_required', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const keyring = makeKeyring(
       getProfileToken,
@@ -1019,22 +1032,23 @@ describe('MpcMoneyKeyring', () => {
       jest.fn().mockReturnValue(mockWhitelistConfig),
     );
     await deserializeState(keyring);
+    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
     mockGetMfaRequirement.mockReturnValue({
       mfaRequired: false,
       rule: 'chomp-authentication',
     });
     mockStartSign.mockResolvedValue(MFA_REQUIRED_CODE);
 
-    await expect(
-      keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
-    ).rejects.toThrow('MFA required');
+    expect(
+      await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
+    ).toBe(bytesToHex(mockEthSignature));
 
     expect(getProfileToken).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({ twoFactor: true }),
     );
     expect(mockStartSign).toHaveBeenCalledTimes(2);
-    expect(mockCreateSession).not.toHaveBeenCalled();
+    expect(mockCreateSession).toHaveBeenCalledTimes(1);
   });
 
   it('runs TSS setup when the peer has discarded setup', async () => {
