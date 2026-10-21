@@ -901,10 +901,7 @@ describe('MpcMoneyKeyring', () => {
       },
     );
     expect(getProfileToken).toHaveBeenCalledTimes(1);
-    expect(getProfileToken).toHaveBeenCalledWith({
-      twoFactor: false,
-      challenge: messageHash,
-    });
+    expect(getProfileToken).toHaveBeenCalledWith();
     expect(mockStartSign).toHaveBeenCalledTimes(1);
     expect(mockStartSign).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -947,10 +944,7 @@ describe('MpcMoneyKeyring', () => {
       await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
     ).toBe(bytesToHex(mockEthSignature));
 
-    expect(getProfileToken).toHaveBeenNthCalledWith(1, {
-      twoFactor: false,
-      challenge: messageHash,
-    });
+    expect(getProfileToken).toHaveBeenNthCalledWith(1);
     expect(getProfileToken).toHaveBeenNthCalledWith(2, {
       twoFactor: true,
       challenge: messageHash,

@@ -779,10 +779,9 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       }
 
       const mfaRequired = await this.#isMfaRequired(request, hash);
-      let token = await this.#getProfileToken({
-        twoFactor: mfaRequired,
-        challenge: hash,
-      });
+      let token = mfaRequired
+        ? await this.#getProfileToken({ twoFactor: true, challenge: hash })
+        : await this.#getProfileToken();
       let nonce = generateSessionNonce();
       let signResult = await startSign({
         baseURL: this.#cloudURL,
