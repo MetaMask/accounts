@@ -783,7 +783,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         challenge: hash,
       });
       let nonce = generateSessionNonce();
-      const signResult = await startSign({
+      let signResult = await startSign({
         baseURL: this.#cloudURL,
         token,
         data: hash,
@@ -798,7 +798,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
           challenge: hash,
         });
         nonce = generateSessionNonce();
-        await startSign({
+        signResult = await startSign({
           baseURL: this.#cloudURL,
           token,
           data: hash,
@@ -806,6 +806,9 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
           nonce,
           shareEpoch,
         });
+        if (signResult === MFA_REQUIRED_CODE) {
+          throw new Error('MFA required');
+        }
       }
 
       const netSession = await this.#createNetworkSession(

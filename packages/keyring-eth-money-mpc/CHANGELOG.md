@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Continue signing when the backend still returns `mfa_required` after a 2FA token ([#670](https://github.com/MetaMask/accounts/pull/670))
+- Throw when a retried `/sign` still returns `mfa_required`, without opening a signing session ([#670](https://github.com/MetaMask/accounts/pull/670))
 - Require `getMfaWhitelistConfig` to return `Promise<MfaWhitelistConfig>` ([#670](https://github.com/MetaMask/accounts/pull/670))
 
 ## [0.1.0]

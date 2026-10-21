@@ -13,9 +13,9 @@ export type ProfileTokenOpts = {
 /**
  * `/sign` response code when the backend still requires MFA.
  *
- * The keyring prompts for a 2FA token and retries once when it receives this
- * after trying to sign without MFA. A second response, or this response to a
- * token that already has 2FA, is an error.
+ * The keyring requests a 2FA token and retries `/sign` once when it receives
+ * this. A second response means the profile token still has no second factor,
+ * so signing fails and no session is opened.
  */
 export const MFA_REQUIRED_CODE = 'mfa_required' as const;
 
