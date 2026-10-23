@@ -31,6 +31,7 @@ import {
   Eip1024EncryptedData,
   Hex,
 } from '@metamask/utils';
+import { Buffer } from 'buffer';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 import randombytes from 'randombytes';
 

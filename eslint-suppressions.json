@@ -118,8 +118,8 @@
     }
   },
   "packages/keyring-eth-simple/src/simple-keyring.ts": {
-    "no-restricted-globals": {
-      "count": 12
+    "import-x/no-nodejs-modules": {
+      "count": 1
     }
   },
   "packages/keyring-eth-trezor/src/trezor-bridge.ts": {
