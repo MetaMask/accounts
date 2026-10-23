@@ -318,7 +318,7 @@ export class HdKeyring implements Keyring {
   ): Promise<string> {
     assertIsHexString(data);
     const privKey = this.#getPrivateKeyFor(address, opts);
-    const msgSig = ecsign(hexToBytes(data), Buffer.from(privKey));
+    const msgSig = ecsign(hexToBytes(data), privKey);
     const rawMsgSig = concatSig(
       Buffer.from(bigIntToBytes(msgSig.v)),
       Buffer.from(msgSig.r),
