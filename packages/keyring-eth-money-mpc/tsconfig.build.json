@@ -3,9 +3,10 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    // NOTE: @metamask/mfa-wallet-network uses Uint8Array<ArrayBuffer> which requires TypeScript 5.7+.
-    // skipLibCheck bypasses type-checking of .d.ts files in node_modules.
-    "skipLibCheck": true
+    // `@metamask/cryptography/aes-gcm` references DOM types (e.g.
+    // `BufferSource`) in its declarations. The "DOM" lib resolves to the
+    // `@types/web` package via the root `@typescript/lib-dom` resolution.
+    "lib": ["ES2020", "DOM"]
   },
   "references": [
     {

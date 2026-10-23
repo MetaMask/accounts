@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Remove the package-level `skipLibCheck` workaround, now that TypeScript 7 fully supports `Uint8Array<ArrayBuffer>` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [0.2.0]
 
 ### Added
