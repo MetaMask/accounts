@@ -21,7 +21,7 @@
   },
   "packages/keyring-eth-hd/src/hd-keyring.ts": {
     "no-restricted-globals": {
-      "count": 18
+      "count": 16
     }
   },
   "packages/keyring-eth-hd/src/v2/hd-keyring.test.ts": {
@@ -127,7 +127,7 @@
   },
   "packages/keyring-eth-simple/src/simple-keyring.ts": {
     "no-restricted-globals": {
-      "count": 11
+      "count": 10
     }
   },
   "packages/keyring-eth-trezor/src/trezor-bridge.ts": {
