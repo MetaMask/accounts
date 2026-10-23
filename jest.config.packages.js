@@ -109,6 +109,10 @@ module.exports = {
   moduleNameMapper: {
     // Resolve .js imports to their source .ts counterparts for Jest module resolution
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    // Listed before the `@metamask/*` wildcard so the AES-GCM subpath is not
+    // rewritten to a workspace source directory.
+    '^@metamask/cryptography/aes-gcm$':
+      '<rootDir>/../../node_modules/@metamask/cryptography/dist/aes-gcm.js',
     '^@metamask/(.+)/v2$': [
       '<rootDir>/../$1/src/v2',
       // Workspace packages whose dir name differs from the package name are
@@ -126,6 +130,12 @@ module.exports = {
       // Some @metamask/* packages we are referencing aren't in this monorepo,
       // so in that case use their published versions
       '<rootDir>/../../node_modules/@metamask/$1',
+      // Some published @metamask/* packages are ESM-only and have no `main`
+      // field, so resolving their package directory fails. In that case, use
+      // their ESM entrypoint directly. This is only safe for modules that are
+      // mocked with `jest.mock`, since Jest's CommonJS runtime cannot execute
+      // native ESM.
+      '<rootDir>/../../node_modules/@metamask/$1/dist/index.js',
     ],
   },
 

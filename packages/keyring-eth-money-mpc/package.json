@@ -1,12 +1,12 @@
 {
-  "name": "@metamask/eth-mpc-keyring",
-  "version": "0.0.0",
-  "description": "A Keyring for Ethereum accounts that uses Multi-Party Computation (MPC) for key management and signing",
+  "name": "@metamask/eth-money-mpc-keyring",
+  "version": "0.2.0",
+  "description": "A Keyring for Ethereum money accounts that uses Multi-Party Computation (MPC) for key management and signing",
   "keywords": [
     "ethereum",
     "keyring"
   ],
-  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-eth-mpc#readme",
+  "homepage": "https://github.com/MetaMask/accounts/tree/main/packages/keyring-eth-money-mpc#readme",
   "bugs": {
     "url": "https://github.com/MetaMask/accounts/issues"
   },
@@ -16,8 +16,7 @@
     "url": "https://github.com/MetaMask/accounts.git"
   },
   "files": [
-    "dist/",
-    "v2.js"
+    "dist/"
   ],
   "type": "module",
   "sideEffects": false,
@@ -40,9 +39,8 @@
     "build": "tsc --project tsconfig.build.json",
     "build:clean": "yarn build --clean",
     "build:docs": "typedoc",
-    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-mpc-keyring",
-    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-mpc-keyring",
-    "publish:preview": "yarn npm publish --tag preview",
+    "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-money-mpc-keyring",
+    "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-money-mpc-keyring",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",
     "build:all": "tsc --build tsconfig.build.json --verbose",
@@ -53,17 +51,25 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-api": "^24.1.0",
-    "@metamask/keyring-sdk": "^3.1.0",
+    "@ethereumjs/util": "^9.1.0",
+    "@metamask/account-api": "^2.2.0",
+    "@metamask/cryptography": "^1.1.2",
+    "@metamask/eth-sig-util": "^9.0.0",
+    "@metamask/keyring-api": "^24.3.0",
+    "@metamask/keyring-sdk": "^4.0.0",
     "@metamask/keyring-utils": "^5.0.0",
+    "@metamask/mfa-wallet-cl24": "^0.1.0",
+    "@metamask/mfa-wallet-dkls23": "^0.1.0",
+    "@metamask/mfa-wallet-network": "^0.1.0",
+    "@metamask/money-account-mfa-whitelist": "^0.1.0",
+    "@metamask/superstruct": "^3.4.1",
     "@metamask/utils": "^11.11.0"
   },
   "devDependencies": {
-    "@ethereumjs/tx": "^5.4.0",
     "@lavamoat/allow-scripts": "^3.2.1",
     "@lavamoat/preinstall-always-fail": "^2.1.0",
     "@metamask/auto-changelog": "^6.1.0",
-    "@metamask/eth-sig-util": "^9.0.0",
+    "@metamask/mfa-wallet-interface": "^0.1.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.13.14",
     "@typescript/native": "npm:typescript@^7.0.2",
@@ -80,7 +86,8 @@
   },
   "lavamoat": {
     "allowScripts": {
-      "@lavamoat/preinstall-always-fail": false
+      "@lavamoat/preinstall-always-fail": false,
+      "@metamask/mfa-wallet-network>centrifuge>protobufjs": false
     }
   }
 }

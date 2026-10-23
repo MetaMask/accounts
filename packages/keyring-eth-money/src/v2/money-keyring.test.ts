@@ -197,6 +197,7 @@ describe('MoneyKeyring (v2 wrapper)', () => {
       expect(entropy.id).toBe(TEST_ENTROPY_SOURCE_ID);
       expect(entropy.groupIndex).toBe(0);
       expect(entropy.derivationPath).toBe(`${MONEY_DERIVATION_PATH}/0`);
+      expect(account?.options?.exportable).toBe(false);
     });
 
     it('caches the account between calls', async () => {

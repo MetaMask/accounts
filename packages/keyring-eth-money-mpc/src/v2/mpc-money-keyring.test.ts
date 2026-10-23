@@ -1,4 +1,3 @@
-import type { TypedTxData } from '@ethereumjs/tx';
 import { SignTypedDataVersion } from '@metamask/eth-sig-util';
 import {
   EthAccountType,
@@ -12,31 +11,33 @@ import { EthKeyringMethod } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import type { MpcKeyring as MpcKeyringV1 } from '../types.js';
-import { MPC_KEYRING_METHODS, MpcKeyring } from './mpc-keyring.js';
-import type { MpcCreateAccountOptions } from './mpc-keyring.js';
+import type { MpcMoneyKeyring as MpcMoneyKeyringV1 } from '../types.js';
+import {
+  MPC_MONEY_KEYRING_METHODS,
+  MpcMoneyKeyring,
+} from './mpc-money-keyring.js';
+import type { MpcMoneyCreateAccountOptions } from './mpc-money-keyring.js';
 
 const MOCK_ADDRESS = '0x1111111111111111111111111111111111111111' as Hex;
 const OTHER_ADDRESS = '0x2222222222222222222222222222222222222222' as Hex;
 
 /**
- * Expected methods supported by MPC keyring accounts.
+ * Expected methods supported by MPC money keyring accounts.
  */
-const EXPECTED_METHODS = MPC_KEYRING_METHODS;
+const EXPECTED_METHODS = MPC_MONEY_KEYRING_METHODS;
 
 /**
- * The legacy MPC keyring methods that the V2 wrapper delegates to, mocked
+ * The legacy MPC money keyring methods that the V2 wrapper delegates to, mocked
  * for testing.
  */
-type MockMpcKeyringV1 = {
+type MockMpcMoneyKeyringV1 = {
   type: string;
   getAccounts: jest.Mock;
-  init: jest.Mock;
+  setup: jest.Mock;
   serialize: jest.Mock;
   deserialize: jest.Mock;
   addAccounts: jest.Mock;
   getAppKeyAddress: jest.Mock;
-  signTransaction: jest.Mock;
   signPersonalMessage: jest.Mock;
   signTypedData: jest.Mock;
   signEip7702Authorization: jest.Mock;
@@ -46,21 +47,20 @@ type MockMpcKeyringV1 = {
 };
 
 /**
- * Create a mock of the legacy MPC keyring with all the methods the V2
+ * Create a mock of the legacy MPC money keyring with all the methods the V2
  * wrapper delegates to.
  *
  * @returns The mocked inner keyring.
  */
-function createInner(): MockMpcKeyringV1 {
+function createInner(): MockMpcMoneyKeyringV1 {
   return {
-    type: 'MPC Keyring',
+    type: 'MPC Money Keyring',
     getAccounts: jest.fn().mockResolvedValue([] as Hex[]),
-    init: jest.fn().mockResolvedValue(undefined),
+    setup: jest.fn().mockResolvedValue(undefined),
     serialize: jest.fn().mockResolvedValue({}),
     deserialize: jest.fn().mockResolvedValue(undefined),
     addAccounts: jest.fn(),
     getAppKeyAddress: jest.fn(),
-    signTransaction: jest.fn(),
     signPersonalMessage: jest.fn(),
     signTypedData: jest.fn(),
     signEip7702Authorization: jest.fn(),
@@ -71,7 +71,7 @@ function createInner(): MockMpcKeyringV1 {
 }
 
 /**
- * Create a V2 wrapper around a mocked legacy MPC keyring.
+ * Create a V2 wrapper around a mocked legacy MPC money keyring.
  *
  * @param args - Setup arguments.
  * @param args.accounts - The addresses reported by the inner keyring.
@@ -82,14 +82,14 @@ function setup({
 }: {
   accounts?: Hex[];
 } = {}): {
-  wrapper: MpcKeyring;
-  inner: MockMpcKeyringV1;
+  wrapper: MpcMoneyKeyring;
+  inner: MockMpcMoneyKeyringV1;
 } {
   const inner = createInner();
   inner.getAccounts.mockResolvedValue(accounts);
 
-  const wrapper = new MpcKeyring({
-    legacyKeyring: inner as unknown as MpcKeyringV1,
+  const wrapper = new MpcMoneyKeyring({
+    legacyKeyring: inner as unknown as MpcMoneyKeyringV1,
   });
 
   return { wrapper, inner };
@@ -102,8 +102,8 @@ function setup({
  * @returns The wrapper, the mocked inner keyring, and the account ID.
  */
 async function createWrapperWithAccount(): Promise<{
-  wrapper: MpcKeyring;
-  inner: MockMpcKeyringV1;
+  wrapper: MpcMoneyKeyring;
+  inner: MockMpcMoneyKeyringV1;
   accountId: AccountId;
 }> {
   const { wrapper, inner } = setup({ accounts: [MOCK_ADDRESS] });
@@ -137,13 +137,13 @@ function createMockRequest(
   };
 }
 
-describe('MpcKeyring (v2 wrapper)', () => {
+describe('MpcMoneyKeyring (v2 wrapper)', () => {
   describe('constructor', () => {
     it('creates a wrapper with the correct type and capabilities', () => {
       const { wrapper } = setup();
 
-      expect(wrapper.type).toBe(KeyringType.Mpc);
-      expect(wrapper.type).toBe('mpc');
+      expect(wrapper.type).toBe(KeyringType.MpcMoney);
+      expect(wrapper.type).toBe('mpc-money');
       expect(wrapper.capabilities).toStrictEqual({
         scopes: [EthScope.Eoa],
         custom: {
@@ -175,8 +175,9 @@ describe('MpcKeyring (v2 wrapper)', () => {
       expect(account?.scopes).toStrictEqual([EthScope.Eoa]);
       expect(account?.methods).toStrictEqual(EXPECTED_METHODS);
       expect(account?.options.entropy?.type).toBe(
-        KeyringAccountEntropyTypeOption.Custom,
+        KeyringAccountEntropyTypeOption.Mpc,
       );
+      expect(account?.options.exportable).toBe(false);
     });
 
     it('returns the same account on repeated calls', async () => {
@@ -194,45 +195,13 @@ describe('MpcKeyring (v2 wrapper)', () => {
       inner.getAccounts.mockResolvedValue([MOCK_ADDRESS, OTHER_ADDRESS]);
 
       await expect(wrapper.getAccounts()).rejects.toThrow(
-        'MpcKeyring: supports at most one account',
+        'MpcMoneyKeyring: supports at most one account',
       );
     });
   });
 
   describe('createAccounts', () => {
-    it('runs the create ceremony via the inner keyring', async () => {
-      const { wrapper, inner } = setup();
-      inner.getAccounts
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([MOCK_ADDRESS]);
-
-      const accounts = await wrapper.createAccounts({
-        type: 'custom',
-        mode: 'create',
-      });
-
-      expect(inner.init).toHaveBeenCalledWith('create');
-      expect(accounts).toHaveLength(1);
-      expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
-    });
-
-    it('runs the backup import flow via the inner keyring', async () => {
-      const { wrapper, inner } = setup();
-      inner.getAccounts
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([MOCK_ADDRESS]);
-
-      const accounts = await wrapper.createAccounts({
-        type: 'custom',
-        mode: 'import',
-      });
-
-      expect(inner.init).toHaveBeenCalledWith('import');
-      expect(accounts).toHaveLength(1);
-      expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
-    });
-
-    it('falls back to the setup params stored via deserialize when mode is omitted', async () => {
+    it('runs setup via the inner keyring', async () => {
       const { wrapper, inner } = setup();
       inner.getAccounts
         .mockResolvedValueOnce([])
@@ -240,19 +209,17 @@ describe('MpcKeyring (v2 wrapper)', () => {
 
       const accounts = await wrapper.createAccounts({ type: 'custom' });
 
-      expect(inner.init).toHaveBeenCalledWith(undefined);
+      expect(inner.setup).toHaveBeenCalledWith();
       expect(accounts).toHaveLength(1);
+      expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
     });
 
     it('is idempotent when the account already exists', async () => {
       const { wrapper, inner } = setup({ accounts: [MOCK_ADDRESS] });
 
-      const accounts = await wrapper.createAccounts({
-        type: 'custom',
-        mode: 'create',
-      });
+      const accounts = await wrapper.createAccounts({ type: 'custom' });
 
-      expect(inner.init).not.toHaveBeenCalled();
+      expect(inner.setup).not.toHaveBeenCalled();
       expect(accounts).toHaveLength(1);
       expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
     });
@@ -260,11 +227,11 @@ describe('MpcKeyring (v2 wrapper)', () => {
     it('throws when the inner keyring does not produce an account', async () => {
       const { wrapper, inner } = setup();
 
-      await expect(
-        wrapper.createAccounts({ type: 'custom', mode: 'create' }),
-      ).rejects.toThrow('MpcKeyring: account creation failed');
+      await expect(wrapper.createAccounts({ type: 'custom' })).rejects.toThrow(
+        'MpcMoneyKeyring: account creation failed',
+      );
 
-      expect(inner.init).toHaveBeenCalledWith('create');
+      expect(inner.setup).toHaveBeenCalledWith();
     });
 
     it('rejects unsupported account creation types', async () => {
@@ -274,26 +241,12 @@ describe('MpcKeyring (v2 wrapper)', () => {
         type: 'bip44:derive-index',
         entropySource: 'entropy-source',
         groupIndex: 0,
-      } as unknown as MpcCreateAccountOptions;
+      } as unknown as MpcMoneyCreateAccountOptions;
 
       await expect(wrapper.createAccounts(invalidOptions)).rejects.toThrow(
-        'MpcKeyring: unsupported account creation type: bip44:derive-index',
+        'MpcMoneyKeyring: unsupported account creation type: bip44:derive-index',
       );
-      expect(inner.init).not.toHaveBeenCalled();
-    });
-
-    it('rejects an invalid mode', async () => {
-      const { wrapper, inner } = setup();
-
-      const invalidOptions = {
-        type: 'custom',
-        mode: 'bogus',
-      } as unknown as MpcCreateAccountOptions;
-
-      await expect(wrapper.createAccounts(invalidOptions)).rejects.toThrow(
-        'MpcKeyring: invalid mode: bogus',
-      );
-      expect(inner.init).not.toHaveBeenCalled();
+      expect(inner.setup).not.toHaveBeenCalled();
     });
   });
 
@@ -327,7 +280,7 @@ describe('MpcKeyring (v2 wrapper)', () => {
 
       await expect(
         wrapper.deleteAccount(account?.id ?? ('' as AccountId)),
-      ).rejects.toThrow('MpcKeyring: deleting accounts is not supported');
+      ).rejects.toThrow('MpcMoneyKeyring: deleting accounts is not supported');
     });
   });
 
@@ -445,30 +398,17 @@ describe('MpcKeyring (v2 wrapper)', () => {
       );
     });
 
-    it('signs a transaction via the inner keyring', async () => {
+    it('rejects transaction signing', async () => {
       const { wrapper, inner, accountId } = await createWrapperWithAccount();
-      const signedTx = { serialized: '0xdeadbeef' };
-      inner.signTransaction.mockResolvedValue(signedTx);
 
-      const txParams: TypedTxData = {
-        nonce: '0x00',
-        gasPrice: '0x09184e72a000',
-        gasLimit: '0x2710',
-        to: '0x0000000000000000000000000000000000000001',
-        value: '0x1000',
-      };
-
-      const result = await wrapper.submitRequest(
-        createMockRequest(accountId, EthMethod.SignTransaction, [
-          txParams as unknown as Json,
-        ]),
+      await expect(
+        wrapper.submitRequest(
+          createMockRequest(accountId, EthMethod.SignTransaction),
+        ),
+      ).rejects.toThrow(
+        `Account ${accountId} cannot handle method: ${EthMethod.SignTransaction}`,
       );
-
-      expect(result).toStrictEqual(signedTx);
-      expect(inner.signTransaction).toHaveBeenCalledWith(
-        MOCK_ADDRESS,
-        expect.anything(),
-      );
+      expect(inner.signPersonalMessage).not.toHaveBeenCalled();
     });
 
     it('signs an EIP-7702 authorization via the inner keyring', async () => {

@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-api",
-  "version": "24.1.0",
+  "version": "24.3.0",
   "description": "MetaMask Keyring API",
   "keywords": [
     "keyring",
@@ -44,7 +44,6 @@
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-api",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-api",
-    "publish:preview": "yarn npm publish --tag preview",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",

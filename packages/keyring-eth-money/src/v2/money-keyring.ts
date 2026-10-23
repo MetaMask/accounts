@@ -96,6 +96,7 @@ export class MoneyKeyring
           groupIndex: addressIndex,
           derivationPath: `${MONEY_DERIVATION_PATH}/${addressIndex}`,
         },
+        exportable: false,
       },
     };
 

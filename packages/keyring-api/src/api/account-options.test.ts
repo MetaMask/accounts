@@ -34,6 +34,17 @@ describe('api', () => {
         exportable: true,
       },
       {
+        entropy: { type: KeyringAccountEntropyTypeOption.Mpc },
+      },
+      {
+        entropy: { type: KeyringAccountEntropyTypeOption.Mpc },
+        exportable: true,
+      },
+      {
+        entropy: { type: KeyringAccountEntropyTypeOption.Mpc },
+        exportable: false,
+      },
+      {
         entropy: {
           ...baseEntropyMnemonicOptions,
           groupIndex: 0,

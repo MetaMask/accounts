@@ -1,5 +1,6 @@
 export * from './bip44.js';
 export * from './group.js';
+export * from './mpc.js';
 export * from './wallet.js';
 export type * from './provider.js';
 export * from './selector.js';

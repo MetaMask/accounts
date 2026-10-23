@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-internal-snap-client",
-  "version": "11.1.0",
+  "version": "11.1.1",
   "description": "MetaMask Keyring Snap internal clients",
   "keywords": [
     "keyring",
@@ -43,7 +43,6 @@
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/keyring-internal-snap-client",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-internal-snap-client",
-    "publish:preview": "yarn npm publish --tag preview",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "jest --clearCache",
@@ -53,9 +52,9 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metamask/keyring-api": "^24.1.0",
-    "@metamask/keyring-internal-api": "^12.1.0",
-    "@metamask/keyring-snap-client": "^10.0.0",
+    "@metamask/keyring-api": "^24.3.0",
+    "@metamask/keyring-internal-api": "^12.1.2",
+    "@metamask/keyring-snap-client": "^10.0.1",
     "@metamask/keyring-utils": "^5.0.0",
     "@metamask/messenger": "^2.0.0"
   },
