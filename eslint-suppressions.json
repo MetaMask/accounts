@@ -131,9 +131,6 @@
     }
   },
   "packages/keyring-eth-trezor/src/trezor-connect-bridge.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 6
-    },
     "id-denylist": {
       "count": 4
     }

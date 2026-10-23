@@ -42,13 +42,12 @@ describe('TrezorConnectBridge', function () {
     it('sets the event listener and calls init', async function () {
       const onSpy = jest
         .spyOn(TrezorConnect, 'on')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockImplementation((...args: any[]) => {
-          const cb = args[1] as (event: any) => void;
+        .mockImplementation((...args: unknown[]) => {
+          const cb = args[1] as (event: unknown) => void;
           cb({
             type: DEVICE.CONNECT,
             payload: { features: { model: '1' } },
-          } as any);
+          });
         });
       const initSpy = jest.spyOn(TrezorConnect, 'init');
 
@@ -71,12 +70,11 @@ describe('TrezorConnectBridge', function () {
     it('event handler does not set model on wrong event type', async function () {
       const onSpy = jest
         .spyOn(TrezorConnect, 'on')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockImplementation((...args: any[]) => {
-          const cb = args[1] as (event: any) => void;
+        .mockImplementation((...args: unknown[]) => {
+          const cb = args[1] as (event: unknown) => void;
           cb({
             type: 'wrong-event-type',
-          } as any);
+          });
         });
 
       await bridge.init({
@@ -92,13 +90,12 @@ describe('TrezorConnectBridge', function () {
     it('event handler does not set model if features object is missing', async function () {
       const onSpy = jest
         .spyOn(TrezorConnect, 'on')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .mockImplementation((...args: any[]) => {
-          const cb = args[1] as (event: any) => void;
+        .mockImplementation((...args: unknown[]) => {
+          const cb = args[1] as (event: unknown) => void;
           cb({
             type: DEVICE.CONNECT,
             payload: {},
-          } as any);
+          });
         });
 
       await bridge.init({
