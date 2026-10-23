@@ -40,7 +40,7 @@ import { assert } from '@metamask/superstruct';
 import type { Json } from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
-import type { Sender } from '../KeyringClient';
+import type { Sender } from '../KeyringClient.js';
 
 export class KeyringClient implements KeyringSnapRpc {
   readonly #sender: Sender;

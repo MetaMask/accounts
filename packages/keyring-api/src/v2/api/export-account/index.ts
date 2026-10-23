@@ -3,9 +3,9 @@ import type { Infer } from '@metamask/superstruct';
 import {
   ExportAccountPrivateKeyOptionsStruct,
   PrivateKeyExportedAccountStruct,
-} from './private-key';
+} from './private-key.js';
 
-export * from './private-key';
+export * from './private-key.js';
 
 /**
  * Enum representing the different types of account export methods.

@@ -55,7 +55,13 @@ export async function encryptBytes(
     throw new Error('Invalid backup encryption key length');
   }
 
-  const { ciphertext } = await encrypt(key, plaintext, { unsafeIv: iv });
+  // The AES-GCM helpers only read the bytes, so it is safe to pass views over
+  // shared or resizable buffers.
+  const { ciphertext } = await encrypt(
+    key as BufferSource,
+    plaintext as BufferSource,
+    { unsafeIv: iv as BufferSource },
+  );
   return concatBytes(iv, ciphertext);
 }
 
@@ -79,7 +85,13 @@ export async function decryptBytes(
 
   const iv = payload.slice(0, AES_GCM_IV_LENGTH);
   const ciphertext = payload.slice(AES_GCM_IV_LENGTH);
-  return decrypt(key, iv, ciphertext);
+  // The AES-GCM helpers only read the bytes, so it is safe to pass views over
+  // shared or resizable buffers.
+  return decrypt(
+    key as BufferSource,
+    iv as BufferSource,
+    ciphertext as BufferSource,
+  );
 }
 
 const SECP256K1_N = BigInt(

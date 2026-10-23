@@ -1,5 +1,5 @@
-import { HardwareWalletError } from './hardware-error';
-import { ErrorCode } from './hardware-errors-enums';
+import { HardwareWalletError } from './hardware-error.js';
+import { ErrorCode } from './hardware-errors-enums.js';
 
 const PROVIDER_USER_REJECTED_CODE = 4001;
 

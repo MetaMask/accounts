@@ -2,7 +2,11 @@ import { UrlStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { exactOptional, object } from '@metamask/superstruct';
 
-import { EthAddressStruct, EthBytesStruct, EthUint256Struct } from '../types';
+import {
+  EthAddressStruct,
+  EthBytesStruct,
+  EthUint256Struct,
+} from '../types.js';
 
 /**
  * Struct of a UserOperation as defined by ERC-4337.

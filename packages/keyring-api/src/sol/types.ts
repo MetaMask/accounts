@@ -6,7 +6,7 @@ import {
   CaipChainIdStruct,
   KeyringAccountStruct,
   SolAccountType,
-} from '../api';
+} from '../api/index.js';
 
 /**
  * Solana addresses are represented in the format of a 256-bit ed25519 public key and

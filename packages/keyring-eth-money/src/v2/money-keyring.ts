@@ -16,8 +16,8 @@ import { EthKeyringMethod, EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import { AccountId } from '@metamask/keyring-utils';
 import { assert, Hex } from '@metamask/utils';
 
-import { MONEY_DERIVATION_PATH } from '../money-keyring';
-import type { MoneyKeyring as LegacyMoneyKeyring } from '../money-keyring';
+import { MONEY_DERIVATION_PATH } from '../money-keyring.js';
+import type { MoneyKeyring as LegacyMoneyKeyring } from '../money-keyring.js';
 
 /**
  * Capabilities for the MoneyKeyring.

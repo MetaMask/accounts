@@ -1,8 +1,8 @@
 import type { EntropySourceId } from '@metamask/keyring-api';
 import { KeyringType } from '@metamask/keyring-api/v2';
 
-import type { OneKeyKeyring as LegacyOneKeyKeyring } from '../onekey-keyring';
-import { TrezorKeyring } from './trezor-keyring';
+import type { OneKeyKeyring as LegacyOneKeyKeyring } from '../onekey-keyring.js';
+import { TrezorKeyring } from './trezor-keyring.js';
 
 /**
  * Options for creating a OneKeyKeyring instance.

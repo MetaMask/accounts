@@ -14,7 +14,7 @@ import type { Keyring } from '@metamask/keyring-api/v2';
 import { getChecksumAddress } from '@metamask/utils';
 import type { Json } from '@metamask/utils';
 
-import { isWatchOnlyKeyring, WatchOnlyKeyring } from './watch-only-keyring';
+import { isWatchOnlyKeyring, WatchOnlyKeyring } from './watch-only-keyring.js';
 
 const TEST_ADDRESS_1 = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045';
 const TEST_ADDRESS_1_CHECKSUMMED = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';

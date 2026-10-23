@@ -1,7 +1,7 @@
 import type { SnapId } from '@metamask/snaps-sdk';
 
-import type { SnapKeyringMessenger } from './SnapKeyringMessenger';
-import { SnapKeyringV1, SnapKeyringV1Callbacks } from './SnapKeyringV1';
+import type { SnapKeyringMessenger } from './SnapKeyringMessenger.js';
+import { SnapKeyringV1, SnapKeyringV1Callbacks } from './SnapKeyringV1.js';
 
 const SNAP_ID = 'local:snap.mock' as SnapId;
 const OTHER_SNAP_ID = 'local:snap.other' as SnapId;

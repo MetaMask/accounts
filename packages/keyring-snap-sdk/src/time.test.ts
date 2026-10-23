@@ -1,4 +1,4 @@
-import { getCurrentUnixTimestamp, toUnixTimestamp } from './time';
+import { getCurrentUnixTimestamp, toUnixTimestamp } from './time.js';
 
 describe('time', () => {
   describe('toUnixTimestamp', () => {

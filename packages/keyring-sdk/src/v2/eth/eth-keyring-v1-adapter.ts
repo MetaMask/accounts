@@ -35,9 +35,9 @@ import {
 } from '@metamask/utils';
 import { v4 as uuid } from 'uuid';
 
-import type { Eth4337Keyring } from '../../eth';
-import { KeyringV1Adapter } from '../keyring-v1-adapter';
-import { EthKeyringMethod } from './eth-keyring-wrapper';
+import type { Eth4337Keyring } from '../../eth/index.js';
+import { KeyringV1Adapter } from '../keyring-v1-adapter.js';
+import { EthKeyringMethod } from './eth-keyring-wrapper.js';
 
 const METAMASK_ORIGIN = 'metamask';
 

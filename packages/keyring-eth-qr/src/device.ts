@@ -16,12 +16,12 @@ import type { Hex } from '@metamask/utils';
 import HdKey from 'hdkey';
 import { stringify, v4 as uuidv4 } from 'uuid';
 
-import { QrScanRequestType } from './qr-keyring';
+import { QrScanRequestType } from './qr-keyring.js';
 import type {
   QrKeyringBridge,
   QrSignatureRequest,
   SerializedUR,
-} from './qr-keyring';
+} from './qr-keyring.js';
 
 export const SUPPORTED_UR_TYPE = {
   CRYPTO_HDKEY: 'crypto-hdkey',
@@ -176,7 +176,11 @@ function readCryptoAccountOutputDescriptors(source: CryptoAccount): {
         const path = `M/${hdKey.getOrigin().getPath()}`;
         const address = getChecksumAddress(
           add0x(
-            Buffer.from(publicToAddress(hdKey.getKey(), true)).toString('hex'),
+            Buffer.from(
+              Uint8Array.from(
+                publicToAddress(Uint8Array.from(hdKey.getKey()), true),
+              ),
+            ).toString('hex'),
           ),
         );
         descriptorsPaths[address] = path;
@@ -242,7 +246,9 @@ export class Device {
     const childKey = hdKey.derive(childPath);
 
     const address = Buffer.from(
-      publicToAddress(childKey.publicKey, true),
+      Uint8Array.from(
+        publicToAddress(Uint8Array.from(childKey.publicKey), true),
+      ),
     ).toString('hex');
 
     const normalizedAddress = getChecksumAddress(add0x(address));
@@ -500,7 +506,7 @@ export class Device {
    */
   async #requestSignature(
     request: QrSignatureRequest,
-  ): Promise<{ r: Buffer; s: Buffer; v: Buffer }> {
+  ): Promise<{ r: Uint8Array; s: Uint8Array; v: Uint8Array }> {
     const response = await this.#requestScan({
       type: QrScanRequestType.SIGN,
       request,
@@ -524,9 +530,9 @@ export class Device {
     }
 
     return {
-      r: signature.subarray(0, 32),
-      s: signature.subarray(32, 64),
-      v: signature.subarray(64),
+      r: Uint8Array.from(signature.subarray(0, 32)),
+      s: Uint8Array.from(signature.subarray(32, 64)),
+      v: Uint8Array.from(signature.subarray(64)),
     };
   }
 

@@ -6,7 +6,7 @@ import {
 import {
   ETH_APP_COMMAND_ERROR_TAG,
   EthGetAppConfigurationCommand,
-} from './eth-get-app-configuration-command';
+} from './eth-get-app-configuration-command.js';
 
 describe('EthGetAppConfigurationCommand', () => {
   const command = new EthGetAppConfigurationCommand();
