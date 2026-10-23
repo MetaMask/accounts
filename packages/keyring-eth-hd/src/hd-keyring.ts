@@ -28,6 +28,7 @@ import {
   assertIsHexString,
   bigIntToBytes,
   bytesToHex,
+  hexToBytes,
   remove0x,
 } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
@@ -316,9 +317,8 @@ export class HdKeyring implements Keyring {
     opts: HDKeyringAccountSelectionOptions = {},
   ): Promise<string> {
     assertIsHexString(data);
-    const message = remove0x(data);
     const privKey = this.#getPrivateKeyFor(address, opts);
-    const msgSig = ecsign(Buffer.from(message, 'hex'), Buffer.from(privKey));
+    const msgSig = ecsign(hexToBytes(data), Buffer.from(privKey));
     const rawMsgSig = concatSig(
       Buffer.from(bigIntToBytes(msgSig.v)),
       Buffer.from(msgSig.r),
