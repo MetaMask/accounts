@@ -312,8 +312,9 @@ export class TrezorKeyring implements Keyring {
       // transaction which is only communicated to ethereumjs-tx in this
       // value. In newer versions the chainId is communicated via the 'Common'
       // object.
-      // Note: OldEthJsTransaction uses Buffer for tx fields which is incompatible
-      // with TypedTxData in TS7; cast is necessary for backward compat.
+      // NOTE: OldEthJsTransaction uses Buffer for tx fields which is
+      // incompatible with the modern `TypedTxData` shape; the legacy types
+      // happen to remain assignable, but this is a backward-compat seam.
       return this.#signTransaction(
         address,
         // @types/ethereumjs-tx and old ethereumjs-tx versions document
@@ -328,7 +329,7 @@ export class TrezorKeyring implements Keyring {
           tx.s = Buffer.from(payload.s, 'hex');
           return tx;
         },
-      ) as unknown as Promise<TypedTxData>;
+      );
     }
     return this.#signTransaction(
       address,
