@@ -86,7 +86,10 @@ export function assertKeyringAccount<
     default: {
       // For now, we cannot much more than this (this should also, never happen)!
       // NOTE: We could use a  "generic `KeyringAccount` type" here though.
-      throw new Error(`Unknown account type: '${account.type as string}'`);
+      // `account.type` is inferred as `never` in this branch (the switch is
+      // exhaustive), so construct the string explicitly to satisfy
+      // `restrict-template-expressions`.
+      throw new Error(`Unknown account type: '${String(account.type)}'`);
     }
   }
 }
