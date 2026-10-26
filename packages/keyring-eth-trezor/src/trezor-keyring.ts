@@ -23,8 +23,8 @@ import type {
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { createErrorFromTrezorResponse } from './trezor-bridge-error.js';
 import { TrezorBridge } from './trezor-bridge.js';
+import { createErrorFromTrezorResponse } from './trezor-bridge-error.js';
 import { handleTrezorTransportError } from './trezor-error-handler.js';
 
 const hdPathString = `m/44'/60'/0'/0`;
@@ -305,16 +305,13 @@ export class TrezorKeyring implements Keyring {
   async signTransaction(
     address: Hex,
     tx: TypedTransaction | OldEthJsTransaction,
-  ): Promise<TypedTxData> {
+  ): Promise<TypedTransaction | OldEthJsTransaction> {
     if (isOldStyleEthereumjsTx(tx)) {
       // In this version of ethereumjs-tx we must add the chainId in hex format
       // to the initial v value. The chainId must be included in the serialized
       // transaction which is only communicated to ethereumjs-tx in this
       // value. In newer versions the chainId is communicated via the 'Common'
       // object.
-      // NOTE: OldEthJsTransaction uses Buffer for tx fields which is
-      // incompatible with the modern `TypedTxData` shape; the legacy types
-      // happen to remain assignable, but this is a backward-compat seam.
       return this.#signTransaction(
         address,
         // @types/ethereumjs-tx and old ethereumjs-tx versions document
