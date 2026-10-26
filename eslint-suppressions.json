@@ -21,12 +21,7 @@
   },
   "packages/keyring-eth-hd/src/hd-keyring.ts": {
     "no-restricted-globals": {
-      "count": 11
-    }
-  },
-  "packages/keyring-eth-hd/src/v2/hd-keyring.test.ts": {
-    "@typescript-eslint/no-base-to-string": {
-      "count": 1
+      "count": 16
     }
   },
   "packages/keyring-eth-ledger-bridge/src/ledger-bridge.ts": {

@@ -237,7 +237,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   readonly #getMfaWhitelistConfig: MpcMoneyKeyringOpts['getMfaWhitelistConfig'];
 
-  readonly #getBackupEncryptionKey: () => Promise<Uint8Array<ArrayBuffer>>;
+  readonly #getBackupEncryptionKey: () => Promise<Uint8Array>;
 
   #opQueue: Promise<void> = Promise.resolve();
 

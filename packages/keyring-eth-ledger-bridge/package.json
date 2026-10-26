@@ -84,7 +84,7 @@
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",
     "@types/jest": "^29.5.12",
-    "@types/web": "^0.0.359",
+    "@types/web": "^0.0.69",
     "@types/ws": "^8.18.1",
     "@typescript/native": "npm:typescript@^7.0.2",
     "deepmerge": "^4.2.2",
