@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Do not ship compiled `.test-d.ts` type-test artifacts in the package build output ([#684](https://github.com/MetaMask/accounts/pull/684))
-
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
+
+### Fixed
+
+- Do not ship compiled `.test-d.ts` type-test artifacts in the package build output ([#684](https://github.com/MetaMask/accounts/pull/684))
 
 ## [13.1.1]
 
