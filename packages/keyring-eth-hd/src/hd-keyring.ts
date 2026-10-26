@@ -256,7 +256,7 @@ export class HdKeyring implements Keyring {
     });
     assert(wallet.publicKey, 'Expected public key to be set');
     const appKeyAddress = this.#normalizeAddress(
-      bytesToHex(publicToAddress(Uint8Array.from(wallet.publicKey))),
+      bytesToHex(publicToAddress(wallet.publicKey)),
     );
     return appKeyAddress;
   }
@@ -282,7 +282,7 @@ export class HdKeyring implements Keyring {
       privateKey instanceof Uint8Array,
       'Expected private key to be of type Uint8Array',
     );
-    return remove0x(bytesToHex(Uint8Array.from(privateKey)));
+    return remove0x(bytesToHex(privateKey));
   }
 
   /**
@@ -448,7 +448,7 @@ export class HdKeyring implements Keyring {
   ): Promise<string> {
     const privKey = this.#getPrivateKeyFor(withAccount, opts);
     const publicKey = getEncryptionPublicKey(
-      remove0x(bytesToHex(Uint8Array.from(privKey))),
+      remove0x(bytesToHex(privKey)),
     );
     return publicKey;
   }
@@ -587,7 +587,7 @@ export class HdKeyring implements Keyring {
       assert(privateKey, 'Expected private key to be set');
       const appKeyOriginBytes = new TextEncoder().encode(withAppKeyOrigin);
       const appKeyPrivateKey = keccak256(
-        concatBytes([new Uint8Array(privateKey), appKeyOriginBytes]),
+        concatBytes([privateKey, appKeyOriginBytes]),
       );
       const appKeyPublicKey = privateToPublic(appKeyPrivateKey);
       return { privateKey: appKeyPrivateKey, publicKey: appKeyPublicKey };
@@ -635,7 +635,7 @@ export class HdKeyring implements Keyring {
   #addressFromPublicKey(publicKey: Uint8Array): Hex {
     return add0x(
       bytesToHex(
-        publicToAddress(Uint8Array.from(publicKey), true),
+        publicToAddress(publicKey, true),
       ).toLowerCase(),
     );
   }
