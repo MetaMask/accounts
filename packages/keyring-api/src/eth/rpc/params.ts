@@ -27,7 +27,7 @@ import {
   EthAddressStrictStruct,
   EthAddressStruct,
   EthBytesStruct,
-} from '../types';
+} from '../types.js';
 
 /**
  * A struct for validating Ethereum transaction data.

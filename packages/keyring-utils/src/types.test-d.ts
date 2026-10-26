@@ -1,6 +1,6 @@
 import { expectAssignable } from 'tsd';
 
-import type { Equals } from './types';
+import type { Equals } from './types.js';
 
 expectAssignable<Equals<true, true>>(true);
 expectAssignable<Equals<true, false>>(false);

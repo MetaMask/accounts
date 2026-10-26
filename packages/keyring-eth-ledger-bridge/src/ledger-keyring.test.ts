@@ -9,10 +9,10 @@ import { bytesToHex, Hex, remove0x } from '@metamask/utils';
 import EthereumTx from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { withDerivedEip712Domain } from './eip712';
-import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge';
-import { LedgerIframeBridge } from './ledger-iframe-bridge';
-import { AccountDetails, LedgerKeyring } from './ledger-keyring';
+import { withDerivedEip712Domain } from './eip712.js';
+import { LedgerBridge, LedgerBridgeOptions } from './ledger-bridge.js';
+import { LedgerIframeBridge } from './ledger-iframe-bridge.js';
+import { AccountDetails, LedgerKeyring } from './ledger-keyring.js';
 
 jest.mock('@metamask/eth-sig-util', () => {
   return {
@@ -1126,7 +1126,10 @@ describe('LedgerKeyring', function () {
             { name: 'wallets', type: 'address[]' },
           ],
         },
-      };
+        // `TypedMessage`'s `domain.salt` only accepts a string or a raw
+        // `ArrayBuffer`, not a `Uint8Array` view, so the fixture needs a
+        // double assertion.
+      } as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>;
 
       beforeEach(async function () {
         jest

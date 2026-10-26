@@ -1,4 +1,4 @@
-import { SolAddressStruct } from './types';
+import { SolAddressStruct } from './types.js';
 
 describe('types', () => {
   describe('SolAddressStruct', () => {

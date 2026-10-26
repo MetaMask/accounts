@@ -6,11 +6,11 @@ import {
   KeyringV1Adapter,
 } from '@metamask/keyring-sdk/v2';
 
-import { WatchOnlyKeyring } from './watch-only-keyring';
 import {
   isWatchOnlyKeyringV1Adapter,
   WatchOnlyKeyringV1Adapter,
-} from './watch-only-keyring-v1-adapter';
+} from './watch-only-keyring-v1-adapter.js';
+import { WatchOnlyKeyring } from './watch-only-keyring.js';
 
 const TEST_ADDRESS_1 = '0xd8da6bf26964af9d7eed9e03e53415d37aa96045';
 const TEST_ADDRESS_1_CHECKSUMMED = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045';

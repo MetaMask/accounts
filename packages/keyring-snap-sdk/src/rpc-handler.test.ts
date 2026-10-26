@@ -11,7 +11,7 @@ import type {
 import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import { UserRejectedRequestError } from '@metamask/snaps-sdk';
 
-import { handleKeyringRequest } from './rpc-handler';
+import { handleKeyringRequest } from './rpc-handler.js';
 
 describe('handleKeyringRequest', () => {
   const keyring = {

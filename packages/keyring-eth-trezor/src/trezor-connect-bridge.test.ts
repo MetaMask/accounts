@@ -10,9 +10,9 @@
 import * as TrezorConnectModule from '@trezor/connect-web';
 import type { TrezorConnect as TrezorConnectType } from '@trezor/connect-web';
 
-import { TrezorBridge } from './trezor-bridge';
-import { TrezorConnectBridge } from './trezor-connect-bridge';
-import { TREZOR_CONNECT_MANIFEST } from './trezor-keyring';
+import { TrezorBridge } from './trezor-bridge.js';
+import { TrezorConnectBridge } from './trezor-connect-bridge.js';
+import { TREZOR_CONNECT_MANIFEST } from './trezor-keyring.js';
 
 // Mirror the same dual-path normalisation used in trezor-connect-bridge.ts so
 // the spy targets the exact same singleton object the source module uses.

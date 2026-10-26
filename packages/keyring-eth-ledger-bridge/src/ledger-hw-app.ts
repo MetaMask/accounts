@@ -1,10 +1,10 @@
 import * as LedgerHwAppEthModule from '@ledgerhq/hw-app-eth';
 import { Buffer } from 'buffer';
 
-import type { GetAppNameAndVersionResponse } from './ledger-bridge';
-import type { LedgerHwAppEth } from './ledger-hw-app-eth';
+import type { GetAppNameAndVersionResponse } from './ledger-bridge.js';
+import type { LedgerHwAppEth } from './ledger-hw-app-eth.js';
 
-export type { LedgerHwAppEth } from './ledger-hw-app-eth';
+export type { LedgerHwAppEth } from './ledger-hw-app-eth.js';
 
 // ---------------------------------------------------------------------------
 // Runtime interop

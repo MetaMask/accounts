@@ -16,12 +16,12 @@ import type { Hex } from '@metamask/utils';
 import HdKey from 'hdkey';
 import { stringify, v4 as uuidv4 } from 'uuid';
 
-import { QrScanRequestType } from './qr-keyring';
+import { QrScanRequestType } from './qr-keyring.js';
 import type {
   QrKeyringBridge,
   QrSignatureRequest,
   SerializedUR,
-} from './qr-keyring';
+} from './qr-keyring.js';
 
 export const SUPPORTED_UR_TYPE = {
   CRYPTO_HDKEY: 'crypto-hdkey',
@@ -500,7 +500,7 @@ export class Device {
    */
   async #requestSignature(
     request: QrSignatureRequest,
-  ): Promise<{ r: Buffer; s: Buffer; v: Buffer }> {
+  ): Promise<{ r: Uint8Array; s: Uint8Array; v: Uint8Array }> {
     const response = await this.#requestScan({
       type: QrScanRequestType.SIGN,
       request,

@@ -2,8 +2,8 @@ import { AccountIdStruct } from '@metamask/keyring-utils';
 import type { Infer } from '@metamask/superstruct';
 import { nonempty, array, enums, object, string } from '@metamask/superstruct';
 
-import { KeyringAccountOptionsStruct } from './account-options';
-import { CaipChainIdStruct } from './caip';
+import { KeyringAccountOptionsStruct } from './account-options.js';
+import { CaipChainIdStruct } from './caip.js';
 
 /**
  * Supported Ethereum account types.

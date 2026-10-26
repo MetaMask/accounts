@@ -1,9 +1,9 @@
 import HDKey from 'hdkey';
 import { restore } from 'sinon';
 
-import { OneKeyKeyring } from './onekey-keyring';
-import { TrezorBridge } from './trezor-bridge';
-import { TrezorKeyring } from './trezor-keyring';
+import { OneKeyKeyring } from './onekey-keyring.js';
+import { TrezorBridge } from './trezor-bridge.js';
+import { TrezorKeyring } from './trezor-keyring.js';
 
 const fakeXPubKey =
   'xpub6FnCn6nSzZAw5Tw7cgR9bi15UV96gLZhjDstkXXxvCLsUXBGXPdSnLFbdpq8p9HmGsApME5hQTZ3emM2rnY5agb9rXpVGyy3bdW6EEgAtqt';

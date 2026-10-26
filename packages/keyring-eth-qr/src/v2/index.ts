@@ -2,4 +2,4 @@ export {
   QrKeyring,
   type QrKeyringOptions,
   type QrAccountModeCreateOptions,
-} from './qr-keyring';
+} from './qr-keyring.js';

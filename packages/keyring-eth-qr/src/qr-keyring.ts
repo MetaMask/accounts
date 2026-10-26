@@ -4,8 +4,8 @@ import type { Keyring } from '@metamask/keyring-utils';
 import { add0x, assert, getChecksumAddress } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
-import { Device, DeviceMode } from './device';
-import type { DeviceDetails, IndexedAddress } from './device';
+import { Device, DeviceMode } from './device.js';
+import type { DeviceDetails, IndexedAddress } from './device.js';
 
 export const QR_KEYRING_TYPE = 'QR Hardware Wallet Device';
 

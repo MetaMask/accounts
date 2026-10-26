@@ -1,9 +1,9 @@
-import { HardwareWalletError } from './hardware-error';
-import { ErrorCode, Severity, Category } from './hardware-errors-enums';
+import { HardwareWalletError } from './hardware-error.js';
+import { ErrorCode, Severity, Category } from './hardware-errors-enums.js';
 import {
   isUserRejectionLikeError,
   resolveUserRejectionErrorCode,
-} from './user-rejection';
+} from './user-rejection.js';
 
 describe('isUserRejectionLikeError', () => {
   it.each([

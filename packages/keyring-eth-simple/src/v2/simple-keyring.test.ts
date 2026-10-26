@@ -5,8 +5,8 @@ import { KeyringType, PrivateKeyEncoding } from '@metamask/keyring-api/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Json } from '@metamask/utils';
 
-import LegacySimpleKeyring from '../simple-keyring';
-import { SimpleKeyring } from './simple-keyring';
+import LegacySimpleKeyring from '../simple-keyring.js';
+import { SimpleKeyring } from './simple-keyring.js';
 
 // Valid 32-byte private keys for testing
 const TEST_PRIVATE_KEY_1 =

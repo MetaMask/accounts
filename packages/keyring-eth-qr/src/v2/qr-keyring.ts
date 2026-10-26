@@ -17,9 +17,9 @@ import { EthKeyringWrapper } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { Hex } from '@metamask/utils';
 
-import { DeviceMode } from '../device';
-import type { IndexedAddress } from '../device';
-import type { QrKeyring as LegacyQrKeyring } from '../qr-keyring';
+import { DeviceMode } from '../device.js';
+import type { IndexedAddress } from '../device.js';
+import type { QrKeyring as LegacyQrKeyring } from '../qr-keyring.js';
 
 /**
  * Methods supported by QR keyring EOA accounts.

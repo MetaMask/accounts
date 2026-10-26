@@ -21,11 +21,11 @@ import type {
   GetAppNameAndVersionResponse,
   LedgerBridge,
   LedgerBridgeOptions,
-} from '../ledger-bridge';
+} from '../ledger-bridge.js';
 import type {
   AccountPage,
   LedgerKeyring as LegacyLedgerKeyring,
-} from '../ledger-keyring';
+} from '../ledger-keyring.js';
 
 /**
  * Methods supported by Ledger keyring EOA accounts.

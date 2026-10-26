@@ -1,5 +1,5 @@
-import { HardwareWalletError } from './hardware-error';
-import { ErrorCode, Severity, Category } from './hardware-errors-enums';
+import { HardwareWalletError } from './hardware-error.js';
+import { ErrorCode, Severity, Category } from './hardware-errors-enums.js';
 
 describe('HardwareWalletError', () => {
   const mockOptions = {

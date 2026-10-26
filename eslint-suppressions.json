@@ -21,7 +21,7 @@
   },
   "packages/keyring-eth-hd/src/hd-keyring.ts": {
     "no-restricted-globals": {
-      "count": 16
+      "count": 11
     }
   },
   "packages/keyring-eth-hd/src/v2/hd-keyring.test.ts": {
@@ -60,9 +60,6 @@
   "packages/keyring-eth-ledger-bridge/src/ledger-iframe-bridge.test.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
-    },
-    "jest/unbound-method": {
-      "count": 17
     }
   },
   "packages/keyring-eth-ledger-bridge/src/ledger-iframe-bridge.ts": {
@@ -189,6 +186,9 @@
   },
   "packages/keyring-snap-bridge/src/SnapKeyring.test.ts": {
     "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     }
   },
