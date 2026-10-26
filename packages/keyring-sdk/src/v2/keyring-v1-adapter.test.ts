@@ -127,9 +127,9 @@ describe('isKeyringV1Adapter', () => {
   });
 
   it('returns true for a subclass such as EthKeyringV1Adapter', () => {
-    expect(
-      isKeyringV1Adapter(new EthKeyringV1Adapter(makeMockInner())),
-    ).toBe(true);
+    expect(isKeyringV1Adapter(new EthKeyringV1Adapter(makeMockInner()))).toBe(
+      true,
+    );
   });
 
   it('returns true for an adapter constructed by a different copy of the class', () => {

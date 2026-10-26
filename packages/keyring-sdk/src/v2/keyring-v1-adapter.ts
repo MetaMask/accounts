@@ -111,9 +111,9 @@ export class KeyringV1Adapter<
  * @param value - The value to check.
  * @returns Whether the value is a `KeyringV1Adapter`.
  */
-export function isKeyringV1Adapter<
-  InnerKeyring extends KeyringV2 = KeyringV2,
->(value: unknown): value is KeyringV1Adapter<InnerKeyring> {
+export function isKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>(
+  value: unknown,
+): value is KeyringV1Adapter<InnerKeyring> {
   if (!isObject(value)) {
     return false;
   }
