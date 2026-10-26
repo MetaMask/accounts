@@ -547,6 +547,8 @@ describe('TrezorKeyring', function () {
       });
 
       expect(
+        // `returnedTx` is a legacy transaction instance despite its declared
+        // `TypedTxData` type, and `toJSON` only exists on `TypedTransaction`.
         (returnedTx as unknown as TypedTransaction).toJSON(),
       ).toStrictEqual({
         ...fakeTypeTwoTx.toJSON(),

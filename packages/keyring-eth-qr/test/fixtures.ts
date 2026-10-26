@@ -200,4 +200,7 @@ export const TYPED_MESSAGE = {
       { name: 'wallets', type: 'address[]' },
     ],
   },
+  // `TypedMessage`'s `domain.salt` only accepts a string or a raw
+  // `ArrayBuffer`, not a `Uint8Array` view, so the fixture needs a
+  // double assertion.
 } as unknown as TypedMessage<MessageTypes>;
