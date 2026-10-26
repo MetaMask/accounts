@@ -400,11 +400,9 @@ export class LedgerKeyring implements Keyring {
     // empty r, s and v values in the encoded rlp. This is why we use `getMessageToSign` here instead of `serialize`.
     const messageToSign = tx.getMessageToSign();
 
-    rawTxHex = bytesToHex(
-      Array.isArray(messageToSign)
-        ? RLP.encode(messageToSign)
-        : messageToSign,
-    );
+    rawTxHex = Array.isArray(messageToSign)
+      ? Buffer.from(RLP.encode(messageToSign)).toString('hex')
+      : bytesToHex(messageToSign);
 
     return this.#signTransaction(address, rawTxHex, (payload) => {
       // Because tx will be immutable, first get a plain javascript object that

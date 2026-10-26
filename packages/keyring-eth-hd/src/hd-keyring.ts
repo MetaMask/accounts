@@ -447,9 +447,7 @@ export class HdKeyring implements Keyring {
     opts: HDKeyringAccountSelectionOptions = {},
   ): Promise<string> {
     const privKey = this.#getPrivateKeyFor(withAccount, opts);
-    const publicKey = getEncryptionPublicKey(
-      remove0x(bytesToHex(privKey)),
-    );
+    const publicKey = getEncryptionPublicKey(remove0x(bytesToHex(privKey)));
     return publicKey;
   }
 

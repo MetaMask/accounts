@@ -391,7 +391,7 @@ export class TrezorKeyring implements Keyring {
       transaction = {
         ...tx.toJSON(),
         chainId,
-        to: bytesToHex(tx.to?.bytes ?? new Uint8Array(0)),
+        to: this.#normalize(Buffer.from(tx.to?.bytes ?? [])),
       } as EthereumTransaction | EthereumTransactionEIP1559;
     }
 
@@ -575,7 +575,7 @@ export class TrezorKeyring implements Keyring {
     this.hdPath = hdPath;
   }
 
-  #normalize(buf: Buffer | Uint8Array): string {
+  #normalize(buf: Buffer): string {
     return bytesToHex(buf);
   }
 
@@ -588,9 +588,7 @@ export class TrezorKeyring implements Keyring {
    */
   #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = bytesToHex(
-      publicToAddress(dkey.publicKey, true),
-    );
+    const address = bytesToHex(publicToAddress(dkey.publicKey, true));
     return toChecksumAddress(address);
   }
 
