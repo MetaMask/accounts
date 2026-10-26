@@ -30,6 +30,7 @@ import {
   concatBytes,
   Eip1024EncryptedData,
   Hex,
+  hexToBytes,
 } from '@metamask/utils';
 import { Buffer } from 'buffer';
 import { keccak256 } from 'ethereum-cryptography/keccak';
@@ -137,7 +138,7 @@ export default class SimpleKeyring implements Keyring {
       throw new Error('Cannot sign invalid message');
     }
     const privKey = this.#getPrivateKeyFor(address, opts);
-    const msgSig = ecsign(new Uint8Array(Buffer.from(message, 'hex')), privKey);
+    const msgSig = ecsign(hexToBytes(add0x(message)), privKey);
     const rawMsgSig = concatSig(
       Buffer.from(bigIntToBytes(msgSig.v)),
       Buffer.from(msgSig.r),
