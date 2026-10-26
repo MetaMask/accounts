@@ -136,7 +136,7 @@ export function assertCreateAccountOptionIsSupported<
   options: Options,
   supportedTypes: readonly `${Type}`[],
   // Use intersection to avoid widening `type` beyond `Options['type']`.
-): asserts options is Options & { type: Type & Options['type'] } {
+): asserts options is Options & { type: `${Type}` & `${Options['type']}` } {
   const { type } = options;
   const types: readonly CreateAccountOptions['type'][] = supportedTypes;
 
