@@ -44,9 +44,9 @@ export function generateSessionNonce(): Hex {
  * @returns `iv || ciphertext || tag`.
  */
 export async function encryptBytes(
-  key: Uint8Array,
-  plaintext: Uint8Array,
-  iv: Uint8Array,
+  key: Uint8Array<ArrayBuffer>,
+  plaintext: Uint8Array<ArrayBuffer>,
+  iv: Uint8Array<ArrayBuffer>,
 ): Promise<Uint8Array> {
   if (iv.length !== AES_GCM_IV_LENGTH) {
     throw new Error('Invalid IV length');
@@ -55,13 +55,7 @@ export async function encryptBytes(
     throw new Error('Invalid backup encryption key length');
   }
 
-  // The AES-GCM helpers only read the bytes, so it is safe to pass views over
-  // shared or resizable buffers.
-  const { ciphertext } = await encrypt(
-    key as BufferSource,
-    plaintext as BufferSource,
-    { unsafeIv: iv as BufferSource },
-  );
+  const { ciphertext } = await encrypt(key, plaintext, { unsafeIv: iv });
   return concatBytes(iv, ciphertext);
 }
 
@@ -73,9 +67,9 @@ export async function encryptBytes(
  * @returns The plaintext bytes.
  */
 export async function decryptBytes(
-  key: Uint8Array,
+  key: Uint8Array<ArrayBuffer>,
   payload: Uint8Array,
-): Promise<Uint8Array> {
+): Promise<Uint8Array<ArrayBuffer>> {
   if (payload.length <= AES_GCM_IV_LENGTH) {
     throw new Error('Invalid ciphertext');
   }
@@ -83,15 +77,12 @@ export async function decryptBytes(
     throw new Error('Invalid backup encryption key length');
   }
 
-  const iv = payload.slice(0, AES_GCM_IV_LENGTH);
-  const ciphertext = payload.slice(AES_GCM_IV_LENGTH);
-  // The AES-GCM helpers only read the bytes, so it is safe to pass views over
-  // shared or resizable buffers.
-  return decrypt(
-    key as BufferSource,
-    iv as BufferSource,
-    ciphertext as BufferSource,
-  );
+  // Snapshot the payload into a fresh ArrayBuffer-backed array so the IV and
+  // ciphertext slices are valid `BufferSource` inputs for the crypto call.
+  const bytes = new Uint8Array(payload);
+  const iv = bytes.slice(0, AES_GCM_IV_LENGTH);
+  const ciphertext = bytes.slice(AES_GCM_IV_LENGTH);
+  return decrypt(key, iv, ciphertext);
 }
 
 const SECP256K1_N = BigInt(

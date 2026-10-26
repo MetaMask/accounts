@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Remove the package-level `skipLibCheck` workaround, now that TypeScript 7 fully supports `Uint8Array<ArrayBuffer>` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- The `getBackupEncryptionKey` option must now return `Uint8Array<ArrayBuffer>` instead of `Uint8Array` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - The AES-GCM backup encryption requires an `ArrayBuffer`-backed buffers.
 
 ## [0.2.0]
 
