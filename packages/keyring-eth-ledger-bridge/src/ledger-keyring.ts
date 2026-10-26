@@ -234,7 +234,7 @@ export class LedgerKeyring implements Keyring {
       // we return the checksummed address of the public key stored in
       // `this.hdk`, which is the root address of the last unlocked path.
       return this.#getChecksumHexAddress(
-        bytesToHex(publicToAddress(Uint8Array.from(this.hdk.publicKey), true)),
+        bytesToHex(publicToAddress(this.hdk.publicKey, true)),
       );
     }
     const path = hdPath ? this.#toLedgerPath(hdPath) : this.hdPath;
@@ -400,9 +400,11 @@ export class LedgerKeyring implements Keyring {
     // empty r, s and v values in the encoded rlp. This is why we use `getMessageToSign` here instead of `serialize`.
     const messageToSign = tx.getMessageToSign();
 
-    rawTxHex = Array.isArray(messageToSign)
-      ? Buffer.from(RLP.encode(messageToSign)).toString('hex')
-      : bytesToHex(messageToSign);
+    rawTxHex = bytesToHex(
+      Array.isArray(messageToSign)
+        ? RLP.encode(messageToSign)
+        : messageToSign,
+    );
 
     return this.#signTransaction(address, rawTxHex, (payload) => {
       // Because tx will be immutable, first get a plain javascript object that
@@ -725,9 +727,7 @@ export class LedgerKeyring implements Keyring {
 
   #addressFromIndex(basePath: string, i: number): Hex {
     const dkey = this.hdk.derive(`${basePath}/${i}`);
-    const address = bytesToHex(
-      publicToAddress(Uint8Array.from(dkey.publicKey), true),
-    );
+    const address = bytesToHex(publicToAddress(dkey.publicKey, true));
     return this.#getChecksumHexAddress(address);
   }
 
