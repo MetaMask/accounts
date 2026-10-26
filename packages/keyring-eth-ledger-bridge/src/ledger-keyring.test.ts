@@ -1519,6 +1519,7 @@ describe('LedgerKeyring', function () {
           sigUtil,
           'recoverTypedSignature',
         );
+
         const result = await keyring.signTypedData(
           derivedAddress,
           nftPermitData as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>,
@@ -1623,6 +1624,7 @@ describe('LedgerKeyring', function () {
           sigUtil,
           'recoverTypedSignature',
         );
+
         const result = await keyring.signTypedData(
           derivedAddress,
           fixtureData as unknown as sigUtil.TypedMessage<sigUtil.MessageTypes>,
