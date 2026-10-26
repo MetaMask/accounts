@@ -500,7 +500,7 @@ export class Device {
    */
   async #requestSignature(
     request: QrSignatureRequest,
-  ): Promise<{ r: Uint8Array; s: Uint8Array; v: Uint8Array }> {
+  ): Promise<{ r: Buffer; s: Buffer; v: Buffer }> {
     const response = await this.#requestScan({
       type: QrScanRequestType.SIGN,
       request,
