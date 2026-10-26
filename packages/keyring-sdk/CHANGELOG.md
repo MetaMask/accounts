@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `isKeyringV1Adapter` type guard ([#685](https://github.com/MetaMask/accounts/pull/685))
+  - Use this instead of doing type checks with `instanceof`.
+
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
