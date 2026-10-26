@@ -11,7 +11,7 @@ import {
   URRegistryDecoder,
 } from '@keystonehq/bc-ur-registry-eth';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
-import { add0x, getChecksumAddress, remove0x } from '@metamask/utils';
+import { add0x, bytesToHex, getChecksumAddress, remove0x } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 import HdKey from 'hdkey';
 import { stringify, v4 as uuidv4 } from 'uuid';
@@ -175,13 +175,7 @@ function readCryptoAccountOutputDescriptors(source: CryptoAccount): {
       if (hdKey) {
         const path = `M/${hdKey.getOrigin().getPath()}`;
         const address = getChecksumAddress(
-          add0x(
-            Buffer.from(
-              Uint8Array.from(
-                publicToAddress(Uint8Array.from(hdKey.getKey()), true),
-              ),
-            ).toString('hex'),
-          ),
+          add0x(bytesToHex(publicToAddress(hdKey.getKey(), true))),
         );
         descriptorsPaths[address] = path;
         name = hdKey.getName();
@@ -245,11 +239,7 @@ export class Device {
     const hdKey = HdKey.fromExtendedKey(this.#pairedDevice.xpub);
     const childKey = hdKey.derive(childPath);
 
-    const address = Buffer.from(
-      Uint8Array.from(
-        publicToAddress(Uint8Array.from(childKey.publicKey), true),
-      ),
-    ).toString('hex');
+    const address = bytesToHex(publicToAddress(childKey.publicKey, true));
 
     const normalizedAddress = getChecksumAddress(add0x(address));
 
@@ -412,13 +402,7 @@ export class Device {
       },
     });
 
-    return add0x(
-      Buffer.concat([
-        Uint8Array.from(r),
-        Uint8Array.from(s),
-        Uint8Array.from(v),
-      ]).toString('hex'),
-    );
+    return add0x(Buffer.concat([r, s, v]).toString('hex'));
   }
 
   /**
@@ -453,13 +437,7 @@ export class Device {
       },
     });
 
-    return add0x(
-      Buffer.concat([
-        Uint8Array.from(r),
-        Uint8Array.from(s),
-        Uint8Array.from(v),
-      ]).toString('hex'),
-    );
+    return add0x(Buffer.concat([r, s, v]).toString('hex'));
   }
 
   /**
@@ -530,9 +508,9 @@ export class Device {
     }
 
     return {
-      r: Uint8Array.from(signature.subarray(0, 32)),
-      s: Uint8Array.from(signature.subarray(32, 64)),
-      v: Uint8Array.from(signature.subarray(64)),
+      r: signature.subarray(0, 32),
+      s: signature.subarray(32, 64),
+      v: signature.subarray(64),
     };
   }
 
