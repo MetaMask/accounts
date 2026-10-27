@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-ledger-bridge-keyring",
-  "version": "13.1.0",
+  "version": "13.1.1",
   "description": "A MetaMask compatible keyring, for ledger hardware wallets",
   "keywords": [
     "ethereum",
@@ -59,7 +59,6 @@
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-ledger-bridge-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-ledger-bridge-keyring",
-    "publish:preview": "yarn npm publish --tag preview",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
     "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
@@ -79,8 +78,8 @@
     "@ledgerhq/hw-transport": "^6.31.3",
     "@metamask/eth-sig-util": "^9.0.0",
     "@metamask/hw-wallet-sdk": "^1.0.0",
-    "@metamask/keyring-api": "^24.1.0",
-    "@metamask/keyring-sdk": "^3.1.0",
+    "@metamask/keyring-api": "^24.3.0",
+    "@metamask/keyring-sdk": "^4.1.0",
     "hdkey": "^2.1.0",
     "rxjs": "^7.8.2"
   },
@@ -91,7 +90,7 @@
     "@ledgerhq/types-cryptoassets": "^7.15.1",
     "@ledgerhq/types-devices": "^6.25.3",
     "@ledgerhq/types-live": "^6.52.0",
-    "@metamask/account-api": "^2.0.0",
+    "@metamask/account-api": "^2.2.0",
     "@metamask/auto-changelog": "^6.1.0",
     "@metamask/keyring-utils": "^5.0.0",
     "@metamask/utils": "^11.11.0",
@@ -109,8 +108,16 @@
     "jest-it-up": "^3.1.0",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
+    "tsd": "^0.31.0",
     "typedoc": "^0.25.13",
     "typescript": "~5.3.3"
+  },
+  "tsd": {
+    "compilerOptions": {
+      "composite": "false",
+      "module": "CommonJS",
+      "moduleResolution": "Node"
+    }
   },
   "engines": {
     "node": ">=22"

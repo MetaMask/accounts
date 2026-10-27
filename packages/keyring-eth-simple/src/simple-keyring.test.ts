@@ -209,6 +209,20 @@ describe('simple-keyring', function () {
       );
     });
 
+    it('throws for malformed hex when message validation is skipped', async function () {
+      await keyring.deserialize([privateKey]);
+
+      // Hex parsing used to be lenient (`Buffer.from` silently stopped at the
+      // first invalid character); it now rejects malformed hex outright.
+      await expect(
+        keyring.signMessage(
+          address,
+          '0x879a053d4800c6354e76c7985a865d2922c82fb5zz',
+          { withAppKeyOrigin: '', validateMessage: false },
+        ),
+      ).rejects.toThrow('Value must be a hexadecimal string.');
+    });
+
     it('throw error if empty address is passed', async function () {
       await keyring.deserialize([privateKey]);
 

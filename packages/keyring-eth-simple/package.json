@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-simple-keyring",
-  "version": "13.0.0",
+  "version": "13.0.1",
   "description": "A simple standard interface for a series of Ethereum private keys",
   "keywords": [
     "ethereum",
@@ -56,7 +56,6 @@
     "build:docs": "typedoc",
     "changelog:update": "../../scripts/update-changelog.sh @metamask/eth-simple-keyring",
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-simple-keyring",
-    "publish:preview": "yarn npm publish --tag preview",
     "sample": "ts-node src/sample.ts",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
@@ -69,8 +68,8 @@
   "dependencies": {
     "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^9.0.0",
-    "@metamask/keyring-api": "^24.1.0",
-    "@metamask/keyring-sdk": "^3.1.0",
+    "@metamask/keyring-api": "^24.3.0",
+    "@metamask/keyring-sdk": "^4.1.0",
     "@metamask/utils": "^11.11.0",
     "ethereum-cryptography": "^2.2.1",
     "randombytes": "^2.1.0"

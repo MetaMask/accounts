@@ -1,6 +1,6 @@
 {
   "name": "@metamask/accounts-monorepo",
-  "version": "127.0.0",
+  "version": "135.0.0",
   "private": true,
   "description": "Monorepo for MetaMask accounts related packages",
   "repository": {
@@ -28,9 +28,6 @@
     "lint:misc": "oxfmt --ignore-path .gitignore",
     "lint:misc:check": "yarn lint:misc --check",
     "lint:readme": "yarn readme:update",
-    "prepare:preview": "ts-node --project tsconfig.scripts.json scripts/prepare-preview-builds.ts",
-    "prepare:preview:local": "yarn prepare:preview @metamask-previews $(git rev-parse --short HEAD)",
-    "publish:preview": "yarn foreach publish:preview",
     "readme:update": "ts-node --project tsconfig.scripts.json scripts/update-readme-content.ts",
     "release": "./scripts/release.sh",
     "setup": "yarn install",
@@ -85,11 +82,15 @@
     "@types/node": "^20.12.12",
     "@types/web": "^0.0.69",
     "@typescript/lib-dom": "npm:@types/web@^0.0.69",
-    "axios@1.7.3": "^1.7.7",
+    "axios@1.7.7": "^1.20.0",
     "eslint-import-resolver-typescript": "<=3.7.0",
     "eslint-plugin-import-x": "<=4.6.1",
     "napi-postinstall": "npm:npm-empty-package@^1.0.0",
-    "ws@7.4.6": "^7.5.10"
+    "protobufjs@7.4.0": "^7.6.5",
+    "tar": "^7.5.16",
+    "tinypool@2.1.0": "^2.2.0",
+    "uuid@11.0.3": "^11.1.1",
+    "ws@8.17.1": "^8.22.0"
   },
   "engines": {
     "node": ">=22"

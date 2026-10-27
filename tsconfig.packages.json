@@ -28,6 +28,9 @@
      * `jest.config.packages.js`.
      */
     "paths": {
+      "@metamask/cryptography/aes-gcm": [
+        "../../node_modules/@metamask/cryptography/dist/aes-gcm.d.ts"
+      ],
       "@metamask/*/v2": ["../*/src/v2"],
       "@metamask/*": ["../*/src"]
     }
