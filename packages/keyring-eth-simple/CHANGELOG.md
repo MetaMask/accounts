@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
 - Parse message hex with `hexToBytes` instead of `Buffer` in `signMessage` ([#682](https://github.com/MetaMask/accounts/pull/682))
   - Malformed hex is now rejected instead of being silently truncated.
+- Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.1.0` ([#686](https://github.com/MetaMask/accounts/pull/686))
 
 ## [13.0.1]
 
