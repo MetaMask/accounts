@@ -944,6 +944,78 @@ describe('MpcMoneyKeyring', () => {
     );
   });
 
+  it('signs a plain-text personal message as UTF-8', async () => {
+    const getProfileToken = jest.fn().mockResolvedValue('token');
+    const getMfaWhitelistConfig = jest
+      .fn()
+      .mockResolvedValue(mockWhitelistConfig);
+    const keyring = makeKeyring(
+      getProfileToken,
+      undefined,
+      getMfaWhitelistConfig,
+    );
+    await deserializeState(keyring);
+    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
+    mockGetMfaRequirement.mockReturnValue({
+      mfaRequired: false,
+      rule: 'chomp-authentication',
+    });
+
+    const messageHash = hashPersonalMessage(new TextEncoder().encode('hello'));
+    expect(await keyring.signPersonalMessage(mockDerivedAddress, 'hello')).toBe(
+      bytesToHex(mockEthSignature),
+    );
+
+    expect(mockGetMfaRequirement).toHaveBeenCalledWith(
+      {
+        method: 'signPersonalMessage',
+        address: mockDerivedAddress,
+        message: '0x68656c6c6f',
+      },
+      {
+        address: mockDerivedAddress,
+        hash: bytesToHex(messageHash),
+        config: mockWhitelistConfig,
+      },
+    );
+  });
+
+  it('signs an empty 0x personal message as empty hex', async () => {
+    const getProfileToken = jest.fn().mockResolvedValue('token');
+    const getMfaWhitelistConfig = jest
+      .fn()
+      .mockResolvedValue(mockWhitelistConfig);
+    const keyring = makeKeyring(
+      getProfileToken,
+      undefined,
+      getMfaWhitelistConfig,
+    );
+    await deserializeState(keyring);
+    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
+    mockGetMfaRequirement.mockReturnValue({
+      mfaRequired: false,
+      rule: 'chomp-authentication',
+    });
+
+    const messageHash = hashPersonalMessage(new Uint8Array());
+    expect(await keyring.signPersonalMessage(mockDerivedAddress, '0x')).toBe(
+      bytesToHex(mockEthSignature),
+    );
+
+    expect(mockGetMfaRequirement).toHaveBeenCalledWith(
+      {
+        method: 'signPersonalMessage',
+        address: mockDerivedAddress,
+        message: '0x',
+      },
+      {
+        address: mockDerivedAddress,
+        hash: bytesToHex(messageHash),
+        config: mockWhitelistConfig,
+      },
+    );
+  });
+
   it('prompts for MFA when the backend returns mfa_required', async () => {
     const getProfileToken = jest
       .fn()

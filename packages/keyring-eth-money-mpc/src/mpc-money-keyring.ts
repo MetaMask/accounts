@@ -1,4 +1,4 @@
-import { hashPersonalMessage } from '@ethereumjs/util';
+import { hashPersonalMessage, isHexString } from '@ethereumjs/util';
 import type {
   TypedDataV1,
   TypedMessage,
@@ -32,7 +32,12 @@ import {
   string,
   type,
 } from '@metamask/superstruct';
-import { bytesToHex, hexToBytes, JsonStruct } from '@metamask/utils';
+import {
+  bytesToHex,
+  hexToBytes,
+  JsonStruct,
+  stringToBytes,
+} from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
 import type { CheckKeyShareResult } from './cloud.js';
@@ -553,13 +558,17 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     msgHex: string,
     _opts?: Record<string, unknown>,
   ): Promise<string> {
-    const rawMsg = hexToBytes(msgHex);
-    const msgHash = hashPersonalMessage(rawMsg);
+    // Like the HD keyring (`isHexString`), treat `0x` as empty hex and anything
+    // that isn't hex as UTF-8.
+    const message = isHexString(msgHex)
+      ? msgHex
+      : bytesToHex(stringToBytes(msgHex));
+    const msgHash = hashPersonalMessage(hexToBytes(message));
 
     const signature = await this.#signHash(address, msgHash, {
       method: 'signPersonalMessage',
       address,
-      message: msgHex as Hex,
+      message,
     });
     return bytesToHex(signature);
   }
