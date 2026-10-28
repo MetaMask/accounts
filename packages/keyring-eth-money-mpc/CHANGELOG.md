@@ -10,9 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.1.0` ([#686](https://github.com/MetaMask/accounts/pull/686))
-- Bump `@metamask/mfa-wallet-network` from `^0.1.0` to `^0.2.0` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Bump `@metamask/mfa-wallet-network` from `^0.1.0` to `^0.2.0` ([#688](https://github.com/MetaMask/accounts/pull/688))
   - Noise transport keys no longer match peers on `0.1.0`.
-- Bump `@metamask/mfa-wallet-cl24` and `@metamask/mfa-wallet-interface` from `^0.1.0` to `^0.2.0` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Bump `@metamask/mfa-wallet-cl24` and `@metamask/mfa-wallet-interface` from `^0.1.0` to `^0.2.0` ([#688](https://github.com/MetaMask/accounts/pull/688))
   - Key creation and rotation take custodian share bindings.
   - Import and sync keep the stored key share, which no longer includes a party mapping.
   - Key shares persisted by `0.1.0` still deserialize; `partyMapping` is omitted on the next serialize.
