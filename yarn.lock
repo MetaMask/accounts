@@ -2038,10 +2038,10 @@ __metadata:
     "@metamask/keyring-api": "npm:^24.3.0"
     "@metamask/keyring-sdk": "npm:^4.1.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
-    "@metamask/mfa-wallet-cl24": "npm:^0.1.0"
+    "@metamask/mfa-wallet-cl24": "npm:^0.2.0"
     "@metamask/mfa-wallet-dkls23": "npm:^0.1.0"
-    "@metamask/mfa-wallet-interface": "npm:^0.1.0"
-    "@metamask/mfa-wallet-network": "npm:^0.1.0"
+    "@metamask/mfa-wallet-interface": "npm:^0.2.0"
+    "@metamask/mfa-wallet-network": "npm:^0.2.0"
     "@metamask/money-account-mfa-whitelist": "npm:^0.1.0"
     "@metamask/superstruct": "npm:^3.4.1"
     "@metamask/utils": "npm:^11.11.0"
@@ -2554,13 +2554,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/mfa-wallet-cl24@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "@metamask/mfa-wallet-cl24@npm:0.1.0"
+"@metamask/mfa-wallet-cl24@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@metamask/mfa-wallet-cl24@npm:0.2.0"
   dependencies:
     "@metamask/cryptography": "npm:^1.1.0"
     "@metamask/mpc-interface": "npm:^0.2.0"
-  checksum: 10/c5dead82d44f5297bf93b498a9b0feed655b73a1bf3847617f0aa6d4c548c4f5afb01705039e0308e4035aceac6df0600b5e2a1dae4a207c056b49280bd32ff1
+  checksum: 10/5c0fabd651386a6f177db45729a0a97f125aa3f627f539f26faf85adeb436b5ee9ce1cc9433654c782443f96f58aeef37d362758afc05b4e4b697ab79090bbb7
   languageName: node
   linkType: hard
 
@@ -2573,22 +2573,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/mfa-wallet-interface@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "@metamask/mfa-wallet-interface@npm:0.1.0"
-  checksum: 10/b034fcd27fcb54613811c840eaf2614273f7a38ccc5cad02e92197a70487306d1782588e7f205e9d05773f7987464f40fc3e5f4c12df27483d47797b4f90cba2
+"@metamask/mfa-wallet-interface@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@metamask/mfa-wallet-interface@npm:0.2.0"
+  checksum: 10/8c502f231b3cf6d50184f9a7babac3ad5c397a5a43547bb5f7b9fca7f47a6829180c32c56852ca75e922b5009832db77183278542ba93ffd1ea6de1f04087919
   languageName: node
   linkType: hard
 
-"@metamask/mfa-wallet-network@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "@metamask/mfa-wallet-network@npm:0.1.0"
+"@metamask/mfa-wallet-network@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@metamask/mfa-wallet-network@npm:0.2.0"
   dependencies:
     "@metamask/cryptography": "npm:^1.1.0"
-    "@metamask/mfa-wallet-interface": "npm:^0.1.0"
+    "@metamask/mfa-wallet-interface": "npm:^0.2.0"
     "@noble/hashes": "npm:^1.8.0"
     centrifuge: "npm:^5.7.2"
-  checksum: 10/a32cc4b7b07b8666f4208b942a2df22548fa23996057c7d094d3ae20a90904d9d715ebb7c300c0a50f72ffefdd205aa1ad4129a740e7c155716678c751539508
+  checksum: 10/afde1881033a206bcd080c9e078cdb116da9bb86e13979ba02ac0d1dca9434d9df55cb9539bd1dfa15517f5d45a9b8b6b41346c3a18a8d95600e0ab604e0cc07
   languageName: node
   linkType: hard
 
