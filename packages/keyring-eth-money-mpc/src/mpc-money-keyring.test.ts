@@ -154,10 +154,6 @@ const makeThresholdKey = () => {
     privateKeyShare: new Uint8Array([5, 6, 7]),
     coefficientCommitments: [new Uint8Array([4, 1, 2, 3]), new Uint8Array([8])],
     xCoordinates: [1, 2],
-    partyMapping: [
-      { networkId: 'local-user', protocolId: 1 },
-      { networkId: 'cloud-user', protocolId: 2 },
-    ],
   };
 };
 
@@ -405,7 +401,10 @@ describe('MpcMoneyKeyring', () => {
     );
     expect(mockCreateKey).toHaveBeenCalledWith(
       expect.objectContaining({
-        custodians: ['local-user', 'cloud-user'],
+        custodians: [
+          { netId: 'local-user', shareIndex: 0 },
+          { netId: 'cloud-user', shareIndex: 1 },
+        ],
         threshold: 2,
         networkSession: { label: 'dkg-create' },
       }),
@@ -529,33 +528,13 @@ describe('MpcMoneyKeyring', () => {
     });
     expect(mockDklsSetup).not.toHaveBeenCalled();
     expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
-    const importedKey = {
-      ...makeThresholdKey(),
-      partyMapping: [
-        { networkId: 'imported-user', protocolId: 1 },
-        { networkId: 'cloud-user', protocolId: 2 },
-      ],
-    };
     expect(await keyring.serialize()).toStrictEqual({
       netCreds: { partyId: 'imported-user' },
-      keyShare: importedKey,
+      keyShare: makeThresholdKey(),
       serverNetId: 'cloud-user',
       shareEpoch: mockShareEpoch,
       tssSetup: null,
     });
-  });
-
-  it('rejects an imported key share with no client party', async () => {
-    const keyring = makeKeyring();
-    mockCreateIdentity.mockResolvedValueOnce({ partyId: 'imported-user' });
-    mockThresholdKeyFromJson.mockReturnValueOnce({
-      ...makeThresholdKey(),
-      partyMapping: [],
-    });
-
-    await expect(keyring.setup()).rejects.toThrow(
-      'Key share is missing the client party',
-    );
   });
 
   it('setup is a no-op when already initialized', async () => {
@@ -656,11 +635,10 @@ describe('MpcMoneyKeyring', () => {
     });
     expect(mockRotateKeyShares).toHaveBeenCalledWith({
       key: makeThresholdKey(),
-      dealers: [
+      custodians: [
         { netId: 'local-user', shareIndex: 0 },
         { netId: 'cloud-user', shareIndex: 1 },
       ],
-      custodians: ['local-user', 'cloud-user'],
       networkSession: { label: 'dkg-rotate' },
     });
     expect(rootSession.createSubsession).toHaveBeenCalledWith('dkg-rotate');
@@ -735,37 +713,6 @@ describe('MpcMoneyKeyring', () => {
       serverNetId: 'cloud-user',
       shareEpoch: 3,
       tssSetup: null,
-    });
-  });
-
-  it('points a synced key share at the local client network id', async () => {
-    const keyring = makeKeyring();
-    await deserializeState(keyring);
-
-    const remoteKey = {
-      ...makeThresholdKey(),
-      partyMapping: [
-        { networkId: 'other-device', protocolId: 1 },
-        { networkId: 'cloud-user', protocolId: 2 },
-      ],
-    };
-    mockLoadKeyShareBackup.mockResolvedValueOnce({
-      encryptedKeyShare: new TextEncoder().encode(JSON.stringify({ ok: true })),
-      epoch: 4,
-    });
-    mockThresholdKeyFromJson.mockReturnValueOnce(remoteKey);
-
-    await keyring.syncKeyShare();
-
-    expect(await keyring.serialize()).toMatchObject({
-      keyShare: {
-        ...remoteKey,
-        partyMapping: [
-          { networkId: 'local-user', protocolId: 1 },
-          { networkId: 'cloud-user', protocolId: 2 },
-        ],
-      },
-      shareEpoch: 4,
     });
   });
 
