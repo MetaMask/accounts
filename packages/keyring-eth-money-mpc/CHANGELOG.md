@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Replace `getMfaWhitelistConfig` with an `isMfaRequired` callback that decides whether a signature requires MFA ([#689](https://github.com/MetaMask/accounts/pull/689))
+- **BREAKING:** Replace `getMfaWhitelistConfig` with an `isMfaRequired` callback that decides whether a signature requires MFA ([#689](https://github.com/MetaMask/accounts/pull/689))
   - The keyring no longer calls `getMfaRequirement`.
   - Omitting the callback, or a callback that throws, still requires MFA.
   - Replace the `MfaWhitelistConfig` re-export with `MoneyAccountSignatureRequest`.
