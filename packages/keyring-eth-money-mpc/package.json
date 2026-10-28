@@ -60,7 +60,7 @@
     "@metamask/keyring-utils": "^5.0.0",
     "@metamask/mfa-wallet-cl24": "^0.1.0",
     "@metamask/mfa-wallet-dkls23": "^0.1.0",
-    "@metamask/mfa-wallet-network": "^0.1.0",
+    "@metamask/mfa-wallet-network": "^0.2.0",
     "@metamask/money-account-mfa-whitelist": "^0.1.0",
     "@metamask/superstruct": "^3.4.1",
     "@metamask/utils": "^11.11.0"

@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.1.0` ([#686](https://github.com/MetaMask/accounts/pull/686))
+- Bump `@metamask/mfa-wallet-network` from `^0.1.0` to `^0.2.0` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Noise transport keys no longer match peers on `0.1.0`.
 
 ### Fixed
 
