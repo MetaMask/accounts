@@ -1,4 +1,4 @@
-import { hashPersonalMessage } from '@ethereumjs/util';
+import { hashPersonalMessage, isHexString } from '@ethereumjs/util';
 import type {
   TypedDataV1,
   TypedMessage,
@@ -35,7 +35,6 @@ import {
 import {
   bytesToHex,
   hexToBytes,
-  isStrictHexString,
   JsonStruct,
   stringToBytes,
 } from '@metamask/utils';
@@ -559,8 +558,9 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     msgHex: string,
     _opts?: Record<string, unknown>,
   ): Promise<string> {
-    // Like the HD keyring, treat a message that isn't 0x-prefixed hex as UTF-8.
-    const message = isStrictHexString(msgHex)
+    // Like the HD keyring (`isHexString`), treat `0x` as empty hex and anything
+    // that isn't hex as UTF-8.
+    const message = isHexString(msgHex)
       ? msgHex
       : bytesToHex(stringToBytes(msgHex));
     const msgHash = hashPersonalMessage(hexToBytes(message));
