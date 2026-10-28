@@ -1,3 +1,4 @@
+import type { MoneyAccountSignatureRequest } from '@metamask/money-account-mfa-whitelist';
 import { bytesToBase64 } from '@metamask/utils';
 
 import {
@@ -247,6 +248,30 @@ describe('cloud helpers', () => {
       (fetchSpy.mock.calls[0]?.[1] as { body: string }).body,
     ) as { request: unknown };
     expect(body.request).toStrictEqual(request);
+  });
+
+  it('sends bigint values in the signature request as decimal strings', async () => {
+    okEmpty();
+
+    await sign({
+      baseURL: 'https://cloud.example',
+      token: 'token-1',
+      clientNetId: 'local-1',
+      nonce: '0xnonce',
+      data: new Uint8Array([1]),
+      shareEpoch: 1,
+      request: {
+        method: 'signTypedData',
+        address: '0x1111111111111111111111111111111111111111',
+        version: 'V4',
+        data: { message: { salt: 123n } },
+      } as unknown as MoneyAccountSignatureRequest,
+    });
+
+    const body = JSON.parse(
+      (fetchSpy.mock.calls[0]?.[1] as { body: string }).body,
+    ) as { request: { data: { message: { salt: unknown } } } };
+    expect(body.request.data.message.salt).toBe('123');
   });
 
   it('returns mfa_required when the backend requires MFA', async () => {

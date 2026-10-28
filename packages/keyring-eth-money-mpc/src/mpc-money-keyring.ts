@@ -32,7 +32,13 @@ import {
   string,
   type,
 } from '@metamask/superstruct';
-import { bytesToHex, hexToBytes, JsonStruct } from '@metamask/utils';
+import {
+  bytesToHex,
+  hexToBytes,
+  isStrictHexString,
+  JsonStruct,
+  stringToBytes,
+} from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
 import type { CheckKeyShareResult } from './cloud.js';
@@ -553,13 +559,16 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     msgHex: string,
     _opts?: Record<string, unknown>,
   ): Promise<string> {
-    const rawMsg = hexToBytes(msgHex);
-    const msgHash = hashPersonalMessage(rawMsg);
+    // Like the HD keyring, treat a message that isn't 0x-prefixed hex as UTF-8.
+    const message = isStrictHexString(msgHex)
+      ? msgHex
+      : bytesToHex(stringToBytes(msgHex));
+    const msgHash = hashPersonalMessage(hexToBytes(message));
 
     const signature = await this.#signHash(address, msgHash, {
       method: 'signPersonalMessage',
       address,
-      message: msgHex as Hex,
+      message,
     });
     return bytesToHex(signature);
   }
