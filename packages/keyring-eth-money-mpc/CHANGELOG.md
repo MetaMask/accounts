@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.1.0` ([#686](https://github.com/MetaMask/accounts/pull/686))
 
+### Fixed
+
+- Sign plain-text messages in `signPersonalMessage` as UTF-8 instead of throwing ([#687](https://github.com/MetaMask/accounts/pull/687))
+- Serialize `bigint` values in the cloud signature request as decimal strings instead of throwing ([#687](https://github.com/MetaMask/accounts/pull/687))
+
 ## [0.2.0]
 
 ### Added
