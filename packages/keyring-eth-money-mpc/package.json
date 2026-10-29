@@ -63,7 +63,7 @@
     "@metamask/mfa-wallet-network": "^0.2.0",
     "@metamask/money-account-mfa-whitelist": "^0.1.0",
     "@metamask/superstruct": "^3.4.1",
-    "@metamask/utils": "^11.11.0"
+    "@metamask/utils": "^12.0.0"
   },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^3.2.1",
