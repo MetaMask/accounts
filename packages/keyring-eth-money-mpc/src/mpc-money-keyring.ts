@@ -21,7 +21,6 @@ import {
   CentrifugeNetworkManager,
   createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
-import { getMfaRequirement } from '@metamask/money-account-mfa-whitelist';
 import type { MoneyAccountSignatureRequest } from '@metamask/money-account-mfa-whitelist';
 import {
   integer,
@@ -197,7 +196,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   readonly #getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
 
-  readonly #getMfaWhitelistConfig: MpcMoneyKeyringOpts['getMfaWhitelistConfig'];
+  readonly #isMfaRequired: MpcMoneyKeyringOpts['isMfaRequired'];
 
   readonly #getBackupEncryptionKey: () => Promise<Uint8Array>;
 
@@ -227,7 +226,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       ...(opts.webSocket === undefined ? {} : { websocket: opts.webSocket }),
     });
     this.#getProfileToken = opts.getProfileToken;
-    this.#getMfaWhitelistConfig = opts.getMfaWhitelistConfig;
+    this.#isMfaRequired = opts.isMfaRequired;
     this.#getBackupEncryptionKey = opts.getBackupEncryptionKey;
   }
 
@@ -689,27 +688,25 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   /**
    * Whether signing `request` requires MFA.
    *
-   * Missing configuration, or a thrown check, requires MFA.
+   * A missing callback, or a thrown check, requires MFA.
    *
    * @param request - The signature request the hash was computed from.
    * @param hash - The hash the keyring will sign.
    * @returns Whether the profile token must include 2FA.
    */
-  async #isMfaRequired(
+  async #requiresMfa(
     request: MoneyAccountSignatureRequest,
     hash: Uint8Array,
   ): Promise<boolean> {
-    if (this.#getMfaWhitelistConfig === undefined) {
+    if (this.#isMfaRequired === undefined) {
       return true;
     }
 
     try {
-      const config = await this.#getMfaWhitelistConfig();
-      return getMfaRequirement(request, {
+      return await this.#isMfaRequired(request, {
         address: this.#address(),
         hash: bytesToHex(hash),
-        config,
-      }).mfaRequired;
+      });
     } catch {
       return true;
     }
@@ -730,7 +727,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         throw new Error(`account ${address} not found`);
       }
 
-      const mfaRequired = await this.#isMfaRequired(request, hash);
+      const mfaRequired = await this.#requiresMfa(request, hash);
       let token = mfaRequired
         ? await this.#getProfileToken({ twoFactor: true, challenge: hash })
         : await this.#getProfileToken();
