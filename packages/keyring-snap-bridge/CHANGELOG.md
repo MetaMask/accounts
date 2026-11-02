@@ -7,10 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- ci: re-align preview-builds with core monorepo ([#665](https://github.com/MetaMask/accounts/pull/665))
-
 ### Changed
 
 - Bump `@metamask/keyring-internal-api` from `^12.1.1` to `^12.1.2` ([#674](https://github.com/MetaMask/accounts/pull/674))
