@@ -1,0 +1,10 @@
+# Prevent yarn `file:` packing from copying non-portable / heavy local state
+# into consumers' node_modules. The venv is created per-host via
+# scripts/setup-python.sh and located at runtime via SPECULOS_BLE_VENV_DIR.
+.venv/
+coverage/
+node_modules/
+*.egg-info/
+__pycache__/
+.tsbuildinfo
+*.tsbuildinfo

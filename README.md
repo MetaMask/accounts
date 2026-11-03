@@ -27,6 +27,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/eth-simple-keyring`](packages/keyring-eth-simple)
 - [`@metamask/eth-snap-keyring`](packages/keyring-snap-bridge)
 - [`@metamask/eth-trezor-keyring`](packages/keyring-eth-trezor)
+- [`@metamask/hw-emulator`](packages/hw-emulator)
 - [`@metamask/hw-wallet-sdk`](packages/hw-wallet-sdk)
 - [`@metamask/keyring-api`](packages/keyring-api)
 - [`@metamask/keyring-internal-api`](packages/keyring-internal-api)
@@ -35,6 +36,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/keyring-snap-client`](packages/keyring-snap-client)
 - [`@metamask/keyring-snap-sdk`](packages/keyring-snap-sdk)
 - [`@metamask/keyring-utils`](packages/keyring-utils)
+- [`@metamask/speculos-up`](packages/speculos-up)
 - [`@metamask/watch-only-keyring`](packages/keyring-watch-only)
 
 <!-- end package list -->
@@ -48,6 +50,7 @@ Or, in graph form [^fn1]:
 graph LR;
 linkStyle default opacity:0.5
   account_api(["@metamask/account-api"]);
+  hw_emulator(["@metamask/hw-emulator"]);
   hw_wallet_sdk(["@metamask/hw-wallet-sdk"]);
   keyring_api(["@metamask/keyring-api"]);
   eth_hd_keyring(["@metamask/eth-hd-keyring"]);
@@ -65,8 +68,10 @@ linkStyle default opacity:0.5
   keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
   keyring_utils(["@metamask/keyring-utils"]);
   watch_only_keyring(["@metamask/watch-only-keyring"]);
+  speculos_up(["@metamask/speculos-up"]);
   account_api --> keyring_api;
   account_api --> keyring_utils;
+  hw_emulator --> keyring_eth_qr;
   keyring_api --> keyring_utils;
   eth_hd_keyring --> keyring_api;
   eth_hd_keyring --> keyring_sdk;

@@ -16,6 +16,10 @@ const config = createConfig([
       '**/dist/**',
       '**/docs/**',
       '**/coverage/**',
+      // Archived research spikes — not part of any published package.
+      '**/spike/**',
+      // Python virtualenv created by scripts/setup-python.sh.
+      '**/.venv/**',
     ],
   },
 

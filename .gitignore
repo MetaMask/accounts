@@ -1,5 +1,6 @@
 .DS_Store
 dist/
+dist-build/
 coverage/
 
 # Logs
@@ -78,3 +79,6 @@ node_modules/
 
 # Cursor rules
 .cursorrules
+
+# Git worktrees
+.worktrees/

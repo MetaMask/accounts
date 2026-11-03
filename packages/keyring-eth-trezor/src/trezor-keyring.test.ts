@@ -93,6 +93,23 @@ describe('TrezorKeyring', function () {
   let keyring: TrezorKeyring;
   let bridge: TrezorBridge;
 
+  /**
+   * Restores an environment variable to its previous value after a test
+   * mutated it.
+   *
+   * @param name - The environment variable name.
+   * @param value - The value to restore (`undefined` unsets it).
+   */
+  function restoreEnvVariable(name: string, value: string | undefined): void {
+    if (value === undefined) {
+      // eslint-disable-next-line n/no-process-env
+      delete process.env[name];
+    } else {
+      // eslint-disable-next-line n/no-process-env
+      process.env[name] = value;
+    }
+  }
+
   beforeEach(async function () {
     bridge = {} as TrezorBridge;
     keyring = new TrezorKeyring({ bridge });
@@ -146,6 +163,27 @@ describe('TrezorKeyring', function () {
         manifest: TREZOR_CONNECT_MANIFEST,
         lazyLoad: true,
       });
+    });
+
+    it('passes lazyLoad: true regardless of the IN_TEST environment variable', async function () {
+      const initStub = stub().resolves();
+      bridge.init = initStub;
+      // eslint-disable-next-line n/no-process-env
+      const previousValue = process.env.IN_TEST;
+      // eslint-disable-next-line n/no-process-env
+      process.env.IN_TEST = '1';
+
+      try {
+        await keyring.init();
+
+        expect(initStub.calledOnce).toBe(true);
+        assert.calledWithExactly(initStub, {
+          manifest: TREZOR_CONNECT_MANIFEST,
+          lazyLoad: true,
+        });
+      } finally {
+        restoreEnvVariable('IN_TEST', previousValue);
+      }
     });
   });
 
