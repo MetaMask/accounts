@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [24.3.0]
+
+### Added
+
+- Add `KeyringType.MpcMoney` keyring type ([#671](https://github.com/MetaMask/accounts/pull/671))
+
+## [24.2.0]
+
+### Added
+
+- Add `AccountCreationType.AddressImport` (`address:import`) create account option for importing watch-only accounts by address ([#643](https://github.com/MetaMask/accounts/pull/643))
+  - Includes an optional `accountType` field, matching `private-key:import`, since the account type cannot always be detected from the address alone.
+  - Includes an optional `scopes` field, since the scope cannot always be detected from the address alone (e.g. an EVM address is valid on every EVM chain). When omitted, the keyring decides the scopes.
+- Add `address` capability to `KeyringCapabilities`, declaring whether a keyring supports importing watch-only accounts by address ([#643](https://github.com/MetaMask/accounts/pull/643))
+- Add `KeyringType.WatchOnly` keyring type ([#644](https://github.com/MetaMask/accounts/pull/644))
+- Add `KeyringType.Mpc` keyring type ([#641](https://github.com/MetaMask/accounts/pull/641))
+- Add `KeyringAccountEntropyTypeOption.Mpc` (`'mpc'`) entropy option, and the related `KeyringAccountEntropyMpcOptions` type, for accounts derived from an MPC key share ([#653](https://github.com/MetaMask/accounts/pull/653))
+
 ## [24.1.0]
 
 ### Added
@@ -828,7 +846,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SnapController keyring client. It is intended to be used by MetaMask to talk to the snap.
 - Helper functions to create keyring handler in the snap.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@24.1.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@24.3.0...HEAD
+[24.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@24.2.0...@metamask/keyring-api@24.3.0
+[24.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@24.1.0...@metamask/keyring-api@24.2.0
 [24.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@24.0.0...@metamask/keyring-api@24.1.0
 [24.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.7.0...@metamask/keyring-api@24.0.0
 [23.7.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-api@23.6.0...@metamask/keyring-api@23.7.0

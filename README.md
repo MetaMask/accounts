@@ -22,6 +22,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/eth-hd-keyring`](packages/keyring-eth-hd)
 - [`@metamask/eth-ledger-bridge-keyring`](packages/keyring-eth-ledger-bridge)
 - [`@metamask/eth-money-keyring`](packages/keyring-eth-money)
+- [`@metamask/eth-money-mpc-keyring`](packages/keyring-eth-money-mpc)
 - [`@metamask/eth-qr-keyring`](packages/keyring-eth-qr)
 - [`@metamask/eth-simple-keyring`](packages/keyring-eth-simple)
 - [`@metamask/eth-snap-keyring`](packages/keyring-snap-bridge)
@@ -35,7 +36,10 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/keyring-snap-client`](packages/keyring-snap-client)
 - [`@metamask/keyring-snap-sdk`](packages/keyring-snap-sdk)
 - [`@metamask/keyring-utils`](packages/keyring-utils)
-- [`@metamask/speculos-up`](packages/speculos-up)
+  <<<<<<< HEAD
+- # [`@metamask/speculos-up`](packages/speculos-up)
+- [`@metamask/watch-only-keyring`](packages/keyring-watch-only)
+  > > > > > > > origin/main
 
 <!-- end package list -->
 
@@ -54,6 +58,7 @@ linkStyle default opacity:0.5
   eth_hd_keyring(["@metamask/eth-hd-keyring"]);
   eth_ledger_bridge_keyring(["@metamask/eth-ledger-bridge-keyring"]);
   eth_money_keyring(["@metamask/eth-money-keyring"]);
+  eth_money_mpc_keyring(["@metamask/eth-money-mpc-keyring"]);
   eth_qr_keyring(["@metamask/eth-qr-keyring"]);
   eth_simple_keyring(["@metamask/eth-simple-keyring"]);
   eth_trezor_keyring(["@metamask/eth-trezor-keyring"]);
@@ -65,6 +70,7 @@ linkStyle default opacity:0.5
   keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
   keyring_utils(["@metamask/keyring-utils"]);
   speculos_up(["@metamask/speculos-up"]);
+  watch_only_keyring(["@metamask/watch-only-keyring"]);
   account_api --> keyring_api;
   account_api --> keyring_utils;
   hw_emulator --> keyring_eth_qr;
@@ -82,6 +88,10 @@ linkStyle default opacity:0.5
   eth_money_keyring --> keyring_api;
   eth_money_keyring --> keyring_sdk;
   eth_money_keyring --> keyring_utils;
+  eth_money_mpc_keyring --> account_api;
+  eth_money_mpc_keyring --> keyring_api;
+  eth_money_mpc_keyring --> keyring_sdk;
+  eth_money_mpc_keyring --> keyring_utils;
   eth_qr_keyring --> keyring_api;
   eth_qr_keyring --> keyring_sdk;
   eth_qr_keyring --> keyring_utils;
@@ -112,6 +122,9 @@ linkStyle default opacity:0.5
   keyring_snap_client --> keyring_utils;
   keyring_snap_sdk --> keyring_utils;
   keyring_snap_sdk --> keyring_api;
+  watch_only_keyring --> keyring_api;
+  watch_only_keyring --> keyring_sdk;
+  watch_only_keyring --> keyring_utils;
 ```
 
 <!-- end dependency graph -->

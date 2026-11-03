@@ -76,6 +76,44 @@ describe('CreateAccountOptionsStruct', () => {
         assert(validPrivateKey, CreateAccountOptionsStruct),
       ).not.toThrow();
     });
+
+    it('validates AddressImport type correctly', () => {
+      const validAddressImport = {
+        type: AccountCreationType.AddressImport,
+        address: '0x0123456789012345678901234567890123456789',
+      };
+
+      expect(is(validAddressImport, CreateAccountOptionsStruct)).toBe(true);
+      expect(() =>
+        assert(validAddressImport, CreateAccountOptionsStruct),
+      ).not.toThrow();
+    });
+
+    it('validates AddressImport type with accountType correctly', () => {
+      const validAddressImport = {
+        type: AccountCreationType.AddressImport,
+        address: '0x0123456789012345678901234567890123456789',
+        accountType: 'eip155:erc4337',
+      };
+
+      expect(is(validAddressImport, CreateAccountOptionsStruct)).toBe(true);
+      expect(() =>
+        assert(validAddressImport, CreateAccountOptionsStruct),
+      ).not.toThrow();
+    });
+
+    it('validates AddressImport type with scopes correctly', () => {
+      const validAddressImport = {
+        type: AccountCreationType.AddressImport,
+        address: '0x0123456789012345678901234567890123456789',
+        scopes: ['eip155:1', 'eip155:137'],
+      };
+
+      expect(is(validAddressImport, CreateAccountOptionsStruct)).toBe(true);
+      expect(() =>
+        assert(validAddressImport, CreateAccountOptionsStruct),
+      ).not.toThrow();
+    });
   });
 
   describe('invalid account creation types', () => {
@@ -168,6 +206,56 @@ describe('CreateAccountOptionsStruct', () => {
       ).toThrow(/privateKey/u);
     });
 
+    it('rejects AddressImport type with missing address', () => {
+      const missingAddress = {
+        type: AccountCreationType.AddressImport,
+      };
+
+      expect(is(missingAddress, CreateAccountOptionsStruct)).toBe(false);
+      expect(() => assert(missingAddress, CreateAccountOptionsStruct)).toThrow(
+        /address/u,
+      );
+    });
+
+    it('rejects AddressImport type with invalid accountType', () => {
+      const invalidAccountType = {
+        type: AccountCreationType.AddressImport,
+        address: '0x0123456789012345678901234567890123456789',
+        accountType: 'unsupported:account-type',
+      };
+
+      expect(is(invalidAccountType, CreateAccountOptionsStruct)).toBe(false);
+      expect(() =>
+        assert(invalidAccountType, CreateAccountOptionsStruct),
+      ).toThrow(/accountType/u);
+    });
+
+    it('rejects AddressImport type with empty scopes', () => {
+      const emptyScopes = {
+        type: AccountCreationType.AddressImport,
+        address: '0x0123456789012345678901234567890123456789',
+        scopes: [],
+      };
+
+      expect(is(emptyScopes, CreateAccountOptionsStruct)).toBe(false);
+      expect(() => assert(emptyScopes, CreateAccountOptionsStruct)).toThrow(
+        /scopes/u,
+      );
+    });
+
+    it('rejects AddressImport type with invalid scopes', () => {
+      const invalidScopes = {
+        type: AccountCreationType.AddressImport,
+        address: '0x0123456789012345678901234567890123456789',
+        scopes: ['not-a-scope'],
+      };
+
+      expect(is(invalidScopes, CreateAccountOptionsStruct)).toBe(false);
+      expect(() => assert(invalidScopes, CreateAccountOptionsStruct)).toThrow(
+        /scopes/u,
+      );
+    });
+
     it('rejects wrong fields for type (Bip44DerivePath type with groupIndex instead of derivationPath)', () => {
       const wrongFields = {
         type: AccountCreationType.Bip44DerivePath,
@@ -205,6 +293,10 @@ describe('CreateAccountOptionsStruct', () => {
           type: AccountCreationType.PrivateKeyImport,
           privateKey: '0xabc',
           encoding: 'hexadecimal',
+        },
+        {
+          type: AccountCreationType.AddressImport,
+          address: '0x0123456789012345678901234567890123456789',
         },
       ];
 
@@ -259,6 +351,7 @@ describe('assertCreateAccountOptionIsSupported', () => {
         AccountCreationType.Bip44DeriveIndexRange,
         AccountCreationType.Bip44Discover,
         AccountCreationType.PrivateKeyImport,
+        AccountCreationType.AddressImport,
         AccountCreationType.Custom,
       ];
 
@@ -303,6 +396,10 @@ describe('assertCreateAccountOptionIsSupported', () => {
           type: AccountCreationType.PrivateKeyImport,
           privateKey: '0x1234567890abcdef',
           encoding: 'hexadecimal',
+        },
+        [AccountCreationType.AddressImport]: {
+          type: AccountCreationType.AddressImport,
+          address: '0x0123456789012345678901234567890123456789',
         },
         [AccountCreationType.Custom]: {
           type: AccountCreationType.Custom,
@@ -366,6 +463,21 @@ describe('assertCreateAccountOptionIsSupported', () => {
       expect(() =>
         assertCreateAccountOptionIsSupported(options, supportedTypes),
       ).toThrow('Unsupported create account option type: private-key:import');
+    });
+
+    it('throws error for AddressImport when only BIP-44 types are supported', () => {
+      const options = {
+        type: AccountCreationType.AddressImport,
+        address: '0x0123456789012345678901234567890123456789',
+      } as CreateAccountOptions;
+      const supportedTypes = [
+        AccountCreationType.Bip44DerivePath,
+        AccountCreationType.Bip44DeriveIndex,
+      ];
+
+      expect(() =>
+        assertCreateAccountOptionIsSupported(options, supportedTypes),
+      ).toThrow('Unsupported create account option type: address:import');
     });
 
     it('throws error for Bip44Discover when not in supportedTypes', () => {

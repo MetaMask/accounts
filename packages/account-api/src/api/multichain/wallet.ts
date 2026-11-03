@@ -49,7 +49,12 @@ export type MultichainAccountWalletStatus =
    * The wallet is creating new accounts. New account groups will be
    * added to the wallet automatically.
    */
-  | 'in-progress:create-accounts';
+  | 'in-progress:create-accounts'
+  /**
+   * The wallet is deleting existing accounts. Account groups might be
+   * deleted if they no longer holds any accounts.
+   */
+  | 'in-progress:delete-accounts';
 
 /**
  * A multichain account wallet that holds multiple multichain accounts (one multichain account per

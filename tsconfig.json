@@ -5,6 +5,7 @@
     { "path": "./packages/keyring-api" },
     { "path": "./packages/keyring-eth-hd" },
     { "path": "./packages/keyring-eth-ledger-bridge" },
+    { "path": "./packages/keyring-eth-money-mpc" },
     { "path": "./packages/keyring-eth-simple" },
     { "path": "./packages/keyring-eth-trezor" },
     { "path": "./packages/keyring-internal-api" },
@@ -16,6 +17,7 @@
     { "path": "./packages/keyring-utils" },
     { "path": "./packages/speculos-up" },
     { "path": "./packages/hw-emulator" }
+    { "path": "./packages/keyring-watch-only" }
   ],
   "files": [],
   "include": []

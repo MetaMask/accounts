@@ -1,6 +1,7 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
 import type { BaseKeyring } from '@metamask/keyring-utils';
+import { isObject } from '@metamask/utils';
 import type { Json } from '@metamask/utils';
 
 /**
@@ -94,4 +95,32 @@ export class KeyringV1Adapter<
   async deserialize(state: Json): Promise<void> {
     return this.inner.deserialize(state);
   }
+}
+
+/**
+ * Check whether the given value is a {@link KeyringV1Adapter}, including
+ * subclasses such as `EthKeyringV1Adapter` or `SnapKeyringV1Adapter`.
+ *
+ * This is a structural check on the adapter's public surface, not an
+ * `instanceof` check: a consumer may hold a different copy of this package
+ * than the one that constructed the adapter (a split dependency tree), in
+ * which case `instanceof` is always `false`. `unwrap` is the distinguishing
+ * API — no v1 or v2 keyring exposes it — and it is the method consumers call
+ * to retrieve the inner v2 instance.
+ *
+ * @param value - The value to check.
+ * @returns Whether the value is a `KeyringV1Adapter`.
+ */
+export function isKeyringV1Adapter<InnerKeyring extends KeyringV2 = KeyringV2>(
+  value: unknown,
+): value is KeyringV1Adapter<InnerKeyring> {
+  if (!isObject(value)) {
+    return false;
+  }
+
+  // Property access rather than `hasProperty`: `unwrap` is a prototype
+  // method, not an own property, so own-property checks miss it.
+  const { type, unwrap } = value as { type?: unknown; unwrap?: unknown };
+
+  return typeof type === 'string' && typeof unwrap === 'function';
 }

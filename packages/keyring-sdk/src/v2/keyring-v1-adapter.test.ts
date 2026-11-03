@@ -9,7 +9,8 @@ import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import type { Json } from '@metamask/utils';
 
-import { KeyringV1Adapter } from './keyring-v1-adapter';
+import { EthKeyringV1Adapter } from './eth';
+import { KeyringV1Adapter, isKeyringV1Adapter } from './keyring-v1-adapter';
 
 const MOCK_TYPE = `${KeyringType.Hd}` as const;
 
@@ -115,5 +116,65 @@ describe('KeyringV1Adapter', () => {
       await adapter.deserialize(state);
       expect(inner.deserialize).toHaveBeenCalledWith(state);
     });
+  });
+});
+
+describe('isKeyringV1Adapter', () => {
+  it('returns true for a KeyringV1Adapter', () => {
+    expect(isKeyringV1Adapter(new KeyringV1Adapter(makeMockInner()))).toBe(
+      true,
+    );
+  });
+
+  it('returns true for a subclass such as EthKeyringV1Adapter', () => {
+    expect(isKeyringV1Adapter(new EthKeyringV1Adapter(makeMockInner()))).toBe(
+      true,
+    );
+  });
+
+  it('returns true for an adapter constructed by a different copy of the class', () => {
+    // Models a split dependency tree, where the adapter was constructed by
+    // another copy of this package: `instanceof` is then always false even
+    // though the structure is identical. This is the scenario the guard
+    // replaces `instanceof` for.
+    class ForeignCopyKeyringV1Adapter {
+      readonly type: string;
+
+      readonly #inner: KeyringV2;
+
+      constructor(inner: KeyringV2) {
+        this.#inner = inner;
+        this.type = inner.type;
+      }
+
+      unwrap(): KeyringV2 {
+        return this.#inner;
+      }
+    }
+
+    const foreignAdapter = new ForeignCopyKeyringV1Adapter(makeMockInner());
+
+    expect(isKeyringV1Adapter(foreignAdapter)).toBe(true);
+    // For reference: the `instanceof` check this guard replaces fails here.
+    expect(foreignAdapter).not.toBeInstanceOf(KeyringV1Adapter);
+  });
+
+  it('returns false for the inner v2 keyring itself', () => {
+    expect(isKeyringV1Adapter(makeMockInner())).toBe(false);
+  });
+
+  it('returns false for a plain object without unwrap', () => {
+    expect(isKeyringV1Adapter({ type: MOCK_TYPE })).toBe(false);
+  });
+
+  it('returns false when unwrap is not a function', () => {
+    expect(
+      isKeyringV1Adapter({ type: MOCK_TYPE, unwrap: 'not-a-function' }),
+    ).toBe(false);
+  });
+
+  it('returns false for null and undefined', () => {
+    expect(isKeyringV1Adapter(null)).toBe(false);
+    expect(isKeyringV1Adapter(undefined)).toBe(false);
   });
 });

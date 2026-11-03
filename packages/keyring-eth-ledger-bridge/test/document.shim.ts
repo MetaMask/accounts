@@ -24,7 +24,7 @@ const shim = {
 };
 
 try {
-  documentShim = document || shim;
+  documentShim = document ?? shim;
 } catch {
   documentShim = shim;
 }

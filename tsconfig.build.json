@@ -6,6 +6,7 @@
     { "path": "./packages/keyring-eth-hd/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-money/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-ledger-bridge/tsconfig.build.json" },
+    { "path": "./packages/keyring-eth-money-mpc/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-qr/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-simple/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-trezor/tsconfig.build.json" },
@@ -18,6 +19,7 @@
     { "path": "./packages/keyring-utils/tsconfig.build.json" },
     { "path": "./packages/speculos-up/tsconfig.build.json" },
     { "path": "./packages/hw-emulator/tsconfig.build.json" }
+    { "path": "./packages/keyring-watch-only/tsconfig.build.json" }
   ],
   "files": [],
   "include": []

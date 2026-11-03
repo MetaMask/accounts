@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [10.0.1]
+
+### Changed
+
+- Bump `@metamask/snaps-sdk` from `^11.0.0` to `^11.2.0` ([#596](https://github.com/MetaMask/accounts/pull/596))
+
 ## [10.0.0]
 
 ### Changed
@@ -219,7 +225,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This new version fixes a bug with CJS re-exports.
 - Initial release ([#24](https://github.com/MetaMask/accounts/pull/24))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@10.0.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@10.0.1...HEAD
+[10.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@10.0.0...@metamask/keyring-snap-sdk@10.0.1
 [10.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.2.1...@metamask/keyring-snap-sdk@10.0.0
 [9.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.2.0...@metamask/keyring-snap-sdk@9.2.1
 [9.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-snap-sdk@9.1.0...@metamask/keyring-snap-sdk@9.2.0
