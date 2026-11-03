@@ -239,10 +239,10 @@ export async function installBinaries(
     if (!file.isFile()) {
       continue;
     }
-    // `Dirent.parentPath` is only available on Node 18.20+/20.12+. Every
-    // in-package call site already opens the directory it passes as
-    // `sourceDir`, so that is a safe fallback on older runtimes.
-    const sourcePath = join(file.parentPath ?? sourceDir, file.name);
+    // Resolve each entry against `sourceDir` — the directory the entries were
+    // read from — instead of `Dirent.parentPath`, which is only populated on
+    // newer runtimes. This relies solely on long-supported APIs (Node 22+).
+    const sourcePath = join(sourceDir, file.name);
     const installPath = join(binDir, relative(sourceDir, sourcePath));
 
     const relativeSource = relative(dirname(installPath), sourcePath);

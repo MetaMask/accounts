@@ -371,9 +371,9 @@ describe('index security paths', () => {
       );
     });
 
-    it('falls back to sourceDir when Dirent.parentPath is unavailable', async () => {
-      // Older Node versions (before 18.20/20.12) do not populate
-      // `Dirent.parentPath`, so it must not be required.
+    it('resolves entry paths from sourceDir without requiring Dirent.parentPath', async () => {
+      // Entries are resolved against `sourceDir`; `Dirent.parentPath` is not
+      // used, so this must work with only Node 22+ APIs.
       const sourceDir = join(tempDir, 'install-fallback-source');
       await mkdir(sourceDir, { recursive: true });
       const payload = '#!/bin/sh\necho "speculos 0.25.13"\n';
