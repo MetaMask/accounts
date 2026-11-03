@@ -133,7 +133,23 @@ async function handleCorsRequest(
     if (requestInit.method !== 'GET' && requestInit.method !== 'HEAD') {
       requestInit.body = new Uint8Array(body);
     }
-    const upstreamResponse = await fetch(`${upstream}${req.url}`, requestInit);
+    const parsedIncomingUrl = new URL(req.url ?? '/', 'http://localhost');
+    if (!parsedIncomingUrl.pathname.startsWith('/')) {
+      res.writeHead(400, CORS_RESPONSE_HEADERS);
+      res.end(JSON.stringify({ error: 'invalid request path' }));
+      return;
+    }
+    const decodedPathname = decodeURIComponent(parsedIncomingUrl.pathname);
+    if (decodedPathname.includes('..')) {
+      res.writeHead(400, CORS_RESPONSE_HEADERS);
+      res.end(JSON.stringify({ error: 'path traversal is not allowed' }));
+      return;
+    }
+    const upstreamUrl = new URL(
+      `${parsedIncomingUrl.pathname}${parsedIncomingUrl.search}`,
+      upstream,
+    );
+    const upstreamResponse = await fetch(upstreamUrl, requestInit);
     const responseBody = Buffer.from(await upstreamResponse.arrayBuffer());
     res.writeHead(upstreamResponse.status, {
       'content-type':
