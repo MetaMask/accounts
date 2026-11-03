@@ -1,5 +1,12 @@
 /* eslint-disable n/no-sync -- synchronous fs is acceptable for temp-file test fixtures. */
-import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  chmodSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import net from 'node:net';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -54,6 +61,67 @@ describe('createProcessManager', () => {
     await manager.stop();
     expect(manager.status).toBe('idle');
   });
+
+  it('passes --load-nvram and the configured cwd to the spawned process', async () => {
+    const apduPort = await findFreePort();
+    const apiPort = await findFreePort();
+    const fixtureDir = mkdtempSync(path.join(tmpdir(), 'pm-test-'));
+    const fixture = path.join(fixtureDir, 'server.js');
+    const recordFile = path.join(fixtureDir, 'spawn.json');
+    // The fixture records its argv and cwd, then opens both readiness ports so
+    // the manager considers startup complete.
+    writeFileSync(
+      fixture,
+      [
+        '#!/usr/bin/env node',
+        'const fs = require("fs");',
+        'const net = require("net");',
+        `fs.writeFileSync(${JSON.stringify(recordFile)}, JSON.stringify({ argv: process.argv.slice(2), cwd: process.cwd() }));`,
+        `net.createServer(() => {}).listen(${apduPort}, "127.0.0.1");`,
+        `net.createServer(() => {}).listen(${apiPort}, "127.0.0.1");`,
+        'setInterval(() => {}, 1000);',
+      ].join('\n'),
+      'utf8',
+    );
+    chmodSync(fixture, 0o755);
+
+    try {
+      const manager = createProcessManager({
+        binary: fixture,
+        app: 'app.elf',
+        loadNvram: true,
+        cwd: fixtureDir,
+        apduPort,
+        apiPort,
+        startTimeout: 15_000,
+        stopTimeout: 5_000,
+      });
+
+      await manager.start();
+
+      const record = JSON.parse(readFileSync(recordFile, 'utf8')) as {
+        argv: string[];
+        cwd: string;
+      };
+
+      // `--load-nvram` is a boolean flag: it must be a bare token, not a
+      // `--load-nvram=<path>` pair.
+      expect(record.argv).toStrictEqual([
+        '--apdu-port',
+        String(apduPort),
+        '--api-port',
+        String(apiPort),
+        '--load-nvram',
+        'app.elf',
+      ]);
+      // macOS tmpdirs are symlinked, so compare against the resolved path.
+      expect(record.cwd).toBe(realpathSync(fixtureDir));
+
+      await manager.stop();
+    } finally {
+      rmSync(fixtureDir, { recursive: true, force: true });
+    }
+  }, 30_000);
 
   it('reuses an in-flight stop on concurrent calls', async () => {
     const apduPort = await findFreePort();

@@ -4,11 +4,13 @@ import {
   mkdir,
   mkdtemp,
   opendir,
+  readFile,
   readdir,
   rm,
   stat,
   writeFile,
 } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { dirname } from 'node:path';
@@ -368,6 +370,40 @@ describe('index security paths', () => {
         true,
       );
     });
+
+    it('falls back to sourceDir when Dirent.parentPath is unavailable', async () => {
+      // Older Node versions (before 18.20/20.12) do not populate
+      // `Dirent.parentPath`, so it must not be required.
+      const sourceDir = join(tempDir, 'install-fallback-source');
+      await mkdir(sourceDir, { recursive: true });
+      const payload = '#!/bin/sh\necho "speculos 0.25.13"\n';
+      await writeFile(join(sourceDir, Binary.Speculos), payload, {
+        mode: 0o755,
+      });
+      const binDir = join(tempDir, 'install-fallback-bin');
+
+      const entries = [{ isFile: (): boolean => true, name: Binary.Speculos }];
+      const syntheticDir = {
+        async *[Symbol.asyncIterator](): AsyncGenerator<{
+          isFile: () => boolean;
+          name: string;
+        }> {
+          for (const entry of entries) {
+            yield entry;
+          }
+        },
+      } as unknown as Dir;
+
+      await installBinaries(syntheticDir, binDir, sourceDir);
+
+      const installedPath = join(binDir, Binary.Speculos);
+      const installedStat = await stat(installedPath);
+      expect(installedStat.isFile() || installedStat.isSymbolicLink()).toBe(
+        true,
+      );
+      // The installed entry must point at the file in `sourceDir`.
+      expect(await readFile(installedPath, 'utf8')).toBe(payload);
+    });
   });
 
   describe('downloadAndInstall', () => {
@@ -418,6 +454,53 @@ describe('index security paths', () => {
       );
       expect(jest.mocked(downloadToFile).mock.calls).toHaveLength(0);
     }, 15000);
+  });
+
+  describe('built artifact package directory resolution', () => {
+    const builtCjsPath = join(__dirname, '..', 'dist', 'index.cjs');
+
+    /**
+     * Check whether the package has been built.
+     *
+     * @returns Whether the built CJS entry point exists.
+     */
+    function isBuiltArtifactAvailable(): boolean {
+      try {
+        createRequire(__filename).resolve(builtCjsPath);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    // Regression guard for package-directory resolution: the published
+    // build must resolve `bundled/checksums.json`, otherwise every cold
+    // install throws "Unable to resolve the speculos-up package directory".
+    // The suite is skipped when the package has not been built so the source
+    // test run stays hermetic.
+    const describeWhenBuilt = isBuiltArtifactAvailable()
+      ? describe
+      : describe.skip;
+
+    describeWhenBuilt('published CJS build', () => {
+      it('resolves the package directory from the CJS build', async () => {
+        // Import the built artifact rather than the source, so the actual
+        // published entry point is exercised.
+        const builtRequire = createRequire(__filename);
+        const artifact: typeof import('.') = builtRequire(builtCjsPath);
+
+        // Version 99.99.99 has no bundled archive and no checksum entry,
+        // so the install fails closed during the checksum lookup, before
+        // any network request. Reaching that error proves the package
+        // directory (and therefore `bundled/checksums.json`) was resolved.
+        await expect(
+          artifact.downloadAndInstall({
+            version: '99.99.99',
+            cacheDir: join(tempDir, 'built-cjs-cache'),
+          }),
+        ).rejects.toThrow(/No checksum recorded/u);
+      }, 15000);
+    });
   });
 
   describe('cleanCache', () => {

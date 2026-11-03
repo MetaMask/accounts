@@ -37,5 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix empty cache directories being treated as valid installations, which returned paths to a non-existent binary ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 - Harden tar extraction: reject symlink, hardlink, and other non-regular entries, treat tar warnings as errors (`strict` mode), and abort archives whose decompressed size exceeds 1 GiB ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 - Pin `pyinstaller` in the release build scripts for reproducible, verifiable builds ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Fix package-directory resolution so bundled archives and checksum verification work in the published build, and support Node versions without `Dirent.parentPath` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Resolve `package.json` instead of the extensionless `./utils` specifier, which never resolved against the `.cjs`/`.mjs`-only `dist/` output, causing `downloadAndInstall()` to throw "Unable to resolve the speculos-up package directory" in both the CJS and ESM builds.
+  - Fall back to `sourceDir` in `installBinaries()` when `Dirent.parentPath` is unavailable (Node versions before 18.20/20.12).
 
 [Unreleased]: https://github.com/MetaMask/accounts/

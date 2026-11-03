@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Native mode now spawns Speculos from the bundled `nvram/` directory so `--load-nvram` finds `main_nvram.bin`, which Speculos resolves relative to the process working directory ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Previously the flag was passed with no reachable NVRAM file, which could abort startup under the default `loadNvram: true`. Docker mode is unchanged.
 - Pinned `protobuf>=5.26,<7` in the Python BLE bridge dependencies — bumble's `android_netsim` transport imports `google.protobuf` at runtime and `grpcio` does not pull it in transitively, so fresh virtualenvs were missing it at import time.
 
 ### Changed

@@ -1,3 +1,6 @@
+// eslint-disable-next-line import-x/no-nodejs-modules
+import { dirname } from 'node:path';
+
 import type {
   HardwareWalletEmulator,
   DeviceInteraction as SharedDeviceInteraction,
@@ -222,6 +225,7 @@ export class Speculos implements HardwareWalletEmulator {
   async startNative(config: ResolvedConfig): Promise<void> {
     const speculosUpBinary = await this.#resolveSpeculosUpBinary();
     const binary = this.#options.binary ?? speculosUpBinary ?? 'speculos';
+    const loadNvram = this.#options.loadNvram ?? true;
 
     this.#processManager = createProcessManager({
       binary,
@@ -231,7 +235,14 @@ export class Speculos implements HardwareWalletEmulator {
       apduPort: config.deviceConfig.apduPort,
       apiPort: config.deviceConfig.apiPort,
       display: this.#options.display ?? DEFAULT_DISPLAY,
-      loadNvram: this.#options.loadNvram ?? true,
+      loadNvram,
+      // Speculos resolves the NVRAM file relative to the process working
+      // directory (it opens `<appName>_nvram.bin`, i.e. `main_nvram.bin`, from
+      // the cwd). Run the native process from the bundled `nvram/` directory so
+      // `--load-nvram` actually finds the shipped file. Docker mode is
+      // unaffected: the image runs from `/speculos`, where the compose file
+      // bind-mounts the same file.
+      ...(loadNvram ? { cwd: dirname(this.getNvramPath()) } : {}),
       ...(this.#options.startTimeout === undefined
         ? {}
         : { startTimeout: this.#options.startTimeout }),

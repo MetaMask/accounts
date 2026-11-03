@@ -1,3 +1,5 @@
+import { basename, dirname } from 'node:path';
+
 import { DEVICE_MODELS } from './constants';
 import type { DeviceModel } from './constants';
 import { Speculos } from './speculos';
@@ -41,6 +43,37 @@ jest.mock('./docker-manager', () => {
   return { DockerManager, __dockerBehavior: behavior };
 });
 
+jest.mock('./process-manager', () => {
+  const behavior: {
+    options: Record<string, unknown>[];
+    start: jest.Mock;
+    stop: jest.Mock;
+  } = {
+    options: [],
+    start: jest.fn(),
+    stop: jest.fn(),
+  };
+  function createProcessManager(options: Record<string, unknown>): {
+    start: () => Promise<void>;
+    stop: () => Promise<void>;
+    status: string;
+    pid: number | undefined;
+  } {
+    behavior.options.push(options);
+    return {
+      async start(): Promise<void> {
+        await behavior.start();
+      },
+      async stop(): Promise<void> {
+        await behavior.stop();
+      },
+      status: 'idle',
+      pid: undefined,
+    };
+  }
+  return { createProcessManager, __processBehavior: behavior };
+});
+
 /**
  * Get the mutable client behavior object created by the client mock.
  *
@@ -57,6 +90,19 @@ function getClientBehavior(): { connectShouldFail: boolean } {
  */
 function getDockerBehavior(): { start: jest.Mock; stop: jest.Mock } {
   return jest.requireMock('./docker-manager').__dockerBehavior;
+}
+
+/**
+ * Get the process-manager behavior object created by the native mock.
+ *
+ * @returns The process behavior holder, including the recorded options.
+ */
+function getProcessBehavior(): {
+  options: Record<string, unknown>[];
+  start: jest.Mock;
+  stop: jest.Mock;
+} {
+  return jest.requireMock('./process-manager').__processBehavior;
 }
 
 describe('Speculos', () => {
@@ -170,6 +216,51 @@ describe('Speculos lifecycle', () => {
 
     await speculos.startBridge(0);
     await expect(speculos.startBridge(0)).rejects.toThrow('already running');
+
+    await speculos.stop();
+  });
+});
+
+describe('Speculos native mode', () => {
+  beforeEach(() => {
+    getProcessBehavior().options.length = 0;
+    jest.clearAllMocks();
+  });
+
+  it('spawns the native process from the bundled NVRAM directory', async () => {
+    const speculos = new Speculos({
+      mode: 'native',
+      binary: '/usr/bin/speculos',
+    });
+
+    await speculos.start();
+
+    const [options] = getProcessBehavior().options;
+    expect(options).toBeDefined();
+    // Speculos resolves `main_nvram.bin` relative to the cwd, so native mode
+    // must run from the directory that holds the bundled NVRAM file.
+    expect(options?.cwd).toBe(dirname(speculos.getNvramPath()));
+    expect(basename(options?.cwd as string)).toBe('nvram');
+    // `--load-nvram` is a boolean flag, never a path argument.
+    expect(options?.loadNvram).toBe(true);
+
+    await speculos.stop();
+    expect(getProcessBehavior().stop).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not override the cwd when NVRAM loading is disabled', async () => {
+    const speculos = new Speculos({
+      mode: 'native',
+      binary: '/usr/bin/speculos',
+      loadNvram: false,
+    });
+
+    await speculos.start();
+
+    const [options] = getProcessBehavior().options;
+    expect(options).toBeDefined();
+    expect(options?.loadNvram).toBe(false);
+    expect(options?.cwd).toBeUndefined();
 
     await speculos.stop();
   });

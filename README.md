@@ -36,10 +36,8 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/keyring-snap-client`](packages/keyring-snap-client)
 - [`@metamask/keyring-snap-sdk`](packages/keyring-snap-sdk)
 - [`@metamask/keyring-utils`](packages/keyring-utils)
-  <<<<<<< HEAD
-- # [`@metamask/speculos-up`](packages/speculos-up)
+- [`@metamask/speculos-up`](packages/speculos-up)
 - [`@metamask/watch-only-keyring`](packages/keyring-watch-only)
-  > > > > > > > origin/main
 
 <!-- end package list -->
 
@@ -69,8 +67,8 @@ linkStyle default opacity:0.5
   keyring_snap_client(["@metamask/keyring-snap-client"]);
   keyring_snap_sdk(["@metamask/keyring-snap-sdk"]);
   keyring_utils(["@metamask/keyring-utils"]);
-  speculos_up(["@metamask/speculos-up"]);
   watch_only_keyring(["@metamask/watch-only-keyring"]);
+  speculos_up(["@metamask/speculos-up"]);
   account_api --> keyring_api;
   account_api --> keyring_utils;
   hw_emulator --> keyring_eth_qr;

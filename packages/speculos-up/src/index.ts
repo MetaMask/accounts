@@ -41,6 +41,11 @@ let cachedPackageDir: string | undefined;
  * Resolve the package root directory containing bundled/ and dist/.
  * Works in both CJS and ESM contexts.
  *
+ * The package manifest is resolved because it keeps the same name
+ * (`package.json`) in both the CJS and ESM builds. Extensionless internal
+ * specifiers (such as `./utils`) do not resolve against the `.cjs`/`.mjs`-only
+ * output produced by the build, so they would fail in both builds.
+ *
  * @returns The package root directory, or undefined if not resolvable.
  */
 function resolvePackageDir(): string | undefined {
@@ -49,8 +54,8 @@ function resolvePackageDir(): string | undefined {
   }
   try {
     // eslint-disable-next-line no-restricted-globals
-    const utilsPath = require.resolve('./utils');
-    cachedPackageDir = dirname(dirname(utilsPath));
+    const manifestPath = require.resolve('../package.json');
+    cachedPackageDir = dirname(manifestPath);
     return cachedPackageDir;
   } catch {
     return undefined;
@@ -234,7 +239,10 @@ export async function installBinaries(
     if (!file.isFile()) {
       continue;
     }
-    const sourcePath = join(file.parentPath, file.name);
+    // `Dirent.parentPath` is only available on Node 18.20+/20.12+. Every
+    // in-package call site already opens the directory it passes as
+    // `sourceDir`, so that is a safe fallback on older runtimes.
+    const sourcePath = join(file.parentPath ?? sourceDir, file.name);
     const installPath = join(binDir, relative(sourceDir, sourcePath));
 
     const relativeSource = relative(dirname(installPath), sourcePath);
