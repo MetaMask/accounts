@@ -124,7 +124,7 @@
     }
   },
   "engines": {
-    "node": ">=26"
+    "node": ">=22"
   },
   "lavamoat": {
     "allowScripts": {
