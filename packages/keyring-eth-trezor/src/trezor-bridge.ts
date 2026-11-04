@@ -1,5 +1,5 @@
 import type {
-  ConnectSettings,
+  ConnectDynamicSettings,
   EthereumSignedTx,
   Manifest,
   PROTO,
@@ -8,10 +8,10 @@ import type {
   EthereumSignMessage,
   EthereumSignTransaction,
   EthereumSignTypedDataTypes,
-  EthereumSignTypedHash,
-} from '@trezor/connect-web';
+  EthereumSignTypedData,
+} from '@trezor/connect-web' with { 'resolution-mode': 'import' };
 
-// TrezorConnect.getPublicKey has two overloads
+// TrezorConnect.ethereumGetPublicKey has two overloads
 // It is not possible to extract them from the library using utility types
 export type ExtendedPublicKey = { publicKey: string; chainCode: string };
 
@@ -21,15 +21,12 @@ export interface TrezorBridge {
   init(
     settings: {
       manifest: Manifest;
-    } & Partial<ConnectSettings>,
+    } & ConnectDynamicSettings,
   ): Promise<void>;
 
   dispose(): Promise<void>;
 
-  getPublicKey(params: {
-    path: string;
-    coin: string;
-  }): Response<ExtendedPublicKey>;
+  ethereumGetPublicKey(params: { path: string }): Response<ExtendedPublicKey>;
 
   ethereumSignTransaction(
     params: Params<EthereumSignTransaction>,
@@ -40,6 +37,6 @@ export interface TrezorBridge {
   ): Response<PROTO.MessageSignature>;
 
   ethereumSignTypedData<T extends EthereumSignTypedDataTypes>(
-    params: Params<EthereumSignTypedHash<T>>,
+    params: Params<EthereumSignTypedData<T>>,
   ): Response<PROTO.EthereumTypedDataSignature>;
 }

@@ -7,28 +7,33 @@
  * @jest-environment jsdom
  */
 
-import * as TrezorConnectModule from '@trezor/connect-web';
-import type { TrezorConnect as TrezorConnectType } from '@trezor/connect-web';
+import type {
+  ConnectDynamicSettings,
+  TrezorConnectPublicAPI,
+} from '@trezor/connect-web' with { 'resolution-mode': 'import' };
 
 import { TrezorBridge } from './trezor-bridge';
 import { TrezorConnectBridge } from './trezor-connect-bridge';
 import { TREZOR_CONNECT_MANIFEST } from './trezor-keyring';
 
-// Mirror the same dual-path normalisation used in trezor-connect-bridge.ts so
-// the spy targets the exact same singleton object the source module uses.
-/* istanbul ignore next: only one branch is reachable per module system */
-const rawTrezorModule = TrezorConnectModule as unknown as { default: unknown };
-const rawTrezorDefault = rawTrezorModule.default as
-  | typeof TrezorConnectModule
-  | undefined;
-const trezorConnectExports = rawTrezorDefault?.default
-  ? rawTrezorDefault
-  : rawTrezorModule;
-const TrezorConnect = trezorConnectExports.default as TrezorConnectType;
-const { DEVICE, DEVICE_EVENT } = TrezorConnectModule;
+jest.mock('@trezor/connect-web', () => ({
+  __esModule: true,
+  default: {
+    init: jest.fn(),
+    dispose: jest.fn(),
+    ethereumGetPublicKey: jest.fn(),
+    ethereumSignTransaction: jest.fn(),
+    ethereumSignMessage: jest.fn(),
+    ethereumSignTypedData: jest.fn(),
+  },
+}));
 
 describe('TrezorConnectBridge', function () {
   let bridge: TrezorBridge;
+  // The mocked singleton the bridge loads, so spies target the object it calls.
+  const TrezorConnect = jest.requireMock<{
+    default: TrezorConnectPublicAPI<ConnectDynamicSettings>;
+  }>('@trezor/connect-web').default;
 
   beforeEach(function () {
     bridge = new TrezorConnectBridge();
@@ -39,86 +44,33 @@ describe('TrezorConnectBridge', function () {
   });
 
   describe('init', function () {
-    it('sets the event listener and calls init', async function () {
-      const onSpy = jest
-        .spyOn(TrezorConnect, 'on')
-        .mockImplementation((...args: unknown[]) => {
-          const cb = args[1] as (event: unknown) => void;
-          cb({
-            type: DEVICE.CONNECT,
-            payload: { features: { model: '1' } },
-          });
-        });
-      const initSpy = jest.spyOn(TrezorConnect, 'init');
+    it('calls init with the given settings', async function () {
+      const initSpy = jest
+        .spyOn(TrezorConnect, 'init')
+        .mockResolvedValue(undefined);
 
       await bridge.init({
         manifest: TREZOR_CONNECT_MANIFEST,
-        lazyLoad: true,
       });
-
-      expect(onSpy).toHaveBeenCalledTimes(1);
-      expect(onSpy).toHaveBeenCalledWith(DEVICE_EVENT, expect.any(Function));
-      expect(bridge.model).toBe('1');
 
       expect(initSpy).toHaveBeenCalledTimes(1);
       expect(initSpy).toHaveBeenCalledWith({
         manifest: TREZOR_CONNECT_MANIFEST,
-        lazyLoad: true,
       });
-    });
-
-    it('event handler does not set model on wrong event type', async function () {
-      const onSpy = jest
-        .spyOn(TrezorConnect, 'on')
-        .mockImplementation((...args: unknown[]) => {
-          const cb = args[1] as (event: unknown) => void;
-          cb({
-            type: 'wrong-event-type',
-          });
-        });
-
-      await bridge.init({
-        manifest: TREZOR_CONNECT_MANIFEST,
-        lazyLoad: true,
-      });
-
-      expect(onSpy).toHaveBeenCalledTimes(1);
-      expect(onSpy).toHaveBeenCalledWith(DEVICE_EVENT, expect.any(Function));
-      expect(bridge.model).toBeUndefined();
-    });
-
-    it('event handler does not set model if features object is missing', async function () {
-      const onSpy = jest
-        .spyOn(TrezorConnect, 'on')
-        .mockImplementation((...args: unknown[]) => {
-          const cb = args[1] as (event: unknown) => void;
-          cb({
-            type: DEVICE.CONNECT,
-            payload: {},
-          });
-        });
-
-      await bridge.init({
-        manifest: TREZOR_CONNECT_MANIFEST,
-        lazyLoad: true,
-      });
-
-      expect(onSpy).toHaveBeenCalledTimes(1);
-      expect(onSpy).toHaveBeenCalledWith(DEVICE_EVENT, expect.any(Function));
       expect(bridge.model).toBeUndefined();
     });
 
     it('does not call init again if already initialised', async function () {
-      const initSpy = jest.spyOn(TrezorConnect, 'init');
+      const initSpy = jest
+        .spyOn(TrezorConnect, 'init')
+        .mockResolvedValue(undefined);
 
       await bridge.init({
         manifest: TREZOR_CONNECT_MANIFEST,
-        lazyLoad: true,
       });
 
       await bridge.init({
         manifest: TREZOR_CONNECT_MANIFEST,
-        lazyLoad: true,
       });
 
       expect(initSpy).toHaveBeenCalledTimes(1);
@@ -127,7 +79,9 @@ describe('TrezorConnectBridge', function () {
 
   describe('dispose', function () {
     it('calls dispose', async function () {
-      const disposeSpy = jest.spyOn(TrezorConnect, 'dispose');
+      const disposeSpy = jest
+        .spyOn(TrezorConnect, 'dispose')
+        .mockReturnValue(undefined);
 
       await bridge.dispose();
 
@@ -136,27 +90,27 @@ describe('TrezorConnectBridge', function () {
     });
   });
 
-  describe('getPublicKey', function () {
-    it('calls getPublicKey', async function () {
-      const getPublicKeySpy = jest.spyOn(TrezorConnect, 'getPublicKey');
+  describe('ethereumGetPublicKey', function () {
+    it('calls ethereumGetPublicKey', async function () {
+      const ethereumGetPublicKeySpy = jest
+        .spyOn(TrezorConnect, 'ethereumGetPublicKey')
+        .mockResolvedValue({ success: true, payload: {} as never });
 
       const params = {
         path: `m/44'/60'/0'/0`,
-        coin: 'ETH',
       };
-      await bridge.getPublicKey(params);
+      await bridge.ethereumGetPublicKey(params);
 
-      expect(getPublicKeySpy).toHaveBeenCalledTimes(1);
-      expect(getPublicKeySpy).toHaveBeenCalledWith(params);
+      expect(ethereumGetPublicKeySpy).toHaveBeenCalledTimes(1);
+      expect(ethereumGetPublicKeySpy).toHaveBeenCalledWith(params);
     });
   });
 
   describe('ethereumSignTransaction', function () {
     it('calls ethereumSignTransaction', async function () {
-      const ethereumSignTransactionSpy = jest.spyOn(
-        TrezorConnect,
-        'ethereumSignTransaction',
-      );
+      const ethereumSignTransactionSpy = jest
+        .spyOn(TrezorConnect, 'ethereumSignTransaction')
+        .mockResolvedValue({ success: true, payload: {} as never });
 
       const params = {
         path: `m/44'/60'/0'/0`,
@@ -179,10 +133,9 @@ describe('TrezorConnectBridge', function () {
 
   describe('ethereumSignMessage', function () {
     it('calls ethereumSignMessage', async function () {
-      const ethereumSignMessageSpy = jest.spyOn(
-        TrezorConnect,
-        'ethereumSignMessage',
-      );
+      const ethereumSignMessageSpy = jest
+        .spyOn(TrezorConnect, 'ethereumSignMessage')
+        .mockResolvedValue({ success: true, payload: {} as never });
 
       const params = {
         path: `m/44'/60'/0'/0`,
@@ -198,10 +151,9 @@ describe('TrezorConnectBridge', function () {
 
   describe('ethereumSignTypedData', function () {
     it('calls ethereumSignTypedData', async function () {
-      const ethereumSignTypedDataSspy = jest.spyOn(
-        TrezorConnect,
-        'ethereumSignTypedData',
-      );
+      const ethereumSignTypedDataSpy = jest
+        .spyOn(TrezorConnect, 'ethereumSignTypedData')
+        .mockResolvedValue({ success: true, payload: {} as never });
 
       const params = {
         path: `m/44'/60'/0'/0`,
@@ -214,13 +166,11 @@ describe('TrezorConnectBridge', function () {
           message: {},
         },
         metamask_v4_compat: true,
-        domain_separator_hash: '',
-        message_hash: '',
       };
       await bridge.ethereumSignTypedData(params);
 
-      expect(ethereumSignTypedDataSspy).toHaveBeenCalledTimes(1);
-      expect(ethereumSignTypedDataSspy).toHaveBeenCalledWith(params);
+      expect(ethereumSignTypedDataSpy).toHaveBeenCalledTimes(1);
+      expect(ethereumSignTypedDataSpy).toHaveBeenCalledWith(params);
     });
   });
 });

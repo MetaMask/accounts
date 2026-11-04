@@ -2,26 +2,26 @@ import { HardwareWalletError } from '@metamask/hw-wallet-sdk';
 
 import { convertToHardwareWalletError } from './trezor-error-handler';
 
-type TrezorErrorPayload = {
-  error?: string;
+type TrezorResponseError = {
+  message?: string;
   code?: string;
 };
 
 /**
- * Creates a HardwareWalletError from a Trezor Connect unsuccessful response payload.
+ * Creates a HardwareWalletError from a Trezor Connect unsuccessful response error.
  * Preserves machine-readable Trezor error codes when present.
  *
- * @param payload - The error payload from a Trezor Connect response.
+ * @param responseError - The `error` of an unsuccessful Trezor Connect response.
  * @returns A typed hardware wallet error for downstream handling.
  */
 export function createErrorFromTrezorResponse(
-  payload: TrezorErrorPayload | undefined,
+  responseError: TrezorResponseError | undefined,
 ): HardwareWalletError {
-  const message = payload?.error ?? 'Unknown error';
+  const message = responseError?.message ?? 'Unknown error';
   const error = new Error(message);
 
-  if (payload?.code !== undefined) {
-    Object.assign(error, { code: payload.code });
+  if (responseError?.code !== undefined) {
+    Object.assign(error, { code: responseError.code });
   }
 
   return convertToHardwareWalletError(error, message);

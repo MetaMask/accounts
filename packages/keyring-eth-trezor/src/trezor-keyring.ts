@@ -14,12 +14,11 @@ import {
   Hex,
   remove0x,
 } from '@metamask/utils';
-import { transformTypedData } from '@trezor/connect-plugin-ethereum';
 import type {
   EthereumTransactionEIP1559,
   EthereumSignedTx,
   EthereumTransaction,
-} from '@trezor/connect-web';
+} from '@trezor/connect-web' with { 'resolution-mode': 'import' };
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
@@ -40,7 +39,6 @@ const ALLOWED_HD_PATHS = {
 const keyringType = 'Trezor Hardware';
 const pathBase = 'm';
 const MAX_INDEX = 1000;
-const DELAY_BETWEEN_POPUPS = 1000;
 export const TREZOR_CONNECT_MANIFEST = {
   appName: 'MetaMask',
   email: 'support@metamask.io',
@@ -70,10 +68,6 @@ export type TrezorControllerState = {
   perPage: number;
   unlockedAccount: number;
 };
-
-async function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 /**
  * Check if the given transaction is made with ethereumjs-tx or @ethereumjs/tx
@@ -146,7 +140,6 @@ export class TrezorKeyring implements Keyring {
   async init(): Promise<void> {
     return this.bridge.init({
       manifest: TREZOR_CONNECT_MANIFEST,
-      lazyLoad: true,
     });
   }
 
@@ -183,12 +176,11 @@ export class TrezorKeyring implements Keyring {
     }
 
     try {
-      const response = await this.bridge.getPublicKey({
+      const response = await this.bridge.ethereumGetPublicKey({
         path: this.hdPath,
-        coin: 'ETH',
       });
       if (!response.success) {
-        throw createErrorFromTrezorResponse(response.payload);
+        throw createErrorFromTrezorResponse(response.error);
       }
 
       this.hdk.publicKey = Buffer.from(response.payload.publicKey, 'hex');
@@ -393,8 +385,7 @@ export class TrezorKeyring implements Keyring {
     }
 
     try {
-      const status = await this.unlock();
-      await wait(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0);
+      await this.unlock();
       const response = await this.bridge.ethereumSignTransaction({
         path: this.#pathFromAddress(address),
         transaction,
@@ -412,7 +403,7 @@ export class TrezorKeyring implements Keyring {
 
         return newOrMutatedTx;
       }
-      throw createErrorFromTrezorResponse(response.payload);
+      throw createErrorFromTrezorResponse(response.error);
     } catch (error) {
       // Re-throw address validation errors as plain Errors, not hardware errors
       if (isAddressValidationError(error)) {
@@ -435,10 +426,7 @@ export class TrezorKeyring implements Keyring {
     message: string,
   ): Promise<string> {
     try {
-      const status = await this.unlock();
-      // This is necessary to avoid popup collision
-      // between the unlock & sign trezor popups
-      await wait(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0);
+      await this.unlock();
       const response = await this.bridge.ethereumSignMessage({
         path: this.#pathFromAddress(withAccount),
         message: remove0x(message),
@@ -446,7 +434,7 @@ export class TrezorKeyring implements Keyring {
       });
 
       if (!response.success) {
-        throw createErrorFromTrezorResponse(response.payload);
+        throw createErrorFromTrezorResponse(response.error);
       }
 
       if (response.payload.address !== getChecksumAddress(withAccount)) {
@@ -477,29 +465,17 @@ export class TrezorKeyring implements Keyring {
     options?: Options,
   ): Promise<string> {
     const { version } = options ?? { version: SignTypedDataVersion.V4 };
-
-    const dataWithHashes = transformTypedData(
-      data,
-      version === SignTypedDataVersion.V4,
-    );
+    // Trezor signs typed data with `metamask_v4_compat`, which only matches V4.
+    if (version !== SignTypedDataVersion.V4) {
+      throw new Error('Only version 4 of typed data signing is supported');
+    }
 
     try {
       // set default values for signTypedData
       // Trezor is stricter than @metamask/eth-sig-util in what it accepts
-      const {
-        types,
-        message = {},
-        domain = {},
-        primaryType,
-        // snake_case since Trezor uses Protobuf naming conventions here
-        domain_separator_hash, // eslint-disable-line camelcase
-        message_hash, // eslint-disable-line camelcase
-      } = dataWithHashes;
+      const { types, message = {}, domain = {}, primaryType } = data;
 
-      // This is necessary to avoid popup collision
-      // between the unlock & sign trezor popups
-      const status = await this.unlock();
-      await wait(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0);
+      await this.unlock();
 
       const response = await this.bridge.ethereumSignTypedData({
         path: this.#pathFromAddress(address),
@@ -510,13 +486,10 @@ export class TrezorKeyring implements Keyring {
           primaryType,
         },
         metamask_v4_compat: true,
-        // Trezor 1 only supports blindly signing hashes
-        domain_separator_hash, // eslint-disable-line camelcase
-        message_hash: message_hash ?? '', // eslint-disable-line camelcase
       });
 
       if (!response.success) {
-        throw createErrorFromTrezorResponse(response.payload);
+        throw createErrorFromTrezorResponse(response.error);
       }
 
       if (getChecksumAddress(address) !== response.payload.address) {

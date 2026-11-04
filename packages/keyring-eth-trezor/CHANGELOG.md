@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **BREAKING:** Bump `@trezor/connect-web` from `^9.6.0` to `^10.0.1` ([#695](https://github.com/MetaMask/accounts/pull/695))
+  - Connect now runs through Trezor Suite (desktop over a local WebSocket, or Suite Web) instead of the self-hosted iframe and popup.
+  - `@trezor/connect-web` is ESM-only, so `TrezorConnectBridge` loads it with a dynamic `import()`.
+- **BREAKING:** Rename `TrezorBridge.getPublicKey` to `TrezorBridge.ethereumGetPublicKey`, which no longer takes a `coin` parameter ([#695](https://github.com/MetaMask/accounts/pull/695))
+  - Connect 10 restricts `getPublicKey` to bitcoin-like coins. Bridge implementations must call `ethereumGetPublicKey` instead.
+- **BREAKING:** `TrezorBridge.init` settings are now typed as Connect 10 `ConnectDynamicSettings`, and `TrezorKeyring.init` no longer passes `lazyLoad` ([#695](https://github.com/MetaMask/accounts/pull/695))
+- **BREAKING:** `createErrorFromTrezorResponse` now takes the `error` (`{ message, code }`) of an unsuccessful Connect 10 response instead of its `payload` ([#695](https://github.com/MetaMask/accounts/pull/695))
+- **BREAKING:** `TrezorBridge.ethereumSignTypedData` now takes Connect 10 `EthereumSignTypedData` params without `domain_separator_hash` and `message_hash` ([#695](https://github.com/MetaMask/accounts/pull/695))
+  - Connect 10 computes the typed data hashes itself, so `TrezorKeyring.signTypedData` no longer pre-computes them.
+- Remove the 1-second delay between unlocking and signing, which avoided overlapping Connect 9 popups ([#695](https://github.com/MetaMask/accounts/pull/695))
+- `TrezorConnectBridge` no longer subscribes to device events, which Connect 10 does not expose to third-party integrations, so `model` stays `undefined` ([#695](https://github.com/MetaMask/accounts/pull/695))
+- Remove `@trezor/connect-plugin-ethereum` dependency ([#695](https://github.com/MetaMask/accounts/pull/695))
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
 - Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.2.0` ([#686](https://github.com/MetaMask/accounts/pull/686), [#694](https://github.com/MetaMask/accounts/pull/694))
 

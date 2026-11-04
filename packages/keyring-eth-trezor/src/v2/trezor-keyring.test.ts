@@ -103,7 +103,7 @@ function getMockBridge(): TrezorBridge {
   return {
     init: jest.fn(),
     dispose: jest.fn(),
-    getPublicKey: jest.fn(),
+    ethereumGetPublicKey: jest.fn(),
     ethereumSignTransaction: jest.fn(),
     ethereumSignMessage: jest.fn(),
     ethereumSignTypedData: jest.fn(),

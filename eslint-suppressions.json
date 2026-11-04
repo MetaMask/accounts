@@ -140,7 +140,7 @@
   },
   "packages/keyring-eth-trezor/src/trezor-connect-bridge.test.ts": {
     "id-denylist": {
-      "count": 4
+      "count": 1
     }
   },
   "packages/keyring-eth-trezor/src/trezor-connect-bridge.ts": {
@@ -161,7 +161,7 @@
   },
   "packages/keyring-eth-trezor/src/trezor-keyring.ts": {
     "@typescript-eslint/naming-convention": {
-      "count": 3
+      "count": 1
     },
     "id-denylist": {
       "count": 2

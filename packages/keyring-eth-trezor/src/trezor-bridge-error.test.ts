@@ -5,7 +5,7 @@ import { createErrorFromTrezorResponse } from './trezor-bridge-error';
 describe('createErrorFromTrezorResponse', () => {
   it('returns UserCancelled for cancellation messages', () => {
     const error = createErrorFromTrezorResponse({
-      error: 'User cancelled action',
+      message: 'User cancelled action',
     });
 
     expect(error).toBeInstanceOf(HardwareWalletError);
@@ -15,9 +15,9 @@ describe('createErrorFromTrezorResponse', () => {
     );
   });
 
-  it('returns mapped error when payload code is present', () => {
+  it('returns mapped error when the error code is present', () => {
     const error = createErrorFromTrezorResponse({
-      error: 'User cancelled action',
+      message: 'User cancelled action',
       code: 'Method_Cancel',
     });
 
@@ -27,7 +27,7 @@ describe('createErrorFromTrezorResponse', () => {
 
   it('returns Unknown for non-cancellation message-only failures', () => {
     const error = createErrorFromTrezorResponse({
-      error: 'Trezor device disconnected',
+      message: 'Trezor device disconnected',
     });
 
     expect(error).toBeInstanceOf(HardwareWalletError);
@@ -35,7 +35,7 @@ describe('createErrorFromTrezorResponse', () => {
     expect(error.message).toBe('Trezor device disconnected');
   });
 
-  it('returns Unknown when payload is undefined', () => {
+  it('returns Unknown when the error is undefined', () => {
     const error = createErrorFromTrezorResponse(undefined);
 
     expect(error).toBeInstanceOf(HardwareWalletError);
@@ -43,7 +43,7 @@ describe('createErrorFromTrezorResponse', () => {
     expect(error.message).toBe('Unknown error');
   });
 
-  it('returns Unknown when payload has no error field', () => {
+  it('returns Unknown when the error has no message', () => {
     const error = createErrorFromTrezorResponse({});
 
     expect(error).toBeInstanceOf(HardwareWalletError);
