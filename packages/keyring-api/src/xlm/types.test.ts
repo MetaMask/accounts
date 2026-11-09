@@ -1,4 +1,4 @@
-import { XlmAddressStruct } from './types';
+import { XlmAddressStruct } from './types.js';
 
 describe('types', () => {
   describe('XlmAddressStruct', () => {

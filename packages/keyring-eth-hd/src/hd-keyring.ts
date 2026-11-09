@@ -21,7 +21,7 @@ import { mnemonicToSeed } from '@metamask/key-tree';
 import type { CryptographicFunctions } from '@metamask/key-tree';
 import type { Keyring } from '@metamask/keyring-utils';
 import { generateMnemonic, validateMnemonic } from '@metamask/scure-bip39';
-import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
+import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english.js';
 import {
   add0x,
   assert,

@@ -5,7 +5,7 @@ import {
   HardwareWalletError,
 } from '@metamask/hw-wallet-sdk';
 
-import { createDmkError } from '../errors';
+import { createDmkError } from '../errors.js';
 
 const GENERIC_ERROR_STATUS_CODE = 0x6f00;
 

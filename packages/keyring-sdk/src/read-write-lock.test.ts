@@ -1,4 +1,4 @@
-import { ReadWriteLock } from './read-write-lock';
+import { ReadWriteLock } from './read-write-lock.js';
 
 /**
  * A promise that can be resolved or rejected from the outside.

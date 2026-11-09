@@ -1,5 +1,5 @@
-import type { ErrorMapping } from './hardware-error-mappings';
-import { Category, ErrorCode, Severity } from './hardware-errors-enums';
+import type { ErrorMapping } from './hardware-error-mappings.js';
+import { Category, ErrorCode, Severity } from './hardware-errors-enums.js';
 
 /**
  * Full DMK (Device Management Kit) `_tag`-based error mappings.

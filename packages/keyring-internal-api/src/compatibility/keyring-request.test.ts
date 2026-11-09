@@ -3,7 +3,7 @@ import { EthMethod, EthScope } from '@metamask/keyring-api';
 import {
   toKeyringRequestWithoutOrigin,
   toKeyringRequestWithoutOriginMetadata,
-} from './keyring-request';
+} from './keyring-request.js';
 
 describe('v1', () => {
   describe('toKeyringRequestWithoutOrigin', () => {

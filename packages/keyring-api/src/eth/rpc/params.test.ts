@@ -14,7 +14,7 @@ import {
   EthTransactionDataStruct,
   EthTypedDataV1Struct,
   EthTypedMessageStruct,
-} from './params';
+} from './params.js';
 
 describe('EthTransactionDataStruct', () => {
   it('validates a minimal transaction', () => {

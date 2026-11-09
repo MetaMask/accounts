@@ -1,7 +1,7 @@
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
 
-import { withDerivedEip712Domain } from './eip712';
+import { withDerivedEip712Domain } from './eip712.js';
 
 type TestTypedMessage = TypedMessage<MessageTypes>;
 

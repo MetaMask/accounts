@@ -25,15 +25,15 @@ import { Buffer } from 'buffer';
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { withDerivedEip712Domain } from './eip712';
-import { createKeyringStateError } from './errors';
+import { withDerivedEip712Domain } from './eip712.js';
+import { createKeyringStateError } from './errors.js';
 import {
   AppConfigurationResponse,
   GetAppNameAndVersionResponse,
   LedgerBridge,
   LedgerBridgeOptions,
-} from './ledger-bridge';
-import { handleLedgerTransportError } from './ledger-error-handler';
+} from './ledger-bridge.js';
+import { handleLedgerTransportError } from './ledger-error-handler.js';
 
 const pathBase = 'm';
 const hdPathString = `${pathBase}/44'/60'/0'`;

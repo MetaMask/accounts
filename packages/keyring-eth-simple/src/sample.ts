@@ -4,7 +4,7 @@ const keyring = new SimpleKeyring();
 
 let accounts: Record<string, string>[] = [];
 
-keyring // eslint-disable-line @typescript-eslint/no-floating-promises
+keyring
   .addAccounts(37)
   .then(async (newAddresses) => {
     accounts = newAddresses.map((address) => {

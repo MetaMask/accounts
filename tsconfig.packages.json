@@ -28,11 +28,13 @@
      * `jest.config.packages.js`.
      */
     "paths": {
+      // Listed before the `@metamask/*` wildcard so the AES-GCM subpath is not
+      // rewritten to a workspace source directory.
       "@metamask/cryptography/aes-gcm": [
-        "../../node_modules/@metamask/cryptography/dist/aes-gcm.d.ts"
+        "./node_modules/@metamask/cryptography/dist/aes-gcm.d.ts"
       ],
-      "@metamask/*/v2": ["../*/src/v2"],
-      "@metamask/*": ["../*/src"]
+      "@metamask/*/v2": ["./packages/*/src/v2/index.ts"],
+      "@metamask/*": ["./packages/*/src/index.ts"]
     }
   }
 }

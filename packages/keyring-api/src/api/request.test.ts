@@ -1,6 +1,6 @@
 import { is } from '@metamask/superstruct';
 
-import { KeyringRequestStruct } from './request';
+import { KeyringRequestStruct } from './request.js';
 
 describe('KeyringRequest', () => {
   it.each([

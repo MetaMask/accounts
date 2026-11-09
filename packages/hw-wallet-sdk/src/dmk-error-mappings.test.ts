@@ -3,9 +3,9 @@ import {
   DMK_ERROR_TAG_MAPPINGS,
   DMK_MESSAGE_PATTERNS,
   getDmkErrorFromTag,
-} from './dmk-error-mappings';
-import type { ErrorMapping } from './hardware-error-mappings';
-import { Category, ErrorCode, Severity } from './hardware-errors-enums';
+} from './dmk-error-mappings.js';
+import type { ErrorMapping } from './hardware-error-mappings.js';
+import { Category, ErrorCode, Severity } from './hardware-errors-enums.js';
 
 describe('DMK_ERROR_MAPPINGS', () => {
   it('maps DeviceSessionNotFound to DeviceDisconnected with full details', () => {

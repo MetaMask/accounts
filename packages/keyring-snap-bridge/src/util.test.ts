@@ -5,7 +5,7 @@ import {
   throwError,
   toJson,
   unique,
-} from './util';
+} from './util.js';
 
 describe('unique', () => {
   it('returns an empty array when given an empty array', () => {

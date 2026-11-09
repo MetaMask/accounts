@@ -18,7 +18,7 @@ import type { AccountId } from '@metamask/keyring-utils';
 import { add0x } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
 
-import type LegacySimpleKeyring from '../simple-keyring';
+import type LegacySimpleKeyring from '../simple-keyring.js';
 
 /**
  * Methods supported by SimpleKeyring EOA accounts.

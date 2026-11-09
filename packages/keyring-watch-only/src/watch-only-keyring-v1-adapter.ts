@@ -2,7 +2,7 @@ import type { Keyring as KeyringV2 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import { EthKeyringV1Adapter } from '@metamask/keyring-sdk/v2';
 
-import type { WatchOnlyKeyring } from './watch-only-keyring';
+import type { WatchOnlyKeyring } from './watch-only-keyring.js';
 
 /**
  * Check if a given keyring instance is a WatchOnlyKeyringV1Adapter.

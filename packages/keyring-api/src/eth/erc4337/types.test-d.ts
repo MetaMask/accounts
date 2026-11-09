@@ -1,6 +1,6 @@
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
-import type { EthUserOperation } from './types';
+import type { EthUserOperation } from './types.js';
 
 // Valid UserOperation
 expectAssignable<EthUserOperation>({

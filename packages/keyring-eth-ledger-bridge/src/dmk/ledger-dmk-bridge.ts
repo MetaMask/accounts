@@ -32,7 +32,7 @@ import {
   switchMap,
 } from 'rxjs/operators';
 
-import { createDmkError } from '../errors';
+import { createDmkError } from '../errors.js';
 import {
   AppConfigurationResponse,
   GetAppNameAndVersionResponse,
@@ -47,20 +47,20 @@ import {
   LedgerSignTransactionResponse,
   LedgerSignTypedDataParams,
   LedgerSignTypedDataResponse,
-} from '../ledger-bridge';
-import type { Transport } from '../ledger-hw-transport';
+} from '../ledger-bridge.js';
+import type { Transport } from '../ledger-hw-transport.js';
 import {
   isDeviceExchangeError,
   translateDmkError,
-} from './dmk-error-translator';
-import { EthGetAppConfigurationCommand } from './eth-get-app-configuration-command';
+} from './dmk-error-translator.js';
+import { EthGetAppConfigurationCommand } from './eth-get-app-configuration-command.js';
 import {
   hexToBytes,
   stripHexPrefix,
   stripPathPrefix,
   toHexString,
-} from './internal-utils';
-import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware';
+} from './internal-utils.js';
+import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware.js';
 
 export type LedgerDmkBridgeOptions = {
   transportFactory: Parameters<DeviceManagementKitBuilder['addTransport']>[0];

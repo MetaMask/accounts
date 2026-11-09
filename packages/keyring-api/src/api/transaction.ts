@@ -11,9 +11,9 @@ import {
   string,
 } from '@metamask/superstruct';
 
-import { AssetStruct } from './asset';
-import { CaipChainIdStruct } from './caip';
-import type { Paginated } from './pagination';
+import { AssetStruct } from './asset.js';
+import { CaipChainIdStruct } from './caip.js';
+import type { Paginated } from './pagination.js';
 
 /**
  * This struct represents a participant in a transaction.

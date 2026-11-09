@@ -20,9 +20,9 @@ import { assert } from '@metamask/superstruct';
 import { add0x } from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
-import { generateEthAccountId } from '../../eth/account-id';
-import { KeyringWrapper } from '../keyring-wrapper';
-import type { KeyringWrapperOptions } from '../keyring-wrapper';
+import { generateEthAccountId } from '../../eth/account-id.js';
+import { KeyringWrapper } from '../keyring-wrapper.js';
+import type { KeyringWrapperOptions } from '../keyring-wrapper.js';
 
 /**
  * Additional Ethereum methods supported by Eth keyrings that are not in the standard EthMethod enum.

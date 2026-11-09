@@ -1,8 +1,8 @@
 import { TransportStatusError } from '@ledgerhq/hw-transport';
 import { ErrorCode, HardwareWalletError } from '@metamask/hw-wallet-sdk';
 
-import { createMockDeviceExchangeError } from './__testhelpers__/mock-error';
-import { translateDmkError } from './dmk-error-translator';
+import { createMockDeviceExchangeError } from './__testhelpers__/mock-error.js';
+import { translateDmkError } from './dmk-error-translator.js';
 
 describe('translateDmkError', () => {
   describe('DMK _tag resolution (connection/session errors)', () => {

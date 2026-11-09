@@ -1,10 +1,10 @@
-import { MOCK_ENTROPY_SOURCE_1 } from '../../mocks';
-import { AccountWalletType, toAccountWalletId } from '../wallet';
+import { MOCK_ENTROPY_SOURCE_1 } from '../../mocks/index.js';
+import { AccountWalletType, toAccountWalletId } from '../wallet.js';
 import {
   isMultichainAccountWalletId,
   parseMultichainAccountWalletId,
   toMultichainAccountWalletId,
-} from './wallet';
+} from './wallet.js';
 
 describe('multichain wallet', () => {
   describe('toMultichainAccountWalletId', () => {

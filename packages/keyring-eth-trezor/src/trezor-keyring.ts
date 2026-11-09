@@ -23,9 +23,9 @@ import type {
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
-import { TrezorBridge } from './trezor-bridge';
-import { createErrorFromTrezorResponse } from './trezor-bridge-error';
-import { handleTrezorTransportError } from './trezor-error-handler';
+import { createErrorFromTrezorResponse } from './trezor-bridge-error.js';
+import { TrezorBridge } from './trezor-bridge.js';
+import { handleTrezorTransportError } from './trezor-error-handler.js';
 
 const hdPathString = `m/44'/60'/0'/0`;
 const SLIP0044TestnetPath = `m/44'/1'/0'/0`;

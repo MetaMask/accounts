@@ -13,11 +13,11 @@ import { EIP712Message } from '@ledgerhq/types-live';
 import { ErrorCode, HardwareWalletError } from '@metamask/hw-wallet-sdk';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 
-import { createMockDeviceExchangeError } from './__testhelpers__/mock-error';
-import { LedgerDmkBridge } from './ledger-dmk-bridge';
-import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware';
+import { createMockDeviceExchangeError } from './__testhelpers__/mock-error.js';
+import { LedgerDmkBridge } from './ledger-dmk-bridge.js';
+import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware.js';
 
-jest.mock('./ledger-dmk-transport-middleware');
+jest.mock('./ledger-dmk-transport-middleware.js');
 
 const mockTransportFactory = jest.fn();
 

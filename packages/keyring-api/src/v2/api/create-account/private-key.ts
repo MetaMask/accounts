@@ -7,8 +7,8 @@ import {
 } from '@metamask/superstruct';
 import type { Infer } from '@metamask/superstruct';
 
-import { KeyringAccountTypeStruct } from '../../../api/account';
-import { PrivateKeyEncodingStruct } from '../private-key';
+import { KeyringAccountTypeStruct } from '../../../api/account.js';
+import { PrivateKeyEncodingStruct } from '../private-key.js';
 
 /**
  * Struct for {@link CreateAccountPrivateKeyOptions}.

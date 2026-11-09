@@ -6,8 +6,8 @@ import type {
 import { KeyringRpcMethod } from '@metamask/keyring-api';
 import type { Json } from '@metamask/utils';
 
-import type { Sender } from './KeyringClient';
-import { KeyringClient } from './KeyringClient';
+import type { Sender } from './KeyringClient.js';
+import { KeyringClient } from './KeyringClient.js';
 
 /**
  * Convert a tuple to a union.

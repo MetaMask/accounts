@@ -1,4 +1,4 @@
-import { TrxAddressStruct } from './types';
+import { TrxAddressStruct } from './types.js';
 
 describe('types', () => {
   describe('TrxAddressStruct', () => {

@@ -14,7 +14,7 @@ import {
   BtcAccountType,
   CaipChainIdStruct,
   KeyringAccountStruct,
-} from '../api';
+} from '../api/index.js';
 
 const validateAddress = (
   address: string,

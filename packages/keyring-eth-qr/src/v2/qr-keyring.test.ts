@@ -17,9 +17,9 @@ import {
   HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
   KNOWN_CRYPTO_ACCOUNT_UR,
   KNOWN_HDKEY_UR,
-} from '../../test/fixtures';
-import { QrKeyring } from './qr-keyring';
-import type { QrKeyringCreateAccountOptions } from './qr-keyring';
+} from '../../test/fixtures.js';
+import { QrKeyring } from './qr-keyring.js';
+import type { QrKeyringCreateAccountOptions } from './qr-keyring.js';
 
 /**
  * Type alias for QR keyring HD mode accounts (BIP-44 derived).

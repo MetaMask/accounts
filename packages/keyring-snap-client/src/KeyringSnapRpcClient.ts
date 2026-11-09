@@ -2,8 +2,8 @@ import type { JsonRpcRequest } from '@metamask/keyring-utils';
 import type { MetaMaskInpageProvider } from '@metamask/providers';
 import type { Json } from '@metamask/utils';
 
-import type { Sender } from './KeyringClient';
-import { KeyringPublicClient } from './KeyringPublicClient';
+import type { Sender } from './KeyringClient.js';
+import { KeyringPublicClient } from './KeyringPublicClient.js';
 
 /**
  * Implementation of the `Sender` interface that can be used to send requests

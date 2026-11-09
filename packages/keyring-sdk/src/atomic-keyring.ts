@@ -1,4 +1,4 @@
-import { ReadWriteLock } from './read-write-lock';
+import { ReadWriteLock } from './read-write-lock.js';
 
 /**
  * A vault-write callback injected into an `AtomicKeyring` at construction,

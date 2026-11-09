@@ -1,5 +1,5 @@
-import type { Extends } from './typing';
-import { expectTrue } from './typing';
+import type { Extends } from './typing.js';
+import { expectTrue } from './typing.js';
 
 expectTrue<true>();
 

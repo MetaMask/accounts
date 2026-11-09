@@ -1,7 +1,7 @@
-export * from './btc';
-export * from './types';
-export * from './typing';
-export * from './scopes';
-export * from './superstruct';
-export * from './JsonRpcRequest';
-export type * from './keyring';
+export * from './btc/index.js';
+export * from './types.js';
+export * from './typing.js';
+export * from './scopes.js';
+export * from './superstruct.js';
+export * from './JsonRpcRequest.js';
+export type * from './keyring.js';

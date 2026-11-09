@@ -2,7 +2,7 @@ import type { DeviceManagementKit } from '@ledgerhq/device-management-kit';
 import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum';
 import { of } from 'rxjs';
 
-import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware';
+import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware.js';
 
 describe('LedgerDmkTransportMiddleware', () => {
   const mockDiscovery = of({ id: 'device-id' });

@@ -1,4 +1,4 @@
-import { fingerprint, toEntropySourceId } from './entropy';
+import { fingerprint, toEntropySourceId } from './entropy.js';
 
 const SECRET = new Uint8Array(32).fill(1);
 

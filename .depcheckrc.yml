@@ -19,6 +19,11 @@ ignores:
   - 'ts-node'
   - 'ts-jest'
   - 'typedoc'
+  # Ignore TypeScript compiler packages; `typescript` (the JS-based compiler)
+  # is only consumed as a library by tooling, and `@typescript/native` (the
+  # native compiler used for builds) is only invoked via its `tsc` binary.
+  - 'typescript'
+  - '@typescript/native'
   # Ignore plugins implicitly imported by tools
   - 'jest-it-up'
   - 'jest-silent-reporter'

@@ -1,9 +1,9 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 
 // Circular import are allowed when using `import type`.
-import type { Bip44Account } from './bip44';
-import type { AccountGroup, AccountGroupId } from './group';
-import type { MultichainAccountWallet } from './multichain';
+import type { Bip44Account } from './bip44.js';
+import type { AccountGroup, AccountGroupId } from './group.js';
+import type { MultichainAccountWallet } from './multichain/index.js';
 
 /**
  * Wallet type.

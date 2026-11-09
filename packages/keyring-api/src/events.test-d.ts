@@ -1,8 +1,8 @@
 import { expectAssignable, expectNotAssignable } from 'tsd';
 
-import { EthAccountType } from './api';
-import { EthScope } from './eth';
-import type { KeyringEventPayload, KeyringEvent } from './events';
+import { EthAccountType } from './api/index.js';
+import { EthScope } from './eth/index.js';
+import type { KeyringEventPayload, KeyringEvent } from './events.js';
 
 expectAssignable<KeyringEventPayload<KeyringEvent.AccountCreated>>({
   account: {

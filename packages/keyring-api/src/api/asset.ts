@@ -7,7 +7,7 @@ import {
   isPlainObject,
 } from '@metamask/utils';
 
-import { BalanceStruct } from './balance';
+import { BalanceStruct } from './balance.js';
 
 /**
  * Fungible asset amount struct.
