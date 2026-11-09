@@ -1,5 +1,5 @@
-import type { AtomicUpdater } from './atomic-keyring';
-import { AtomicKeyring, isAtomicKeyring } from './atomic-keyring';
+import type { AtomicUpdater } from './atomic-keyring.js';
+import { AtomicKeyring, isAtomicKeyring } from './atomic-keyring.js';
 
 /**
  * The states of the test keyring's state machine: an uninitialized keyring,
