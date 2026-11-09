@@ -315,13 +315,18 @@ export async function sign(opts: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${opts.token}`,
       },
-      body: JSON.stringify({
-        data: bytesToBase64(opts.data),
-        clientNetId: opts.clientNetId,
-        nonce: opts.nonce,
-        shareEpoch: opts.shareEpoch,
-        ...(opts.request === undefined ? {} : { request: opts.request }),
-      }),
+      body: JSON.stringify(
+        {
+          data: bytesToBase64(opts.data),
+          clientNetId: opts.clientNetId,
+          nonce: opts.nonce,
+          shareEpoch: opts.shareEpoch,
+          ...(opts.request === undefined ? {} : { request: opts.request }),
+        },
+        // Typed data can carry bigint values (e.g. a delegation salt).
+        (_key, value: unknown) =>
+          typeof value === 'bigint' ? value.toString() : value,
+      ),
     },
     signErrorPrefix,
   );

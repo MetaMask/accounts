@@ -1,4 +1,4 @@
-import { hashPersonalMessage } from '@ethereumjs/util';
+import { hashPersonalMessage, isHexString } from '@ethereumjs/util';
 import type {
   TypedDataV1,
   TypedMessage,
@@ -21,7 +21,6 @@ import {
   CentrifugeNetworkManager,
   createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
-import { getMfaRequirement } from '@metamask/money-account-mfa-whitelist';
 import type { MoneyAccountSignatureRequest } from '@metamask/money-account-mfa-whitelist';
 import {
   integer,
@@ -32,7 +31,12 @@ import {
   string,
   type,
 } from '@metamask/superstruct';
-import { bytesToHex, hexToBytes, JsonStruct } from '@metamask/utils';
+import {
+  bytesToHex,
+  hexToBytes,
+  JsonStruct,
+  stringToBytes,
+} from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
 import type { CheckKeyShareResult } from './cloud.js';
@@ -148,20 +152,6 @@ function assertEpochReady(
 }
 
 /**
- * Party net ids indexed by 0-based share slot.
- *
- * @param clientNetId - Client (share 0) network id.
- * @param serverNetId - Server (share 1) network id.
- * @returns Net ids in share-slot order.
- */
-function partyNetIds(clientNetId: PartyId, serverNetId: PartyId): PartyId[] {
-  const netIds: PartyId[] = [];
-  netIds[CLIENT_SHARE_INDEX] = clientNetId;
-  netIds[SERVER_SHARE_INDEX] = serverNetId;
-  return netIds;
-}
-
-/**
  * Share bindings for the client/server pair.
  *
  * @param clientNetId - Client (share 0) network id.
@@ -176,35 +166,6 @@ function shareBindings(
     { netId: clientNetId, shareIndex: CLIENT_SHARE_INDEX },
     { netId: serverNetId, shareIndex: SERVER_SHARE_INDEX },
   ];
-}
-
-/**
- * Point the client share at a network id, keeping its protocol id.
- *
- * The stored mapping names whichever client last wrote the share. This device
- * replaces that slot with its own network id. The server does the same for
- * the client it is about to talk to.
- *
- * @param keyShare - The CL24 key share to rebind.
- * @param clientNetId - Network id of the local client.
- * @returns The key share, with the client party updated when the id differs.
- */
-function withClientNetId(
-  keyShare: CL24ThresholdKey,
-  clientNetId: PartyId,
-): CL24ThresholdKey {
-  const clientParty = keyShare.partyMapping[CLIENT_SHARE_INDEX];
-  if (clientParty === undefined) {
-    throw new Error('Key share is missing the client party');
-  }
-  if (clientParty.networkId === clientNetId) {
-    return keyShare;
-  }
-
-  const partyMapping = keyShare.partyMapping.map((entry, index) =>
-    index === CLIENT_SHARE_INDEX ? { ...entry, networkId: clientNetId } : entry,
-  );
-  return { ...keyShare, partyMapping };
 }
 
 /**
@@ -235,7 +196,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   readonly #getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
 
-  readonly #getMfaWhitelistConfig: MpcMoneyKeyringOpts['getMfaWhitelistConfig'];
+  readonly #isMfaRequired: MpcMoneyKeyringOpts['isMfaRequired'];
 
   readonly #getBackupEncryptionKey: () => Promise<Uint8Array>;
 
@@ -265,7 +226,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       ...(opts.webSocket === undefined ? {} : { websocket: opts.webSocket }),
     });
     this.#getProfileToken = opts.getProfileToken;
-    this.#getMfaWhitelistConfig = opts.getMfaWhitelistConfig;
+    this.#isMfaRequired = opts.isMfaRequired;
     this.#getBackupEncryptionKey = opts.getBackupEncryptionKey;
   }
 
@@ -398,12 +359,10 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         nonce,
       );
       try {
-        const custodians = partyNetIds(netCreds.partyId, serverNetId);
         const bindings = shareBindings(netCreds.partyId, serverNetId);
         keyShare = await this.#dkm.rotateKeyShares({
           key: keyShare,
-          dealers: bindings,
-          custodians,
+          custodians: bindings,
           networkSession: netSession.createSubsession('dkg-rotate'),
         });
         await waitForDoneStatus(
@@ -480,10 +439,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         baseURL: this.#cloudURL,
         token,
       });
-      const keyShare = withClientNetId(
-        await this.#decryptKeyShare(encryptedKeyShare),
-        state.netCreds.partyId,
-      );
+      const keyShare = await this.#decryptKeyShare(encryptedKeyShare);
       this.#applyKeyState({
         ...state,
         keyShare,
@@ -553,13 +509,17 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     msgHex: string,
     _opts?: Record<string, unknown>,
   ): Promise<string> {
-    const rawMsg = hexToBytes(msgHex);
-    const msgHash = hashPersonalMessage(rawMsg);
+    // Like the HD keyring (`isHexString`), treat `0x` as empty hex and anything
+    // that isn't hex as UTF-8.
+    const message = isHexString(msgHex)
+      ? msgHex
+      : bytesToHex(stringToBytes(msgHex));
+    const msgHash = hashPersonalMessage(hexToBytes(message));
 
     const signature = await this.#signHash(address, msgHash, {
       method: 'signPersonalMessage',
       address,
-      message: msgHex as Hex,
+      message,
     });
     return bytesToHex(signature);
   }
@@ -642,13 +602,12 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     let keyShare: CL24ThresholdKey;
     let tssSetup: Uint8Array;
     try {
-      const custodians = partyNetIds(netCreds.partyId, serverNetId);
       const bindings = shareBindings(netCreds.partyId, serverNetId);
       const createKeySession = netSession.createSubsession('dkg-create');
       const tssSetupSession = netSession.createSubsession('tss-setup');
       [keyShare, tssSetup] = await Promise.all([
         this.#dkm.createKey({
-          custodians,
+          custodians: bindings,
           threshold: SIGNING_THRESHOLD,
           networkSession: createKeySession,
         }),
@@ -709,10 +668,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       baseURL: this.#cloudURL,
       token,
     });
-    const keyShare = withClientNetId(
-      await this.#decryptKeyShare(loaded.encryptedKeyShare),
-      netCreds.partyId,
-    );
+    const keyShare = await this.#decryptKeyShare(loaded.encryptedKeyShare);
 
     await registerClient({
       baseURL: this.#cloudURL,
@@ -732,27 +688,25 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   /**
    * Whether signing `request` requires MFA.
    *
-   * Missing configuration, or a thrown check, requires MFA.
+   * A missing callback, or a thrown check, requires MFA.
    *
    * @param request - The signature request the hash was computed from.
    * @param hash - The hash the keyring will sign.
    * @returns Whether the profile token must include 2FA.
    */
-  async #isMfaRequired(
+  async #requiresMfa(
     request: MoneyAccountSignatureRequest,
     hash: Uint8Array,
   ): Promise<boolean> {
-    if (this.#getMfaWhitelistConfig === undefined) {
+    if (this.#isMfaRequired === undefined) {
       return true;
     }
 
     try {
-      const config = await this.#getMfaWhitelistConfig();
-      return getMfaRequirement(request, {
+      return await this.#isMfaRequired(request, {
         address: this.#address(),
         hash: bytesToHex(hash),
-        config,
-      }).mfaRequired;
+      });
     } catch {
       return true;
     }
@@ -773,7 +727,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         throw new Error(`account ${address} not found`);
       }
 
-      const mfaRequired = await this.#isMfaRequired(request, hash);
+      const mfaRequired = await this.#requiresMfa(request, hash);
       let token = mfaRequired
         ? await this.#getProfileToken({ twoFactor: true, challenge: hash })
         : await this.#getProfileToken();

@@ -12,6 +12,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove the package-level `skipLibCheck` workaround, now that TypeScript 7 fully supports `Uint8Array<ArrayBuffer>` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 - The `getBackupEncryptionKey` option must now return `Uint8Array<ArrayBuffer>` instead of `Uint8Array` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
   - The AES-GCM backup encryption requires an `ArrayBuffer`-backed buffers.
+- Bump `@metamask/keyring-sdk` from `^4.1.0` to `^4.2.0` ([#694](https://github.com/MetaMask/accounts/pull/694))
+
+## [0.3.0]
+
+### Changed
+
+- **BREAKING:** Replace `getMfaWhitelistConfig` with an `isMfaRequired` callback that decides whether a signature requires MFA ([#689](https://github.com/MetaMask/accounts/pull/689))
+  - The keyring no longer calls `getMfaRequirement`.
+  - Omitting the callback, or a callback that throws, still requires MFA.
+  - Replace the `MfaWhitelistConfig` re-export with `MoneyAccountSignatureRequest`.
+- Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.1.0` ([#686](https://github.com/MetaMask/accounts/pull/686))
+- Bump `@metamask/mfa-wallet-network` from `^0.1.0` to `^0.2.0` ([#688](https://github.com/MetaMask/accounts/pull/688))
+  - Noise transport keys no longer match peers on `0.1.0`.
+- Bump `@metamask/mfa-wallet-cl24` and `@metamask/mfa-wallet-interface` from `^0.1.0` to `^0.2.0` ([#688](https://github.com/MetaMask/accounts/pull/688))
+  - Key creation and rotation take custodian share bindings.
+  - Import and sync keep the stored key share, which no longer includes a party mapping.
+  - Key shares persisted by `0.1.0` still deserialize; `partyMapping` is omitted on the next serialize.
+
+### Fixed
+
+- Sign plain-text messages in `signPersonalMessage` as UTF-8 instead of throwing ([#687](https://github.com/MetaMask/accounts/pull/687))
+  - Treat `0x` as an empty hex string, matching the HD keyring.
+- Serialize `bigint` values in the cloud signature request as decimal strings instead of throwing ([#687](https://github.com/MetaMask/accounts/pull/687))
 
 ## [0.2.0]
 
@@ -47,7 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.2.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.3.0...HEAD
+[0.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.2.0...@metamask/eth-money-mpc-keyring@0.3.0
 [0.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.1.1...@metamask/eth-money-mpc-keyring@0.2.0
 [0.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.1.0...@metamask/eth-money-mpc-keyring@0.1.1
 [0.1.0]: https://github.com/MetaMask/accounts/releases/tag/@metamask/eth-money-mpc-keyring@0.1.0

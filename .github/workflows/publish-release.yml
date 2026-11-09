@@ -21,6 +21,7 @@ jobs:
         uses: MetaMask/action-checkout-and-setup@v3
         with:
           is-high-risk-environment: true
+          node-version: 24.x
       - uses: MetaMask/action-publish-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -44,6 +45,7 @@ jobs:
         uses: MetaMask/action-checkout-and-setup@v3
         with:
           is-high-risk-environment: true
+          node-version: 24.x
       - name: Restore build artifacts
         uses: actions/download-artifact@v8
         with:
@@ -69,6 +71,7 @@ jobs:
         uses: MetaMask/action-checkout-and-setup@v3
         with:
           is-high-risk-environment: true
+          node-version: 24.x
           ref: ${{ github.sha }}
       - name: Restore build artifacts
         uses: actions/download-artifact@v8
