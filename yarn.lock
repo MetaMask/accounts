@@ -1774,6 +1774,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask/byte-utils@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@metamask/byte-utils@npm:0.1.0"
+  dependencies:
+    "@metamask/type-utils": "npm:^0.1.0"
+    "@scure/base": "npm:^1.2.6"
+  checksum: 10/f1d68301efa701f72dca8856dd10066d53151c8e9187998d398b33265e963ef55b70443752282e2986c4389914bf94e7694fb2f657855198bf14be218f2c5292
+  languageName: node
+  linkType: hard
+
 "@metamask/controller-utils@npm:^11.19.0":
   version: 11.20.0
   resolution: "@metamask/controller-utils@npm:11.20.0"
@@ -1866,6 +1876,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask/error-utils@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@metamask/error-utils@npm:0.1.0"
+  dependencies:
+    "@metamask/type-utils": "npm:^0.1.0"
+    pony-cause: "npm:^2.1.11"
+  checksum: 10/b28bd00751714c8afab4b71d0fd94e96b476a2cea412434e4f7bd03882823d2aadcb822ff45fcaf7382d962b718034ff353f6237e30bf009fbfec81037d9f9db
+  languageName: node
+  linkType: hard
+
 "@metamask/eslint-config-jest@npm:^15.0.0":
   version: 15.0.0
   resolution: "@metamask/eslint-config-jest@npm:15.0.0"
@@ -1940,7 +1960,7 @@ __metadata:
     "@metamask/account-api": "npm:^2.2.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/bip39": "npm:^4.0.0"
-    "@metamask/eth-sig-util": "npm:^9.0.0"
+    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1"
     "@metamask/key-tree": "npm:^10.0.2"
     "@metamask/keyring-api": "npm:^24.3.0"
     "@metamask/keyring-sdk": "npm:^4.2.0"
@@ -1978,7 +1998,7 @@ __metadata:
     "@ledgerhq/types-live": "npm:^6.52.0"
     "@metamask/account-api": "npm:^2.2.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
-    "@metamask/eth-sig-util": "npm:^9.0.0"
+    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1"
     "@metamask/hw-wallet-sdk": "npm:^1.0.0"
     "@metamask/keyring-api": "npm:^24.3.0"
     "@metamask/keyring-sdk": "npm:^4.2.0"
@@ -2015,7 +2035,7 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^3.0.1"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/eth-hd-keyring": "npm:^15.0.1"
-    "@metamask/eth-sig-util": "npm:^9.0.0"
+    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1"
     "@metamask/key-tree": "npm:^10.0.2"
     "@metamask/keyring-api": "npm:^24.3.0"
     "@metamask/keyring-sdk": "npm:^4.2.0"
@@ -2041,7 +2061,7 @@ __metadata:
     "@metamask/account-api": "npm:^2.2.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
     "@metamask/cryptography": "npm:^1.1.2"
-    "@metamask/eth-sig-util": "npm:^9.0.0"
+    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1"
     "@metamask/keyring-api": "npm:^24.3.0"
     "@metamask/keyring-sdk": "npm:^4.2.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
@@ -2074,7 +2094,7 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^3.0.1"
     "@metamask/account-api": "npm:^2.2.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
-    "@metamask/eth-sig-util": "npm:^9.0.0"
+    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1"
     "@metamask/keyring-api": "npm:^24.3.0"
     "@metamask/keyring-sdk": "npm:^4.2.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
@@ -2105,6 +2125,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask/eth-sig-util@npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1":
+  version: 9.0.0-preview-c72f8b1
+  resolution: "@metamask-previews/eth-sig-util@npm:9.0.0-preview-c72f8b1"
+  dependencies:
+    "@ethereumjs/rlp": "npm:^5.0.2"
+    "@ethereumjs/util": "npm:^9.1.0"
+    "@metamask/abi-utils": "npm:^3.0.0"
+    "@metamask/cryptography": "npm:^1.1.2"
+    "@metamask/utils": "npm:^12.0.1"
+    "@noble/ciphers": "npm:^1.3.0"
+    ethereum-cryptography: "npm:^3.2.0"
+  checksum: 10/b0cb38c70c43f1627ef851023a0d21ea0ece2e0f2e44c5be7a42b7cf3706b25dada4af90ff531f0bc2c390df62b703854d2efb08b0f8ef898bb37429f569abf4
+  languageName: node
+  linkType: hard
+
 "@metamask/eth-sig-util@npm:^4.0.0":
   version: 4.0.1
   resolution: "@metamask/eth-sig-util@npm:4.0.1"
@@ -2118,21 +2153,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/eth-sig-util@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "@metamask/eth-sig-util@npm:9.0.0"
-  dependencies:
-    "@ethereumjs/rlp": "npm:^4.0.1"
-    "@ethereumjs/util": "npm:^8.1.0"
-    "@metamask/abi-utils": "npm:^3.0.0"
-    "@metamask/utils": "npm:^11.0.1"
-    "@scure/base": "npm:~1.1.3"
-    ethereum-cryptography: "npm:^2.1.2"
-    tweetnacl: "npm:^1.0.3"
-  checksum: 10/b4e0bc59fd306ee7d6308e9a21920ade79efbb2d157af06a71cf3fab2621e7373ea5e14159a18e28b21208ef5b949fef68e98ae54874ed07cef728f3a38f7d46
-  languageName: node
-  linkType: hard
-
 "@metamask/eth-simple-keyring@workspace:packages/keyring-eth-simple":
   version: 0.0.0-use.local
   resolution: "@metamask/eth-simple-keyring@workspace:packages/keyring-eth-simple"
@@ -2142,7 +2162,7 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^5.1.0"
     "@lavamoat/preinstall-always-fail": "npm:^3.0.1"
     "@metamask/auto-changelog": "npm:^6.1.0"
-    "@metamask/eth-sig-util": "npm:^9.0.0"
+    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1"
     "@metamask/keyring-api": "npm:^24.3.0"
     "@metamask/keyring-sdk": "npm:^4.2.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
@@ -2173,7 +2193,7 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^5.1.0"
     "@lavamoat/preinstall-always-fail": "npm:^3.0.1"
     "@metamask/auto-changelog": "npm:^6.1.0"
-    "@metamask/eth-sig-util": "npm:^9.0.0"
+    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1"
     "@metamask/keyring-api": "npm:^24.0.0"
     "@metamask/keyring-internal-api": "npm:^12.1.2"
     "@metamask/keyring-internal-snap-client": "npm:^11.1.1"
@@ -2217,7 +2237,7 @@ __metadata:
     "@lavamoat/preinstall-always-fail": "npm:^3.0.1"
     "@metamask/account-api": "npm:^2.2.0"
     "@metamask/auto-changelog": "npm:^6.1.0"
-    "@metamask/eth-sig-util": "npm:^9.0.0"
+    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1"
     "@metamask/hw-wallet-sdk": "npm:^1.0.0"
     "@metamask/keyring-api": "npm:^24.3.0"
     "@metamask/keyring-sdk": "npm:^4.2.0"
@@ -2416,7 +2436,7 @@ __metadata:
     "@lavamoat/allow-scripts": "npm:^5.1.0"
     "@lavamoat/preinstall-always-fail": "npm:^3.0.1"
     "@metamask/auto-changelog": "npm:^6.1.0"
-    "@metamask/eth-sig-util": "npm:^9.0.0"
+    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1"
     "@metamask/keyring-api": "npm:^24.3.0"
     "@metamask/keyring-utils": "npm:^5.0.0"
     "@metamask/scure-bip39": "npm:^2.1.1"
@@ -2615,6 +2635,17 @@ __metadata:
   version: 0.2.0
   resolution: "@metamask/mpc-interface@npm:0.2.0"
   checksum: 10/9762cd1e932ae392f32fe3bc48805f10dc52b7aa544c58242fc28d0663b82403dffe3bc93140c47ae7d12f147e7ca1a737aa4989151612bd66ece84d6e01a76b
+  languageName: node
+  linkType: hard
+
+"@metamask/node-utils@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@metamask/node-utils@npm:0.1.0"
+  dependencies:
+    "@metamask/error-utils": "npm:^0.1.0"
+    "@metamask/type-utils": "npm:^0.1.0"
+    uuid: "npm:^11.1.1"
+  checksum: 10/b68ec02cb9f62b5c1db3a02a25f9eca9e233e4f7402cf2f2ccbfe1f14c648a93adc2c220cb201202f0d9f7216f93790b47ac6e7f37a8523d387da789c06165dc
   languageName: node
   linkType: hard
 
@@ -2920,6 +2951,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask/type-utils@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@metamask/type-utils@npm:0.1.0"
+  checksum: 10/8aa4a4ff3ed253ad93e3733fa1704c5bc4fb43b0e49c84d5e825a90cafae4d65232637037db440f5b89e1348113ca7b1bba7a6ddf3c85da2ba962e6911c2b2d7
+  languageName: node
+  linkType: hard
+
 "@metamask/utils@npm:^11.0.1, @metamask/utils@npm:^11.10.0, @metamask/utils@npm:^11.11.0, @metamask/utils@npm:^11.4.0, @metamask/utils@npm:^11.4.2, @metamask/utils@npm:^11.8.1, @metamask/utils@npm:^11.9.0":
   version: 11.11.0
   resolution: "@metamask/utils@npm:11.11.0"
@@ -2939,23 +2977,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metamask/utils@npm:^12.0.0":
-  version: 12.0.0
-  resolution: "@metamask/utils@npm:12.0.0"
+"@metamask/utils@npm:^12.0.0, @metamask/utils@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "@metamask/utils@npm:12.0.1"
   dependencies:
     "@ethereumjs/tx": "npm:^5.4.0"
+    "@metamask/byte-utils": "npm:^0.1.0"
+    "@metamask/error-utils": "npm:^0.1.0"
+    "@metamask/node-utils": "npm:^0.1.0"
     "@metamask/scure-bip39": "npm:^2.1.1"
     "@metamask/superstruct": "npm:^3.4.1"
+    "@metamask/type-utils": "npm:^0.1.0"
     "@noble/hashes": "npm:^1.8.0"
-    "@scure/base": "npm:^1.2.6"
     "@types/debug": "npm:^4.1.7"
-    "@types/lodash": "npm:^4.17.20"
-    debug: "npm:^4.3.4"
-    lodash: "npm:^4.17.21"
-    pony-cause: "npm:^2.1.10"
-    semver: "npm:^7.6.3"
-    uuid: "npm:^9.0.1"
-  checksum: 10/3a2c592283b081ac627262d903bbac84d7ce81896c86e5839ffee4c5cbc48b161cc1599c4b57f74bcc576d8b27bb517ced4c9e4e7b31e69e3113873acfde5f03
+    "@types/lodash": "npm:^4.17.27"
+    debug: "npm:^4.4.3"
+    lodash: "npm:^4.18.1"
+    semver: "npm:^7.8.5"
+  checksum: 10/8ec32327f680b7d3354f1f854fa01731e5113b95695f4f5ada2bab9ec9d5424f9664e17e28328efa58f173d6d82002cc97f6cc8ad6f77c024908078fce42f9d2
   languageName: node
   linkType: hard
 
@@ -3019,7 +3058,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/ciphers@npm:1.3.0":
+"@noble/ciphers@npm:1.3.0, @noble/ciphers@npm:^1.3.0":
   version: 1.3.0
   resolution: "@noble/ciphers@npm:1.3.0"
   checksum: 10/051660051e3e9e2ca5fb9dece2885532b56b7e62946f89afa7284a0fb8bc02e2bd1c06554dba68162ff42d295b54026456084198610f63c296873b2f1cd7a586
@@ -4914,10 +4953,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.191, @types/lodash@npm:^4.17.20":
-  version: 4.17.24
-  resolution: "@types/lodash@npm:4.17.24"
-  checksum: 10/0f2082565f60f9787eefc046edc38458054512be5a8b3584ef0bad5fd9e85d0ab55ec5a1fbfae1ed6ba015cf1f9e837d5fb4da1f99fc60b8f74b2a46146fb00f
+"@types/lodash@npm:^4.14.191, @types/lodash@npm:^4.17.20, @types/lodash@npm:^4.17.27":
+  version: 4.17.27
+  resolution: "@types/lodash@npm:4.17.27"
+  checksum: 10/ae02ef86268664e5a024fd1a7d907b676fe7cd9b58b52bdddc7c42c7ffb3d05e869f6bd13e3e6cbb4001cac1d072f5e2a6e5deed2ef7dc62d7853fc735a077be
   languageName: node
   linkType: hard
 
@@ -10156,7 +10195,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.21":
+"lodash@npm:^4.17.21, lodash@npm:^4.18.1":
   version: 4.18.1
   resolution: "lodash@npm:4.18.1"
   checksum: 10/306fea53dfd39dad1f03d45ba654a2405aebd35797b673077f401edb7df2543623dc44b9effbb98f69b32152295fff725a4cec99c684098947430600c6af0c3f
@@ -11441,7 +11480,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pony-cause@npm:^2.1.10, pony-cause@npm:^2.1.9":
+"pony-cause@npm:^2.1.10, pony-cause@npm:^2.1.11, pony-cause@npm:^2.1.9":
   version: 2.1.11
   resolution: "pony-cause@npm:2.1.11"
   checksum: 10/ed7d0bb6e3e69f753080bf736b71f40e6ae4c13ec0c8c473ff73345345c088819966fdd68a62ad7482d464bf41176cf9421f5f63715d1a4532005eedc099db55
@@ -12179,12 +12218,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.1.1, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.5.3, semver@npm:^7.5.4, semver@npm:^7.6.0, semver@npm:^7.6.3, semver@npm:^7.7.2, semver@npm:^7.7.3":
-  version: 7.7.4
-  resolution: "semver@npm:7.7.4"
+"semver@npm:^7.1.1, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.5.3, semver@npm:^7.5.4, semver@npm:^7.6.0, semver@npm:^7.6.3, semver@npm:^7.7.2, semver@npm:^7.7.3, semver@npm:^7.8.5":
+  version: 7.8.6
+  resolution: "semver@npm:7.8.6"
   bin:
     semver: bin/semver.js
-  checksum: 10/26bdc6d58b29528f4142d29afb8526bc335f4fc04c4a10f2b98b217f277a031c66736bf82d3d3bb354a2f6a3ae50f18fd62b053c4ac3f294a3d10a61f5075b75
+  checksum: 10/76fd62a781a9c58464e4d4b1b9c99c404063d8133fff8a0753e66b1bd826bfb720d843664e7ab1268c0fb7134d04df9f3b8788eb2f1000c509648e0eeac03921
   languageName: node
   linkType: hard
 

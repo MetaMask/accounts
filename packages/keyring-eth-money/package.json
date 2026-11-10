@@ -76,7 +76,7 @@
     "@lavamoat/allow-scripts": "^5.1.0",
     "@lavamoat/preinstall-always-fail": "^3.0.1",
     "@metamask/auto-changelog": "^6.1.0",
-    "@metamask/eth-sig-util": "^9.0.0",
+    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1",
     "@metamask/key-tree": "^10.0.2",
     "@metamask/utils": "^11.11.0",
     "@ts-bridge/cli": "^0.6.3",
