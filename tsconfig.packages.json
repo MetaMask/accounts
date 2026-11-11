@@ -18,7 +18,7 @@
     // explicitly (even in the package.json, see the "resolutions").
     "lib": ["ES2020"],
     "target": "es2020",
-    "module": "Node16",
+    "module": "NodeNext",
     "moduleResolution": "Node16",
     /**
      * Here we ensure that TypeScript resolves `@metamask/*` imports to the
