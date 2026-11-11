@@ -1645,7 +1645,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
@@ -1693,7 +1693,7 @@ __metadata:
     semver: "npm:^7.6.3"
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
     typescript-eslint: "npm:^8.48.0"
   languageName: unknown
   linkType: soft
@@ -1948,7 +1948,7 @@ __metadata:
     deepmerge: "npm:^4.2.2"
     ethereum-cryptography: "npm:^2.2.1"
     jest: "npm:^29.5.0"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -1996,7 +1996,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -2020,7 +2020,7 @@ __metadata:
     async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     jest: "npm:^29.5.0"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -2049,7 +2049,7 @@ __metadata:
     "@types/jest": "npm:^29.5.12"
     deepmerge: "npm:^4.2.2"
     jest: "npm:^29.5.0"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -2083,7 +2083,7 @@ __metadata:
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
@@ -2154,7 +2154,7 @@ __metadata:
     ts-jest: "npm:^29.0.5"
     ts-node: "npm:^10.9.2"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -2192,7 +2192,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
     uuid: "npm:^9.0.1"
   peerDependencies:
     "@metamask/keyring-api": ^24.0.0
@@ -2237,7 +2237,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tslib: "npm:^2.6.2"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -2272,7 +2272,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -2339,7 +2339,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -2365,7 +2365,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -2397,7 +2397,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -2431,7 +2431,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
@@ -2461,7 +2461,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
     uuid: "npm:^9.0.1"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
@@ -2494,7 +2494,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
     webextension-polyfill: "npm:^0.12.0"
   peerDependencies:
     "@metamask/keyring-api": ^24.0.0
@@ -2525,7 +2525,7 @@ __metadata:
     ts-node: "npm:^10.9.2"
     tsd: "npm:^0.31.0"
     typedoc: "npm:^0.25.13"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -2986,7 +2986,7 @@ __metadata:
     async-mutex: "npm:^0.5.0"
     deepmerge: "npm:^4.2.2"
     jest: "npm:^29.5.0"
-    typescript: "npm:~5.3.3"
+    typescript: "npm:~5.8.3"
   languageName: unknown
   linkType: soft
 
@@ -13206,23 +13206,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:~5.3.3":
-  version: 5.3.3
-  resolution: "typescript@npm:5.3.3"
+"typescript@npm:~5.8.3":
+  version: 5.8.3
+  resolution: "typescript@npm:5.8.3"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10/6e4e6a14a50c222b3d14d4ea2f729e79f972fa536ac1522b91202a9a65af3605c2928c4a790a4a50aa13694d461c479ba92cedaeb1e7b190aadaa4e4b96b8e18
+  checksum: 10/65c40944c51b513b0172c6710ee62e951b70af6f75d5a5da745cb7fab132c09ae27ffdf7838996e3ed603bb015dadd099006658046941bd0ba30340cc563ae92
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A~5.3.3#optional!builtin<compat/typescript>":
-  version: 5.3.3
-  resolution: "typescript@patch:typescript@npm%3A5.3.3#optional!builtin<compat/typescript>::version=5.3.3&hash=e012d7"
+"typescript@patch:typescript@npm%3A~5.8.3#optional!builtin<compat/typescript>":
+  version: 5.8.3
+  resolution: "typescript@patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=5786d5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10/c93786fcc9a70718ba1e3819bab56064ead5817004d1b8186f8ca66165f3a2d0100fee91fa64c840dcd45f994ca5d615d8e1f566d39a7470fc1e014dbb4cf15d
+  checksum: 10/b9b1e73dabac5dc730c041325dbd9c99467c1b0d239f1b74ec3b90d831384af3e2ba973946232df670519147eb51a2c20f6f96163cea2b359f03de1e2091cc4f
   languageName: node
   linkType: hard
 
