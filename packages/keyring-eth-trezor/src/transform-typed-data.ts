@@ -1,6 +1,6 @@
 import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
-import { bytesToHex, isPlainObject, remove0x } from '@metamask/utils';
+import { bytesToHex, isObject, remove0x } from '@metamask/utils';
 
 /**
  * Recursively convert `bigint` values to strings.
@@ -17,7 +17,7 @@ function sanitize(value: unknown): unknown {
     return value.map(sanitize);
   }
 
-  if (isPlainObject(value)) {
+  if (isObject(value)) {
     return Object.fromEntries(
       Object.entries(value).map(([key, entry]) => [key, sanitize(entry)]),
     );

@@ -712,6 +712,95 @@ describe('TrezorKeyring', function () {
       });
     });
 
+    it('transforms and sanitizes typed data containing bigints, arrays and nested objects', async function () {
+      const ethereumSignTypedDataStub = stub().resolves({
+        success: true,
+        payload: { signature: '0x00', address: fakeAccounts[0] },
+      });
+      bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
+
+      await keyring.signTypedData(
+        fakeAccounts[0],
+        {
+          types: {
+            EIP712Domain: [
+              { name: 'name', type: 'string' },
+              { name: 'version', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' },
+            ],
+            Nested: [{ name: 'amount', type: 'uint256' }],
+            Test: [
+              { name: 'value', type: 'uint256' },
+              { name: 'values', type: 'uint256[]' },
+              { name: 'nested', type: 'Nested' },
+            ],
+          },
+          primaryType: 'Test',
+          domain: {
+            name: 'Test',
+            version: '1',
+            chainId: 1,
+            verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+          },
+          message: {
+            value: BigInt('1000000000000000000'),
+            values: [BigInt(2), BigInt(3)],
+            nested: { amount: BigInt(4) },
+          },
+        },
+        { version: SignTypedDataVersion.V4 },
+      );
+
+      expect(ethereumSignTypedDataStub.calledOnce).toBe(true);
+      assert.calledWithMatch(ethereumSignTypedDataStub, {
+        domain_separator_hash:
+          '9a8af9fa0e0b9cc754673d55fcc039a94f1fa62a8ea41c8a977869f73d86b933',
+        message_hash:
+          'f0cb9721a53c800b8cc1a631ae1ec34cc2da5c21a0b5c3e3055994e176ea41af',
+      });
+    });
+
+    it('uses an empty message hash when the primary type is EIP712Domain', async function () {
+      const ethereumSignTypedDataStub = stub().resolves({
+        success: true,
+        payload: { signature: '0x00', address: fakeAccounts[0] },
+      });
+      bridge.ethereumSignTypedData = ethereumSignTypedDataStub;
+
+      await keyring.signTypedData(
+        fakeAccounts[0],
+        {
+          types: {
+            EIP712Domain: [
+              { name: 'name', type: 'string' },
+              { name: 'version', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' },
+            ],
+          },
+          primaryType: 'EIP712Domain',
+          domain: {
+            name: 'Test',
+            version: '1',
+            chainId: 1,
+            verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+          },
+          message: {
+            foo: 'bar'
+          },
+        },
+        { version: SignTypedDataVersion.V4 },
+      );
+
+      expect(ethereumSignTypedDataStub.calledOnce).toBe(true);
+      assert.calledWithMatch(ethereumSignTypedDataStub, {
+        domain_separator_hash:
+          '9a8af9fa0e0b9cc754673d55fcc039a94f1fa62a8ea41c8a977869f73d86b933',
+        message_hash: '',
+      });
+    });
+
     it('converts unknown typed-data signing failures to ErrorCode.Unknown', async function () {
       const ethereumSignTypedDataStub = stub().resolves({
         success: false,
