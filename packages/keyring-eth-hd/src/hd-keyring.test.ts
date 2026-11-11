@@ -1106,7 +1106,7 @@ describe('hd-keyring', () => {
 
       const encryptionPublicKey =
         await keyring.getEncryptionPublicKey(firstAcct);
-      encryptedMessage = encrypt({
+      encryptedMessage = await encrypt({
         publicKey: encryptionPublicKey,
         data: message,
         version: 'x25519-xsalsa20-poly1305',

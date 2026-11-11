@@ -606,10 +606,14 @@ describe('simple-keyring', function () {
     const privKeyHex =
       '6969696969696969696969696969696969696969696969696969696969696969';
     const message = 'Hello world!';
-    const encryptedMessage = encrypt({
-      publicKey: getEncryptionPublicKey(privKeyHex),
-      data: message,
-      version: 'x25519-xsalsa20-poly1305',
+    let encryptedMessage: Awaited<ReturnType<typeof encrypt>>;
+
+    beforeAll(async () => {
+      encryptedMessage = await encrypt({
+        publicKey: await getEncryptionPublicKey(privKeyHex),
+        data: message,
+        version: 'x25519-xsalsa20-poly1305',
+      });
     });
 
     it('returns the expected value', async function () {

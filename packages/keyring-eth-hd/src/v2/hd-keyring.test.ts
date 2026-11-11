@@ -998,7 +998,7 @@ describe('HdKeyring (v2 wrapper)', () => {
 
         // This will fail with actual decryption due to invalid encrypted data
         await expect(wrapper.submitRequest(decryptRequest)).rejects.toThrow(
-          'Invalid padding: string should have whole number of bytes',
+          'padding: invalid, string should have whole number of bytes',
         );
       });
 
