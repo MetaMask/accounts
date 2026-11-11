@@ -787,7 +787,7 @@ describe('TrezorKeyring', function () {
             verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
           },
           message: {
-            foo: 'bar'
+            foo: 'bar',
           },
         },
         { version: SignTypedDataVersion.V4 },
