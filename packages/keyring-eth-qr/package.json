@@ -85,8 +85,8 @@
   "devDependencies": {
     "@ethereumjs/common": "^4.4.0",
     "@keystonehq/metamask-airgapped-keyring": "^0.15.2",
-    "@lavamoat/allow-scripts": "^3.2.1",
-    "@lavamoat/preinstall-always-fail": "^2.1.0",
+    "@lavamoat/allow-scripts": "^5.1.0",
+    "@lavamoat/preinstall-always-fail": "^3.0.1",
     "@metamask/account-api": "^2.2.0",
     "@metamask/auto-changelog": "^6.1.0",
     "@types/hdkey": "^2.0.1",

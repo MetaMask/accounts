@@ -73,8 +73,8 @@
     "async-mutex": "^0.5.0"
   },
   "devDependencies": {
-    "@lavamoat/allow-scripts": "^3.2.1",
-    "@lavamoat/preinstall-always-fail": "^2.1.0",
+    "@lavamoat/allow-scripts": "^5.1.0",
+    "@lavamoat/preinstall-always-fail": "^3.0.1",
     "@metamask/auto-changelog": "^6.1.0",
     "@metamask/eth-sig-util": "^9.0.0",
     "@metamask/key-tree": "^10.0.2",

@@ -78,8 +78,8 @@
     "ethereum-cryptography": "^2.2.1"
   },
   "devDependencies": {
-    "@lavamoat/allow-scripts": "^3.2.1",
-    "@lavamoat/preinstall-always-fail": "^2.1.0",
+    "@lavamoat/allow-scripts": "^5.1.0",
+    "@lavamoat/preinstall-always-fail": "^3.0.1",
     "@metamask/account-api": "^2.2.0",
     "@metamask/auto-changelog": "^6.1.0",
     "@metamask/bip39": "^4.0.0",
