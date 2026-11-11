@@ -39,11 +39,9 @@ const PINNED_VERSION_EXCEPTIONS = [];
  * FIXME: These packages are ESM-only, which is not yet the standard package
  * format across this monorepo. They deviate from the CommonJS-compatible
  * (dual-format) package shape enforced by these constraints: ESM-only
- * `exports` without a CommonJS fallback, a `ts-bridge` build using
- * `--format module`, and Jest scripts without
- * `NODE_OPTIONS=--experimental-vm-modules`. The checks they would fail are
- * skipped until the monorepo-wide ESM migration lands and the constraints
- * are updated.
+ * `exports` without a CommonJS fallback and a `ts-bridge` build using
+ * `--format module`. The checks they would fail are skipped until the
+ * monorepo-wide ESM migration lands and the constraints are updated.
  *
  * @type {string[]}
  */
@@ -192,16 +190,11 @@ module.exports = defineConfig({
         );
 
         // All non-root packages must have the same "test:source" script.
-        // FIXME: ESM-only packages run Jest without
-        // `NODE_OPTIONS=--experimental-vm-modules` and are skipped until the
-        // ESM migration lands (see ESM_ONLY_PACKAGE_EXCEPTIONS).
-        if (!isEsModuleOnlyPackage) {
-          expectWorkspaceField(
-            workspace,
-            'scripts.test:source',
-            'NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter',
-          );
-        }
+        expectWorkspaceField(
+          workspace,
+          'scripts.test:source',
+          'jest --reporters=jest-silent-reporter',
+        );
 
         // All non-root packages must have the same "test:types" script.
         expectWorkspaceField(
@@ -210,30 +203,14 @@ module.exports = defineConfig({
           '../../scripts/tsd-test.sh ./src',
         );
 
-        // FIXME: ESM-only packages are skipped for the same reason as
-        // "test:source" above (see ESM_ONLY_PACKAGE_EXCEPTIONS).
-        if (!isEsModuleOnlyPackage) {
-          // All non-root packages must have the same "test:clean" script.
-          expectWorkspaceField(
-            workspace,
-            'scripts.test:clean',
-            'NODE_OPTIONS=--experimental-vm-modules jest --clearCache',
-          );
+        // All non-root packages must have the same "test:clean" script.
+        expectWorkspaceField(workspace, 'scripts.test:clean', 'jest --clearCache');
 
-          // All non-root packages must have the same "test:verbose" script.
-          expectWorkspaceField(
-            workspace,
-            'scripts.test:verbose',
-            'NODE_OPTIONS=--experimental-vm-modules jest --verbose',
-          );
+        // All non-root packages must have the same "test:verbose" script.
+        expectWorkspaceField(workspace, 'scripts.test:verbose', 'jest --verbose');
 
-          // All non-root packages must have the same "test:watch" script.
-          expectWorkspaceField(
-            workspace,
-            'scripts.test:watch',
-            'NODE_OPTIONS=--experimental-vm-modules jest --watch',
-          );
-        }
+        // All non-root packages must have the same "test:watch" script.
+        expectWorkspaceField(workspace, 'scripts.test:watch', 'jest --watch');
       }
 
       if (isChildWorkspace) {

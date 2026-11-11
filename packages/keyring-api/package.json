@@ -59,11 +59,11 @@
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/keyring-api",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
-    "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
-    "test:source": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
+    "test:clean": "jest --clearCache",
+    "test:source": "jest --reporters=jest-silent-reporter",
     "test:types": "../../scripts/tsd-test.sh ./src",
-    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
+    "test:verbose": "jest --verbose",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@metamask/keyring-utils": "^5.0.0",
