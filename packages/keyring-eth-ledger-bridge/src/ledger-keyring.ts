@@ -567,7 +567,7 @@ export class LedgerKeyring implements Keyring {
             verifyingContract: domain.verifyingContract,
             salt:
               domain.salt instanceof Uint8Array
-                ? bytesToHex(domain.salt)
+                ? remove0x(bytesToHex(domain.salt))
                 : domain.salt,
           },
           types,
