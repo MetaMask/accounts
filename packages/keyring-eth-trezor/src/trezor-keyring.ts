@@ -479,7 +479,9 @@ export class TrezorKeyring implements Keyring {
     const { version } = options ?? { version: SignTypedDataVersion.V4 };
 
     if (version !== SignTypedDataVersion.V4) {
-      throw new Error('Trezor: Only version 4 of typed data signing is supported');
+      throw new Error(
+        'Trezor: Only version 4 of typed data signing is supported',
+      );
     }
 
     const dataWithHashes = transformTypedData(data);

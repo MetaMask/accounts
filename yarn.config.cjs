@@ -204,10 +204,18 @@ module.exports = defineConfig({
         );
 
         // All non-root packages must have the same "test:clean" script.
-        expectWorkspaceField(workspace, 'scripts.test:clean', 'jest --clearCache');
+        expectWorkspaceField(
+          workspace,
+          'scripts.test:clean',
+          'jest --clearCache',
+        );
 
         // All non-root packages must have the same "test:verbose" script.
-        expectWorkspaceField(workspace, 'scripts.test:verbose', 'jest --verbose');
+        expectWorkspaceField(
+          workspace,
+          'scripts.test:verbose',
+          'jest --verbose',
+        );
 
         // All non-root packages must have the same "test:watch" script.
         expectWorkspaceField(workspace, 'scripts.test:watch', 'jest --watch');

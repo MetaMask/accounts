@@ -41,7 +41,9 @@ function sanitize(value: unknown): unknown {
 export function transformTypedData<Types extends MessageTypes>(
   data: TypedMessage<Types>,
 ): TypedMessage<Types> & {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   domain_separator_hash: string;
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   message_hash: string | null;
 } {
   const { types, primaryType, domain, message } =
@@ -62,21 +64,19 @@ export function transformTypedData<Types extends MessageTypes>(
     primaryType === 'EIP712Domain'
       ? null
       : remove0x(
-        bytesToHex(
-          TypedDataUtils.hashStruct(
-            primaryType.toString(),
-            sanitize(message) as Record<string, unknown>,
-            types,
-            SignTypedDataVersion.V4,
+          bytesToHex(
+            TypedDataUtils.hashStruct(
+              primaryType.toString(),
+              sanitize(message) as Record<string, unknown>,
+              types,
+              SignTypedDataVersion.V4,
+            ),
           ),
-        ),
-      );
+        );
 
   return {
     ...data,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     domain_separator_hash: domainHash,
-    // eslint-disable-line @typescript-eslint/naming-convention
-    message_hash: messageHash
+    message_hash: messageHash,
   };
 }
