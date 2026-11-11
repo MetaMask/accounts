@@ -83,7 +83,7 @@
     "@metamask/auto-changelog": "^6.1.0",
     "@ts-bridge/cli": "^0.6.3",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.12.12",
+    "@types/node": "^20.19.0",
     "@types/uuid": "^9.0.8",
     "deepmerge": "^4.2.2",
     "depcheck": "^1.4.7",

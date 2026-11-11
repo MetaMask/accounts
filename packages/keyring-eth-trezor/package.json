@@ -90,7 +90,7 @@
     "@types/ethereumjs-tx": "^1.0.1",
     "@types/hdkey": "^2.0.1",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.12.12",
+    "@types/node": "^20.19.0",
     "@types/sinon": "^17.0.3",
     "@types/w3c-web-usb": "^1.0.6",
     "deepmerge": "^4.2.2",
