@@ -22,7 +22,6 @@ import { mnemonicPhraseToBytes } from '@metamask/key-tree';
 import OldHdKeyring from '@metamask/old-hd-keyring';
 import { assert, bytesToHex, hexToBytes } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
-import { webcrypto } from 'crypto';
 import { mnemonicToSeedSync } from 'ethereum-cryptography/bip39';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 
