@@ -9,11 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.2.1]
 
-### Uncategorized
-
-- chore: bump TypeScript to 5.8 ([#697](https://github.com/MetaMask/accounts/pull/697))
-- chore: bump `allow-scripts` ([#698](https://github.com/MetaMask/accounts/pull/698))
-
 ### Changed
 
 - Bump `@metamask/eth-sig-util` from `^9.0.0` to `^10.0.0` ([#696](https://github.com/MetaMask/accounts/pull/696))
