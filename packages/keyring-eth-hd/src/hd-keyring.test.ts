@@ -22,7 +22,6 @@ import { mnemonicPhraseToBytes } from '@metamask/key-tree';
 import OldHdKeyring from '@metamask/old-hd-keyring';
 import { assert, bytesToHex, hexToBytes } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
-import { webcrypto } from 'crypto';
 import { mnemonicToSeedSync } from 'ethereum-cryptography/bip39';
 import { keccak256 } from 'ethereum-cryptography/keccak';
 
@@ -200,53 +199,6 @@ describe('hd-keyring', () => {
       expect(accounts[1]).toStrictEqual(secondAcct);
       expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
       expect(keyring.seed).toStrictEqual(sampleMnemonicSeed);
-    });
-
-    it('deserializes using custom cryptography', async () => {
-      const pbkdf2Sha512 = async (
-        password: string,
-        salt: BufferSource,
-        iterations: number,
-        keyLength: number,
-      ): Promise<Uint8Array> => {
-        const key = await webcrypto.subtle.importKey(
-          'raw',
-          Buffer.from(password),
-          { name: 'PBKDF2' },
-          false,
-          ['deriveBits'],
-        );
-
-        const derivedBits = await webcrypto.subtle.deriveBits(
-          {
-            name: 'PBKDF2',
-            salt,
-            iterations,
-            hash: { name: 'SHA-512' },
-          },
-          key,
-          keyLength * 8,
-        );
-
-        return new Uint8Array(derivedBits);
-      };
-
-      const cryptographicFunctions = {
-        pbkdf2Sha512: jest.fn().mockImplementation(pbkdf2Sha512),
-      };
-      const keyring = new HdKeyring({ cryptographicFunctions });
-
-      await keyring.deserialize({
-        mnemonic: sampleMnemonic,
-        numberOfAccounts: 2,
-      });
-
-      const accounts = await keyring.getAccounts();
-      expect(accounts[0]).toStrictEqual(firstAcct);
-      expect(accounts[1]).toStrictEqual(secondAcct);
-      expect(keyring.mnemonic).toStrictEqual(sampleMnemonicBytes);
-      expect(keyring.seed).toStrictEqual(sampleMnemonicSeed);
-      expect(cryptographicFunctions.pbkdf2Sha512).toHaveBeenCalledTimes(1);
     });
 
     it('throws on invalid mnemonic with wrong number of words', async () => {

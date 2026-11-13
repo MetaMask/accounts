@@ -18,7 +18,6 @@ import type {
   TypedMessage,
 } from '@metamask/eth-sig-util';
 import { mnemonicToSeed } from '@metamask/key-tree';
-import type { CryptographicFunctions } from '@metamask/key-tree';
 import type { Keyring } from '@metamask/keyring-utils';
 import { generateMnemonic, validateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
@@ -40,10 +39,6 @@ const hdPathString = `m/44'/60'/0'/0`;
 const type = 'HD Key Tree';
 
 type Mnemonic = string | number[] | SerializedBuffer | Buffer | Uint8Array;
-
-export type HDKeyringOptions = {
-  cryptographicFunctions?: CryptographicFunctions;
-};
 
 /**
  * The serialized state of an `HDKeyring` instance.
@@ -126,13 +121,6 @@ export class HdKeyring implements Keyring {
   hdPath: string = hdPathString;
 
   readonly #walletMap = new Map<Hex, WalletData>();
-
-  readonly #cryptographicFunctions?: CryptographicFunctions;
-
-  constructor(opts: HDKeyringOptions = {}) {
-    // Cryptographic functions to be used by `@metamask/key-tree`. It will use built-in implementations if not provided here.
-    this.#cryptographicFunctions = opts.cryptographicFunctions;
-  }
 
   /**
    * Initialize the keyring with a random mnemonic.
@@ -617,7 +605,6 @@ export class HdKeyring implements Keyring {
     this.seed = await mnemonicToSeed(
       this.mnemonic,
       '', // No passphrase
-      this.#cryptographicFunctions,
     );
     this.hdWallet = HDKey.fromMasterSeed(this.seed);
     this.root = this.hdWallet.derive(this.hdPath);

@@ -8,6 +8,7 @@ const ESM_DEPENDENCIES_TO_TRANSPILE = [
   '@metamask/cryptography',
   '@metamask/error-utils',
   '@metamask/eth-sig-util',
+  '@metamask/key-tree',
   '@metamask/node-utils',
   '@metamask/type-utils',
   '@metamask/utils',
