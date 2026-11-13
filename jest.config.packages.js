@@ -3,6 +3,16 @@
  * https://jestjs.io/docs/configuration
  */
 
+const ESM_DEPENDENCIES_TO_TRANSPILE = [
+  '@metamask/byte-utils',
+  '@metamask/cryptography',
+  '@metamask/error-utils',
+  '@metamask/eth-sig-util',
+  '@metamask/node-utils',
+  '@metamask/type-utils',
+  '@metamask/utils',
+];
+
 module.exports = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
@@ -86,10 +96,10 @@ module.exports = {
   // Here we ensure that Jest resolves `@metamask/*` imports to the uncompiled source code for packages that live in this repo.
   // NOTE: This must be synchronized with the `paths` option in `tsconfig.packages.json`.
   moduleNameMapper: {
-    // Listed before the `@metamask/*` wildcard so the AES-GCM subpath is not
-    // rewritten to a workspace source directory.
-    '^@metamask/cryptography/aes-gcm$':
-      '<rootDir>/../../node_modules/@metamask/cryptography/dist/aes-gcm.js',
+    // Listed before the `@metamask/*` wildcard so the cryptography subpaths are
+    // not rewritten to a workspace source directory.
+    '^@metamask/cryptography/(.+)$':
+      '<rootDir>/../../node_modules/@metamask/cryptography/dist/$1.js',
     '^@metamask/(.+)/v2$': [
       '<rootDir>/../$1/src/v2',
       // Some @metamask/* packages we are referencing aren't in this monorepo,
@@ -207,10 +217,14 @@ module.exports = {
   // timers: "real",
 
   // A map from regular expressions to paths to transformers
-  // transform: undefined,
+  transform: {
+    '^.+\\.js$': require.resolve('./jest.esm-transform.cjs'),
+  },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  // transformIgnorePatterns: undefined
+  transformIgnorePatterns: [
+    `/node_modules/(?!(${ESM_DEPENDENCIES_TO_TRANSPILE.join('|')})/)`,
+  ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,

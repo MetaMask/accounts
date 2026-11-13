@@ -1082,8 +1082,7 @@ describe('LedgerKeyring', function () {
           name: 'Ether Mail',
           verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
           version: '1',
-          // Temporary cast until eth-sig-util v10.
-          salt: new TextEncoder().encode('hello') as unknown as ArrayBuffer,
+          salt: new TextEncoder().encode('hello'),
         },
         message: {
           contents: 'Hello, Bob!',

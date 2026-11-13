@@ -19,6 +19,7 @@ module.exports = merge(baseConfig, {
 
   // The glob patterns Jest uses to detect test files
   testMatch: ['**/*.test.[jt]s?(x)'],
+  setupFiles: ['<rootDir>/jest.setup.js'],
 
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {

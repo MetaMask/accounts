@@ -1,5 +1,6 @@
 import type { MessageTypes, TypedMessage } from '@metamask/eth-sig-util';
 import { SignTypedDataVersion, TypedDataUtils } from '@metamask/eth-sig-util';
+import { bytesToHex, remove0x } from '@metamask/utils';
 
 import { withDerivedEip712Domain } from './eip712';
 
@@ -202,20 +203,22 @@ describe('withDerivedEip712Domain', () => {
     // The spec-correct separator for these domain values, matching the
     // contract's on-chain DOMAIN_SEPARATOR.
     expect(
-      TypedDataUtils.eip712DomainHash(
-        normalized,
-        SignTypedDataVersion.V4,
-      ).toString('hex'),
+      remove0x(
+        bytesToHex(
+          TypedDataUtils.eip712DomainHash(normalized, SignTypedDataVersion.V4),
+        ),
+      ),
     ).toBe('24ea63bbfcb16de2524c7c24322b6cbc39cb2d08881bce770af4771e6b1ad117');
 
     // Documents the broken behavior: without derivation, eth-sig-util hashes
     // the empty domain struct that sanitizeData injects for a missing
     // EIP712Domain type.
     expect(
-      TypedDataUtils.eip712DomainHash(
-        payload,
-        SignTypedDataVersion.V4,
-      ).toString('hex'),
+      remove0x(
+        bytesToHex(
+          TypedDataUtils.eip712DomainHash(payload, SignTypedDataVersion.V4),
+        ),
+      ),
     ).toBe('6192106f129ce05c9075d319c1fa6ea9b3ae37cbd0c1ef92e2be7137bb07baa1');
   });
 });

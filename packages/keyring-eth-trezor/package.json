@@ -60,22 +60,21 @@
     "changelog:validate": "../../scripts/validate-changelog.sh @metamask/eth-trezor-keyring",
     "since-latest-release": "../../scripts/since-latest-release.sh",
     "test": "yarn test:source && yarn test:types",
-    "test:clean": "NODE_OPTIONS=--experimental-vm-modules jest --clearCache",
-    "test:source": "NODE_OPTIONS=--experimental-vm-modules jest --reporters=jest-silent-reporter",
+    "test:clean": "jest --clearCache",
+    "test:source": "jest --reporters=jest-silent-reporter",
     "test:types": "../../scripts/tsd-test.sh ./src",
-    "test:verbose": "NODE_OPTIONS=--experimental-vm-modules jest --verbose",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
+    "test:verbose": "jest --verbose",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
-    "@metamask/eth-sig-util": "^9.0.0",
+    "@metamask/eth-sig-util": "^10.0.0",
     "@metamask/hw-wallet-sdk": "^1.0.0",
     "@metamask/keyring-api": "^24.3.0",
     "@metamask/keyring-sdk": "^4.2.0",
     "@metamask/keyring-utils": "^5.0.0",
     "@metamask/utils": "^11.11.0",
-    "@trezor/connect-plugin-ethereum": "^9.0.5",
     "@trezor/connect-web": "^9.6.0",
     "hdkey": "^2.1.0",
     "tslib": "^2.6.2"

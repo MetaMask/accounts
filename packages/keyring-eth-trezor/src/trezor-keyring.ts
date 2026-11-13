@@ -14,7 +14,6 @@ import {
   Hex,
   remove0x,
 } from '@metamask/utils';
-import { transformTypedData } from '@trezor/connect-plugin-ethereum';
 import type {
   EthereumTransactionEIP1559,
   EthereumSignedTx,
@@ -23,6 +22,7 @@ import type {
 import type OldEthJsTransaction from 'ethereumjs-tx';
 import HDKey from 'hdkey';
 
+import { transformTypedData } from './transform-typed-data';
 import { TrezorBridge } from './trezor-bridge';
 import { createErrorFromTrezorResponse } from './trezor-bridge-error';
 import { handleTrezorTransportError } from './trezor-error-handler';
@@ -478,10 +478,13 @@ export class TrezorKeyring implements Keyring {
   ): Promise<string> {
     const { version } = options ?? { version: SignTypedDataVersion.V4 };
 
-    const dataWithHashes = transformTypedData(
-      data,
-      version === SignTypedDataVersion.V4,
-    );
+    if (version !== SignTypedDataVersion.V4) {
+      throw new Error(
+        'Trezor: Only version 4 of typed data signing is supported',
+      );
+    }
+
+    const dataWithHashes = transformTypedData(data);
 
     try {
       // set default values for signTypedData

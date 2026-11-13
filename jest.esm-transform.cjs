@@ -1,6 +1,6 @@
 /**
- * Jest runs this package as CommonJS, and `@metamask/cryptography` ships
- * ESM only. Transpile those files when the test runtime loads them.
+ * Jest runs the packages as CommonJS, and some dependencies ship ESM only.
+ * Transpile those files when the test runtime loads them.
  *
  * This file is CommonJS because Jest loads transformers without the
  * package's TypeScript build.
@@ -14,7 +14,7 @@ module.exports = {
   /**
    * Transpile an ESM file to CommonJS.
    *
-   * @param {string} sourceText - ESM source from `@metamask/cryptography`.
+   * @param {string} sourceText - ESM source from a dependency.
    * @param {string} sourcePath - Absolute path of the source file.
    * @returns {{ code: string }} CommonJS source Jest can execute.
    */
