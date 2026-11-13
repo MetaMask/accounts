@@ -1,5 +1,4 @@
 import { HdKeyring } from '@metamask/eth-hd-keyring';
-import type { CryptographicFunctions } from '@metamask/key-tree';
 import { EthAddressStrictStruct } from '@metamask/keyring-api';
 import type { Keyring } from '@metamask/keyring-utils';
 import {
@@ -46,7 +45,6 @@ type MoneySigner = {
  */
 export type MoneyKeyringOptions = {
   getMnemonic: GetMnemonicCallback;
-  cryptographicFunctions?: CryptographicFunctions;
 };
 
 /**
@@ -84,8 +82,6 @@ export class MoneyKeyring implements Keyring {
 
   readonly #getMnemonic: GetMnemonicCallback;
 
-  readonly #cryptographicFunctions: CryptographicFunctions | undefined;
-
   #entropySource: string | undefined;
 
   #account: Hex | undefined;
@@ -94,9 +90,8 @@ export class MoneyKeyring implements Keyring {
 
   readonly #lock = new Mutex();
 
-  constructor({ getMnemonic, cryptographicFunctions }: MoneyKeyringOptions) {
+  constructor({ getMnemonic }: MoneyKeyringOptions) {
     this.#getMnemonic = getMnemonic;
-    this.#cryptographicFunctions = cryptographicFunctions;
   }
 
   get entropySource(): string | undefined {
@@ -146,9 +141,7 @@ export class MoneyKeyring implements Keyring {
     return this.#lock.runExclusive(async () => {
       if (!this.#inner) {
         const mnemonic = await this.#getMnemonic(entropySource);
-        const inner = new HdKeyring({
-          cryptographicFunctions: this.#cryptographicFunctions,
-        });
+        const inner = new HdKeyring();
         await inner.deserialize({
           mnemonic,
           numberOfAccounts: this.#account ? 1 : 0,
