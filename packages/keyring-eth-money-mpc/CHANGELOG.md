@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1]
+
 ### Changed
 
-- Bump `@metamask/keyring-sdk` from `^4.1.0` to `^4.2.0` ([#694](https://github.com/MetaMask/accounts/pull/694))
+- Bump `@metamask/keyring-sdk` from `^4.1.0` to `^4.2.1` ([#694](https://github.com/MetaMask/accounts/pull/694), [#700](https://github.com/MetaMask/accounts/pull/700))
 - Bump `@metamask/eth-sig-util` from `^9.0.0` to `^10.0.0` ([#696](https://github.com/MetaMask/accounts/pull/696))
 
 ## [0.3.0]
@@ -42,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Replace `init` with an explicit `setup` method that runs key generation or import, inferring the mode from the backend ([#679](https://github.com/MetaMask/accounts/pull/679)), ([#681](https://github.com/MetaMask/accounts/pull/681))
+- Replace `init` with an explicit `setup` method that runs key generation or import, inferring the mode from the backend ([#679](https://github.com/MetaMask/accounts/pull/679), [#681](https://github.com/MetaMask/accounts/pull/681))
   - The mode is inferred on every `setup` call: `import` when an active epoch exists for the profile, `create` otherwise.
   - Use mode `create` if the backend has only pending share or backup.
   - The V2 `createAccounts` no longer accepts a `mode` option.
@@ -68,7 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.3.0...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.3.1...HEAD
+[0.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.3.0...@metamask/eth-money-mpc-keyring@0.3.1
 [0.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.2.0...@metamask/eth-money-mpc-keyring@0.3.0
 [0.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.1.1...@metamask/eth-money-mpc-keyring@0.2.0
 [0.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.1.0...@metamask/eth-money-mpc-keyring@0.1.1

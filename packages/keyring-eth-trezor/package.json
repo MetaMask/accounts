@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-trezor-keyring",
-  "version": "11.0.1",
+  "version": "11.0.2",
   "description": "A MetaMask compatible keyring, for trezor hardware wallets",
   "keywords": [
     "ethereum",
@@ -72,7 +72,7 @@
     "@metamask/eth-sig-util": "^10.0.0",
     "@metamask/hw-wallet-sdk": "^1.0.0",
     "@metamask/keyring-api": "^24.3.0",
-    "@metamask/keyring-sdk": "^4.2.0",
+    "@metamask/keyring-sdk": "^4.2.1",
     "@metamask/keyring-utils": "^5.0.0",
     "@metamask/utils": "^11.11.0",
     "@trezor/connect-web": "^9.6.0",

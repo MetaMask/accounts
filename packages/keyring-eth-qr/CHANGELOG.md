@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.2]
+
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
-- Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.2.0` ([#686](https://github.com/MetaMask/accounts/pull/686), [#694](https://github.com/MetaMask/accounts/pull/694))
+- Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.2.1` ([#686](https://github.com/MetaMask/accounts/pull/686), [#694](https://github.com/MetaMask/accounts/pull/694), [#700](https://github.com/MetaMask/accounts/pull/700))
 - Bump `@metamask/eth-sig-util` from `^9.0.0` to `^10.0.0` ([#696](https://github.com/MetaMask/accounts/pull/696))
 
 ## [3.0.1]
@@ -107,7 +109,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release ([#60](https://github.com/MetaMask/accounts/pull/60))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@3.0.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@3.0.2...HEAD
+[3.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@3.0.1...@metamask/eth-qr-keyring@3.0.2
 [3.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@3.0.0...@metamask/eth-qr-keyring@3.0.1
 [3.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.1.1...@metamask/eth-qr-keyring@3.0.0
 [2.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-qr-keyring@2.1.0...@metamask/eth-qr-keyring@2.1.1

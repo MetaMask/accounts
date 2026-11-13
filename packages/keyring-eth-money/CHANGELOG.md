@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0]
+
 ### Changed
 
 - **BREAKING:** Remove `cryptographicFunctions` option from `MoneyKeyringOptions` ([#699](https://github.com/MetaMask/accounts/pull/699))
-- Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.2.0` ([#686](https://github.com/MetaMask/accounts/pull/686), [#694](https://github.com/MetaMask/accounts/pull/694))
+- Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.2.1` ([#686](https://github.com/MetaMask/accounts/pull/686), [#694](https://github.com/MetaMask/accounts/pull/694), [#700](https://github.com/MetaMask/accounts/pull/700))
+- Bump `@metamask/eth-hd-keyring` from `^15.0.1` to `^16.0.0` ([#700](https://github.com/MetaMask/accounts/pull/700))
 
 ## [4.0.2]
 
@@ -121,7 +124,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Uses derivation path `"m/44'/4392018'/0'/0"`.
   - Enforces that at most one Money account can exist.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@5.0.0...HEAD
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.2...@metamask/eth-money-keyring@5.0.0
 [4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.1...@metamask/eth-money-keyring@4.0.2
 [4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.0...@metamask/eth-money-keyring@4.0.1
 [4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@3.0.1...@metamask/eth-money-keyring@4.0.0

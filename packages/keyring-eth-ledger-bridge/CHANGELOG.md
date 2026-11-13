@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.1.2]
+
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
-- Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.2.0` ([#686](https://github.com/MetaMask/accounts/pull/686), [#694](https://github.com/MetaMask/accounts/pull/694))
+- Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.2.1` ([#686](https://github.com/MetaMask/accounts/pull/686), [#694](https://github.com/MetaMask/accounts/pull/694), [#700](https://github.com/MetaMask/accounts/pull/700))
 - Bump `@metamask/eth-sig-util` from `^9.0.0` to `^10.0.0` ([#696](https://github.com/MetaMask/accounts/pull/696))
 
 ### Fixed
@@ -536,7 +538,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.1.2...HEAD
+[13.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.1.1...@metamask/eth-ledger-bridge-keyring@13.1.2
 [13.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.1.0...@metamask/eth-ledger-bridge-keyring@13.1.1
 [13.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.0.2...@metamask/eth-ledger-bridge-keyring@13.1.0
 [13.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.0.1...@metamask/eth-ledger-bridge-keyring@13.0.2
