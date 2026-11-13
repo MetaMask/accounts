@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore: bump TypeScript to 5.8 ([#697](https://github.com/MetaMask/accounts/pull/697))
+- chore: bump `allow-scripts` ([#698](https://github.com/MetaMask/accounts/pull/698))
+- ci: re-align preview-builds with core monorepo ([#665](https://github.com/MetaMask/accounts/pull/665))
+
 ### Changed
 
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))

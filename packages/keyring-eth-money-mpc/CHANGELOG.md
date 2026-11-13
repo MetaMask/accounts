@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Uncategorized
+
+- chore: bump TypeScript to 5.8 ([#697](https://github.com/MetaMask/accounts/pull/697))
+- chore: bump `allow-scripts` ([#698](https://github.com/MetaMask/accounts/pull/698))
+
 ### Changed
 
 - Bump `@metamask/keyring-sdk` from `^4.1.0` to `^4.2.0` ([#694](https://github.com/MetaMask/accounts/pull/694))
@@ -42,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Replace `init` with an explicit `setup` method that runs key generation or import, inferring the mode from the backend ([#679](https://github.com/MetaMask/accounts/pull/679)), ([#681](https://github.com/MetaMask/accounts/pull/681))
+- Replace `init` with an explicit `setup` method that runs key generation or import, inferring the mode from the backend ([#679](https://github.com/MetaMask/accounts/pull/679), [#681](https://github.com/MetaMask/accounts/pull/681))
   - The mode is inferred on every `setup` call: `import` when an active epoch exists for the profile, `create` otherwise.
   - Use mode `create` if the backend has only pending share or backup.
   - The V2 `createAccounts` no longer accepts a `mode` option.
@@ -62,7 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release of `@metamask/eth-money-mpc-keyring` ([#627](https://github.com/MetaMask/accounts/pull/627), [#641](https://github.com/MetaMask/accounts/pull/641)), [#673](https://github.com/MetaMask/accounts/pull/673))
+- Initial release of `@metamask/eth-money-mpc-keyring`, [#673](https://github.com/MetaMask/accounts/pull/673)) ([#627](https://github.com/MetaMask/accounts/pull/627), [#641](https://github.com/MetaMask/accounts/pull/641))
 
 ### Changed
 
