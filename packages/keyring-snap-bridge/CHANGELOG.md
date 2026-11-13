@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [24.1.2]
+
 ### Uncategorized
 
 - chore: bump TypeScript to 5.8 ([#697](https://github.com/MetaMask/accounts/pull/697))
@@ -839,7 +841,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.1.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.1.2...HEAD
+[24.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.1.1...@metamask/eth-snap-keyring@24.1.2
 [24.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.1.0...@metamask/eth-snap-keyring@24.1.1
 [24.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@24.0.0...@metamask/eth-snap-keyring@24.1.0
 [24.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-snap-keyring@23.0.2...@metamask/eth-snap-keyring@24.0.0

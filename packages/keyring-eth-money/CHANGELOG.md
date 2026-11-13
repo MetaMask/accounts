@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0]
+
 ### Uncategorized
 
 - chore: bump `eth-sig-util` to `^10.0.0` ([#696](https://github.com/MetaMask/accounts/pull/696))
@@ -127,7 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Uses derivation path `"m/44'/4392018'/0'/0"`.
   - Enforces that at most one Money account can exist.
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@5.0.0...HEAD
+[5.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.2...@metamask/eth-money-keyring@5.0.0
 [4.0.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.1...@metamask/eth-money-keyring@4.0.2
 [4.0.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@4.0.0...@metamask/eth-money-keyring@4.0.1
 [4.0.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-keyring@3.0.1...@metamask/eth-money-keyring@4.0.0

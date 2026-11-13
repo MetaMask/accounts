@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-hd-keyring",
-  "version": "15.0.1",
+  "version": "16.0.0",
   "description": "A simple standard interface for a seed phrase generated set of Ethereum accounts",
   "keywords": [
     "ethereum",
@@ -70,7 +70,7 @@
     "@metamask/eth-sig-util": "^10.0.0",
     "@metamask/key-tree": "^11.0.0",
     "@metamask/keyring-api": "^24.3.0",
-    "@metamask/keyring-sdk": "^4.2.0",
+    "@metamask/keyring-sdk": "^4.2.1",
     "@metamask/keyring-utils": "^5.0.0",
     "@metamask/scure-bip39": "^2.1.1",
     "@metamask/superstruct": "^3.4.1",

@@ -7,13 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Uncategorized
-
-- chore: bump `eth-sig-util` to `^10.0.0` ([#696](https://github.com/MetaMask/accounts/pull/696))
-- chore: bump TypeScript to 5.8 ([#697](https://github.com/MetaMask/accounts/pull/697))
-- chore: bump `allow-scripts` ([#698](https://github.com/MetaMask/accounts/pull/698))
-- ci: re-align preview-builds with core monorepo ([#665](https://github.com/MetaMask/accounts/pull/665))
-
 ## [5.0.0]
 
 ### Changed

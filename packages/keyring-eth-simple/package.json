@@ -1,6 +1,6 @@
 {
   "name": "@metamask/eth-simple-keyring",
-  "version": "13.0.1",
+  "version": "13.0.2",
   "description": "A simple standard interface for a series of Ethereum private keys",
   "keywords": [
     "ethereum",
@@ -69,7 +69,7 @@
     "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^10.0.0",
     "@metamask/keyring-api": "^24.3.0",
-    "@metamask/keyring-sdk": "^4.2.0",
+    "@metamask/keyring-sdk": "^4.2.1",
     "@metamask/utils": "^11.11.0",
     "ethereum-cryptography": "^2.2.1",
     "randombytes": "^2.1.0"
