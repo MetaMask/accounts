@@ -68,7 +68,7 @@
     "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^10.0.0",
-    "@metamask/key-tree": "^10.0.2",
+    "@metamask/key-tree": "^11.0.0",
     "@metamask/keyring-api": "^24.3.0",
     "@metamask/keyring-sdk": "^4.2.0",
     "@metamask/keyring-utils": "^5.0.0",
