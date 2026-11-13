@@ -67,7 +67,7 @@
   },
   "dependencies": {
     "@ethereumjs/util": "^9.1.0",
-    "@metamask/eth-sig-util": "npm:@metamask-previews/eth-sig-util@9.0.0-preview-c72f8b1",
+    "@metamask/eth-sig-util": "^10.0.0",
     "@metamask/keyring-api": "^24.3.0",
     "@metamask/keyring-sdk": "^4.2.0",
     "@metamask/utils": "^11.11.0",
