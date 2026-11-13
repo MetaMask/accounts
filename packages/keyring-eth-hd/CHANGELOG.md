@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
 - Parse message hex with `hexToBytes` instead of `Buffer` in `signMessage` ([#682](https://github.com/MetaMask/accounts/pull/682))
   - Odd-length hex is now zero-padded instead of being truncated.
-- Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.2.0` ([#686](https://github.com/MetaMask/accounts/pull/686), [#694](https://github.com/MetaMask/accounts/pull/694))
+- Bump `@metamask/keyring-sdk` from `^4.0.0` to `^4.2.1` ([#686](https://github.com/MetaMask/accounts/pull/686), [#694](https://github.com/MetaMask/accounts/pull/694), [#700](https://github.com/MetaMask/accounts/pull/700))
 - Bump `@metamask/eth-sig-util` from `^9.0.0` to `^10.0.0` ([#696](https://github.com/MetaMask/accounts/pull/696))
 - Bump `@metamask/key-tree` from `^10.0.2` to `^11.0.0` ([#699](https://github.com/MetaMask/accounts/pull/699))
 
