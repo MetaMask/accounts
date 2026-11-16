@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Declare `@ethereumjs/tx` as a dependency ([#674](https://github.com/MetaMask/accounts/pull/701))
+- Declare `@ethereumjs/tx` as a dependency ([#701](https://github.com/MetaMask/accounts/pull/701))
 
 ## [13.0.2]
 
