@@ -66,6 +66,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
     "@metamask/eth-sig-util": "^10.0.0",
     "@metamask/keyring-api": "^24.3.0",
@@ -75,7 +76,6 @@
     "randombytes": "^2.1.0"
   },
   "devDependencies": {
-    "@ethereumjs/tx": "^5.4.0",
     "@lavamoat/allow-scripts": "^5.1.0",
     "@lavamoat/preinstall-always-fail": "^3.0.1",
     "@metamask/auto-changelog": "^6.1.0",
