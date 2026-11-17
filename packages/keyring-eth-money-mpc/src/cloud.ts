@@ -290,7 +290,7 @@ async function readJsonBody(response: Response): Promise<unknown> {
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.
- * @param opts.token - Profile token. 2FA is included when the client requires MFA.
+ * @param opts.token - Profile token. 2FA is included when the backend requires MFA.
  * @param opts.data - Message hash to sign.
  * @param opts.clientNetId - Client network id.
  * @param opts.nonce - Client session nonce.

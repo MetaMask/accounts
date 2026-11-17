@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { hashPersonalMessage } from '@ethereumjs/util';
-import type { MoneyAccountSignatureRequest } from '@metamask/money-account-mfa-whitelist';
 import { bytesToHex } from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
@@ -186,10 +185,6 @@ const makeRootSession = (statusPayload = 'data persisted') => {
 const makeKeyring = (
   getProfileToken = jest.fn().mockResolvedValue('token'),
   getBackupEncryptionKey = jest.fn().mockResolvedValue(mockBackupKey),
-  isMfaRequired?: (
-    request: MoneyAccountSignatureRequest,
-    context: { address: Hex; hash: Hex },
-  ) => Promise<boolean>,
 ) =>
   new MpcMoneyKeyring({
     cl24Lib: {} as never,
@@ -198,7 +193,6 @@ const makeKeyring = (
     relayerURL: 'https://relayer.example',
     getProfileToken,
     getBackupEncryptionKey,
-    ...(isMfaRequired === undefined ? {} : { isMfaRequired }),
   });
 
 const deserializeState = async (
@@ -721,10 +715,9 @@ describe('MpcMoneyKeyring', () => {
     );
     expect(signatureHex).toBe(bytesToHex(mockEthSignature));
     const messageHash = hashPersonalMessage(new TextEncoder().encode('hello'));
-    expect(getProfileToken).toHaveBeenCalledWith({
-      twoFactor: true,
-      challenge: messageHash,
-    });
+    expect(getProfileToken).toHaveBeenCalledTimes(1);
+    expect(getProfileToken).toHaveBeenCalledWith();
+    expect(mockStartSign).toHaveBeenCalledTimes(1);
     expect(mockStartSign).toHaveBeenCalledWith(
       expect.objectContaining({
         clientNetId: 'local-user',
@@ -805,10 +798,8 @@ describe('MpcMoneyKeyring', () => {
     );
 
     expect(signatureHex).toBe(bytesToHex(mockEthSignature));
-    expect(getProfileToken).toHaveBeenCalledWith({
-      twoFactor: true,
-      challenge: expectedHash,
-    });
+    expect(getProfileToken).toHaveBeenCalledTimes(1);
+    expect(getProfileToken).toHaveBeenCalledWith();
     expect(mockStartSign).toHaveBeenCalledWith(
       expect.objectContaining({
         clientNetId: 'local-user',
@@ -830,49 +821,8 @@ describe('MpcMoneyKeyring', () => {
     );
   });
 
-  it('skips MFA when the client allows the signature', async () => {
-    const getProfileToken = jest.fn().mockResolvedValue('token');
-    const isMfaRequired = jest.fn().mockResolvedValue(false);
-    const keyring = makeKeyring(getProfileToken, undefined, isMfaRequired);
-    await deserializeState(keyring);
-    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
-
-    const messageHex = '0x68656c6c6f';
-    const messageHash = hashPersonalMessage(new TextEncoder().encode('hello'));
-    expect(
-      await keyring.signPersonalMessage(mockDerivedAddress, messageHex),
-    ).toBe(bytesToHex(mockEthSignature));
-
-    expect(isMfaRequired).toHaveBeenCalledWith(
-      {
-        method: 'signPersonalMessage',
-        address: mockDerivedAddress,
-        message: messageHex,
-      },
-      {
-        address: mockDerivedAddress,
-        hash: bytesToHex(messageHash),
-      },
-    );
-    expect(getProfileToken).toHaveBeenCalledTimes(1);
-    expect(getProfileToken).toHaveBeenCalledWith();
-    expect(mockStartSign).toHaveBeenCalledTimes(1);
-    expect(mockStartSign).toHaveBeenCalledWith(
-      expect.objectContaining({
-        token: 'token',
-        request: {
-          method: 'signPersonalMessage',
-          address: mockDerivedAddress,
-          message: messageHex,
-        },
-      }),
-    );
-  });
-
   it('signs a plain-text personal message as UTF-8', async () => {
-    const getProfileToken = jest.fn().mockResolvedValue('token');
-    const isMfaRequired = jest.fn().mockResolvedValue(false);
-    const keyring = makeKeyring(getProfileToken, undefined, isMfaRequired);
+    const keyring = makeKeyring();
     await deserializeState(keyring);
     mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
 
@@ -881,23 +831,20 @@ describe('MpcMoneyKeyring', () => {
       bytesToHex(mockEthSignature),
     );
 
-    expect(isMfaRequired).toHaveBeenCalledWith(
-      {
-        method: 'signPersonalMessage',
-        address: mockDerivedAddress,
-        message: '0x68656c6c6f',
-      },
-      {
-        address: mockDerivedAddress,
-        hash: bytesToHex(messageHash),
-      },
+    expect(mockStartSign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: messageHash,
+        request: {
+          method: 'signPersonalMessage',
+          address: mockDerivedAddress,
+          message: '0x68656c6c6f',
+        },
+      }),
     );
   });
 
   it('signs an empty 0x personal message as empty hex', async () => {
-    const getProfileToken = jest.fn().mockResolvedValue('token');
-    const isMfaRequired = jest.fn().mockResolvedValue(false);
-    const keyring = makeKeyring(getProfileToken, undefined, isMfaRequired);
+    const keyring = makeKeyring();
     await deserializeState(keyring);
     mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
 
@@ -906,16 +853,15 @@ describe('MpcMoneyKeyring', () => {
       bytesToHex(mockEthSignature),
     );
 
-    expect(isMfaRequired).toHaveBeenCalledWith(
-      {
-        method: 'signPersonalMessage',
-        address: mockDerivedAddress,
-        message: '0x',
-      },
-      {
-        address: mockDerivedAddress,
-        hash: bytesToHex(messageHash),
-      },
+    expect(mockStartSign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: messageHash,
+        request: {
+          method: 'signPersonalMessage',
+          address: mockDerivedAddress,
+          message: '0x',
+        },
+      }),
     );
   });
 
@@ -924,11 +870,7 @@ describe('MpcMoneyKeyring', () => {
       .fn()
       .mockResolvedValueOnce('session-token')
       .mockResolvedValueOnce('mfa-token');
-    const keyring = makeKeyring(
-      getProfileToken,
-      undefined,
-      jest.fn().mockResolvedValue(false),
-    );
+    const keyring = makeKeyring(getProfileToken);
     await deserializeState(keyring);
     mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
     mockStartSign
@@ -976,86 +918,9 @@ describe('MpcMoneyKeyring', () => {
     );
   });
 
-  it('requires MFA when the client requires it', async () => {
-    const getProfileToken = jest.fn().mockResolvedValue('token');
-    const isMfaRequired = jest.fn().mockResolvedValue(true);
-    const keyring = makeKeyring(getProfileToken, undefined, isMfaRequired);
-    await deserializeState(keyring);
-    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
-
-    const messageHash = hashPersonalMessage(new TextEncoder().encode('hello'));
-    await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f');
-
-    expect(isMfaRequired).toHaveBeenCalledWith(
-      {
-        method: 'signPersonalMessage',
-        address: mockDerivedAddress,
-        message: '0x68656c6c6f',
-      },
-      {
-        address: mockDerivedAddress,
-        hash: bytesToHex(messageHash),
-      },
-    );
-    expect(getProfileToken).toHaveBeenCalledWith({
-      twoFactor: true,
-      challenge: messageHash,
-    });
-  });
-
-  it('requires MFA when the client check throws', async () => {
-    const getProfileToken = jest.fn().mockResolvedValue('token');
-    const keyring = makeKeyring(
-      getProfileToken,
-      undefined,
-      jest.fn().mockRejectedValue(new Error('mfa check failed')),
-    );
-    await deserializeState(keyring);
-    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
-
-    await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f');
-
-    expect(getProfileToken).toHaveBeenCalledWith({
-      twoFactor: true,
-      challenge: hashPersonalMessage(new TextEncoder().encode('hello')),
-    });
-  });
-
-  it('retries with a fresh 2FA token when the backend requires MFA for a 2FA token', async () => {
-    const getProfileToken = jest
-      .fn()
-      .mockResolvedValueOnce('session-token')
-      .mockResolvedValueOnce('mfa-token');
-    const keyring = makeKeyring(getProfileToken);
-    await deserializeState(keyring);
-    mockCreateSession.mockResolvedValue(makeRootSession('signing completed'));
-    mockStartSign
-      .mockResolvedValueOnce(MFA_REQUIRED_CODE)
-      .mockResolvedValueOnce('ok');
-
-    const messageHash = hashPersonalMessage(new TextEncoder().encode('hello'));
-    expect(
-      await keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
-    ).toBe(bytesToHex(mockEthSignature));
-
-    expect(getProfileToken).toHaveBeenNthCalledWith(1, {
-      twoFactor: true,
-      challenge: messageHash,
-    });
-    expect(getProfileToken).toHaveBeenNthCalledWith(2, {
-      twoFactor: true,
-      challenge: messageHash,
-    });
-    expect(mockStartSign).toHaveBeenCalledTimes(2);
-  });
-
   it('throws when the MFA retry still returns mfa_required', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
-    const keyring = makeKeyring(
-      getProfileToken,
-      undefined,
-      jest.fn().mockResolvedValue(false),
-    );
+    const keyring = makeKeyring(getProfileToken);
     await deserializeState(keyring);
     mockStartSign.mockResolvedValue(MFA_REQUIRED_CODE);
 
