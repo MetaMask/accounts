@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add a telemetry-free default context module for the Ledger DMK bridge, and allow injecting a custom one through `LedgerDmkBridgeOptions.contextModule` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [13.1.2]
 
 ### Changed

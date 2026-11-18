@@ -1,3 +1,4 @@
+import type { ContextModule } from '@ledgerhq/context-module';
 import {
   CloseAppCommand,
   DeviceActionStatus,
@@ -64,6 +65,11 @@ import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware'
 
 export type LedgerDmkBridgeOptions = {
   transportFactory: Parameters<DeviceManagementKitBuilder['addTransport']>[0];
+  /**
+   * Clear-signing context module. Defaults to a module that keeps clear
+   * signing but disables Ledger's blind-signing reporting.
+   */
+  contextModule?: ContextModule;
 };
 
 type PublicKeyOutput = Pick<
@@ -119,7 +125,10 @@ export class LedgerDmkBridge implements LedgerBridge<LedgerDmkBridgeOptions> {
       .addTransport(opts.transportFactory)
       .build();
     this.#opts = opts;
-    this.#transportMiddleware = new LedgerDmkTransportMiddleware(this.#sdk);
+    this.#transportMiddleware = new LedgerDmkTransportMiddleware(
+      this.#sdk,
+      opts.contextModule,
+    );
   }
 
   /**

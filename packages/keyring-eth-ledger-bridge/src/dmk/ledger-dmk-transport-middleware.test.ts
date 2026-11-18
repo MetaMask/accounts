@@ -1,3 +1,7 @@
+import type {
+  BlindSigningReportParams,
+  ContextModule,
+} from '@ledgerhq/context-module';
 import type { DeviceManagementKit } from '@ledgerhq/device-management-kit';
 import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum';
 import { of } from 'rxjs';
@@ -130,6 +134,44 @@ describe('LedgerDmkTransportMiddleware', () => {
       middleware.getEthSigner();
 
       expect(buildSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('passes a custom context module to the signer builder', async () => {
+      const contextModule = {
+        getContexts: jest.fn(),
+        getFieldContext: jest.fn(),
+        getTypedDataFilters: jest.fn(),
+        report: jest.fn(),
+      } as unknown as ContextModule;
+      const withContextModuleSpy = jest.spyOn(
+        SignerEthBuilder.prototype,
+        'withContextModule',
+      );
+      const customMiddleware = new LedgerDmkTransportMiddleware(
+        mockSDK as unknown as DeviceManagementKit,
+        contextModule,
+      );
+      await customMiddleware.setSessionId('session-id');
+
+      customMiddleware.getEthSigner();
+
+      expect(withContextModuleSpy).toHaveBeenCalledWith(contextModule);
+    });
+
+    it('uses the default context module when none is provided', async () => {
+      const withContextModuleSpy = jest.spyOn(
+        SignerEthBuilder.prototype,
+        'withContextModule',
+      );
+      await middleware.setSessionId('session-id');
+
+      middleware.getEthSigner();
+
+      const contextModule = withContextModuleSpy.mock.calls[0]?.[0];
+      expect(contextModule).toBeDefined();
+      expect(
+        await contextModule?.report({} as BlindSigningReportParams),
+      ).toBeUndefined();
     });
   });
 

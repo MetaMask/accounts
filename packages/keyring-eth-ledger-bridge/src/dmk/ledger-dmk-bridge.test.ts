@@ -1,3 +1,4 @@
+import type { ContextModule } from '@ledgerhq/context-module';
 import {
   CloseAppCommand,
   CommandResultStatus,
@@ -174,6 +175,23 @@ describe('LedgerDmkBridge', () => {
       expect(LedgerDmkTransportMiddleware).toHaveBeenCalledTimes(1);
       expect(LedgerDmkTransportMiddleware).toHaveBeenCalledWith(
         expect.anything(),
+        undefined,
+      );
+    });
+
+    it('forwards a custom context module to the transport middleware', async () => {
+      const contextModule = { report: jest.fn() } as unknown as ContextModule;
+
+      const bridgeWithContext = new LedgerDmkBridge({
+        transportFactory: mockTransportFactory,
+        contextModule,
+      });
+
+      const options = await bridgeWithContext.getOptions();
+      expect(options.contextModule).toBe(contextModule);
+      expect(LedgerDmkTransportMiddleware).toHaveBeenLastCalledWith(
+        expect.anything(),
+        contextModule,
       );
     });
   });

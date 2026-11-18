@@ -4,6 +4,7 @@ export * from './ledger-iframe-bridge';
 export * from './ledger-mobile-bridge';
 export * from './dmk/ledger-dmk-bridge';
 export * from './dmk/ledger-dmk-transport-middleware';
+export * from './dmk/default-context-module';
 export type * from './ledger-bridge';
 export * from './ledger-transport-middleware';
 export type * from './type';
