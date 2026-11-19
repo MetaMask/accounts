@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** Replace `getBackupEncryptionKey` with `getPrimaryMnemonic` and derive device-share backup encryption keys using the SDK wrapping-key helpers ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - The callback returns the primary mnemonic as UTF-8 byte values without an entropy-source argument.
+  - Use index `0` and purpose `metamask:money-account:mfa:encryption-key:v1`, independently of MPC share epochs.
+  - Backups encrypted with a different key must be re-encrypted before switching.
+
 ### Removed
 
 - **BREAKING:** Remove the `isMfaRequired` option, so the backend alone decides whether a signature requires MFA ([#703](https://github.com/MetaMask/accounts/pull/703))
