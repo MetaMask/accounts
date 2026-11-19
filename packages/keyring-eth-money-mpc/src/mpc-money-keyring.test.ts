@@ -35,7 +35,15 @@ const mockShareEpoch = 1;
 const mockTypedDataHash = new Uint8Array([9, 8, 7, 6]);
 const mockEthSignature = new Uint8Array(65);
 mockEthSignature[64] = 27;
-const mockBackupKey = new Uint8Array(32).fill(7);
+const mockMnemonic =
+  'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+const mockMnemonicBytes = Array.from(new TextEncoder().encode(mockMnemonic));
+const mockBackupKey = new Uint8Array(
+  Buffer.from(
+    '073b64685ad165da85cae7c6eb9d6d387750eabd79c04034d7a44a99ac1aa3ae',
+    'hex',
+  ),
+);
 
 jest.mock('@metamask/mfa-wallet-cl24', () => {
   class MockCL24DKM {
@@ -184,7 +192,7 @@ const makeRootSession = (statusPayload = 'data persisted') => {
 
 const makeKeyring = (
   getProfileToken = jest.fn().mockResolvedValue('token'),
-  getBackupEncryptionKey = jest.fn().mockResolvedValue(mockBackupKey),
+  getPrimaryMnemonic = jest.fn().mockResolvedValue(mockMnemonicBytes),
 ) =>
   new MpcMoneyKeyring({
     cl24Lib: {} as never,
@@ -192,7 +200,7 @@ const makeKeyring = (
     cloudURL: 'https://cloud.example',
     relayerURL: 'https://relayer.example',
     getProfileToken,
-    getBackupEncryptionKey,
+    getPrimaryMnemonic,
   });
 
 const deserializeState = async (
@@ -263,7 +271,7 @@ describe('MpcMoneyKeyring', () => {
       cloudURL: 'https://cloud.example',
       relayerURL: 'https://relayer.example',
       getProfileToken: jest.fn().mockResolvedValue('verifier-token'),
-      getBackupEncryptionKey: jest.fn().mockResolvedValue(mockBackupKey),
+      getPrimaryMnemonic: jest.fn().mockResolvedValue(mockMnemonicBytes),
       getTransportToken: transportToken,
       webSocket,
     });
@@ -346,7 +354,8 @@ describe('MpcMoneyKeyring', () => {
 
   it('creates a key via setup when the backend has no key state', async () => {
     const getProfileToken = jest.fn().mockResolvedValue('token');
-    const keyring = makeKeyring(getProfileToken);
+    const getPrimaryMnemonic = jest.fn().mockResolvedValue(mockMnemonicBytes);
+    const keyring = makeKeyring(getProfileToken, getPrimaryMnemonic);
     const rootSession = makeRootSession();
 
     mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
@@ -368,6 +377,12 @@ describe('MpcMoneyKeyring', () => {
 
     await keyring.setup();
 
+    expect(getPrimaryMnemonic).toHaveBeenCalledWith();
+    expect(jest.requireMock('./util').encryptBytes).toHaveBeenCalledWith(
+      mockBackupKey,
+      expect.any(Uint8Array),
+      expect.any(Uint8Array),
+    );
     expect(getProfileToken).toHaveBeenCalledWith();
     expect(mockGetNetId).toHaveBeenCalledWith({
       baseURL: 'https://cloud.example',
@@ -430,6 +445,88 @@ describe('MpcMoneyKeyring', () => {
       shareEpoch: 1,
       tssSetup: '0x010203',
     });
+  });
+
+  it.each([
+    [
+      'callback failure',
+      async () => {
+        throw new Error('Mnemonic unavailable');
+      },
+      'Mnemonic unavailable',
+    ],
+    [
+      'invalid phrase',
+      async () => Array.from(encodeText('not a mnemonic')),
+      'Invalid mnemonic',
+    ],
+    ['invalid UTF-8', async () => [0xff], 'encoded data'],
+  ])(
+    'rejects backup recovery on %s without initializing',
+    async (_name, callback, error) => {
+      const getPrimaryMnemonic = jest.fn(callback);
+      const keyring = makeKeyring(undefined, getPrimaryMnemonic);
+      await expect(keyring.setup()).rejects.toThrow(error);
+      expect(await keyring.serialize()).toStrictEqual({});
+      expect(mockRegisterClient).not.toHaveBeenCalled();
+    },
+  );
+
+  it('recovers an authenticated backup using the primary mnemonic', async () => {
+    const actualUtil = jest.requireActual<typeof import('./util')>('./util');
+    const encryptedKeyShare = await actualUtil.encryptBytes(
+      mockBackupKey,
+      encodeText(JSON.stringify({ recovered: true })),
+      new Uint8Array(12),
+    );
+    jest
+      .requireMock('./util')
+      .decryptBytes.mockImplementation(actualUtil.decryptBytes);
+    mockLoadKeyShareBackup.mockResolvedValue({ encryptedKeyShare, epoch: 1 });
+    mockCreateIdentity.mockResolvedValue({ partyId: 'restored-user' });
+    mockThresholdKeyFromJson.mockReturnValue(makeThresholdKey());
+    const keyring = makeKeyring();
+
+    await keyring.setup();
+
+    expect(mockThresholdKeyFromJson).toHaveBeenCalledWith({ recovered: true });
+    expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
+  });
+
+  it('rejects a backup encrypted with another primary mnemonic', async () => {
+    const actualUtil = jest.requireActual<typeof import('./util')>('./util');
+    const encryptedKeyShare = await actualUtil.encryptBytes(
+      mockBackupKey,
+      encodeText('{}'),
+      new Uint8Array(12),
+    );
+    jest
+      .requireMock('./util')
+      .decryptBytes.mockImplementation(actualUtil.decryptBytes);
+    mockLoadKeyShareBackup.mockResolvedValue({ encryptedKeyShare, epoch: 1 });
+    const getPrimaryMnemonic = jest
+      .fn()
+      .mockResolvedValue(
+        Array.from(
+          encodeText(
+            'legal winner thank year wave sausage worth useful legal winner thank yellow',
+          ),
+        ),
+      );
+    const keyring = makeKeyring(undefined, getPrimaryMnemonic);
+
+    await expect(keyring.setup()).rejects.toThrow('The operation failed');
+    expect(await keyring.serialize()).toStrictEqual({});
+    expect(mockRegisterClient).not.toHaveBeenCalled();
+  });
+
+  it('does not request the primary mnemonic for local state reads', async () => {
+    const getPrimaryMnemonic = jest.fn();
+    const keyring = makeKeyring(undefined, getPrimaryMnemonic);
+    await deserializeState(keyring);
+    await keyring.serialize();
+    await keyring.getAccounts();
+    expect(getPrimaryMnemonic).not.toHaveBeenCalled();
   });
 
   it('throws when create cannot activate an incomplete epoch', async () => {
@@ -499,6 +596,10 @@ describe('MpcMoneyKeyring', () => {
 
     await keyring.setup();
 
+    expect(jest.requireMock('./util').decryptBytes).toHaveBeenCalledWith(
+      mockBackupKey,
+      expect.any(Uint8Array),
+    );
     expect(mockCheckKeyShare).toHaveBeenCalledTimes(1);
     expect(mockStartCreateKey).not.toHaveBeenCalled();
     expect(mockLoadKeyShareBackup).toHaveBeenCalledWith({

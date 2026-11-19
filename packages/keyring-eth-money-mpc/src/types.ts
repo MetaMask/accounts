@@ -28,7 +28,11 @@ export type MpcMoneyKeyringOpts = {
   relayerURL: string;
   getTransportToken?: () => Promise<string>;
   getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
-  getBackupEncryptionKey: () => Promise<Uint8Array>;
+  /**
+   * Resolve the wallet's primary mnemonic as UTF-8 byte values, not packed word
+   * indices. Recovery requires the same mnemonic used to encrypt the backup.
+   */
+  getPrimaryMnemonic: () => Promise<number[]>;
   webSocket?: unknown;
 };
 
