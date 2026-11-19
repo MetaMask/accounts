@@ -1,5 +1,4 @@
 import type { PartyId } from '@metamask/mfa-wallet-interface';
-import type { MoneyAccountSignatureRequest } from '@metamask/money-account-mfa-whitelist';
 import type { Infer, Struct } from '@metamask/superstruct';
 import {
   exactOptional,
@@ -15,6 +14,7 @@ import {
 import { base64ToBytes, bytesToBase64 } from '@metamask/utils';
 
 import { MFA_REQUIRED_CODE } from './types.js';
+import type { MoneyAccountSignatureRequest } from './types.js';
 
 export type LoadKeyShareBackupResult = {
   encryptedKeyShare: Uint8Array;
