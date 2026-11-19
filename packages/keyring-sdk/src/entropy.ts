@@ -28,7 +28,8 @@ export type EntropySourceId = `entropy:${EntropySourceType}:${string}`;
  * The fingerprint is a UUID v4 seeded from the first 16 bytes of
  * `HMAC-SHA256(key=material, msg='metamask:fingerprint')`.
  *
- * @param material - The raw entropy bytes (e.g. BIP-39 mnemonic bytes).
+ * @param material - The raw secret bytes (e.g. BIP-39 mnemonic bytes or final
+ * symmetric wrapping-key bytes, not wrapping-key roots).
  * @returns A deterministic UUID v4 string that uniquely identifies the entropy
  * without exposing it.
  */

@@ -3,5 +3,6 @@ export * from './keyring-account-registry';
 export * from './migration';
 export * from './mnemonic';
 export * from './entropy';
+export * from './wrapping-key';
 export * from './read-write-lock';
 export * from './eth';
