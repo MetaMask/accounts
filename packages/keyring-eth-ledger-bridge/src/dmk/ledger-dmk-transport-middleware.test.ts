@@ -1,12 +1,12 @@
-import type {
-  BlindSigningReportParams,
-  ContextModule,
-} from '@ledgerhq/context-module';
+import type { ContextModule } from '@ledgerhq/context-module';
 import type { DeviceManagementKit } from '@ledgerhq/device-management-kit';
 import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum';
 import { of } from 'rxjs';
 
+import { createDefaultContextModule } from './default-context-module';
 import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware';
+
+jest.mock('./default-context-module');
 
 describe('LedgerDmkTransportMiddleware', () => {
   const mockDiscovery = of({ id: 'device-id' });
@@ -14,6 +14,7 @@ describe('LedgerDmkTransportMiddleware', () => {
 
   let middleware: LedgerDmkTransportMiddleware;
   let buildSpy: jest.SpyInstance;
+  let defaultContextModule: ContextModule;
   let mockSDK: {
     connect: jest.Mock;
     disconnect: jest.Mock;
@@ -26,6 +27,15 @@ describe('LedgerDmkTransportMiddleware', () => {
       .mockReturnValue(
         mockSigner as unknown as ReturnType<SignerEthBuilder['build']>,
       );
+    defaultContextModule = {
+      getContexts: jest.fn(),
+      getFieldContext: jest.fn(),
+      getTypedDataFilters: jest.fn(),
+      report: jest.fn(),
+    } as unknown as ContextModule;
+    jest
+      .mocked(createDefaultContextModule)
+      .mockReturnValue(defaultContextModule);
     mockSDK = {
       connect: jest.fn().mockResolvedValue('test-session-id'),
       disconnect: jest.fn().mockResolvedValue(undefined),
@@ -147,6 +157,9 @@ describe('LedgerDmkTransportMiddleware', () => {
         SignerEthBuilder.prototype,
         'withContextModule',
       );
+      // The `beforeEach` middleware uses the default module; clear it to
+      // verify this instance never falls back to it.
+      jest.mocked(createDefaultContextModule).mockClear();
       const customMiddleware = new LedgerDmkTransportMiddleware(
         mockSDK as unknown as DeviceManagementKit,
         contextModule,
@@ -156,6 +169,7 @@ describe('LedgerDmkTransportMiddleware', () => {
       customMiddleware.getEthSigner();
 
       expect(withContextModuleSpy).toHaveBeenCalledWith(contextModule);
+      expect(createDefaultContextModule).not.toHaveBeenCalled();
     });
 
     it('uses the default context module when none is provided', async () => {
@@ -167,11 +181,8 @@ describe('LedgerDmkTransportMiddleware', () => {
 
       middleware.getEthSigner();
 
-      const contextModule = withContextModuleSpy.mock.calls[0]?.[0];
-      expect(contextModule).toBeDefined();
-      expect(
-        await contextModule?.report({} as BlindSigningReportParams),
-      ).toBeUndefined();
+      expect(createDefaultContextModule).toHaveBeenCalledTimes(1);
+      expect(withContextModuleSpy).toHaveBeenCalledWith(defaultContextModule);
     });
   });
 
