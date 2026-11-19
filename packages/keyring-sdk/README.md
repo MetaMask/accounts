@@ -152,7 +152,7 @@ const wrappingKey = await deriveWrappingKey({
 const wrappingKeyFingerprint = await fingerprint(wrappingKey);
 ```
 
-- Choose a unique, stable, versioned `purpose` and an `index` from `0` to `2^31 - 1`.
+- Choose a unique, stable `purpose` matching `metamask:<scope>:v<version>` (a non-negative integer version), and an `index` from `0` to `2^31 - 1`.
 - Retain the exact purpose and index with encrypted data so the key can be recovered.
 - Keep the mnemonic, opaque root, and wrapping key secret. Use the root only with
   `deriveWrappingKey`. BIP-39 passphrases are not supported.

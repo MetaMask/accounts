@@ -1,7 +1,7 @@
 import { expectNotAssignable, expectType } from 'tsd';
 
 import { deriveWrappingKey, deriveWrappingKeyRoot } from './wrapping-key';
-import type { WrappingKeyRoot } from './wrapping-key';
+import type { WrappingKeyPurpose, WrappingKeyRoot } from './wrapping-key';
 
 expectType<Promise<WrappingKeyRoot>>(
   deriveWrappingKeyRoot({ mnemonic: '', index: 0 }),
@@ -12,8 +12,13 @@ expectNotAssignable<WrappingKeyRoot>({});
 declare const root: WrappingKeyRoot;
 expectNotAssignable<Uint8Array>(root);
 expectType<Promise<Uint8Array>>(
-  deriveWrappingKey({ root, purpose: 'example:v1' }),
+  deriveWrappingKey({ root, purpose: 'metamask:example:v1' }),
 );
+
+expectNotAssignable<WrappingKeyPurpose>('example:v1');
+expectNotAssignable<WrappingKeyPurpose>('metamask:example');
+expectNotAssignable<WrappingKeyPurpose>('metamask:example:vnext');
+expectNotAssignable<WrappingKeyPurpose>('metamask:example:v');
 
 expectType<Promise<WrappingKeyRoot>>(
   deriveWrappingKeyRoot({
