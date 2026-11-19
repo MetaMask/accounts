@@ -12,6 +12,18 @@ The keyring first calls `/sign` with a profile token without 2FA, and sends the 
 
 Key generation, import, share rotation, share sync, and transaction signing always use a 2FA token.
 
+## Device-share backups
+
+Provide `getPrimaryMnemonic: () => Promise<number[]>` when constructing the keyring.
+It returns the wallet's primary mnemonic as UTF-8 byte values, like the normal
+Money keyring's `getMnemonic` callback, without an entropy-source argument.
+
+The keyring derives the backup wrapping key using the SDK helpers with index `0`
+and purpose `metamask:money-account:mfa:encryption-key:v1`, independently of share
+epochs. Recovery requires the same primary mnemonic. Backups encrypted using the
+old `getBackupEncryptionKey` callback are compatible only if it returned this same
+key; other existing backups require re-encryption before switching.
+
 ## Installation
 
 `yarn add @metamask/eth-money-mpc-keyring`
