@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `deriveWrappingKeyRoot`, `deriveWrappingKey`, and opaque `WrappingKeyRoot` for deterministic mnemonic-backed wrapping keys ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-  - Following ADR-0009.
+- Add `deriveWrappingKeyRoot{,Root}` and opaque `WrappingKeyRoot` for deterministic mnemonic-backed wrapping keys ([#706](https://github.com/MetaMask/accounts/pull/706))
+  - Following [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-wrapping-keys.md).
 
 ## [4.2.1]
 
