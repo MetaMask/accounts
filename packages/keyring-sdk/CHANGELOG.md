@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `deriveWrappingKeyRoot{,Root}` and opaque `WrappingKeyRoot` for deterministic mnemonic-backed wrapping keys ([#706](https://github.com/MetaMask/accounts/pull/706))
   - Following [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-wrapping-keys.md).
+  - Export `WrappingKeyPurpose` and require purposes to match `metamask:<scope>:v<version>`, with a non-empty scope and non-negative integer version.
 
 ## [4.2.1]
 

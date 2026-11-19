@@ -120,7 +120,7 @@ describe('deriveWrappingKey', () => {
     expect(Buffer.from(key).toString('hex')).toBe(expected);
   });
 
-  it.each([
+  it.each<[`metamask:${string}:v${number}`, string]>([
     [
       'metamask:money-account:mfa:encryption-key:v2',
       '87c108634bd23dc894c62fa0a5d73a5a637b3f7ee8e0462c08110868865b924a',
@@ -177,7 +177,18 @@ describe('deriveWrappingKey', () => {
     ).rejects.toThrow('Invalid wrapping-key root');
   });
 
-  it.each(['', undefined, 1])('rejects invalid purpose %s', async (purpose) => {
+  it.each([
+    '',
+    undefined,
+    1,
+    'example:v1',
+    'metamask::v1',
+    'metamask:example',
+    'metamask:example:v-1',
+    'metamask:example:v1.5',
+    'metamask:example:v1e2',
+    'metamask:example:v1\n',
+  ])('rejects invalid purpose %s', async (purpose) => {
     const root = await deriveWrappingKeyRoot({ mnemonic: MNEMONIC, index: 0 });
     await expect(
       // @ts-expect-error Intentionally pass invalid purposes for runtime validation.

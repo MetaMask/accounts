@@ -17,6 +17,12 @@ export type WrappingKeyRoot = {
   readonly [wrappingKeyRootBrand]: true;
 };
 
+/**
+ * A namespaced, versioned wrapping-key purpose. Use a unique, stable scope
+ * and a non-negative integer version.
+ */
+export type WrappingKeyPurpose = `metamask:${string}:v${number}`;
+
 const roots = new WeakMap<WrappingKeyRoot, Uint8Array>();
 
 // Four-byte ASCII labels `meta`, `mask`, and `wrap`, interpreted big-endian.
@@ -81,22 +87,25 @@ export async function deriveWrappingKeyRoot({
  * `metamask:money-account:mfa:encryption-key:v1`. Retain this exact string and the
  * root's index with recoverable encrypted data.
  * @returns The raw 32-byte wrapping key. Fingerprint these bytes, not the root.
- * @throws If the root is not from this SDK instance or the purpose is empty.
+ * @throws If the root is not from this SDK instance or the purpose is invalid.
  */
 export async function deriveWrappingKey({
   root,
   purpose,
 }: {
   root: WrappingKeyRoot;
-  purpose: string;
+  purpose: WrappingKeyPurpose;
 }): Promise<Uint8Array> {
   const privateKey = roots.get(root);
   if (!privateKey) {
     throw new Error('Invalid wrapping-key root');
   }
-  if (typeof purpose !== 'string' || purpose.length === 0) {
+  if (
+    typeof purpose !== 'string' ||
+    !/^metamask:.+:v[0-9]+(?![\s\S])/u.test(purpose)
+  ) {
     throw new Error(
-      'Invalid wrapping-key purpose: expected a non-empty string',
+      'Invalid wrapping-key purpose: expected metamask:<scope>:v<non-negative integer>',
     );
   }
   return hkdf(
