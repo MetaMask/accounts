@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add a telemetry-free default context module for the Ledger DMK bridge, and allow injecting a custom one through `LedgerDmkBridgeOptions.contextModule` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add `createDefaultContextModule`, a telemetry-free clear-signing context module for the Ledger DMK bridge, and use it by default ([#704](https://github.com/MetaMask/accounts/pull/704))
+- Add `contextModule` option to `LedgerDmkBridgeOptions` to inject a custom Ledger context module ([#704](https://github.com/MetaMask/accounts/pull/704))
 
 ## [13.1.2]
 
