@@ -133,6 +133,33 @@ read-heavy workloads, `{ priority: 'read' }` lets new readers join active
 readers even while a writer is merely queued, at the cost that continuous
 reads can starve a queued writer.
 
+## Wrapping keys
+
+Derive a reproducible 32-byte wrapping key from a BIP-39 mnemonic phrase string:
+
+```ts
+import {
+  deriveWrappingKeyRoot,
+  deriveWrappingKey,
+  fingerprint,
+} from '@metamask/keyring-sdk';
+
+const root = await deriveWrappingKeyRoot({ mnemonic, index: 0 });
+const wrappingKey = await deriveWrappingKey({
+  root,
+  purpose: 'metamask:money-account:mfa:encryption-key:v1',
+});
+const wrappingKeyFingerprint = await fingerprint(wrappingKey);
+```
+
+- Choose a unique, stable, versioned `purpose` and an `index` from `0` to `2^31 - 1`.
+- Retain the exact purpose and index with encrypted data so the key can be recovered.
+- Keep the mnemonic, opaque root, and wrapping key secret. Use the root only with
+  `deriveWrappingKey`. BIP-39 passphrases are not supported.
+
+See [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-wrapping-keys.md)
+for derivation details and security considerations.
+
 ## Contributing
 
 This package is part of a monorepo. Instructions for contributing can be found in the [monorepo README](https://github.com/MetaMask/accounts#readme).
