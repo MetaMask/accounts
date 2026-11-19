@@ -1,8 +1,12 @@
+import type { ContextModule } from '@ledgerhq/context-module';
 import type { DeviceManagementKit } from '@ledgerhq/device-management-kit';
 import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum';
 import { of } from 'rxjs';
 
+import { createDefaultContextModule } from './default-context-module';
 import { LedgerDmkTransportMiddleware } from './ledger-dmk-transport-middleware';
+
+jest.mock('./default-context-module');
 
 describe('LedgerDmkTransportMiddleware', () => {
   const mockDiscovery = of({ id: 'device-id' });
@@ -10,6 +14,7 @@ describe('LedgerDmkTransportMiddleware', () => {
 
   let middleware: LedgerDmkTransportMiddleware;
   let buildSpy: jest.SpyInstance;
+  let defaultContextModule: ContextModule;
   let mockSDK: {
     connect: jest.Mock;
     disconnect: jest.Mock;
@@ -22,6 +27,15 @@ describe('LedgerDmkTransportMiddleware', () => {
       .mockReturnValue(
         mockSigner as unknown as ReturnType<SignerEthBuilder['build']>,
       );
+    defaultContextModule = {
+      getContexts: jest.fn(),
+      getFieldContext: jest.fn(),
+      getTypedDataFilters: jest.fn(),
+      report: jest.fn(),
+    } as unknown as ContextModule;
+    jest
+      .mocked(createDefaultContextModule)
+      .mockReturnValue(defaultContextModule);
     mockSDK = {
       connect: jest.fn().mockResolvedValue('test-session-id'),
       disconnect: jest.fn().mockResolvedValue(undefined),
@@ -130,6 +144,45 @@ describe('LedgerDmkTransportMiddleware', () => {
       middleware.getEthSigner();
 
       expect(buildSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('passes a custom context module to the signer builder', async () => {
+      const contextModule = {
+        getContexts: jest.fn(),
+        getFieldContext: jest.fn(),
+        getTypedDataFilters: jest.fn(),
+        report: jest.fn(),
+      } as unknown as ContextModule;
+      const withContextModuleSpy = jest.spyOn(
+        SignerEthBuilder.prototype,
+        'withContextModule',
+      );
+      // The `beforeEach` middleware uses the default module; clear it to
+      // verify this instance never falls back to it.
+      jest.mocked(createDefaultContextModule).mockClear();
+      const customMiddleware = new LedgerDmkTransportMiddleware(
+        mockSDK as unknown as DeviceManagementKit,
+        contextModule,
+      );
+      await customMiddleware.setSessionId('session-id');
+
+      customMiddleware.getEthSigner();
+
+      expect(withContextModuleSpy).toHaveBeenCalledWith(contextModule);
+      expect(createDefaultContextModule).not.toHaveBeenCalled();
+    });
+
+    it('uses the default context module when none is provided', async () => {
+      const withContextModuleSpy = jest.spyOn(
+        SignerEthBuilder.prototype,
+        'withContextModule',
+      );
+      await middleware.setSessionId('session-id');
+
+      middleware.getEthSigner();
+
+      expect(createDefaultContextModule).toHaveBeenCalledTimes(1);
+      expect(withContextModuleSpy).toHaveBeenCalledWith(defaultContextModule);
     });
   });
 
