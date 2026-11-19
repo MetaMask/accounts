@@ -2,8 +2,7 @@ import type { EthKeyring } from '@metamask/keyring-utils';
 import type { CL24DKM, CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
 import type { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
 import type { CentrifugeIdentity } from '@metamask/mfa-wallet-network';
-import type { MoneyAccountSignatureRequest } from '@metamask/money-account-mfa-whitelist';
-import type { Hex, Json } from '@metamask/utils';
+import type { Json } from '@metamask/utils';
 
 export type ProfileTokenOpts = {
   twoFactor?: boolean;
@@ -29,26 +28,6 @@ export type MpcMoneyKeyringOpts = {
   relayerURL: string;
   getTransportToken?: () => Promise<string>;
   getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
-  /**
-   * Decide whether this signature requires MFA.
-   *
-   * Called with the signature request, the signing address, and the hash.
-   * Return `true` when the profile token must include 2FA. When this is
-   * omitted or throws, every signature requires MFA.
-   */
-  isMfaRequired?: (
-    request: MoneyAccountSignatureRequest,
-    context: {
-      /**
-       * The account whose key signs the hash.
-       */
-      address: Hex;
-      /**
-       * The 32-byte hash to sign.
-       */
-      hash: Hex;
-    },
-  ) => Promise<boolean>;
   getBackupEncryptionKey: () => Promise<Uint8Array>;
   webSocket?: unknown;
 };

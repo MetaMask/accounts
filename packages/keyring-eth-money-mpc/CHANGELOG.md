@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **BREAKING:** Remove the `isMfaRequired` option, so the backend alone decides whether a signature requires MFA ([#703](https://github.com/MetaMask/accounts/pull/703))
+  - Signing first calls `/sign` with a profile token without 2FA, and only requests a 2FA token when the backend responds with `mfa_required`.
+  - Clients no longer prompt for MFA because their copy of `@metamask/money-account-mfa-whitelist` is older than the backend's.
+  - Stop passing `isMfaRequired` to the keyring constructor.
+
 ## [0.3.1]
 
 ### Changed
