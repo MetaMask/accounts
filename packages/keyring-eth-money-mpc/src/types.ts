@@ -2,7 +2,7 @@ import type { EthKeyring } from '@metamask/keyring-utils';
 import type { CL24DKM, CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
 import type { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
 import type { CentrifugeIdentity } from '@metamask/mfa-wallet-network';
-import type { Json } from '@metamask/utils';
+import type { Hex, Json } from '@metamask/utils';
 
 export type ProfileTokenOpts = {
   twoFactor?: boolean;
@@ -17,6 +17,43 @@ export type ProfileTokenOpts = {
  * so signing fails and no session is opened.
  */
 export const MFA_REQUIRED_CODE = 'mfa_required' as const;
+
+/**
+ * An EIP-7702 authorization tuple, as passed to `signEip7702Authorization`.
+ */
+export type Eip7702Authorization = [
+  chainId: number,
+  contractAddress: Hex,
+  nonce: number,
+];
+
+/**
+ * A signature request sent to `/sign`, mirroring the keyring's signing methods.
+ *
+ * The backend uses this to decide whether the signature requires MFA.
+ */
+export type MoneyAccountSignatureRequest =
+  | {
+      method: 'signPersonalMessage';
+      /** The Money Account address. */
+      address: Hex;
+      /** The message as hex-encoded UTF-8, as passed to the keyring. */
+      message: Hex;
+    }
+  | {
+      method: 'signTypedData';
+      /** The Money Account address. */
+      address: Hex;
+      version: 'V1' | 'V3' | 'V4';
+      /** The typed data, as an object or as a JSON string. */
+      data: unknown;
+    }
+  | {
+      method: 'signEip7702Authorization';
+      /** The Money Account address. */
+      address: Hex;
+      authorization: Eip7702Authorization;
+    };
 
 export type Cl24Lib = ConstructorParameters<typeof CL24DKM>[0];
 export type Dkls23Lib = ConstructorParameters<typeof Dkls23TssLib>[0];

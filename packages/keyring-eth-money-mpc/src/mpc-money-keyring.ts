@@ -21,7 +21,6 @@ import {
   CentrifugeNetworkManager,
   createScopedSessionId,
 } from '@metamask/mfa-wallet-network';
-import type { MoneyAccountSignatureRequest } from '@metamask/money-account-mfa-whitelist';
 import {
   integer,
   is,
@@ -53,6 +52,7 @@ import {
 } from './cloud.js';
 import { MFA_REQUIRED_CODE } from './types.js';
 import type {
+  MoneyAccountSignatureRequest,
   MpcMoneyKeyring as MpcMoneyKeyringContract,
   MpcMoneyKeyringInitializedState,
   MpcMoneyKeyringOpts,
