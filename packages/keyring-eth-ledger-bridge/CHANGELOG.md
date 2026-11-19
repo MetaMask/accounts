@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [13.2.0]
+
 ### Added
 
 - Add `createDefaultContextModule`, a telemetry-free clear-signing context module for the Ledger DMK bridge, and use it by default ([#704](https://github.com/MetaMask/accounts/pull/704))
@@ -543,7 +545,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support new versions of ethereumjs/tx ([#68](https://github.com/MetaMask/eth-ledger-bridge-keyring/pull/68))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.1.2...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.2.0...HEAD
+[13.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.1.2...@metamask/eth-ledger-bridge-keyring@13.2.0
 [13.1.2]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.1.1...@metamask/eth-ledger-bridge-keyring@13.1.2
 [13.1.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.1.0...@metamask/eth-ledger-bridge-keyring@13.1.1
 [13.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-ledger-bridge-keyring@13.0.2...@metamask/eth-ledger-bridge-keyring@13.1.0
