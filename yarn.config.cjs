@@ -10,7 +10,6 @@
 // format, but also check the presence of certain files as well.
 
 /** @type {import('@yarnpkg/types')} */
-const { hasProperty } = require('@metamask/utils');
 const { defineConfig } = require('@yarnpkg/types');
 const { readFile } = require('fs/promises');
 const { get } = require('lodash');
@@ -77,7 +76,7 @@ module.exports = defineConfig({
       const workspaceBasename = getWorkspaceBasename(workspace);
       const isChildWorkspace = workspace.cwd !== '.';
       const isPrivate =
-        hasProperty(workspace.manifest, 'private') &&
+        Object.hasOwn(workspace.manifest, 'private') &&
         workspace.manifest.private === true;
       const isEsModuleOnlyPackage = ESM_ONLY_PACKAGE_EXCEPTIONS.includes(
         workspace.manifest.name,
@@ -418,7 +417,7 @@ async function workspaceFileExists(workspace, path) {
   try {
     await getWorkspaceFile(workspace, path);
   } catch (error) {
-    if (hasProperty(error, 'code') && error.code === 'ENOENT') {
+    if (Object.hasOwn(error, 'code') && error.code === 'ENOENT') {
       return false;
     }
     throw error;

@@ -1,4 +1,4 @@
-import type { Infer } from '@metamask/superstruct';
+import type { Infer, Struct } from '@metamask/superstruct';
 import { array, enums, literal, nonempty, object } from '@metamask/superstruct';
 import { definePattern } from '@metamask/utils';
 
@@ -14,7 +14,10 @@ import {
  *
  * TODO: Add checksum validation.
  */
-export const XlmAddressStruct = definePattern('XlmAddress', /^G[A-Z2-7]{55}$/u);
+export const XlmAddressStruct: Struct<string, null> = definePattern(
+  'XlmAddress',
+  /^G[A-Z2-7]{55}$/u,
+);
 
 /**
  * Supported Stellar methods.

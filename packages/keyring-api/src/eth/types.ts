@@ -1,4 +1,4 @@
-import type { Infer } from '@metamask/superstruct';
+import type { Infer, Struct } from '@metamask/superstruct';
 import { nonempty, array, enums, literal, object } from '@metamask/superstruct';
 import { definePattern } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
@@ -11,22 +11,28 @@ import {
 import { EthScope } from './constants';
 
 const ETH_BYTES_REGEX = /^0x[0-9a-f]*$/iu;
-export const EthBytesStruct = definePattern('EthBytes', ETH_BYTES_REGEX);
+export const EthBytesStruct: Struct<string, null> = definePattern(
+  'EthBytes',
+  ETH_BYTES_REGEX,
+);
 // Stricter struct that uses `Hex` as final type.
-export const EthBytesStrictStruct = definePattern<Hex>(
+export const EthBytesStrictStruct: Struct<Hex, null> = definePattern<Hex>(
   'EthBytesStrict',
   ETH_BYTES_REGEX,
 );
 
 const ETH_ADDRESS_REGEX = /^0x[0-9a-f]{40}$/iu;
-export const EthAddressStruct = definePattern('EthAddress', ETH_ADDRESS_REGEX);
+export const EthAddressStruct: Struct<string, null> = definePattern(
+  'EthAddress',
+  ETH_ADDRESS_REGEX,
+);
 // Stricter struct that uses `Hex` as final type.
-export const EthAddressStrictStruct = definePattern<Hex>(
+export const EthAddressStrictStruct: Struct<Hex, null> = definePattern<Hex>(
   'EthAddressStrict',
   ETH_ADDRESS_REGEX,
 );
 
-export const EthUint256Struct = definePattern(
+export const EthUint256Struct: Struct<string, null> = definePattern(
   'EthUint256',
   /^0x([1-9a-f][0-9a-f]*|0)$/iu,
 );
