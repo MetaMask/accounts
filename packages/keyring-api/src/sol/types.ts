@@ -1,4 +1,4 @@
-import type { Infer } from '@metamask/superstruct';
+import type { Infer, Struct } from '@metamask/superstruct';
 import { array, enums, literal, nonempty, object } from '@metamask/superstruct';
 import { definePattern } from '@metamask/utils';
 
@@ -13,7 +13,7 @@ import {
  * are encoded using base58.
  * They are usually 32 to 44 characters long.
  */
-export const SolAddressStruct = definePattern(
+export const SolAddressStruct: Struct<string, null> = definePattern(
   'SolAddress',
   /^[1-9A-HJ-NP-Za-km-z]{32,44}$/iu,
 );

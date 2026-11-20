@@ -1,11 +1,11 @@
 import { define } from '@metamask/superstruct';
-import type { Infer } from '@metamask/superstruct';
+import type { Infer, Struct } from '@metamask/superstruct';
 import { definePattern } from '@metamask/utils';
 
 /**
  * UUIDv4 struct.
  */
-export const UuidStruct = definePattern(
+export const UuidStruct: Struct<string, null> = definePattern(
   'UuidV4',
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu,
 );
@@ -33,7 +33,7 @@ export const UrlStruct = define<string>('Url', (value: unknown) => {
 /**
  * A string which contains a positive float number.
  */
-export const StringNumberStruct = definePattern(
+export const StringNumberStruct: Struct<string, null> = definePattern(
   'StringNumber',
   /^\d+(\.\d+)?$/u,
 );
