@@ -196,8 +196,6 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   readonly #getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
 
-  readonly #isMfaRequired: MpcMoneyKeyringOpts['isMfaRequired'];
-
   readonly #getBackupEncryptionKey: () => Promise<Uint8Array>;
 
   #opQueue: Promise<void> = Promise.resolve();
@@ -226,7 +224,6 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       ...(opts.webSocket === undefined ? {} : { websocket: opts.webSocket }),
     });
     this.#getProfileToken = opts.getProfileToken;
-    this.#isMfaRequired = opts.isMfaRequired;
     this.#getBackupEncryptionKey = opts.getBackupEncryptionKey;
   }
 
@@ -685,33 +682,6 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     });
   }
 
-  /**
-   * Whether signing `request` requires MFA.
-   *
-   * A missing callback, or a thrown check, requires MFA.
-   *
-   * @param request - The signature request the hash was computed from.
-   * @param hash - The hash the keyring will sign.
-   * @returns Whether the profile token must include 2FA.
-   */
-  async #requiresMfa(
-    request: MoneyAccountSignatureRequest,
-    hash: Uint8Array,
-  ): Promise<boolean> {
-    if (this.#isMfaRequired === undefined) {
-      return true;
-    }
-
-    try {
-      return await this.#isMfaRequired(request, {
-        address: this.#address(),
-        hash: bytesToHex(hash),
-      });
-    } catch {
-      return true;
-    }
-  }
-
   async #signHash(
     address: Hex,
     hash: Uint8Array,
@@ -727,10 +697,9 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         throw new Error(`account ${address} not found`);
       }
 
-      const mfaRequired = await this.#requiresMfa(request, hash);
-      let token = mfaRequired
-        ? await this.#getProfileToken({ twoFactor: true, challenge: hash })
-        : await this.#getProfileToken();
+      // The backend decides whether the request requires MFA, so only request
+      // a 2FA token once it responds with `mfa_required`.
+      let token = await this.#getProfileToken();
       let nonce = generateSessionNonce();
       let signResult = await startSign({
         baseURL: this.#cloudURL,

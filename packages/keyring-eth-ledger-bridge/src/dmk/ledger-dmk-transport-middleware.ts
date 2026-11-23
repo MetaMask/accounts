@@ -1,5 +1,8 @@
+import type { ContextModule } from '@ledgerhq/context-module';
 import type { DeviceManagementKit } from '@ledgerhq/device-management-kit';
 import { SignerEthBuilder } from '@ledgerhq/device-signer-kit-ethereum';
+
+import { createDefaultContextModule } from './default-context-module';
 
 type StartDiscoveringParameters = Parameters<
   DeviceManagementKit['startDiscovering']
@@ -25,6 +28,8 @@ type CachedSigner = { sessionId: string; signer: EthSigner };
 export class LedgerDmkTransportMiddleware {
   readonly #sdk: DeviceManagementKit;
 
+  readonly #contextModule: ContextModule;
+
   #sessionId?: string;
 
   /**
@@ -36,8 +41,17 @@ export class LedgerDmkTransportMiddleware {
 
   #cachedSigner: CachedSigner | null = null;
 
-  constructor(sdk: DeviceManagementKit) {
+  /**
+   * @param sdk - The shared DMK instance.
+   * @param contextModule - Clear-signing context module. Defaults to
+   * {@link createDefaultContextModule}.
+   */
+  constructor(
+    sdk: DeviceManagementKit,
+    contextModule: ContextModule = createDefaultContextModule(),
+  ) {
     this.#sdk = sdk;
+    this.#contextModule = contextModule;
   }
 
   /**
@@ -121,21 +135,9 @@ export class LedgerDmkTransportMiddleware {
    * `deviceSignDelegationAuthorization`); a single bridge session therefore
    * needs at most one signer instance.
    *
-   * Rebuilding is not free: `SignerEthBuilder.build()` allocates a fresh
-   * `DefaultContextModule` from `@ledgerhq/context-module`, which in its
-   * constructor builds a DI container and instantiates the default loaders
-   * (calldata, dynamic-network, external-plugin, gated-signing, nft, proxy,
-   * safe, token, trusted-name, typed-data, reporter, transaction-check, plus
-   * the field loaders, typed-data loader and blind-signing reporter). See
-   * `node_modules/@ledgerhq/context-module/lib/esm/src/DefaultContextModule.js`.
-   *
-   * Neither `DefaultSignerEth` nor `DefaultContextModule` expose a
-   * `dispose()` / `disconnect()` / `destroy()` method (verified against
-   * `node_modules/@ledgerhq/device-signer-kit-ethereum/lib/esm/internal/DefaultSignerEth.js`
-   * and the `DefaultContextModule` source above). If any of those loaders
-   * hold subscriptions to device-session state, re-creating the signer on
-   * every call would leak them. Caching is therefore defensive against
-   * subscription leaks, not just a micro-optimization.
+   * The context module is only forwarded to the signer; it is defaulted to
+   * {@link createDefaultContextModule}, which does not report to Ledger.
+   * A module passed by the caller is used as-is.
    *
    * The cache is invalidated by `setSessionId()` when the session changes
    * and by `dispose()` on shutdown.
@@ -150,7 +152,9 @@ export class LedgerDmkTransportMiddleware {
     const signer = new SignerEthBuilder({
       dmk: this.#sdk,
       sessionId,
-    }).build();
+    })
+      .withContextModule(this.#contextModule)
+      .build();
     this.#cachedSigner = { sessionId, signer };
     return signer;
   }
