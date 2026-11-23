@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `deriveWrappingKeyRoot{,Root}` and opaque `WrappingKeyRoot` for deterministic mnemonic-backed wrapping keys ([#706](https://github.com/MetaMask/accounts/pull/706))
+- Add `deriveKeyRoot`, `deriveEncryptionKey`, and opaque `KeyRoot` for deterministic mnemonic-backed encryption keys ([#706](https://github.com/MetaMask/accounts/pull/706))
   - Following [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-wrapping-keys.md).
-  - Export `WrappingKeyPurpose` and require purposes to match `metamask:<scope>:v<version>`, with a non-empty scope and non-negative integer version.
+  - Export `KeyDerivationPurpose` from the shared purpose registry and require purposes to match `metamask:<scope>:v<version>`, with a non-empty scope and non-negative integer version.
+
+### Changed
+
+- Align key derivation with the revised ADR-0009 using `m/meta'/mask'/keys'/index'` and encryption-key helper names instead of the unreleased wrapping-key API ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - The path change produces different keys from the previous `wrap'` namespace.
 
 ## [4.2.1]
 

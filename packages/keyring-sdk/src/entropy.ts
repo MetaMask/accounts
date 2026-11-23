@@ -29,7 +29,7 @@ export type EntropySourceId = `entropy:${EntropySourceType}:${string}`;
  * `HMAC-SHA256(key=material, msg='metamask:fingerprint')`.
  *
  * @param material - The raw secret bytes (e.g. BIP-39 mnemonic bytes or final
- * symmetric wrapping-key bytes, not wrapping-key roots).
+ * symmetric encryption-key bytes, not key roots).
  * @returns A deterministic UUID v4 string that uniquely identifies the entropy
  * without exposing it.
  */

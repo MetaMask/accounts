@@ -1,36 +1,31 @@
+import type { KeyDerivationPurpose } from '@metamask/key-derivation-purposes';
 import { mnemonicToSeed, validateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { hkdf } from '@noble/hashes/hkdf';
 import { sha256 } from '@noble/hashes/sha2';
 import { HDKey } from 'ethereum-cryptography/hdkey';
 
-declare const wrappingKeyRootBrand: unique symbol;
+declare const keyRootBrand: unique symbol;
 
 /**
- * An opaque wrapping-key root. Keep it secret and use it only with
- * {@link deriveWrappingKey}; it is not a signing or encryption key.
+ * An opaque shared key root. Keep it secret and use it only with
+ * {@link deriveEncryptionKey}; it is not a signing or encryption key.
  *
  * This handle is local to this SDK instance and cannot be serialized.
  * Opacity discourages misuse; it is not a security boundary.
  */
-export type WrappingKeyRoot = {
-  readonly [wrappingKeyRootBrand]: true;
+export type KeyRoot = {
+  readonly [keyRootBrand]: true;
 };
 
-/**
- * A namespaced, versioned wrapping-key purpose. Use a unique, stable scope
- * and a non-negative integer version.
- */
-export type WrappingKeyPurpose = `metamask:${string}:v${number}`;
+const roots = new WeakMap<KeyRoot, Uint8Array>();
 
-const roots = new WeakMap<WrappingKeyRoot, Uint8Array>();
-
-// Four-byte ASCII labels `meta`, `mask`, and `wrap`, interpreted big-endian.
-const WRAPPING_KEY_PATH = "m/1835365473'/1835103083'/2003984752'";
+// Four-byte ASCII labels `meta`, `mask`, and `keys`, interpreted big-endian.
+const KEY_ROOT_PATH = "m/1835365473'/1835103083'/1801812339'";
 
 /**
- * Derives an opaque wrapping-key root using the fixed ADR-0009 scheme:
- * BIP-39 (empty passphrase), then secp256k1 BIP-32 at `meta'/mask'/wrap'/index'`.
+ * Derives an opaque shared key root using the fixed ADR-0009 scheme:
+ * BIP-39 (empty passphrase), then secp256k1 BIP-32 at `m/meta'/mask'/keys'/index'`.
  * Local entropy-source identifiers never participate in derivation.
  *
  * @param options - Root derivation options.
@@ -40,16 +35,16 @@ const WRAPPING_KEY_PATH = "m/1835365473'/1835103083'/2003984752'";
  * @returns An opaque root granting access to every purpose at this index.
  * @throws If the mnemonic or index is invalid.
  */
-export async function deriveWrappingKeyRoot({
+export async function deriveKeyRoot({
   mnemonic,
   index,
 }: {
   mnemonic: string;
   index: number;
-}): Promise<WrappingKeyRoot> {
+}): Promise<KeyRoot> {
   if (!Number.isInteger(index) || index < 0 || index > 0x7fffffff) {
     throw new Error(
-      'Invalid wrapping-key index: expected an integer from 0 to 2^31 - 1',
+      'Invalid key index: expected an integer from 0 to 2^31 - 1',
     );
   }
   if (typeof mnemonic !== 'string') {
@@ -63,12 +58,12 @@ export async function deriveWrappingKeyRoot({
   const seed = await mnemonicToSeed(normalizedMnemonic, wordlist, '');
   try {
     const { privateKey } = HDKey.fromMasterSeed(seed).derive(
-      `${WRAPPING_KEY_PATH}/${index}'`,
+      `${KEY_ROOT_PATH}/${index}'`,
     );
     if (!privateKey) {
-      throw new Error('Failed to derive wrapping-key root');
+      throw new Error('Failed to derive key root');
     }
-    const root = Object.freeze({}) as WrappingKeyRoot;
+    const root = Object.freeze({}) as KeyRoot;
     roots.set(root, privateKey);
     return root;
   } finally {
@@ -77,35 +72,38 @@ export async function deriveWrappingKeyRoot({
 }
 
 /**
- * Derives a 32-byte symmetric wrapping key using HKDF-SHA256, with the root as
+ * Derives a 32-byte symmetric encryption key using HKDF-SHA256, with the root as
  * input key material, a 32-byte zero salt, and the UTF-8 purpose as info.
  * These parameters are fixed by ADR-0009, not versioned by the purpose.
+ * Encryption keys can protect key material or application data, but MUST NOT
+ * be reinterpreted as signing keys. Future key types require separate helpers
+ * specifying their algorithm and domain separation.
  *
- * @param options - Wrapping-key derivation options.
- * @param options.root - An opaque root returned by {@link deriveWrappingKeyRoot}.
+ * @param options - Encryption-key derivation options.
+ * @param options.root - An opaque root returned by {@link deriveKeyRoot}.
  * @param options.purpose - A unique, stable, versioned, non-empty string, such as
  * `metamask:money-account:mfa:encryption-key:v1`. Retain this exact string and the
  * root's index with recoverable encrypted data.
- * @returns The raw 32-byte wrapping key. Fingerprint these bytes, not the root.
+ * @returns The raw 32-byte encryption key. Fingerprint these bytes, not the root.
  * @throws If the root is not from this SDK instance or the purpose is invalid.
  */
-export async function deriveWrappingKey({
+export async function deriveEncryptionKey({
   root,
   purpose,
 }: {
-  root: WrappingKeyRoot;
-  purpose: WrappingKeyPurpose;
+  root: KeyRoot;
+  purpose: KeyDerivationPurpose;
 }): Promise<Uint8Array> {
   const privateKey = roots.get(root);
   if (!privateKey) {
-    throw new Error('Invalid wrapping-key root');
+    throw new Error('Invalid key root');
   }
   if (
     typeof purpose !== 'string' ||
     !/^metamask:.+:v[0-9]+(?![\s\S])/u.test(purpose)
   ) {
     throw new Error(
-      'Invalid wrapping-key purpose: expected metamask:<scope>:v<non-negative integer>',
+      'Invalid key purpose: expected metamask:<scope>:v<non-negative integer>',
     );
   }
   return hkdf(

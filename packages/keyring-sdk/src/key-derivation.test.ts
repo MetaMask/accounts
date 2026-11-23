@@ -1,16 +1,18 @@
+import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
+import type { KeyDerivationPurpose } from '@metamask/key-derivation-purposes';
 import * as hkdfModule from '@noble/hashes/hkdf';
 import { sha256 } from '@noble/hashes/sha2';
 import { HDKey } from 'ethereum-cryptography/hdkey';
 
 import { fingerprint } from './entropy';
-import { deriveWrappingKey, deriveWrappingKeyRoot } from './wrapping-key';
-import type { WrappingKeyRoot } from './wrapping-key';
+import { deriveEncryptionKey, deriveKeyRoot } from './key-derivation';
+import type { KeyRoot } from './key-derivation';
 
 const MNEMONIC =
   'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
-const PURPOSE = 'metamask:money-account:mfa:encryption-key:v1';
+const PURPOSE = MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE;
 
-describe('deriveWrappingKeyRoot', () => {
+describe('deriveKeyRoot', () => {
   it.each([
     -1,
     0.5,
@@ -20,9 +22,9 @@ describe('deriveWrappingKeyRoot', () => {
     Infinity,
     -Infinity,
   ])('rejects invalid index %s', async (index) => {
-    await expect(
-      deriveWrappingKeyRoot({ mnemonic: MNEMONIC, index }),
-    ).rejects.toThrow('Invalid wrapping-key index');
+    await expect(deriveKeyRoot({ mnemonic: MNEMONIC, index })).rejects.toThrow(
+      'Invalid key index',
+    );
   });
 
   it.each([
@@ -32,14 +34,14 @@ describe('deriveWrappingKeyRoot', () => {
     MNEMONIC.replace('about', 'invalidword'),
     `${MNEMONIC} abandon`, // Invalid word count.
   ])('rejects invalid mnemonic %j', async (mnemonic) => {
-    await expect(deriveWrappingKeyRoot({ mnemonic, index: 0 })).rejects.toThrow(
+    await expect(deriveKeyRoot({ mnemonic, index: 0 })).rejects.toThrow(
       'Invalid mnemonic',
     );
   });
 
   it('rejects byte representations rather than interpreting them as phrases', async () => {
     await expect(
-      deriveWrappingKeyRoot({
+      deriveKeyRoot({
         // @ts-expect-error Intentionally pass bytes to test runtime validation.
         mnemonic: new TextEncoder().encode(MNEMONIC),
         index: 0,
@@ -54,15 +56,15 @@ describe('deriveWrappingKeyRoot', () => {
         ? character
         : String.fromCharCode(character.charCodeAt(0) + 0xfee0),
     ).join('');
-    const root = await deriveWrappingKeyRoot({ mnemonic, index: 0 });
-    const key = await deriveWrappingKey({ root, purpose: PURPOSE });
+    const root = await deriveKeyRoot({ mnemonic, index: 0 });
+    const key = await deriveEncryptionKey({ root, purpose: PURPOSE });
     expect(Buffer.from(key).toString('hex')).toBe(
-      '073b64685ad165da85cae7c6eb9d6d387750eabd79c04034d7a44a99ac1aa3ae',
+      '121859a7da2699610ac2dd81fbcf1ec70d7a232d4295e8c8a4dc7de9345f2817',
     );
   });
 
   it('does not expose root bytes as properties or JSON', async () => {
-    const root = await deriveWrappingKeyRoot({ mnemonic: MNEMONIC, index: 0 });
+    const root = await deriveKeyRoot({ mnemonic: MNEMONIC, index: 0 });
     expect(Reflect.ownKeys(root)).toStrictEqual([]);
     expect(JSON.stringify(root)).toBe('{}');
     expect(Object.isFrozen(root)).toBe(true);
@@ -74,21 +76,21 @@ describe('deriveWrappingKeyRoot', () => {
     ).wipePrivateData();
     jest.spyOn(HDKey.prototype, 'derive').mockReturnValue(publicOnlyNode);
     await expect(
-      deriveWrappingKeyRoot({ mnemonic: MNEMONIC, index: 0 }),
-    ).rejects.toThrow('Failed to derive wrapping-key root');
+      deriveKeyRoot({ mnemonic: MNEMONIC, index: 0 }),
+    ).rejects.toThrow('Failed to derive key root');
   });
 });
 
-describe('deriveWrappingKey', () => {
-  it('matches the normative root, wrapping key, and fingerprint', async () => {
+describe('deriveEncryptionKey', () => {
+  it('matches the normative root, encryption key, and fingerprint', async () => {
     const hkdfSpy = jest.spyOn(hkdfModule, 'hkdf');
-    const root = await deriveWrappingKeyRoot({ mnemonic: MNEMONIC, index: 0 });
-    const key = await deriveWrappingKey({ root, purpose: PURPOSE });
+    const root = await deriveKeyRoot({ mnemonic: MNEMONIC, index: 0 });
+    const key = await deriveEncryptionKey({ root, purpose: PURPOSE });
     expect(hkdfSpy).toHaveBeenCalledWith(
       sha256,
       new Uint8Array(
         Buffer.from(
-          '9581a07a2012e7fc0da41f78eb0a58716a2f09377ab8f7ba9288fe79af22bf05',
+          '40594a11259ff0c240d361055c9e40737d62ed670e93308122413a5a59d1cee0',
           'hex',
         ),
       ),
@@ -97,84 +99,96 @@ describe('deriveWrappingKey', () => {
       32,
     );
     expect(Buffer.from(key).toString('hex')).toBe(
-      '073b64685ad165da85cae7c6eb9d6d387750eabd79c04034d7a44a99ac1aa3ae',
+      '121859a7da2699610ac2dd81fbcf1ec70d7a232d4295e8c8a4dc7de9345f2817',
     );
-    expect(await fingerprint(key)).toBe('48acd7b3-10fc-4abb-a798-180894e9f65b');
+    expect(await fingerprint(key)).toBe('f4e791cc-14c7-4f84-b861-1dcdbe2b114c');
   });
 
   // Additional vectors cross-checked using Node's crypto PBKDF2 and HKDF.
   it.each([
-    [1, 'bcd5058d409183f1d853c843470c91850ce774d2b8e2457491004cdc3ffd77e8'],
+    [1, '17e711cc2a5ceb870c4d2306771ff48127431eedbc827a1a31317f11acf7e2d7'],
     [
       0x7fffffff,
-      '814a31bd8bff36fd33dd9e43fcfec378306287c13b3e19f3c4e71b779644015a',
+      '899b8d1ea94b40bd93017e86ac6ee033939fd3ce22b640d7e2520c68ce36ce1e',
     ],
-    // The wrapping key begins with a zero byte.
-    [71, '0004070f8106930847423c85bfc285f5a0b06ef2f1c3a0abcf609a2b9c7595fe'],
-    // The root begins with a zero byte (001465bd...), which must reach HKDF intact.
-    [182, '132f05dc4a10dbb20124ac2b6480eb229bf203e5841ea125f653f8f0ae94ce49'],
+    // The encryption key begins with a zero byte.
+    [98, '003e9f0539f8a6287f3b07097eab3dcfc912eec8e629a7a7ff3edcbe9be80c8e'],
+    // The root begins with a zero byte (00e822aa...), which must reach HKDF intact.
+    [12, '04ad0389013e4b831392a74b4cc618671b7c4284f4bee5f08845e66ef8d18f63'],
   ])('matches the 32-byte key for index %s', async (index, expected) => {
-    const root = await deriveWrappingKeyRoot({ mnemonic: MNEMONIC, index });
-    const key = await deriveWrappingKey({ root, purpose: PURPOSE });
+    const root = await deriveKeyRoot({ mnemonic: MNEMONIC, index });
+    const key = await deriveEncryptionKey({ root, purpose: PURPOSE });
     expect(key).toHaveLength(32);
     expect(Buffer.from(key).toString('hex')).toBe(expected);
   });
 
-  it.each<[`metamask:${string}:v${number}`, string]>([
+  it.each<[KeyDerivationPurpose, string]>([
     [
       'metamask:money-account:mfa:encryption-key:v2',
-      '87c108634bd23dc894c62fa0a5d73a5a637b3f7ee8e0462c08110868865b924a',
+      'aa19f5bc547eab23b757d899feb940e370e5e0cbdd142d3c61579e06dbd0570b',
     ],
     [
-      'metamask:wrapping:🔑:v1',
-      '41dc7cc99bda1c2087686991f575fa4054538711cff71b1e65f547774f934ec5',
+      'metamask:encryption:🔑:v1',
+      'de8d08849a8a55abc5bfbe9122c7a6925c5601df467bc41f363d4d36d00a7946',
     ],
   ])('uses the exact UTF-8 purpose %s', async (purpose, expected) => {
-    const root = await deriveWrappingKeyRoot({ mnemonic: MNEMONIC, index: 0 });
+    const root = await deriveKeyRoot({ mnemonic: MNEMONIC, index: 0 });
     expect(
-      Buffer.from(await deriveWrappingKey({ root, purpose })).toString('hex'),
+      Buffer.from(await deriveEncryptionKey({ root, purpose })).toString('hex'),
     ).toBe(expected);
   });
 
   it('reproduces keys across roots and returns independent byte arrays', async () => {
-    const root = await deriveWrappingKeyRoot({ mnemonic: MNEMONIC, index: 0 });
-    const restoredRoot = await deriveWrappingKeyRoot({
+    const root = await deriveKeyRoot({ mnemonic: MNEMONIC, index: 0 });
+    const restoredRoot = await deriveKeyRoot({
       mnemonic: MNEMONIC,
       index: 0,
     });
-    const first = await deriveWrappingKey({ root, purpose: PURPOSE });
-    const second = await deriveWrappingKey({
+    const first = await deriveEncryptionKey({ root, purpose: PURPOSE });
+    const second = await deriveEncryptionKey({
       root: restoredRoot,
       purpose: PURPOSE,
     });
     expect(first).toStrictEqual(second);
     first.fill(0);
-    expect(await deriveWrappingKey({ root, purpose: PURPOSE })).toStrictEqual(
+    expect(await deriveEncryptionKey({ root, purpose: PURPOSE })).toStrictEqual(
       second,
     );
   });
 
+  it('accepts consumer-defined purposes and version zero without registry membership', async () => {
+    const root = await deriveKeyRoot({ mnemonic: MNEMONIC, index: 0 });
+    const key = await deriveEncryptionKey({
+      root,
+      purpose: 'metamask:consumer-defined:application-data:v0',
+    });
+    expect(key).toHaveLength(32);
+    expect(key).not.toStrictEqual(
+      await deriveEncryptionKey({ root, purpose: PURPOSE }),
+    );
+  });
+
   it('separates different mnemonics', async () => {
-    const root = await deriveWrappingKeyRoot({
+    const root = await deriveKeyRoot({
       mnemonic:
         'legal winner thank year wave sausage worth useful legal winner thank yellow',
       index: 0,
     });
-    const otherRoot = await deriveWrappingKeyRoot({
+    const otherRoot = await deriveKeyRoot({
       mnemonic: MNEMONIC,
       index: 0,
     });
     expect(
-      await deriveWrappingKey({ root, purpose: PURPOSE }),
+      await deriveEncryptionKey({ root, purpose: PURPOSE }),
     ).not.toStrictEqual(
-      await deriveWrappingKey({ root: otherRoot, purpose: PURPOSE }),
+      await deriveEncryptionKey({ root: otherRoot, purpose: PURPOSE }),
     );
   });
 
   it('rejects forged roots', async () => {
     await expect(
-      deriveWrappingKey({ root: {} as WrappingKeyRoot, purpose: PURPOSE }),
-    ).rejects.toThrow('Invalid wrapping-key root');
+      deriveEncryptionKey({ root: {} as KeyRoot, purpose: PURPOSE }),
+    ).rejects.toThrow('Invalid key root');
   });
 
   it.each([
@@ -189,10 +203,10 @@ describe('deriveWrappingKey', () => {
     'metamask:example:v1e2',
     'metamask:example:v1\n',
   ])('rejects invalid purpose %s', async (purpose) => {
-    const root = await deriveWrappingKeyRoot({ mnemonic: MNEMONIC, index: 0 });
+    const root = await deriveKeyRoot({ mnemonic: MNEMONIC, index: 0 });
     await expect(
       // @ts-expect-error Intentionally pass invalid purposes for runtime validation.
-      deriveWrappingKey({ root, purpose }),
-    ).rejects.toThrow('Invalid wrapping-key purpose');
+      deriveEncryptionKey({ root, purpose }),
+    ).rejects.toThrow('Invalid key purpose');
   });
 });

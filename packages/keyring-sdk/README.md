@@ -133,29 +133,38 @@ read-heavy workloads, `{ priority: 'read' }` lets new readers join active
 readers even while a writer is merely queued, at the cost that continuous
 reads can starve a queued writer.
 
-## Wrapping keys
+## Encryption keys
 
-Derive a reproducible 32-byte wrapping key from a BIP-39 mnemonic phrase string:
+Derive a reproducible 32-byte symmetric encryption key from a BIP-39 mnemonic
+phrase string. Use it to encrypt application data or wrap key material:
 
 ```ts
+import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
 import {
-  deriveWrappingKeyRoot,
-  deriveWrappingKey,
+  deriveKeyRoot,
+  deriveEncryptionKey,
   fingerprint,
 } from '@metamask/keyring-sdk';
 
-const root = await deriveWrappingKeyRoot({ mnemonic, index: 0 });
-const wrappingKey = await deriveWrappingKey({
+const root = await deriveKeyRoot({ mnemonic, index: 0 });
+const encryptionKey = await deriveEncryptionKey({
   root,
-  purpose: 'metamask:money-account:mfa:encryption-key:v1',
+  purpose: MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE,
 });
-const wrappingKeyFingerprint = await fingerprint(wrappingKey);
+const encryptionKeyFingerprint = await fingerprint(encryptionKey);
 ```
 
 - Choose a unique, stable `purpose` matching `metamask:<scope>:v<version>` (a non-negative integer version), and an `index` from `0` to `2^31 - 1`.
 - Retain the exact purpose and index with encrypted data so the key can be recovered.
-- Keep the mnemonic, opaque root, and wrapping key secret. Use the root only with
-  `deriveWrappingKey`. BIP-39 passphrases are not supported.
+- Shared constants and the `KeyDerivationPurpose` type live in
+  `@metamask/key-derivation-purposes`; the SDK also re-exports the type. This
+  registry is not an allowlist: consumer-defined purposes are supported.
+- Keep the mnemonic, opaque `KeyRoot`, and encryption key secret. Use the root
+  only with `deriveEncryptionKey`. BIP-39 passphrases are not supported.
+- Roots use `m/meta'/mask'/keys'/index'`. Encryption derivation uses HKDF-SHA256
+  with a 32-byte zero salt and exactly the UTF-8 purpose as info.
+- Do not use root bytes or encryption-key bytes as signing keys. Other key types
+  require separately specified helpers and domain separation.
 
 See [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-wrapping-keys.md)
 for derivation details and security considerations.
