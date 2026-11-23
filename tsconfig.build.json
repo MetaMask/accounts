@@ -2,6 +2,7 @@
   "references": [
     { "path": "./packages/account-api/tsconfig.build.json" },
     { "path": "./packages/hw-wallet-sdk/tsconfig.build.json" },
+    { "path": "./packages/key-derivation-purposes/tsconfig.build.json" },
     { "path": "./packages/keyring-api/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-hd/tsconfig.build.json" },
     { "path": "./packages/keyring-eth-money/tsconfig.build.json" },
