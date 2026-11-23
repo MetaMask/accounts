@@ -216,6 +216,9 @@ export class SnapKeyring {
       }
 
       const newKeyring = new SnapKeyringV2({
+        // The legacy aggregate owns persistence for its child keyrings.
+        // Only standalone V2 keyrings receive the controller's updater.
+        updater: async (_keyring, action): Promise<void> => action(),
         messenger: this.#messenger,
         isAnyAccountTypeAllowed: this.#isAnyAccountTypeAllowed,
         callbacks: {
