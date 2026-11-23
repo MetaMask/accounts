@@ -2328,6 +2328,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metamask/key-derivation-purposes@workspace:packages/key-derivation-purposes":
+  version: 0.0.0-use.local
+  resolution: "@metamask/key-derivation-purposes@workspace:packages/key-derivation-purposes"
+  dependencies:
+    "@lavamoat/allow-scripts": "npm:^5.1.0"
+    "@lavamoat/preinstall-always-fail": "npm:^3.0.1"
+    "@metamask/auto-changelog": "npm:^6.1.0"
+    "@ts-bridge/cli": "npm:^0.6.3"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.19.0"
+    depcheck: "npm:^1.4.7"
+    jest: "npm:^29.5.0"
+    ts-jest: "npm:^29.0.5"
+    ts-node: "npm:^10.9.2"
+    tsd: "npm:^0.31.0"
+    typedoc: "npm:^0.25.13"
+    typescript: "npm:~5.8.3"
+  languageName: unknown
+  linkType: soft
+
 "@metamask/key-tree@npm:^10.1.1":
   version: 10.1.1
   resolution: "@metamask/key-tree@npm:10.1.1"

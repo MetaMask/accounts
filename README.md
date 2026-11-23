@@ -28,6 +28,7 @@ This repository contains the following packages [^fn1]:
 - [`@metamask/eth-snap-keyring`](packages/keyring-snap-bridge)
 - [`@metamask/eth-trezor-keyring`](packages/keyring-eth-trezor)
 - [`@metamask/hw-wallet-sdk`](packages/hw-wallet-sdk)
+- [`@metamask/key-derivation-purposes`](packages/key-derivation-purposes)
 - [`@metamask/keyring-api`](packages/keyring-api)
 - [`@metamask/keyring-internal-api`](packages/keyring-internal-api)
 - [`@metamask/keyring-internal-snap-client`](packages/keyring-internal-snap-client)
@@ -49,6 +50,7 @@ graph LR;
 linkStyle default opacity:0.5
   account_api(["@metamask/account-api"]);
   hw_wallet_sdk(["@metamask/hw-wallet-sdk"]);
+  key_derivation_purposes(["@metamask/key-derivation-purposes"]);
   keyring_api(["@metamask/keyring-api"]);
   eth_hd_keyring(["@metamask/eth-hd-keyring"]);
   eth_ledger_bridge_keyring(["@metamask/eth-ledger-bridge-keyring"]);
