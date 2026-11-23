@@ -7,11 +7,8 @@ import type {
   EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { hashEIP7702Authorization } from '@metamask/eth-sig-util';
-import {
-  deriveWrappingKey,
-  deriveWrappingKeyRoot,
-} from '@metamask/keyring-sdk';
-import type { WrappingKeyPurpose } from '@metamask/keyring-sdk';
+import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
+import { deriveEncryptionKey, deriveKeyRoot } from '@metamask/keyring-sdk';
 import { CL24DKM, CL24ThresholdKeySerializer } from '@metamask/mfa-wallet-cl24';
 import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
 import { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
@@ -88,9 +85,7 @@ const SIGNING_THRESHOLD = 2;
 const INITIAL_SHARE_EPOCH = 1;
 // This generation is independent of MPC share epochs. Keep both parameters
 // stable so backups remain recoverable across clients and restores.
-const BACKUP_WRAPPING_KEY_INDEX = 0;
-const BACKUP_WRAPPING_KEY_PURPOSE =
-  'metamask:money-account:mfa:encryption-key:v1' satisfies WrappingKeyPurpose;
+const BACKUP_ENCRYPTION_KEY_INDEX = 0;
 
 const InitializedStorageStruct = type({
   netCreds: JsonStruct,
@@ -835,11 +830,14 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     const mnemonic = new TextDecoder('utf-8', { fatal: true }).decode(
       Uint8Array.from(mnemonicBytes),
     );
-    const root = await deriveWrappingKeyRoot({
+    const root = await deriveKeyRoot({
       mnemonic,
-      index: BACKUP_WRAPPING_KEY_INDEX,
+      index: BACKUP_ENCRYPTION_KEY_INDEX,
     });
-    return deriveWrappingKey({ root, purpose: BACKUP_WRAPPING_KEY_PURPOSE });
+    return deriveEncryptionKey({
+      root,
+      purpose: MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE,
+    });
   }
 
   async #encryptKeyShare(keyShare: CL24ThresholdKey): Promise<Uint8Array> {

@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Replace `getBackupEncryptionKey` with `getPrimaryMnemonic` and derive device-share backup encryption keys using the SDK wrapping-key helpers ([#707](https://github.com/MetaMask/accounts/pull/707))
+- **BREAKING:** Replace `getBackupEncryptionKey` with `getPrimaryMnemonic` and derive device-share backup encryption keys using the SDK encryption-key helpers ([#707](https://github.com/MetaMask/accounts/pull/707))
   - The callback returns the primary mnemonic as UTF-8 byte values without an entropy-source argument.
   - Use index `0` and purpose `metamask:money-account:mfa:encryption-key:v1`, independently of MPC share epochs.
+  - Use the shared purpose registry and the ADR-0009 `keys` derivation namespace.
   - Backups encrypted with a different key must be re-encrypted before switching.
 
 ### Removed
