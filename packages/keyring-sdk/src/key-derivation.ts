@@ -5,113 +5,131 @@ import { hkdf } from '@noble/hashes/hkdf';
 import { sha256 } from '@noble/hashes/sha2';
 import { HDKey } from 'ethereum-cryptography/hdkey';
 
-declare const keyRootBrand: unique symbol;
-
-/**
- * An opaque shared key root. Keep it secret and use it only with
- * {@link deriveEncryptionKey}; it is not a signing or encryption key.
- *
- * This handle is local to this SDK instance and cannot be serialized.
- * Opacity discourages misuse; it is not a security boundary.
- */
-export type KeyRoot = {
-  readonly [keyRootBrand]: true;
-};
-
-const roots = new WeakMap<KeyRoot, Uint8Array>();
-
 // Four-byte ASCII labels `meta`, `mask`, and `keys`, interpreted big-endian.
 const KEY_ROOT_PATH = "m/1835365473'/1835103083'/1801812339'";
 
 /**
- * Derives an opaque shared key root using the fixed ADR-0009 scheme:
- * BIP-39 (empty passphrase), then secp256k1 BIP-32 at `m/meta'/mask'/keys'/index'`.
- * Local entropy-source identifiers never participate in derivation.
- *
- * @param options - Root derivation options.
- * @param options.mnemonic - A BIP-39 phrase string, validated against the English
- * wordlist after NFKD normalization. Convert other representations explicitly.
- * @param options.index - Key generation, an integer from 0 through 2^31 - 1.
- * Defaults to 0 when omitted or undefined.
- * @returns An opaque root granting access to every purpose at this index.
- * @throws If the mnemonic or index is invalid.
+ * A shared secret root for purpose-specific key derivation. Private storage
+ * prevents accidental exposure, but is not a security boundary. Destroy the
+ * root when finished to zeroize its owned buffer (best-effort cleanup, not
+ * guaranteed erasure of all copies from process memory).
  */
-export async function deriveKeyRoot({
-  mnemonic,
-  index = 0,
-}: {
-  mnemonic: string;
-  index?: number | undefined;
-}): Promise<KeyRoot> {
-  if (!Number.isInteger(index) || index < 0 || index > 0x7fffffff) {
-    throw new Error(
-      'Invalid key index: expected an integer from 0 to 2^31 - 1',
-    );
-  }
-  if (typeof mnemonic !== 'string') {
-    throw new Error('Invalid mnemonic: expected a BIP-39 phrase string');
-  }
-  const normalizedMnemonic = mnemonic.normalize('NFKD');
-  if (!validateMnemonic(normalizedMnemonic, wordlist)) {
-    throw new Error('Invalid mnemonic: expected a valid English BIP-39 phrase');
+export class KeyRoot {
+  readonly #bytes: Uint8Array;
+
+  #destroyed = false;
+
+  // Constructors cannot use native # syntax; only the factory creates roots.
+  // eslint-disable-next-line no-restricted-syntax
+  private constructor(bytes: Uint8Array) {
+    this.#bytes = bytes;
+    Object.freeze(this);
   }
 
-  const seed = await mnemonicToSeed(normalizedMnemonic, wordlist, '');
-  try {
-    const { privateKey } = HDKey.fromMasterSeed(seed).derive(
-      `${KEY_ROOT_PATH}/${index}'`,
-    );
-    if (!privateKey) {
-      throw new Error('Failed to derive key root');
+  /**
+   * Derives a root using BIP-39 (empty passphrase) and secp256k1 BIP-32 at
+   * `m/meta'/mask'/keys'/index'`. Local entropy-source IDs are not used.
+   *
+   * @param options - Root derivation options.
+   * @param options.mnemonic - English BIP-39 phrase, normalized with NFKD before
+   * validation. Convert byte representations explicitly before calling.
+   * @param options.index - Generation from 0 through 2^31 - 1; defaults to 0.
+   * @returns A root granting access to every purpose at this index.
+   * @throws If the mnemonic or index is invalid.
+   */
+  static async fromMnemonic({
+    mnemonic,
+    index = 0,
+  }: {
+    mnemonic: string;
+    index?: number | undefined;
+  }): Promise<KeyRoot> {
+    if (!Number.isInteger(index) || index < 0 || index > 0x7fffffff) {
+      throw new Error(
+        'Invalid key index: expected an integer from 0 to 2^31 - 1',
+      );
     }
-    const root = Object.freeze({}) as KeyRoot;
-    roots.set(root, privateKey);
-    return root;
-  } finally {
-    seed.fill(0);
-  }
-}
+    if (typeof mnemonic !== 'string') {
+      throw new Error('Invalid mnemonic: expected a BIP-39 phrase string');
+    }
+    const normalizedMnemonic = mnemonic.normalize('NFKD');
+    if (!validateMnemonic(normalizedMnemonic, wordlist)) {
+      throw new Error(
+        'Invalid mnemonic: expected a valid English BIP-39 phrase',
+      );
+    }
 
-/**
- * Derives a 32-byte symmetric encryption key using HKDF-SHA256, with the root as
- * input key material, a 32-byte zero salt, and the UTF-8 purpose as info.
- * These parameters are fixed by ADR-0009, not versioned by the purpose.
- * Encryption keys can protect key material or application data, but MUST NOT
- * be reinterpreted as signing keys. Future key types require separate helpers
- * specifying their algorithm and domain separation.
- *
- * @param options - Encryption-key derivation options.
- * @param options.root - An opaque root returned by {@link deriveKeyRoot}.
- * @param options.purpose - A unique, stable, versioned, non-empty string, such as
- * `metamask:money-account:mfa:encryption-key:v1`. Retain this exact string and the
- * root's index with recoverable encrypted data.
- * @returns The raw 32-byte encryption key. Fingerprint these bytes, not the root.
- * @throws If the root is not from this SDK instance or the purpose is invalid.
- */
-export async function deriveEncryptionKey({
-  root,
-  purpose,
-}: {
-  root: KeyRoot;
-  purpose: KeyDerivationPurpose;
-}): Promise<Uint8Array> {
-  const privateKey = roots.get(root);
-  if (!privateKey) {
-    throw new Error('Invalid key root');
+    const seed = await mnemonicToSeed(normalizedMnemonic, wordlist, '');
+    let master: HDKey | undefined;
+    let node: HDKey | undefined;
+    try {
+      master = HDKey.fromMasterSeed(seed);
+      node = master.derive(`${KEY_ROOT_PATH}/${index}'`);
+      if (!node.privateKey) {
+        throw new Error('Failed to derive key root');
+      }
+      // Own a separate buffer so library cleanup cannot invalidate this root.
+      return new KeyRoot(Uint8Array.from(node.privateKey));
+    } finally {
+      seed.fill(0);
+      node?.wipePrivateData();
+      master?.wipePrivateData();
+    }
   }
-  if (
-    typeof purpose !== 'string' ||
-    !/^metamask:.+:v[0-9]+(?![\s\S])/u.test(purpose)
-  ) {
-    throw new Error(
-      'Invalid key purpose: expected metamask:<scope>:v<non-negative integer>',
+
+  /**
+   * Derives a 32-byte encryption key using HKDF-SHA256, a 32-byte zero salt,
+   * and exactly the UTF-8 purpose as info (ADR-0009). Do not reinterpret the
+   * output as a signing key; other key types require separate constructions.
+   *
+   * @param options - Encryption-key derivation options.
+   * @param options.purpose - Stable, versioned purpose. Retain its exact value
+   * and the effective root index with recoverable encrypted data.
+   * @returns Independent raw key bytes, owned and eventually cleared by the
+   * caller. Destroying the root does not clear already-derived keys.
+   * @throws If the root is destroyed or the purpose is invalid.
+   */
+  async deriveEncryptionKey({
+    purpose,
+  }: {
+    purpose: KeyDerivationPurpose;
+  }): Promise<Uint8Array> {
+    if (this.#destroyed) {
+      throw new Error('Key root has been destroyed');
+    }
+    if (
+      typeof purpose !== 'string' ||
+      !/^metamask:.+:v[0-9]+(?![\s\S])/u.test(purpose)
+    ) {
+      throw new Error(
+        'Invalid key purpose: expected metamask:<scope>:v<non-negative integer>',
+      );
+    }
+    return hkdf(
+      sha256,
+      this.#bytes,
+      new Uint8Array(32),
+      new TextEncoder().encode(purpose),
+      32,
     );
   }
-  return hkdf(
-    sha256,
-    privateKey,
-    new Uint8Array(32),
-    new TextEncoder().encode(purpose),
-    32,
-  );
+
+  /**
+   * Zeroizes the owned root buffer and permanently disables derivation.
+   * Safe to call repeatedly. This cannot erase mnemonic strings, library or
+   * runtime copies, or keys previously returned to the caller.
+   */
+  destroy(): void {
+    this.#bytes.fill(0);
+    this.#destroyed = true;
+  }
+
+  /**
+   * Rejects serialization to prevent accidentally persisting an unusable root.
+   *
+   * @throws Always; roots cannot be serialized.
+   */
+  toJSON(): never {
+    throw new Error('Key roots cannot be serialized');
+  }
 }

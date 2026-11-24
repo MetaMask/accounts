@@ -9,13 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `deriveKeyRoot`, `deriveEncryptionKey`, and opaque `KeyRoot` for deterministic mnemonic-backed encryption keys ([#706](https://github.com/MetaMask/accounts/pull/706))
+- Add `KeyRoot.fromMnemonic` and `root.deriveEncryptionKey` for deterministic mnemonic-backed encryption keys ([#706](https://github.com/MetaMask/accounts/pull/706))
   - Following [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-wrapping-keys.md).
   - Export `KeyDerivationPurpose` from the shared purpose registry and require purposes to match `metamask:<scope>:v<version>`, with a non-empty scope and non-negative integer version.
 
 ### Changed
 
-- Default `deriveKeyRoot` to index `0` when the index is omitted or `undefined` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Replace the unreleased flat derivation helpers with a `KeyRoot` class using native private storage and explicit `destroy()` cleanup ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+  - Zeroize the owned root buffer on destruction, reject further derivation and serialization, and wipe temporary seed and retained HD-node private data.
+- Default `KeyRoot.fromMnemonic` to index `0` when the index is omitted or `undefined` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 - Align key derivation with the revised ADR-0009 using `m/meta'/mask'/keys'/index'` and encryption-key helper names instead of the unreleased wrapping-key API ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
   - The path change produces different keys from the previous `wrap'` namespace.
 

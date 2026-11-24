@@ -140,27 +140,36 @@ phrase string. Use it to encrypt application data or wrap key material:
 
 ```ts
 import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
-import {
-  deriveKeyRoot,
-  deriveEncryptionKey,
-  fingerprint,
-} from '@metamask/keyring-sdk';
+import { KeyRoot, fingerprint } from '@metamask/keyring-sdk';
 
-const root = await deriveKeyRoot({ mnemonic }); // Defaults to index 0.
-const encryptionKey = await deriveEncryptionKey({
-  root,
-  purpose: MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE,
-});
-const encryptionKeyFingerprint = await fingerprint(encryptionKey);
+const root = await KeyRoot.fromMnemonic({ mnemonic }); // Defaults to index 0.
+try {
+  const encryptionKey = await root.deriveEncryptionKey({
+    purpose: MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE,
+  });
+  try {
+    const encryptionKeyFingerprint = await fingerprint(encryptionKey);
+    // Use the key here.
+  } finally {
+    encryptionKey.fill(0);
+  }
+} finally {
+  root.destroy();
+}
 ```
 
-- Choose a unique, stable `purpose` matching `metamask:<scope>:v<version>` (a non-negative integer version), and an `index` from `0` to `2^31 - 1`. The index defaults to `0` when omitted or `undefined`; pass it explicitly for other generations, such as `deriveKeyRoot({ mnemonic, index: 1 })`.
+- Choose a unique, stable `purpose` matching `metamask:<scope>:v<version>` (a non-negative integer version), and an `index` from `0` to `2^31 - 1`. The index defaults to `0` when omitted or `undefined`; pass it explicitly for other generations, such as `KeyRoot.fromMnemonic({ mnemonic, index: 1 })`.
 - Retain the exact purpose and effective index with encrypted data so the key can be recovered, including `0` when using the default.
 - Shared constants and the `KeyDerivationPurpose` type live in
   `@metamask/key-derivation-purposes`; the SDK also re-exports the type. This
   registry is not an allowlist: consumer-defined purposes are supported.
-- Keep the mnemonic, opaque `KeyRoot`, and encryption key secret. Use the root
-  only with `deriveEncryptionKey`. BIP-39 passphrases are not supported.
+- Keep the mnemonic, `KeyRoot`, and encryption key secret. Root bytes are held
+  in native private fields; serialization is rejected. BIP-39 passphrases are
+  not supported.
+- Call `root.destroy()` when finished. It zeroizes the owned buffer and prevents
+  further derivation; repeated calls are safe. This is best-effort cleanup, not
+  guaranteed erasure of all copies in process memory. Clear returned encryption
+  keys separately; destroying the root does not change them.
 - Roots use `m/meta'/mask'/keys'/index'`. Encryption derivation uses HKDF-SHA256
   with a 32-byte zero salt and exactly the UTF-8 purpose as info.
 - Do not use root bytes or encryption-key bytes as signing keys. Other key types
