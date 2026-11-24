@@ -32,15 +32,16 @@ const KEY_ROOT_PATH = "m/1835365473'/1835103083'/1801812339'";
  * @param options.mnemonic - A BIP-39 phrase string, validated against the English
  * wordlist after NFKD normalization. Convert other representations explicitly.
  * @param options.index - Key generation, an integer from 0 through 2^31 - 1.
+ * Defaults to 0 when omitted or undefined.
  * @returns An opaque root granting access to every purpose at this index.
  * @throws If the mnemonic or index is invalid.
  */
 export async function deriveKeyRoot({
   mnemonic,
-  index,
+  index = 0,
 }: {
   mnemonic: string;
-  index: number;
+  index?: number | undefined;
 }): Promise<KeyRoot> {
   if (!Number.isInteger(index) || index < 0 || index > 0x7fffffff) {
     throw new Error(

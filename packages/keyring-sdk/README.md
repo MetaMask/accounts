@@ -146,7 +146,7 @@ import {
   fingerprint,
 } from '@metamask/keyring-sdk';
 
-const root = await deriveKeyRoot({ mnemonic, index: 0 });
+const root = await deriveKeyRoot({ mnemonic }); // Defaults to index 0.
 const encryptionKey = await deriveEncryptionKey({
   root,
   purpose: MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE,
@@ -154,8 +154,8 @@ const encryptionKey = await deriveEncryptionKey({
 const encryptionKeyFingerprint = await fingerprint(encryptionKey);
 ```
 
-- Choose a unique, stable `purpose` matching `metamask:<scope>:v<version>` (a non-negative integer version), and an `index` from `0` to `2^31 - 1`.
-- Retain the exact purpose and index with encrypted data so the key can be recovered.
+- Choose a unique, stable `purpose` matching `metamask:<scope>:v<version>` (a non-negative integer version), and an `index` from `0` to `2^31 - 1`. The index defaults to `0` when omitted or `undefined`; pass it explicitly for other generations, such as `deriveKeyRoot({ mnemonic, index: 1 })`.
+- Retain the exact purpose and effective index with encrypted data so the key can be recovered, including `0` when using the default.
 - Shared constants and the `KeyDerivationPurpose` type live in
   `@metamask/key-derivation-purposes`; the SDK also re-exports the type. This
   registry is not an allowlist: consumer-defined purposes are supported.

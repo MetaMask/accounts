@@ -13,6 +13,29 @@ const MNEMONIC =
 const PURPOSE = MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE;
 
 describe('deriveKeyRoot', () => {
+  it.each([{}, { index: undefined }])(
+    'defaults to index zero for options %j',
+    async (options) => {
+      const root = await deriveKeyRoot({ mnemonic: MNEMONIC, ...options });
+      const explicitRoot = await deriveKeyRoot({
+        mnemonic: MNEMONIC,
+        index: 0,
+      });
+      expect(
+        await deriveEncryptionKey({ root, purpose: PURPOSE }),
+      ).toStrictEqual(
+        await deriveEncryptionKey({ root: explicitRoot, purpose: PURPOSE }),
+      );
+    },
+  );
+
+  it('rejects a null index rather than defaulting to zero', async () => {
+    await expect(
+      // @ts-expect-error Intentionally pass null to test runtime validation.
+      deriveKeyRoot({ mnemonic: MNEMONIC, index: null }),
+    ).rejects.toThrow('Invalid key index');
+  });
+
   it.each([
     -1,
     0.5,

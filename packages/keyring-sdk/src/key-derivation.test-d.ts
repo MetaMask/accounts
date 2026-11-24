@@ -6,6 +6,8 @@ import { deriveEncryptionKey, deriveKeyRoot } from './key-derivation';
 import type { KeyRoot } from './key-derivation';
 
 expectType<Promise<KeyRoot>>(deriveKeyRoot({ mnemonic: '', index: 0 }));
+expectType<Promise<KeyRoot>>(deriveKeyRoot({ mnemonic: '' }));
+expectType<Promise<KeyRoot>>(deriveKeyRoot({ mnemonic: '', index: undefined }));
 expectNotAssignable<KeyRoot>(new Uint8Array(32));
 expectNotAssignable<KeyRoot>({});
 
