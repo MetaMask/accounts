@@ -2,6 +2,7 @@ import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivati
 import type { KeyDerivationPurpose } from '@metamask/key-derivation-purposes';
 import * as bip39 from '@metamask/scure-bip39';
 import * as hkdfModule from '@noble/hashes/hkdf';
+import * as hmacModule from '@noble/hashes/hmac';
 import { sha256 } from '@noble/hashes/sha2';
 import { HDKey } from 'ethereum-cryptography/hdkey';
 
@@ -29,6 +30,31 @@ describe('KeyRoot', () => {
   });
 
   describe('fromMnemonic', () => {
+    it('matches the published BIP-85 entropy transformation and wipes its temporary output', async () => {
+      // BIP-85 test case 1: inject its child key to isolate the transformation.
+      const node = HDKey.fromExtendedKey(
+        'xprv9s21ZrQH143K2LBWUUQRFXhucrQqBpKdRRxNVq2zBqsx8HVqFk2uYo8kmbaLLHRdqtQpUm98uKfu3vca1LqdGhUtyoFnCNkfmXRyPXLjbKb',
+      ).derive("m/83696968'/0'/0'");
+      const derive = jest
+        .spyOn(HDKey.prototype, 'derive')
+        .mockReturnValue(node);
+      const hmac = jest.spyOn(hmacModule, 'hmac');
+      const hkdf = jest.spyOn(hkdfModule, 'hkdf');
+      const root = await fromMnemonic({ mnemonic: MNEMONIC });
+      expect(derive).toHaveBeenCalledWith("m/83696968'/77698465'/77658375'/0'");
+      expect(hmac.mock.results[0]?.value).toStrictEqual(new Uint8Array(64));
+      hmac.mockRestore();
+      await root.deriveEncryptionKey({ purpose: PURPOSE });
+      expect(hkdf.mock.calls[0]?.[1]).toStrictEqual(
+        new Uint8Array(
+          Buffer.from(
+            'efecfbccffea313214232d29e71563d941229afb4338c21f9517c41aaa0d16f0',
+            'hex',
+          ),
+        ),
+      );
+    });
+
     it.each([{}, { index: undefined }])(
       'defaults to index zero for %j',
       async (options) => {
@@ -96,7 +122,7 @@ describe('KeyRoot', () => {
           await root.deriveEncryptionKey({ purpose: PURPOSE }),
         ).toString('hex'),
       ).toBe(
-        '121859a7da2699610ac2dd81fbcf1ec70d7a232d4295e8c8a4dc7de9345f2817',
+        'db1c1829d8bc22f0467133f4ae788053ff25af3b0b7ed0c53bdaf313cdac3d02',
       );
     });
 
@@ -164,7 +190,7 @@ describe('KeyRoot', () => {
         sha256,
         new Uint8Array(
           Buffer.from(
-            '40594a11259ff0c240d361055c9e40737d62ed670e93308122413a5a59d1cee0',
+            '84e12401a1b0ab4edb9a5ba414101290bd3b5dfca77dd284c232e4c495007671',
             'hex',
           ),
         ),
@@ -173,22 +199,22 @@ describe('KeyRoot', () => {
         32,
       );
       expect(Buffer.from(key).toString('hex')).toBe(
-        '121859a7da2699610ac2dd81fbcf1ec70d7a232d4295e8c8a4dc7de9345f2817',
+        'db1c1829d8bc22f0467133f4ae788053ff25af3b0b7ed0c53bdaf313cdac3d02',
       );
       expect(await fingerprint(key)).toBe(
-        'f4e791cc-14c7-4f84-b861-1dcdbe2b114c',
+        '6606d8d8-f199-4298-a03f-bfcb56c6e0d2',
       );
     });
 
     it.each([
-      [1, '17e711cc2a5ceb870c4d2306771ff48127431eedbc827a1a31317f11acf7e2d7'],
+      [1, 'a354685af3ec8636016cc94d10707122fd78663cd44b2bd95a6b23158a4c95b9'],
       [
         0x7fffffff,
-        '899b8d1ea94b40bd93017e86ac6ee033939fd3ce22b640d7e2520c68ce36ce1e',
+        '3ccadceada099883b16022d08e1f47647100e93a8c3706a273481f9d85e068d2',
       ],
       // Leading-zero key and root respectively.
-      [98, '003e9f0539f8a6287f3b07097eab3dcfc912eec8e629a7a7ff3edcbe9be80c8e'],
-      [12, '04ad0389013e4b831392a74b4cc618671b7c4284f4bee5f08845e66ef8d18f63'],
+      [36, '0092902ff4fa54ecc6f3446a4919e9fec1d6933618de4a83efdc839768031fac'],
+      [96, 'b812da0c2b9e6d3ad1d1ecf83d58af06d9fc4b2d9c06c619a164e63c9319d58b'],
     ])('matches the 32-byte key for index %s', async (index, expected) => {
       const root = await fromMnemonic({ mnemonic: MNEMONIC, index });
       const key = await root.deriveEncryptionKey({ purpose: PURPOSE });
@@ -199,11 +225,11 @@ describe('KeyRoot', () => {
     it.each<[KeyDerivationPurpose, string]>([
       [
         'metamask:money-account:mfa:encryption-key:v2',
-        'aa19f5bc547eab23b757d899feb940e370e5e0cbdd142d3c61579e06dbd0570b',
+        'c9cb38c01982d9f69aff51bdb9b610113c3eb7ae3b54386d857ebfa1ddd8bf1c',
       ],
       [
         'metamask:encryption:🔑:v1',
-        'de8d08849a8a55abc5bfbe9122c7a6925c5601df467bc41f363d4d36d00a7946',
+        '0df8c473f780a6e28f41be84077758cb3939c19d1a6777a0176bf9145008e7c2',
       ],
     ])('uses the exact UTF-8 purpose %s', async (purpose, expected) => {
       const root = await fromMnemonic({ mnemonic: MNEMONIC });

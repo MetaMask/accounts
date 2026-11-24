@@ -170,7 +170,11 @@ try {
   further derivation; repeated calls are safe. This is best-effort cleanup, not
   guaranteed erasure of all copies in process memory. Clear returned encryption
   keys separately; destroying the root does not change them.
-- Roots use `m/meta'/mask'/keys'/index'`. Encryption derivation uses HKDF-SHA256
+- Roots use the MetaMask-specific BIP-85 profile at
+  `m/83696968'/77698465'/77658375'/index'` (`META'/MASK'` encoded by concatenating
+  decimal ASCII codes). The first 32 bytes of HMAC-SHA512 with key `bip-entropy-from-k`
+  and the derived private key as message form the root. This is not BIP-85's HEX
+  application or an officially allocated MetaMask application. Encryption derivation uses HKDF-SHA256
   with a 32-byte zero salt and exactly the UTF-8 purpose as info.
 - Do not use root bytes or encryption-key bytes as signing keys. Other key types
   require separately specified helpers and domain separation.

@@ -2,11 +2,12 @@ import type { KeyDerivationPurpose } from '@metamask/key-derivation-purposes';
 import { mnemonicToSeed, validateMnemonic } from '@metamask/scure-bip39';
 import { wordlist } from '@metamask/scure-bip39/dist/wordlists/english';
 import { hkdf } from '@noble/hashes/hkdf';
-import { sha256 } from '@noble/hashes/sha2';
+import { hmac } from '@noble/hashes/hmac';
+import { sha256, sha512 } from '@noble/hashes/sha2';
 import { HDKey } from 'ethereum-cryptography/hdkey';
 
-// Four-byte ASCII labels `meta`, `mask`, and `keys`, interpreted big-endian.
-const KEY_ROOT_PATH = "m/1835365473'/1835103083'/1801812339'";
+// BIP-85 followed by decimal-concatenated ASCII codes for `META` and `MASK`.
+const KEY_ROOT_PATH = "m/83696968'/77698465'/77658375'";
 
 /**
  * A shared secret root for purpose-specific key derivation. Private storage
@@ -27,8 +28,9 @@ export class KeyRoot {
   }
 
   /**
-   * Derives a root using BIP-39 (empty passphrase) and secp256k1 BIP-32 at
-   * `m/meta'/mask'/keys'/index'`. Local entropy-source IDs are not used.
+   * Derives a root using BIP-39 (empty passphrase), secp256k1 BIP-32 at
+   * `m/83696968'/META'/MASK'/index'`, and the first 32 bytes of BIP-85's
+   * HMAC-SHA512 output. Local entropy-source IDs are not used.
    *
    * @param options - Root derivation options.
    * @param options.mnemonic - English BIP-39 phrase, normalized with NFKD before
@@ -62,16 +64,23 @@ export class KeyRoot {
     const seed = await mnemonicToSeed(normalizedMnemonic, wordlist, '');
     let master: HDKey | undefined;
     let node: HDKey | undefined;
+    let entropy: Uint8Array | undefined;
     try {
       master = HDKey.fromMasterSeed(seed);
       node = master.derive(`${KEY_ROOT_PATH}/${index}'`);
       if (!node.privateKey) {
         throw new Error('Failed to derive key root');
       }
-      // Own a separate buffer so library cleanup cannot invalidate this root.
-      return new KeyRoot(Uint8Array.from(node.privateKey));
+      entropy = hmac(
+        sha512,
+        new TextEncoder().encode('bip-entropy-from-k'),
+        node.privateKey,
+      );
+      // Copy rather than retain a view into the temporary entropy buffer.
+      return new KeyRoot(entropy.slice(0, 32));
     } finally {
       seed.fill(0);
+      entropy?.fill(0);
       node?.wipePrivateData();
       master?.wipePrivateData();
     }
