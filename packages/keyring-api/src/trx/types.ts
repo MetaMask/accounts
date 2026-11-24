@@ -1,4 +1,4 @@
-import type { Infer } from '@metamask/superstruct';
+import type { Infer, Struct } from '@metamask/superstruct';
 import { array, enums, literal, nonempty, object } from '@metamask/superstruct';
 import { definePattern } from '@metamask/utils';
 
@@ -12,7 +12,7 @@ import {
  * TRON addresses are Base58-encoded strings that are exactly 34 characters long
  * and start with the letter 'T'.
  */
-export const TrxAddressStruct = definePattern(
+export const TrxAddressStruct: Struct<string, null> = definePattern(
   'TrxAddress',
   /^T[1-9A-HJ-NP-Za-km-z]{33}$/iu,
 );

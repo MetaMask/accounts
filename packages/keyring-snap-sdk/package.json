@@ -66,9 +66,9 @@
   },
   "dependencies": {
     "@metamask/keyring-utils": "^5.0.0",
-    "@metamask/snaps-sdk": "^11.2.0",
+    "@metamask/snaps-sdk": "^13.0.0",
     "@metamask/superstruct": "^3.4.1",
-    "@metamask/utils": "^11.11.0",
+    "@metamask/utils": "^12.0.2",
     "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
@@ -87,7 +87,7 @@
     "rimraf": "^5.0.7",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
-    "tsd": "^0.31.0",
+    "tsd": "^0.32.0",
     "typedoc": "^0.25.13",
     "typescript": "~5.8.3"
   },

@@ -71,7 +71,7 @@
     "@metamask/keyring-utils": "^5.0.0",
     "@metamask/scure-bip39": "^2.1.1",
     "@metamask/superstruct": "^3.4.1",
-    "@metamask/utils": "^11.11.0",
+    "@metamask/utils": "^12.0.2",
     "@noble/hashes": "^1.8.0",
     "async-mutex": "^0.5.0",
     "ethereum-cryptography": "^2.2.1",
@@ -92,7 +92,7 @@
     "rimraf": "^5.0.7",
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.2",
-    "tsd": "^0.31.0",
+    "tsd": "^0.32.0",
     "typedoc": "^0.25.13",
     "typescript": "~5.8.3"
   },
