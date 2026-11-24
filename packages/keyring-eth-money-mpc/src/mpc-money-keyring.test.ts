@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { hashPersonalMessage } from '@ethereumjs/util';
+import { KeyRoot } from '@metamask/keyring-sdk';
 import { bytesToHex } from '@metamask/utils';
 import type { Hex, Json } from '@metamask/utils';
 
@@ -353,6 +354,7 @@ describe('MpcMoneyKeyring', () => {
   });
 
   it('creates a key via setup when the backend has no key state', async () => {
+    const destroy = jest.spyOn(KeyRoot.prototype, 'destroy');
     const getProfileToken = jest.fn().mockResolvedValue('token');
     const getPrimaryMnemonic = jest.fn().mockResolvedValue(mockMnemonicBytes);
     const keyring = makeKeyring(getProfileToken, getPrimaryMnemonic);
@@ -377,6 +379,7 @@ describe('MpcMoneyKeyring', () => {
 
     await keyring.setup();
 
+    expect(destroy).toHaveBeenCalledTimes(1);
     expect(getPrimaryMnemonic).toHaveBeenCalledWith();
     expect(jest.requireMock('./util').encryptBytes).toHaveBeenCalledWith(
       mockBackupKey,
@@ -473,6 +476,7 @@ describe('MpcMoneyKeyring', () => {
   );
 
   it('recovers an authenticated backup using the primary mnemonic', async () => {
+    const destroy = jest.spyOn(KeyRoot.prototype, 'destroy');
     const actualUtil = jest.requireActual<typeof import('./util')>('./util');
     const encryptedKeyShare = await actualUtil.encryptBytes(
       mockBackupKey,
@@ -489,6 +493,7 @@ describe('MpcMoneyKeyring', () => {
 
     await keyring.setup();
 
+    expect(destroy).toHaveBeenCalledTimes(1);
     expect(mockThresholdKeyFromJson).toHaveBeenCalledWith({ recovered: true });
     expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
   });
@@ -516,6 +521,20 @@ describe('MpcMoneyKeyring', () => {
     const keyring = makeKeyring(undefined, getPrimaryMnemonic);
 
     await expect(keyring.setup()).rejects.toThrow('The operation failed');
+    expect(await keyring.serialize()).toStrictEqual({});
+    expect(mockRegisterClient).not.toHaveBeenCalled();
+  });
+
+  it('destroys the temporary root when backup key derivation fails', async () => {
+    const destroy = jest.spyOn(KeyRoot.prototype, 'destroy');
+    jest
+      .spyOn(KeyRoot.prototype, 'deriveEncryptionKey')
+      .mockRejectedValueOnce(new Error('Key derivation failed'));
+    const keyring = makeKeyring();
+
+    await expect(keyring.setup()).rejects.toThrow('Key derivation failed');
+
+    expect(destroy).toHaveBeenCalledTimes(1);
     expect(await keyring.serialize()).toStrictEqual({});
     expect(mockRegisterClient).not.toHaveBeenCalled();
   });

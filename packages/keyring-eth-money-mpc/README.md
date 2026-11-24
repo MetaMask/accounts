@@ -18,13 +18,14 @@ Provide `getPrimaryMnemonic: () => Promise<number[]>` when constructing the keyr
 It returns the wallet's primary mnemonic as UTF-8 byte values, like the normal
 Money keyring's `getMnemonic` callback, without an entropy-source argument.
 
-The keyring derives the backup encryption key using `deriveKeyRoot` and
-`deriveEncryptionKey` with index `0` and the shared registry constant
+The keyring derives the backup encryption key using `KeyRoot.fromMnemonic` and
+`root.deriveEncryptionKey` with index `0` and the shared registry constant
 `MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE`
 (`metamask:money-account:mfa:encryption-key:v1`), independently of share
 epochs. Recovery requires the same primary mnemonic. Backups encrypted using the
 old `getBackupEncryptionKey` callback are compatible only if it returned this same
 key; other existing backups require re-encryption before switching.
+The temporary root is destroyed after derivation, including when derivation fails.
 
 ## Installation
 

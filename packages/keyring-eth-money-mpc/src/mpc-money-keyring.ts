@@ -8,7 +8,7 @@ import type {
 } from '@metamask/eth-sig-util';
 import { hashEIP7702Authorization } from '@metamask/eth-sig-util';
 import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
-import { deriveEncryptionKey, deriveKeyRoot } from '@metamask/keyring-sdk';
+import { KeyRoot } from '@metamask/keyring-sdk';
 import { CL24DKM, CL24ThresholdKeySerializer } from '@metamask/mfa-wallet-cl24';
 import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
 import { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
@@ -830,14 +830,17 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     const mnemonic = new TextDecoder('utf-8', { fatal: true }).decode(
       Uint8Array.from(mnemonicBytes),
     );
-    const root = await deriveKeyRoot({
+    const root = await KeyRoot.fromMnemonic({
       mnemonic,
       index: BACKUP_ENCRYPTION_KEY_INDEX,
     });
-    return deriveEncryptionKey({
-      root,
-      purpose: MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE,
-    });
+    try {
+      return await root.deriveEncryptionKey({
+        purpose: MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE,
+      });
+    } finally {
+      root.destroy();
+    }
   }
 
   async #encryptKeyShare(keyShare: CL24ThresholdKey): Promise<Uint8Array> {
