@@ -41,7 +41,7 @@ const mockMnemonic =
 const mockMnemonicBytes = Array.from(new TextEncoder().encode(mockMnemonic));
 const mockBackupKey = new Uint8Array(
   Buffer.from(
-    '121859a7da2699610ac2dd81fbcf1ec70d7a232d4295e8c8a4dc7de9345f2817',
+    'db1c1829d8bc22f0467133f4ae788053ff25af3b0b7ed0c53bdaf313cdac3d02',
     'hex',
   ),
 );
