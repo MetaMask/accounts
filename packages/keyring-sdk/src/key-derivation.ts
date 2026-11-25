@@ -88,7 +88,7 @@ export class KeyRoot {
 
   /**
    * Derives a 32-byte encryption key using HKDF-SHA256, a 32-byte zero salt,
-   * and exactly the UTF-8 purpose as info (ADR-0009). Do not reinterpret the
+   * and exactly the UTF-8 purpose as info. Do not reinterpret the
    * output as a signing key; other key types require separate constructions.
    *
    * @param options - Encryption-key derivation options.

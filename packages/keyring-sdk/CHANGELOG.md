@@ -9,20 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `KeyRoot.fromMnemonic` and `root.deriveEncryptionKey` for deterministic mnemonic-backed encryption keys ([#706](https://github.com/MetaMask/accounts/pull/706))
-  - Following [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-derived-cryptographic-keys.md).
-  - Export `KeyDerivationPurpose` from the shared purpose registry and require purposes to match `metamask:<scope>:v<version>`, with a non-empty scope and non-negative integer version.
-
-### Changed
-
-- Use wrapping-key terminology for the unreleased MPC device-share purpose, changing its derived keys and fingerprints without changing cryptographic algorithms ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-- Update the unreleased MPC encryption-purpose name and value to identify device shares explicitly, changing derived encryption keys and fingerprints ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-- Use a MetaMask-specific BIP-85 profile at `m/83696968'/77698465'/77658375'/index'` (`META'/MASK'`, decimal ASCII concatenation) and the first 32 bytes of its HMAC-SHA512 output for shared roots, changing unreleased derived keys and fingerprints ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-- Replace the unreleased flat derivation helpers with a `KeyRoot` class using native private storage and explicit `destroy()` cleanup ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-  - Zeroize the owned root buffer on destruction, reject further derivation and serialization, and wipe temporary seed and retained HD-node private data.
-- Default `KeyRoot.fromMnemonic` to index `0` when the index is omitted or `undefined` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-- Align key derivation with the revised ADR-0009 using `m/meta'/mask'/keys'/index'` and encryption-key helper names instead of the unreleased wrapping-key API ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-  - The path change produces different keys from the previous `wrap'` namespace.
+- Add mnemonic-derived cryptographic key support with purpose-based derivation ([#706](https://github.com/MetaMask/accounts/pull/706))
 
 ## [4.2.1]
 

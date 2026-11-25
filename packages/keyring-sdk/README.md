@@ -179,9 +179,6 @@ try {
 - Do not use root bytes or encryption-key bytes as signing keys. Other key types
   require separately specified helpers and domain separation.
 
-See [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-derived-cryptographic-keys.md)
-for derivation details and security considerations.
-
 ## Contributing
 
 This package is part of a monorepo. Instructions for contributing can be found in the [monorepo README](https://github.com/MetaMask/accounts#readme).
