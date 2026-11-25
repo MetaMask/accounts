@@ -16,11 +16,12 @@ expectNotAssignable<new (bytes: Uint8Array) => KeyRoot>(KeyRoot);
 declare const root: KeyRoot;
 expectNotAssignable<Uint8Array>(root);
 expectType<Promise<Uint8Array>>(
-  root.deriveEncryptionKey({ purpose: 'metamask:consumer-defined:v0' }),
+  root.deriveSecret({ purpose: 'metamask:consumer-defined:v0', length: 32 }),
 );
 expectType<Promise<Uint8Array>>(
-  root.deriveEncryptionKey({
+  root.deriveSecret({
     purpose: MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE,
+    length: 32,
   }),
 );
 expectType<void>(root.destroy());
@@ -33,5 +34,15 @@ expectType<Promise<KeyRoot>>(
 );
 expectType<Promise<Uint8Array>>(
   // @ts-expect-error Purposes must be namespaced and versioned.
-  root.deriveEncryptionKey({ purpose: 'example:v1' }),
+  root.deriveSecret({ purpose: 'example:v1', length: 32 }),
+);
+
+expectType<Promise<Uint8Array>>(
+  // @ts-expect-error Output length is required.
+  root.deriveSecret({ purpose: 'metamask:consumer-defined:v0' }),
+);
+
+expectType<Promise<Uint8Array>>(
+  // @ts-expect-error Output length must be a number.
+  root.deriveSecret({ purpose: 'metamask:consumer-defined:v0', length: '32' }),
 );

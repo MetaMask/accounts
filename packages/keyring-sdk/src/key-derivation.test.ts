@@ -47,7 +47,7 @@ describe('KeyRoot', () => {
         );
         expect(hmac.mock.results[0]?.value).toStrictEqual(new Uint8Array(64));
         hmac.mockRestore();
-        await root.deriveEncryptionKey({ purpose: PURPOSE });
+        await root.deriveSecret({ purpose: PURPOSE, length: 32 });
         expect(hkdf.mock.calls[0]?.[1]).toStrictEqual(
           new Uint8Array(
             Buffer.from(
@@ -65,9 +65,9 @@ describe('KeyRoot', () => {
         const root = await fromMnemonic({ mnemonic: MNEMONIC, ...options });
         const explicit = await fromMnemonic({ mnemonic: MNEMONIC, index: 0 });
         expect(
-          await root.deriveEncryptionKey({ purpose: PURPOSE }),
+          await root.deriveSecret({ purpose: PURPOSE, length: 32 }),
         ).toStrictEqual(
-          await explicit.deriveEncryptionKey({ purpose: PURPOSE }),
+          await explicit.deriveSecret({ purpose: PURPOSE, length: 32 }),
         );
       },
     );
@@ -114,7 +114,7 @@ describe('KeyRoot', () => {
       const root = await fromMnemonic({ mnemonic });
       expect(
         Buffer.from(
-          await root.deriveEncryptionKey({ purpose: PURPOSE }),
+          await root.deriveSecret({ purpose: PURPOSE, length: 32 }),
         ).toString('hex'),
       ).toBe(
         '7a170689f3de32aec28c3aae69c8399b058a5ec3a7096b75b090bb2553a81307',
@@ -137,9 +137,9 @@ describe('KeyRoot', () => {
       const root = await fromMnemonic({ mnemonic: MNEMONIC });
       expect(seed).toStrictEqual(new Uint8Array(64));
       expect(wipe).toHaveBeenCalledTimes(2);
-      expect(await root.deriveEncryptionKey({ purpose: PURPOSE })).toHaveLength(
-        32,
-      );
+      expect(
+        await root.deriveSecret({ purpose: PURPOSE, length: 32 }),
+      ).toHaveLength(32);
     });
 
     it('wipes the seed when master derivation fails', async () => {
@@ -176,11 +176,37 @@ describe('KeyRoot', () => {
     });
   });
 
-  describe('deriveEncryptionKey', () => {
+  describe('deriveSecret', () => {
+    it.each([1, 32, 64, 8160])('derives %s secret bytes', async (length) => {
+      const root = await fromMnemonic({ mnemonic: MNEMONIC });
+      const secret = await root.deriveSecret({ purpose: PURPOSE, length });
+      expect(secret).toHaveLength(length);
+      expect(secret).toStrictEqual(
+        await root.deriveSecret({ purpose: PURPOSE, length }),
+      );
+    });
+
+    it('preserves the HKDF prefix across output lengths', async () => {
+      const root = await fromMnemonic({ mnemonic: MNEMONIC });
+      const shorter = await root.deriveSecret({ purpose: PURPOSE, length: 32 });
+      const longer = await root.deriveSecret({ purpose: PURPOSE, length: 64 });
+      expect(longer.slice(0, 32)).toStrictEqual(shorter);
+    });
+
+    it.each([0, -1, 0.5, 8161, NaN, Infinity, -Infinity])(
+      'rejects invalid output length %s',
+      async (length) => {
+        const root = await fromMnemonic({ mnemonic: MNEMONIC });
+        await expect(
+          root.deriveSecret({ purpose: PURPOSE, length }),
+        ).rejects.toThrow('Invalid secret length');
+      },
+    );
+
     it('matches the normative root, key, and fingerprint', async () => {
       const spy = jest.spyOn(hkdfModule, 'hkdf');
       const root = await fromMnemonic({ mnemonic: MNEMONIC });
-      const key = await root.deriveEncryptionKey({ purpose: PURPOSE });
+      const key = await root.deriveSecret({ purpose: PURPOSE, length: 32 });
       expect(spy).toHaveBeenCalledWith(
         sha256,
         new Uint8Array(
@@ -212,7 +238,7 @@ describe('KeyRoot', () => {
       [96, 'ee11b6add69ab493f3860e956487261a0302895cf88b9e07a05f1b330e2a2ee2'],
     ])('matches the 32-byte key for index %s', async (index, expected) => {
       const root = await fromMnemonic({ mnemonic: MNEMONIC, index });
-      const key = await root.deriveEncryptionKey({ purpose: PURPOSE });
+      const key = await root.deriveSecret({ purpose: PURPOSE, length: 32 });
       expect(key).toHaveLength(32);
       expect(Buffer.from(key).toString('hex')).toBe(expected);
     });
@@ -229,7 +255,7 @@ describe('KeyRoot', () => {
     ])('uses the exact UTF-8 purpose %s', async (purpose, expected) => {
       const root = await fromMnemonic({ mnemonic: MNEMONIC });
       expect(
-        Buffer.from(await root.deriveEncryptionKey({ purpose })).toString(
+        Buffer.from(await root.deriveSecret({ purpose, length: 32 })).toString(
           'hex',
         ),
       ).toBe(expected);
@@ -238,23 +264,27 @@ describe('KeyRoot', () => {
     it('reproduces keys across roots and returns independent arrays', async () => {
       const root = await fromMnemonic({ mnemonic: MNEMONIC });
       const restored = await fromMnemonic({ mnemonic: MNEMONIC });
-      const first = await root.deriveEncryptionKey({ purpose: PURPOSE });
-      const second = await restored.deriveEncryptionKey({ purpose: PURPOSE });
+      const first = await root.deriveSecret({ purpose: PURPOSE, length: 32 });
+      const second = await restored.deriveSecret({
+        purpose: PURPOSE,
+        length: 32,
+      });
       expect(first).toStrictEqual(second);
       first.fill(0);
       expect(
-        await root.deriveEncryptionKey({ purpose: PURPOSE }),
+        await root.deriveSecret({ purpose: PURPOSE, length: 32 }),
       ).toStrictEqual(second);
     });
 
     it('accepts consumer-defined purposes and version zero', async () => {
       const root = await fromMnemonic({ mnemonic: MNEMONIC });
-      const key = await root.deriveEncryptionKey({
+      const key = await root.deriveSecret({
         purpose: 'metamask:consumer-defined:application-data:v0',
+        length: 32,
       });
       expect(key).toHaveLength(32);
       expect(key).not.toStrictEqual(
-        await root.deriveEncryptionKey({ purpose: PURPOSE }),
+        await root.deriveSecret({ purpose: PURPOSE, length: 32 }),
       );
     });
 
@@ -265,16 +295,17 @@ describe('KeyRoot', () => {
           'legal winner thank year wave sausage worth useful legal winner thank yellow',
       });
       expect(
-        await root.deriveEncryptionKey({ purpose: PURPOSE }),
+        await root.deriveSecret({ purpose: PURPOSE, length: 32 }),
       ).not.toStrictEqual(
-        await other.deriveEncryptionKey({ purpose: PURPOSE }),
+        await other.deriveSecret({ purpose: PURPOSE, length: 32 }),
       );
     });
 
     it('rejects forged receivers', async () => {
       await expect(
-        KeyRoot.prototype.deriveEncryptionKey.call({} as KeyRoot, {
+        KeyRoot.prototype.deriveSecret.call({} as KeyRoot, {
           purpose: PURPOSE,
+          length: 32,
         }),
       ).rejects.toThrow(TypeError);
     });
@@ -284,7 +315,7 @@ describe('KeyRoot', () => {
     it('zeroizes the owned buffer, rejects derivation, and permits repeated destruction', async () => {
       const spy = jest.spyOn(hkdfModule, 'hkdf');
       const root = await fromMnemonic({ mnemonic: MNEMONIC });
-      const key = await root.deriveEncryptionKey({ purpose: PURPOSE });
+      const key = await root.deriveSecret({ purpose: PURPOSE, length: 32 });
       const originalKey = Uint8Array.from(key);
       const ownedBytes = spy.mock.calls[0]?.[1];
       expect(ownedBytes).toBeInstanceOf(Uint8Array);
@@ -294,7 +325,7 @@ describe('KeyRoot', () => {
       expect(ownedBytes).toStrictEqual(new Uint8Array(32));
       expect(key).toStrictEqual(originalKey);
       await expect(
-        root.deriveEncryptionKey({ purpose: PURPOSE }),
+        root.deriveSecret({ purpose: PURPOSE, length: 32 }),
       ).rejects.toThrow('Key root has been destroyed');
       expect(spy).toHaveBeenCalledTimes(1);
     });

@@ -133,10 +133,10 @@ read-heavy workloads, `{ priority: 'read' }` lets new readers join active
 readers even while a writer is merely queued, at the cost that continuous
 reads can starve a queued writer.
 
-## Encryption keys
+## Secret derivation
 
-Derive a reproducible 32-byte symmetric encryption key from a BIP-39 mnemonic
-phrase string. Use it to encrypt application data or wrap key material:
+Derive reproducible secret bytes from a BIP-39 mnemonic phrase string. The
+consumer defines their use; for example, derive a 32-byte AES-256-GCM wrapping key:
 
 ```ts
 import { MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
@@ -144,8 +144,9 @@ import { KeyRoot, fingerprint } from '@metamask/keyring-sdk';
 
 const root = await KeyRoot.fromMnemonic({ mnemonic }); // Defaults to index 0.
 try {
-  const encryptionKey = await root.deriveEncryptionKey({
+  const encryptionKey = await root.deriveSecret({
     purpose: MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE,
+    length: 32,
   });
   try {
     const encryptionKeyFingerprint = await fingerprint(encryptionKey);
@@ -160,7 +161,8 @@ try {
 
 - Choose a unique, stable `purpose` matching `metamask:<scope>:v<version>` (a non-negative integer version), and an `index` from `0` to `2^31 - 1`. The index defaults to `0` when omitted or `undefined`; pass it explicitly for other generations, such as `KeyRoot.fromMnemonic({ mnemonic, index: 1 })`.
   Callers are responsible for the purpose format; the SDK does not validate it at runtime, and the TypeScript type cannot enforce every constraint.
-- Retain the exact purpose and effective index with encrypted data so the key can be recovered, including `0` when using the default.
+- Specify `length` in bytes (an integer from 1 to 8160, the HKDF-SHA256 limit). Longer output does not increase source entropy. Outputs with the same purpose are prefix-related across lengths; use distinct purposes for distinct uses and keep each purpose's output length fixed.
+- Retain the exact purpose, output length, and effective index with encrypted data so the secret can be recovered, including `0` when using the default index.
 - Shared constants and the `KeyDerivationPurpose` type live in
   `@metamask/key-derivation-purposes`; the SDK also re-exports the type. This
   registry is not an allowlist: consumer-defined purposes are supported.
@@ -175,10 +177,10 @@ try {
   `m/83696968'/77698465'/77658375'/index'` (`META'/MASK'` encoded by concatenating
   decimal ASCII codes). The first 32 bytes of HMAC-SHA512 with key `bip-entropy-from-k`
   and the derived private key as message form the root. This is not BIP-85's HEX
-  application or an officially allocated MetaMask application. Encryption derivation uses HKDF-SHA256
+  application or an officially allocated MetaMask application. Secret derivation uses HKDF-SHA256
   with a 32-byte zero salt and exactly the UTF-8 purpose as info.
-- Do not use root bytes or encryption-key bytes as signing keys. Other key types
-  require separately specified helpers and domain separation.
+- Do not use root bytes directly as keys. Derived bytes are not automatically valid
+  private keys; consumers must follow their algorithm's key-generation requirements.
 
 ## Contributing
 

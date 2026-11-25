@@ -87,32 +87,41 @@ export class KeyRoot {
   }
 
   /**
-   * Derives a 32-byte encryption key using HKDF-SHA256, a 32-byte zero salt,
-   * and exactly the UTF-8 purpose as info. Do not reinterpret the
-   * output as a signing key; other key types require separate constructions.
+   * Derives secret bytes using HKDF-SHA256, a 32-byte zero salt, and exactly
+   * the UTF-8 purpose as info. Output is not automatically a valid private key.
+   * Outputs for the same purpose are prefix-related across lengths; use distinct
+   * purposes for distinct uses. Longer output does not increase source entropy.
    *
-   * @param options - Encryption-key derivation options.
+   * @param options - Secret derivation options.
    * @param options.purpose - Stable, versioned purpose. Retain its exact value
    * and the effective root index with recoverable encrypted data. Callers are
    * responsible for following the purpose format; it is not checked at runtime.
-   * @returns Independent raw key bytes, owned and eventually cleared by the
+   * @param options.length - Output length in bytes, an integer from 1 to 8160.
+   * @returns Independent secret bytes, owned and eventually cleared by the
    * caller. Destroying the root does not clear already-derived keys.
-   * @throws If the root is destroyed.
+   * @throws If the root is destroyed or the length is invalid.
    */
-  async deriveEncryptionKey({
+  async deriveSecret({
     purpose,
+    length,
   }: {
     purpose: KeyDerivationPurpose;
+    length: number;
   }): Promise<Uint8Array> {
     if (this.#destroyed) {
       throw new Error('Key root has been destroyed');
+    }
+    if (!Number.isInteger(length) || length < 1 || length > 255 * 32) {
+      throw new Error(
+        'Invalid secret length: expected an integer from 1 to 8160',
+      );
     }
     return hkdf(
       sha256,
       this.#bytes,
       new Uint8Array(32),
       new TextEncoder().encode(purpose),
-      32,
+      length,
     );
   }
 
