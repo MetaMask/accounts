@@ -1,6 +1,6 @@
 {
   "name": "@metamask/key-derivation-purposes",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Shared registry of MetaMask key-derivation purposes",
   "keywords": [
     "key-derivation",
