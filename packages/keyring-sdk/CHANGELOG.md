@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add `KeyRoot.fromMnemonic` and `root.deriveEncryptionKey` for deterministic mnemonic-backed encryption keys ([#706](https://github.com/MetaMask/accounts/pull/706))
-  - Following [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-wrapping-keys.md).
+  - Following [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-derived-cryptographic-keys.md).
   - Export `KeyDerivationPurpose` from the shared purpose registry and require purposes to match `metamask:<scope>:v<version>`, with a non-empty scope and non-negative integer version.
 
 ### Changed
