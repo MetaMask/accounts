@@ -25,9 +25,9 @@ const purpose = MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE;
 
 ## Registry
 
-| Constant                                              | Owner          | Intended use                                                 | Key type                       | Derivation scheme/helper                                                                                                                                               |
-| ----------------------------------------------------- | -------------- | ------------------------------------------------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE` | Money Accounts | Wrap MPC device-share backups for MFA recovery using AES-GCM | 32-byte symmetric wrapping key | [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-wrapping-keys.md), `KeyRoot.deriveEncryptionKey` in `@metamask/keyring-sdk` |
+| Constant                                              | Owner          | Intended use                                                 | Key type                       | Derivation scheme/helper                                                                                                                                                            |
+| ----------------------------------------------------- | -------------- | ------------------------------------------------------------ | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE` | Money Accounts | Wrap MPC device-share backups for MFA recovery using AES-GCM | 32-byte symmetric wrapping key | [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-derived-cryptographic-keys.md), `KeyRoot.deriveEncryptionKey` in `@metamask/keyring-sdk` |
 
 The device-share constant's value is `metamask:money-account:mpc:device-share:wrapping-key:v1`.
 Wrapping means AES-256-GCM encryption of serialized device-share backups, not AES-KW or AES-KWP. Use a fresh 96-bit IV for each backup and reject authentication failures.
