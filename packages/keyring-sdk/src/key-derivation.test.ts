@@ -30,29 +30,33 @@ describe('KeyRoot', () => {
   });
 
   describe('fromMnemonic', () => {
-    it('matches the published BIP-85 entropy transformation and wipes its temporary output', async () => {
-      // BIP-85 test case 1: inject its child key to isolate the transformation.
-      const node = HDKey.fromExtendedKey(
-        'xprv9s21ZrQH143K2LBWUUQRFXhucrQqBpKdRRxNVq2zBqsx8HVqFk2uYo8kmbaLLHRdqtQpUm98uKfu3vca1LqdGhUtyoFnCNkfmXRyPXLjbKb',
-      ).derive("m/83696968'/0'/0'");
-      const derive = jest
-        .spyOn(HDKey.prototype, 'derive')
-        .mockReturnValue(node);
-      const hmac = jest.spyOn(hmacModule, 'hmac');
-      const hkdf = jest.spyOn(hkdfModule, 'hkdf');
-      const root = await fromMnemonic({ mnemonic: MNEMONIC });
-      expect(derive).toHaveBeenCalledWith("m/83696968'/77698465'/77658375'/0'");
-      expect(hmac.mock.results[0]?.value).toStrictEqual(new Uint8Array(64));
-      hmac.mockRestore();
-      await root.deriveEncryptionKey({ purpose: PURPOSE });
-      expect(hkdf.mock.calls[0]?.[1]).toStrictEqual(
-        new Uint8Array(
-          Buffer.from(
-            'efecfbccffea313214232d29e71563d941229afb4338c21f9517c41aaa0d16f0',
-            'hex',
+    describe('BIP-85', () => {
+      it('matches the published entropy transformation and wipes its temporary output', async () => {
+        // BIP-85 test case 1: inject its child key to isolate the transformation.
+        const node = HDKey.fromExtendedKey(
+          'xprv9s21ZrQH143K2LBWUUQRFXhucrQqBpKdRRxNVq2zBqsx8HVqFk2uYo8kmbaLLHRdqtQpUm98uKfu3vca1LqdGhUtyoFnCNkfmXRyPXLjbKb',
+        ).derive("m/83696968'/0'/0'");
+        const derive = jest
+          .spyOn(HDKey.prototype, 'derive')
+          .mockReturnValue(node);
+        const hmac = jest.spyOn(hmacModule, 'hmac');
+        const hkdf = jest.spyOn(hkdfModule, 'hkdf');
+        const root = await fromMnemonic({ mnemonic: MNEMONIC });
+        expect(derive).toHaveBeenCalledWith(
+          "m/83696968'/77698465'/77658375'/0'",
+        );
+        expect(hmac.mock.results[0]?.value).toStrictEqual(new Uint8Array(64));
+        hmac.mockRestore();
+        await root.deriveEncryptionKey({ purpose: PURPOSE });
+        expect(hkdf.mock.calls[0]?.[1]).toStrictEqual(
+          new Uint8Array(
+            Buffer.from(
+              'efecfbccffea313214232d29e71563d941229afb4338c21f9517c41aaa0d16f0',
+              'hex',
+            ),
           ),
-        ),
-      );
+        );
+      });
     });
 
     it.each([{}, { index: undefined }])(
