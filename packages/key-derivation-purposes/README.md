@@ -18,18 +18,18 @@ npm install @metamask/key-derivation-purposes
 ## Usage
 
 ```ts
-import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
+import { MONEY_ACCOUNT_MPC_DEVICE_SHARE_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
 
-const purpose = MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE;
+const purpose = MONEY_ACCOUNT_MPC_DEVICE_SHARE_ENCRYPTION_KEY_PURPOSE;
 ```
 
 ## Registry
 
-| Constant                                   | Owner          | Intended use                                      | Key type                         | Derivation scheme/helper                                                                                                                                       |
-| ------------------------------------------ | -------------- | ------------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE` | Money Accounts | Encrypt MPC device-share backups for MFA recovery | 32-byte symmetric encryption key | [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-wrapping-keys.md), `deriveEncryptionKey` in `@metamask/keyring-sdk` |
+| Constant                                                | Owner          | Intended use                                      | Key type                         | Derivation scheme/helper                                                                                                                                               |
+| ------------------------------------------------------- | -------------- | ------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MONEY_ACCOUNT_MPC_DEVICE_SHARE_ENCRYPTION_KEY_PURPOSE` | Money Accounts | Encrypt MPC device-share backups for MFA recovery | 32-byte symmetric encryption key | [ADR-0009](https://github.com/MetaMask/decisions/blob/main/decisions/accounts/0009-entropy-wrapping-keys.md), `KeyRoot.deriveEncryptionKey` in `@metamask/keyring-sdk` |
 
-The MFA constant's value is `metamask:money-account:mfa:encryption-key:v1`.
+The device-share constant's value is `metamask:money-account:mpc:device-share:encryption-key:v1`.
 
 ## Allocation rules
 
