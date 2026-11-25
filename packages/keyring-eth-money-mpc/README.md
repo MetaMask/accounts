@@ -20,13 +20,17 @@ Money keyring's `getMnemonic` callback, without an entropy-source argument.
 
 The keyring derives the backup encryption key using `KeyRoot.fromMnemonic` and
 `root.deriveEncryptionKey` with index `0` and the shared registry constant
-`MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE`
-(`metamask:money-account:mfa:encryption-key:v1`), using the SDK's MetaMask-specific
+`MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE`
+(`metamask:money-account:mpc:device-share:wrapping-key:v1`), using the SDK's MetaMask-specific
 BIP-85 root profile independently of share
 epochs. Recovery requires the same primary mnemonic. Backups encrypted using the
 old `getBackupEncryptionKey` callback are compatible only if it returned this same
 key; other existing backups require re-encryption before switching.
 The temporary root is destroyed after derivation, including when derivation fails.
+
+The wrapping key protects serialized device-share backups using AES-256-GCM,
+not AES-KW or AES-KWP. Each backup uses a fresh random 96-bit IV; decryption
+rejects authentication failures. The SDK method remains `deriveEncryptionKey`.
 
 ## Installation
 

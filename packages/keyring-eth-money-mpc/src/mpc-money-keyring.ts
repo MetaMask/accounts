@@ -7,7 +7,7 @@ import type {
   EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { hashEIP7702Authorization } from '@metamask/eth-sig-util';
-import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
+import { MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
 import { KeyRoot } from '@metamask/keyring-sdk';
 import { CL24DKM, CL24ThresholdKeySerializer } from '@metamask/mfa-wallet-cl24';
 import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
@@ -836,7 +836,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     });
     try {
       return await root.deriveEncryptionKey({
-        purpose: MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE,
+        purpose: MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE,
       });
     } finally {
       root.destroy();
