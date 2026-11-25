@@ -139,13 +139,13 @@ Derive a reproducible 32-byte symmetric encryption key from a BIP-39 mnemonic
 phrase string. Use it to encrypt application data or wrap key material:
 
 ```ts
-import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
+import { MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
 import { KeyRoot, fingerprint } from '@metamask/keyring-sdk';
 
 const root = await KeyRoot.fromMnemonic({ mnemonic }); // Defaults to index 0.
 try {
   const encryptionKey = await root.deriveEncryptionKey({
-    purpose: MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE,
+    purpose: MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE,
   });
   try {
     const encryptionKeyFingerprint = await fingerprint(encryptionKey);

@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Use wrapping-key terminology for the unreleased MPC device-share purpose, changing its derived keys and fingerprints without changing cryptographic algorithms ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Update the unreleased MPC encryption-purpose name and value to identify device shares explicitly, changing derived encryption keys and fingerprints ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 - Use a MetaMask-specific BIP-85 profile at `m/83696968'/77698465'/77658375'/index'` (`META'/MASK'`, decimal ASCII concatenation) and the first 32 bytes of its HMAC-SHA512 output for shared roots, changing unreleased derived keys and fingerprints ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 - Replace the unreleased flat derivation helpers with a `KeyRoot` class using native private storage and explicit `destroy()` cleanup ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
   - Zeroize the owned root buffer on destruction, reject further derivation and serialization, and wipe temporary seed and retained HD-node private data.

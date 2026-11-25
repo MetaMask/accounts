@@ -1,4 +1,4 @@
-import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
+import { MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
 import type { KeyDerivationPurpose } from '@metamask/key-derivation-purposes';
 import * as bip39 from '@metamask/scure-bip39';
 import * as hkdfModule from '@noble/hashes/hkdf';
@@ -11,7 +11,7 @@ import { KeyRoot } from './key-derivation';
 
 const MNEMONIC =
   'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
-const PURPOSE = MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE;
+const PURPOSE = MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE;
 
 describe('KeyRoot', () => {
   const roots: KeyRoot[] = [];
@@ -122,7 +122,7 @@ describe('KeyRoot', () => {
           await root.deriveEncryptionKey({ purpose: PURPOSE }),
         ).toString('hex'),
       ).toBe(
-        'db1c1829d8bc22f0467133f4ae788053ff25af3b0b7ed0c53bdaf313cdac3d02',
+        '7a170689f3de32aec28c3aae69c8399b058a5ec3a7096b75b090bb2553a81307',
       );
     });
 
@@ -199,22 +199,22 @@ describe('KeyRoot', () => {
         32,
       );
       expect(Buffer.from(key).toString('hex')).toBe(
-        'db1c1829d8bc22f0467133f4ae788053ff25af3b0b7ed0c53bdaf313cdac3d02',
+        '7a170689f3de32aec28c3aae69c8399b058a5ec3a7096b75b090bb2553a81307',
       );
       expect(await fingerprint(key)).toBe(
-        '6606d8d8-f199-4298-a03f-bfcb56c6e0d2',
+        '5f0806f9-d243-468e-a7fb-f5af49c14312',
       );
     });
 
     it.each([
-      [1, 'a354685af3ec8636016cc94d10707122fd78663cd44b2bd95a6b23158a4c95b9'],
+      [1, '0fdd6cbe70681c18b8735252354767911553c54a6d11f39b6a02b8fcc8800d83'],
       [
         0x7fffffff,
-        '3ccadceada099883b16022d08e1f47647100e93a8c3706a273481f9d85e068d2',
+        '07fe154de2f42d2bcee0ea7cc095a745cb0e20147ee3b1d2e846fa5c5de472f6',
       ],
       // Leading-zero key and root respectively.
-      [36, '0092902ff4fa54ecc6f3446a4919e9fec1d6933618de4a83efdc839768031fac'],
-      [96, 'b812da0c2b9e6d3ad1d1ecf83d58af06d9fc4b2d9c06c619a164e63c9319d58b'],
+      [243, '00d1bd6392885263624916b84bbec5f175cee4fe116c04b80251c6f188e54ec6'],
+      [96, 'ee11b6add69ab493f3860e956487261a0302895cf88b9e07a05f1b330e2a2ee2'],
     ])('matches the 32-byte key for index %s', async (index, expected) => {
       const root = await fromMnemonic({ mnemonic: MNEMONIC, index });
       const key = await root.deriveEncryptionKey({ purpose: PURPOSE });
@@ -224,8 +224,8 @@ describe('KeyRoot', () => {
 
     it.each<[KeyDerivationPurpose, string]>([
       [
-        'metamask:money-account:mfa:encryption-key:v2',
-        'c9cb38c01982d9f69aff51bdb9b610113c3eb7ae3b54386d857ebfa1ddd8bf1c',
+        'metamask:money-account:mpc:device-share:wrapping-key:v2',
+        '39319c24c48331860a8c7c85cc244b0c6b01259f4c2dcc6ea8cfbf369d14fb2c',
       ],
       [
         'metamask:encryption:🔑:v1',

@@ -1,4 +1,4 @@
-import { MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
+import { MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
 import { expectNotAssignable, expectType } from 'tsd';
 
 import { KeyRoot } from './key-derivation';
@@ -20,7 +20,7 @@ expectType<Promise<Uint8Array>>(
 );
 expectType<Promise<Uint8Array>>(
   root.deriveEncryptionKey({
-    purpose: MONEY_ACCOUNT_MFA_ENCRYPTION_KEY_PURPOSE,
+    purpose: MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE,
   }),
 );
 expectType<void>(root.destroy());
