@@ -4,10 +4,10 @@ A Keyring for Ethereum money accounts that uses Multi-Party Computation (MPC) fo
 
 The default export is the V1 `MpcMoneyKeyring` implementation. A V2 adapter that wraps it is available from `@metamask/eth-money-mpc-keyring/v2`.
 
-## Watch-only and signing accounts
+## Watch-only accounts and signers
 
 The constructor requires a tagged options object. Existing signing integrations
-must add `type: 'signing'` to their existing options. Watch-only integrations need
+must add `type: 'signer'` to their existing options. Watch-only integrations need
 only the cloud endpoint and authenticated profile-token callback:
 
 ```typescript
@@ -30,10 +30,10 @@ account exists. No background polling is performed.
 
 Public-only state is persisted with `type: 'watch-only'`. Deserialization is
 offline; the account remains available after restarting without contacting the
-backend. Signing state is persisted with `type: 'signing'`; existing untagged
+backend. Signer state is persisted with `type: 'signer'`; existing untagged
 signing state remains readable.
 
-To enable signing later, reconstruct the keyring with `type: 'signing'` and the
+To enable signing later, reconstruct the keyring with `type: 'signer'` and the
 required signing dependencies, deserialize its watch-only state, and explicitly
 call `setup()`. This path **only imports** the active backup and requires the
 existing mnemonic and MFA. It never falls back to key generation. The imported

@@ -63,7 +63,7 @@ import type {
   MpcMoneyKeyring as MpcMoneyKeyringContract,
   MpcMoneyKeyringInitializedState,
   MpcMoneyKeyringOpts,
-  MpcMoneyKeyringSigningOpts,
+  MpcMoneyKeyringSignerOpts,
   MpcMoneyKeyringWatchOnlyState,
   MpcMoneyKeyringSerializer,
   MpcMoneyKeyringState,
@@ -91,11 +91,11 @@ const SERVER_SHARE_INDEX = 1;
 const SIGNING_THRESHOLD = 2;
 const INITIAL_SHARE_EPOCH = 1;
 
-type SigningDependencies = {
+type SignerRuntime = {
   networkManager: CentrifugeNetworkManager;
   tss: Dkls23TssLib;
   dkm: CL24DKM;
-  getPrimaryMnemonic: MpcMoneyKeyringSigningOpts['getPrimaryMnemonic'];
+  getPrimaryMnemonic: MpcMoneyKeyringSignerOpts['getPrimaryMnemonic'];
 };
 
 const InitializedStorageStruct = type({
@@ -204,7 +204,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   readonly type: string = mpcMoneyKeyringType;
 
-  readonly #signing?: SigningDependencies;
+  readonly #signer?: SignerRuntime;
 
   #state?: MpcMoneyKeyringInitializedState | MpcMoneyKeyringWatchOnlyState;
 
@@ -230,8 +230,8 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       thresholdKey: new CL24ThresholdKeySerializer(),
       networkIdentity: new CentrifugeIdentitySerializer(),
     };
-    if (opts.type === 'signing') {
-      this.#signing = {
+    if (opts.type === 'signer') {
+      this.#signer = {
         dkm: new CL24DKM(opts.cl24Lib),
         tss: new Dkls23TssLib(opts.dkls23Lib),
         getPrimaryMnemonic: opts.getPrimaryMnemonic,
@@ -255,32 +255,36 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    * @returns Whether signing is available.
    */
   get canSign(): boolean {
-    return this.#signing !== undefined && this.#state?.type === 'signing';
+    return this.#signer !== undefined && this.#state?.type === 'signer';
+  }
+
+  get #isWatchOnly(): boolean {
+    return this.#state?.type === 'watch-only';
   }
 
   get #networkManager(): CentrifugeNetworkManager {
-    return this.#assertSigningDependencies().networkManager;
+    return this.#assertIsSigner().networkManager;
   }
 
   get #dkm(): CL24DKM {
-    return this.#assertSigningDependencies().dkm;
+    return this.#assertIsSigner().dkm;
   }
 
   get #tss(): Dkls23TssLib {
-    return this.#assertSigningDependencies().tss;
+    return this.#assertIsSigner().tss;
   }
 
   async #getPrimaryMnemonic(): Promise<number[]> {
-    return this.#assertSigningDependencies().getPrimaryMnemonic();
+    return this.#assertIsSigner().getPrimaryMnemonic();
   }
 
-  #assertSigningDependencies(): SigningDependencies {
-    if (!this.#signing) {
+  #assertIsSigner(): SignerRuntime {
+    if (!this.#signer) {
       throw new Error(
         'MpcMoneyKeyring: signing operations are not supported in watch-only mode',
       );
     }
-    return this.#signing;
+    return this.#signer;
   }
 
   /**
@@ -300,7 +304,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     const { netCreds, keyShare, serverNetId, shareEpoch, tssSetup } =
       this.#state;
     return {
-      type: 'signing',
+      type: 'signer',
       netCreds: this.#serializer.networkIdentity.toJson(netCreds),
       keyShare: this.#serializer.thresholdKey.toJson(keyShare),
       serverNetId,
@@ -323,7 +327,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       if (!is(state, WatchOnlyStorageStruct) || this.canSign) {
         throw new Error('Invalid watch-only state');
       }
-      this.#validatePublicKey(state.publicKey);
+      this.#assertPublicKey(state.publicKey);
       this.#state = {
         type: 'watch-only',
         publicKey: state.publicKey,
@@ -331,14 +335,14 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       };
       return;
     }
-    if ('type' in state && state.type !== 'signing') {
+    if ('type' in state && state.type !== 'signer') {
       throw new Error('Invalid state type');
     }
 
     if (is(state, InitializedStorageStruct)) {
-      this.#assertSigningDependencies();
+      this.#assertIsSigner();
       this.#state = {
-        type: 'signing',
+        type: 'signer',
         status: 'initialized',
         netCreds: this.#serializer.networkIdentity.fromJson(state.netCreds),
         keyShare: this.#serializer.thresholdKey.fromJson(state.keyShare),
@@ -378,12 +382,12 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         return;
       }
 
-      if (!this.#signing) {
-        if (this.#state?.type === 'watch-only') {
+      if (!this.#signer) {
+        if (this.#isWatchOnly) {
           return;
         }
         const check = await this.#checkRemote();
-        const publicKey = this.#committedPublicKey(check);
+        const publicKey = this.#getCommittedPublicKey(check);
         this.#state = {
           type: 'watch-only',
           publicKey,
@@ -392,7 +396,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         return;
       }
 
-      if (this.#state?.type === 'watch-only') {
+      if (this.#isWatchOnly) {
         await this.#setupImport();
         return;
       }
@@ -507,11 +511,11 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    * @returns Whether all remote epochs match the local share epoch.
    */
   async checkKeyShare(): Promise<boolean> {
-    if (this.#state?.type === 'watch-only') {
+    if (this.#isWatchOnly) {
       const check = await this.#checkRemote();
       return equalAddresses(
         publicKeyToAddressHex(
-          this.#validatePublicKey(this.#committedPublicKey(check)),
+          this.#assertPublicKey(this.#getCommittedPublicKey(check)),
         ),
         this.#address(),
       );
@@ -776,7 +780,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     const keyShare = await this.#decryptKeyShare(loaded.encryptedKeyShare);
 
     if (
-      this.#state?.type === 'watch-only' &&
+      this.#isWatchOnly &&
       !equalAddresses(
         publicKeyToAddressHex(keyShare.publicKey),
         this.#address(),
@@ -1005,15 +1009,15 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   #applyKeyState(state: MpcMoneyKeyringState): void {
     this.#state = {
-      type: 'signing',
+      type: 'signer',
       status: 'initialized',
       ...state,
     };
   }
 
   #assertState(): MpcMoneyKeyringState {
-    this.#assertSigningDependencies();
-    if (!this.#state || this.#state.type !== 'signing') {
+    this.#assertIsSigner();
+    if (!this.#state || this.#state.type !== 'signer') {
       throw new Error('Keyring not initialized');
     }
     return this.#state;
@@ -1022,7 +1026,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   #address(): Hex {
     if (this.#state?.type === 'watch-only') {
       return publicKeyToAddressHex(
-        this.#validatePublicKey(this.#state.publicKey),
+        this.#assertPublicKey(this.#state.publicKey),
       );
     }
     return publicKeyToAddressHex(this.#assertState().keyShare.publicKey);
@@ -1035,7 +1039,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     });
   }
 
-  #committedPublicKey(check: CheckKeyShareResult): string {
+  #getCommittedPublicKey(check: CheckKeyShareResult): string {
     if (
       !check.publicKey ||
       check.activeEpoch === undefined ||
@@ -1045,11 +1049,11 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
         'MpcMoneyKeyring: committed public key is unavailable; retry after activation',
       );
     }
-    this.#validatePublicKey(check.publicKey);
+    this.#assertPublicKey(check.publicKey);
     return check.publicKey;
   }
 
-  #validatePublicKey(publicKey: string): Uint8Array {
+  #assertPublicKey(publicKey: string): Uint8Array {
     if (!/^0x(?:[0-9a-fA-F]{2})+$/u.test(publicKey)) {
       throw new Error('MpcMoneyKeyring: invalid public key');
     }

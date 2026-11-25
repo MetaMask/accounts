@@ -61,11 +61,11 @@ export type Dkls23Lib = ConstructorParameters<typeof Dkls23TssLib>[0];
 export type MpcMoneyKeyringOpts = {
   cloudURL: string;
   getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
-} & ({ type: 'watch-only' } | MpcMoneyKeyringSigningOpts);
+} & ({ type: 'watch-only' } | MpcMoneyKeyringSignerOpts);
 
 /** Dependencies required to restore, create, and use signing shares. */
-export type MpcMoneyKeyringSigningOpts = {
-  type: 'signing';
+export type MpcMoneyKeyringSignerOpts = {
+  type: 'signer';
   cl24Lib: Cl24Lib;
   dkls23Lib: Dkls23Lib;
   relayerURL: string;
@@ -93,7 +93,7 @@ type JsonSerializer<Value> = {
 
 export type MpcMoneyKeyringInitializedState = {
   status: 'initialized';
-  type: 'signing';
+  type: 'signer';
 } & MpcMoneyKeyringState;
 
 /** Public-only account material, observed at a committed backend epoch. */

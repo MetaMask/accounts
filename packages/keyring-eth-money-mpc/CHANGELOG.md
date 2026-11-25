@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Require constructor options tagged with `type: 'watch-only'` or `type: 'signing'`; only signing options require MPC libraries, relayer configuration, and `getPrimaryMnemonic` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- **BREAKING:** Require constructor options tagged with `type: 'watch-only'` or `type: 'signer'`; only signer options require MPC libraries, relayer configuration, and `getPrimaryMnemonic` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 - Invoke idempotent setup for existing V2 accounts and refresh cached signing capabilities ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
 
 ## [0.4.0]

@@ -4,7 +4,7 @@ export { MFA_REQUIRED_CODE } from './types.js';
 export type {
   MoneyAccountSignatureRequest,
   MpcMoneyKeyringOpts,
-  MpcMoneyKeyringSigningOpts,
+  MpcMoneyKeyringSignerOpts,
   MpcMoneyKeyringSerializer,
   MpcMoneyKeyringState,
   MpcMoneyKeyringWatchOnlyState,

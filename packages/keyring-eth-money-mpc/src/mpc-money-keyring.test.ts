@@ -161,7 +161,7 @@ const makeThresholdKey = () => {
 };
 
 const makeSerializedState = (overrides: Record<string, unknown> = {}) => ({
-  type: 'signing',
+  type: 'signer',
   netCreds: { partyId: 'local-user' },
   keyShare: makeThresholdKey(),
   serverNetId: 'cloud-user',
@@ -197,7 +197,7 @@ const makeKeyring = (
   getPrimaryMnemonic = jest.fn().mockResolvedValue(mockMnemonicBytes),
 ) =>
   new MpcMoneyKeyring({
-    type: 'signing',
+    type: 'signer',
     cl24Lib: {} as never,
     dkls23Lib: {} as never,
     cloudURL: 'https://cloud.example',
@@ -429,7 +429,7 @@ describe('MpcMoneyKeyring', () => {
       expect(mockRegisterClient).toHaveBeenCalledTimes(1);
       expect(mockStartCreateKey).not.toHaveBeenCalled();
       expect(mockCheckKeyShare).not.toHaveBeenCalled();
-      expect(await keyring.serialize()).toMatchObject({ type: 'signing' });
+      expect(await keyring.serialize()).toMatchObject({ type: 'signer' });
       await expect(keyring.deserialize(watchState)).rejects.toThrow(
         'Invalid watch-only state',
       );
@@ -473,7 +473,7 @@ describe('MpcMoneyKeyring', () => {
       expect(await keyring.serialize()).toStrictEqual(makeSerializedState());
     });
 
-    it.each([{ type: 'unknown' }, { type: 'signing' }])(
+    it.each([{ type: 'unknown' }, { type: 'signer' }])(
       'rejects invalid tagged state %j',
       async (state) => {
         await expect(makeKeyring().deserialize(state)).rejects.toThrow(
@@ -488,7 +488,7 @@ describe('MpcMoneyKeyring', () => {
     const webSocket = { send: jest.fn() };
 
     const keyring = new MpcMoneyKeyring({
-      type: 'signing',
+      type: 'signer',
       cl24Lib: {} as never,
       dkls23Lib: {} as never,
       cloudURL: 'https://cloud.example',
@@ -664,7 +664,7 @@ describe('MpcMoneyKeyring', () => {
       epoch: 1,
     });
     expect(await keyring.serialize()).toStrictEqual({
-      type: 'signing',
+      type: 'signer',
       netCreds: { partyId: 'local-user' },
       keyShare: makeThresholdKey(),
       serverNetId: 'cloud-user',
@@ -900,7 +900,7 @@ describe('MpcMoneyKeyring', () => {
     expect(mockDklsSetup).not.toHaveBeenCalled();
     expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
     expect(await keyring.serialize()).toStrictEqual({
-      type: 'signing',
+      type: 'signer',
       netCreds: { partyId: 'imported-user' },
       keyShare: makeThresholdKey(),
       serverNetId: 'cloud-user',
@@ -1033,7 +1033,7 @@ describe('MpcMoneyKeyring', () => {
       epoch: 2,
     });
     expect(await keyring.serialize()).toStrictEqual({
-      type: 'signing',
+      type: 'signer',
       netCreds: { partyId: 'local-user' },
       keyShare: rotatedKey,
       serverNetId: 'cloud-user',
@@ -1081,7 +1081,7 @@ describe('MpcMoneyKeyring', () => {
 
     expect(getProfileToken).toHaveBeenCalledWith({ twoFactor: true });
     expect(await keyring.serialize()).toStrictEqual({
-      type: 'signing',
+      type: 'signer',
       netCreds: { partyId: 'local-user' },
       keyShare: syncedKey,
       serverNetId: 'cloud-user',
