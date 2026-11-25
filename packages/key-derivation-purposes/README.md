@@ -44,8 +44,8 @@ Wrapping means AES-256-GCM encryption of serialized device-share backups, not AE
   scheme version.
 - This registry is not an allowlist. SDK helpers also accept correctly formatted
   consumer-defined purposes without requiring a registry or SDK release.
-- The TypeScript format type is not a substitute for runtime validation by the
-  derivation helper.
+- Callers are responsible for the purpose format; the TypeScript type cannot
+  enforce every constraint, and SDK helpers do not validate it at runtime.
 
 Keep this package limited to constants, types, and documentation. It has no
 runtime registration framework, secrets, or per-user state.

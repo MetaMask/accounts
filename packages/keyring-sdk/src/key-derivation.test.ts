@@ -101,15 +101,6 @@ describe('KeyRoot', () => {
       );
     });
 
-    it('rejects byte representations', async () => {
-      await expect(
-        KeyRoot.fromMnemonic({
-          // @ts-expect-error Intentionally pass bytes for runtime validation.
-          mnemonic: new TextEncoder().encode(MNEMONIC),
-        }),
-      ).rejects.toThrow('expected a BIP-39 phrase string');
-    });
-
     it('normalizes the phrase using NFKD', async () => {
       const mnemonic = Array.from(MNEMONIC, (character) =>
         character === ' '
@@ -282,27 +273,6 @@ describe('KeyRoot', () => {
           purpose: PURPOSE,
         }),
       ).rejects.toThrow(TypeError);
-    });
-
-    it.each([
-      '',
-      undefined,
-      1,
-      'example:v1',
-      'metamask::v1',
-      'metamask:example',
-      'metamask:example:v-1',
-      'metamask:example:v1.5',
-      'metamask:example:v1e2',
-      'metamask:example:v1\n',
-    ])('rejects invalid purpose %s', async (purpose) => {
-      const root = await fromMnemonic({ mnemonic: MNEMONIC });
-      await expect(
-        root.deriveEncryptionKey({
-          // @ts-expect-error Intentionally pass invalid purposes for runtime validation.
-          purpose,
-        }),
-      ).rejects.toThrow('Invalid key purpose');
     });
   });
 

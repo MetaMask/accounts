@@ -51,9 +51,6 @@ export class KeyRoot {
         'Invalid key index: expected an integer from 0 to 2^31 - 1',
       );
     }
-    if (typeof mnemonic !== 'string') {
-      throw new Error('Invalid mnemonic: expected a BIP-39 phrase string');
-    }
     const normalizedMnemonic = mnemonic.normalize('NFKD');
     if (!validateMnemonic(normalizedMnemonic, wordlist)) {
       throw new Error(
@@ -71,12 +68,15 @@ export class KeyRoot {
       if (!node.privateKey) {
         throw new Error('Failed to derive key root');
       }
+      // BIP-85 specifies HMAC-SHA512(key="bip-entropy-from-k", msg=k), where
+      // k is the raw 32-byte child private key, including leading zeros.
+      // https://github.com/bitcoin/bips/blob/master/bip-0085.mediawiki#specification
       entropy = hmac(
         sha512,
         new TextEncoder().encode('bip-entropy-from-k'),
         node.privateKey,
       );
-      // Copy rather than retain a view into the temporary entropy buffer.
+      // Our profile uses a 256-bit root. Copy so the full BIP-85 output can be wiped.
       return new KeyRoot(entropy.slice(0, 32));
     } finally {
       seed.fill(0);
@@ -93,10 +93,11 @@ export class KeyRoot {
    *
    * @param options - Encryption-key derivation options.
    * @param options.purpose - Stable, versioned purpose. Retain its exact value
-   * and the effective root index with recoverable encrypted data.
+   * and the effective root index with recoverable encrypted data. Callers are
+   * responsible for following the purpose format; it is not checked at runtime.
    * @returns Independent raw key bytes, owned and eventually cleared by the
    * caller. Destroying the root does not clear already-derived keys.
-   * @throws If the root is destroyed or the purpose is invalid.
+   * @throws If the root is destroyed.
    */
   async deriveEncryptionKey({
     purpose,
@@ -105,14 +106,6 @@ export class KeyRoot {
   }): Promise<Uint8Array> {
     if (this.#destroyed) {
       throw new Error('Key root has been destroyed');
-    }
-    if (
-      typeof purpose !== 'string' ||
-      !/^metamask:.+:v[0-9]+(?![\s\S])/u.test(purpose)
-    ) {
-      throw new Error(
-        'Invalid key purpose: expected metamask:<scope>:v<non-negative integer>',
-      );
     }
     return hkdf(
       sha256,

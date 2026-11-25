@@ -159,6 +159,7 @@ try {
 ```
 
 - Choose a unique, stable `purpose` matching `metamask:<scope>:v<version>` (a non-negative integer version), and an `index` from `0` to `2^31 - 1`. The index defaults to `0` when omitted or `undefined`; pass it explicitly for other generations, such as `KeyRoot.fromMnemonic({ mnemonic, index: 1 })`.
+  Callers are responsible for the purpose format; the SDK does not validate it at runtime, and the TypeScript type cannot enforce every constraint.
 - Retain the exact purpose and effective index with encrypted data so the key can be recovered, including `0` when using the default.
 - Shared constants and the `KeyDerivationPurpose` type live in
   `@metamask/key-derivation-purposes`; the SDK also re-exports the type. This

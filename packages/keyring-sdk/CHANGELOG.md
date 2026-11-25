@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add mnemonic-derived cryptographic key support with purpose-based derivation ([#706](https://github.com/MetaMask/accounts/pull/706))
+- Add mnemonic-derived cryptographic key support with caller-defined derivation purposes ([#706](https://github.com/MetaMask/accounts/pull/706))
 
 ## [4.2.1]
 
