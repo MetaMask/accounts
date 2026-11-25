@@ -1,0 +1,6 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": { "baseUrl": "./" },
+  "include": ["./src", "./jest.config.ts"],
+  "exclude": ["./dist/**/*"]
+}
