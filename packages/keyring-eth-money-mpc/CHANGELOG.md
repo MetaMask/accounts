@@ -9,14 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Name the unreleased device-share purpose a wrapping key and document AES-GCM backup protection without changing the algorithm; the new purpose value changes derived backup keys ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-- Rename the unreleased encryption purpose to identify MPC device shares explicitly, changing backup encryption keys ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-- Follow the SDK's MetaMask-specific BIP-85 root profile for backup encryption keys, changing the keys derived by the unreleased implementation ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-- Adopt the SDK `KeyRoot` class for backup encryption-key derivation and destroy temporary roots on success or failure ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
-- **BREAKING:** Replace `getBackupEncryptionKey` with `getPrimaryMnemonic` and derive device-share backup encryption keys using the SDK encryption-key helpers ([#707](https://github.com/MetaMask/accounts/pull/707))
-  - The callback returns the primary mnemonic as UTF-8 byte values without an entropy-source argument.
-  - Use index `0` and purpose `metamask:money-account:mpc:device-share:wrapping-key:v1`, independently of MPC share epochs.
-  - Use the shared purpose registry and the MetaMask-specific BIP-85 derivation namespace.
+- **BREAKING:** Replace `getBackupEncryptionKey` with `getPrimaryMnemonic` and derive device-share backup keys using the SDK and shared purpose registry ([#707](https://github.com/MetaMask/accounts/pull/707))
+  - Return the primary mnemonic as UTF-8 byte values from the new callback; it takes no arguments.
   - Backups encrypted with a different key must be re-encrypted before switching.
 
 ### Removed

@@ -835,8 +835,9 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       index: BACKUP_ENCRYPTION_KEY_INDEX,
     });
     try {
-      return await root.deriveEncryptionKey({
+      return await root.deriveSecret({
         purpose: MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE,
+        length: 32,
       });
     } finally {
       root.destroy();

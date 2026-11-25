@@ -528,7 +528,7 @@ describe('MpcMoneyKeyring', () => {
   it('destroys the temporary root when backup key derivation fails', async () => {
     const destroy = jest.spyOn(KeyRoot.prototype, 'destroy');
     jest
-      .spyOn(KeyRoot.prototype, 'deriveEncryptionKey')
+      .spyOn(KeyRoot.prototype, 'deriveSecret')
       .mockRejectedValueOnce(new Error('Key derivation failed'));
     const keyring = makeKeyring();
 
