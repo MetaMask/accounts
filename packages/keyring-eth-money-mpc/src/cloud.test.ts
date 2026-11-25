@@ -454,6 +454,31 @@ describe('cloud helpers', () => {
     });
   });
 
+  it('returns optional public key metadata', async () => {
+    const response = {
+      latestShareEpoch: 1,
+      activeEpoch: 1,
+      publicKey: '0x010203',
+    };
+    okJson(response);
+    expect(
+      await checkKeyShare({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+      }),
+    ).toStrictEqual(response);
+  });
+
+  it.each([null, 123, ''])(
+    'rejects malformed public key metadata: %j',
+    async (publicKey) => {
+      okJson({ publicKey });
+      await expect(
+        checkKeyShare({ baseURL: 'https://cloud.example', token: 'token-1' }),
+      ).rejects.toThrow('bad response format');
+    },
+  );
+
   it('rejects key share epoch metadata with the wrong shape', async () => {
     okJson({ activeEpoch: '1' });
 

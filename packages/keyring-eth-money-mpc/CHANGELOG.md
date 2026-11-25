@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add authenticated watch-only account discovery, public-only persistence, and import-only promotion to signing accounts while preserving account identity ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Add the V1 `canSign` getter and expose no V2 signing methods until signing material is initialized ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
+### Changed
+
+- **BREAKING:** Require constructor options tagged with `type: 'watch-only'` or `type: 'signing'`; only signing options require MPC libraries, relayer configuration, and `getPrimaryMnemonic` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Invoke idempotent setup for existing V2 accounts and refresh cached signing capabilities ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ## [0.4.0]
 
 ### Changed

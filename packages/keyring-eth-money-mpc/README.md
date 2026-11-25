@@ -4,6 +4,51 @@ A Keyring for Ethereum money accounts that uses Multi-Party Computation (MPC) fo
 
 The default export is the V1 `MpcMoneyKeyring` implementation. A V2 adapter that wraps it is available from `@metamask/eth-money-mpc-keyring/v2`.
 
+## Watch-only and signing accounts
+
+The constructor requires a tagged options object. Existing signing integrations
+must add `type: 'signing'` to their existing options. Watch-only integrations need
+only the cloud endpoint and authenticated profile-token callback:
+
+```typescript
+const keyring = new MpcMoneyKeyring({
+  type: 'watch-only',
+  cloudURL: 'https://mpc.example/v2',
+  getProfileToken,
+});
+await keyring.setup();
+const [address] = await keyring.getAccounts();
+```
+
+Watch-only setup calls `check-key-share` and accepts its public key only when
+`activeEpoch` is present and equals `latestShareEpoch` in that same response.
+It never creates, imports, backs up, or activates a share, opens a relayer session,
+or asks for a mnemonic. A missing key, older backend without public-key support,
+or pending share produces an error that the caller can retry. With the current
+API, a pending rotation obscures the active public key even though an active
+account exists. No background polling is performed.
+
+Public-only state is persisted with `type: 'watch-only'`. Deserialization is
+offline; the account remains available after restarting without contacting the
+backend. Signing state is persisted with `type: 'signing'`; existing untagged
+signing state remains readable.
+
+To enable signing later, reconstruct the keyring with `type: 'signing'` and the
+required signing dependencies, deserialize its watch-only state, and explicitly
+call `setup()`. This path **only imports** the active backup and requires the
+existing mnemonic and MFA. It never falls back to key generation. The imported
+address must match the watch-only account before client registration and local
+state replacement. Failure preserves public-only state for retry. Loading signing
+state into a watch-only constructor is unsupported.
+
+The V1 `canSign` getter reports effective capability, not the constructor option.
+The V2 adapter exposes `methods: []` until signing material is ready, then exposes
+the supported signing methods without changing the account ID or address.
+`createAccounts({ type: 'custom' })` always invokes idempotent setup, including
+when an account already exists, to support this transition. Consumers that cache
+account metadata must refresh and persist it after successful setup. The keyring
+type remains `MPC Money Keyring` in both configurations.
+
 ## MFA
 
 The backend decides which signature requests require MFA, using [`getMfaRequirement`](https://github.com/MetaMask/core/tree/main/packages/money-account-mfa-whitelist). The keyring doesn't check the request itself, so the backend can change its whitelist without a client update.

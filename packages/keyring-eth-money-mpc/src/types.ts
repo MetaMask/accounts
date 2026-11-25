@@ -59,12 +59,17 @@ export type Cl24Lib = ConstructorParameters<typeof CL24DKM>[0];
 export type Dkls23Lib = ConstructorParameters<typeof Dkls23TssLib>[0];
 
 export type MpcMoneyKeyringOpts = {
+  cloudURL: string;
+  getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
+} & ({ type: 'watch-only' } | MpcMoneyKeyringSigningOpts);
+
+/** Dependencies required to restore, create, and use signing shares. */
+export type MpcMoneyKeyringSigningOpts = {
+  type: 'signing';
   cl24Lib: Cl24Lib;
   dkls23Lib: Dkls23Lib;
-  cloudURL: string;
   relayerURL: string;
   getTransportToken?: () => Promise<string>;
-  getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
   /**
    * Resolve the wallet's primary mnemonic as UTF-8 byte values, not packed word
    * indices. Recovery requires the same mnemonic used to encrypt the backup.
@@ -88,7 +93,15 @@ type JsonSerializer<Value> = {
 
 export type MpcMoneyKeyringInitializedState = {
   status: 'initialized';
+  type: 'signing';
 } & MpcMoneyKeyringState;
+
+/** Public-only account material, observed at a committed backend epoch. */
+export type MpcMoneyKeyringWatchOnlyState = {
+  type: 'watch-only';
+  publicKey: string;
+  activeEpoch: number;
+};
 
 export type MpcMoneyKeyringSerializer = {
   thresholdKey: JsonSerializer<CL24ThresholdKey>;
@@ -100,11 +113,12 @@ export type MpcMoneyKeyringSerializer = {
  * by the V2 adapter.
  */
 export type MpcMoneyKeyring = EthKeyring & {
+  /** Whether signing material is initialized and signing is permitted. */
+  readonly canSign: boolean;
   /**
-   * Run key generation or import.
-   *
-   * The mode is inferred from the backend: import when a key share or
-   * backup exists for the profile, create otherwise.
+   * Discover a committed watch-only account or initialize signing material.
+   * Persisted watch-only accounts are imported, never recreated. Fresh signing
+   * instances import when an active epoch exists and create otherwise.
    */
   setup(): Promise<void>;
 

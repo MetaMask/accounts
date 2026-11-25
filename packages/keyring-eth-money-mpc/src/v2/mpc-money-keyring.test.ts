@@ -31,6 +31,7 @@ const EXPECTED_METHODS = MPC_MONEY_KEYRING_METHODS;
  * for testing.
  */
 type MockMpcMoneyKeyringV1 = {
+  canSign: boolean;
   type: string;
   getAccounts: jest.Mock;
   setup: jest.Mock;
@@ -54,6 +55,7 @@ type MockMpcMoneyKeyringV1 = {
  */
 function createInner(): MockMpcMoneyKeyringV1 {
   return {
+    canSign: true,
     type: 'MPC Money Keyring',
     getAccounts: jest.fn().mockResolvedValue([] as Hex[]),
     setup: jest.fn().mockResolvedValue(undefined),
@@ -154,6 +156,31 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
   });
 
   describe('getAccounts', () => {
+    it('exposes no signing methods until the underlying account can sign', async () => {
+      const { wrapper, inner } = setup({ accounts: [MOCK_ADDRESS] });
+      inner.canSign = false;
+      const [account] = await wrapper.getAccounts();
+      expect(account?.methods).toStrictEqual([]);
+      const accountId = account?.id ?? ('' as AccountId);
+      await expect(
+        wrapper.submitRequest(
+          createMockRequest(accountId, EthMethod.PersonalSign, [
+            '0x01',
+            MOCK_ADDRESS,
+          ]),
+        ),
+      ).rejects.toThrow('cannot handle method');
+      expect(inner.signPersonalMessage).not.toHaveBeenCalled();
+      inner.setup.mockImplementation(async () => {
+        inner.canSign = true;
+      });
+      const [promoted] = await wrapper.createAccounts({ type: 'custom' });
+      expect(promoted?.id).toBe(accountId);
+      expect((await wrapper.getAccount(accountId)).methods).toStrictEqual(
+        EXPECTED_METHODS,
+      );
+    });
+
     it('returns an empty list when the inner keyring is not initialized', async () => {
       const { wrapper } = setup();
 
@@ -203,9 +230,9 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
   describe('createAccounts', () => {
     it('runs setup via the inner keyring', async () => {
       const { wrapper, inner } = setup();
-      inner.getAccounts
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([MOCK_ADDRESS]);
+      inner.setup.mockImplementation(async () => {
+        inner.getAccounts.mockResolvedValue([MOCK_ADDRESS]);
+      });
 
       const accounts = await wrapper.createAccounts({ type: 'custom' });
 
@@ -219,7 +246,7 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
 
       const accounts = await wrapper.createAccounts({ type: 'custom' });
 
-      expect(inner.setup).not.toHaveBeenCalled();
+      expect(inner.setup).toHaveBeenCalledTimes(1);
       expect(accounts).toHaveLength(1);
       expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
     });
@@ -307,13 +334,12 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
       expect(accounts).toHaveLength(1);
       expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
 
-      // The registry was rebuilt during deserialization, so `getAccount`
-      // resolves from the cache without consulting the inner keyring again.
+      // Refresh capabilities even when the account is already cached.
       const callCount = inner.getAccounts.mock.calls.length;
       expect(
         await wrapper.getAccount(accounts[0]?.id ?? ('' as AccountId)),
       ).toBeDefined();
-      expect(inner.getAccounts).toHaveBeenCalledTimes(callCount);
+      expect(inner.getAccounts).toHaveBeenCalledTimes(callCount + 1);
     });
   });
 
