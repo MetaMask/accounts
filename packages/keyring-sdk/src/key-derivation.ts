@@ -116,10 +116,11 @@ export class KeyRoot {
         'Invalid secret length: expected an integer from 1 to 8160',
       );
     }
+    const salt = new Uint8Array(32);
     return hkdf(
       sha256,
       this.#bytes,
-      new Uint8Array(32),
+      salt,
       new TextEncoder().encode(purpose),
       length,
     );
