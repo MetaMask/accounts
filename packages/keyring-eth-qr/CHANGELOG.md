@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Reject children paths that do not contain exactly one `*` wildcard, instead of partially substituting them ([#721](https://github.com/MetaMask/accounts/pull/721))
+  - Pairing a device now fails early with an explicit error, and deriving an address or resolving its path from an already-restored invalid state throws the same error.
+
 ## [3.0.2]
 
 ### Changed
