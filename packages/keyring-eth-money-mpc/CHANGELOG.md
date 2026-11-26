@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **BREAKING:** Replace `getBackupEncryptionKey` with `getPrimaryMnemonic` and derive device-share backup keys using the SDK and shared purpose registry ([#707](https://github.com/MetaMask/accounts/pull/707)), ([#719](https://github.com/MetaMask/accounts/pull/719))
+- **BREAKING:** Replace `getBackupEncryptionKey` with `getPrimaryMnemonic` and derive device-share backup keys using the SDK and shared purpose registry ([#707](https://github.com/MetaMask/accounts/pull/707), [#719](https://github.com/MetaMask/accounts/pull/719))
   - Return the primary mnemonic as UTF-8 byte values from the new callback; it takes no arguments.
   - Backups encrypted with a different key must be re-encrypted before switching.
   - Clear derived wrapping-key buffers after backup encryption or decryption, including on failure.
@@ -80,7 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release of `@metamask/eth-money-mpc-keyring` ([#627](https://github.com/MetaMask/accounts/pull/627), [#641](https://github.com/MetaMask/accounts/pull/641)), [#673](https://github.com/MetaMask/accounts/pull/673))
+- Initial release of `@metamask/eth-money-mpc-keyring`, [#673](https://github.com/MetaMask/accounts/pull/673)) ([#627](https://github.com/MetaMask/accounts/pull/627), [#641](https://github.com/MetaMask/accounts/pull/641))
 
 ### Changed
 

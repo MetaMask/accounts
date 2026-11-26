@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add the shared purpose registry ([#711](https://github.com/MetaMask/accounts/pull/711)), ([#706](https://github.com/MetaMask/accounts/pull/706))
+- Add the shared purpose registry ([#711](https://github.com/MetaMask/accounts/pull/711), [#706](https://github.com/MetaMask/accounts/pull/706))
   - Add `KeyDerivationPurpose` type.
   - Add `Purpose` const object and type.
 
