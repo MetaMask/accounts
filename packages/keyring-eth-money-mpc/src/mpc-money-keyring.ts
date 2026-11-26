@@ -83,9 +83,6 @@ const CLIENT_SHARE_INDEX = 0;
 const SERVER_SHARE_INDEX = 1;
 const SIGNING_THRESHOLD = 2;
 const INITIAL_SHARE_EPOCH = 1;
-// This generation is independent of MPC share epochs. Keep both parameters
-// stable so backups remain recoverable across clients and restores.
-const BACKUP_ENCRYPTION_KEY_INDEX = 0;
 
 const InitializedStorageStruct = type({
   netCreds: JsonStruct,
@@ -832,7 +829,6 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     );
     const root = await KeyRoot.fromMnemonic({
       mnemonic,
-      index: BACKUP_ENCRYPTION_KEY_INDEX,
     });
     try {
       return await root.deriveSecret({
