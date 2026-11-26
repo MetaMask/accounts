@@ -12,6 +12,25 @@ The keyring first calls `/sign` with a profile token without 2FA, and sends the 
 
 Key generation, import, share rotation, share sync, and transaction signing always use a 2FA token.
 
+## Device-share backups
+
+Provide `getPrimaryMnemonic: () => Promise<number[]>` when constructing the keyring.
+The callback takes no arguments and returns the wallet's primary mnemonic as UTF-8 byte values.
+
+The keyring uses the SDK's MetaMask-specific BIP-85 profile through `KeyRoot.fromMnemonic` and `root.deriveSecret`:
+
+- **Index:** `0`, independent of share epochs.
+- **Length:** `32` bytes.
+- **Purpose:** `Purpose.MoneyAccountMpcDeviceShareWrappingKey` (`metamask:money-account:mpc:device-share:wrapping-key:v1`).
+
+The keyring destroys the temporary root on success or failure.
+It uses the derived secret to encrypt serialized backups with AES-256-GCM, not AES-KW or AES-KWP.
+Each backup uses a fresh random 96-bit IV. Decryption rejects authentication failures.
+
+Recovery requires the same primary mnemonic.
+Backups from `getBackupEncryptionKey` remain compatible only if that callback returned the same key.
+Otherwise, re-encrypt existing backups before switching.
+
 ## Installation
 
 `yarn add @metamask/eth-money-mpc-keyring`

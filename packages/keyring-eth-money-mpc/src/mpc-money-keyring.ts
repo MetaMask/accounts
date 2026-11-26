@@ -7,6 +7,8 @@ import type {
   EIP7702Authorization,
 } from '@metamask/eth-sig-util';
 import { hashEIP7702Authorization } from '@metamask/eth-sig-util';
+import { Purpose } from '@metamask/key-derivation-purposes';
+import { KeyRoot } from '@metamask/keyring-sdk';
 import { CL24DKM, CL24ThresholdKeySerializer } from '@metamask/mfa-wallet-cl24';
 import type { CL24ThresholdKey } from '@metamask/mfa-wallet-cl24';
 import { Dkls23TssLib } from '@metamask/mfa-wallet-dkls23';
@@ -196,7 +198,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   readonly #getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
 
-  readonly #getBackupEncryptionKey: () => Promise<Uint8Array>;
+  readonly #getPrimaryMnemonic: MpcMoneyKeyringOpts['getPrimaryMnemonic'];
 
   #opQueue: Promise<void> = Promise.resolve();
 
@@ -224,7 +226,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       ...(opts.webSocket === undefined ? {} : { websocket: opts.webSocket }),
     });
     this.#getProfileToken = opts.getProfileToken;
-    this.#getBackupEncryptionKey = opts.getBackupEncryptionKey;
+    this.#getPrimaryMnemonic = opts.getPrimaryMnemonic;
   }
 
   /**
@@ -820,8 +822,26 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     return this.#networkManager.createSession(netCreds, sessionId);
   }
 
+  async #deriveBackupEncryptionKey(): Promise<Uint8Array> {
+    const mnemonicBytes = await this.#getPrimaryMnemonic();
+    const mnemonic = new TextDecoder('utf-8', { fatal: true }).decode(
+      Uint8Array.from(mnemonicBytes),
+    );
+    const root = await KeyRoot.fromMnemonic({
+      mnemonic,
+    });
+    try {
+      return await root.deriveSecret({
+        purpose: Purpose.MoneyAccountMpcDeviceShareWrappingKey,
+        length: 32,
+      });
+    } finally {
+      root.destroy();
+    }
+  }
+
   async #encryptKeyShare(keyShare: CL24ThresholdKey): Promise<Uint8Array> {
-    const key = await this.#getBackupEncryptionKey();
+    const key = await this.#deriveBackupEncryptionKey();
     const plaintext = new TextEncoder().encode(
       JSON.stringify(this.#serializer.thresholdKey.toJson(keyShare)),
     );
@@ -834,7 +854,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   async #decryptKeyShare(
     encryptedKeyShare: Uint8Array,
   ): Promise<CL24ThresholdKey> {
-    const key = await this.#getBackupEncryptionKey();
+    const key = await this.#deriveBackupEncryptionKey();
     const plaintext = await decryptBytes(key, encryptedKeyShare);
     return this.#serializer.thresholdKey.fromJson(
       JSON.parse(new TextDecoder().decode(plaintext)) as Json,

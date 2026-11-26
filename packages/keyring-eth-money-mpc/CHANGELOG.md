@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING:** Replace `getBackupEncryptionKey` with `getPrimaryMnemonic` and derive device-share backup keys using the SDK and shared purpose registry ([#707](https://github.com/MetaMask/accounts/pull/707))
+  - Return the primary mnemonic as UTF-8 byte values from the new callback; it takes no arguments.
+  - Backups encrypted with a different key must be re-encrypted before switching.
+
 ### Removed
 
 - **BREAKING:** Remove the `isMfaRequired` option, so the backend alone decides whether a signature requires MFA ([#703](https://github.com/MetaMask/accounts/pull/703))
