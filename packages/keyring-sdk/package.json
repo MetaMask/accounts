@@ -1,6 +1,6 @@
 {
   "name": "@metamask/keyring-sdk",
-  "version": "4.2.1",
+  "version": "4.3.0",
   "description": "MetaMask Keyring SDK",
   "keywords": [
     "keyring",
@@ -67,7 +67,7 @@
   "dependencies": {
     "@ethereumjs/tx": "^5.4.0",
     "@metamask/eth-sig-util": "^10.0.0",
-    "@metamask/key-derivation-purposes": "^0.0.0",
+    "@metamask/key-derivation-purposes": "^0.1.0",
     "@metamask/keyring-api": "^24.3.0",
     "@metamask/keyring-utils": "^5.0.0",
     "@metamask/scure-bip39": "^2.1.1",
