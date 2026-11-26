@@ -107,7 +107,7 @@ export class MpcMoneyKeyring
       type: EthAccountType.Eoa,
       address,
       scopes: [...this.capabilities.scopes],
-      methods: [...MPC_MONEY_KEYRING_METHODS],
+      methods: this.inner.canSign ? [...MPC_MONEY_KEYRING_METHODS] : [],
       options: {
         entropy: {
           type: KeyringAccountEntropyTypeOption.Mpc,
@@ -128,6 +128,7 @@ export class MpcMoneyKeyring
     const existingAccount = this.registry.get(account.id);
 
     if (existingAccount) {
+      existingAccount.methods = account.methods;
       return existingAccount;
     }
 
@@ -154,11 +155,6 @@ export class MpcMoneyKeyring
         );
       }
 
-      const accounts = await this.getAccounts();
-      if (accounts.length > 0) {
-        return accounts;
-      }
-
       await this.inner.setup();
 
       const [createdAccount] = await this.getAccounts();
@@ -177,6 +173,17 @@ export class MpcMoneyKeyring
    */
   async deleteAccount(_accountId: AccountId): Promise<void> {
     throw new Error('MpcMoneyKeyring: deleting accounts is not supported');
+  }
+
+  /**
+   * Refresh capabilities before returning an account from the registry.
+   *
+   * @param accountId - The account ID.
+   * @returns The account with current signing capabilities.
+   */
+  async getAccount(accountId: AccountId): Promise<KeyringAccount> {
+    await this.getAccounts();
+    return super.getAccount(accountId);
   }
 
   /**

@@ -31,6 +31,7 @@ const CheckKeyShareResponseStruct = type({
   latestShareEpoch: exactOptional(shareEpochStruct),
   latestBackupEpoch: exactOptional(shareEpochStruct),
   activeEpoch: exactOptional(shareEpochStruct),
+  publicKey: exactOptional(nonempty(string())),
 });
 
 export type CheckKeyShareResult = Infer<typeof CheckKeyShareResponseStruct>;

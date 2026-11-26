@@ -1,4 +1,8 @@
-import { hashPersonalMessage, isHexString } from '@ethereumjs/util';
+import {
+  hashPersonalMessage,
+  isHexString,
+  isValidPublic,
+} from '@ethereumjs/util';
 import type {
   TypedDataV1,
   TypedMessage,
@@ -26,6 +30,7 @@ import {
 import {
   integer,
   is,
+  literal,
   min,
   nonempty,
   nullable,
@@ -58,6 +63,8 @@ import type {
   MpcMoneyKeyring as MpcMoneyKeyringContract,
   MpcMoneyKeyringInitializedState,
   MpcMoneyKeyringOpts,
+  MpcMoneyKeyringSignerOpts,
+  MpcMoneyKeyringWatchOnlyState,
   MpcMoneyKeyringSerializer,
   MpcMoneyKeyringState,
   ProfileTokenOpts,
@@ -84,12 +91,25 @@ const SERVER_SHARE_INDEX = 1;
 const SIGNING_THRESHOLD = 2;
 const INITIAL_SHARE_EPOCH = 1;
 
+type SignerRuntime = {
+  networkManager: CentrifugeNetworkManager;
+  tss: Dkls23TssLib;
+  dkm: CL24DKM;
+  getPrimaryMnemonic: MpcMoneyKeyringSignerOpts['getPrimaryMnemonic'];
+};
+
 const InitializedStorageStruct = type({
   netCreds: JsonStruct,
   keyShare: JsonStruct,
   serverNetId: nonempty(string()),
   shareEpoch: min(integer(), 1),
   tssSetup: nullable(string()),
+});
+
+const WatchOnlyStorageStruct = type({
+  type: literal('watch-only'),
+  publicKey: nonempty(string()),
+  activeEpoch: min(integer(), 1),
 });
 
 /**
@@ -184,21 +204,15 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   readonly type: string = mpcMoneyKeyringType;
 
-  readonly #networkManager: CentrifugeNetworkManager;
+  readonly #signer?: SignerRuntime;
 
-  readonly #tss: Dkls23TssLib;
-
-  readonly #dkm: CL24DKM;
-
-  #state?: MpcMoneyKeyringInitializedState;
+  #state?: MpcMoneyKeyringInitializedState | MpcMoneyKeyringWatchOnlyState;
 
   readonly #cloudURL: string;
 
   readonly #serializer: MpcMoneyKeyringSerializer;
 
   readonly #getProfileToken: (opts?: ProfileTokenOpts) => Promise<string>;
-
-  readonly #getPrimaryMnemonic: MpcMoneyKeyringOpts['getPrimaryMnemonic'];
 
   #opQueue: Promise<void> = Promise.resolve();
 
@@ -211,22 +225,66 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    * @param opts - TSS libraries, backend URLs, and token callbacks.
    */
   constructor(opts: MpcMoneyKeyringOpts) {
-    this.#dkm = new CL24DKM(opts.cl24Lib);
-    this.#tss = new Dkls23TssLib(opts.dkls23Lib);
     this.#cloudURL = opts.cloudURL;
     this.#serializer = {
       thresholdKey: new CL24ThresholdKeySerializer(),
       networkIdentity: new CentrifugeIdentitySerializer(),
     };
-    this.#networkManager = new CentrifugeNetworkManager({
-      url: opts.relayerURL,
-      ...(opts.getTransportToken && {
-        getToken: opts.getTransportToken,
-      }),
-      ...(opts.webSocket === undefined ? {} : { websocket: opts.webSocket }),
-    });
+    if (opts.type === 'signer') {
+      this.#signer = {
+        dkm: new CL24DKM(opts.cl24Lib),
+        tss: new Dkls23TssLib(opts.dkls23Lib),
+        getPrimaryMnemonic: opts.getPrimaryMnemonic,
+        networkManager: new CentrifugeNetworkManager({
+          url: opts.relayerURL,
+          ...(opts.getTransportToken && {
+            getToken: opts.getTransportToken,
+          }),
+          ...(opts.webSocket === undefined
+            ? {}
+            : { websocket: opts.webSocket }),
+        }),
+      };
+    }
     this.#getProfileToken = opts.getProfileToken;
-    this.#getPrimaryMnemonic = opts.getPrimaryMnemonic;
+  }
+
+  /**
+   * Whether this instance has signing material ready for use.
+   *
+   * @returns Whether signing is available.
+   */
+  get canSign(): boolean {
+    return this.#signer !== undefined && this.#state?.type === 'signer';
+  }
+
+  get #isWatchOnly(): boolean {
+    return this.#state?.type === 'watch-only';
+  }
+
+  get #networkManager(): CentrifugeNetworkManager {
+    return this.#assertIsSigner().networkManager;
+  }
+
+  get #dkm(): CL24DKM {
+    return this.#assertIsSigner().dkm;
+  }
+
+  get #tss(): Dkls23TssLib {
+    return this.#assertIsSigner().tss;
+  }
+
+  async #getPrimaryMnemonic(): Promise<number[]> {
+    return this.#assertIsSigner().getPrimaryMnemonic();
+  }
+
+  #assertIsSigner(): SignerRuntime {
+    if (!this.#signer) {
+      throw new Error(
+        'MpcMoneyKeyring: signing operations are not supported in watch-only mode',
+      );
+    }
+    return this.#signer;
   }
 
   /**
@@ -239,9 +297,14 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       return {};
     }
 
+    if (this.#state.type === 'watch-only') {
+      return { ...this.#state };
+    }
+
     const { netCreds, keyShare, serverNetId, shareEpoch, tssSetup } =
       this.#state;
     return {
+      type: 'signer',
       netCreds: this.#serializer.networkIdentity.toJson(netCreds),
       keyShare: this.#serializer.thresholdKey.toJson(keyShare),
       serverNetId,
@@ -260,8 +323,26 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       throw new Error('Invalid state');
     }
 
-    if (is(state, InitializedStorageStruct)) {
+    if ('type' in state && state.type === 'watch-only') {
+      if (!is(state, WatchOnlyStorageStruct) || this.canSign) {
+        throw new Error('Invalid watch-only state');
+      }
+      this.#assertPublicKey(state.publicKey);
       this.#state = {
+        type: 'watch-only',
+        publicKey: state.publicKey,
+        activeEpoch: state.activeEpoch,
+      };
+      return;
+    }
+    if ('type' in state && state.type !== 'signer') {
+      throw new Error('Invalid state type');
+    }
+
+    if (is(state, InitializedStorageStruct)) {
+      this.#assertIsSigner();
+      this.#state = {
+        type: 'signer',
         status: 'initialized',
         netCreds: this.#serializer.networkIdentity.fromJson(state.netCreds),
         keyShare: this.#serializer.thresholdKey.fromJson(state.keyShare),
@@ -274,13 +355,14 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
     // `type()` ignores unknown keys, so a payload can carry initialized fields
     // and still not match. Reject that instead of treating it as fresh state.
-    if (hasInitializedFields(state)) {
+    if (hasInitializedFields(state) || 'type' in state) {
       throw new Error('Invalid state');
     }
   }
 
   /**
-   * Run key generation or import, inferring the mode from the backend:
+   * Discover a committed public key in watch-only mode. In signing mode,
+   * restore a watch-only account by import only, or infer initial setup:
    * import when an active epoch exists for the profile, create otherwise.
    * A pending share or backup is replaced by create.
    *
@@ -296,7 +378,26 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    */
   async setup(): Promise<void> {
     return this.#serializeOp(async () => {
-      if (this.#state?.status === 'initialized') {
+      if (this.canSign) {
+        return;
+      }
+
+      if (!this.#signer) {
+        if (this.#isWatchOnly) {
+          return;
+        }
+        const check = await this.#checkRemote();
+        const publicKey = this.#getCommittedPublicKey(check);
+        this.#state = {
+          type: 'watch-only',
+          publicKey,
+          activeEpoch: check.activeEpoch as number,
+        };
+        return;
+      }
+
+      if (this.#isWatchOnly) {
+        await this.#setupImport();
         return;
       }
 
@@ -410,6 +511,15 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    * @returns Whether all remote epochs match the local share epoch.
    */
   async checkKeyShare(): Promise<boolean> {
+    if (this.#isWatchOnly) {
+      const check = await this.#checkRemote();
+      return equalAddresses(
+        publicKeyToAddressHex(
+          this.#assertPublicKey(this.#getCommittedPublicKey(check)),
+        ),
+        this.#address(),
+      );
+    }
     const { shareEpoch } = this.#assertState();
     const token = await this.#getProfileToken();
     const check = await checkKeyShareRemote({
@@ -476,7 +586,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    * @returns The addresses of all accounts in the keyring.
    */
   async getAccounts(): Promise<Hex[]> {
-    if (!this.#state || this.#state.status !== 'initialized') {
+    if (!this.#state) {
       return [];
     }
 
@@ -668,6 +778,18 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       token,
     });
     const keyShare = await this.#decryptKeyShare(loaded.encryptedKeyShare);
+
+    if (
+      this.#isWatchOnly &&
+      !equalAddresses(
+        publicKeyToAddressHex(keyShare.publicKey),
+        this.#address(),
+      )
+    ) {
+      throw new Error(
+        'MpcMoneyKeyring: imported key does not match watch-only account',
+      );
+    }
 
     await registerClient({
       baseURL: this.#cloudURL,
@@ -887,19 +1009,59 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   #applyKeyState(state: MpcMoneyKeyringState): void {
     this.#state = {
+      type: 'signer',
       status: 'initialized',
       ...state,
     };
   }
 
   #assertState(): MpcMoneyKeyringState {
-    if (!this.#state || this.#state.status !== 'initialized') {
+    this.#assertIsSigner();
+    if (!this.#state || this.#state.type !== 'signer') {
       throw new Error('Keyring not initialized');
     }
     return this.#state;
   }
 
   #address(): Hex {
+    if (this.#state?.type === 'watch-only') {
+      return publicKeyToAddressHex(
+        this.#assertPublicKey(this.#state.publicKey),
+      );
+    }
     return publicKeyToAddressHex(this.#assertState().keyShare.publicKey);
+  }
+
+  async #checkRemote(): Promise<CheckKeyShareResult> {
+    return checkKeyShareRemote({
+      baseURL: this.#cloudURL,
+      token: await this.#getProfileToken(),
+    });
+  }
+
+  #getCommittedPublicKey(check: CheckKeyShareResult): string {
+    if (
+      !check.publicKey ||
+      check.activeEpoch === undefined ||
+      check.latestShareEpoch !== check.activeEpoch
+    ) {
+      throw new Error(
+        'MpcMoneyKeyring: committed public key is unavailable; retry after activation',
+      );
+    }
+    this.#assertPublicKey(check.publicKey);
+    return check.publicKey;
+  }
+
+  #assertPublicKey(publicKey: string): Uint8Array {
+    if (!/^0x(?:[0-9a-fA-F]{2})+$/u.test(publicKey)) {
+      throw new Error('MpcMoneyKeyring: invalid public key');
+    }
+    const bytes = hexToBytes(publicKey);
+    if (!isValidPublic(bytes, true)) {
+      throw new Error('MpcMoneyKeyring: invalid public key point');
+    }
+    publicKeyToAddressHex(bytes);
+    return bytes;
   }
 }
