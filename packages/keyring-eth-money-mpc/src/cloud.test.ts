@@ -454,6 +454,38 @@ describe('cloud helpers', () => {
     });
   });
 
+  it('returns the latest share public key with the epochs', async () => {
+    okJson({
+      latestShareEpoch: 1,
+      latestBackupEpoch: 1,
+      activeEpoch: 1,
+      publicKey: '0x010203',
+    });
+
+    expect(
+      await checkKeyShare({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+      }),
+    ).toStrictEqual({
+      latestShareEpoch: 1,
+      latestBackupEpoch: 1,
+      activeEpoch: 1,
+      publicKey: '0x010203',
+    });
+  });
+
+  it('rejects a public key that is not 0x-prefixed hex', async () => {
+    okJson({ activeEpoch: 1, publicKey: '010203' });
+
+    await expect(
+      checkKeyShare({
+        baseURL: 'https://cloud.example',
+        token: 'token-1',
+      }),
+    ).rejects.toThrow(/^Failed to check key share: bad response format$/u);
+  });
+
   it('rejects key share epoch metadata with the wrong shape', async () => {
     okJson({ activeEpoch: '1' });
 

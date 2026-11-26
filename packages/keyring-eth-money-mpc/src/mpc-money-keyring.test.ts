@@ -194,8 +194,10 @@ const makeRootSession = (statusPayload = 'data persisted') => {
 const makeKeyring = (
   getProfileToken = jest.fn().mockResolvedValue('token'),
   getPrimaryMnemonic = jest.fn().mockResolvedValue(mockMnemonicBytes),
+  isMfaAvailable = true,
 ) =>
   new MpcMoneyKeyring({
+    isMfaAvailable,
     cl24Lib: {} as never,
     dkls23Lib: {} as never,
     cloudURL: 'https://cloud.example',
@@ -267,6 +269,7 @@ describe('MpcMoneyKeyring', () => {
     const webSocket = { send: jest.fn() };
 
     const keyring = new MpcMoneyKeyring({
+      isMfaAvailable: true,
       cl24Lib: {} as never,
       dkls23Lib: {} as never,
       cloudURL: 'https://cloud.example',
@@ -1324,5 +1327,228 @@ describe('MpcMoneyKeyring', () => {
     ).rejects.toThrow(
       `getAppKeyAddress(${mockDerivedAddress}, example.com): not implemented`,
     );
+  });
+
+  describe('address-only state', () => {
+    const otherAddress = '0x2222222222222222222222222222222222222222' as Hex;
+
+    it('round-trips an address-only state', async () => {
+      const keyring = makeKeyring();
+
+      await keyring.deserialize({ address: mockDerivedAddress });
+
+      expect(await keyring.serialize()).toStrictEqual({
+        address: mockDerivedAddress,
+      });
+      expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
+      expect(await keyring.addAccounts()).toStrictEqual([mockDerivedAddress]);
+    });
+
+    it('rejects an address-only state with an invalid address', async () => {
+      const keyring = makeKeyring();
+
+      await expect(keyring.deserialize({ address: '0x1234' })).rejects.toThrow(
+        'Invalid state',
+      );
+    });
+
+    it('requires setup before signing', async () => {
+      const getProfileToken = jest.fn().mockResolvedValue('token');
+      const keyring = makeKeyring(getProfileToken);
+      await keyring.deserialize({ address: mockDerivedAddress });
+
+      await expect(
+        keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
+      ).rejects.toThrow('MpcMoneyKeyring: no key share, run setup first');
+      expect(getProfileToken).not.toHaveBeenCalled();
+      expect(mockStartSign).not.toHaveBeenCalled();
+    });
+
+    it('imports the key share for the stored address on setup', async () => {
+      const getProfileToken = jest.fn().mockResolvedValue('token');
+      const keyring = makeKeyring(getProfileToken);
+      await keyring.deserialize({ address: mockDerivedAddress });
+      mockCreateIdentity.mockResolvedValueOnce({ partyId: 'imported-user' });
+      mockThresholdKeyFromJson.mockReturnValueOnce(makeThresholdKey());
+
+      await keyring.setup();
+
+      expect(getProfileToken).toHaveBeenCalledWith({ twoFactor: true });
+      expect(mockCheckKeyShare).not.toHaveBeenCalled();
+      expect(mockStartCreateKey).not.toHaveBeenCalled();
+      expect(mockRegisterClient).toHaveBeenCalledWith({
+        baseURL: 'https://cloud.example',
+        token: 'token',
+        clientNetId: 'imported-user',
+      });
+      expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
+      expect(await keyring.serialize()).toStrictEqual({
+        netCreds: { partyId: 'imported-user' },
+        keyShare: makeThresholdKey(),
+        serverNetId: 'cloud-user',
+        shareEpoch: mockShareEpoch,
+        tssSetup: null,
+      });
+    });
+
+    it('rejects an imported key share for another address', async () => {
+      const keyring = makeKeyring();
+      await keyring.deserialize({ address: otherAddress });
+      mockCreateIdentity.mockResolvedValueOnce({ partyId: 'imported-user' });
+      mockThresholdKeyFromJson.mockReturnValueOnce(makeThresholdKey());
+
+      await expect(keyring.setup()).rejects.toThrow(
+        `MpcMoneyKeyring: imported key share address ${mockDerivedAddress} does not match ${otherAddress}`,
+      );
+      expect(mockRegisterClient).not.toHaveBeenCalled();
+      expect(await keyring.serialize()).toStrictEqual({
+        address: otherAddress,
+      });
+    });
+  });
+
+  describe('read-only mode', () => {
+    const mockPublicKey = '0x04010203' as Hex;
+
+    const makeReadOnlyKeyring = (
+      getProfileToken = jest.fn().mockResolvedValue('token'),
+      getPrimaryMnemonic = jest.fn().mockResolvedValue(mockMnemonicBytes),
+    ) => makeKeyring(getProfileToken, getPrimaryMnemonic, false);
+
+    it('reports whether the keyring is read-only', () => {
+      expect(makeReadOnlyKeyring().isReadOnly).toBe(true);
+      expect(makeKeyring().isReadOnly).toBe(false);
+    });
+
+    it('fetches only the address on setup', async () => {
+      const getProfileToken = jest.fn().mockResolvedValue('token');
+      const getPrimaryMnemonic = jest.fn();
+      const keyring = makeReadOnlyKeyring(getProfileToken, getPrimaryMnemonic);
+      mockCheckKeyShare.mockResolvedValueOnce({
+        latestShareEpoch: mockShareEpoch,
+        latestBackupEpoch: mockShareEpoch,
+        activeEpoch: mockShareEpoch,
+        publicKey: mockPublicKey,
+      });
+
+      await keyring.setup();
+
+      expect(getProfileToken).toHaveBeenCalledTimes(1);
+      expect(getProfileToken).toHaveBeenCalledWith();
+      expect(mockCheckKeyShare).toHaveBeenCalledWith({
+        baseURL: 'https://cloud.example',
+        token: 'token',
+      });
+      expect(
+        jest.requireMock('./util').publicKeyToAddressHex,
+      ).toHaveBeenCalledWith(new Uint8Array([4, 1, 2, 3]));
+      expect(getPrimaryMnemonic).not.toHaveBeenCalled();
+      expect(mockCreateIdentity).not.toHaveBeenCalled();
+      expect(mockGetNetId).not.toHaveBeenCalled();
+      expect(mockStartCreateKey).not.toHaveBeenCalled();
+      expect(mockLoadKeyShareBackup).not.toHaveBeenCalled();
+      expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
+      expect(await keyring.serialize()).toStrictEqual({
+        address: mockDerivedAddress,
+      });
+    });
+
+    it.each([
+      ['no key', {}],
+      [
+        'only a pending share',
+        { latestShareEpoch: 1, latestBackupEpoch: 1, publicKey: mockPublicKey },
+      ],
+      [
+        'no public key',
+        { latestShareEpoch: 1, latestBackupEpoch: 1, activeEpoch: 1 },
+      ],
+    ])('throws on setup when the backend has %s', async (_name, check) => {
+      const keyring = makeReadOnlyKeyring();
+      mockCheckKeyShare.mockResolvedValueOnce(check);
+
+      await expect(keyring.setup()).rejects.toThrow(
+        'MpcMoneyKeyring: no MPC key for this profile',
+      );
+      expect(await keyring.serialize()).toStrictEqual({});
+      expect(await keyring.getAccounts()).toStrictEqual([]);
+    });
+
+    it.each([
+      ['an address-only state', { address: mockDerivedAddress }],
+      ['a full state', makeSerializedState()],
+    ])('setup is a no-op with %s', async (_name, state) => {
+      const keyring = makeReadOnlyKeyring();
+      await keyring.deserialize(state as unknown as Json);
+
+      await keyring.setup();
+
+      expect(mockCheckKeyShare).not.toHaveBeenCalled();
+      expect(mockLoadKeyShareBackup).not.toHaveBeenCalled();
+      expect(await keyring.serialize()).toStrictEqual(state);
+    });
+
+    it('keeps a full state without signing with it', async () => {
+      const keyring = makeReadOnlyKeyring();
+      const state = makeSerializedState();
+      await deserializeState(keyring, state);
+
+      expect(await keyring.getAccounts()).toStrictEqual([mockDerivedAddress]);
+      await expect(
+        keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
+      ).rejects.toThrow('MpcMoneyKeyring: read-only, MFA is not available');
+      expect(await keyring.serialize()).toStrictEqual(state);
+    });
+
+    it.each([
+      [
+        'signPersonalMessage',
+        async (keyring: MpcMoneyKeyring) =>
+          keyring.signPersonalMessage(mockDerivedAddress, '0x68656c6c6f'),
+      ],
+      [
+        'signTypedData',
+        async (keyring: MpcMoneyKeyring) =>
+          keyring.signTypedData(
+            mockDerivedAddress,
+            [{ type: 'string', name: 'message', value: 'hello' }],
+            {},
+          ),
+      ],
+      [
+        'signEip7702Authorization',
+        async (keyring: MpcMoneyKeyring) =>
+          keyring.signEip7702Authorization(mockDerivedAddress, [
+            1,
+            '0x1234567890abcdef1234567890abcdef12345678',
+            1,
+          ]),
+      ],
+      [
+        'rotateKeyShares',
+        async (keyring: MpcMoneyKeyring) => keyring.rotateKeyShares(),
+      ],
+      [
+        'checkKeyShare',
+        async (keyring: MpcMoneyKeyring) => keyring.checkKeyShare(),
+      ],
+      [
+        'syncKeyShare',
+        async (keyring: MpcMoneyKeyring) => keyring.syncKeyShare(),
+      ],
+    ])('blocks %s before any network call', async (_name, operation) => {
+      const getProfileToken = jest.fn().mockResolvedValue('token');
+      const keyring = makeReadOnlyKeyring(getProfileToken);
+      await keyring.deserialize({ address: mockDerivedAddress });
+
+      await expect(operation(keyring)).rejects.toThrow(
+        'MpcMoneyKeyring: read-only, MFA is not available',
+      );
+      expect(getProfileToken).not.toHaveBeenCalled();
+      expect(mockCheckKeyShare).not.toHaveBeenCalled();
+      expect(mockStartSign).not.toHaveBeenCalled();
+      expect(mockStartRotateKeyShares).not.toHaveBeenCalled();
+      expect(mockLoadKeyShareBackup).not.toHaveBeenCalled();
+    });
   });
 });

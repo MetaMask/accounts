@@ -12,6 +12,21 @@ The keyring first calls `/sign` with a profile token without 2FA, and sends the 
 
 Key generation, import, share rotation, share sync, and transaction signing always use a 2FA token.
 
+## Read-only mode
+
+Pass `isMfaAvailable` when constructing the keyring. Derive it from the client's MFA feature flag.
+
+With `isMfaAvailable: false`, the keyring never requests a 2FA token:
+
+- `setup` calls `check-key-share` with a profile token without 2FA. It stores only the address derived from the returned `publicKey`.
+- `setup` throws when the profile has no active key.
+- Signing, `rotateKeyShares`, `checkKeyShare`, and `syncKeyShare` throw.
+- The V2 adapter returns the account without methods.
+
+A read-only keyring that loads a full persisted state keeps it, but doesn't sign with it.
+
+When MFA becomes available, construct the keyring with `isMfaAvailable: true` and call `setup` (or the V2 `createAccounts`). The keyring imports the key share with a 2FA token. It throws if the imported address differs from the stored one.
+
 ## Device-share backups
 
 Provide `getPrimaryMnemonic: () => Promise<number[]>` when constructing the keyring.
