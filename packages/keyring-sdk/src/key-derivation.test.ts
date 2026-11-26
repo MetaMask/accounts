@@ -1,4 +1,4 @@
-import { MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
+import { Purpose } from '@metamask/key-derivation-purposes';
 import type { KeyDerivationPurpose } from '@metamask/key-derivation-purposes';
 import * as bip39 from '@metamask/scure-bip39';
 import * as hkdfModule from '@noble/hashes/hkdf';
@@ -11,7 +11,7 @@ import { KeyRoot } from './key-derivation';
 
 const MNEMONIC =
   'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
-const PURPOSE = MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE;
+const PURPOSE = Purpose.MoneyAccountMpcDeviceShareWrappingKey;
 
 describe('KeyRoot', () => {
   const roots: KeyRoot[] = [];

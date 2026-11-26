@@ -139,13 +139,13 @@ Derive reproducible secret bytes from a BIP-39 mnemonic phrase string. The
 consumer defines their use; for example, derive a 32-byte AES-256-GCM wrapping key:
 
 ```ts
-import { MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
+import { Purpose } from '@metamask/key-derivation-purposes';
 import { KeyRoot, fingerprint } from '@metamask/keyring-sdk';
 
 const root = await KeyRoot.fromMnemonic({ mnemonic }); // Defaults to index 0.
 try {
   const encryptionKey = await root.deriveSecret({
-    purpose: MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE,
+    purpose: Purpose.MoneyAccountMpcDeviceShareWrappingKey,
     length: 32,
   });
   try {

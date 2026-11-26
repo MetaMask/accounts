@@ -18,16 +18,19 @@ npm install @metamask/key-derivation-purposes
 ## Usage
 
 ```ts
-import { MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE } from '@metamask/key-derivation-purposes';
+import { Purpose } from '@metamask/key-derivation-purposes';
 
-const purpose = MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE;
+const purpose = Purpose.MoneyAccountMpcDeviceShareWrappingKey;
 ```
+
+`Purpose` is also a type representing the union of registered purpose values.
+Use `KeyDerivationPurpose` when accepting consumer-defined purposes as well.
 
 ## Registry
 
-| Constant                                              | Owner          | Intended use                                                 | Key type                       |
-| ----------------------------------------------------- | -------------- | ------------------------------------------------------------ | ------------------------------ |
-| `MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE` | Money Accounts | Wrap MPC device-share backups for MFA recovery using AES-GCM | 32-byte symmetric wrapping key |
+| Constant                                        | Owner          | Intended use                                                 | Key type                       |
+| ----------------------------------------------- | -------------- | ------------------------------------------------------------ | ------------------------------ |
+| `Purpose.MoneyAccountMpcDeviceShareWrappingKey` | Money Accounts | Wrap MPC device-share backups for MFA recovery using AES-GCM | 32-byte symmetric wrapping key |
 
 The device-share constant's value is `metamask:money-account:mpc:device-share:wrapping-key:v1`.
 Wrapping means AES-256-GCM encryption of serialized device-share backups, not AES-KW or AES-KWP. Use a fresh 96-bit IV for each backup and reject authentication failures.
