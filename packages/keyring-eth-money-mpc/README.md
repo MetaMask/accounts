@@ -15,23 +15,21 @@ Key generation, import, share rotation, share sync, and transaction signing alwa
 ## Device-share backups
 
 Provide `getPrimaryMnemonic: () => Promise<number[]>` when constructing the keyring.
-It returns the wallet's primary mnemonic as UTF-8 byte values, like the normal
-Money keyring's `getMnemonic` callback, without an entropy-source argument.
+The callback takes no arguments and returns the wallet's primary mnemonic as UTF-8 byte values.
 
-The keyring derives the backup encryption key using `KeyRoot.fromMnemonic` and
-`root.deriveSecret` with length `32`, index `0`, and the shared registry constant
-`Purpose.MoneyAccountMpcDeviceShareWrappingKey`
-(`metamask:money-account:mpc:device-share:wrapping-key:v1`), using the SDK's MetaMask-specific
-BIP-85 root profile independently of share
-epochs. Recovery requires the same primary mnemonic. Backups encrypted using the
-old `getBackupEncryptionKey` callback are compatible only if it returned this same
-key; other existing backups require re-encryption before switching.
-The temporary root is destroyed after derivation, including when derivation fails.
+The keyring uses the SDK's MetaMask-specific BIP-85 profile through `KeyRoot.fromMnemonic` and `root.deriveSecret`:
 
-The wrapping key protects serialized device-share backups using AES-256-GCM,
-not AES-KW or AES-KWP. Each backup uses a fresh random 96-bit IV; decryption
-rejects authentication failures. The SDK derives raw secret bytes; this consumer
-defines their use as an AES-256-GCM wrapping key.
+- **Index:** `0`, independent of share epochs.
+- **Length:** `32` bytes.
+- **Purpose:** `Purpose.MoneyAccountMpcDeviceShareWrappingKey` (`metamask:money-account:mpc:device-share:wrapping-key:v1`).
+
+The keyring destroys the temporary root on success or failure.
+It uses the derived secret to encrypt serialized backups with AES-256-GCM, not AES-KW or AES-KWP.
+Each backup uses a fresh random 96-bit IV. Decryption rejects authentication failures.
+
+Recovery requires the same primary mnemonic.
+Backups from `getBackupEncryptionKey` remain compatible only if that callback returned the same key.
+Otherwise, re-encrypt existing backups before switching.
 
 ## Installation
 
