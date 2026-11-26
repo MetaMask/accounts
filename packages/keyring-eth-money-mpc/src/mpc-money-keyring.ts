@@ -842,23 +842,31 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   async #encryptKeyShare(keyShare: CL24ThresholdKey): Promise<Uint8Array> {
     const key = await this.#deriveBackupEncryptionKey();
-    const plaintext = new TextEncoder().encode(
-      JSON.stringify(this.#serializer.thresholdKey.toJson(keyShare)),
-    );
-    const iv = globalThis.crypto.getRandomValues(
-      new Uint8Array(AES_GCM_IV_LENGTH),
-    );
-    return encryptBytes(key, plaintext, iv);
+    try {
+      const plaintext = new TextEncoder().encode(
+        JSON.stringify(this.#serializer.thresholdKey.toJson(keyShare)),
+      );
+      const iv = globalThis.crypto.getRandomValues(
+        new Uint8Array(AES_GCM_IV_LENGTH),
+      );
+      return await encryptBytes(key, plaintext, iv);
+    } finally {
+      key.fill(0);
+    }
   }
 
   async #decryptKeyShare(
     encryptedKeyShare: Uint8Array,
   ): Promise<CL24ThresholdKey> {
     const key = await this.#deriveBackupEncryptionKey();
-    const plaintext = await decryptBytes(key, encryptedKeyShare);
-    return this.#serializer.thresholdKey.fromJson(
-      JSON.parse(new TextDecoder().decode(plaintext)) as Json,
-    );
+    try {
+      const plaintext = await decryptBytes(key, encryptedKeyShare);
+      return this.#serializer.thresholdKey.fromJson(
+        JSON.parse(new TextDecoder().decode(plaintext)) as Json,
+      );
+    } finally {
+      key.fill(0);
+    }
   }
 
   async #serializeOp<Result>(

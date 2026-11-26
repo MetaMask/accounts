@@ -382,7 +382,7 @@ describe('MpcMoneyKeyring', () => {
     expect(destroy).toHaveBeenCalledTimes(1);
     expect(getPrimaryMnemonic).toHaveBeenCalledWith();
     expect(jest.requireMock('./util').encryptBytes).toHaveBeenCalledWith(
-      mockBackupKey,
+      new Uint8Array(32),
       expect.any(Uint8Array),
       expect.any(Uint8Array),
     );
@@ -539,6 +539,50 @@ describe('MpcMoneyKeyring', () => {
     expect(mockRegisterClient).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ['encryption', false],
+    ['encryption', true],
+    ['decryption', false],
+    ['decryption', true],
+  ] as const)(
+    'clears the wrapping key after %s (failure: %s)',
+    async (operation, fails) => {
+      const keyring = makeKeyring();
+      const mockedUtil = jest.requireMock<typeof import('./util')>('./util');
+      mockCreateIdentity.mockResolvedValueOnce({ partyId: 'local-user' });
+      const cryptoOperation = jest.mocked(
+        operation === 'encryption'
+          ? mockedUtil.encryptBytes
+          : mockedUtil.decryptBytes,
+      );
+      let wrappingKey: Uint8Array | undefined;
+      cryptoOperation.mockImplementationOnce(async (key, payload) => {
+        wrappingKey = key;
+        expect(key).toStrictEqual(mockBackupKey);
+        await Promise.resolve();
+        expect(key).toStrictEqual(mockBackupKey);
+        if (fails) {
+          throw new Error('Backup crypto failed');
+        }
+        return payload;
+      });
+
+      if (operation === 'encryption') {
+        mockCheckKeyShare.mockResolvedValueOnce({});
+        mockCreateSession.mockResolvedValueOnce(makeRootSession());
+        mockCreateKey.mockResolvedValueOnce(makeThresholdKey());
+      }
+
+      const result = await keyring.setup().catch((error: unknown) => error);
+
+      expect(result).toStrictEqual(
+        fails ? new Error('Backup crypto failed') : undefined,
+      );
+      expect(cryptoOperation).toHaveBeenCalledTimes(1);
+      expect(wrappingKey).toStrictEqual(new Uint8Array(32));
+    },
+  );
+
   it('does not request the primary mnemonic for local state reads', async () => {
     const getPrimaryMnemonic = jest.fn();
     const keyring = makeKeyring(undefined, getPrimaryMnemonic);
@@ -616,7 +660,7 @@ describe('MpcMoneyKeyring', () => {
     await keyring.setup();
 
     expect(jest.requireMock('./util').decryptBytes).toHaveBeenCalledWith(
-      mockBackupKey,
+      new Uint8Array(32),
       expect.any(Uint8Array),
     );
     expect(mockCheckKeyShare).toHaveBeenCalledTimes(1);
