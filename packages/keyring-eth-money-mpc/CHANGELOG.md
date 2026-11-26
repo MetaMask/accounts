@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Call `check-key-share` with `GET` instead of `POST`
+- Call `check-key-share` with `GET` instead of `POST` ([#717](https://github.com/MetaMask/accounts/pull/717))
   - Requires an MPC backend that serves `GET /v1/check-key-share`.
 
 ### Removed
