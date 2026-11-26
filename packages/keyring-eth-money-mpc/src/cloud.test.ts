@@ -1,4 +1,3 @@
-import type { MoneyAccountSignatureRequest } from '@metamask/money-account-mfa-whitelist';
 import { bytesToBase64 } from '@metamask/utils';
 
 import {
@@ -12,6 +11,7 @@ import {
   sign,
   storeKeyShareBackup,
 } from './cloud.js';
+import type { MoneyAccountSignatureRequest } from './types.js';
 
 describe('cloud helpers', () => {
   let fetchSpy: jest.SpyInstance;
