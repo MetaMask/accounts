@@ -1,7 +1,10 @@
 import { Keyring, KeyringType } from '@metamask/keyring-api/v2';
+import type { AtomicKeyring, AtomicUpdater } from '@metamask/keyring-sdk';
 import { EthKeyringV1Adapter } from '@metamask/keyring-sdk/v2';
 
 import type { SnapKeyring } from './SnapKeyring';
+
+const ATOMIC_KEYRING_BRAND = Symbol.for('@metamask/keyring-sdk/atomic-keyring');
 
 /**
  * Check if a given keyring instance is a SnapKeyringV1Adapter.
@@ -32,6 +35,12 @@ export function isSnapKeyringV1Adapter(
  */
 export class SnapKeyringV1Adapter extends EthKeyringV1Adapter<SnapKeyring> {
   /**
+   * Mirror the inner keyring's atomic identity on the controller-facing
+   * adapter. Operations and locking remain owned by the inner keyring.
+   */
+  readonly [ATOMIC_KEYRING_BRAND] = true;
+
+  /**
    * Remove an account matching the given address.
    *
    * @param address - Address of the account to remove.
@@ -45,4 +54,35 @@ export class SnapKeyringV1Adapter extends EthKeyringV1Adapter<SnapKeyring> {
 
     await this.inner.deleteAccount(account.id);
   }
+}
+
+/**
+ * Build the registered V1 face while routing the inner keyring's updates
+ * through that same registered identity. Construction must not call update.
+ *
+ * @param create - Constructs the inner keyring with the supplied updater.
+ * @returns An atomic builder suitable for KeyringController.
+ */
+export function createAtomicSnapKeyringBuilder(
+  create: (updater: AtomicUpdater) => SnapKeyring,
+): {
+  (context: { update: AtomicUpdater }): SnapKeyringV1Adapter;
+  type: typeof KeyringType.Snap;
+  atomic: true;
+} {
+  return Object.assign(
+    ({ update }: { update: AtomicUpdater }): SnapKeyringV1Adapter => {
+      // Capture the registered identity before constructing its inner keyring.
+      // eslint-disable-next-line prefer-const
+      let adapter: SnapKeyringV1Adapter;
+      const inner = create(async (_keyring, action) => {
+        // The branded adapter is the registered atomic identity, not the
+        // inner V2 instance. Its operations delegate to the inner locks.
+        await update(adapter as unknown as AtomicKeyring, action);
+      });
+      adapter = new SnapKeyringV1Adapter(inner);
+      return adapter;
+    },
+    { type: KeyringType.Snap as const, atomic: true as const },
+  );
 }

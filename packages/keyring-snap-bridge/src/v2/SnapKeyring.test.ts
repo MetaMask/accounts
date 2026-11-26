@@ -7,6 +7,8 @@ import type {
 import type { Keyring } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
+import { isAtomicKeyring } from '@metamask/keyring-sdk';
+import type { AtomicUpdater } from '@metamask/keyring-sdk';
 import type { SnapId } from '@metamask/snaps-sdk';
 import { v4 as uuid } from 'uuid';
 
@@ -60,11 +62,13 @@ function makeMockCallbacks(): SnapKeyringCallbacks {
  *
  * @param snapId - The Snap ID to initialize the keyring with.
  * @param callbackOverrides - Optional callback overrides.
+ * @param updater - The controller update callback.
  * @returns The keyring, arrays of registered/unregistered IDs, and mock callbacks.
  */
 async function makeKeyring(
   snapId: SnapId = SNAP_ID,
   callbackOverrides?: Partial<SnapKeyringCallbacks>,
+  updater: AtomicUpdater = async (_keyring, action) => action(),
 ): Promise<{
   keyring: SnapKeyring;
   registered: string[];
@@ -87,12 +91,134 @@ async function makeKeyring(
     call: jest.fn(),
     publish: jest.fn(),
   } as unknown as SnapKeyringMessenger;
-  const keyring = new SnapKeyring({ messenger, callbacks });
+  const keyring = new SnapKeyring({ messenger, callbacks, updater });
   await keyring.deserialize({ snapId, accounts: {} });
   return { keyring, registered, unregistered, callbacks };
 }
 
 describe('SnapKeyring', () => {
+  describe('atomic updates', () => {
+    const options = {
+      type: 'bip44:derive-index',
+      entropySource: 'test-entropy',
+      groupIndex: 0,
+    } as CreateAccountOptions;
+
+    it('is atomic and commits account creation through the injected updater', async () => {
+      const updater = jest.fn(async (_keyring, action) => {
+        expect(await (_keyring as SnapKeyring).getAccounts()).toStrictEqual([]);
+        await action();
+        expect(await (_keyring as SnapKeyring).getAccounts()).toStrictEqual([
+          account1,
+        ]);
+      });
+      const { keyring } = await makeKeyring(SNAP_ID, {}, updater);
+      jest
+        .spyOn(SnapKeyringV1.prototype, 'createAccounts')
+        .mockResolvedValue([account1]);
+
+      expect(isAtomicKeyring(keyring)).toBe(true);
+      await keyring.createAccounts(options);
+
+      expect(updater).toHaveBeenCalledTimes(1);
+      expect(updater).toHaveBeenCalledWith(keyring, expect.any(Function));
+    });
+
+    it('keeps snapshot reads available while a remote write is pending', async () => {
+      const { keyring } = await makeKeyring();
+      let finish!: (accounts: KeyringAccount[]) => void;
+      const remote = new Promise<KeyringAccount[]>((resolve) => {
+        finish = resolve;
+      });
+      jest
+        .spyOn(SnapKeyringV1.prototype, 'createAccounts')
+        .mockReturnValue(remote);
+
+      const pending = keyring.createAccounts(options);
+      expect(await keyring.getAccounts()).toStrictEqual([]);
+      expect((await keyring.serialize()).accounts).toStrictEqual({});
+      finish([account1]);
+      await pending;
+      expect(await keyring.getAccounts()).toStrictEqual([account1]);
+    });
+
+    it('does not mutate local state when the updater rejects before the action', async () => {
+      const updater = jest
+        .fn()
+        .mockRejectedValue(new Error('Detached keyring'));
+      const { keyring } = await makeKeyring(SNAP_ID, {}, updater);
+      jest
+        .spyOn(SnapKeyringV1.prototype, 'createAccounts')
+        .mockResolvedValue([account1]);
+      const deleteAccount = jest
+        .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+        .mockResolvedValue(undefined);
+
+      await expect(keyring.createAccounts(options)).rejects.toThrow(
+        'Detached keyring',
+      );
+
+      expect(await keyring.getAccounts()).toStrictEqual([]);
+      expect(deleteAccount).toHaveBeenCalledWith(account1.id);
+    });
+
+    it('commits deletion before calling the snap', async () => {
+      const updater = jest.fn(async (_keyring, action) => action());
+      const { keyring } = await makeKeyring(SNAP_ID, {}, updater);
+      keyring.setAccount(account1);
+      const deleteAccount = jest
+        .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+        .mockImplementation(async () => {
+          expect(await keyring.getAccounts()).toStrictEqual([]);
+          expect(updater).toHaveBeenCalledTimes(1);
+        });
+
+      await keyring.deleteAccount(account1.id);
+
+      expect(deleteAccount).toHaveBeenCalledWith(account1.id);
+    });
+
+    it('serializes concurrent writes while leaving snapshot reads lock-free', async () => {
+      const { keyring } = await makeKeyring();
+      let finish!: (accounts: KeyringAccount[]) => void;
+      const create = jest
+        .spyOn(SnapKeyringV1.prototype, 'createAccounts')
+        .mockReturnValueOnce(
+          new Promise<KeyringAccount[]>((resolve) => {
+            finish = resolve;
+          }),
+        )
+        .mockResolvedValueOnce([account2]);
+      const first = keyring.createAccounts(options);
+      // Wait until the first operation has entered its remote phase.
+      await new Promise<void>((resolve) => {
+        setImmediate(resolve);
+      });
+      const second = keyring.createAccounts(options);
+      expect(create).toHaveBeenCalledTimes(1);
+      expect(await keyring.getAccounts()).toStrictEqual([]);
+      finish([account1]);
+      await Promise.all([first, second]);
+      expect(await keyring.getAccounts()).toStrictEqual([account1, account2]);
+    });
+
+    it('does not enter the updater for idempotent creation or absent deletion', async () => {
+      const updater = jest.fn(async (_keyring, action) => action());
+      const { keyring } = await makeKeyring(SNAP_ID, {}, updater);
+      keyring.setAccount(account1);
+      jest
+        .spyOn(SnapKeyringV1.prototype, 'createAccounts')
+        .mockResolvedValue([account1]);
+      jest
+        .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+        .mockResolvedValue(undefined);
+
+      await keyring.createAccounts(options);
+      await keyring.deleteAccount(account2.id);
+
+      expect(updater).not.toHaveBeenCalled();
+    });
+  });
   describe('type', () => {
     it('returns `KeyringType.Snap`', async () => {
       expect(SnapKeyring.type).toBe(KeyringType.Snap);
@@ -134,6 +260,7 @@ describe('SnapKeyring', () => {
         publish: jest.fn(),
       } as unknown as SnapKeyringMessenger;
       const keyring = new SnapKeyring({
+        updater: async (_keyring, action): Promise<void> => action(),
         messenger,
         callbacks: makeMockCallbacks(),
       });
@@ -174,6 +301,7 @@ describe('SnapKeyring', () => {
         publish: jest.fn(),
       } as unknown as SnapKeyringMessenger;
       const keyring = new SnapKeyring({
+        updater: async (_keyring, action): Promise<void> => action(),
         messenger,
         callbacks: makeMockCallbacks(),
       });
@@ -203,13 +331,15 @@ describe('SnapKeyring', () => {
         call: jest.fn(),
         publish: jest.fn(),
       } as unknown as SnapKeyringMessenger;
-      return new SnapKeyring({ messenger, callbacks: makeMockCallbacks() });
+      return new SnapKeyring({
+        messenger,
+        callbacks: makeMockCallbacks(),
+        updater: async (_keyring, action): Promise<void> => action(),
+      });
     }
 
-    it('rejects getAccounts before deserialize is called', async () => {
-      await expect(makeUninitializedKeyring().getAccounts()).rejects.toThrow(
-        ERROR,
-      );
+    it('returns no accounts before deserialize is called', async () => {
+      expect(await makeUninitializedKeyring().getAccounts()).toStrictEqual([]);
     });
 
     it('rejects getAccount before deserialize is called', async () => {
@@ -252,6 +382,7 @@ describe('SnapKeyring', () => {
         publish: jest.fn(),
       } as unknown as SnapKeyringMessenger;
       const keyring = new SnapKeyring({
+        updater: async (_keyring, action): Promise<void> => action(),
         messenger,
         callbacks: makeMockCallbacks(),
       });
@@ -429,6 +560,91 @@ describe('SnapKeyring', () => {
   });
 
   describe('Keyring interface', () => {
+    describe('atomic failure and request locking', () => {
+      it('retains applied creation when persistence fails without deleting the remote account', async () => {
+        const updater: AtomicUpdater = async (_keyring, action) => {
+          await action();
+          throw new Error('Vault write failed');
+        };
+        const { keyring } = await makeKeyring(SNAP_ID, {}, updater);
+        jest
+          .spyOn(SnapKeyringV1.prototype, 'createAccounts')
+          .mockResolvedValue([account1]);
+        const deleteAccount = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+          .mockResolvedValue(undefined);
+
+        await expect(
+          keyring.createAccounts({
+            type: 'bip44:derive-index',
+            entropySource: 'test-entropy',
+            groupIndex: 0,
+          } as CreateAccountOptions),
+        ).rejects.toThrow('Vault write failed');
+
+        expect(await keyring.getAccounts()).toStrictEqual([account1]);
+        expect(deleteAccount).not.toHaveBeenCalled();
+      });
+
+      it('preserves the account and skips remote deletion when the updater rejects', async () => {
+        const updater = jest
+          .fn()
+          .mockRejectedValue(new Error('Detached keyring'));
+        const { keyring } = await makeKeyring(SNAP_ID, {}, updater);
+        keyring.setAccount(account1);
+        const deleteAccount = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+          .mockResolvedValue(undefined);
+
+        await expect(keyring.deleteAccount(account1.id)).rejects.toThrow(
+          'Detached keyring',
+        );
+
+        expect(await keyring.getAccounts()).toStrictEqual([account1]);
+        expect(deleteAccount).not.toHaveBeenCalled();
+      });
+
+      it('waits for an in-flight request before deleting its account', async () => {
+        const { keyring } = await makeKeyring();
+        keyring.setAccount(account1);
+        let finish!: (result: string) => void;
+        let started!: () => void;
+        const entered = new Promise<void>((resolve) => {
+          started = resolve;
+        });
+        const remote = new Promise<string>((resolve) => {
+          finish = resolve;
+        });
+        jest
+          .spyOn(SnapKeyringV1.prototype, 'submitSnapRequest')
+          .mockImplementation(async () => {
+            started();
+            return remote;
+          });
+        const deleteAccount = jest
+          .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+          .mockResolvedValue(undefined);
+        const request = keyring.submitRequest({
+          id: 'request-id',
+          origin: 'https://example.com',
+          scope: 'eip155:1',
+          account: account1.id,
+          request: { method: 'personal_sign', params: [] },
+        });
+        await entered;
+
+        const deletion = keyring.deleteAccount(account1.id);
+        expect(await keyring.getAccounts()).toStrictEqual([account1]);
+        expect(deleteAccount).not.toHaveBeenCalled();
+        finish('0xsignature');
+
+        expect(await request).toBe('0xsignature');
+        await deletion;
+        expect(await keyring.getAccounts()).toStrictEqual([]);
+        expect(deleteAccount).toHaveBeenCalledWith(account1.id);
+      });
+    });
+
     describe('type', () => {
       it('returns "snap"', async () => {
         const { keyring } = await makeKeyring();
@@ -572,6 +788,7 @@ describe('SnapKeyring', () => {
           publish: jest.fn(),
         } as unknown as SnapKeyringMessenger;
         const keyring = new SnapKeyring({
+          updater: async (_keyring, action): Promise<void> => action(),
           messenger,
           callbacks: makeMockCallbacks(),
         });
@@ -681,6 +898,7 @@ describe('SnapKeyring', () => {
           publish: jest.fn(),
         } as unknown as SnapKeyringMessenger;
         const keyring = new SnapKeyring({
+          updater: async (_keyring, action): Promise<void> => action(),
           messenger,
           callbacks: makeMockCallbacks(),
         });
@@ -786,6 +1004,7 @@ describe('SnapKeyring', () => {
           publish: jest.fn(),
         } as unknown as SnapKeyringMessenger;
         const keyring = new SnapKeyring({
+          updater: async (_keyring, action): Promise<void> => action(),
           messenger,
           callbacks: makeMockCallbacks(),
         });

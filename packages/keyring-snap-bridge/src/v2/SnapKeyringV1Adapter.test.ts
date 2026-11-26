@@ -1,6 +1,8 @@
 import type { KeyringAccount } from '@metamask/keyring-api';
 import { EthAccountType, EthScope } from '@metamask/keyring-api';
 import { KeyringType } from '@metamask/keyring-api/v2';
+import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
+import { isAtomicKeyring } from '@metamask/keyring-sdk';
 import { KeyringV1Adapter } from '@metamask/keyring-sdk/v2';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
@@ -10,6 +12,7 @@ import { SnapKeyring } from './SnapKeyring';
 import type { SnapKeyringCallbacks, SnapKeyringState } from './SnapKeyring';
 import {
   isSnapKeyringV1Adapter,
+  createAtomicSnapKeyringBuilder,
   SnapKeyringV1Adapter,
 } from './SnapKeyringV1Adapter';
 
@@ -70,6 +73,7 @@ async function setup({
   };
 
   const inner = new SnapKeyring({
+    updater: async (_keyring, action): Promise<void> => action(),
     callbacks: buildCallbacks(),
     messenger: buildMessenger(),
   });
@@ -91,6 +95,38 @@ async function setup({
     },
   };
 }
+
+describe('createAtomicSnapKeyringBuilder', () => {
+  it('routes updates through the registered adapter identity', async () => {
+    const update = jest.fn(async (_keyring, action) => action());
+    const builder = createAtomicSnapKeyringBuilder(
+      (updater) =>
+        new SnapKeyring({
+          updater,
+          messenger: buildMessenger(),
+          callbacks: buildCallbacks(),
+        }),
+    );
+    const adapter = builder({ update });
+    const inner = adapter.unwrap();
+    await inner.deserialize({
+      snapId: SNAP_ID,
+      accounts: { [ACCOUNT_ID]: buildAccount() },
+    });
+    jest.spyOn(inner, 'lookupByAddress');
+    jest
+      .spyOn(KeyringInternalSnapClient.prototype, 'deleteAccount')
+      .mockResolvedValue(undefined);
+
+    expect(builder.atomic).toBe(true);
+    expect(isAtomicKeyring(adapter)).toBe(true);
+    expect(isAtomicKeyring(inner)).toBe(true);
+    await adapter.removeAccount(ACCOUNT_ADDRESS);
+
+    expect(update).toHaveBeenCalledWith(adapter, expect.any(Function));
+    expect(await adapter.getAccounts()).toStrictEqual([]);
+  });
+});
 
 function buildCallbacks(): SnapKeyringCallbacks {
   return {

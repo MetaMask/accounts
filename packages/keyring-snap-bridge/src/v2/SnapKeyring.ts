@@ -7,7 +7,8 @@ import type {
 } from '@metamask/keyring-api/v2';
 import { KeyringType } from '@metamask/keyring-api/v2';
 import { KeyringInternalSnapClient } from '@metamask/keyring-internal-snap-client/v2';
-import { KeyringAccountRegistry } from '@metamask/keyring-sdk';
+import { AtomicKeyring, KeyringAccountRegistry } from '@metamask/keyring-sdk';
+import type { AtomicUpdater } from '@metamask/keyring-sdk';
 import type { AccountId } from '@metamask/keyring-utils';
 import type { SnapId } from '@metamask/snaps-sdk';
 import type { Infer } from '@metamask/superstruct';
@@ -80,6 +81,7 @@ export type SnapKeyringCallbacks = SnapKeyringV1Callbacks & {
 };
 
 type SnapKeyringOptions = {
+  updater: AtomicUpdater;
   messenger: SnapKeyringMessenger;
   callbacks: SnapKeyringCallbacks;
   isAnyAccountTypeAllowed?: boolean;
@@ -113,7 +115,7 @@ export function isSnapKeyring(keyring: Keyring): keyring is SnapKeyring {
  * {@link SnapKeyring.v1}. V2 snaps have `v1 === undefined` and communicate
  * directly through the v2 client without the `{ pending, result }` envelope.
  */
-export class SnapKeyring implements Keyring {
+export class SnapKeyring extends AtomicKeyring implements Keyring {
   /** Account registry — shared by reference with the v1 instance when present. */
   readonly #registry: KeyringAccountRegistry;
 
@@ -154,10 +156,12 @@ export class SnapKeyring implements Keyring {
   capabilities: KeyringCapabilities;
 
   constructor({
+    updater,
     messenger,
     callbacks,
     isAnyAccountTypeAllowed = false,
   }: SnapKeyringOptions) {
+    super({ updater });
     this.#registry = new KeyringAccountRegistry();
     this.#messenger = messenger;
     this.#callbacks = callbacks;
@@ -272,11 +276,11 @@ export class SnapKeyring implements Keyring {
 
   /**
    * Returns all accounts managed by this keyring.
+   * Remains lock-free and available before initialization for controller reads.
    *
    * @returns A promise that resolves to an array of all accounts.
    */
   async getAccounts(): Promise<KeyringAccount[]> {
-    this.#assertInitialized();
     return this.accounts();
   }
 
@@ -316,85 +320,89 @@ export class SnapKeyring implements Keyring {
     options: CreateAccountOptions,
   ): Promise<KeyringAccount[]> {
     this.#assertInitialized();
-    return this.#withLock(async () => {
-      // Keep track of address/account ID part of this batch, to avoid having duplicates.
-      const batchAddresses = new Set<string>();
-      const batchIds = new Set<string>();
+    return this.withWriteLock(async () =>
+      this.#withLock(async () => {
+        // Keep track of address/account ID part of this batch, to avoid having duplicates.
+        const batchAddresses = new Set<string>();
+        const batchIds = new Set<string>();
 
-      const accounts: KeyringAccount[] = [];
-      const newAccounts: KeyringAccount[] = [];
-      let snapAccounts: KeyringAccount[];
-      if (this.#v1) {
-        // v1 snap: the v1 client wraps options in `{ options }` before sending
-        // `keyring_createAccounts`, while the v2 client sends flat options.
-        // Route through v1 so v1 snaps receive the format they expect.
-        snapAccounts = await this.#v1.createAccounts(options);
-      } else {
-        // v2 snap: call snap directly with flat options.
-        snapAccounts = await this.#client.createAccounts(options);
-      }
+        const accounts: KeyringAccount[] = [];
+        const newAccounts: KeyringAccount[] = [];
+        let snapAccounts: KeyringAccount[];
+        if (this.#v1) {
+          // v1 snap: the v1 client wraps options in `{ options }` before sending
+          // `keyring_createAccounts`, while the v2 client sends flat options.
+          // Route through v1 so v1 snaps receive the format they expect.
+          snapAccounts = await this.#v1.createAccounts(options);
+        } else {
+          // v2 snap: call snap directly with flat options.
+          snapAccounts = await this.#client.createAccounts(options);
+        }
 
-      try {
-        for (const snapAccount of snapAccounts) {
-          let account = normalizeAccount(transformAccount(snapAccount));
-          const { address } = account;
+        try {
+          for (const snapAccount of snapAccounts) {
+            let account = normalizeAccount(transformAccount(snapAccount));
+            const { address } = account;
 
-          // Check for idempotency.
-          const existingAccount = this.#getExistingAccount(account);
-          if (existingAccount) {
-            // NOTE: We re-use the account from the internal state to avoid having the Snap
-            // mutating the account object without updating the map.
-            account = existingAccount;
-          } else {
-            await this.#callbacks.assertAccountCanBeUsed(account);
+            // Check for idempotency.
+            const existingAccount = this.#getExistingAccount(account);
+            if (existingAccount) {
+              // NOTE: We re-use the account from the internal state to avoid having the Snap
+              // mutating the account object without updating the map.
+              account = existingAccount;
+            } else {
+              await this.#callbacks.assertAccountCanBeUsed(account);
 
-            // Also check for transient accounts that are not yet part of the keyring
-            // state.
-            if (batchAddresses.has(address) || batchIds.has(account.id)) {
-              throw new Error(
-                `Account '${account.id}' is already part of this batch (same address or account ID)`,
-              );
+              // Also check for transient accounts that are not yet part of the keyring
+              // state.
+              if (batchAddresses.has(address) || batchIds.has(account.id)) {
+                throw new Error(
+                  `Account '${account.id}' is already part of this batch (same address or account ID)`,
+                );
+              }
+              batchAddresses.add(address);
+              batchIds.add(account.id);
+
+              // NOTE: This method does not rely on the `AccountCreated` event to add
+              // accounts to the keyring, so we have to add them to the state manually.
+              newAccounts.push(account);
             }
-            batchAddresses.add(address);
-            batchIds.add(account.id);
 
-            // NOTE: This method does not rely on the `AccountCreated` event to add
-            // accounts to the keyring, so we have to add them to the state manually.
-            newAccounts.push(account);
+            // New AND existing accounts are returned to the caller no matter what.
+            accounts.push(account);
           }
 
-          // New AND existing accounts are returned to the caller no matter what.
-          accounts.push(account);
-        }
-
-        // We update the keyring state only if needed.
-        if (newAccounts.length > 0) {
-          for (const account of newAccounts) {
-            this.setAccount(account);
+          // We update the keyring state only if needed.
+          if (newAccounts.length > 0) {
+            await this.update(() => {
+              for (const account of newAccounts) {
+                this.setAccount(account);
+              }
+            });
           }
-        }
 
-        return accounts;
-      } catch (error) {
-        // Rollback Snap state.
-        for (const snapAccount of snapAccounts) {
-          // Make sure to only delete accounts that were not part of the keyring state.
-          if (!this.#getExistingAccount(snapAccount)) {
-            try {
-              await this.#client.deleteAccount(snapAccount.id);
-            } catch (rollbackError) {
-              // Best-effort rollback; log snap-side failures for observability.
-              console.error(
-                `Account '${snapAccount.id}' may not have been removed from snap '${this.snapId}' during createAccounts rollback:`,
-                rollbackError,
-              );
+          return accounts;
+        } catch (error) {
+          // Rollback Snap state.
+          for (const snapAccount of snapAccounts) {
+            // Make sure to only delete accounts that were not part of the keyring state.
+            if (!this.#getExistingAccount(snapAccount)) {
+              try {
+                await this.#client.deleteAccount(snapAccount.id);
+              } catch (rollbackError) {
+                // Best-effort rollback; log snap-side failures for observability.
+                console.error(
+                  `Account '${snapAccount.id}' may not have been removed from snap '${this.snapId}' during createAccounts rollback:`,
+                  rollbackError,
+                );
+              }
             }
           }
-        }
 
-        throw error;
-      }
-    });
+          throw error;
+        }
+      }),
+    );
   }
 
   /**
@@ -407,21 +415,27 @@ export class SnapKeyring implements Keyring {
    */
   async deleteAccount(accountId: AccountId): Promise<void> {
     this.#assertInitialized();
-    // Always remove the account from the registry, even if the Snap is going to
-    // fail to delete it. removeAccount fires onUnregister to clean #accountIndex.
-    this.removeAccount(accountId);
+    await this.withWriteLock(async () => {
+      // Always remove the account from the registry, even if the Snap is going to
+      // fail to delete it. removeAccount fires onUnregister to clean #accountIndex.
+      if (this.hasAccount(accountId)) {
+        await this.update(() => {
+          this.removeAccount(accountId);
+        });
+      }
 
-    try {
-      await this.#client.deleteAccount(accountId);
-    } catch (error) {
-      // If the Snap failed to delete the account, log the error and continue
-      // with the account deletion, otherwise the account will be stuck in the
-      // keyring.
-      console.error(
-        `Account '${accountId}' may not have been removed from snap '${this.snapId}':`,
-        error,
-      );
-    }
+      try {
+        await this.#client.deleteAccount(accountId);
+      } catch (error) {
+        // If the Snap failed to delete the account, log the error and continue
+        // with the account deletion, otherwise the account will be stuck in the
+        // keyring.
+        console.error(
+          `Account '${accountId}' may not have been removed from snap '${this.snapId}':`,
+          error,
+        );
+      }
+    });
   }
 
   /**
@@ -455,44 +469,46 @@ export class SnapKeyring implements Keyring {
     };
   }): Promise<Json> {
     this.#assertInitialized();
-    const account = this.lookupAccount(request.account);
-    if (!account) {
-      throw new Error(
-        `Account '${request.account}' not found in snap '${this.snapId}'`,
+    return this.withReadLock(async () => {
+      const account = this.lookupAccount(request.account);
+      if (!account) {
+        throw new Error(
+          `Account '${request.account}' not found in snap '${this.snapId}'`,
+        );
+      }
+      if (this.#v1) {
+        // v1 snap: use event-driven flow with { pending, result } envelope handling.
+        return this.#v1.submitSnapRequest({
+          origin: request.origin,
+          ...(request.originMetadata !== undefined && {
+            originMetadata: request.originMetadata,
+          }),
+          account,
+          method: request.request.method as AccountMethod,
+          params: request.request.params,
+          scope: request.scope,
+          noPending: false,
+        });
+      }
+
+      const useOriginMetadata = this.#messenger.call(
+        'SnapController:isMinimumPlatformVersion',
+        this.snapId,
+        PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA,
       );
-    }
-    if (this.#v1) {
-      // v1 snap: use event-driven flow with { pending, result } envelope handling.
-      return this.#v1.submitSnapRequest({
+
+      // v2 snap: call snap directly, returns Json (no envelope).
+      return this.#client.submitRequest({
+        id: request.id,
         origin: request.origin,
-        ...(request.originMetadata !== undefined && {
-          originMetadata: request.originMetadata,
-        }),
-        account,
-        method: request.request.method as AccountMethod,
-        params: request.request.params,
+        ...(useOriginMetadata &&
+          request.originMetadata !== undefined && {
+            originMetadata: request.originMetadata,
+          }),
         scope: request.scope,
-        noPending: false,
+        account: request.account,
+        request: request.request,
       });
-    }
-
-    const useOriginMetadata = this.#messenger.call(
-      'SnapController:isMinimumPlatformVersion',
-      this.snapId,
-      PLATFORM_VERSION_FOR_KEYRING_REQUEST_WITH_ORIGIN_METADATA,
-    );
-
-    // v2 snap: call snap directly, returns Json (no envelope).
-    return this.#client.submitRequest({
-      id: request.id,
-      origin: request.origin,
-      ...(useOriginMetadata &&
-        request.originMetadata !== undefined && {
-          originMetadata: request.originMetadata,
-        }),
-      scope: request.scope,
-      account: request.account,
-      request: request.request,
     });
   }
 
