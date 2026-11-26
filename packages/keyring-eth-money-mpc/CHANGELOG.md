@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Return the primary mnemonic as UTF-8 byte values from the new callback; it takes no arguments.
   - Backups encrypted with a different key must be re-encrypted before switching.
   - Clear derived wrapping-key buffers after backup encryption or decryption, including on failure.
+- Bump `@metamask/key-derivation-purposes` from `^0.0.0` to `^0.1.0` ([#720](https://github.com/MetaMask/accounts/pull/720))
+- Bump `@metamask/keyring-sdk` from `^4.2.1` to `^4.3.0` ([#720](https://github.com/MetaMask/accounts/pull/720))
 
 ### Removed
 

@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add mnemonic-derived secrets with caller-defined purposes ([#706](https://github.com/MetaMask/accounts/pull/706))
 
+### Changed
+
+- Bump `@metamask/key-derivation-purposes` from `^0.0.0` to `^0.1.0` ([#720](https://github.com/MetaMask/accounts/pull/720))
+
 ## [4.2.1]
 
 ### Changed
