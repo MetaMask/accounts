@@ -1,12 +1,23 @@
 import type { KeyDerivationPurpose } from './types';
 
 /**
- * Owner: Money Accounts.
- * Intended use: wrap MPC device-share backups for MFA recovery using AES-GCM.
- * Key type: 32-byte symmetric wrapping key (not AES-KW or AES-KWP).
- * Scheme: BIP-85 at `m/83696968'/META'/MASK'/index'`, then
- * HKDF-SHA256 via `KeyRoot.deriveEncryptionKey` in `@metamask/keyring-sdk`.
- * This purpose string is immutable; a new use/version requires a new constant.
+ * Registered purposes for domain-separated secret derivation.
  */
-export const MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE =
-  'metamask:money-account:mpc:device-share:wrapping-key:v1' satisfies KeyDerivationPurpose;
+export const Purpose = {
+  /**
+   * Owner: Money Accounts.
+   * Intended use: wrap MPC device-share backups for MFA recovery using AES-GCM.
+   * Key type: 32-byte symmetric wrapping key (not AES-KW or AES-KWP).
+   * Scheme: BIP-85 at `m/83696968'/META'/MASK'/index'`, then
+   * HKDF-SHA256 via `KeyRoot.deriveSecret` with length 32 in `@metamask/keyring-sdk`.
+   * This purpose string is immutable; a new use/version requires a new member.
+   */
+  MoneyAccountMpcDeviceShareWrappingKey:
+    'metamask:money-account:mpc:device-share:wrapping-key:v1',
+} as const satisfies Record<string, KeyDerivationPurpose>;
+
+/**
+ * A registered purpose value. Use `KeyDerivationPurpose` to also accept
+ * consumer-defined purposes.
+ */
+export type Purpose = (typeof Purpose)[keyof typeof Purpose];

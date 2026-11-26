@@ -5,6 +5,9 @@
   },
   "references": [
     {
+      "path": "../key-derivation-purposes/tsconfig.build.json"
+    },
+    {
       "path": "../keyring-api/tsconfig.build.json"
     },
     {
