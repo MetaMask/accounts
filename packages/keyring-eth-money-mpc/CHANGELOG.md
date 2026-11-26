@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Return the primary mnemonic as UTF-8 byte values from the new callback; it takes no arguments.
   - Backups encrypted with a different key must be re-encrypted before switching.
 
+### Fixed
+
+- Clear derived wrapping-key buffers after backup encryption or decryption, including on failure ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+
 ### Removed
 
 - **BREAKING:** Remove the `isMfaRequired` option, so the backend alone decides whether a signature requires MFA ([#703](https://github.com/MetaMask/accounts/pull/703))
