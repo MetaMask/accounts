@@ -7,12 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0]
+
 ### Changed
 
-- **BREAKING:** Replace `getBackupEncryptionKey` with `getPrimaryMnemonic` and derive device-share backup keys using the SDK and shared purpose registry ([#707](https://github.com/MetaMask/accounts/pull/707)), ([#719](https://github.com/MetaMask/accounts/pull/719))
+- **BREAKING:** Replace `getBackupEncryptionKey` with `getPrimaryMnemonic` and derive device-share backup keys using the SDK and shared purpose registry ([#707](https://github.com/MetaMask/accounts/pull/707), [#719](https://github.com/MetaMask/accounts/pull/719))
   - Return the primary mnemonic as UTF-8 byte values from the new callback; it takes no arguments.
   - Backups encrypted with a different key must be re-encrypted before switching.
   - Clear derived wrapping-key buffers after backup encryption or decryption, including on failure.
+- Bump `@metamask/key-derivation-purposes` from `^0.0.0` to `^0.1.0` ([#720](https://github.com/MetaMask/accounts/pull/720))
+- Bump `@metamask/keyring-sdk` from `^4.2.1` to `^4.3.0` ([#720](https://github.com/MetaMask/accounts/pull/720))
 
 ### Removed
 
@@ -86,7 +90,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `@metamask/keyring-api` from `^24.2.0` to `^24.3.0` ([#674](https://github.com/MetaMask/accounts/pull/674))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.3.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.4.0...HEAD
+[0.4.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.3.1...@metamask/eth-money-mpc-keyring@0.4.0
 [0.3.1]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.3.0...@metamask/eth-money-mpc-keyring@0.3.1
 [0.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.2.0...@metamask/eth-money-mpc-keyring@0.3.0
 [0.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/eth-money-mpc-keyring@0.1.1...@metamask/eth-money-mpc-keyring@0.2.0

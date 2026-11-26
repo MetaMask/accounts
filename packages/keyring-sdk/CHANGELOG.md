@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.3.0]
+
 ### Added
 
 - Add mnemonic-derived secrets with caller-defined purposes ([#706](https://github.com/MetaMask/accounts/pull/706))
+
+### Changed
+
+- Bump `@metamask/key-derivation-purposes` from `^0.0.0` to `^0.1.0` ([#720](https://github.com/MetaMask/accounts/pull/720))
 
 ## [4.2.1]
 
@@ -162,7 +168,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release, extracted from `@metamask/keyring-api` ([#478](https://github.com/MetaMask/accounts/pull/478), [#482](https://github.com/MetaMask/accounts/pull/482))
 
-[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@4.2.1...HEAD
+[Unreleased]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@4.3.0...HEAD
+[4.3.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@4.2.1...@metamask/keyring-sdk@4.3.0
 [4.2.1]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@4.2.0...@metamask/keyring-sdk@4.2.1
 [4.2.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@4.1.0...@metamask/keyring-sdk@4.2.0
 [4.1.0]: https://github.com/MetaMask/accounts/compare/@metamask/keyring-sdk@4.0.0...@metamask/keyring-sdk@4.1.0

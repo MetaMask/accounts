@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Bump `@metamask/keyring-sdk` from `^4.2.1` to `^4.3.0` ([#720](https://github.com/MetaMask/accounts/pull/720))
+
 ### Fixed
 
 - Reject children paths that do not contain exactly one `*` wildcard, instead of partially substituting them ([#721](https://github.com/MetaMask/accounts/pull/721))
