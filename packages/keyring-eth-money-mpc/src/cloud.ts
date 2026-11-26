@@ -412,10 +412,9 @@ export async function checkKeyShare(opts: {
   token: string;
 }): Promise<CheckKeyShareResult> {
   return readStruct(
-    await postJson(
+    await getJson(
       `${opts.baseURL}/check-key-share`,
       opts.token,
-      {},
       'Failed to check key share',
     ),
     CheckKeyShareResponseStruct,

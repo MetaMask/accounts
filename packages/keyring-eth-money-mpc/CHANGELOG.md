@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Call `check-key-share` with `GET` instead of `POST`
+  - Requires an MPC backend that serves `GET /v1/check-key-share`.
+
 ### Removed
 
 - **BREAKING:** Remove the `isMfaRequired` option, so the backend alone decides whether a signature requires MFA ([#703](https://github.com/MetaMask/accounts/pull/703))

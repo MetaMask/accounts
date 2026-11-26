@@ -452,6 +452,14 @@ describe('cloud helpers', () => {
       latestBackupEpoch: 2,
       activeEpoch: 1,
     });
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'https://cloud.example/check-key-share',
+      expect.objectContaining({
+        method: 'GET',
+        headers: { Authorization: 'Bearer token-1' },
+      }),
+    );
   });
 
   it('rejects key share epoch metadata with the wrong shape', async () => {
