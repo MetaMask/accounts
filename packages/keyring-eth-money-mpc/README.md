@@ -20,7 +20,7 @@ Money keyring's `getMnemonic` callback, without an entropy-source argument.
 
 The keyring derives the backup encryption key using `KeyRoot.fromMnemonic` and
 `root.deriveSecret` with length `32`, index `0`, and the shared registry constant
-`MONEY_ACCOUNT_MPC_DEVICE_SHARE_WRAPPING_KEY_PURPOSE`
+`Purpose.MoneyAccountMpcDeviceShareWrappingKey`
 (`metamask:money-account:mpc:device-share:wrapping-key:v1`), using the SDK's MetaMask-specific
 BIP-85 root profile independently of share
 epochs. Recovery requires the same primary mnemonic. Backups encrypted using the
