@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `@metamask/keyring-sdk` from `^4.2.1` to `^4.3.0` ([#720](https://github.com/MetaMask/accounts/pull/720))
-- Bump `@keystonehq/bc-ur-registry-eth` from `^0.19.1` to `^0.23.2` ([#TODO](https://github.com/MetaMask/accounts/pull/TODO))
+- Bump `@keystonehq/bc-ur-registry-eth` from `^0.19.1` to `^0.23.2` ([#715](https://github.com/MetaMask/accounts/pull/715))
 
 ## [3.0.2]
 
