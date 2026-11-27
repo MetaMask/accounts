@@ -59,6 +59,13 @@ export type Cl24Lib = ConstructorParameters<typeof CL24DKM>[0];
 export type Dkls23Lib = ConstructorParameters<typeof Dkls23TssLib>[0];
 
 export type MpcMoneyKeyringOpts = {
+  /**
+   * Whether the client can provide a 2FA profile token.
+   *
+   * When `false`, the keyring is read-only: `setup` only fetches the account
+   * address from the backend, and signing and share maintenance throw.
+   */
+  isMfaAvailable: boolean;
   cl24Lib: Cl24Lib;
   dkls23Lib: Dkls23Lib;
   cloudURL: string;
@@ -90,6 +97,14 @@ export type MpcMoneyKeyringInitializedState = {
   status: 'initialized';
 } & MpcMoneyKeyringState;
 
+/**
+ * Keyring state that knows the account address but holds no key share.
+ */
+export type MpcMoneyKeyringAddressOnlyState = {
+  status: 'address-only';
+  address: Hex;
+};
+
 export type MpcMoneyKeyringSerializer = {
   thresholdKey: JsonSerializer<CL24ThresholdKey>;
   networkIdentity: JsonSerializer<CentrifugeIdentity>;
@@ -101,10 +116,17 @@ export type MpcMoneyKeyringSerializer = {
  */
 export type MpcMoneyKeyring = EthKeyring & {
   /**
-   * Run key generation or import.
+   * Whether the keyring was constructed without MFA. A read-only keyring
+   * exposes the account address but cannot sign.
+   */
+  readonly isReadOnly: boolean;
+
+  /**
+   * Run key generation or import, or only fetch the account address when the
+   * keyring is read-only.
    *
-   * The mode is inferred from the backend: import when a key share or
-   * backup exists for the profile, create otherwise.
+   * The mode is inferred from the backend: import when an active key exists
+   * for the profile, create otherwise.
    */
   setup(): Promise<void>;
 

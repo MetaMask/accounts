@@ -32,6 +32,7 @@ const EXPECTED_METHODS = MPC_MONEY_KEYRING_METHODS;
  */
 type MockMpcMoneyKeyringV1 = {
   type: string;
+  isReadOnly: boolean;
   getAccounts: jest.Mock;
   setup: jest.Mock;
   serialize: jest.Mock;
@@ -55,6 +56,7 @@ type MockMpcMoneyKeyringV1 = {
 function createInner(): MockMpcMoneyKeyringV1 {
   return {
     type: 'MPC Money Keyring',
+    isReadOnly: false,
     getAccounts: jest.fn().mockResolvedValue([] as Hex[]),
     setup: jest.fn().mockResolvedValue(undefined),
     serialize: jest.fn().mockResolvedValue({}),
@@ -75,17 +77,21 @@ function createInner(): MockMpcMoneyKeyringV1 {
  *
  * @param args - Setup arguments.
  * @param args.accounts - The addresses reported by the inner keyring.
+ * @param args.isReadOnly - Whether the inner keyring is read-only.
  * @returns The wrapper and the mocked inner keyring.
  */
 function setup({
   accounts = [] as Hex[],
+  isReadOnly = false,
 }: {
   accounts?: Hex[];
+  isReadOnly?: boolean;
 } = {}): {
   wrapper: MpcMoneyKeyring;
   inner: MockMpcMoneyKeyringV1;
 } {
   const inner = createInner();
+  inner.isReadOnly = isReadOnly;
   inner.getAccounts.mockResolvedValue(accounts);
 
   const wrapper = new MpcMoneyKeyring({
@@ -180,6 +186,15 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
       expect(account?.options.exportable).toBe(false);
     });
 
+    it('returns the account without methods when the inner keyring is read-only', async () => {
+      const { wrapper } = setup({ accounts: [MOCK_ADDRESS], isReadOnly: true });
+
+      const [account] = await wrapper.getAccounts();
+
+      expect(account?.address).toBe(MOCK_ADDRESS);
+      expect(account?.methods).toStrictEqual([]);
+    });
+
     it('returns the same account on repeated calls', async () => {
       const { wrapper, inner } = setup({ accounts: [MOCK_ADDRESS] });
 
@@ -203,9 +218,9 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
   describe('createAccounts', () => {
     it('runs setup via the inner keyring', async () => {
       const { wrapper, inner } = setup();
-      inner.getAccounts
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([MOCK_ADDRESS]);
+      inner.setup.mockImplementation(async () => {
+        inner.getAccounts.mockResolvedValue([MOCK_ADDRESS]);
+      });
 
       const accounts = await wrapper.createAccounts({ type: 'custom' });
 
@@ -214,14 +229,34 @@ describe('MpcMoneyKeyring (v2 wrapper)', () => {
       expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
     });
 
-    it('is idempotent when the account already exists', async () => {
+    it('runs setup and returns the same account when it already exists', async () => {
       const { wrapper, inner } = setup({ accounts: [MOCK_ADDRESS] });
+      const [existing] = await wrapper.getAccounts();
 
       const accounts = await wrapper.createAccounts({ type: 'custom' });
 
-      expect(inner.setup).not.toHaveBeenCalled();
-      expect(accounts).toHaveLength(1);
-      expect(accounts[0]?.address).toBe(MOCK_ADDRESS);
+      expect(inner.setup).toHaveBeenCalledTimes(1);
+      expect(accounts).toStrictEqual([existing]);
+    });
+
+    it('rejects signing requests when the inner keyring is read-only', async () => {
+      const { wrapper, inner } = setup({
+        accounts: [MOCK_ADDRESS],
+        isReadOnly: true,
+      });
+      const [account] = await wrapper.getAccounts();
+      const accountId = account?.id ?? ('' as AccountId);
+
+      await expect(
+        wrapper.submitRequest(
+          createMockRequest(accountId, EthMethod.PersonalSign, [
+            '0x68656c6c6f',
+          ]),
+        ),
+      ).rejects.toThrow(
+        `Account ${accountId} cannot handle method: ${EthMethod.PersonalSign}`,
+      );
+      expect(inner.signPersonalMessage).not.toHaveBeenCalled();
     });
 
     it('throws when the inner keyring does not produce an account', async () => {

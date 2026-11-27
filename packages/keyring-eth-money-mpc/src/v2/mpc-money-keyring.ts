@@ -107,7 +107,7 @@ export class MpcMoneyKeyring
       type: EthAccountType.Eoa,
       address,
       scopes: [...this.capabilities.scopes],
-      methods: [...MPC_MONEY_KEYRING_METHODS],
+      methods: this.inner.isReadOnly ? [] : [...MPC_MONEY_KEYRING_METHODS],
       options: {
         entropy: {
           type: KeyringAccountEntropyTypeOption.Mpc,
@@ -138,6 +138,9 @@ export class MpcMoneyKeyring
   /**
    * Create the account according to the provided options.
    *
+   * Always runs the inner `setup`, which is a no-op once the keyring is set
+   * up, so that a keyring holding only an address can load its key share.
+   *
    * @param options - Options describing how to create the account.
    * @returns A promise that resolves to a list containing the created
    * account.
@@ -152,11 +155,6 @@ export class MpcMoneyKeyring
             options.type,
           )}`,
         );
-      }
-
-      const accounts = await this.getAccounts();
-      if (accounts.length > 0) {
-        return accounts;
       }
 
       await this.inner.setup();

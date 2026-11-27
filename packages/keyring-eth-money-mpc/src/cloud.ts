@@ -11,7 +11,7 @@ import {
   string,
   type,
 } from '@metamask/superstruct';
-import { base64ToBytes, bytesToBase64 } from '@metamask/utils';
+import { base64ToBytes, bytesToBase64, StrictHexStruct } from '@metamask/utils';
 
 import { MFA_REQUIRED_CODE } from './types.js';
 import type { MoneyAccountSignatureRequest } from './types.js';
@@ -31,6 +31,11 @@ const CheckKeyShareResponseStruct = type({
   latestShareEpoch: exactOptional(shareEpochStruct),
   latestBackupEpoch: exactOptional(shareEpochStruct),
   activeEpoch: exactOptional(shareEpochStruct),
+  /**
+   * Public key of the latest share: the pending share when one exists,
+   * otherwise the active share.
+   */
+  publicKey: exactOptional(StrictHexStruct),
 });
 
 export type CheckKeyShareResult = Infer<typeof CheckKeyShareResponseStruct>;
@@ -400,7 +405,8 @@ export async function storeKeyShareBackup(opts: {
 }
 
 /**
- * Return the latest share/backup epochs and the active epoch from the backend.
+ * Return the latest share/backup epochs, the active epoch, and the latest
+ * share public key from the backend.
  *
  * @param opts - Request options.
  * @param opts.baseURL - MPC backend base URL.

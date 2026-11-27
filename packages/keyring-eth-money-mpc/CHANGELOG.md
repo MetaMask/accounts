@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add a read-only mode for clients without MFA ([#722](https://github.com/MetaMask/accounts/pull/722))
+  - With `isMfaAvailable: false`, `setup` reads the address of the active key from `check-key-share` with a profile token without 2FA, and stores only the address.
+  - Signing, `rotateKeyShares`, `checkKeyShare` and `syncKeyShare` throw before any network call.
+  - A read-only keyring keeps a full persisted state, but does not sign with it.
+  - A read/write keyring that loads an address-only state imports the key share on `setup`, and throws if the imported address differs.
+  - The V2 `MpcMoneyKeyring` returns read-only accounts without methods.
+  - Add `isReadOnly` to the `MpcMoneyKeyring` contract.
+  - `CheckKeyShareResult` includes the optional `publicKey` of the latest share.
+
+### Changed
+
+- **BREAKING:** Require the `isMfaAvailable` constructor option ([#722](https://github.com/MetaMask/accounts/pull/722))
+  - Pass `true` to keep the current behavior.
+- The V2 `createAccounts` always runs the inner `setup`, which is a no-op once the keyring is set up ([#722](https://github.com/MetaMask/accounts/pull/722))
+
 ## [0.4.0]
 
 ### Changed

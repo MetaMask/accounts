@@ -34,6 +34,7 @@ import {
 } from '@metamask/superstruct';
 import {
   bytesToHex,
+  HexAddressStruct,
   hexToBytes,
   JsonStruct,
   stringToBytes,
@@ -56,6 +57,7 @@ import { MFA_REQUIRED_CODE } from './types.js';
 import type {
   MoneyAccountSignatureRequest,
   MpcMoneyKeyring as MpcMoneyKeyringContract,
+  MpcMoneyKeyringAddressOnlyState,
   MpcMoneyKeyringInitializedState,
   MpcMoneyKeyringOpts,
   MpcMoneyKeyringSerializer,
@@ -90,6 +92,10 @@ const InitializedStorageStruct = type({
   serverNetId: nonempty(string()),
   shareEpoch: min(integer(), 1),
   tssSetup: nullable(string()),
+});
+
+const AddressOnlyStorageStruct = type({
+  address: HexAddressStruct,
 });
 
 /**
@@ -184,13 +190,15 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
 
   readonly type: string = mpcMoneyKeyringType;
 
+  readonly isReadOnly: boolean;
+
   readonly #networkManager: CentrifugeNetworkManager;
 
   readonly #tss: Dkls23TssLib;
 
   readonly #dkm: CL24DKM;
 
-  #state?: MpcMoneyKeyringInitializedState;
+  #state?: MpcMoneyKeyringInitializedState | MpcMoneyKeyringAddressOnlyState;
 
   readonly #cloudURL: string;
 
@@ -211,6 +219,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    * @param opts - TSS libraries, backend URLs, and token callbacks.
    */
   constructor(opts: MpcMoneyKeyringOpts) {
+    this.isReadOnly = !opts.isMfaAvailable;
     this.#dkm = new CL24DKM(opts.cl24Lib);
     this.#tss = new Dkls23TssLib(opts.dkls23Lib);
     this.#cloudURL = opts.cloudURL;
@@ -237,6 +246,10 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   async serialize(): Promise<Json> {
     if (!this.#state) {
       return {};
+    }
+
+    if (this.#state.status === 'address-only') {
+      return { address: this.#state.address };
     }
 
     const { netCreds, keyShare, serverNetId, shareEpoch, tssSetup } =
@@ -277,12 +290,24 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     if (hasInitializedFields(state)) {
       throw new Error('Invalid state');
     }
+
+    if (is(state, AddressOnlyStorageStruct)) {
+      this.#state = { status: 'address-only', address: state.address };
+      return;
+    }
+
+    if ('address' in state) {
+      throw new Error('Invalid state');
+    }
   }
 
   /**
    * Run key generation or import, inferring the mode from the backend:
    * import when an active epoch exists for the profile, create otherwise.
    * A pending share or backup is replaced by create.
+   *
+   * A read-only keyring only fetches the account address. A read/write keyring
+   * that holds only an address imports the share for that address.
    *
    * Serialized with sign, rotate and sync so overlapping `setup` calls run
    * setup once: the second call waits, sees the initialized state and returns.
@@ -296,16 +321,49 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    */
   async setup(): Promise<void> {
     return this.#serializeOp(async () => {
+      if (this.isReadOnly) {
+        if (!this.#state) {
+          await this.#setupAddressOnly();
+        }
+        return;
+      }
+
       if (this.#state?.status === 'initialized') {
         return;
       }
 
-      if (await this.#hasBackendKeyState()) {
+      if (this.#state?.status === 'address-only') {
+        await this.#setupImport(this.#state.address);
+      } else if (await this.#hasBackendKeyState()) {
         await this.#setupImport();
       } else {
         await this.#setupCreate();
       }
     });
+  }
+
+  /**
+   * Fetch the address of the active key without loading a key share.
+   *
+   * The backend reports the public key of the latest share, which may be
+   * pending. A pending share without an active epoch comes from an unfinished
+   * create that a later create replaces, so the address is only trusted when
+   * an active epoch exists. A pending rotation keeps the public key.
+   */
+  async #setupAddressOnly(): Promise<void> {
+    const token = await this.#getProfileToken();
+    const { activeEpoch, publicKey } = await checkKeyShareRemote({
+      baseURL: this.#cloudURL,
+      token,
+    });
+    if (activeEpoch === undefined || publicKey === undefined) {
+      throw new Error('MpcMoneyKeyring: no MPC key for this profile');
+    }
+
+    this.#state = {
+      status: 'address-only',
+      address: publicKeyToAddressHex(hexToBytes(publicKey)),
+    };
   }
 
   /**
@@ -476,11 +534,15 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
    * @returns The addresses of all accounts in the keyring.
    */
   async getAccounts(): Promise<Hex[]> {
-    if (!this.#state || this.#state.status !== 'initialized') {
+    if (!this.#state) {
       return [];
     }
 
-    return [this.#address()];
+    if (this.#state.status === 'address-only') {
+      return [this.#state.address];
+    }
+
+    return [publicKeyToAddressHex(this.#state.keyShare.publicKey)];
   }
 
   /**
@@ -655,7 +717,13 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
     });
   }
 
-  async #setupImport(): Promise<void> {
+  /**
+   * Import the active share from the backend backup.
+   *
+   * @param expectedAddress - Address the imported share must match, when the
+   * keyring already exposes an account.
+   */
+  async #setupImport(expectedAddress?: Hex): Promise<void> {
     const token = await this.#getProfileToken({ twoFactor: true });
     const netCreds = await this.#networkManager.createIdentity();
     const serverNetId = await getNetId({
@@ -668,6 +736,15 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       token,
     });
     const keyShare = await this.#decryptKeyShare(loaded.encryptedKeyShare);
+
+    if (expectedAddress !== undefined) {
+      const importedAddress = publicKeyToAddressHex(keyShare.publicKey);
+      if (!equalAddresses(importedAddress, expectedAddress)) {
+        throw new Error(
+          `MpcMoneyKeyring: imported key share address ${importedAddress} does not match ${expectedAddress}`,
+        );
+      }
+    }
 
     await registerClient({
       baseURL: this.#cloudURL,
@@ -694,7 +771,7 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
       const { keyShare, netCreds, serverNetId, shareEpoch } = state;
       let { tssSetup } = state;
 
-      const addr = this.#address();
+      const addr = publicKeyToAddressHex(keyShare.publicKey);
       if (!equalAddresses(address, addr)) {
         throw new Error(`account ${address} not found`);
       }
@@ -893,13 +970,15 @@ export class MpcMoneyKeyring implements MpcMoneyKeyringContract {
   }
 
   #assertState(): MpcMoneyKeyringState {
-    if (!this.#state || this.#state.status !== 'initialized') {
+    if (this.isReadOnly) {
+      throw new Error('MpcMoneyKeyring: read-only, MFA is not available');
+    }
+    if (!this.#state) {
       throw new Error('Keyring not initialized');
     }
+    if (this.#state.status === 'address-only') {
+      throw new Error('MpcMoneyKeyring: no key share, run setup first');
+    }
     return this.#state;
-  }
-
-  #address(): Hex {
-    return publicKeyToAddressHex(this.#assertState().keyShare.publicKey);
   }
 }
