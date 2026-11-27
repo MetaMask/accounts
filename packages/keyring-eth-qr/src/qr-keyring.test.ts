@@ -1,4 +1,10 @@
-import { CryptoAccount, ETHSignature } from '@keystonehq/bc-ur-registry-eth';
+import {
+  CryptoAccount,
+  CryptoHDKey,
+  CryptoKeypath,
+  ETHSignature,
+  PathComponent,
+} from '@keystonehq/bc-ur-registry-eth';
 import { MetaMaskKeyring as KeystoneKeyring } from '@keystonehq/metamask-airgapped-keyring';
 import { add0x } from '@metamask/utils';
 import type { Hex } from '@metamask/utils';
@@ -13,6 +19,7 @@ import {
   HDKEY_SERIALIZED_KEYRING_WITH_ACCOUNTS,
   HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
   KNOWN_CRYPTO_ACCOUNT_UR,
+  KNOWN_HDKEY,
   KNOWN_HDKEY_CBOR,
   KNOWN_HDKEY_UR,
   LEGACY_TRANSACTION,
@@ -133,6 +140,29 @@ describe('QrKeyring', () => {
               ur: faultyUR,
             }),
         ).toThrow('No output descriptors found in CryptoAccount');
+      });
+
+      it('throws an error if the UR of type `crypto-hdkey` has multiple wildcards in its children path', () => {
+        const hdKey = new CryptoHDKey({
+          isMaster: false,
+          key: KNOWN_HDKEY.getKey(),
+          chainCode: KNOWN_HDKEY.getChainCode(),
+          origin: KNOWN_HDKEY.getOrigin(),
+          children: new CryptoKeypath([
+            new PathComponent({ hardened: false }),
+            new PathComponent({ hardened: false }),
+          ]),
+        });
+
+        expect(
+          () =>
+            new QrKeyring({
+              bridge: getMockBridge(),
+              ur: hdKey.toUREncoder(2000).nextPart(),
+            }),
+        ).toThrow(
+          'Invalid children path "*/*": expected exactly one "*" wildcard.',
+        );
       });
 
       it('throws an error if the UR is not of type `crypto-hdkey` or `crypto-account`', () => {
@@ -291,6 +321,38 @@ describe('QrKeyring', () => {
         expect(accounts).toHaveLength(3);
         expect(accounts).toStrictEqual(
           EXPECTED_ACCOUNTS.slice(0, numberOfAccountsToAdd),
+        );
+      });
+    });
+
+    describe.each([
+      ['no wildcard', '0/0'],
+      ['multiple wildcards', '*/*'],
+      ['multiple wildcards among segments', '0/*/*'],
+    ])('when the children path has %s', (_description, childrenPath) => {
+      const expectedError = `Invalid children path "${childrenPath}": expected exactly one "*" wildcard.`;
+
+      it('throws when deriving an account', async () => {
+        const keyring = new QrKeyring({ bridge: getMockBridge() });
+        await keyring.deserialize({
+          ...HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
+          childrenPath,
+        });
+
+        await expect(keyring.addAccounts(1)).rejects.toThrow(expectedError);
+      });
+
+      it('throws when getting the path of a previously indexed address', async () => {
+        const [address] = EXPECTED_ACCOUNTS;
+        const keyring = new QrKeyring({ bridge: getMockBridge() });
+        await keyring.deserialize({
+          ...HDKEY_SERIALIZED_KEYRING_WITH_NO_ACCOUNTS,
+          childrenPath,
+          indexes: { [address as Hex]: 0 },
+        });
+
+        expect(() => keyring.getPathFromAddress(address as Hex)).toThrow(
+          expectedError,
         );
       });
     });

@@ -36,6 +36,28 @@ export enum DeviceMode {
 
 const DEFAULT_CHILDREN_PATH = '0/*';
 
+/**
+ * Resolve a children path template by substituting its wildcard with an index.
+ *
+ * The children path comes from the paired device, and must contain exactly one
+ * `*` wildcard (e.g. `0/*`). Any other shape is rejected rather than being
+ * partially substituted.
+ *
+ * @param childrenPath - The children path template.
+ * @param index - The index to substitute for the wildcard.
+ * @returns The children path with the wildcard replaced by the index.
+ * @throws If the children path does not contain exactly one `*`.
+ */
+function resolveChildrenPath(childrenPath: string, index: number): string {
+  const segments = childrenPath.split('*');
+  if (segments.length !== 2) {
+    throw new Error(
+      `Invalid children path "${childrenPath}": expected exactly one "*" wildcard.`,
+    );
+  }
+  return segments.join(index.toString());
+}
+
 const MAX_INDEX = 1_000;
 
 /**
@@ -233,9 +255,9 @@ export class Device {
       }
       return add0x(address);
     }
-    const childPath = `m/${this.#pairedDevice.childrenPath.replace(
-      '*',
-      index.toString(),
+    const childPath = `m/${resolveChildrenPath(
+      this.#pairedDevice.childrenPath,
+      index,
     )}`;
 
     const hdKey = HdKey.fromExtendedKey(this.#pairedDevice.xpub);
@@ -283,9 +305,10 @@ export class Device {
       }
     }
 
-    return `${this.#pairedDevice.hdPath}/${this.#pairedDevice.childrenPath
-      .replace('*', index.toString())
-      .replace(/\*/gu, '0')}`;
+    return `${this.#pairedDevice.hdPath}/${resolveChildrenPath(
+      this.#pairedDevice.childrenPath,
+      index,
+    )}`;
   }
 
   /**
@@ -480,13 +503,16 @@ export class Device {
     }
 
     const { getBip32Key, getOrigin, getChildren, getName, getNote } = source;
+    const childrenPath = getChildren()?.getPath() || DEFAULT_CHILDREN_PATH;
+    // Fail early when pairing, rather than when first deriving an account.
+    resolveChildrenPath(childrenPath, 0);
     return {
       keyringMode: DeviceMode.HD,
       keyringAccount: getNote(),
       name: getName(),
       xfp: fingerprint,
       hdPath: `m/${getOrigin().getPath()}`,
-      childrenPath: getChildren()?.getPath() || DEFAULT_CHILDREN_PATH,
+      childrenPath,
       xpub: getBip32Key(),
       indexes: {},
     };
