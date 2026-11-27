@@ -619,7 +619,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethereumjs/util@npm:9.1.0, @ethereumjs/util@npm:^9.0.1, @ethereumjs/util@npm:^9.1.0":
+"@ethereumjs/util@npm:9.1.0, @ethereumjs/util@npm:^9.0.1, @ethereumjs/util@npm:^9.0.3, @ethereumjs/util@npm:^9.1.0":
   version: 9.1.0
   resolution: "@ethereumjs/util@npm:9.1.0"
   dependencies:
@@ -1339,6 +1339,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@keystonehq/bc-ur-registry-eth@npm:^0.23.2":
+  version: 0.23.2
+  resolution: "@keystonehq/bc-ur-registry-eth@npm:0.23.2"
+  dependencies:
+    "@ethereumjs/util": "npm:^9.0.3"
+    "@keystonehq/bc-ur-registry": "npm:^0.7.0"
+    hdkey: "npm:^2.0.1"
+    uuid: "npm:^8.3.2"
+  checksum: 10/35e7ba1e8cd44ac925f1f0ce062e3bbb8090b4e958b7f5cfc23c805137fcc91439c618e01b7286e750f0f153fc00089833d5debd0bbd6872204da42334f11a0e
+  languageName: node
+  linkType: hard
+
 "@keystonehq/bc-ur-registry@npm:^0.6.0":
   version: 0.6.4
   resolution: "@keystonehq/bc-ur-registry@npm:0.6.4"
@@ -1347,6 +1359,17 @@ __metadata:
     bs58check: "npm:^2.1.2"
     tslib: "npm:^2.3.0"
   checksum: 10/d4cdbefc14f3305543340d509564e1a795eb458327d46aad8665927999150df7e282939dcb714b81fea386061019e3b9f41eedbbb09a59d404355711c33159b2
+  languageName: node
+  linkType: hard
+
+"@keystonehq/bc-ur-registry@npm:^0.7.0":
+  version: 0.7.1
+  resolution: "@keystonehq/bc-ur-registry@npm:0.7.1"
+  dependencies:
+    "@ngraveio/bc-ur": "npm:^1.1.5"
+    bs58check: "npm:^2.1.2"
+    tslib: "npm:^2.3.0"
+  checksum: 10/6dd2a86ef83d385af93c1064097669baf06965cb051a123731109699eefc512ddf446a622c29e2afd3e559a5e5f98f1e7373e66179e7e027363111b450bc28f7
   languageName: node
   linkType: hard
 
@@ -2066,7 +2089,7 @@ __metadata:
     "@ethereumjs/rlp": "npm:^5.0.2"
     "@ethereumjs/tx": "npm:^5.4.0"
     "@ethereumjs/util": "npm:^9.1.0"
-    "@keystonehq/bc-ur-registry-eth": "npm:^0.19.1"
+    "@keystonehq/bc-ur-registry-eth": "npm:^0.23.2"
     "@keystonehq/metamask-airgapped-keyring": "npm:^0.15.2"
     "@lavamoat/allow-scripts": "npm:^5.1.0"
     "@lavamoat/preinstall-always-fail": "npm:^3.0.1"

@@ -72,7 +72,7 @@
     "@ethereumjs/rlp": "^5.0.2",
     "@ethereumjs/tx": "^5.4.0",
     "@ethereumjs/util": "^9.1.0",
-    "@keystonehq/bc-ur-registry-eth": "^0.19.1",
+    "@keystonehq/bc-ur-registry-eth": "^0.23.2",
     "@metamask/eth-sig-util": "^10.0.0",
     "@metamask/keyring-api": "^24.3.0",
     "@metamask/keyring-sdk": "^4.3.0",
